@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MHP100 – Reporte PPA</title>
+  <style>
+    :root{
+      --text:#111;
+      --muted:#666;
+      --line:#e6e6e6;
+      --bg:#fff;
+      --accent:#0f7a3a;
+      --warn:#c97a00;
+      --bad:#b00020;
+    }
+    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+    .wrap{max-width:980px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:64px 1fr;gap:16px;}
+    .side{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:44px;letter-spacing:2px;color:#f0c24b;opacity:.9;user-select:none;}
+    h1{margin:0 0 8px 0;font-size:28px;}
+    .card{border:1px solid var(--line);border-radius:10px;padding:14px 14px;margin:12px 0;}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    label{font-weight:700;font-size:14px;margin-bottom:4px;display:block;}
+    input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px;}
+    button{cursor:pointer;border:0;border-radius:999px;background:var(--accent);color:#fff;font-weight:800;padding:10px 18px;font-size:16px;}
+    button:disabled{opacity:.6;cursor:not-allowed;}
+    .muted{color:var(--muted);}
+    .err{color:var(--bad);font-weight:700;}
+    .ok{color:var(--accent);font-weight:700;}
+    table{width:100%;border-collapse:collapse;font-size:15px;}
+    th,td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;}
+    th{text-align:left;font-weight:800;}
+    td:last-child, th:last-child{text-align:right;}
+    .bar{height:8px;background:#eee;border-radius:999px;overflow:hidden;}
+    .bar > div{height:100%;background:var(--accent);}
+    .pill{display:inline-block;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:800;color:#fff;}
+    .pill.green{background:var(--accent);}
+    .pill.orange{background:var(--warn);}
+    .pill.red{background:var(--bad);}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+    .metric{border:1px solid var(--line);border-radius:10px;padding:10px;}
+    .metric .v{font-size:22px;font-weight:900;}
+    .metric .k{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+    .foot{margin:18px 0 8px 0;color:var(--muted);font-size:12px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="side">MHP100</div>
+
+    <main>
+      <h1>MHP100 – Reporte PPA</h1>
+      <div class="card">
+        <div class="row">
+          <div>
+            <label for="codigo">Código</label>
+            <input id="codigo" placeholder="Ej. LEX001" autocomplete="off" style="text-transform:uppercase"/>
+          </div>
+          <div style="display:flex;align-items:end;gap:8px;">
+            <button id="btnBuscar">Ver reporte</button>
+            <span id="estadoCodigo" class="muted"></span>
+          </div>
+        </div>
+        <div id="msg" style="margin-top:8px;"></div>
+      </div>
+
+      <div id="panel" style="display:none;">
+        <div class="card" id="cardSnap">
+          <div class="row">
+            <div><b>Institución:</b> <span id="snapInst"></span></div>
+            <div><b>Grupo:</b> <span id="snapGrupo"></span></div>
+            <div><b>Curso:</b> <span id="snapCurso"></span></div>
+            <div><b>Participante:</b> <span id="snapNombre"></span></div>
+            <div><b>Edad:</b> <span id="snapEdad"></span></div>
+            <div><b>Fecha intento:</b> <span id="snapFecha"></span></div>
+          </div>
+        </div>
+
+        <div class="card" id="cardNoPerm" style="display:none;">
+          <b>Evaluación registrada.</b>
+          <div class="muted" style="margin-top:6px;">
+            Tus respuestas han sido guardadas correctamente. Tus resultados serán compartidos por tu institución cuando corresponda.
+          </div>
+        </div>
+
+        <div class="card" id="cardReporte" style="display:none;">
+          <h3 style="margin:0 0 8px 0;">Resultados globales</h3>
+          <div class="grid3">
+            <div class="metric">
+              <div class="k">IIE (Inteligencia emocional)</div>
+              <div class="v"><span id="gIIE"></span>%</div>
+              <div id="gIIERango"></div>
+            </div>
+            <div class="metric">
+              <div class="k">IV1 (Consistencia)</div>
+              <div class="v" id="gIV1"></div>
+              <div class="muted" id="gIV1Txt"></div>
+            </div>
+            <div class="metric">
+              <div class="k">IV2 (Coherencia directas/invertidas)</div>
+              <div class="v" id="gIV2"></div>
+              <div class="muted" id="gIV2Txt"></div>
+            </div>
+          </div>
+
+          <div class="grid3" style="margin-top:8px;">
+            <div class="metric">
+              <div class="k">IV3 (Tiempo de respuesta)</div>
+              <div class="v" id="gIV3"></div>
+              <div class="muted" id="gIV3Txt"></div>
+            </div>
+            <div class="metric">
+              <div class="k">Intento #</div>
+              <div class="v" id="gIntento"></div>
+              <div class="muted">último registrado</div>
+            </div>
+            <div class="metric">
+              <div class="k">Versión banco</div>
+              <div class="v" style="font-size:16px;" id="gVersion"></div>
+              <div class="muted">&nbsp;</div>
+            </div>
+          </div>
+
+          <h3 style="margin:14px 0 8px 0;">Resultados por bloque</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Bloque</th>
+                <th>%</th>
+              </tr>
+            </thead>
+            <tbody id="tblBloques"></tbody>
+          </table>
+          <div class="foot">
+            Rangos: 1–40 Bajo, 41–70 Medio, 71–100 Alto.
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  function rangoPorcentaje(p){
+    if (p == null || isNaN(p)) return {label:"Sin datos", cls:"orange"};
+    if (p <= 40) return {label:"Bajo (1–40)", cls:"orange"};
+    if (p <= 70) return {label:"Medio (41–70)", cls:"green"};
+    return {label:"Alto (71–100)", cls:"green"};
+  }
+
+  function ivTxt(v){
+    if (v == null || isNaN(v)) return "Sin datos";
+    if (v === 0) return "Consistencia alta";
+    if (v === 1) return "Consistencia media";
+    return "Consistencia baja";
+  }
+
+  function iv3Txt(v){
+    if (v == null || isNaN(v)) return "Sin datos";
+    if (v === 0) return "Tiempo dentro de lo esperado";
+    if (v === 1) return "Tiempo atípico (muy rápido/lento)";
+    return "Tiempo excesivo";
+  }
+
+  async function cargarReporte(){
+    const codigo = $("codigo").value.trim().toUpperCase();
+    $("codigo").value = codigo;
+    $("msg").innerHTML = "";
+    $("estadoCodigo").textContent = "";
+    $("panel").style.display = "none";
+    $("cardNoPerm").style.display = "none";
+    $("cardReporte").style.display = "none";
+
+    if (!codigo){
+      $("msg").innerHTML = '<div class="err">Ingresa un código.</div>';
+      return;
+    }
+
+    $("estadoCodigo").textContent = "Buscando...";
+    try{
+      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const data = await r.json();
+      if (!r.ok){
+        $("estadoCodigo").textContent = "";
+        $("msg").innerHTML = `<div class="err">${data.error || "Error al consultar."}</div>`;
+        return;
+      }
+
+      const p = data.participant;
+      const a = data.attempt;
+
+      $("panel").style.display = "block";
+      $("estadoCodigo").textContent = "Código válido.";
+      $("estadoCodigo").className = "ok";
+
+      // Snapshot
+      $("snapInst").textContent = a?.institucion || p?.institucion || "";
+      $("snapGrupo").textContent = a?.grupo || p?.grupo || "";
+      $("snapCurso").textContent = a?.curso || p?.curso || "";
+      $("snapNombre").textContent = a?.nombre || p?.nombre || "";
+      $("snapEdad").textContent = (a?.edad_anios ?? p?.edad_anios ?? "");
+      $("snapFecha").textContent = a?.created_at ? new Date(a.created_at).toLocaleString() : "—";
+
+      if (!a){
+        $("msg").innerHTML = '<div class="err">No hay intentos registrados para este código.</div>';
+        return;
+      }
+
+      if (!p?.puede_ver_resultado){
+        $("cardNoPerm").style.display = "block";
+        return;
+      }
+
+      // Globales
+      const iie = a.iie ?? 0;
+      $("gIIE").textContent = iie;
+      const rIIE = rangoPorcentaje(iie);
+      $("gIIERango").innerHTML = `<span class="pill ${rIIE.cls}">${rIIE.label}</span>`;
+
+      $("gIV1").textContent = (a.iv1 ?? "—");
+      $("gIV2").textContent = (a.iv2 ?? "—");
+      $("gIV3").textContent = (a.iv3 ?? "—");
+      $("gIV1Txt").textContent = ivTxt(a.iv1);
+      $("gIV2Txt").textContent = ivTxt(a.iv2);
+      $("gIV3Txt").textContent = iv3Txt(a.iv3);
+
+      $("gIntento").textContent = a.id ?? "—";
+      $("gVersion").textContent = a.version_banco ?? "—";
+
+      const bloques = [
+        ["Habilidades intrapersonales", a.b_intra],
+        ["Habilidades interpersonales", a.b_inter],
+        ["Habilidades para la vida", a.b_pv],
+        ["Estilos de comunicación interpersonal", a.b_estilos],
+        ["Propensión al cambio", a.b_cambio],
+      ];
+
+      const tbody = $("tblBloques");
+      tbody.innerHTML = "";
+      bloques.forEach(([label, val])=>{
+        const r = rangoPorcentaje(val);
+        const pct = (val ?? 0);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>
+            ${label}
+            <div class="bar" style="margin-top:6px;"><div style="width:${pct}%;"></div></div>
+          </td>
+          <td>
+            <div style="font-weight:900;">${val ?? "—"}%</div>
+            <span class="pill ${r.cls}">${r.label}</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      $("cardReporte").style.display = "block";
+
+    }catch(e){
+      console.error(e);
+      $("estadoCodigo").textContent = "";
+      $("msg").innerHTML = '<div class="err">Error de conexión. Intenta nuevamente.</div>';
+    }
+  }
+
+  $("btnBuscar").addEventListener("click", cargarReporte);
+  $("codigo").addEventListener("keydown", (e)=>{
+    if (e.key === "Enter") cargarReporte();
+  });
+</script>
+</body>
+</html>
