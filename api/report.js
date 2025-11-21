@@ -2,36 +2,43 @@ const { sql } = require("@vercel/postgres");
 
 module.exports = async function handler(req, res) {
   try {
-    let codigo = req.query.codigo;
-    if (!codigo) return res.status(400).json({ error: "Falta codigo" });
-
-    codigo = String(codigo).trim().toUpperCase();
-
-    const p = await sql`
-      SELECT codigo, institucion, grupo, curso, puede_ver_resultado
-      FROM participants
-      WHERE codigo = ${codigo}
-      LIMIT 1;
-    `;
-    if (!p.rows.length) {
-      return res.status(404).json({ error: "Código no encontrado" });
+    if (req.method !== "GET") {
+      return res.status(405).json({ error: "Solo GET" });
     }
 
-    const a = await sql`
+    const codigoRaw = (req.query.codigo || "").trim();
+    const codigo = codigoRaw.toUpperCase();
+    if (!codigo) return res.status(400).json({ valid: false, error: "Falta codigo" });
+
+    // participant lookup (case-insensitive)
+    const pRes = await sql`
+      SELECT *
+      FROM participants
+      WHERE UPPER(codigo)=UPPER(${codigo})
+      LIMIT 1
+    `;
+    if (!pRes.rows.length) {
+      return res.status(200).json({ valid: false });
+    }
+    const participant = pRes.rows[0];
+
+    const aRes = await sql`
       SELECT *
       FROM attempts
-      WHERE codigo = ${codigo}
+      WHERE UPPER(codigo)=UPPER(${codigo})
       ORDER BY created_at DESC
-      LIMIT 1;
+      LIMIT 1
     `;
+    const attempt = aRes.rows[0] || null;
 
     return res.status(200).json({
-      participant: p.rows[0],
-      attempt: a.rows[0] || null
+      valid: true,
+      participant,
+      attempt
     });
 
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Error interno" });
+  } catch (e) {
+    console.error("report error", e);
+    return res.status(500).json({ valid: false, error: "Error interno" });
   }
 };
