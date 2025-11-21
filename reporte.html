@@ -1,364 +1,1419 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>REP 2 MHP100 – Reporte PPA</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>rep CCCEvaluación PPA — MHP100</title>
 <style>
-  :root{
-    --bg:#fff;
-    --ink:#111827;
-    --muted:#6b7280;
-    --line:#e5e7eb;
-    --soft:#f7f7f7;
-    --accent:#16a34a;
-    --warn:#f59e0b;
-    --bad:#ef4444;
-  }
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);}
-  .wrap{max-width:980px;margin:0 auto;padding:24px 18px 60px;}
-  h1{margin:0 0 8px;font-size:28px;font-weight:800;letter-spacing:.3px;text-align:center;}
-  .muted{color:var(--muted);}
-  .card{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;}
-  .row{display:flex;gap:10px;align-items:center;}
-  input{font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;width:220px;}
-  button{border:0;border-radius:999px;padding:10px 18px;font-size:18px;font-weight:800;cursor:pointer;background:var(--accent);color:#fff;}
-  button:disabled{opacity:.6;cursor:not-allowed;}
-  .status-ok{color:#15803d;font-weight:700;margin-left:8px;}
-  .status-bad{color:#b91c1c;font-weight:700;margin-left:8px;}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-  .kv{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin:4px 0;}
-  .kv b{font-weight:800;}
-  .section-title{margin:14px 0 6px;font-size:14px;font-weight:900;letter-spacing:.4px;}
-  .section-title .right{float:right;font-weight:800;}
-  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:800;}
-  .badge.low{background:#fee2e2;color:#991b1b;}
-  .badge.mid{background:#fef3c7;color:#92400e;}
-  .badge.high{background:#dcfce7;color:#166534;}
-  .subrow{display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--line);padding:6px 0;font-size:14px;}
-  .subrow:first-child{border-top:0;}
-  .subname{max-width:70%;}
-  .pct{font-weight:900;font-size:15px;min-width:40px;text-align:right;}
-  /* IV table */
-  table.iv{width:100%;border-collapse:collapse;font-size:12px;}
-  table.iv th, table.iv td{border:1px solid #111;padding:6px;vertical-align:top;}
-  table.iv th{width:52px;text-align:center;background:#fafafa;}
-  table.iv td.sel{background:#111;color:#fff;font-weight:800;}
-  /* bars */
-  .barwrap{margin-top:8px;}
-  .bar{position:relative;height:16px;background:linear-gradient(90deg,var(--bad),var(--warn),var(--accent));border-radius:999px;overflow:hidden;}
-  .bar .marker{position:absolute;top:-4px;width:8px;height:24px;background:#111;border-radius:3px;transform:translateX(-50%);}
-  .barlabels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px;}
-  .bigline{margin-top:12px;font-weight:900;font-size:16px;border-top:1px solid var(--line);padding-top:10px;display:flex;justify-content:space-between;}
-  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-  .secondary{background:#f3f4f6;color:#111;font-weight:800;border-radius:8px;padding:8px 12px;font-size:14px;}
-  /* Left vertical title */
-  .left-rail{
-    position:fixed;left:0;top:0;bottom:0;width:64px;background:#fff4c7;
-    display:flex;justify-content:center;align-items:center;border-right:1px solid #f0e2a2;z-index:0;
-  }
-  .left-rail span{
-    writing-mode:vertical-rl;transform:rotate(180deg);
-    font-weight:900;font-size:48px;letter-spacing:2px;color:#d5a52b;opacity:.9;
-  }
-  @media (max-width:900px){
-    .left-rail{display:none;}
-    .wrap{padding-left:18px;}
-    .grid2,.grid3{grid-template-columns:1fr;}
-  }
+  html,body{background:#fff;color:#111;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;margin:0}
+  .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
+  h1{font-size:22px;margin:0 0 10px;font-weight:700}
+  h2{font-size:16px;margin:12px 0 8px;font-weight:700}
+  p{margin:6px 0;line-height:1.35}
+  .muted{color:#555}
+  .row{display:grid;gap:8px}
+  .row.linea1{grid-template-columns:2fr 1fr 1fr}
+  .row.linea2{grid-template-columns:2fr 1fr 1fr}
+  .field{display:flex;flex-direction:column;gap:4px}
+  label{font-size:12px;color:#333}
+  input[type="text"],input[type="number"]{border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:14px;width:100%}
+  hr{border:0;border-top:1px solid #eee;margin:14px 0}
+
+  .card{border:1px solid #e5e7eb;border-radius:10px;padding:12px;background:#fff}
+  ul,ol{margin:6px 0 6px 18px;padding:0} li{margin:4px 0}
+
+  .progress{width:100%;height:8px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:999px;overflow:hidden}
+  .bar{height:100%;width:0;background:#2563eb}
+  .pill{font-size:12px;background:#2563eb;color:#fff;padding:4px 8px;border-radius:999px}
+
+  .qhead,.question{display:grid;grid-template-columns:56px minmax(0,1fr) repeat(3,42px);align-items:center;gap:8px}
+  .qhead{font-size:12px;color:#374151;border-bottom:1px solid #eee;padding:6px 0;font-weight:600;position:sticky;top:0;background:#fff;z-index:5}
+  .question{border-bottom:1px dashed #eee;padding:8px 0}
+  .q-no{font-weight:600;color:#374151;margin-right:8px;min-width:40px;text-align:right;display:inline-block}
+  .q-text{white-space:normal;overflow-wrap:anywhere;text-align:justify;text-justify:inter-word;hyphens:auto;display:block}
+  .q-cell{display:flex;justify-content:center}
+  .opt{width:18px;height:18px;cursor:pointer}
+
+  .footer{position:sticky;bottom:0;background:#fff;border-top:1px solid #eee;padding:10px 12px;display:flex;gap:8px}
+  button{background:#2563eb;color:#fff;border:none;padding:8px 12px;border-radius:8px;font-weight:600;cursor:pointer}
+  button.secondary{background:#6b7280}
+
+  /* Resultados */
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:6px;border-bottom:1px solid #eee;font-size:13px}
+  th{text-align:left;color:#374151}
+  td.num{text-align:right}
+  .badge{padding:2px 8px;border-radius:999px;color:#fff;font-weight:700;font-size:12px;display:inline-block}
+  .b-bajo{background:#ef4444}
+  .b-med {background:#f59e0b}
+  .b-alto{background:#16a34a}
 </style>
 </head>
 <body>
-<div class="left-rail"><span>MHP100</span></div>
-
 <div class="wrap">
-  <h1>MHP100 – Reporte PPA</h1>
+  <h1>Evaluación PPA — MHP100</h1>
 
+  <!-- Datos (dos líneas) -->
+  <div class="row linea1" aria-label="Datos del evaluado (1)">
+    <div class="field"><label for="nombre">Nombre</label><input id="nombre" type="text" placeholder="Nombre y apellidos" autocomplete="name" /></div>
+    <div class="field"><label for="edad">Edad</label><input id="edad" type="number" inputmode="numeric" min="0" max="120" placeholder="Años" /></div>
+    <div class="field"><label for="curso">Curso</label><input id="curso" type="text" placeholder="Ej.: 3ro B" /></div>
+  </div>
+  <div class="row linea2" aria-label="Datos del evaluado (2)">
+    <div class="field"><label for="institucion">Institución</label><input id="institucion" type="text" placeholder="Nombre de la institución" /></div>
+    <div class="field"><label for="grupo">Grupo</label><input id="grupo" type="text" placeholder="Ej.: A / Equipo 1" /></div>
+    <div class="field"><label for="fecha">Fecha (automática)</label><input id="fecha" type="text" readonly /></div>
+  </div>
+
+  <hr />
+
+  <!-- Caja con texto de presentación e instrucciones -->
   <div class="card">
-    <div class="row">
-      <div>
-        <div style="font-weight:800;margin-bottom:4px">Código</div>
-        <input id="codigo" placeholder="LEX001" autocomplete="off"/>
-      </div>
-      <div style="padding-top:22px">
-        <button id="btnVer">Ver reporte</button>
-        <span id="estadoCodigo" class="muted"></span>
-      </div>
+    <h2 style="margin-top:0">Evaluación PPA</h2>
+    <p class="muted"><strong>Autoevaluación de Inteligencia Emocional</strong></p>
+    <p>El manejo efectivo de las emociones es un factor clave para lograr éxito.</p>
+    <p><strong>MHP 100</strong> es una herramienta que ha sido diseñada para que la persona adulta evalúe su nivel de desarrollo en ciertas habilidades emocionales clave.</p>
+    <p><strong>MHP</strong> o <em>Mapa de Habilidades Personales</em> identifica 12 habilidades emocionales y 2 áreas relacionadas con el estilo de comunicación interpersonal.</p>
+    <p>Al responder esta autoevaluación que consta de <strong>244 preguntas</strong>, es posible emitir un diagnóstico sobre el manejo de la inteligencia emocional en 4 áreas diferentes:</p>
+    <ul>
+      <li>Habilidades intrapersonales.</li>
+      <li>Habilidades interpersonales.</li>
+      <li>Habilidades para la Vida.</li>
+      <li>Estilo de Comunicación Interpersonal.</li>
+    </ul>
+    <h3 style="font-size:14px;margin:10px 0 6px">Instrucciones para llenar la autoevaluación</h3>
+    <ol>
+      <li>Lee con detenimiento cada enunciado.</li>
+      <li>Reflexiona.</li>
+      <li>Selecciona la casilla (solo una) que corresponda a la respuesta deseada de acuerdo a los criterios.</li>
+    </ol>
+    <p><strong>IMPORTANTE.</strong> Recuerda que una vez iniciada la evaluación no podrás retroceder a las páginas anteriores.</p>
+    <p><strong>1</strong> Casi siempre · <strong>2</strong> Algunas veces · <strong>3</strong> Rara vez</p>
+  </div>
+
+  <hr />
+
+  <!-- Progreso -->
+  <div class="progress" aria-label="Progreso">
+    <div class="bar" id="bar"></div>
+  </div>
+  <div style="margin:6px 0 10px; display:flex; justify-content:space-between;">
+    <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
+    <small id="metaInfo" class="muted"></small>
+  </div>
+
+  <!-- Encabezado columnas -->
+  <div class="qhead" role="row">
+    <div style="text-align:right;padding-right:4px">N°</div>
+    <div>Pregunta</div>
+    <div>Casi<br>siempre</div><div>Algunas<br>veces</div><div>Rara<br>vez</div>
+  </div>
+
+  <!-- Preguntas -->
+  <div id="questions"></div>
+
+  <!-- Acciones -->
+  <div class="footer">
+    <button id="btnCalcular">Calcular resultados</button>
+    <button id="btnReiniciar" class="secondary">Reiniciar respuestas</button>
+  </div>
+
+  <!-- Resultados -->
+<!-- ===== SKILL MAP REPORT ===== -->
+<section id="reporte" class="rep-skillmap page page-1" style="display:none;margin-top:12px">
+  <div class="rep-top" style="display:grid;grid-template-columns:2fr 1fr;gap:8px;align-items:start">
+    <div>
+      <div style="font-weight:800;font-size:18px">SKILL MAP — INTELIGENCIA EMOCIONAL</div>
+      <div id="repDateLine" class="muted" style="font-size:12px"></div>
     </div>
-    <div id="msgSinIntentos" class="status-bad" style="display:none;margin-top:8px">
-      No hay intentos registrados para este código.
+    <div style="text-align:right">
+      <img src="/assets/sellolexium.png" alt="Lexium" style="height:38px;display:block;margin-left:auto"/>
+      <img src="/assets/mhp100.jpg" alt="MHP 100" style="height:36px;display:block;margin:4px 0 0 auto"/>
+      <div style="font-weight:700;margin-top:2px">GRÁFICA INDIVIDUAL MHP</div>
     </div>
   </div>
 
-  <div id="panelDatos" class="card" style="margin-top:10px;display:none">
-    <div class="grid2">
-      <div>
-        <div class="kv"><span>Institución:</span><b id="dInst">—</b></div>
-        <div class="kv"><span>Curso:</span><b id="dCurso">—</b></div>
-        <div class="kv"><span>Edad:</span><b id="dEdad">—</b></div>
-      </div>
-      <div>
-        <div class="kv"><span>Grupo:</span><b id="dGrupo">—</b></div>
-        <div class="kv"><span>Participante:</span><b id="dNombre">—</b></div>
-        <div class="kv"><span>Fecha intento:</span><b id="dFecha">—</b></div>
-      </div>
+  <div class="rep-ids" id="repHeaderBox" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;border:1px solid #d1d5db;border-radius:8px;padding:6px;font-size:12px;margin-top:8px"></div>
+
+  <div class="rep-mid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+    <div class="curve">
+      <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
+      <svg id="freqCurve" viewBox="0 0 520 140" width="100%" height="140">
+        <defs>
+          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ef4444"/>
+            <stop offset="25%" stop-color="#f59e0b"/>
+            <stop offset="50%" stop-color="#22c55e"/>
+            <stop offset="75%" stop-color="#22c55e"/>
+            <stop offset="100%" stop-color="#38bdf8"/>
+          </linearGradient>
+        </defs>
+        <rect x="10" y="100" width="500" height="6" fill="url(#grad1)" />
+        <line x1="10" y1="92" x2="10" y2="114" stroke="#111"/><text x="10" y="130" font-size="12">1</text>
+        <line x1="205" y1="92" x2="205" y2="114" stroke="#111"/><text x="205" y="130" font-size="12" text-anchor="middle">40</text>
+        <line x1="355" y1="92" x2="355" y2="114" stroke="#111"/><text x="355" y="130" font-size="12" text-anchor="middle">70</text>
+        <line x1="510" y1="92" x2="510" y2="114" stroke="#111"/><text x="510" y="130" font-size="12" text-anchor="end">100</text>
+        <path d="M10 100 C 140 10, 380 10, 510 100" fill="none" stroke="#111" stroke-width="2"/>
+        <circle id="curveMarker" cx="260" cy="60" r="5" fill="#111"/>
+      </svg>
+    </div>
+
+    <div class="rep-iv">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <tr><th style="border:1px solid #111;padding:6px">IV1</th><td id="iv1a" style="border:1px solid #111;padding:6px">Se conoce o se compromete</td><td id="iv1b" style="border:1px solid #111;padding:6px">Se conoce o se compromete poco</td><td id="iv1c" style="border:1px solid #111;padding:6px">Se requiere mayor autoconocimiento o auto compromiso</td></tr>
+        <tr><th style="border:1px solid #111;padding:6px">IV2</th><td id="iv2a" style="border:1px solid #111;padding:6px">No se contradice</td><td id="iv2b" style="border:1px solid #111;padding:6px">Se contradice</td><td id="iv2c" style="border:1px solid #111;padding:6px">Se contradice frecuentemente</td></tr>
+        <tr><th style="border:1px solid #111;padding:6px">IV3</th><td id="iv3a" style="border:1px solid #111;padding:6px">Entre 30 y 90 minutos<br><span class="muted">Tomó el tiempo adecuado</span></td><td id="iv3b" style="border:1px solid #111;padding:6px">Entre 10 y 20 minutos<br><span class="muted">Demasiado breve</span></td><td id="iv3c" style="border:1px solid #111;padding:6px">Más de 90 minutos<br><span class="muted">Demasiado lento</span></td></tr>
+      </table>
     </div>
   </div>
 
-  <div id="panelReporte" style="display:none;margin-top:10px">
-    <div class="grid2">
-      <div class="card">
-        <div class="section-title">IV1 / IV2 / IV3 (consistencia)</div>
-        <table class="iv">
-          <tr>
-            <th>IV1</th>
-            <td id="iv1c0">Responde coherentemente</td>
-            <td id="iv1c1">Se requiere mayor autoconocimiento o auto compromiso</td>
-            <td id="iv1c2">Se contradice frecuentemente</td>
-          </tr>
-          <tr>
-            <th>IV2</th>
-            <td id="iv2c0">Responde coherentemente</td>
-            <td id="iv2c1">Se contradice ocasionalmente</td>
-            <td id="iv2c2">Se contradice frecuentemente</td>
-          </tr>
-          <tr>
-            <th>IV3</th>
-            <td id="iv3c0">Tiempo normal<br><span class="muted">30–90 minutos</span></td>
-            <td id="iv3c1">Demasiado rápido<br><span class="muted">10–20 minutos</span></td>
-            <td id="iv3c2">Demasiado lento<br><span class="muted">+90 minutos</span></td>
-          </tr>
-        </table>
-      </div>
+  <div style="font-weight:800;margin:12px 0 6px">HABILIDADES INTRAPERSONALES <span style="float:right">IH INTRA: <span id="ihIntra">—</span></span></div>
+  <div class="rep-bloque" id="bloqueIntra"></div>
 
-      <div class="card">
-        <div class="section-title">Estilos de comunicación</div>
-        <div class="muted" style="font-size:12px;margin-bottom:4px">
-          Puntaje bajo = mejor manejo (marcador a la izquierda).
-        </div>
+  <div style="font-weight:800;margin:12px 0 6px">HABILIDADES INTERPERSONALES <span style="float:right">IH INTER: <span id="ihInter">—</span></span></div>
+  <div class="rep-bloque" id="bloqueInter"></div>
 
-        <div class="barwrap">
-          <div style="font-weight:800;font-size:13px">Agresión <span class="muted">(10–100)</span></div>
-          <div class="bar" id="barAgresion"></div>
-          <div class="barlabels"><span>10</span><span>100</span></div>
-        </div>
+  <div style="font-weight:800;margin:12px 0 6px">HABILIDADES PARA LA VIDA <span style="float:right">IH PV: <span id="ihPV">—</span></span></div>
+  <div class="rep-bloque" id="bloquePV"></div>
 
-        <div class="barwrap">
-          <div style="font-weight:800;font-size:13px">Timidez <span class="muted">(10–100)</span></div>
-          <div class="bar" id="barTimidez"></div>
-          <div class="barlabels"><span>10</span><span>100</span></div>
-        </div>
+  <div style="font-weight:800;margin:12px 0 6px">ÍNDICE DE INTELIGENCIA EMOCIONAL IIE: <span id="repIIE">—</span></div>
 
-        <div class="barwrap" style="margin-top:12px">
-          <div style="font-weight:800;font-size:13px">Propensión al cambio <span class="muted">(10–100)</span></div>
-          <div class="bar" id="barCambio"></div>
-          <div class="barlabels"><span>10</span><span>100</span></div>
-        </div>
-      </div>
-    </div>
+  <div style="font-weight:800;margin:12px 0 6px">ESTILOS DE COMUNICACIÓN INTERPERSONAL</div>
+  <div class="rep-scale" id="estilos"></div>
 
-    <div id="bloquesContainer" style="margin-top:10px"></div>
+  <div style="font-weight:800;margin:12px 0 6px">PROPENSIÓN AL CAMBIO</div>
+  <div class="rep-scale" id="cambio"></div>
 
-    <div class="card bigline">
-      <div>ÍNDICE DE INTELIGENCIA EMOCIONAL (IIE)</div>
-      <div id="vIIE">—</div>
-    </div>
+  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+    <button id="btnImprimir">Imprimir / PDF</button>
+    <button id="btnExportJSON" class="secondary">Exportar JSON</button>
+  </div>
+</section>
 
-    <div class="actions">
-      <button class="secondary" id="btnJSON">Exportar JSON</button>
-    </div>
+  <div class="page-break"></div>
+  <section id="reporte2" class="page page-2" style="display:none;margin-top:12px">
+  <div id="resultados" class="card" style="display:none; margin-top:12px;">
+    <h2 style="margin-top:0">Resultados</h2>
+    <p class="muted" id="resume"></p>
+
+    <h3 style="font-size:14px;margin:10px 0 6px">Por sub-habilidad</h3>
+    <table id="tblSubs">
+      <thead><tr><th>Bloque</th><th>Sub-habilidad</th><th class="num">Ítems</th><th class="num">Puntos</th><th class="num">%</th><th>Rango</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <h3 style="font-size:14px;margin:14px 0 6px">Por bloque</h3>
+    <table id="tblBloques">
+      <thead><tr><th>Bloque</th><th class="num">Promedio %</th><th>Rango</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <p class="muted" style="margin-top:10px">Rangos: <span class="badge b-bajo">1–40</span> · <span class="badge b-med">41–70</span> · <span class="badge b-alto">71–100</span></p>
   </div>
 </div>
+  </section>
 
 <script>
-  const $ = (id)=>document.getElementById(id);
-
-  function badgeFor(pct){
-    if (pct <= 40) return {cls:"low", txt:"1–40"};
-    if (pct <= 70) return {cls:"mid", txt:"41–70"};
-    return {cls:"high", txt:"71–100"};
+/* ===== Fecha automática ===== */
+(function setFecha(){
+  const el = document.getElementById('fecha');
+  try{
+    const hoy = new Date();
+    el.value = new Intl.DateTimeFormat('es-EC',{day:'2-digit',month:'2-digit',year:'numeric'}).format(hoy);
+  }catch{
+    const d=new Date(), pad=n=>String(n).padStart(2,'0');
+    el.value = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
   }
+})();
 
-  function clearIV(){
-    ["iv1c0","iv1c1","iv1c2","iv2c0","iv2c1","iv2c2","iv3c0","iv3c1","iv3c2"].forEach(id=>{
-      $(id).classList.remove("sel");
+/* ===== Bloque editable: ID;Pregunta;Bloque;Subhabilidad;Invertida ===== */
+const PREGUNTAS_CSV = `
+1;Cuando realmente me enojo con alguien, me siento tenso, pero confortable por haber expresado exactamente lo que pensaba.;Estilos de comunicación interpersonal;Agresión;Sí
+2;Cuando realmente me enojo con alguien, me siento ansioso y confuso sobre lo que debo decir.;Estilos de comunicación interpersonal;Agresión;Sí
+3;Cuando realmente me enojo con alguien, me siento hostil y con ganas de confrontarlo verbalmente.;Estilos de comunicación interpersonal;Agresión;Sí
+4;Cuando realmente me enojo con alguien, pienso que no debo expresar mi enojo directamente.;Estilos de comunicación interpersonal;Agresión;Sí
+5;Cuando realmente me enojo con alguien, pienso: “bueno, estoy enojado, pero debo manejar esto constructivamente”.;Estilos de comunicación interpersonal;Agresión;Sí
+6;Cuando realmente me enojo con alguien, pienso que debo enfrentarlo y mostrar contundentemente mi enojo.;Estilos de comunicación interpersonal;Agresión;Sí
+7;Cuando realmente me enojo con alguien, me comporto expresándole lo que me molestó y tratando de llegar a una solución constructiva.;Estilos de comunicación interpersonal;Agresión;Sí
+8;Cuando realmente me enojo con alguien, me comporto expresándole mi enojo y entrando en una discusión.;Estilos de comunicación interpersonal;Agresión;Sí
+9;Cuando realmente me enojo con alguien, no digo nada para no herir sus sentimientos.;Estilos de comunicación interpersonal;Agresión;Sí
+10;Cuando alguien se enoja realmente conmigo, me siento tenso y con el derecho de entender la causa del enojo, respondiéndole directamente.;Estilos de comunicación interpersonal;Agresión;Sí
+11;Cuando alguien se enoja realmente conmigo, me siento enojado, hostil y con ganas de contraatacar.;Estilos de comunicación interpersonal;Agresión;Sí
+12;Cuando alguien se enoja realmente conmigo, me siento confuso, con miedo y con ganas de retirarme.;Habilidades para la vida;Motivación;Sí
+13;Cuando alguien se enoja realmente conmigo, pienso que probablemente hice algo mal y que no le caigo bien a esa persona.;Estilos de comunicación interpersonal;Timidez;Sí
+14;Cuando alguien se enoja realmente conmigo, pienso que le tengo que responder en forma aún más enérgica, para no quedar derrotado.;Estilos de comunicación interpersonal;Agresión;Sí
+15;Cuando alguien se enoja realmente conmigo, pienso que debo entender la razón de su enojo y responderle directamente para resolver el conflicto.;Estilos de comunicación interpersonal;Agresión;Sí
+16;Cuando alguien se enoja realmente conmigo, me comporto expresando mi enojo e intensificando la discusión.;Estilos de comunicación interpersonal;Agresión;Sí
+17;Cuando alguien se enoja realmente conmigo, me comporto pidiendo una explicación del enojo y manejando francamente los sentimientos.;Estilos de comunicación interpersonal;Agresión;Sí
+18;Cuando alguien se enoja realmente conmigo, me comporto retrocediendo, presentando excusas y no expresando lo que realmente siento.;Habilidades interpersonales;Asertividad;No
+19;Cuando me comunico con una persona que tiene “autoridad”, siento que tengo que estar a la defensiva y trato de encontrar la estrategia correcta para acercármele.;Habilidades interpersonales;Asertividad;No
+20;Cuando me comunico con una persona que tiene “autoridad”, me siento cómodo y me le acerco directamente.;Habilidades interpersonales;Asertividad;No
+21;Cuando me comunico con una persona que tiene “autoridad”, me siento nervioso y dudoso sobre cómo acercármele.;Habilidades interpersonales;Asertividad;Sí
+22;Cuando me comunico con una persona que tiene “autoridad”, pienso que realmente no debo molestarlo o quitarle el tiempo.;Habilidades interpersonales;Asertividad;No
+23;Cuando me comunico con una persona que tiene “autoridad”, pienso que lo que quiero o necesito es tan importante que puedo imponer mi punto de vista.;Habilidades interpersonales;Asertividad;No
+24;Cuando me comunico con una persona que tiene “autoridad”, pienso que mis necesidades son legítimas y que es correcto que se las exprese francamente.;Habilidades interpersonales;Asertividad;No
+25;Cuando me comunico con una persona que tiene “autoridad”, me comporto torpemente y presentando mis excusas.;Habilidades interpersonales;Asertividad;No
+26;Cuando me comunico con una persona que tiene “autoridad”, me comporto confortable y tranquilo.;Habilidades interpersonales;Asertividad;No
+27;Cuando me comunico con una persona que tiene “autoridad”, me comporto a la defensiva y hasta algo agresivo.;Habilidades interpersonales;Asertividad;Sí
+28;Cuando alguien me pide algo importante, me siento nervioso y ansioso de no dar la impresión de que quiero negarme.;Habilidades intrapersonales;Manejo de la tensión;Sí
+29;Cuando alguien me pide algo importante, me siento cómodo de decir “sí” o “no”.;Habilidades interpersonales;Empatía;No
+30;Cuando alguien me pide algo importante, me siento molesto de que espere que yo acepte.;Habilidades para la vida;Liderazgo;No
+31;Cuando alguien me pide algo importante, pienso que tengo el derecho de decir “sí” o “no” y me siento cómodo con ambas opciones.;Habilidades para la vida;Toma de decisiones;No
+32;Cuando alguien me pide algo importante, pienso que no quiero que se me imponga nada y entonces me niego, aunque no piense así.;Estilos de comunicación interpersonal;Timidez;No
+33;Cuando alguien me pide algo importante, digo “sí” aunque debo decir “no”.;Estilos de comunicación interpersonal;Timidez;No
+34;Cuando alguien me pide algo importante, me comporto a la defensiva y me niego, o bien, le hago ver que no me gustó su petición y la realizo a regañadientes.;Habilidades interpersonales;Asertividad;Sí
+35;Cuando alguien me pide algo importante, me comporto según sean mis verdaderos sentimientos y le digo francamente “sí” o “no”.;Estilos de comunicación interpersonal;Agresión;No
+36;Cuando alguien me pide algo importante, reacciono accediendo a lo que me piden aunque yo no lo desee.;Estilos de comunicación interpersonal;Agresión;No
+37;Cuando pido a alguien algo importante, me siento ansioso o con pocas ganas de acercármele.;Habilidades para la vida;Motivación;No
+38;Cuando pido a alguien algo importante, me inclino más a hacer lo que me conviene que a respetar los sentimientos de la otra persona.;Estilos de comunicación interpersonal;Timidez;No
+39;Cuando pido a alguien algo importante, me siento confiado y cómodo con el derecho de hacer mi petición.;Habilidades interpersonales;Asertividad;No
+40;Cuando pido a alguien algo importante, pienso que lo que necesito o deseo es importante, por lo que la persona debe responder inmediatamente.;Estilos de comunicación interpersonal;Timidez;No
+41;Cuando pido a alguien algo importante, pienso que realmente no debería estar molestándolo con mi petición.;Habilidades interpersonales;Asertividad;No
+42;Cuando pido a alguien algo importante, pienso que tengo el derecho de hacerlo, pero que respetaré la forma en que la persona decida responder.;Habilidades para la vida;Toma de decisiones;No
+43;Cuando pido a alguien algo importante, lo hago en forma exagerada e insistente.;Estilos de comunicación interpersonal;Timidez;No
+44;Cuando pido a alguien algo importante, me comporto con tranquilidad y haciendo francamente mi petición.;Habilidades interpersonales;Asertividad;No
+45;Cuando pido a alguien algo importante, me comporto dudoso y torpe al hacer mi petición.;Habilidades interpersonales;Asertividad;No
+46;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, me siento ansioso y confuso sobre la forma de hacerlo.;Propensión al cambio;Propensión al cambio;No
+47;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, me siento cómodo.;Propensión al cambio;Propensión al cambio;No
+48;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, me siento incómodo y presionado, pero lo hago.;Habilidades intrapersonales;Manejo de la tensión;No
+49;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, pienso que será interesante conocernos más.;Habilidades para la vida;Motivación;No
+50;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, pienso que lo debo hacer independientemente de que el grupo esté listo o no.;Propensión al cambio;Propensión al cambio;No
+51;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, pienso que ellos están más relajados que yo y que de cualquier forma no tengo mucho que decirles.;Habilidades para la vida;Liderazgo;Sí
+52;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, me comporto prudente y espero hasta que alguien me hable.;Habilidades para la vida;Compromiso;No
+53;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, tiendo a hablar mucho e incluso tiendo a caer pesado.;Habilidades para la vida;Compromiso;No
+54;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, me comporto tranquilo, me presento a alguien que me parezca interesante, o simplemente me paseo.;Habilidades para la vida;Motivación;No
+55;Soy una persona alegre.;Habilidades interpersonales;Empatía;No
+56;Resuelvo mis problemas fácilmente.;Habilidades para la vida;Toma de decisiones;No
+57;Estoy satisfecho con la manera en que me relaciono con los demás.;Habilidades interpersonales;Conciencia de los demás;No
+58;Mi voz es clara y los demás la escuchan.;Habilidades interpersonales;Conciencia de los demás;No
+59;Mi relación con otras personas es fácil y cómoda.;Habilidades interpersonales;Conciencia de los demás;No
+60;Soy una persona a quien le importan los demás, y parece ser que ellos sienten eso de mí.;Habilidades interpersonales;Conciencia de los demás;No
+61;Mi vida cotidiana está llena de cosas que me mantienen interesado.;Habilidades para la vida;Motivación;No
+62;Se me dificulta hablar con personas que tienen autoridad.;Estilos de comunicación interpersonal;Agresión;No
+63;Siento que puedo decidirme muy fácilmente.;Habilidades para la vida;Toma de decisiones;No
+64;Soy una persona importante.;Habilidades interpersonales;Empatía;No
+65;Mis sentimientos no son fácilmente lastimados.;Habilidades interpersonales;Empatía;No
+66;Soy digno de confianza y realmente puedo depender de mí mismo.;Habilidades para la vida;Administración del tiempo;No
+67;Pareciera que no me importa lo que pueda sucederme.;Habilidades para la vida;Administración del tiempo;Sí
+68;Tengo confianza en mis habilidades para comunicarme fácil y efectivamente con otras personas.;Habilidades interpersonales;Conciencia de los demás;No
+69;Sé cuándo debo hablar y cuándo escuchar.;Habilidades para la vida;Administración del tiempo;No
+70;Puedo entender y ser paciente con una persona que esté pasando por una crisis emocional.;Habilidades para la vida;Administración del tiempo;No
+71;Puedo pedir a mis amigos que me ayuden, aunque no pueda devolverles el favor.;Habilidades para la vida;Administración del tiempo;No
+72;Encuentro muy difícil hablar frente a un grupo de personas.;Estilos de comunicación interpersonal;Timidez;Sí
+73;Enfrento y resuelvo los problemas conforme se presentan, en vez de evadirlos y dejarlos para después.;Habilidades para la vida;Toma de decisiones;No
+74;Soy una persona que confía en sí misma.;Habilidades para la vida;Toma de decisiones;No
+75;Disfruto crear nuevas relaciones interpersonales, y me puedo describir como alguien a quien le importan los demás.;Habilidades interpersonales;Conciencia de los demás;No
+76;Las personas me hacen cambiar fácilmente de opinión, aunque ya haya tomado una decisión.;Habilidades para la vida;Liderazgo;No
+77;Me impaciento con los demás fácilmente.;Habilidades interpersonales;Conciencia de los demás;No
+78;Mi comunicación no verbal (ojos, expresión facial, movimientos) facilita mi comunicación con los demás.;Habilidades interpersonales;Conciencia de los demás;No
+79;Soy una persona afectuosa y abierta, por lo que la gente se siente cómoda contándome sus preocupaciones y sentimientos personales.;Habilidades para la vida;Toma de decisiones;No
+80;Soy la clase de persona a la que la gente realmente le puede contar sus problemas personales.;Habilidades para la vida;Liderazgo;No
+81;Si se diera la oportunidad, podría ser un buen ejecutivo.;Habilidades para la vida;Liderazgo;No
+82;Me agrado a mí mismo y me siento satisfecho con el tipo de persona que soy.;Habilidades para la vida;Liderazgo;No
+83;Tengo miedo de ser yo mismo.;Habilidades para la vida;Liderazgo;Sí
+84;Disfruto las reuniones sociales solo por el hecho de estar con la gente.;Habilidades para la vida;Liderazgo;No
+85;Por ser tímido, me parece difícil defender mis derechos.;Estilos de comunicación interpersonal;Timidez;Sí
+86;Estoy emocionado por mí mismo y con el potencial que puedo desarrollar como persona.;Habilidades para la vida;Liderazgo;No
+87;Creo que debo decir lo que siento al tratar con otras personas.;Habilidades interpersonales;Conciencia de los demás;No
+88;Sé cómo pedir un favor sin imponerme.;Habilidades interpersonales;Asertividad;No
+89;Mis amigos me dicen que soy una persona comprensiva.;Habilidades para la vida;Compromiso;No
+90;Siento las emociones de los otros como ellos lo hacen.;Habilidades para la vida;Compromiso;No
+91;Para mí todo es posible si creo en mí mismo.;Habilidades para la vida;Compromiso;No
+92;Confío en mi habilidad para evaluar una situación que se me presenta.;Habilidades intrapersonales;Autoestima;No
+93;Puedo describirme como una persona creativa.;Habilidades interpersonales;Empatía;No
+94;Puedo soportar los altibajos del trabajo.;Habilidades interpersonales;Empatía;No
+95;Me siento cómodo al mostrar mis debilidades a mis amigos.;Habilidades interpersonales;Empatía;No
+96;Soy libre de ser yo mismo y puedo manejar las consecuencias.;Habilidades interpersonales;Empatía;No
+97;Mi saludo de mano es confiado y firme, y comunica a los demás una sólida personalidad.;Habilidades interpersonales;Conciencia de los demás;No
+98;Sé qué tan cerca puedo llegar con otra persona sin que se sienta incómoda.;Habilidades para la vida;Compromiso;No
+99;Tengo la habilidad para escuchar y entender realmente los sentimientos de las otras personas.;Habilidades interpersonales;Conciencia de los demás;No
+100;Otros me consideran bueno para escuchar.;Habilidades para la vida;Compromiso;No
+101;Vivir para el futuro le da su principal significado a mi vida.;Habilidades para la vida;Compromiso;No
+102;Para mí, el trabajo y la diversión son igualmente importantes en mi vida.;Habilidades para la vida;Compromiso;No
+103;Soy asertivo en mis relaciones con otras personas.;Habilidades interpersonales;Conciencia de los demás;No
+104;Siento que tengo el control de mi vida.;Habilidades para la vida;Compromiso;No
+105;Tengo la habilidad para cambiar o crecer en la forma que considere conveniente para mí.;Habilidades para la vida;Compromiso;No
+106;Puedo aceptar mis errores en vez de preocuparme por ellos.;Habilidades para la vida;Compromiso;No
+107;Puedo decidir qué tan amistoso ser con un extraño.;Habilidades para la vida;Toma de decisiones;No
+108;Puedo decidir si lo correcto es que yo me presente a otras personas o esperar a que alguien lo haga por mí.;Habilidades interpersonales;Conciencia de los demás;No
+109;Puedo entender cómo se siente una persona cuando está hablando conmigo.;Habilidades interpersonales;Empatía;No
+110;Cuando una persona me está diciendo algo importante, realmente me concentro en escucharla.;Habilidades para la vida;Compromiso;No
+111;El futuro me parece esperanzador.;Habilidades para la vida;Toma de decisiones;No
+112;Soy capaz de aceptar a los otros tal como son.;Habilidades para la vida;Liderazgo;No
+113;Me arrepiento de muchas cosas que he hecho en el pasado.;Propensión al cambio;Propensión al cambio;No
+114;En mi rutina diaria experimento cambios y novedades.;Propensión al cambio;Propensión al cambio;No
+115;Soy capaz de discutir puntos de vista que son contrarios al mío.;Estilos de comunicación interpersonal;Timidez;No
+116;Soy capaz de elogiar a quienes admiro.;Estilos de comunicación interpersonal;Timidez;No
+117;Tengo la habilidad de sentirme cómodo con todo tipo de personas.;Estilos de comunicación interpersonal;Timidez;No
+118;Sé cuándo es correcto dar una palmada en el hombro a otra persona.;Estilos de comunicación interpersonal;Timidez;No
+119;Parece que soy capaz de sentir precisamente cómo se siente otra persona.;Estilos de comunicación interpersonal;Timidez;No
+120;Cuando alguien me dice lo que siente, puedo escucharlo y comprender su punto de vista.;Propensión al cambio;Propensión al cambio;No
+121;Soy una persona abierta, honesta y espontánea.;Propensión al cambio;Propensión al cambio;No
+122;Soy considerado por otros como líder.;Habilidades para la vida;Liderazgo;No
+123;Soy capaz de crear nuevas amistades o relaciones.;Propensión al cambio;Propensión al cambio;No
+124;Establezco metas claras relacionadas con mi carrera o mi vida.;Habilidades para la vida;Motivación;No
+125;Cuando realizo una tarea, frecuentemente evalúo mi progreso y obtengo retroalimentación concreta de la persona a cargo.;Habilidades para la vida;Toma de decisiones;No
+126;Es más probable que tome una decisión y actúe, a que me esté preocupando por cuál alternativa tomar y me ponga tenso.;Habilidades para la vida;Toma de decisiones;Sí
+127;Tengo la habilidad para organizarme, cumpliendo un horario personal eficiente.;Habilidades para la vida;Administración del tiempo;No
+128;Puedo lograr que un grupo esté de acuerdo conmigo cuando se trata de algo que me importa mucho.;Habilidades para la vida;Motivación;No
+129;Trabajo intencionadamente en construir el futuro que quiero para mí.;Propensión al cambio;Propensión al cambio;No
+130;Cuando me involucro en una tarea, algunas veces pienso en cómo me sentiría si fallo.;Habilidades para la vida;Compromiso;No
+131;Cuando formo parte de un equipo de trabajo, me gusta supervisar que los planes se lleven a cabo eficientemente.;Habilidades para la vida;Liderazgo;No
+132;Tomo mis decisiones en forma independiente, y rara vez pido ayuda a jefes, maestros, amigos o familiares.;Propensión al cambio;Propensión al cambio;No
+133;Soy capaz de fijarme objetivos y de lograrlos dentro de un lapso de tiempo específico.;Habilidades para la vida;Motivación;No
+134;Tengo la habilidad para impactar fuerte y positivamente en la mayoría de la gente que conozco.;Propensión al cambio;Propensión al cambio;No
+135;Intento incorporar retos a mi vida.;Propensión al cambio;Propensión al cambio;No
+136;Prefiero las actividades desafiantes, es decir, aquellas que involucran riesgo o posibilidad de fracaso.;Habilidades para la vida;Toma de decisiones;Sí
+137;Dedico la mayor parte de mi tiempo y energía a proyectos importantes.;Propensión al cambio;Propensión al cambio;No
+138;He establecido un proceso que me guía en la toma de decisiones importantes.;Estilos de comunicación interpersonal;Timidez;No
+139;Tengo habilidad para planear y terminar mi trabajo en el tiempo programado.;Habilidades para la vida;Administración del tiempo;No
+140;Soy capaz de ser persuasivo (convencer) sin aprovecharme de los demás.;Habilidades interpersonales;Conciencia de los demás;No
+141;Asumo riesgos que me sacan de la monotonía.;Habilidades para la vida;Toma de decisiones;No
+142;Estoy dispuesto a emprender proyectos que implican algún riesgo de fallar.;Habilidades para la vida;Toma de decisiones;No
+143;Sé cómo establecer mis propias metas.;Habilidades para la vida;Motivación;No
+144;Si estoy involucrado en un proyecto de grupo, puedo sugerir soluciones que los demás miembros acepten.;Habilidades interpersonales;Conciencia de los demás;No
+145;Si fuera evaluado en términos de efectividad en el trabajo, obtendría un buen puntaje en la forma en que administro mi tiempo.;Habilidades para la vida;Administración del tiempo;No
+146;Me siento cómodo al acercarme a otra persona con la idea de venderle algo.;Habilidades para la vida;Liderazgo;No
+147;Busco actividades nuevas, aunque no me hagan sentir cómodo o seguro.;Habilidades para la vida;Liderazgo;Sí
+148;Pienso más acerca del éxito que del fracaso cuando inicio una nueva tarea.;Habilidades para la vida;Liderazgo;Sí
+149;Pienso que a pesar de lo incierto del futuro, conviene hacer planes.;Habilidades para la vida;Liderazgo;No
+150;Los cambios en mi vida me causan conflicto.;Propensión al cambio;Propensión al cambio;No
+151;Desperdicio poco tiempo.;Habilidades para la vida;Administración del tiempo;No
+152;Si el equipo al que pertenezco necesita alguien que hable por todos, tienden a escogerme a mí.;Habilidades para la vida;Liderazgo;No
+153;Aprender o hacer cosas nuevas me provoca entusiasmo.;Habilidades para la vida;Motivación;No
+154;Cuando estoy inmerso en una tarea difícil, pienso en todos los recursos que tengo disponibles para hacerla exitosamente.;Propensión al cambio;Propensión al cambio;Sí
+155;Siento que mi trabajo actual es satisfactorio.;Estilos de comunicación interpersonal;Agresión;No
+156;Cuando me enfrento a una situación difícil, soy capaz de ver varias alternativas y tomar una buena decisión.;Habilidades para la vida;Toma de decisiones;Sí
+157;Sé exactamente cuánto tiempo necesito para terminar tareas y proyectos.;Habilidades para la vida;Administración del tiempo;No
+158;Puedo hacerme cargo de una situación cuando es necesario.;Estilos de comunicación interpersonal;Timidez;No
+159;Disfruto las emociones que me provocan los cambios.;Propensión al cambio;Propensión al cambio;No
+160;Cuando estoy trabajando en una tarea difícil, intento corregir aquellas debilidades personales que pudieran interferir con su exitosa terminación.;Estilos de comunicación interpersonal;Timidez;Sí
+161;Prefiero proyectos que requieran un esfuerzo intenso o un compromiso a largo plazo.;Habilidades para la vida;Motivación;Sí
+162;Las tendencias del futuro me son indiferentes.;Estilos de comunicación interpersonal;Timidez;No
+163;Soy una persona eficiente y bien organizada.;Estilos de comunicación interpersonal;Timidez;No
+164;Debido a que soy una persona convincente y creíble, mis amigos tienden a pedirme que “hable” con alguien en lugar de hacerlo ellos mismos.;Estilos de comunicación interpersonal;Timidez;No
+165;Me atrevo a equivocarme.;Habilidades interpersonales;Empatía;No
+166;Pienso que el planear actividades a futuro no le quita lo interesante a la vida.;Habilidades para la vida;Motivación;No
+167;Puedo concentrarme en una tarea por un largo período de tiempo.;Habilidades para la vida;Administración del tiempo;No
+168;Mis decisiones tienden a ser aceptadas como “buenas” por las personas relacionadas.;Habilidades interpersonales;Conciencia de los demás;No
+169;Soy capaz de manejar mi tiempo en el presente para no verme presionado por las cosas que dejé de hacer.;Habilidades para la vida;Administración del tiempo;No
+170;Mis amigos me involucran en la solución de sus problemas.;Habilidades intrapersonales;Autoestima;No
+171;Innovo.;Propensión al cambio;Propensión al cambio;No
+172;Mi tendencia es la de no ceder fácilmente cuando me enfrento con un problema difícil.;Habilidades intrapersonales;Autoestima;Sí
+173;En proyectos que me encargan, prefiero trabajar con un “experto en la materia” que con un amigo o conocido.;Habilidades intrapersonales;Autoestima;No
+174;Mis amigos tienden a pedirme ayuda al tomar decisiones importantes.;Habilidades intrapersonales;Autoestima;No
+175;Soy de los primeros en llegar a las juntas o eventos.;Habilidades intrapersonales;Autoestima;No
+176;Soy un buen vendedor (promotor de mis ideas).;Habilidades intrapersonales;Autoestima;No
+177;Si fracaso, lo intento de nuevo.;Habilidades intrapersonales;Autoestima;Sí
+178;Tengo la habilidad para permanecer en un trabajo, aun cuando ya no tenga ganas.;Habilidades para la vida;Motivación;No
+179;Termino lo que empiezo.;Habilidades intrapersonales;Autoestima;No
+180;Soy capaz de decidir cuando una situación tensa o difícil requiere de acción inmediata.;Habilidades para la vida;Toma de decisiones;Sí
+181;Asisto a tiempo a mis compromisos.;Habilidades para la vida;Administración del tiempo;No
+182;Tiendo a hablar con personas que tienen diferencias para que resuelvan sus problemas.;Habilidades intrapersonales;Autoestima;No
+183;Estoy abierto a ideas nuevas.;Habilidades intrapersonales;Autoestima;No
+184;Soy capaz de establecer prioridades y llegar a los objetivos propuestos en forma eficiente.;Habilidades para la vida;Motivación;No
+185;Tengo suficiente energía durante todo el día para hacer lo que tengo que hacer.;Habilidades intrapersonales;Bienestar físico;No
+186;Estoy seguro de las decisiones que tomo.;Habilidades intrapersonales;Autoestima;No
+187;Soy capaz de trabajar al mismo tiempo en varios proyectos, con buenos resultados.;Habilidades para la vida;Administración del tiempo;No
+188;Parece que soy capaz de “vender mi imagen” a personas con autoridad, siendo tal como soy.;Habilidades intrapersonales;Autoestima;No
+189;Me entusiasma establecer metas personales difíciles de alcanzar.;Habilidades para la vida;Motivación;Sí
+190;Logro lo que me propongo.;Habilidades intrapersonales;Autoestima;No
+191;Deseo intensamente tener éxito en aquello que me propongo.;Habilidades intrapersonales;Autoestima;No
+192;Tomo decisiones fácilmente y con buenos resultados.;Habilidades interpersonales;Empatía;No
+193;Tengo la habilidad para controlar mis responsabilidades en vez de ser controlado por ellas.;Habilidades para la vida;Compromiso;No
+194;Soy incapaz de calmar a otros en situaciones tensas.;Habilidades intrapersonales;Manejo de la tensión;No
+195;Puedo modificar el rumbo de mi vida fácilmente si lo considero necesario.;Habilidades interpersonales;Conciencia de los demás;No
+196;Cuando empiezo una tarea difícil, me motiva más pensar en el éxito que en el fracaso.;Habilidades para la vida;Motivación;Sí
+197;Se me considera una persona confiable y responsable.;Habilidades para la vida;Compromiso;No
+198;Aun cuando he trabajado duro, no he llegado hasta donde puedo o quiero llegar porque mi educación o trabajo no me han dado la oportunidad.;Habilidades interpersonales;Asertividad;Sí
+199;No he podido encontrar el tiempo para verdaderamente disfrutar de la vida como quisiera.;Habilidades para la vida;Administración del tiempo;No
+200;Estoy preocupado por algunos síntomas físicos que tengo, tales como dolores de cabeza, insomnio, úlcera o alta presión arterial.;Habilidades intrapersonales;Manejo de la tensión;Sí
+201;Cuando se requiere hacer algo, la gente me busca.;Habilidades interpersonales;Asertividad;No
+202;Me impaciento viendo a alguien tratando de hacer algo que yo puedo hacer mucho más rápido.;Habilidades interpersonales;Asertividad;No
+203;Soy una persona tensa.;Habilidades intrapersonales;Autoestima;No
+204;Me siento físicamente sano y lleno de energía.;Habilidades interpersonales;Empatía;No
+205;He trabajado arduamente para terminar proyectos en la fecha fijada, acordada, o que yo mismo me impuse.;Habilidades interpersonales;Empatía;No
+206;Encuentro difícil despreocuparme y divertirme.;Habilidades interpersonales;Empatía;Sí
+207;No soy capaz de expresar cómodamente emociones fuertes, tales como miedo, ira o tristeza.;Habilidades interpersonales;Empatía;Sí
+208;Duermo mal.;Habilidades intrapersonales;Bienestar físico;Sí
+209;Tengo un fuerte sentido de lo que es bueno o malo para mí, y me comporto consecuentemente.;Habilidades interpersonales;Empatía;Sí
+210;Si realmente me tranquilizara y disfrutara de la vida como quisiera, me sentiría incómodo conmigo mismo.;Habilidades interpersonales;Empatía;No
+211;Aun estando de vacaciones o simplemente descansando y divirtiéndome, me presiono tratando de cumplir metas.;Habilidades para la vida;Compromiso;No
+212;Hago cosas que son perjudiciales para mi salud.;Habilidades intrapersonales;Bienestar físico;No
+213;Tengo confianza en mi habilidad de crear una buena vida para mí.;Habilidades intrapersonales;Bienestar físico;No
+214;Quiero que la gente hable más aprisa, y me encuentro deseando apresurarlos.;Habilidades intrapersonales;Bienestar físico;No
+215;Puedo relajarme al final de una larga jornada y luego dormir fácilmente.;Habilidades intrapersonales;Bienestar físico;No
+216;Tengo hábitos alimenticios sanos y nutritivos.;Habilidades intrapersonales;Bienestar físico;No
+217;Cuando decido hacer algo, lo llevo a cabo.;Habilidades para la vida;Toma de decisiones;No
+218;Percibo que no tengo el control sobre lo que pienso, siento o hago.;Habilidades intrapersonales;Bienestar físico;Sí
+219;No soy capaz de relajarme naturalmente, por lo que tiendo a depender de otras cosas para hacerlo.;Habilidades intrapersonales;Manejo de la tensión;Sí
+220;No me canso fácilmente, pues tengo suficiente vigor físico.;Habilidades intrapersonales;Bienestar físico;Sí
+221;Vivo mi vida de acuerdo a mis propios valores personales.;Habilidades intrapersonales;Bienestar físico;No
+222;Me siento tenso y presionado por la forma en la que tengo que vivir.;Habilidades intrapersonales;Manejo de la tensión;Sí
+223;Mis compañeros y amigos me aconsejan que descanse y me relaje.;Habilidades intrapersonales;Manejo de la tensión;No
+224;Hago ejercicio regularmente para mantenerme en buena condición física.;Habilidades intrapersonales;Bienestar físico;No
+225;En casi todos los tipos de actividades que realizo, soy capaz de desempeñarme bien.;Habilidades intrapersonales;Manejo de la tensión;No
+226;Me impaciento conmigo y con otros, y tiendo a presionar para acelerar las cosas.;Habilidades intrapersonales;Manejo de la tensión;No
+227;Estoy bajo una tensión tal, que puedo sentirla en mi cuerpo.;Habilidades intrapersonales;Manejo de la tensión;No
+228;Soy una persona sana y me cuido física y emocionalmente.;Habilidades intrapersonales;Manejo de la tensión;No
+229;Soy un buen trabajador, aun cuando no se me supervisa.;Habilidades intrapersonales;Manejo de la tensión;Sí
+230;Mis amigos tienden a decirme que me veo preocupado, tenso o nervioso.;Habilidades intrapersonales;Manejo de la tensión;Sí
+231;Manejo bien la tensión, y he aprendido varias formas saludables para relajarme.;Habilidades intrapersonales;Manejo de la tensión;No
+232;Me visualizo viviendo una vida larga y saludable.;Habilidades intrapersonales;Bienestar físico;No
+233;La gente admira mi habilidad para lograr lo que me propongo.;Habilidades para la vida;Motivación;No
+234;En mi trabajo tengo mucha tensión.;Habilidades intrapersonales;Manejo de la tensión;No
+235;He sido incapaz de romper mis hábitos negativos que son un problema para mí.;Habilidades intrapersonales;Bienestar físico;No
+236;Muchos de mis comportamientos tienden a ser nocivos para mi salud.;Habilidades intrapersonales;Bienestar físico;No
+237;Cumplo con mis tareas y obligaciones, aun cuando encuentre dificultades.;Habilidades intrapersonales;Manejo de la tensión;No
+238;Cuando realmente descanso y no hago absolutamente nada por varios días, tiendo a sentirme culpable por haber desperdiciado tanto tiempo.;Habilidades intrapersonales;Bienestar físico;Sí
+239;Me pongo extremadamente nervioso y tenso, y los doctores me han recomendado que me desacelere y me tranquilice.;Habilidades intrapersonales;Manejo de la tensión;Sí
+240;Despierto fresco y descansado por las mañanas.;Habilidades intrapersonales;Manejo de la tensión;No
+241;Tiendo a no fracasar en aquello que me parece importante.;Habilidades intrapersonales;Autoestima;No
+242;Parece que continuamente me estoy esforzando para lograr resultados, pero no me tomo el tiempo para preguntarme honestamente qué es lo que realmente quiero en la vida.;Habilidades para la vida;Motivación;Sí
+243;Aplico procedimientos que me permiten manejar eficazmente mis tensiones, tales como técnicas para el descanso, el ejercicio o la meditación.;Habilidades intrapersonales;Bienestar físico;No
+244;Comparado con otras personas de mi edad, soy enfermizo.;Habilidades interpersonales;Conciencia de los demás;No
+`.trim();
+
+/* ===== Parser ===== */
+const norm = s => (s??'').toString().trim();
+function parsePreguntas(csv){
+  const lines = csv.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const rows = [];
+  for(const line of lines){
+    const parts = line.split(';').map(norm);
+    if(parts.length < 5) continue;
+    const id        = Number(parts[0]);
+    const invertida = parts[parts.length-1];
+    const subhab    = parts[parts.length-2];
+    const bloque    = parts[parts.length-3];
+    const pregunta  = parts.slice(1, parts.length-3).join(';');
+    if(!Number.isFinite(id) || !pregunta) continue;
+    rows.push({
+      id, pregunta, bloque, subhabilidad: subhab,
+      invertida: /^s(i|í)$/i.test(invertida) ? 'Sí' : 'No',
+      value: null
     });
   }
-  function markIV(iv1,iv2,iv3){
-    clearIV();
-    if (iv1===0||iv1===1||iv1===2) $("iv1c"+iv1).classList.add("sel");
-    if (iv2===0||iv2===1||iv2===2) $("iv2c"+iv2).classList.add("sel");
-    if (iv3===0||iv3===1||iv3===2) $("iv3c"+iv3).classList.add("sel");
-  }
+  rows.sort((a,b)=> a.id - b.id);
+  return rows;
+}
 
-  function setBar(barEl, pct){
-    barEl.innerHTML = ""; // reset
-    if (pct==null || isNaN(pct) || pct<=0) return; // sin datos
-    const clamped = Math.max(10, Math.min(100, pct));
-    const marker = document.createElement("div");
-    marker.className = "marker";
-    marker.style.left = clamped + "%";
-    barEl.appendChild(marker);
-  }
+let ITEMS = parsePreguntas(PREGUNTAS_CSV);
+let answered = 0;
 
-  function groupByBloque(subRows){
-    const groups = {};
-    subRows.forEach(r=>{
-      const b = r.bloque || "—";
-      if(!groups[b]) groups[b]=[];
-      groups[b].push(r);
-    });
-    return groups;
-  }
+function rangeBadge(pct){
+  if(pct<=40)  return {txt:'1–40 Por desarrollar', cls:'b-bajo'};
+  if(pct<=70)  return {txt:'41–70 Por fortalecer', cls:'b-med'};
+  return {txt:'71–100 Por enriquecer', cls:'b-alto'};
+}
 
-  function renderBloques(subRows, bloqPercents){
-    const cont = $("bloquesContainer");
-    cont.innerHTML = "";
+function updateProgress(){
+  const total = ITEMS.length;
+  const pct = total ? Math.round((answered/total)*100) : 0;
+  document.getElementById('pillTotal').textContent = `Total: ${answered} / ${total} (${pct}%)`;
+  document.getElementById('bar').style.width = pct + '%';
+  const bloques = new Set(ITEMS.map(x=>x.bloque));
+  const subs = new Set(ITEMS.map(x=>x.subhabilidad));
+  document.getElementById('metaInfo').textContent = `Bloques: ${bloques.size} · Sub-habilidades: ${subs.size}`;
+}
 
-    const order = [
-      "Habilidades intrapersonales",
-      "Habilidades interpersonales",
-      "Habilidades para la vida",
-      "Estilos de comunicación interpersonal",
-      "Propensión al cambio"
-    ];
+function renderPreguntas(){
+  const cont = document.getElementById('questions');
+  cont.innerHTML = '';
+  answered = 0; updateProgress();
 
-    const groups = groupByBloque(subRows);
-    order.forEach(bloque=>{
-      const rows = groups[bloque] || [];
-      if(!rows.length && !bloqPercents?.[bloque]) return;
+  ITEMS.forEach(q=>{
+    const row = document.createElement('div');
+    row.className = 'question';
 
-      const pctBloque = bloqPercents?.[bloque] ?? (
-        rows.length ? Math.round(rows.reduce((s,x)=>s+x.pct,0)/rows.length) : 0
-      );
+    // Columna número
+    const colNo = document.createElement('div');
+    colNo.className='q-no'; colNo.textContent = String(q.id).padStart(3,'0');
+    row.appendChild(colNo);
+    // Columna texto
+    const colText = document.createElement('div');
+    const txt = document.createElement('span'); txt.className='q-text'; txt.textContent = q.pregunta;
+    colText.appendChild(txt);
+    row.appendChild(colText);
 
-      const card = document.createElement("div");
-      card.className = "card";
-      card.style.marginTop = "10px";
-
-      const title = document.createElement("div");
-      title.className = "section-title";
-      title.innerHTML = `${bloque} <span class="right">${pctBloque}%</span>`;
-      card.appendChild(title);
-
-      rows.forEach(r=>{
-        const br = badgeFor(r.pct);
-        const line = document.createElement("div");
-        line.className = "subrow";
-        line.innerHTML = `
-          <div class="subname">${r.sub}</div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <div class="pct">${r.pct}%</div>
-            <span class="badge ${br.cls}">${br.txt}</span>
-          </div>
-        `;
-        card.appendChild(line);
+    // 3 columnas de radios
+    ['CS','AV','RV'].forEach((code)=>{
+      const cell = document.createElement('div'); cell.className = 'q-cell';
+      const r = document.createElement('input');
+      r.type='radio'; r.className='opt'; r.name='q_'+q.id; r.value=code;
+      r.title = (code==='CS'?'Casi siempre':code==='AV'?'Algunas veces':'Rara vez');
+      r.setAttribute('aria-label', r.title);
+      r.addEventListener('change', ()=>{
+        const inv = q.invertida === 'Sí';
+        let score;
+        if(!inv){ score = (code==='CS')?3 : (code==='AV')?2 : 1; }
+        else    { score = (code==='CS')?1 : (code==='AV')?2 : 3; }
+        if(q.value == null) answered++;
+        q.value = score;
+        updateProgress();
       });
-
-      cont.appendChild(card);
+      cell.appendChild(r);
+      row.appendChild(cell);
     });
+
+    cont.appendChild(row);
+  });
+}
+
+/* ===== Cálculo flexible ===== */
+function calcular(){
+  if(ITEMS.length===0){ alert('No hay preguntas.'); return; }
+
+  // Agregación por sub-habilidad
+  const subMap = new Map(); // sub -> {bloque, items, pts}
+  ITEMS.forEach(q=>{
+    if(!subMap.has(q.subhabilidad)) subMap.set(q.subhabilidad, {bloque:q.bloque, items:0, pts:0});
+    const s = subMap.get(q.subhabilidad);
+    s.items += 1;
+    s.pts   += (q.value ?? 0);
+  });
+
+  // Filas para tabla de sub-habilidades
+  const subRows = Array.from(subMap.entries()).map(([sub, v])=>{
+    const max = v.items * 3;
+    const pct = max ? Math.round((v.pts / max) * 100) : 0;
+    const badge = rangeBadge(pct);
+    return { bloque:v.bloque, sub, items:v.items, pts:v.pts, pct, badge };
+  }).sort((a,b)=> (a.bloque||'').localeCompare(b.bloque||'') || (a.sub||'').localeCompare(b.sub||''));
+
+  // Promedio por bloque (promedio de % de sus sub-habilidades)
+  const bloqMap = new Map(); // bloque -> {sumPct, n}
+  subRows.forEach(r=>{
+    if(!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, {sumPct:0, n:0});
+    const b = bloqMap.get(r.bloque);
+    b.sumPct += r.pct; b.n += 1;
+  });
+  const bloqRows = Array.from(bloqMap.entries()).map(([bloque, a])=>{
+    const pct = a.n ? Math.round(a.sumPct / a.n) : 0;
+    const badge = rangeBadge(pct);
+    return { bloque, pct, badge };
+  }).sort((a,b)=> (a.bloque||'').localeCompare(b.bloque||''));
+
+  // Render de tablas
+  const res = document.getElementById('resultados');
+  res.style.display = 'block';
+  document.getElementById('resume').textContent =
+    `Contestadas: ${ITEMS.filter(q=>q.value!=null).length} de ${ITEMS.length}.`;
+
+  const tbodyS = document.querySelector('#tblSubs tbody'); tbodyS.innerHTML='';
+  subRows.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${r.bloque||'—'}</td>
+      <td>${r.sub||'—'}</td>
+      <td class="num">${r.items}</td>
+      <td class="num">${r.pts}</td>
+      <td class="num"><strong>${r.pct}</strong></td>
+      <td><span class="badge ${r.badge.cls}">${r.badge.txt}</span></td>`;
+    tbodyS.appendChild(tr);
+  });
+
+  const tbodyB = document.querySelector('#tblBloques tbody'); tbodyB.innerHTML='';
+  bloqRows.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${r.bloque||'—'}</td>
+      <td class="num"><strong>${r.pct}</strong></td>
+      <td><span class="badge ${r.badge.cls}">${r.badge.txt}</span></td>`;
+    tbodyB.appendChild(tr);
+  });
+
+    renderReporte(subRows, bloqRows);
+  // Scroll a resultados
+  res.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+
+/* === SkillMap helpers === */
+let __startTime = performance.now();
+function calcIV1_IV2_categories(items) {
+  const direct = items.filter(q=> q.invertida==='No' && q.value!=null).map(q=> q.value);
+  const invers = items.filter(q=> q.invertida==='Sí' && q.value!=null).map(q=> q.value);
+  const avg = arr => arr.length? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+  const stdev = arr => { if(arr.length<2) return 1; const m = avg(arr); return Math.sqrt(arr.reduce((s,x)=> s+(x-m)*(x-m), 0)/arr.length); };
+  const invNorm = invers.map(v=> 4 - v);
+  const allNorm = direct.concat(invNorm);
+  const s = stdev(allNorm);
+  const iv1Cat = (s < 0.45) ? 0 : (s < 0.9) ? 1 : 2;
+  const diff = Math.abs(avg(direct) - avg(invNorm));
+  const iv2Cat = (diff < 0.4) ? 0 : (diff < 0.9) ? 1 : 2;
+  return {iv1Cat, iv2Cat};
+}
+function highlightIV_table(iv1Cat, iv2Cat, iv3Cat){
+  const sets=[['iv1a','iv1b','iv1c'],['iv2a','iv2b','iv2c'],['iv3a','iv3b','iv3c']];
+  [iv1Cat,iv2Cat,iv3Cat].forEach((cat,idx)=> sets[idx].forEach((id,i)=>{
+    const cell = document.getElementById(id);
+    if(cell) cell.style.background = (i===cat)? '#fde047' : '';
+  }));
+}
+function mkTicks(container, value){
+  container.innerHTML='';
+  const wrap = document.createElement('div'); wrap.style.position='relative'; wrap.style.height='22px'; wrap.style.border='1px solid #9ca3af'; wrap.style.borderRadius='4px'; wrap.style.background='#f3f4f6';
+  for(let v=10; v<=100; v+=10){
+    const tick = document.createElement('div'); tick.style.position='absolute'; tick.style.top='-6px'; tick.style.left = v+'%'; tick.style.width='1px'; tick.style.height='24px'; tick.style.background='#9ca3af';
+    wrap.appendChild(tick);
+    const lab = document.createElement('div'); lab.style.position='absolute'; lab.style.top='16px'; lab.style.left=v+'%'; lab.style.fontSize='10px'; lab.style.transform='translateX(-50%)'; lab.textContent = v;
+    wrap.appendChild(lab);
+  }
+  const marker = document.createElement('div'); marker.style.position='absolute'; marker.style.top='-2px'; marker.style.left = value+'%'; marker.style.width='10px'; marker.style.height='16px'; marker.style.background='#111'; marker.style.borderRadius='2px';
+  wrap.appendChild(marker);
+  container.appendChild(wrap);
+}
+function setCurveMarker(pct){
+  const c = document.getElementById('curveMarker'); if(!c) return;
+  const x = 10 + (pct/100)*500;
+  const y = 100 - 80*Math.exp(-Math.pow((pct-50)/15,2));
+  c.setAttribute('cx', x); c.setAttribute('cy', y);
+}
+function addRow(container, label, pct){
+  const row = document.createElement('div'); row.style.display='grid'; row.style.gridTemplateColumns='180px 1fr 1fr 1fr'; row.style.gap='6px'; row.style.margin='4px 0'; row.style.alignItems='center';
+  const lab = document.createElement('div'); lab.textContent = label.toUpperCase(); lab.style.fontSize='12px';
+  row.appendChild(lab);
+  for(let i=0;i<3;i++){
+    const track = document.createElement('div'); track.style.height='12px'; track.style.border='1px solid #9ca3af'; track.style.background='#f3f4f6'; track.style.position='relative'; track.style.borderRadius='4px'; track.style.overflow='hidden';
+    const fill = document.createElement('div'); fill.style.position='absolute'; fill.style.left='0'; fill.style.top='0'; fill.style.bottom='0'; fill.style.background='#6b7280'; fill.style.width='0';
+    let w=0;
+    if(i===0 && pct<=40){ w = Math.max(2, Math.round((pct/40)*100)); }
+    if(i===1 && pct>40 && pct<=70){ w = Math.max(2, Math.round(((pct-40)/30)*100)); }
+    if(i===2 && pct>70){ w = Math.max(2, Math.round(((pct-70)/30)*100)); }
+    fill.style.width = w + '%';
+    track.appendChild(fill); row.appendChild(track);
+  }
+  container.appendChild(row);
+}
+function buildBloque(containerId, subRows, bloqueNombre){
+  const cont = document.getElementById(containerId);
+  cont.innerHTML = '';
+  const cols = document.createElement('div'); cols.style.display='grid'; cols.style.gridTemplateColumns='1fr 1fr 1fr'; cols.style.gap='6px'; cols.style.marginBottom='6px';
+  ['POR DESARROLLAR','POR FORTALECER','POR ENRIQUECER'].forEach(t=>{ const d=document.createElement('div'); d.style.fontSize='11px'; d.style.textAlign='center'; d.style.color='#374151'; d.textContent=t; cols.appendChild(d); });
+  cont.appendChild(cols);
+  subRows.filter(r=> (r.bloque||'')===bloqueNombre).forEach(r=> addRow(cont, r.sub, r.pct));
+}
+function renderReporte(subRows, bloqRows){
+  const rep = document.getElementById('reporte');
+  const nombre = document.getElementById('nombre').value || '—';
+  const edad   = document.getElementById('edad').value || '—';
+  const curso  = document.getElementById('curso').value || '—';
+  const inst   = document.getElementById('institucion').value || '—';
+  const grupo  = document.getElementById('grupo').value || '—';
+  const fecha  = document.getElementById('fecha').value || new Date().toLocaleDateString();
+  document.getElementById('repDateLine').textContent = `Fecha: ${fecha}`;
+  const hb = document.getElementById("repHeaderBox");
+  hb.innerHTML = `Nombre: <strong>${nombre}</strong>` + `\\n` + `Edad: <strong>${edad}</strong>` + `\\n` + `Grado: <strong>${curso}</strong>` + `\\n` + `Institución: <strong>${inst}</strong>` + `\\n` + `Grupo: <strong>${grupo}</strong>`;
+
+  // Bloques
+  buildBloque("bloqueIntra", subRows, "Habilidades intrapersonales");
+  buildBloque("bloqueInter", subRows, "Habilidades interpersonales");
+  buildBloque("bloquePV", subRows, "Habilidades para la vida");
+
+  // IVs
+  const mins = Math.round((performance.now()-__startTime)/60000);
+  const {iv1Cat, iv2Cat} = calcIV1_IV2_categories(ITEMS);
+  const iv3Cat = (mins>=30 && mins<=90) ? 0 : ((mins>=10 && mins<=20) ? 1 : (mins>90 ? 2 : 1));
+  highlightIV_table(iv1Cat, iv2Cat, iv3Cat);
+
+  // Bloques porcentuales para IIE
+  const bloqMap = new Map();
+  subRows.forEach(r=>{ if(!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, {sumPct:0,n:0}); const b=bloqMap.get(r.bloque); b.sumPct+=r.pct; b.n++; });
+  const b1 = (()=>{const a=bloqMap.get('Habilidades intrapersonales'); return a && a.n? Math.round(a.sumPct/a.n):0;})();
+  const b2 = (()=>{const a=bloqMap.get('Habilidades interpersonales'); return a && a.n? Math.round(a.sumPct/a.n):0;})();
+  const b3 = (()=>{const a=bloqMap.get('Habilidades para la vida'); return a && a.n? Math.round(a.sumPct/a.n):0;})();
+  const iie = Math.round((b1+b2+b3)/3);
+  document.getElementById('ihIntra').textContent = b1;
+  document.getElementById('ihInter').textContent = b2;
+  document.getElementById('ihPV').textContent = b3;
+  document.getElementById('repIIE').textContent = iie;
+  setCurveMarker(iie);
+
+  // Escalas
+  mkTicks(document.getElementById('estilos'), Math.max(10, Math.min(100, iie)));
+  mkTicks(document.getElementById('cambio'),  Math.max(10, Math.min(100, iie)));
+
+  rep.style.display='block';
+}
+
+/* ===== Botones ===== */
+document.getElementById('btnCalcular').addEventListener('click', calcular);
+document.getElementById('btnReiniciar').addEventListener('click', ()=>{
+  ITEMS.forEach(q=> q.value=null);
+  answered=0;
+  document.querySelectorAll('#questions input[type="radio"]').forEach(r=> r.checked=false);
+  document.getElementById('resultados').style.display='none';
+  updateProgress();
+});
+
+/* ===== Init ===== */
+renderPreguntas(); updateProgress();
+</script>
+<script>/*autoFecha*/(function(){try{var d=new Date();var tz="America/Guayaquil";var fmt=new Intl.DateTimeFormat("es-EC",{timeZone:tz,day:"2-digit",month:"2-digit",year:"numeric"}).format(d);var el=document.getElementById("repFecha"); if(el) el.textContent=fmt;}catch(e){}})();</script>
+<!-- ===== FINAL Enhancer (non-invasive) ===== -->
+<style>
+  .rep-iie-line{display:flex;align-items:center;justify-content:space-between;font-weight:700}
+  @media print{
+    @page{ size:A4; margin:14mm 12mm }
+    .page-break{ page-break-before:always }
+    .page{break-inside:avoid}
   }
 
-  function normalizeResultados(raw){
-    if(!raw) return null;
-    if(typeof raw === "string"){
-      try{ return JSON.parse(raw); }catch(e){ return null; }
+  .page{background:#fff}
+  .page.page-1{padding-bottom:4px}
+  .page.page-2{padding-top:0}
+
+</style>
+<script>
+(function(){
+  function cleanupVisibleBackslashN(root){
+    try{
+      var walker = document.createTreeWalker(root||document.body, NodeFilter.SHOW_TEXT, null);
+      var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(function(n){
+        if(n.parentElement && !/^(SCRIPT|STYLE)$/i.test(n.parentElement.tagName) && /\\n/.test(n.nodeValue||"")){
+          n.nodeValue = n.nodeValue.replace(/\\n/g,' ');
+        }
+      });
+    }catch(_){}
+  }
+  function ensureIIELine(){
+    var rep = document.getElementById('repIIE');
+    if(!rep) return;
+    var host = rep.closest('.rep-iie-line');
+    if(host) return;
+    var old = rep.parentElement;
+    if(!old) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'rep-iie-line';
+    var left = document.createElement('span'); left.textContent = 'ÍNDICE DE INTELIGENCIA EMOCIONAL';
+    var right = document.createElement('span'); right.innerHTML = 'IIE: <span id="repIIE">'+ rep.textContent +'</span>';
+    old.parentElement.replaceChild(wrap, old);
+    wrap.appendChild(left); wrap.appendChild(right);
+  }
+  function collectItems(){
+    var items=[];
+    document.querySelectorAll('[data-qid]').forEach(function(row){
+      var radios = row.querySelectorAll('input[type="radio"]');
+      var val=null; radios.forEach(r=>{ if(r.checked) val = parseInt(r.value,10); });
+      items.push({
+        id: parseInt(row.getAttribute('data-qid')||'0',10),
+        bloque: (row.getAttribute('data-bloque')||'').trim(),
+        sub: (row.getAttribute('data-sub')||'').trim(),
+        invertida: (row.getAttribute('data-invertida')||'No').trim(),
+        value: val
+      });
+    });
+    return items;
+  }
+  function normalizeBloqueName(name){
+    if(!name) return '';
+    return name.replace(/\s+/g,' ').trim().toLowerCase();
+  }
+  function calcIVCategories(items){
+    var allow = new Set([
+      'habilidades intrapersonales',
+      'habilidades interpersonales',
+      'habilidades para la vida'
+    ]);
+    var base = items.filter(q => q.value!=null && allow.has(normalizeBloqueName(q.bloque)));
+    if(base.length===0) return {noData:true};
+    var direct = base.filter(q => !/^s/i.test(q.invertida||'No')).map(q=>q.value);
+    var invn   = base.filter(q =>  /^s/i.test(q.invertida||'No')).map(q=> 4 - q.value);
+    var alln = direct.concat(invn);
+    if(alln.length < 2){ return {iv1Cat:0, iv2Cat:0}; }
+    var avg = a => a.reduce((s,x)=>s+x,0)/a.length;
+    var m = avg(alln);
+    var st = Math.sqrt(alln.reduce((s,x)=>s+(x-m)*(x-m),0)/alln.length);
+    var diff = Math.abs(avg(direct.length?direct:[0]) - avg(invn.length?invn:[0]));
+    var iv1 = (st < 0.30)?0:(st<0.60)?1:2;
+    var iv2 = (diff < 0.30)?0:(diff<0.60)?1:2;
+    return {iv1Cat:iv1, iv2Cat:iv2};
+  }
+  function clearIV(){
+    (document.querySelectorAll('#ivTable td.sel')||[]).forEach(td=>td.classList.remove('sel'));
+  }
+  function paintIV(cats){
+    var rows = document.querySelectorAll('#ivTable tr');
+    if(rows[1]){
+      Array.from(rows[1].querySelectorAll('td')).forEach(td=>td.classList.remove('sel'));
+      if(!cats.noData && rows[1].children[1+cats.iv1Cat]) rows[1].children[1+cats.iv1Cat].classList.add('sel');
     }
-    return raw;
+    if(rows[2]){
+      Array.from(rows[2].querySelectorAll('td')).forEach(td=>td.classList.remove('sel'));
+      if(!cats.noData && rows[2].children[1+cats.iv2Cat]) rows[2].children[1+cats.iv2Cat].classList.add('sel');
+    }
   }
+  function calcPercents(items){
+    var byKey = new Map();
+    items.forEach(function(q){
+      if(q.value==null) return;
+      var norm = /^s/i.test(q.invertida||'No') ? 4 - q.value : q.value;
+      var key = normalizeBloqueName(q.bloque) + '||' + (q.sub||'').trim();
+      var agg = byKey.get(key) || {cnt:0, sum:0, bloque:q.bloque, sub:q.sub};
+      agg.cnt += 1;
+      agg.sum += norm;
+      byKey.set(key, agg);
+    });
+    var rows = [];
+    byKey.forEach(function(v){
+      var pct = v.cnt? (v.sum / (v.cnt*3))*100 : 0;
+      rows.push({bloque:v.bloque, sub:v.sub, pct:pct});
+    });
+    return rows;
+  }
+  function renderBar(container, pct, invert){
+    container.innerHTML='';
+    var bar = document.createElement('div');
+    bar.style.position='relative';
+    bar.style.height='22px';
+    bar.style.border='1px solid #9ca3af';
+    bar.style.borderRadius='4px';
+    bar.style.background='#f3f4f6';
+    for(var v=10; v<=100; v+=10){
+      var t=document.createElement('div'); t.style.position='absolute'; t.style.top='-6px'; t.style.left=v+'%'; t.style.width='1px'; t.style.height='24px'; t.style.background='#9ca3af'; bar.appendChild(t);
+      var l=document.createElement('div'); l.style.position='absolute'; l.style.top='16px'; l.style.left=v+'%'; l.style.fontSize='10px'; l.style.transform='translateX(-50%)'; l.textContent=v; bar.appendChild(l);
+    }
+    if(typeof pct==='number' && !isNaN(pct)){
+      var pos = Math.max(10, Math.min(100, invert ? (100 - pct) : pct));
+      var m=document.createElement('div'); m.style.position='absolute'; m.style.top='-2px'; m.style.left=pos+'%'; m.style.width='10px'; m.style.height='16px'; m.style.background='#111'; m.style.borderRadius='2px'; bar.appendChild(m);
+    }
+    container.appendChild(bar);
+  }
+  function renderEstilosYProp(items){
+    var rows = calcPercents(items);
+    var estilosBox = document.getElementById('estilos');
+    if(estilosBox){
+      estilosBox.innerHTML='';
+      var estilosRows = rows.filter(r => normalizeBloqueName(r.bloque) === 'estilos de comunicación interpersonal');
+      if(estilosRows.length){
+        var map = new Map();
+        estilosRows.forEach(r => map.set((r.sub||'').trim().toLowerCase(), r.pct));
+        function addRow(label, key, invert){
+          var pct = map.get(key);
+          var wrapper = document.createElement('div');
+          wrapper.style.display='grid';
+          wrapper.style.gridTemplateColumns='220px 1fr';
+          wrapper.style.alignItems='center';
+          wrapper.style.gap='8px';
+          wrapper.style.margin='6px 0';
+          var lab = document.createElement('div'); lab.textContent=label; lab.style.fontWeight='700'; lab.style.fontSize='12px'; wrapper.appendChild(lab);
+          var slot = document.createElement('div'); wrapper.appendChild(slot);
+          if(typeof pct==='number') renderBar(slot, pct, invert);
+          estilosBox.appendChild(wrapper);
+        }
+        addRow('AGRESIÓN','agresión',true); addRow('AGRESIÓN','agresion',true);
+        addRow('TIMIDEZ','timidez',true);
+        var note=document.createElement('div'); note.style.fontSize='12px'; note.textContent='*Un puntaje bajo indica mejor manejo en estas áreas.'; estilosBox.appendChild(note);
+      }
+    }
+    var propBox = document.getElementById('cambio');
+    if(propBox){
+      propBox.innerHTML='';
+      var pr = rows.find(r => (r.sub||'').trim().toLowerCase() === 'propensión al cambio' || (r.sub||'').trim().toLowerCase() === 'propension al cambio');
+      if(pr){
+        var wrapper = document.createElement('div');
+        wrapper.style.display='grid';
+        wrapper.style.gridTemplateColumns='220px 1fr';
+        wrapper.style.alignItems='center';
+        wrapper.style.gap='8px';
+        wrapper.style.margin='6px 0';
+        var lab = document.createElement('div'); lab.textContent='PROPENSIÓN AL CAMBIO'; lab.style.fontWeight='700'; lab.style.fontSize='12px'; wrapper.appendChild(lab);
+        var slot = document.createElement('div'); wrapper.appendChild(slot);
+        renderBar(slot, pr.pct, false);
+        propBox.appendChild(wrapper);
+      }
+    }
+  }
+  function runAll(){
+    cleanupVisibleBackslashN(document.body);
+    ensureIIELine();
+    var items = collectItems();
+    var cats = calcIVCategories(items);
+    clearIV();
+    if(!cats.noData) paintIV(cats);
+    renderEstilosYProp(items);
+  }
+  function hook(){
+    var btn = document.getElementById('btnCalcular') || document.querySelector('button#btnCalcular, button[data-action="calcular"]');
+    if(btn){ btn.addEventListener('click', function(){ setTimeout(runAll, 60); }); }
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', hook); } else { hook(); }
+})();
+</script>
 
-  $("btnVer").addEventListener("click", async ()=>{
-    const codigo = $("codigo").value.trim().toUpperCase();
-    $("estadoCodigo").textContent = "Consultando…";
-    $("estadoCodigo").className="muted";
-    $("panelDatos").style.display="none";
-    $("panelReporte").style.display="none";
-    $("msgSinIntentos").style.display="none";
 
-    if(!codigo){
-      $("estadoCodigo").textContent = "Escribe un código.";
+<!-- ===== FINAL Enhancer: IIE bold + IVs + Estilos/Propensión bars (robust) ===== -->
+<style>
+  .rep-iie-line{display:flex;align-items:center;justify-content:space-between;font-weight:700}
+  @media print{
+    @page{ size:A4; margin:14mm 12mm }
+    .page-break{ page-break-before:always }
+  }
+  #ivTable td.sel{ background:#fde68a !important }
+</style>
+<script>
+(function(){
+  function cleanupVisibleBackslashN(){
+    try{
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(function(n){
+        if(n.parentElement && !/^(SCRIPT|STYLE)$/i.test(n.parentElement.tagName) && /\\n/.test(n.nodeValue||"")){
+          n.nodeValue = n.nodeValue.replace(/\\n/g,' ');
+        }
+      });
+    }catch(_){}
+  }
+  function ensureIIELine(){
+    var rep = document.getElementById('repIIE');
+    if(!rep) return;
+    var host = rep.closest('.rep-iie-line');
+    if(host){
+      host.style.fontWeight='700';
+      host.style.display='flex';
+      host.style.justifyContent='space-between';
+      host.style.alignItems='center';
       return;
     }
-
-    try{
-      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
-      const data = await r.json();
-
-      if(!data || data.valid===false){
-        $("estadoCodigo").textContent = "Código inválido.";
-        $("estadoCodigo").className="status-bad";
-        return;
+    var old = rep.parentElement;
+    if(!old) return;
+    var val = rep.textContent;
+    var wrap = document.createElement('div');
+    wrap.className='rep-iie-line';
+    var left = document.createElement('span'); left.textContent='ÍNDICE DE INTELIGENCIA EMOCIONAL';
+    var right = document.createElement('span'); right.innerHTML='IIE: <span id="repIIE">'+ val +'</span>';
+    old.parentElement.replaceChild(wrap, old);
+    wrap.appendChild(left); wrap.appendChild(right);
+  }
+  function ensureAnchors(){
+    function afterHeadingMatch(rex){
+      var nodes = Array.from(document.querySelectorAll('h1,h2,h3,h4,strong,div,span,p'));
+      for(var i=0;i<nodes.length;i++){
+        var t = (nodes[i].textContent||'').trim().toLowerCase();
+        if(rex.test(t)) return nodes[i];
       }
-
-      $("estadoCodigo").textContent = "Código válido.";
-      $("estadoCodigo").className="status-ok";
-
-      const p = data.participant || data.participante || {};
-      const a = data.attempt || data.intento || null;
-
-      $("panelDatos").style.display="block";
-      $("dInst").textContent  = (a?.institucion || p.institucion || "—");
-      $("dGrupo").textContent = (a?.grupo || p.grupo || "—");
-      $("dCurso").textContent = (a?.curso || p.curso || "—");
-      $("dNombre").textContent= (a?.nombre || p.nombre || "—");
-      $("dEdad").textContent  = (a?.edad_anios ?? p.edad_anios ?? "—");
-      $("dFecha").textContent = (a?.created_at ? new Date(a.created_at).toLocaleString() : "—");
-
-      if(!a){
-        $("msgSinIntentos").style.display="block";
-        return;
-      }
-
-      const resultados = normalizeResultados(a.resultados || a.resultado || a.resultados_json);
-      if(!resultados){
-        $("msgSinIntentos").textContent = "El intento no tiene resultados guardados.";
-        $("msgSinIntentos").style.display="block";
-        return;
-      }
-
-      const subRows = resultados.subhabilidades || [];
-      const bloqPercents = resultados.bloqPercents || resultados.bloques_percent || {};
-
-      renderBloques(subRows, bloqPercents);
-
-      const g = resultados.globales || {};
-      const iie = g.IIE ?? a.iie ?? 0;
-      const iv1 = g.IV1 ?? a.iv1 ?? null;
-      const iv2 = g.IV2 ?? a.iv2 ?? null;
-      const iv3 = g.IV3 ?? a.iv3 ?? null;
-
-      $("vIIE").textContent = (iie || 0) + "%";
-      markIV(iv1, iv2, iv3);
-
-      // barras estilos
-      const agres = subRows.find(r=>String(r.sub).toLowerCase()==="agresión" || String(r.sub).toLowerCase()==="agresion");
-      const timid = subRows.find(r=>String(r.sub).toLowerCase()==="timidez");
-      setBar($("barAgresion"), agres?.pct ?? null);
-      setBar($("barTimidez"), timid?.pct ?? null);
-
-      // barra cambio usa bloque
-      const pctCambio = bloqPercents["Propensión al cambio"] ?? bloqPercents["Propension al cambio"] ?? a.b_cambio ?? null;
-      setBar($("barCambio"), pctCambio);
-
-      $("panelReporte").style.display="block";
-
-      $("btnJSON").onclick = ()=>{
-        const blob = new Blob([JSON.stringify({participant:p, attempt:a, resultados}, null, 2)], {type:"application/json"});
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${codigo}_reporte.json`;
-        link.click();
-        URL.revokeObjectURL(url);
-      };
-
-    }catch(err){
-      console.error(err);
-      $("estadoCodigo").textContent = "Error consultando reporte.";
-      $("estadoCodigo").className="status-bad";
+      return null;
     }
-  });
+    if(!document.getElementById('estilos')){
+      var h = afterHeadingMatch(/estilos de comunicación interpersonal/);
+      var anchor = document.createElement('div'); anchor.id='estilos';
+      if(h && h.parentNode){ h.parentNode.insertBefore(anchor, h.nextSibling); } else { document.body.appendChild(anchor); }
+    }
+    if(!document.getElementById('cambio')){
+      var hc = afterHeadingMatch(/propensión al cambio/);
+      var ac = document.createElement('div'); ac.id='cambio';
+      if(hc && h.parentNode){ hc.parentNode.insertBefore(ac, h.nextSibling); } else { document.body.appendChild(ac); }
+    }
+  }
+  function collectItems(){
+    var items=[];
+    document.querySelectorAll('[data-qid]').forEach(function(row){
+      var radios = row.querySelectorAll('input[type="radio"]');
+      var val=null; radios.forEach(function(r){ if(r.checked) val = parseInt(r.value,10); });
+      items.push({
+        id: parseInt(row.getAttribute('data-qid')||'0',10),
+        bloque: (row.getAttribute('data-bloque')||'').trim(),
+        sub: (row.getAttribute('data-sub')||'').trim(),
+        invertida: (row.getAttribute('data-invertida')||'No').trim(),
+        value: val
+      });
+    });
+    return items;
+  }
+  function normName(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim(); }
+  function isInv(v){ return (/^s/i).test((v||'No')); }
+  function computeIVs(items){
+    var allow = new Set(['habilidades intrapersonales','habilidades interpersonales','habilidades para la vida']);
+    var base = items.filter(function(q){ return q && q.value!=null && allow.has(normName(q.bloque)); });
+    if(base.length===0) return {noData:true};
+    var direct = base.filter(q => !isInv(q.invertida)).map(q=> q.value);
+    var invn   = base.filter(q =>  isInv(q.invertida)).map(q=> 4 - q.value);
+    var alln = direct.concat(invn);
+    if(alln.length < 2){ return {iv1Cat:0, iv2Cat:0, noData:false}; }
+    var avg = function(a){ return a.reduce((s,x)=>s+x,0)/a.length; };
+    var m = avg(alln);
+    var st = Math.sqrt(alln.reduce((s,x)=>s+(x-m)*(x-m),0)/alln.length);
+    var diff = Math.abs(avg(direct.length?direct:[0]) - avg(invn.length?invn:[0]));
+    var iv1 = (st < 0.30)?0:(st<0.60)?1:2;
+    var iv2 = (diff < 0.30)?0:(diff<0.60)?1:2;
+    return {iv1Cat:iv1, iv2Cat:iv2, noData:false};
+  }
+  function clearIV(){ (document.querySelectorAll('#ivTable td.sel')||[]).forEach(td=>td.classList.remove('sel')); }
+  function paintIV(c){
+    var rows = document.querySelectorAll('#ivTable tr');
+    if(rows[1]){ var tds = rows[1].querySelectorAll('td'); tds.forEach(td=>td.classList.remove('sel')); if(!c.noData && tds[1+c.iv1Cat]) tds[1+c.iv1Cat].classList.add('sel'); }
+    if(rows[2]){ var tds2= rows[2].querySelectorAll('td'); tds2.forEach(td=>td.classList.remove('sel')); if(!c.noData && tds2[1+c.iv2Cat]) tds2[1+c.iv2Cat].classList.add('sel'); }
+  }
+  function computePercents(items){
+    var map = new Map();
+    items.forEach(function(q){
+      if(q.value==null) return;
+      var key = normName(q.bloque) + '||' + normName(q.sub);
+      var norm = isInv(q.invertida) ? (4 - q.value) : q.value;
+      var agg = map.get(key) || {sum:0,cnt:0,bloque:q.bloque,sub:q.sub};
+      agg.sum += norm; agg.cnt += 1; map.set(key, agg);
+    });
+    var rows=[]; map.forEach(function(v){
+      var pct = v.cnt ? (v.sum / (v.cnt*3))*100 : 0;
+      rows.push({bloque:v.bloque, sub:v.sub, pct:pct});
+    });
+    return rows;
+  }
+  function renderTicks(bar){
+    for(var v=10; v<=100; v+=10){
+      var t=document.createElement('div'); t.style.position='absolute'; t.style.top='-6px'; t.style.left=v+'%'; t.style.width='1px'; t.style.height='24px'; t.style.background='#9ca3af'; bar.appendChild(t);
+      var l=document.createElement('div'); l.style.position='absolute'; l.style.top='16px'; l.style.left=v+'%'; l.style.fontSize='10px'; l.style.transform='translateX(-50%)'; l.textContent=v; bar.appendChild(l);
+    }
+  }
+  function renderBar(container, pct, invert){
+    container.innerHTML='';
+    var bar=document.createElement('div');
+    bar.style.position='relative'; bar.style.height='22px'; bar.style.border='1px solid #9ca3af'; bar.style.borderRadius='4px'; bar.style.background='#f3f4f6';
+    renderTicks(bar);
+    if(typeof pct==='number' && !isNaN(pct)){
+      var pos = Math.max(10, Math.min(100, invert ? (100 - pct) : pct));
+      var m=document.createElement('div'); m.style.position='absolute'; m.style.top='-2px'; m.style.left=pos+'%'; m.style.width='10px'; m.style.height='16px'; m.style.background='#111'; m.style.borderRadius='2px'; bar.appendChild(m);
+    }
+    container.appendChild(bar);
+  }
+  function renderEstilosYProp(items){
+    ensureAnchors();
+    var rows = computePercents(items);
+    // Estilos: Agresión / Timidez
+    var estilos = document.getElementById('estilos');
+    if(estilos){
+      estilos.innerHTML='';
+      var estilosRows = rows.filter(r => normName(r.bloque) === 'estilos de comunicacion interpersonal');
+      if(estilosRows.length){
+        var m=new Map(); estilosRows.forEach(r=> m.set(normName(r.sub), r.pct));
+        function add(label, key, invert){
+          var pct = m.get(key);
+          var wrap=document.createElement('div'); wrap.style.display='grid'; wrap.style.gridTemplateColumns='220px 1fr'; wrap.style.alignItems='center'; wrap.style.gap='8px'; wrap.style.margin='6px 0';
+          var lab=document.createElement('div'); lab.textContent=label; lab.style.fontWeight='700'; lab.style.fontSize='12px'; wrap.appendChild(lab);
+          var slot=document.createElement('div'); wrap.appendChild(slot);
+          if(typeof pct==='number') renderBar(slot, pct, invert);
+          estilos.appendChild(wrap);
+        }
+        add('AGRESIÓN','agresion',true);
+        add('TIMIDEZ','timidez',true);
+        var note=document.createElement('div'); note.style.fontSize='12px'; note.textContent='*Un puntaje bajo indica mejor manejo en estas áreas.'; estilos.appendChild(note);
+      }
+    }
+    // Propensión al cambio
+    var cambio = document.getElementById('cambio');
+    if(cambio){
+      cambio.innerHTML='';
+      var pr = rows.find(r => normName(r.sub) === 'propension al cambio' or normName(r.bloque) === 'propension al cambio');
+      if(pr){
+        var wrap=document.createElement('div'); wrap.style.display='grid'; wrap.style.gridTemplateColumns='220px 1fr'; wrap.style.alignItems='center'; wrap.style.gap='8px'; wrap.style.margin='6px 0';
+        var lab=document.createElement('div'); lab.textContent='PROPENSIÓN AL CAMBIO'; lab.style.fontWeight='700'; lab.style.fontSize='12px'; wrap.appendChild(lab);
+        var slot=document.createElement('div'); wrap.appendChild(slot);
+        renderBar(slot, pr.pct, false);
+        cambio.appendChild(wrap);
+      }
+    }
+  }
+  function runAll(){
+    cleanupVisibleBackslashN();
+    ensureIIELine();
+    ensureAnchors();
+    var items = collectItems();
+    var iv = computeIVs(items);
+    clearIV();
+    if(!iv.noData) paintIV(iv);
+    renderEstilosYProp(items);
+  }
+  function hook(){
+    var btn = document.getElementById('btnCalcular') || document.querySelector('button#btnCalcular, button[data-action="calcular"]');
+    if(btn){ btn.addEventListener('click', function(){ setTimeout(runAll, 60); }); }
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(runAll, 80); });
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', hook); } else { hook(); }
+})();
 </script>
+
+
+<!-- ===== FINAL2 Patch: force IIE bold + robust Estilos/Propensión bars (reads from table) ===== -->
+<style>
+  .rep-iie-line{display:flex;align-items:center;justify-content:space-between;font-weight:700}
+  .bars-wrap{margin:8px 0}
+  .bars-row{display:grid;grid-template-columns:220px 1fr;align-items:center;gap:8px;margin:6px 0}
+  .bars-row .label{font-weight:700;font-size:12px}
+  .bars-slot{position:relative;height:22px;border:1px solid #9ca3af;border-radius:4px;background:#f3f4f6}
+  .bars-slot .tick{position:absolute;top:-6px;width:1px;height:24px;background:#9ca3af}
+  .bars-slot .tick-label{position:absolute;top:16px;font-size:10px;transform:translateX(-50%)}
+  .bars-slot .marker{position:absolute;top:-2px;width:10px;height:16px;background:#111;border-radius:2px}
+  @media print{
+    @page{ size:A4; margin:14mm 12mm }
+  }
+</style>
+<script>
+(function(){
+  function cleanupVisibleBackslashN(){
+    try{
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(function(n){
+        if(n.parentElement && !/^(SCRIPT|STYLE)$/i.test(n.parentElement.tagName) && /\\n/.test(n.nodeValue||"")){
+          n.nodeValue = n.nodeValue.replace(/\\n/g,' ');
+        }
+      });
+    }catch(_){}
+  }
+  function forceIieBold(){
+    // Find the line that contains "ÍNDICE DE INTELIGENCIA EMOCIONAL" and an "IIE:" text somewhere to the right
+    var all = Array.from(document.querySelectorAll('h1,h2,h3,h4,div,p,strong,span'));
+    var host = null, iieTextNode = null;
+    all.forEach(function(el){
+      var t = (el.textContent||'').trim().toLowerCase();
+      if(!host && t.indexOf('índice de inteligencia emocional') !== -1) host = el;
+    });
+    if(!host) return;
+    // Try to find sibling or same-line text "IIE: ##"
+    var walker = document.createTreeWalker(host.parentNode, NodeFilter.SHOW_TEXT, null);
+    while(walker.nextNode()){
+      var n = walker.currentNode;
+      if(/IIE\s*:\s*\d+/i.test(n.nodeValue||'')){ iieTextNode = n; break; }
+    }
+    // Build bold line even if we didn't find the number; we will keep original text to the right if found
+    var wrapper = document.createElement('div');
+    wrapper.className = 'rep-iie-line';
+    var left = document.createElement('span');
+    left.textContent = 'ÍNDICE DE INTELIGENCIA EMOCIONAL';
+    var right = document.createElement('span');
+    if(iieTextNode){
+      right.textContent = iieTextNode.nodeValue.trim();
+      try{ iieTextNode.parentNode.removeChild(iieTextNode); }catch(_){}
+    }else{
+      // fallback: keep any existing right-aligned placeholder (will stay empty if none)
+      var current = Array.from(host.parentNode.childNodes).slice(-1)[0];
+      right.textContent = (current && /IIE/i.test(current.textContent||'')) ? (current.textContent||'').trim() : 'IIE: ';
+    }
+    // Replace the host with wrapper, inserting before its next sibling
+    host.parentNode.insertBefore(wrapper, host.nextSibling);
+    wrapper.appendChild(left);
+    wrapper.appendChild(right);
+  }
+  function ensureAnchorAfterTitle(titleRegex, id){
+    if(document.getElementById(id)) return document.getElementById(id);
+    var nodes = Array.from(document.querySelectorAll('h1,h2,h3,h4,strong,div,span,p'));
+    var anchorAfter = null;
+    nodes.some(function(el){
+      var t = (el.textContent||'').toLowerCase().replace(/\s+/g,' ').trim();
+      if(titleRegex.test(t)){ anchorAfter = el; return true; }
+      return false;
+    });
+    var anchor = document.createElement('div'); anchor.id = id; anchor.className='bars-wrap';
+    if(anchorAfter && anchorAfter.parentNode){
+      anchorAfter.parentNode.insertBefore(anchor, anchorAfter.nextSibling);
+    }else{
+      document.body.appendChild(anchor);
+    }
+    return anchor;
+  }
+  function addTicks(slot){
+    for(var v=10; v<=100; v+=10){
+      var tick=document.createElement('div'); tick.className='tick'; tick.style.left=v+'%'; slot.appendChild(tick);
+      var lab=document.createElement('div'); lab.className='tick-label'; lab.style.left=v+'%'; lab.textContent=v; slot.appendChild(lab);
+    }
+  }
+  function renderBar(container, pct, invert){
+    container.innerHTML='';
+    var row=document.createElement('div'); row.className='bars-row';
+    var label=document.createElement('div'); label.className='label'; label.textContent=pct.label; row.appendChild(label);
+    var slot=document.createElement('div'); slot.className='bars-slot'; row.appendChild(slot);
+    addTicks(slot);
+    if(typeof pct.value==='number'){
+      var pos = Math.max(10, Math.min(100, invert ? (100 - pct.value) : pct.value));
+      var m=document.createElement('div'); m.className='marker'; m.style.left=pos+'%'; slot.appendChild(m);
+    }
+    container.appendChild(row);
+  }
+  function parsePercentsFromTable(){
+    // Look for table row headings and harvest % column
+    var out = { agresion: null, timidez: null, cambio: null };
+    var tables = Array.from(document.querySelectorAll('table'));
+    tables.forEach(function(tb){
+      Array.from(tb.querySelectorAll('tr')).forEach(function(tr){
+        var tds = tr.querySelectorAll('td');
+        if(tds.length < 5) return;
+        var bloque = (tds[0].textContent||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        var sub = (tds[1].textContent||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        var perc = (tds[4].textContent||'').trim();
+        var val = null;
+        var m = perc.match(/(\d{1,3})\s*$/); if(m) val = parseInt(m[1],10);
+        if(bloque.indexOf('estilos de comunicacion interpersonal')>-1){
+          if(sub.indexOf('agresion')>-1) out.agresion = val;
+          if(sub.indexOf('timidez')>-1) out.timidez = val;
+        }
+        if(sub.indexOf('propension al cambio')>-1 || bloque.indexOf('propension al cambio')>-1){
+          out.cambio = val;
+        }
+      });
+    });
+    return out;
+  }
+  function renderEstilosYProp(){
+    var vals = parsePercentsFromTable();
+    // Estilos
+    var estilos = ensureAnchorAfterTitle(/estilos de comunicacion interpersonal/, 'estilos');
+    estilos.innerHTML='';
+    if(vals.agresion!=null || vals.timidez!=null){
+      if(vals.agresion!=null) renderBar(estilos, {label:'AGRESIÓN', value: vals.agresion}, true);
+      if(vals.timidez!=null) renderBar(estilos, {label:'TIMIDEZ', value: vals.timidez}, true);
+      var note=document.createElement('div'); note.style.fontSize='12px'; note.textContent='*Un puntaje bajo indica mejor manejo en estas áreas.'; estilos.appendChild(note);
+    }
+    // Propensión
+    var cambio = ensureAnchorAfterTitle(/propension al cambio/, 'cambio');
+    cambio.innerHTML='';
+    if(vals.cambio!=null){
+      renderBar(cambio, {label:'PROPENSIÓN AL CAMBIO', value: vals.cambio}, false);
+    }
+  }
+  function runAll(){
+    cleanupVisibleBackslashN();
+    forceIieBold();
+    renderEstilosYProp();
+  }
+  function hook(){
+    var btn = document.getElementById('btnCalcular') || document.querySelector('button#btnCalcular, button[data-action="calcular"]');
+    if(btn){ btn.addEventListener('click', function(){ setTimeout(runAll, 60); }); }
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(runAll, 120); });
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', hook); } else { hook(); }
+})();
+</script>
+
+
+<!-- === FINAL3 Patch: IIE bold persistente + barras Estilos (Agresión/Timidez) por posición + Propensión === -->
+<style>
+  .rep-iie-line{display:flex;align-items:center;justify-content:space-between;font-weight:700}
+  .bars-wrap{margin:8px 0}
+  .bars-row{display:grid;grid-template-columns:220px 1fr;align-items:center;gap:8px;margin:6px 0}
+  .bars-row .label{font-weight:700;font-size:12px}
+  .bars-slot{position:relative;height:22px;border:1px solid #9ca3af;border-radius:4px;background:#f3f4f6}
+  .bars-slot .tick{position:absolute;top:-6px;width:1px;height:24px;background:#9ca3af}
+  .bars-slot .tick-label{position:absolute;top:16px;font-size:10px;transform:translateX(-50%)}
+  .bars-slot .marker{position:absolute;top:-2px;width:10px;height:16px;background:#111;border-radius:2px}
+  @media print{@page{ size:A4; margin:14mm 12mm }}
+</style>
+<script>
+(function(){
+  function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();}
+  function cleanupVisibleBackslashN(){
+    try{
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(function(n){
+        if(n.parentElement && !/^(SCRIPT|STYLE)$/i.test(n.parentElement.tagName) && /\\n/.test(n.nodeValue||"")){
+          n.nodeValue = n.nodeValue.replace(/\\n/g,' ');
+        }
+      });
+    }catch(_){}
+  }
+  function forceIieBold(){
+    var nodes = Array.from(document.querySelectorAll('h1,h2,h3,h4,strong,div,p,span'));
+    var header = nodes.find(el => norm(el.textContent).indexOf('indice de inteligencia emocional')>-1);
+    if(!header) return;
+    var iieMatch = null;
+    var scope = header.parentNode || document.body;
+    var tw = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT, null);
+    while(tw.nextNode()){
+      var t = tw.currentNode.nodeValue||'';
+      var m = t.match(/IIE\s*:\s*(\d{1,3})/i);
+      if(m){ iieMatch = 'IIE: '+m[1]; try{tw.currentNode.nodeValue = tw.currentNode.nodeValue.replace(/IIE\s*:\s*\d{1,3}/i,'');}catch(_){ } break; }
+    }
+    var wrap = document.createElement('div');
+    wrap.className='rep-iie-line';
+    var left = document.createElement('span'); left.textContent='ÍNDICE DE INTELIGENCIA EMOCIONAL';
+    var right = document.createElement('span'); right.textContent = iieMatch || 'IIE: ';
+    if(header.nextSibling){
+      header.parentNode.insertBefore(wrap, header.nextSibling);
+    }else{
+      header.parentNode.appendChild(wrap);
+    }
+    wrap.appendChild(left); wrap.appendChild(right);
+  }
+  function ensureAnchorAfterTitle(titleRegex, id){
+    var el = document.getElementById(id);
+    if(el) return el;
+    var nodes = Array.from(document.querySelectorAll('h1,h2,h3,h4,strong,div,p,span'));
+    var hdr = nodes.find(e => titleRegex.test(norm(e.textContent)));
+    var anchor = document.createElement('div'); anchor.id=id; anchor.className='bars-wrap';
+    if(hdr && hdr.parentNode){
+      hdr.parentNode.insertBefore(anchor, hdr.nextSibling);
+    }else{
+      document.body.appendChild(anchor);
+    }
+    return anchor;
+  }
+  function addTicks(slot){
+    for(var v=10; v<=100; v+=10){
+      var tick=document.createElement('div'); tick.className='tick'; tick.style.left=v+'%'; slot.appendChild(tick);
+      var lab=document.createElement('div'); lab.className='tick-label'; lab.style.left=v+'%'; lab.textContent=v; slot.appendChild(lab);
+    }
+  }
+  function addBar(container, labelText, value, invert){
+    var row=document.createElement('div'); row.className='bars-row';
+    var lab=document.createElement('div'); lab.className='label'; lab.textContent=labelText; row.appendChild(lab);
+    var slot=document.createElement('div'); slot.className='bars-slot'; row.appendChild(slot);
+    addTicks(slot);
+    if(typeof value==='number' && !isNaN(value)){
+      var pos = Math.max(10, Math.min(100, invert ? (100 - value) : value));
+      var m=document.createElement('div'); m.className='marker'; m.style.left=pos+'%'; slot.appendChild(m);
+    }
+    container.appendChild(row);
+  }
+  function parseFromResultsTable(){
+    var rows=[];
+    var tables = Array.from(document.querySelectorAll('table'));
+    tables.forEach(function(tb){
+      Array.from(tb.querySelectorAll('tr')).forEach(function(tr){
+        var tds = tr.querySelectorAll('td');
+        if(tds.length < 5) return;
+        var bloque = norm(tds[0].textContent);
+        var sub = norm(tds[1].textContent);
+        var pctText = (tds[4].textContent||'').trim();
+        var m = pctText.match(/(\d{1,3})\s*$/);
+        var pct = m ? parseInt(m[1],10) : null;
+        rows.push({bloque:bloque, sub:sub, pct:pct});
+      });
+    });
+    return rows;
+  }
+  function renderEstilosYProp(){
+    var data = parseFromResultsTable();
+    var estilosRows = data.filter(r => r.bloque.indexOf('estilos de comunicacion interpersonal')>-1);
+    var estilos = ensureAnchorAfterTitle(/estilos de comunicacion interpersonal/, 'estilos');
+    estilos.innerHTML='';
+    if(estilosRows.length){
+      var first = estilosRows[0], second = estilosRows[1];
+      if(first)  addBar(estilos, first.sub.toUpperCase(),  first.pct, true);
+      if(second) addBar(estilos, second.sub.toUpperCase(), second.pct, true);
+      var note=document.createElement('div'); note.style.fontSize='12px'; note.textContent='*Un puntaje bajo indica mejor manejo en estas áreas.'; estilos.appendChild(note);
+    }
+    var cambioRow = data.find(r => r.bloque.indexOf('propension al cambio')>-1 || r.sub.indexOf('propension al cambio')>-1);
+    var cambio = ensureAnchorAfterTitle(/propension al cambio/, 'cambio');
+    cambio.innerHTML='';
+    if(cambioRow){
+      addBar(cambio, 'PROPENSIÓN AL CAMBIO', cambioRow.pct, false);
+    }
+  }
+  function runAll(){
+    cleanupVisibleBackslashN();
+    forceIieBold();
+    renderEstilosYProp();
+  }
+  function hook(){
+    var btn = document.getElementById('btnCalcular') || document.querySelector('button#btnCalcular, button[data-action="calcular"]');
+    if(btn){ btn.addEventListener('click', function(){ setTimeout(runAll, 80); }); }
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(runAll, 120); });
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', hook); } else { hook(); }
+})();
+</script>
+
 </body>
 </html>
