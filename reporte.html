@@ -1,9 +1,10 @@
+
 <!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Rep MHP100 – Reporte PPA</title>
+<title>OKMHP100 – Reporte PPA</title>
 
 <style>
   :root{
@@ -25,7 +26,6 @@
   .msg.ok{color:#0a8b2a}
   .msg.err{color:#b30000}
 
-  /* Páginas */
   .page{margin-top:10px}
   .page-break{height:0;margin:0;border:0}
   @media print{
@@ -35,7 +35,6 @@
     body{margin:0}
   }
 
-  /* Header pág.1 */
   .p1-header{
     display:flex;align-items:flex-start;justify-content:space-between;margin-top:8px
   }
@@ -52,28 +51,25 @@
   .info-row b{min-width:90px}
   .info-row span{font-weight:700}
 
-  /* Curva distribución */
   .curve-wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;margin-top:10px}
   .curve-card{border:1px solid var(--line);border-radius:10px;padding:10px}
   .curve-title{font-weight:800;margin-bottom:6px}
   .curve-bar{
-    position:relative;height:12px;border-radius:999px;overflow:hidden;border:1px solid #999;
+    position:relative;height:14px;border-radius:999px;overflow:hidden;border:1px solid #999;
     background:linear-gradient(90deg,#e74c3c 0%, #f39c12 35%, #2ecc71 70%, #5dade2 100%);
   }
   .curve-marker{
-    position:absolute;top:-5px;width:10px;height:10px;border-radius:50%;
+    position:absolute;top:-4px;width:10px;height:10px;border-radius:50%;
     background:#111;border:2px solid #fff;transform:translateX(-50%);
   }
   .curve-scale{display:flex;justify-content:space-between;font-size:12px;color:#222;margin-top:4px}
 
-  /* Tabla IVs */
   table{border-collapse:collapse;width:100%}
   .iv-table td,.iv-table th{border:1px solid #aaa;padding:6px 7px;font-size:13px;vertical-align:middle}
   .iv-table th{background:#f0f0f0;text-align:center}
   .iv-table .ivcol{width:80px;font-weight:800;text-align:center}
   .iv-table .hl{background:var(--yellow)}
 
-  /* Barras de habilidades por bloque (3 columnas) */
   .skills-block{margin-top:12px}
   .skills-head{
     display:flex;justify-content:space-between;align-items:center;font-weight:800;margin-bottom:4px
@@ -88,12 +84,11 @@
   .fill{position:absolute;left:0;top:0;bottom:0;background:#6b7280}
   .namecell{padding-left:2px}
 
-  /* Estilos comunicación + Prop cambio (10-100) */
   .bars-card{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
   .barrow{margin:8px 0}
   .barlabel{font-weight:800;font-size:14px}
   .bar{
-    position:relative;height:12px;border-radius:999px;overflow:hidden;border:1px solid #999;
+    position:relative;height:14px;border-radius:999px;overflow:hidden;border:1px solid #999;
     background:linear-gradient(90deg,#e74c3c 0%, #f39c12 50%, #2ecc71 100%);
   }
   .bar .marker{
@@ -101,7 +96,6 @@
   }
   .bar-scale{display:flex;justify-content:space-between;font-size:12px;color:#222;margin-top:2px}
 
-  /* Página 2 */
   .p2-title{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
   .p2-title h2{font-size:18px;font-weight:800}
   .card{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
@@ -129,10 +123,8 @@
   </div>
   <div class="hint">Tip: también puedes abrir /reporte.html?codigo=LEX004</div>
 
-  <!-- REPORTE -->
   <div id="reporteContainer" style="display:none">
 
-    <!-- PÁGINA 1 -->
     <section class="page page-1" id="page1">
       <div class="p1-header">
         <div class="p1-title">
@@ -197,10 +189,8 @@
         </div>
       </div>
 
-      <!-- Bloques de habilidades -->
       <div id="skillsBlocks"></div>
 
-      <!-- Estilos + Propensión -->
       <div class="bars-card">
         <div style="font-weight:800;margin-bottom:4px">ESTILOS DE COMUNICACIÓN INTERPERSONAL</div>
         <div class="hint">Puntaje bajo = mejor manejo (marcador a la izquierda). Solo aparece si hay datos.</div>
@@ -229,7 +219,6 @@
 
     <div class="page-break"></div>
 
-    <!-- PÁGINA 2 -->
     <section class="page page-2" id="page2">
       <div class="p2-title">
         <h2>RESULTADOS</h2>
@@ -283,10 +272,29 @@ function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
 function highlightIV(rowId, colIndex){
   const row = document.getElementById(rowId);
   if(!row) return;
-  [...row.children].forEach((td,i)=>td.classList.remove("hl"));
-  // colIndex: 1,2,3 sobre las 3 columnas interpretativas
-  const td = row.children[colIndex];
+  [...row.children].forEach((td)=>td.classList.remove("hl"));
+  const idx = Math.max(1, Math.min(3, colIndex|0));
+  const td = row.children[idx];
   if(td) td.classList.add("hl");
+}
+
+// Traduce cualquier valor de IV (1–3 ó 0–100) a columna 1/2/3
+function ivToCol(v){
+  if (v === null || v === undefined) return 2;
+  const n = Number(v);
+  if (!Number.isNaN(n)){
+    if (Number.isInteger(n) && n>=1 && n<=3){
+      return n; // ya viene 1,2,3
+    }
+    if (n <= 40) return 1;
+    if (n <= 70) return 2;
+    return 3;
+  }
+  // Si llegaran strings, intenta por palabras clave básicas
+  const s = String(v).toLowerCase();
+  if (s.includes("responde coher") || s.includes("no se contradice") || s.includes("30 y 90")) return 2;
+  if (s.includes("se contradice frecuentemente") || s.includes("más de 90")) return 3;
+  return 2;
 }
 
 function setMarker(id, val){
@@ -300,8 +308,6 @@ function setMarker(id, val){
 function renderSkillsBlocks(subRows){
   const host = $("#skillsBlocks");
   host.innerHTML = "";
-
-  // agrupar por bloque
   const byBlock = {};
   subRows.forEach(r=>{
     const b = r.bloque || r.block || "Bloque";
@@ -309,17 +315,16 @@ function renderSkillsBlocks(subRows){
   });
 
   for(const [bloque, rows] of Object.entries(byBlock)){
-    // solo los 3 bloques grandes se muestran aquí (Intra, Inter, PV)
     if(!/intra|inter|vida|pv/i.test(bloque)) continue;
-
-    const totalPct = Math.round(rows.reduce((a,r)=>a+(r.percent??r.pct??0),0)/rows.length);
+    const totalPct = Math.round(rows.reduce((a,r)=>a+(r.percent??r.pct??0),0)/rows.length||0);
 
     const div = document.createElement("div");
     div.className="skills-block";
+    const ihLabel = /intra/i.test(bloque) ? "IH INTRA" : /inter/i.test(bloque) ? "IH INTER" : "IH PV";
     div.innerHTML = `
       <div class="skills-head">
         <div>${bloque.toUpperCase()}</div>
-        <div>IH ${bloque.match(/intra/i)?"INTRA":bloque.match(/inter/i)?"INTER":"PV"}: ${totalPct}</div>
+        <div>${ihLabel}: ${totalPct}</div>
       </div>
       <div class="skills-grid">
         <div></div>
@@ -349,7 +354,6 @@ function renderSkillsBlocks(subRows){
 }
 
 function renderPage2(subRows, bloqRows){
-  // subhabilidades
   const subT = $("#subTable tbody");
   subT.innerHTML = "";
   subRows.forEach(r=>{
@@ -371,7 +375,6 @@ function renderPage2(subRows, bloqRows){
     subT.appendChild(tr);
   });
 
-  // bloques
   const bloqT = $("#bloqTable tbody");
   bloqT.innerHTML = "";
   bloqRows.forEach(r=>{
@@ -389,13 +392,13 @@ function renderPage2(subRows, bloqRows){
 }
 
 function renderAll(data){
-  // normalizar estructura
   const attempt = data.attempt || data;
   const snap = attempt.snapshot || attempt.snap || attempt;
   const subRows = attempt.subhabilidades || attempt.subhabilidad || attempt.subRows || attempt.sub || [];
   const bloqRows = attempt.bloqPercents || attempt.bloqRows || attempt.bloques || [];
 
-  // datos de cabecera
+  window.__LAST_REPORT__ = data;
+
   $("#pCodigo").textContent = snap.codigo || attempt.codigo || $("#codigoInput").value.toUpperCase();
   $("#pNombre").textContent = snap.nombre || attempt.nombre || "—";
   $("#pEdad").textContent = snap.edad_anios ?? snap.edad ?? attempt.edad_anios ?? "—";
@@ -406,31 +409,25 @@ function renderAll(data){
   const fecha = attempt.created_at || attempt.creado_en || attempt.fecha_intento;
   $("#fechaLine").textContent = "Fecha: " + (fecha ? new Date(fecha).toLocaleString("es-EC") : "—");
 
-  // curva (usa IIE como marcador)
   const iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie;
   if(iie!=null){
-    const left = clamp(iie,1,100);
-    $("#curveMarker").style.left = left + "%";
+    $("#curveMarker").style.left = clamp(iie,1,100) + "%";
   }
 
-  // IVs: si vienen categorías, úsalas; si no, usa valor 1/2/3
-  const iv1 = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1;
-  const iv2 = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2;
-  const iv3 = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3;
-  // Mapeo simple: 1=col1, 2=col2, 3=col3
-  if(iv1!=null) highlightIV("iv1Row", clamp(Number(iv1),1,3));
-  if(iv2!=null) highlightIV("iv2Row", clamp(Number(iv2),1,3));
-  if(iv3!=null) highlightIV("iv3Row", clamp(Number(iv3),1,3));
+  const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1;
+  const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2;
+  const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3;
 
-  // Bloques de habilidades (Intra/Inter/PV)
+  highlightIV("iv1Row", ivToCol(iv1Val));
+  highlightIV("iv2Row", ivToCol(iv2Val));
+  highlightIV("iv3Row", ivToCol(iv3Val));
+
   renderSkillsBlocks(subRows);
 
-  // Estilos comunicación / Prop cambio
   setMarker("mAgresion", attempt.agresion ?? attempt.Agresion);
   setMarker("mTimidez", attempt.timidez ?? attempt.Timidez);
   setMarker("mCambio", attempt.propension_cambio ?? attempt.propCambio ?? attempt.PropCambio);
 
-  // Página 2
   const contestadas = attempt.contestadas || attempt.n_respondidas || "244 de 244";
   $("#contestadasLine").textContent = contestadas;
   renderPage2(subRows, bloqRows);
