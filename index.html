@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>PARA COMPROBAR MHP100 – Evaluación PPA (Formulario)</title>
+  <title>FFFMHP100 – Evaluación PPA (Formulario)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -50,16 +50,6 @@
     }
     .muted {
       color: #6b7280;
-      font-size: 13px;
-    }
-    .ok {
-      color: #0f7a3a;
-      font-weight: 700;
-      font-size: 13px;
-    }
-    .err {
-      color: #b00020;
-      font-weight: 700;
       font-size: 13px;
     }
     .card {
@@ -315,10 +305,10 @@
       <!-- Datos del participante (solo visibles en la primera pantalla y al final) -->
       <section id="datos-participante" class="card">
         <div class="grid-2">
-          <div class="field" style="grid-column: 1 / -1;">
+          <div class="field">
             <label for="codigo">Código</label>
             <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
-            <div id="codigoMsg" class="muted"></div>
+            <small id="codigoMsg" class="muted"></small>
           </div>
 
           <div class="field">
@@ -460,7 +450,60 @@
     let __startTime = performance.now();
 
     let CODIGO_ACTUAL = null;
-    let codigoValido = false;
+     // === LOOKUP POR CÓDIGO (v6) ===
+     const codigoInput = document.getElementById('codigo');
+     const instInput   = document.getElementById('institucion');
+     const grupoInput  = document.getElementById('grupo');
+     const cursoInput  = document.getElementById('curso');
+     const btnIniciar  = document.getElementById('btnIniciar');
+     const codigoMsg   = document.getElementById('codigoMsg');
+
+     async function lookupCodigo() {
+       const codigo = codigoInput.value.trim().toUpperCase();
+       codigoInput.value = codigo;
+       CODIGO_ACTUAL = null;
+       btnIniciar.disabled = true;
+       if (codigoMsg) {
+         codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
+         codigoMsg.className = codigo ? 'muted' : 'err';
+       }
+       if (!codigo) {
+         instInput.value = grupoInput.value = cursoInput.value = '';
+         return;
+       }
+       try {
+         const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
+         const data = await r.json();
+         if (!r.ok) throw new Error(data.error || 'Código no válido');
+         instInput.value  = data.institucion || '';
+         grupoInput.value = data.grupo || '';
+         cursoInput.value = data.curso || '';
+         CODIGO_ACTUAL = data.codigo || codigo;
+         btnIniciar.disabled = false;
+         if (codigoMsg) {
+           codigoMsg.textContent = 'Código válido.';
+           codigoMsg.className = 'ok';
+         }
+       } catch (e) {
+         instInput.value = grupoInput.value = cursoInput.value = '';
+         if (codigoMsg) {
+           codigoMsg.textContent = 'Código no encontrado.';
+           codigoMsg.className = 'err';
+         }
+       }
+     }
+
+     codigoInput.addEventListener('input', () => {
+       codigoInput.value = codigoInput.value.toUpperCase();
+     });
+     codigoInput.addEventListener('blur', lookupCodigo);
+     codigoInput.addEventListener('keydown', (e) => {
+       if (e.key === 'Enter') {
+         e.preventDefault();
+         lookupCodigo();
+       }
+     });
+     // === FIN LOOKUP ===
 
     const PUEDE_VER_RESULTADO = true;
 
@@ -1069,17 +1112,6 @@
 
       console.log("Payload listo para enviar a servidor:", payload);
 
-      // Enviar a backend (Vercel Postgres)
-      fetch("/api/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-        .then(r => r.json())
-        .then(d => console.log("Submit OK:", d))
-        .catch(e => console.error("Submit error:", e));
-
-
       // Mostrar nuevamente los datos del participante encima del mensaje final
       document.getElementById("datos-participante").classList.remove("hidden");
       document.getElementById("nombre").readOnly = true;
@@ -1115,10 +1147,6 @@
     function validarAntesDeIniciar() {
       const nombre = document.getElementById("nombre").value.trim();
       const edadStr = document.getElementById("edad").value.trim();
-      if (!codigoValido || !CODIGO_ACTUAL) {
-        alert("Por favor ingresa un código válido antes de iniciar.");
-        return false;
-      }
       if (!nombre || !edadStr) {
         alert("Por favor ingresa tu nombre y edad antes de iniciar.");
         return false;
@@ -1136,71 +1164,10 @@
       construirPreguntas();
 
       document
-      // === LOOKUP POR CÓDIGO ===
-      const codigoInput = document.getElementById("codigo");
-      const codigoMsg = document.getElementById("codigoMsg");
-      const instInput = document.getElementById("institucion");
-      const grupoInput = document.getElementById("grupo");
-      const cursoInput = document.getElementById("curso");
-      const btnIniciar = document.getElementById("btnIniciar");
-
-      async function lookupCodigo() {
-        const codigo = codigoInput.value.trim().toUpperCase();
-        codigoInput.value = codigo;
-        CODIGO_ACTUAL = null;
-        codigoValido = false;
-        btnIniciar.disabled = true;
-        codigoMsg.textContent = "";
-        codigoMsg.className = "muted";
-
-        if (!codigo) {
-          instInput.value = grupoInput.value = cursoInput.value = "";
-          codigoMsg.textContent = "Ingresa un código.";
-          codigoMsg.className = "err";
-          return;
-        }
-
-        codigoMsg.textContent = "Buscando...";
-
-        try {
-          const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
-          const data = await r.json();
-          if (!r.ok) throw new Error(data.error || "Código no válido");
-
-          instInput.value = data.institucion || "";
-          grupoInput.value = data.grupo || "";
-          cursoInput.value = data.curso || "";
-          CODIGO_ACTUAL = codigo;
-          codigoValido = true;
-
-          codigoMsg.textContent = "Código válido.";
-          codigoMsg.className = "ok";
-          btnIniciar.disabled = false;
-        } catch (e) {
-          instInput.value = grupoInput.value = cursoInput.value = "";
-          codigoMsg.textContent = "Código no encontrado.";
-          codigoMsg.className = "err";
-        }
-      }
-
-      codigoInput.addEventListener("input", () => {
-        codigoInput.value = codigoInput.value.toUpperCase();
-      });
-      codigoInput.addEventListener("blur", lookupCodigo);
-      codigoInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          lookupCodigo();
-        }
-      });
-
-      // deshabilitar iniciar hasta validar
-      btnIniciar.disabled = true;
-      // === FIN LOOKUP ===
-
         .getElementById("btnIniciar")
         .addEventListener("click", () => {
           if (!validarAntesDeIniciar()) return;
+          __startTime = performance.now(); // inicia cronómetro IV3 al comenzar
           document.getElementById("pantalla-inicio").classList.add("hidden");
           document.getElementById("datos-participante").classList.add("hidden");
           document
