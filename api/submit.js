@@ -34,18 +34,12 @@ module.exports = async function handler(req, res) {
     const b_cambio = resultados?.bloques?.propension_cambio ?? null;
 
     await sql`
-      INSERT INTO attempts (
-        codigo, nombre, edad_anios, institucion, grupo, curso, version_banco,
-        iie, iv1, iv2, iv3,
-        b_intra, b_inter, b_pv, b_estilos, b_cambio,
-        responses
-      )
-      VALUES (
-        ${codigo ?? "SIN-CODIGO"}, ${nombre}, ${edad_anios}, ${institucion}, ${grupo}, ${curso}, ${version_banco},
-        ${iie}, ${iv1}, ${iv2}, ${iv3},
-        ${b_intra}, ${b_inter}, ${b_pv}, ${b_estilos}, ${b_cambio},
-        ${JSON.stringify(responses)}
-      );
+      INSERT INTO attempts (codigo, nombre, edad_anios, institucion, grupo, curso,
+  iie, iv1, iv2, iv3, b_intra, b_inter, b_pv, b_estilos, b_cambio,
+  resultados, responses)
+VALUES (${codigo}, ${nombre}, ${edad}, ${inst}, ${grupo}, ${curso},
+  ${iie}, ${iv1}, ${iv2}, ${iv3}, ${bIntra}, ${bInter}, ${bPV}, ${bEstilos}, ${bCambio},
+  ${JSON.stringify(resultados)}, ${responses})
     `;
 
     return res.status(200).json({ ok: true });
