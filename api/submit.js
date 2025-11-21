@@ -25,7 +25,6 @@ module.exports = async function handler(req, res) {
     const institucion = snapshot.institucion || null;
     const grupo = snapshot.grupo || null;
     const curso = snapshot.curso || null;
-    const version_banco = snapshot.version_banco || null; // si no existe columna, se quita (ver Paso B)
 
     // --- globales / bloques desde resultados ---
     const g = resultados.globales || {};
@@ -44,13 +43,13 @@ module.exports = async function handler(req, res) {
 
     await sql`
       INSERT INTO attempts (
-        codigo, nombre, edad_anios, institucion, grupo, curso, version_banco,
+        codigo, nombre, edad_anios, institucion, grupo, curso,
         iie, iv1, iv2, iv3,
         b_intra, b_inter, b_pv, b_estilos, b_cambio,
         resultados, responses
       )
       VALUES (
-        ${codigo}, ${nombre}, ${edad}, ${institucion}, ${grupo}, ${curso}, ${version_banco},
+        ${codigo}, ${nombre}, ${edad}, ${institucion}, ${grupo}, ${curso},
         ${iie}, ${iv1}, ${iv2}, ${iv3},
         ${b_intra}, ${b_inter}, ${b_pv}, ${b_estilos}, ${b_cambio},
         ${JSON.stringify(resultados)},
