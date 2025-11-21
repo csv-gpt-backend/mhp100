@@ -64,7 +64,9 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px 16px;
     }
-    .field {
+    
+    .span-2 { grid-column: 1 / -1; }
+.field {
       display: flex;
       flex-direction: column;
       gap: 2px;
@@ -73,7 +75,9 @@
     .field label {
       font-weight: 600;
     }
-    .field input {
+    
+    .hint{display:block;font-size:12px;margin-top:4px;color:#666;}
+.field input {
       padding: 4px 6px;
       border-radius: 4px;
       border: 1px solid #d1d5db;
@@ -305,6 +309,11 @@
       <!-- Datos del participante (solo visibles en la primera pantalla y al final) -->
       <section id="datos-participante" class="card">
         <div class="grid-2">
+<div class="field span-2">
+  <label for="codigo">Código</label>
+  <input id="codigo" type="text" autocomplete="off" />
+  <small id="codigoMsg" class="hint"></small>
+</div>
           <div class="field">
             <label for="nombre">Nombre</label>
             <input id="nombre" type="text" autocomplete="name" />
@@ -443,14 +452,77 @@
     // Marca de tiempo para IV3
     let __startTime = null;
 
-    const CODIGO_ACTUAL = null;
-    const PUEDE_VER_RESULTADO = true;
+    let CODIGO_ACTUAL = null;
+    let PUEDE_VER_RESULTADO = true;
 
     const DATOS_FIJOS = {
       institucion: "Institución por defecto",
       grupo: "Grupo por defecto",
       curso: "Curso por defecto"
     };
+// Lookup de código (trae institución/grupo/curso y permiso de ver resultado)
+let __lookupOk = false;
+let __lookupData = null;
+
+async function hacerLookupCodigo() {
+  const codigoEl = document.getElementById("codigo");
+  const msgEl = document.getElementById("codigoMsg");
+  const codigo = (codigoEl?.value || "").trim();
+
+  if (!codigo) {
+    __lookupOk = false;
+    __lookupData = null;
+    if (msgEl) {
+      msgEl.textContent = "Ingresa tu código.";
+      msgEl.style.color = "#b00";
+    }
+    return false;
+  }
+
+  if (msgEl) {
+    msgEl.textContent = "Validando código...";
+    msgEl.style.color = "#555";
+  }
+
+  try {
+    const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
+    if (!r.ok) throw new Error("Código no encontrado");
+    const d = await r.json();
+
+    __lookupOk = true;
+    __lookupData = d;
+    CODIGO_ACTUAL = codigo;
+    if (typeof d.puede_ver_resultado !== "undefined") {
+      PUEDE_VER_RESULTADO = !!d.puede_ver_resultado;
+    }
+
+    if (d.institucion != null) document.getElementById("institucion").value = d.institucion;
+    if (d.grupo != null) document.getElementById("grupo").value = d.grupo;
+    if (d.curso != null) document.getElementById("curso").value = d.curso;
+
+    // Opcional: prellenar nombre/edad si vienen y el usuario no los escribió
+    const nombreEl = document.getElementById("nombre");
+    const edadEl = document.getElementById("edad");
+    if (d.nombre && nombreEl && !nombreEl.value.trim()) nombreEl.value = d.nombre;
+    if (d.edad_anios != null && edadEl && !edadEl.value.trim()) edadEl.value = d.edad_anios;
+
+    if (msgEl) {
+      msgEl.textContent = "Código válido.";
+      msgEl.style.color = "#0a0";
+    }
+    return true;
+  } catch (e) {
+    __lookupOk = false;
+    __lookupData = null;
+    CODIGO_ACTUAL = null;
+    if (msgEl) {
+      msgEl.textContent = "Código no encontrado. Verifica e intenta otra vez.";
+      msgEl.style.color = "#b00";
+    }
+    return false;
+  }
+}
+
 
     const PAGE_SIZE = 10; // 10 preguntas por pantalla
     let currentPage = 0;
@@ -961,8 +1033,9 @@
       const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
 
       // IV3 basado en tiempo de respuesta total (aprox)
-      const mins = (__startTime == null) ? null : Math.round((performance.now() - __startTime) / 60000);
-const iv3Cat = (mins == null) ? null : mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
+      const mins = Math.round((performance.now() - __startTime) / 60000);
+      const iv3Cat =
+        mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
 
       // Bloques que nos interesan para la BD
       const bEstilos = pctBloque("Estilos de comunicación interpersonal");
@@ -1037,6 +1110,7 @@ const iv3Cat = (mins == null) ? null : mins >= 30 && mins <= 90 ? 0 : mins >= 10
       const payload = {
         codigo: CODIGO_ACTUAL,
         snapshot: {
+          codigo: CODIGO_ACTUAL,
           nombre,
           edad_anios: edad,
           institucion: document.getElementById("institucion").value,
@@ -1049,14 +1123,15 @@ const iv3Cat = (mins == null) ? null : mins >= 30 && mins <= 90 ? 0 : mins >= 10
       };
 
       console.log("Payload listo para enviar a servidor:", payload);
+
       fetch("/api/submit", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload)
-})
-  .then(r => r.json())
-  .then(data => console.log("Submit OK:", data))
-  .catch(err => console.error("Submit ERROR:", err));
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then(r => r.json())
+        .then(data => console.log("Submit OK:", data))
+        .catch(err => console.error("Submit ERROR:", err));
 
 
       // Mostrar nuevamente los datos del participante encima del mensaje final
@@ -1091,37 +1166,56 @@ const iv3Cat = (mins == null) ? null : mins >= 30 && mins <= 90 ? 0 : mins >= 10
       }
     }
 
-    function validarAntesDeIniciar() {
-      const nombre = document.getElementById("nombre").value.trim();
-      const edadStr = document.getElementById("edad").value.trim();
-      if (!nombre || !edadStr) {
-        alert("Por favor ingresa tu nombre y edad antes de iniciar.");
-        return false;
-      }
-      const edad = Number(edadStr);
-      if (!Number.isFinite(edad) || edad <= 0) {
-        alert("Edad no válida.");
-        return false;
-      }
-      return true;
+    async function validarAntesDeIniciar() {
+  // Primero validamos el código (lookup)
+  if (!__lookupOk) {
+    const ok = await hacerLookupCodigo();
+    if (!ok) {
+      alert("Código no válido. Revisa e intenta nuevamente.");
+      return false;
     }
+  }
+
+  const nombre = document.getElementById("nombre").value.trim();
+  const edadStr = document.getElementById("edad").value.trim();
+  if (!nombre || !edadStr) {
+    alert("Por favor ingresa tu nombre y edad antes de iniciar.");
+    return false;
+  }
+  const edad = Number(edadStr);
+  if (!Number.isFinite(edad) || edad <= 0) {
+    alert("Edad no válida.");
+    return false;
+  }
+  return true;
+}
 
     document.addEventListener("DOMContentLoaded", () => {
+const codigoEl = document.getElementById("codigo");
+if (codigoEl) {
+  codigoEl.addEventListener("blur", () => { hacerLookupCodigo(); });
+  codigoEl.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter") {
+      ev.preventDefault();
+      hacerLookupCodigo();
+    }
+  });
+}
+
       inicializarDatosFijos();
       construirPreguntas();
 
       document
-        .getElementById("btnIniciar")
-        .addEventListener("click", () => {
-          if (!validarAntesDeIniciar()) return;
-          
-          __startTime = performance.now();
-document.getElementById("pantalla-inicio").classList.add("hidden");
-          document.getElementById("datos-participante").classList.add("hidden");
-          document
-            .getElementById("pantalla-preguntas")
-            .classList.remove("hidden");
-          window.scrollTo({ top: 0, behavior: "smooth" });
+        .document
+  .getElementById("btnIniciar")
+  .addEventListener("click", async () => {
+    if (!(await validarAntesDeIniciar())) return;
+    __startTime = performance.now();
+
+    document.getElementById("pantalla-inicio").classList.add("hidden");
+    document.getElementById("pantalla-preguntas").classList.remove("hidden");
+    mostrarPagina(0);
+  });
         });
 
       document
