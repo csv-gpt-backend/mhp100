@@ -6,45 +6,61 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const payload = req.body || {};
-    const { codigo, snapshot, resultados, responses } = payload;
+    const body = req.body || {};
+    const codigoRaw = body.codigo;
 
-    if (!snapshot || !responses) {
-      return res.status(400).json({ error: "Payload incompleto" });
+    if (!codigoRaw) {
+      return res.status(400).json({ error: "Falta codigo" });
     }
 
-    const {
-      nombre,
-      edad_anios,
-      institucion,
-      grupo,
-      curso,
-      version_banco
-    } = snapshot;
+    const codigo = String(codigoRaw).trim().toUpperCase();
 
-    const iie = resultados?.globales?.IIE ?? null;
-    const iv1 = resultados?.globales?.IV1 ?? null;
-    const iv2 = resultados?.globales?.IV2 ?? null;
-    const iv3 = resultados?.globales?.IV3 ?? null;
+    const snapshot = body.snapshot || {};
+    const resultados = body.resultados || {};
+    const responses = body.responses || null;
 
-    const b_intra = resultados?.bloques?.intrapersonales ?? null;
-    const b_inter = resultados?.bloques?.interpersonales ?? null;
-    const b_pv = resultados?.bloques?.para_la_vida ?? null;
-    const b_estilos = resultados?.bloques?.estilos_comunicacion ?? null;
-    const b_cambio = resultados?.bloques?.propension_cambio ?? null;
+    // --- snapshot ---
+    const nombre = snapshot.nombre || null;
+    const edad = snapshot.edad_anios ?? null;
+    const institucion = snapshot.institucion || null;
+    const grupo = snapshot.grupo || null;
+    const curso = snapshot.curso || null;
+    const version_banco = snapshot.version_banco || null; // si no existe columna, se quita (ver Paso B)
+
+    // --- globales / bloques desde resultados ---
+    const g = resultados.globales || {};
+    const b = resultados.bloques || {};
+
+    const iie = g.IIE ?? null;
+    const iv1 = g.IV1 ?? null;
+    const iv2 = g.IV2 ?? null;
+    const iv3 = g.IV3 ?? null;
+
+    const b_intra = b.intrapersonales ?? null;
+    const b_inter = b.interpersonales ?? null;
+    const b_pv = b.para_la_vida ?? null;
+    const b_estilos = b.estilos_comunicacion ?? null;
+    const b_cambio = b.propension_cambio ?? null;
 
     await sql`
-      INSERT INTO attempts (codigo, nombre, edad_anios, institucion, grupo, curso,
-  iie, iv1, iv2, iv3, b_intra, b_inter, b_pv, b_estilos, b_cambio,
-  resultados, responses)
-VALUES (${codigo}, ${nombre}, ${edad}, ${inst}, ${grupo}, ${curso},
-  ${iie}, ${iv1}, ${iv2}, ${iv3}, ${bIntra}, ${bInter}, ${bPV}, ${bEstilos}, ${bCambio},
-  ${JSON.stringify(resultados)}, ${responses})
+      INSERT INTO attempts (
+        codigo, nombre, edad_anios, institucion, grupo, curso, version_banco,
+        iie, iv1, iv2, iv3,
+        b_intra, b_inter, b_pv, b_estilos, b_cambio,
+        resultados, responses
+      )
+      VALUES (
+        ${codigo}, ${nombre}, ${edad}, ${institucion}, ${grupo}, ${curso}, ${version_banco},
+        ${iie}, ${iv1}, ${iv2}, ${iv3},
+        ${b_intra}, ${b_inter}, ${b_pv}, ${b_estilos}, ${b_cambio},
+        ${JSON.stringify(resultados)},
+        ${responses ? JSON.stringify(responses) : null}
+      );
     `;
 
     return res.status(200).json({ ok: true });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Error al guardar" });
+    console.error("SUBMIT ERROR:", err);
+    return res.status(500).json({ error: "Error al guardar", detail: err.message });
   }
 };
