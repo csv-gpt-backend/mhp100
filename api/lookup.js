@@ -2,16 +2,18 @@ const { sql } = require("@vercel/postgres");
 
 module.exports = async function handler(req, res) {
   try {
-    const codigo = req.method === "GET" ? req.query.codigo : req.body.codigo;
+    let codigo = req.method === "GET" ? req.query.codigo : req.body.codigo;
 
     if (!codigo) {
       return res.status(400).json({ error: "Falta codigo" });
     }
 
+    codigo = String(codigo).trim();
+
     const { rows } = await sql`
       SELECT codigo, institucion, grupo, curso, nombre, edad_anios, puede_ver_resultado
       FROM participants
-      WHERE codigo = ${codigo}
+      WHERE UPPER(codigo) = UPPER(${codigo})
       LIMIT 1;
     `;
 
