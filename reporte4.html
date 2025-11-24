@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>REP 2    MHP100 – Reporte PPA</title>
+<style>
+  :root{
+    --bg:#fff;
+    --ink:#111827;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --soft:#f7f7f7;
+    --accent:#16a34a;
+    --warn:#f59e0b;
+    --bad:#ef4444;
+  }
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+  .wrap{max-width:980px;margin:0 auto;padding:24px 18px 60px;}
+  h1{margin:0 0 8px;font-size:28px;font-weight:800;letter-spacing:.3px;text-align:center;}
+  .muted{color:var(--muted);}
+  .card{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;}
+  .row{display:flex;gap:10px;align-items:center;}
+  input{font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;width:220px;}
+  button{border:0;border-radius:999px;padding:10px 18px;font-size:18px;font-weight:800;cursor:pointer;background:var(--accent);color:#fff;}
+  button:disabled{opacity:.6;cursor:not-allowed;}
+  .status-ok{color:#15803d;font-weight:700;margin-left:8px;}
+  .status-bad{color:#b91c1c;font-weight:700;margin-left:8px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .kv{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin:4px 0;}
+  .kv b{font-weight:800;}
+  .section-title{margin:14px 0 6px;font-size:14px;font-weight:900;letter-spacing:.4px;}
+  .section-title .right{float:right;font-weight:800;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:800;}
+  .badge.low{background:#fee2e2;color:#991b1b;}
+  .badge.mid{background:#fef3c7;color:#92400e;}
+  .badge.high{background:#dcfce7;color:#166534;}
+  .subrow{display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--line);padding:6px 0;font-size:14px;}
+  .subrow:first-child{border-top:0;}
+  .subname{max-width:70%;}
+  .pct{font-weight:900;font-size:15px;min-width:40px;text-align:right;}
+  /* IV table */
+  table.iv{width:100%;border-collapse:collapse;font-size:12px;}
+  table.iv th, table.iv td{border:1px solid #111;padding:6px;vertical-align:top;}
+  table.iv th{width:52px;text-align:center;background:#fafafa;}
+  table.iv td.sel{background:#111;color:#fff;font-weight:800;}
+  /* bars */
+  .barwrap{margin-top:8px;}
+  .bar{position:relative;height:16px;background:linear-gradient(90deg,var(--bad),var(--warn),var(--accent));border-radius:999px;overflow:hidden;}
+  .bar .marker{position:absolute;top:-4px;width:8px;height:24px;background:#111;border-radius:3px;transform:translateX(-50%);}
+  .barlabels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px;}
+  .bigline{margin-top:12px;font-weight:900;font-size:16px;border-top:1px solid var(--line);padding-top:10px;display:flex;justify-content:space-between;}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .secondary{background:#f3f4f6;color:#111;font-weight:800;border-radius:8px;padding:8px 12px;font-size:14px;}
+  /* Left vertical title */
+  .left-rail{
+    position:fixed;left:0;top:0;bottom:0;width:64px;background:#fff4c7;
+    display:flex;justify-content:center;align-items:center;border-right:1px solid #f0e2a2;z-index:0;
+  }
+  .left-rail span{
+    writing-mode:vertical-rl;transform:rotate(180deg);
+    font-weight:900;font-size:48px;letter-spacing:2px;color:#d5a52b;opacity:.9;
+  }
+  @media (max-width:900px){
+    .left-rail{display:none;}
+    .wrap{padding-left:18px;}
+    .grid2,.grid3{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="left-rail"><span>MHP100</span></div>
+
+<div class="wrap">
+  <h1>MHP100 – Reporte PPA</h1>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <div style="font-weight:800;margin-bottom:4px">Código</div>
+        <input id="codigo" placeholder="LEX001" autocomplete="off"/>
+      </div>
+      <div style="padding-top:22px">
+        <button id="btnVer">Ver reporte</button>
+        <span id="estadoCodigo" class="muted"></span>
+      </div>
+    </div>
+    <div id="msgSinIntentos" class="status-bad" style="display:none;margin-top:8px">
+      No hay intentos registrados para este código.
+    </div>
+  </div>
+
+  <div id="panelDatos" class="card" style="margin-top:10px;display:none">
+    <div class="grid2">
+      <div>
+        <div class="kv"><span>Institución:</span><b id="dInst">—</b></div>
+        <div class="kv"><span>Curso:</span><b id="dCurso">—</b></div>
+        <div class="kv"><span>Edad:</span><b id="dEdad">—</b></div>
+      </div>
+      <div>
+        <div class="kv"><span>Grupo:</span><b id="dGrupo">—</b></div>
+        <div class="kv"><span>Participante:</span><b id="dNombre">—</b></div>
+        <div class="kv"><span>Fecha intento:</span><b id="dFecha">—</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="panelReporte" style="display:none;margin-top:10px">
+    <div class="grid2">
+      <div class="card">
+        <div class="section-title">IV1 / IV2 / IV3 (consistencia)</div>
+        <table class="iv">
+          <tr>
+            <th>IV1</th>
+            <td id="iv1c0">Responde coherentemente</td>
+            <td id="iv1c1">Se requiere mayor autoconocimiento o auto compromiso</td>
+            <td id="iv1c2">Se contradice frecuentemente</td>
+          </tr>
+          <tr>
+            <th>IV2</th>
+            <td id="iv2c0">Responde coherentemente</td>
+            <td id="iv2c1">Se contradice ocasionalmente</td>
+            <td id="iv2c2">Se contradice frecuentemente</td>
+          </tr>
+          <tr>
+            <th>IV3</th>
+            <td id="iv3c0">Tiempo normal<br><span class="muted">30–90 minutos</span></td>
+            <td id="iv3c1">Demasiado rápido<br><span class="muted">10–20 minutos</span></td>
+            <td id="iv3c2">Demasiado lento<br><span class="muted">+90 minutos</span></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Estilos de comunicación</div>
+        <div class="muted" style="font-size:12px;margin-bottom:4px">
+          Puntaje bajo = mejor manejo (marcador a la izquierda).
+        </div>
+
+        <div class="barwrap">
+          <div style="font-weight:800;font-size:13px">Agresión <span class="muted">(10–100)</span></div>
+          <div class="bar" id="barAgresion"></div>
+          <div class="barlabels"><span>10</span><span>100</span></div>
+        </div>
+
+        <div class="barwrap">
+          <div style="font-weight:800;font-size:13px">Timidez <span class="muted">(10–100)</span></div>
+          <div class="bar" id="barTimidez"></div>
+          <div class="barlabels"><span>10</span><span>100</span></div>
+        </div>
+
+        <div class="barwrap" style="margin-top:12px">
+          <div style="font-weight:800;font-size:13px">Propensión al cambio <span class="muted">(10–100)</span></div>
+          <div class="bar" id="barCambio"></div>
+          <div class="barlabels"><span>10</span><span>100</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="bloquesContainer" style="margin-top:10px"></div>
+
+    <div class="card bigline">
+      <div>ÍNDICE DE INTELIGENCIA EMOCIONAL (IIE)</div>
+      <div id="vIIE">—</div>
+    </div>
+
+    <div class="actions">
+      <button class="secondary" id="btnJSON">Exportar JSON</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const $ = (id)=>document.getElementById(id);
+
+  function badgeFor(pct){
+    if (pct <= 40) return {cls:"low", txt:"1–40"};
+    if (pct <= 70) return {cls:"mid", txt:"41–70"};
+    return {cls:"high", txt:"71–100"};
+  }
+
+  function clearIV(){
+    ["iv1c0","iv1c1","iv1c2","iv2c0","iv2c1","iv2c2","iv3c0","iv3c1","iv3c2"].forEach(id=>{
+      $(id).classList.remove("sel");
+    });
+  }
+  function markIV(iv1,iv2,iv3){
+    clearIV();
+    if (iv1===0||iv1===1||iv1===2) $("iv1c"+iv1).classList.add("sel");
+    if (iv2===0||iv2===1||iv2===2) $("iv2c"+iv2).classList.add("sel");
+    if (iv3===0||iv3===1||iv3===2) $("iv3c"+iv3).classList.add("sel");
+  }
+
+  function setBar(barEl, pct){
+    barEl.innerHTML = ""; // reset
+    if (pct==null || isNaN(pct) || pct<=0) return; // sin datos
+    const clamped = Math.max(10, Math.min(100, pct));
+    const marker = document.createElement("div");
+    marker.className = "marker";
+    marker.style.left = clamped + "%";
+    barEl.appendChild(marker);
+  }
+
+  function groupByBloque(subRows){
+    const groups = {};
+    subRows.forEach(r=>{
+      const b = r.bloque || "—";
+      if(!groups[b]) groups[b]=[];
+      groups[b].push(r);
+    });
+    return groups;
+  }
+
+  function renderBloques(subRows, bloqPercents){
+    const cont = $("bloquesContainer");
+    cont.innerHTML = "";
+
+    const order = [
+      "Habilidades intrapersonales",
+      "Habilidades interpersonales",
+      "Habilidades para la vida",
+      "Estilos de comunicación interpersonal",
+      "Propensión al cambio"
+    ];
+
+    const groups = groupByBloque(subRows);
+    order.forEach(bloque=>{
+      const rows = groups[bloque] || [];
+      if(!rows.length && !bloqPercents?.[bloque]) return;
+
+      const pctBloque = bloqPercents?.[bloque] ?? (
+        rows.length ? Math.round(rows.reduce((s,x)=>s+x.pct,0)/rows.length) : 0
+      );
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.style.marginTop = "10px";
+
+      const title = document.createElement("div");
+      title.className = "section-title";
+      title.innerHTML = `${bloque} <span class="right">${pctBloque}%</span>`;
+      card.appendChild(title);
+
+      rows.forEach(r=>{
+        const br = badgeFor(r.pct);
+        const line = document.createElement("div");
+        line.className = "subrow";
+        line.innerHTML = `
+          <div class="subname">${r.sub}</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="pct">${r.pct}%</div>
+            <span class="badge ${br.cls}">${br.txt}</span>
+          </div>
+        `;
+        card.appendChild(line);
+      });
+
+      cont.appendChild(card);
+    });
+  }
+
+  function normalizeResultados(raw){
+    if(!raw) return null;
+    if(typeof raw === "string"){
+      try{ return JSON.parse(raw); }catch(e){ return null; }
+    }
+    return raw;
+  }
+
+  $("btnVer").addEventListener("click", async ()=>{
+    const codigo = $("codigo").value.trim().toUpperCase();
+    $("estadoCodigo").textContent = "Consultando…";
+    $("estadoCodigo").className="muted";
+    $("panelDatos").style.display="none";
+    $("panelReporte").style.display="none";
+    $("msgSinIntentos").style.display="none";
+
+    if(!codigo){
+      $("estadoCodigo").textContent = "Escribe un código.";
+      return;
+    }
+
+    try{
+      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const data = await r.json();
+
+      if(!data || data.valid===false){
+        $("estadoCodigo").textContent = "Código inválido.";
+        $("estadoCodigo").className="status-bad";
+        return;
+      }
+
+      $("estadoCodigo").textContent = "Código válido.";
+      $("estadoCodigo").className="status-ok";
+
+      const p = data.participant || data.participante || {};
+      const a = data.attempt || data.intento || null;
+
+      $("panelDatos").style.display="block";
+      $("dInst").textContent  = (a?.institucion || p.institucion || "—");
+      $("dGrupo").textContent = (a?.grupo || p.grupo || "—");
+      $("dCurso").textContent = (a?.curso || p.curso || "—");
+      $("dNombre").textContent= (a?.nombre || p.nombre || "—");
+      $("dEdad").textContent  = (a?.edad_anios ?? p.edad_anios ?? "—");
+      $("dFecha").textContent = (a?.created_at ? new Date(a.created_at).toLocaleString() : "—");
+
+      if(!a){
+        $("msgSinIntentos").style.display="block";
+        return;
+      }
+
+      const resultados = normalizeResultados(a.resultados || a.resultado || a.resultados_json);
+      if(!resultados){
+        $("msgSinIntentos").textContent = "El intento no tiene resultados guardados.";
+        $("msgSinIntentos").style.display="block";
+        return;
+      }
+
+      const subRows = resultados.subhabilidades || [];
+      const bloqPercents = resultados.bloqPercents || resultados.bloques_percent || {};
+
+      renderBloques(subRows, bloqPercents);
+
+      const g = resultados.globales || {};
+      const iie = g.IIE ?? a.iie ?? 0;
+      const iv1 = g.IV1 ?? a.iv1 ?? null;
+      const iv2 = g.IV2 ?? a.iv2 ?? null;
+      const iv3 = g.IV3 ?? a.iv3 ?? null;
+
+      $("vIIE").textContent = (iie || 0) + "%";
+      markIV(iv1, iv2, iv3);
+
+      // barras estilos
+      const agres = subRows.find(r=>String(r.sub).toLowerCase()==="agresión" || String(r.sub).toLowerCase()==="agresion");
+      const timid = subRows.find(r=>String(r.sub).toLowerCase()==="timidez");
+      setBar($("barAgresion"), agres?.pct ?? null);
+      setBar($("barTimidez"), timid?.pct ?? null);
+
+      // barra cambio usa bloque
+      const pctCambio = bloqPercents["Propensión al cambio"] ?? bloqPercents["Propension al cambio"] ?? a.b_cambio ?? null;
+      setBar($("barCambio"), pctCambio);
+
+      $("panelReporte").style.display="block";
+
+      $("btnJSON").onclick = ()=>{
+        const blob = new Blob([JSON.stringify({participant:p, attempt:a, resultados}, null, 2)], {type:"application/json"});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${codigo}_reporte.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+      };
+
+    }catch(err){
+      console.error(err);
+      $("estadoCodigo").textContent = "Error consultando reporte.";
+      $("estadoCodigo").className="status-bad";
+    }
+  });
+</script>
+</body>
+</html>
