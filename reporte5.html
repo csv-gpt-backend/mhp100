@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>r5GRÁFICA INDIVIDUAL — MHP100</title>
+<style>
+  :root{
+    --fg:#111;--muted:#666;--brand:#b10c0c;
+    --red:#e74c3c;--amber:#f1c40f;--green:#2ecc71;
+    --track:#e9ecef;--marker:#111;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#fff;color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial}
+  .wrap{max-width:980px;margin:24px auto;padding:0 16px}
+  header{display:grid;grid-template-columns:140px 1fr 140px;gap:12px;align-items:center;margin-bottom:8px}
+  header .left img{height:64px;width:auto}
+  header .right img{height:36px;width:auto;justify-self:end}
+  h1{font-size:22px;margin:0 0 4px 0;font-weight:800;letter-spacing:.2px}
+  .meta{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;border:1px solid #ddd;border-radius:8px;padding:10px 12px;margin-bottom:18px}
+  .meta div{font-size:13px}
+  .meta b{font-weight:700}
+  .grid-2{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+  .iv-matrix{border:1px solid #d9d9d9;border-radius:8px;overflow:hidden;font-size:13px}
+  .iv-matrix .row{display:grid;grid-template-columns:80px repeat(3,1fr)}
+  .iv-matrix .cell{border-bottom:1px solid #ececec;border-right:1px solid #ececec;padding:10px 12px;min-height:60px}
+  .iv-matrix .row:last-child .cell{border-bottom:0}
+  .iv-matrix .cell:last-child{border-right:0}
+  .iv-matrix .head{background:#fafafa;font-weight:700}
+  .iv-matrix .hit{background:#fff8d1}
+  .section{margin:18px 0 10px 0}
+  .title-line{display:flex;align-items:center;gap:8px;margin-top:16px}
+  .title-line b{font-size:16px}
+  .title-line .sp{flex:1;border-bottom:1px solid #e1e1e1}
+  .iie-line{display:flex;align-items:center;margin:10px 0 8px 0}
+  .iie-line .label{font-weight:800}
+  .iie-line .value{margin-left:auto;font-weight:800}
+  .ruler{position:relative;background:linear-gradient(90deg,
+     var(--red) 0 40%, var(--amber) 40% 70%, var(--green) 70% 100%);
+     height:36px;border-radius:8px;box-shadow:inset 0 0 0 1px #dcdcdc}
+  .ticks{position:absolute;inset:0;display:flex;justify-content:space-between;padding:0 10px;align-items:flex-end;pointer-events:none}
+  .ticks span{font-size:11px;color:#333;transform:translateY(18px)}
+  .marker{position:absolute;top:4px;transform:translateX(-6px);width:12px;height:28px;border-radius:3px;background:var(--marker)}
+  .small-note{font-size:12px;color:var(--muted);margin-top:6px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px;border:1px solid #eee;border-radius:8px;overflow:hidden}
+  thead th{background:#fafafa;text-align:left;padding:10px 8px;border-bottom:1px solid #eee}
+  tbody td{padding:10px 8px;border-bottom:1px solid #f1f1f1}
+  tbody tr:last-child td{border-bottom:0}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#fff}
+  .b-red{background:var(--red)} .b-amber{background:var(--amber);color:#000}
+  .b-green{background:var(--green)}
+  .muted{color:var(--muted)}
+  @media (max-width:900px){
+    .grid-2{grid-template-columns:1fr}
+    header{grid-template-columns:100px 1fr 100px}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="left"><img src="img_ident.jpg" alt="MHP 100"></div>
+      <div class="mid">
+        <h1>GRÁFICA INDIVIDUAL — MHP100</h1>
+        <div class="meta" id="meta">
+          <div><b>Nombre:</b> <span id="pName" class="muted">—</span></div>
+          <div><b>Edad:</b> <span id="pAge" class="muted">—</span></div>
+          <div><b>Curso/Grado:</b> <span id="pCourse" class="muted">—</span></div>
+          <div><b>Institución:</b> <span id="pInst" class="muted">—</span></div>
+          <div><b>Grupo:</b> <span id="pGroup" class="muted">—</span></div>
+          <div><b>Fecha:</b> <span id="pDate" class="muted">—</span></div>
+        </div>
+      </div>
+      <div class="right"><img src="img_sello.png" alt="Lexium"></div>
+    </header>
+
+    <div class="iie-line">
+      <span class="label">ÍNDICE DE INTELIGENCIA EMOCIONAL</span>
+      <span class="value" id="iieVal">IIE: —</span>
+    </div>
+
+    <div class="section">
+      <div class="title-line"><b>ESTILOS DE COMUNICACIÓN INTERPERSONAL</b><span class="sp"></span></div>
+
+      <div style="margin:10px 0 6px 0"><b>AGRESIÓN</b></div>
+      <div class="ruler" id="ruler-agresion">
+        <div class="marker" id="marker-agresion" style="left:0%"></div>
+        <div class="ticks">
+          <span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span>
+        </div>
+      </div>
+
+      <div style="margin:12px 0 6px 0"><b>TIMIDEZ</b></div>
+      <div class="ruler" id="ruler-timidez">
+        <div class="marker" id="marker-timidez" style="left:0%"></div>
+        <div class="ticks">
+          <span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span>
+        </div>
+      </div>
+
+      <div class="small-note">* Un puntaje bajo indica mejor manejo en estas áreas.</div>
+    </div>
+
+    <div class="section">
+      <div class="title-line"><b>PROPENSIÓN AL CAMBIO</b><span class="sp"></span></div>
+      <div class="ruler" id="ruler-cambio">
+        <div class="marker" id="marker-cambio" style="left:0%"></div>
+        <div class="ticks">
+          <span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="title-line"><b>Resultados</b><span class="sp"></span></div>
+        <div class="muted" id="answered">Contestadas: —</div>
+        <table id="bySub">
+          <thead>
+            <tr><th style="width:42%">Bloque</th><th style="width:32%">Sub-habilidad</th><th>Ítems</th><th>Puntos</th><th>%</th><th>Rango</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <div class="title-line" style="margin-top:14px"><b>Por bloque</b><span class="sp"></span></div>
+        <table id="byBlock">
+          <thead><tr><th>Bloque</th><th>Promedio %</th><th>Rango</th></tr></thead>
+          <tbody></tbody>
+        </table>
+
+        <div class="small-note" style="margin-top:8px">Rangos: 
+          <span class="badge b-red">1–40</span> · 
+          <span class="badge b-amber">41–70</span> · 
+          <span class="badge b-green">71–100</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="title-line"><b>Curva de distribución de frecuencias</b><span class="sp"></span></div>
+        <svg viewBox="0 0 360 160" width="100%" height="160" aria-hidden="true">
+          <defs>
+            <linearGradient id="band" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0%" stop-color="var(--red)"/>
+              <stop offset="40%" stop-color="var(--red)"/>
+              <stop offset="40%" stop-color="var(--amber)"/>
+              <stop offset="70%" stop-color="var(--amber)"/>
+              <stop offset="70%" stop-color="var(--green)"/>
+              <stop offset="100%" stop-color="var(--green)"/>
+            </linearGradient>
+          </defs>
+          <rect x="10" y="130" width="340" height="8" rx="4" fill="url(#band)"/>
+          <path d="M10 128 C 90 10, 210 10, 350 128" fill="none" stroke="#222" stroke-width="2"/>
+          <circle id="curvePoint" cx="320" cy="128" r="4" fill="#111"/>
+          <g fill="#222" font-size="10">
+            <text x="8" y="148">1</text><text x="165" y="148">70</text><text x="346" y="148">100</text>
+          </g>
+        </svg>
+
+        <div class="title-line" style="margin-top:16px"><b>IV1 – IV2 – IV3</b><span class="sp"></span></div>
+        <div class="iv-matrix" id="ivMatrix">
+          <div class="row">
+            <div class="cell head"></div>
+            <div class="cell head">Se conoce o se compromete</div>
+            <div class="cell head">Se conoce o se compromete poco</div>
+            <div class="cell head">Se requiere mayor autoconocimiento o auto compromiso</div>
+          </div>
+          <div class="row">
+            <div class="cell head">IV1</div>
+            <div class="cell" data-iv="iv1-0"></div>
+            <div class="cell" data-iv="iv1-1"></div>
+            <div class="cell" data-iv="iv1-2"></div>
+          </div>
+          <div class="row">
+            <div class="cell head">IV2</div>
+            <div class="cell" data-iv="iv2-0"></div>
+            <div class="cell" data-iv="iv2-1"></div>
+            <div class="cell" data-iv="iv2-2"></div>
+          </div>
+          <div class="row">
+            <div class="cell head">IV3</div>
+            <div class="cell" data-iv="iv3-0"></div>
+            <div class="cell" data-iv="iv3-1"></div>
+            <div class="cell" data-iv="iv3-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const $ = (sel, ctx=document)=>ctx.querySelector(sel);
+  const $$ = (sel, ctx=document)=>Array.from(ctx.querySelectorAll(sel));
+  const qs = new URLSearchParams(location.search);
+  const code = qs.get('code') || qs.get('c') || '';
+
+  function pctToLeft(p){
+    const clamped = Math.max(10, Math.min(100, p||10));
+    return ((clamped-10)/(100-10))*100;
+  }
+  function badgeFor(p){
+    if(p<=40) return '<span class="badge b-red">1–40 Por desarrollar</span>';
+    if(p<=70) return '<span class="badge b-amber">41–70 Por fortalecer</span>';
+    return '<span class="badge b-green">71–100 Por enriquecer</span>';
+  }
+  function setIV(which, idx){
+    const all = $$(`[data-iv^="${which}"]`);
+    all.forEach(c=>c.classList.remove('hit'));
+    const hit = $(`[data-iv="${which}-${idx}"]`);
+    if(hit) hit.classList.add('hit');
+  }
+
+  async function load(){
+    try{
+      if(!code) throw new Error("Falta ?code= en la URL");
+      const res = await fetch(`/api/report?code=${encodeURIComponent(code)}`);
+      if(!res.ok) throw new Error("No se pudo obtener datos del reporte");
+      const data = await res.json();
+
+      $('#pName').textContent = data.participant?.name || '—';
+      $('#pAge').textContent = data.participant?.age_years ?? '—';
+      $('#pCourse').textContent = data.participant?.course || '—';
+      $('#pInst').textContent = data.participant?.institution || '—';
+      $('#pGroup').textContent = data.participant?.group || '—';
+      $('#pDate').textContent = data.report_date || new Date().toISOString().slice(0,10);
+
+      const iie = Math.round(data.iie ?? 0);
+      $('#iieVal').textContent = `IIE: ${isFinite(iie)?iie:'—'}`;
+
+      const agresion = data.styles?.agresion_pct ?? null;
+      const timidez = data.styles?.timidez_pct ?? null;
+      const cambio = data.cambio_pct ?? null;
+      if(agresion!=null) $('#marker-agresion').style.left = pctToLeft(agresion)+'%';
+      if(timidez!=null) $('#marker-timidez').style.left = pctToLeft(timidez)+'%';
+      if(cambio!=null) $('#marker-cambio').style.left = pctToLeft(cambio)+'%';
+
+      const cx = 10 + (iie-1)/ (100-1) * 340;
+      $('#curvePoint').setAttribute('cx', Math.max(10, Math.min(350, cx)) );
+
+      setIV('iv1', data.iv?.iv1_idx ?? 0);
+      setIV('iv2', data.iv?.iv2_idx ?? 0);
+      setIV('iv3', data.iv?.iv3_idx ?? 0);
+
+      $('#answered').textContent = `Contestadas: ${data.answered ?? '—'} de 244.`;
+      const tb = $('#bySub tbody'); tb.innerHTML='';
+      (data.by_sub || []).forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.block}</td>
+                        <td>${r.sub}</td>
+                        <td>${r.items}</td>
+                        <td>${r.points}</td>
+                        <td>${r.pct}</td>
+                        <td>${badgeFor(r.pct)}</td>`;
+        tb.appendChild(tr);
+      });
+
+      const tb2 = $('#byBlock tbody'); tb2.innerHTML='';
+      (data.by_block || []).forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.block}</td>
+                        <td>${r.pct}</td>
+                        <td>${badgeFor(r.pct)}</td>`;
+        tb2.appendChild(tr);
+      });
+
+    }catch(err){
+      alert(err.message || String(err));
+    }
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>
