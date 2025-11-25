@@ -1,149 +1,161 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>rep 5 GRÁFICA INDIVIDUAL — MHP100</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REP 5 MHP100 — Reporte (match PDF)</title>
 <style>
   :root{
-    --ink:#111;--mut:#60646c;--line:#e5e7eb;
-    --red:#e74c3c;--amber:#f1c40f;--green:#27ae60;
+    --txt:#1e1e1e; --mut:#666; --line:#e6e6e6;
+    --red:#e74c3c; --amber:#f1c40f; --green:#2ecc71;
+    --brand:#aa0d0d;
   }
-  @page { size:A4; margin:16mm; }
-  @media print { .noprint{display:none!important} }
   *{box-sizing:border-box}
-  html,body{background:#fff;color:var(--ink);font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;}
-  .wrap{max-width:980px;margin:24px auto 48px;padding:0 12px}
-  header{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px}
-  .brand{display:flex;gap:12px;align-items:center}
-  .brand img{height:58px;width:58px;object-fit:cover;border-radius:999px}
-  .seal{height:50px}
-  h1{margin:0;font-size:20px;font-weight:800;letter-spacing:.2px}
-  .controls{display:flex;gap:8px;align-items:center;margin:10px 0 12px}
-  .controls input{padding:8px 10px;border:1px solid var(--line);border-radius:8px;width:220px}
-  .controls button{padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:#111;color:#fff;font-weight:700;cursor:pointer}
-  .idgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px}
-  .idgrid div b{color:#333}
-  .section{font-weight:800;margin:18px 0 8px}
-  .bar{position:relative;height:26px;border-radius:6px;overflow:hidden;background:linear-gradient(90deg,var(--red) 0 40%,var(--amber) 40% 70%,var(--green) 70% 100%);border:1px solid #d8d8d8}
-  .marker{position:absolute;top:-6px;width:10px;height:38px;background:#111;border-radius:3px;transform:translateX(-50%)}
-  .ticks{display:flex;justify-content:space-between;font-size:11px;color:#555;margin-top:4px}
-  .note{font-size:12px;color:var(--mut);margin-top:4px}
-  .grid{display:grid;grid-template-columns:1fr 360px;gap:22px;align-items:start}
-  .card{border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  .card h3{margin:0;padding:10px 12px;border-bottom:1px solid var(--line);background:#fafafa;font-size:14px;font-weight:800}
-  table{width:100%;border-collapse:collapse}
-  th,td{border-bottom:1px solid var(--line);padding:8px 10px;font-size:13px;text-align:left}
-  .chips{display:flex;gap:8px;align-items:center;font-size:12px;padding:10px 12px}
-  .chip{padding:4px 10px;border-radius:999px;font-weight:800;color:#fff}
-  .chip.red{background:var(--red)} .chip.amber{background:var(--amber);color:#222} .chip.green{background:var(--green)}
-  .curve{width:100%;height:210px;border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff}
-  .curve svg{width:100%;height:100%}
-  .ivgrid{display:grid;grid-template-columns:140px 1fr 1fr 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  .ivgrid div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px}
-  .ivgrid .head{background:#fafafa;font-weight:800}
-  .hit{background:#fff6cc;font-weight:800}
-  .mini{font-size:12px;color:#666}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--txt); margin:0; background:#fff}
+  .wrap{max-width:1080px; margin:0 auto; padding:18px 22px 32px}
+  header{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
+  .brand{display:flex; align-items:center; gap:12px}
+  .brand .logo{width:54px; height:54px; background:#c81e2a; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800}
+  .title{font-size:22px; font-weight:800}
+  .card{border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:#fff}
+  .topbar{display:flex; gap:12px; align-items:center; margin-bottom:12px}
+  .topbar input[type=text]{border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:14px; width:180px}
+  .topbar button{border:1px solid var(--line); border-radius:8px; padding:8px 12px; background:#fafafa; cursor:pointer}
+  .info{display:grid; grid-template-columns:repeat(6,1fr); gap:10px; align-items:center}
+  .info div{padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-size:13px}
+  .row{display:flex; gap:18px; align-items:flex-start}
+  .colL{flex:1.4}
+  .colR{flex:0.9}
+  h3{font-size:14px; margin:18px 0 8px; letter-spacing:.2px}
+  .iieLine{display:flex; align-items:center; justify-content:space-between; font-weight:800; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:8px 0}
+  /* Bars */
+  .bar{position:relative; height:18px; border-radius:9px; overflow:hidden; background:#eee}
+  .bar .seg{position:absolute; top:0; bottom:0}
+  .seg.r{left:0; width:40%; background:var(--red)}
+  .seg.a{left:40%; width:30%; background:var(--amber)}
+  .seg.g{left:70%; width:30%; background:var(--green)}
+  .tickRow{display:flex; justify-content:space-between; font-size:11px; color:#777}
+  .marker{position:absolute; top:-4px; width:6px; height:26px; background:#111; border-radius:3px}
+  .note{font-size:11px; color:#777}
+  table{width:100%; border-collapse:collapse; font-size:12.5px}
+  th,td{border:1px solid var(--line); padding:6px 8px; text-align:left}
+  th{background:#fafafa}
+  .small{font-size:12px; color:#777}
+  /* curve */
+  .curve{position:relative; height:180px; border:1px solid var(--line); border-radius:10px; padding:8px 10px; background:#fff}
+  .curve canvas{width:100%; height:120px}
+  .legend{display:flex; gap:8px; align-items:center; justify-content:flex-end; font-size:11px; margin-top:4px}
+  .chip{width:26px; height:8px; border-radius:4px; display:inline-block}
+  /* IV grid */
+  .ivcard{border:1px solid var(--line); border-radius:10px; padding:8px 8px; margin-top:10px}
+  .ivgrid{display:grid; grid-template-columns:120px 1fr 1fr 1fr}
+  .ivgrid div{border:1px solid var(--line); padding:8px; font-size:12px}
+  .ivgrid .h{background:#fafafa; font-weight:700}
+  .sel{background:#fff4bf}
+  /* print */
+  @media print{
+    .topbar{display:none}
+    .wrap{padding:6mm 8mm}
+    .row{gap:14px}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="brand">
-      <!-- pon tus logos reales si quieres -->
-      <img src="" alt="Logo"/>
-      <div>
-        <h1>GRÁFICA INDIVIDUAL — MHP100</h1>
-        <div class="controls noprint">
-          <input id="code" placeholder="Ingresar código (ej. LEX004)" />
-          <button id="btn">Buscar</button>
-          <span id="msg" class="mini"></span>
-        </div>
-      </div>
+      <div class="logo">❤</div>
+      <div class="title">GRÁFICA INDIVIDUAL — MHP100</div>
     </div>
-    <img class="seal" src="" alt="Sello"/>
+    <img src="img_sello.png" alt="Sello" style="height:32px"/>
   </header>
 
-  <div class="idgrid">
-    <div><b>Nombre:</b> <span id="nombre">—</span></div>
-    <div><b>Edad:</b> <span id="edad">—</span></div>
-    <div><b>Curso/Grado:</b> <span id="curso">—</span></div>
-    <div><b>Institución:</b> <span id="institucion">—</span></div>
-    <div><b>Grupo:</b> <span id="grupo">—</span></div>
-    <div style="display:flex;justify-content:flex-end;gap:8px">
-      <span style="font-weight:800">ÍNDICE DE INTELIGENCIA EMOCIONAL IIE:</span>
-      <span id="iie" style="font-weight:800">—</span>
-    </div>
+  <div class="topbar card">
+    <input id="code" type="text" placeholder="Código (p.ej. LEX001)" />
+    <button id="btn">Buscar</button>
+    <span id="msg" class="small"></span>
   </div>
 
-  <div class="section">ESTILOS DE COMUNICACIÓN INTERPERSONAL</div>
-  <div style="font-weight:800;margin-bottom:6px">AGRESIÓN</div>
-  <div class="bar"><span id="mk_agresion" class="marker" style="left:10%"></span></div>
-  <div class="ticks"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span></div>
-
-  <div style="height:10px"></div>
-  <div style="font-weight:800;margin-bottom:6px">TIMIDEZ</div>
-  <div class="bar"><span id="mk_timidez" class="marker" style="left:10%"></span></div>
-  <div class="ticks"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span></div>
-  <div class="note">* Un puntaje bajo indica mejor manejo en estas áreas.</div>
-
-  <div class="section">PROPENSIÓN AL CAMBIO</div>
-  <div style="font-weight:800;margin-bottom:6px">PROPENSIÓN AL CAMBIO</div>
-  <div class="bar"><span id="mk_cambio" class="marker" style="left:10%"></span></div>
-  <div class="ticks"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span></div>
-
-  <div class="grid" style="margin-top:16px">
-    <div>
-      <div class="card" style="margin-bottom:14px">
-        <h3>Por sub-habilidad</h3>
-        <table id="tblSubs"><thead><tr><th>Bloque</th><th>Sub-habilidad</th><th>Ítems</th><th>Puntos</th><th>%</th><th>Rango</th></tr></thead><tbody></tbody></table>
-      </div>
-      <div class="card">
-        <h3>Por bloque</h3>
-        <table id="tblBlocks"><thead><tr><th>Bloque</th><th>Promedio %</th><th>Rango</th></tr></thead><tbody></tbody></table>
-        <div class="chips">
-          <span>Rangos: </span>
-          <span class="chip red">1–40</span>
-          <span class="chip amber">41–70</span>
-          <span class="chip green">71–100</span>
-        </div>
-      </div>
+  <div id="report" class="card" style="padding:14px 14px 18px">
+    <div class="info" id="hdr">
+      <div><b>Nombre:</b> —</div>
+      <div><b>Edad:</b> —</div>
+      <div><b>Curso/Grado:</b> —</div>
+      <div><b>Institución:</b> —</div>
+      <div><b>Grupo:</b> —</div>
+      <div><b>Fecha:</b> —</div>
     </div>
-    <div>
-      <div class="card" style="margin-bottom:14px">
-        <h3>Curva de distribución de frecuencias</h3>
-        <div class="curve">
-          <svg viewBox="0 0 400 210" role="img" aria-label="Curva">
-            <path d="M10,170 C120,30 280,30 390,170" stroke="#111" stroke-width="2" fill="none"/>
-            <path d="M10,170 C40,150 70,140 100,135" stroke="var(--red)" stroke-width="6" fill="none"/>
-            <path d="M100,135 C160,115 220,115 280,135" stroke="var(--amber)" stroke-width="6" fill="none"/>
-            <path d="M280,135 C320,150 360,160 390,170" stroke="var(--green)" stroke-width="6" fill="none"/>
-            <line x1="10" y1="175" x2="10" y2="180" stroke="#333"/><text x="8" y="195" font-size="10">1</text>
-            <line x1="145" y1="175" x2="145" y2="180" stroke="#333"/><text x="140" y="195" font-size="10">40</text>
-            <line x1="280" y1="175" x2="280" y2="180" stroke="#333"/><text x="275" y="195" font-size="10">70</text>
-            <line x1="390" y1="175" x2="390" y2="180" stroke="#333"/><text x="385" y="195" font-size="10">100</text>
-            <circle id="dot" cx="390" cy="170" r="4" fill="#111"/>
-          </svg>
+
+    <div class="iieLine">ÍNDICE DE INTELIGENCIA EMOCIONAL <span style="font-weight:400">IIE:</span> <span id="iie" style="min-width:36px; text-align:right">—</span></div>
+
+    <div class="row">
+      <div class="colL">
+        <h3>ESTILOS DE COMUNICACIÓN INTERPERSONAL</h3>
+        <div style="margin-bottom:8px"><b>AGRESIÓN</b>
+          <div class="bar" style="margin-top:6px" id="barAg">
+            <span class="seg r"></span><span class="seg a"></span><span class="seg g"></span>
+            <span class="marker" id="mkAg"></span>
+          </div>
+          <div class="tickRow"><span>10</span><span>40</span><span>70</span><span>100</span></div>
         </div>
+        <div style="margin-bottom:2px"><b>TIMIDEZ</b>
+          <div class="bar" style="margin-top:6px" id="barTi">
+            <span class="seg r"></span><span class="seg a"></span><span class="seg g"></span>
+            <span class="marker" id="mkTi"></span>
+          </div>
+          <div class="tickRow"><span>10</span><span>40</span><span>70</span><span>100</span></div>
+        </div>
+        <div class="note">* Un puntaje bajo indica mejor manejo en estas áreas.</div>
+
+        <h3 style="margin-top:18px">PROPENSIÓN AL CAMBIO</h3>
+        <div><b>PROPENSIÓN AL CAMBIO</b>
+          <div class="bar" style="margin-top:6px" id="barPc">
+            <span class="seg r"></span><span class="seg a"></span><span class="seg g"></span>
+            <span class="marker" id="mkPc"></span>
+          </div>
+          <div class="tickRow"><span>10</span><span>40</span><span>70</span><span>100</span></div>
+        </div>
+
+        <h3 style="margin-top:18px">Por sub-habilidad</h3>
+        <table id="tblSubs">
+          <thead><tr><th>Bloque</th><th>Sub-habilidad</th><th>Ítems</th><th>Puntos</th><th>%</th><th>Rango</th></tr></thead>
+          <tbody></tbody>
+        </table>
+
+        <h3 style="margin-top:18px">Por bloque</h3>
+        <table id="tblBloques">
+          <thead><tr><th>Bloque</th><th>Promedio %</th><th>Rango</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="small" style="margin-top:8px">Rangos: <span class="chip" style="background:var(--red)"></span> 1–40 · <span class="chip" style="background:var(--amber)"></span> 41–70 · <span class="chip" style="background:var(--green)"></span> 71–100</div>
       </div>
-      <div class="card">
-        <h3>IV1 – IV2 – IV3</h3>
-        <div class="ivgrid" id="iv">
-          <div class="head"></div>
-          <div class="head">Se conoce o se compromete</div>
-          <div class="head">Se conoce o se compromete poco</div>
-          <div class="head">Se requiere mayor autoconocimiento o auto compromiso</div>
 
-          <div class="head">IV1</div>
-          <div id="iv1c1"></div><div id="iv1c2"></div><div id="iv1c3"></div>
+      <div class="colR">
+        <div class="curve">
+          <div class="small" style="font-weight:700; margin-bottom:4px">Curva de distribución de frecuencias</div>
+          <canvas id="cv"></canvas>
+          <div class="legend">
+            <span class="chip" style="background:var(--red)"></span>1–40
+            <span class="chip" style="background:var(--amber)"></span>41–70
+            <span class="chip" style="background:var(--green)"></span>71–100
+          </div>
+        </div>
 
-          <div class="head">IV2</div>
-          <div id="iv2c1">No se contradice</div><div id="iv2c2">Se contradice</div><div id="iv2c3">Se contradice frecuentemente</div>
+        <div class="ivcard">
+          <div class="small" style="font-weight:700; margin-bottom:6px">IV1 – IV2 – IV3</div>
+          <div class="ivgrid" id="ivgrid">
+            <div class="h"></div>
+            <div class="h">Se conoce o se compromete</div>
+            <div class="h">Se conoce o se compromete poco</div>
+            <div class="h">Se requiere mayor autoconocimiento o auto compromiso</div>
 
-          <div class="head">IV3</div>
-          <div id="iv3c1">Entre 30 y 90 minutos<br><span class="mini">Tomó el tiempo adecuado</span></div>
-          <div id="iv3c2">Entre 10 y 20 minutos<br><span class="mini">Demasiado breve</span></div>
-          <div id="iv3c3">Más de 90 minutos<br><span class="mini">Demasiado lento</span></div>
+            <div class="h">IV1</div><div></div><div></div><div></div>
+            <div class="h">IV2</div><div></div><div></div><div></div>
+            <div class="h">IV3</div>
+            <div>Entre 30 y 90 minutos<br/><span class="small">Tomó el tiempo adecuado</span></div>
+            <div>Entre 10 y 20 minutos<br/><span class="small">Demasiado breve</span></div>
+            <div>Más de 90 minutos<br/><span class="small">Demasiado lento</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -151,144 +163,157 @@
 </div>
 
 <script>
-const API = '/api/report?codigo='; // respeta tu endpoint actual
+const $ = (s)=>document.querySelector(s);
+const fmt = v => (v===undefined||v===null||v==='')?'—':v;
 
-function safe(v){ return (v===undefined||v===null||v==='') ? '—' : v; }
-function setMarker(id, val){
-  const el = document.getElementById(id);
-  if(!el){return}
-  let v = Number(val); if(!Number.isFinite(v)) v = 10;
-  v = Math.max(10, Math.min(100, v));
-  el.style.left = (v - 10) / 90 * 100 + '%';
-}
-function placeDot(iie){
-  const t = Math.max(1, Math.min(100, Number(iie)||1));
-  const x = 10 + (t-1)/99 * (390-10);
-  const y = 170 - (1 - Math.abs((t-1)/99 - 0.5)*2) * 40;
-  const dot = document.getElementById('dot');
-  dot.setAttribute('cx', x); dot.setAttribute('cy', y);
-}
-function rangoChip(p){
-  if(p<=40) return '<span class="chip red">1–40</span>';
-  if(p<=70) return '<span class="chip amber">41–70</span>';
-  return '<span class="chip green">71–100</span>';
-}
-function mark(id){
-  document.querySelectorAll('#iv div').forEach(d=>d.classList.remove('hit'));
-  const el = document.getElementById(id); if(el) el.classList.add('hit');
-}
-function paintIV1(iie){
-  if(iie>=71) mark('iv1c1'); else if(iie>=41) mark('iv1c2'); else mark('iv1c3');
-}
-function paintIV2(blocks){
-  const core = blocks.filter(b=>['Habilidades intrapersonales','Habilidades interpersonales','Habilidades para la vida'].includes(b.bloque));
-  const vals = core.map(b=>Number(b.p||0)).filter(Number.isFinite);
-  if(vals.length<2) return;
-  const mx = Math.max(...vals), mn = Math.min(...vals), spread = mx - mn;
-  if(spread<=10) mark('iv2c1'); else if(spread<=25) mark('iv2c2'); else mark('iv2c3');
-}
-function paintIV3(mins){
-  const m = Number(mins);
-  if(!Number.isFinite(m)) return;
-  if(m>=30 && m<=90) mark('iv3c1'); else if(m<30) mark('iv3c2'); else mark('iv3c3');
-}
-function fillTables(subs, blocks){
-  const tb = document.querySelector('#tblSubs tbody'); tb.innerHTML='';
-  (subs||[]).forEach(s=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${safe(s.bloque||s.block)}</td>
-                    <td>${safe(s.sub||s.subhabilidad)}</td>
-                    <td>${safe(s.items)}</td>
-                    <td>${safe(s.puntos)}</td>
-                    <td>${safe(s.p)}</td>
-                    <td>${rangoChip(Number(s.p||0))}</td>`;
-    tb.appendChild(tr);
-  });
-  const tb2 = document.querySelector('#tblBlocks tbody'); tb2.innerHTML='';
-  (blocks||[]).forEach(b=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${safe(b.bloque)}</td>
-                    <td>${safe(b.p)}</td>
-                    <td>${rangoChip(Number(b.p||0))}</td>`;
-    tb2.appendChild(tr);
-  });
+function placeMarker(id, val){
+  const mk = $(id); if(!mk) return;
+  if(val==null || isNaN(val)){ mk.style.display='none'; return; }
+  const x = Math.max(10, Math.min(100, Number(val)));
+  const pct = ((x-10)/(100-10))*100;
+  mk.style.left = pct + '%';
+  mk.style.display='block';
 }
 
-async function go(){
-  const code = document.getElementById('code').value.trim();
-  const msg = document.getElementById('msg');
-  msg.textContent='';
-  if(!code){ msg.textContent='Ingresa un código'; return; }
-  try{
-    const res = await fetch(API + encodeURIComponent(code));
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
-
-    const P = data.participante || data.participant || {};
-    const A = data.attempt || data.intento || data || {};
-    const R = A.resultados || data.resultados || {};
-
-    const nombre = A.nombre || P.nombre;
-    const edad = A.edad_anios || P.edad_anios;
-    const curso = A.curso || P.curso;
-    const institucion = A.institucion || P.institucion;
-    const grupo = A.grupo || P.grupo;
-    const fecha = (A.created_at || A.fecha || '').toString().slice(0,10);
-
-    document.getElementById('nombre').textContent = safe(nombre);
-    document.getElementById('edad').textContent = safe(edad);
-    document.getElementById('curso').textContent = safe(curso);
-    document.getElementById('institucion').textContent = safe(institucion);
-    document.getElementById('grupo').textContent = safe(grupo);
-
-    const iie = Number(A.iie ?? (R.globales && R.globales.IIE) ?? 0);
-    document.getElementById('iie').textContent = (iie ? iie : '—');
-
-    // Estilos + cambio
-    let agresion=null, timidez=null, cambio=null;
-    const subs = (R.subhabilidades || []);
-    for(const s of subs){
-      const sub = (s.sub||s.subhabilidad||'').toLowerCase();
-      const val = Number(s.pct ?? s.p);
-      if(sub==='agresión' || sub==='agresion') agresion = val;
-      if(sub==='timidez') timidez = val;
-      if(sub==='propensión al cambio' || sub==='propension al cambio') cambio = val;
-    }
-    if(cambio==null && R.bloques && (R.bloques.propension_cambio!=null)) cambio = Number(R.bloques.propension_cambio);
-
-    setMarker('mk_agresion', agresion);
-    setMarker('mk_timidez', timidez);
-    setMarker('mk_cambio', cambio);
-    placeDot(iie);
-
-    // tablas
-    const blocks = [];
-    if(R.bloques){
-      if(R.bloques.intrapersonales!=null) blocks.push({bloque:'Habilidades intrapersonales', p:Number(R.bloques.intrapersonales)});
-      if(R.bloques.interpersonales!=null) blocks.push({bloque:'Habilidades interpersonales', p:Number(R.bloques.interpersonales)});
-      if(R.bloques.para_la_vida!=null)     blocks.push({bloque:'Habilidades para la vida', p:Number(R.bloques.para_la_vida)});
-      if(R.bloques.propension_cambio!=null) blocks.push({bloque:'Propensión al cambio', p:Number(R.bloques.propension_cambio)});
-    }
-    const subsRows = subs.map(s=>({bloque:s.bloque||s.block, sub:s.sub||s.subhabilidad, items:s.items, puntos:s.puntos, p:Number(s.pct ?? s.p)}));
-
-    fillTables(subsRows, blocks);
-
-    // IVs
-    paintIV1(iie);
-    paintIV2(blocks);
-    const minutos = Number(A.minutos || R.minutos);
-    paintIV3(minutos);
-
-    // desplazamiento al reporte
-    window.scrollTo(0, document.body.scrollHeight);
-  }catch(e){
-    console.error(e);
-    msg.textContent = 'No se pudo consultar /api/report?codigo=…';
+function drawCurve(score){
+  const cv = $('#cv'), ctx = cv.getContext('2d');
+  const w = cv.width = cv.clientWidth, h = cv.height = cv.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  const y = h-16;
+  const rW = w*0.35, aW = w*0.25, gW = w*0.30;
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--red');  ctx.fillRect(0,y,rW,6);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--amber');ctx.fillRect(rW,y,aW,6);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--green');ctx.fillRect(rW+aW,y,gW,6);
+  ctx.strokeStyle = '#222'; ctx.lineWidth = 2; ctx.beginPath();
+  const cx = w*0.78, amp = h*0.55, spread = w*0.65;
+  for(let i=0;i<w;i++){
+    const t = (i - (w*0.1)) / spread;
+    const yv = y - amp * Math.exp(-t*t);
+    if(i===0) ctx.moveTo(i,yv); else ctx.lineTo(i,yv);
+  }
+  ctx.stroke();
+  if(score!=null && !isNaN(score)){
+    const sx = Math.max(0, Math.min(w, (score/100)*w));
+    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(sx, y-8, 4, 0, Math.PI*2); ctx.fill();
   }
 }
 
-document.getElementById('btn').addEventListener('click', go);
-document.getElementById('code').addEventListener('keydown', e=>{ if(e.key==='Enter') go(); });
+function rangeBadge(p){
+  if(p==null || isNaN(p)) return '—';
+  const n = Number(p);
+  if(n<=40) return '<span style="background:#e74c3c;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px">1–40</span>';
+  if(n<=70) return '<span style="background:#f1c40f;color:#000;padding:2px 8px;border-radius:12px;font-size:11px">41–70</span>';
+  return '<span style="background:#2ecc71;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px">71–100</span>';
+}
+
+function selectIV(row, col){
+  const grid = $('#ivgrid'); if(!grid) return;
+  grid.querySelectorAll('.sel').forEach(el=>el.classList.remove('sel'));
+  const base = 4;
+  const idx = base + (row-1)*4 + col;
+  const cell = grid.children[idx];
+  if(cell) cell.classList.add('sel');
+}
+
+async function fetchReport(code){
+  const res = await fetch('/api/report?codigo='+encodeURIComponent(code));
+  if(!res.ok) throw new Error('No encontrado');
+  return await res.json();
+}
+
+function mapData(data){
+  const P = data.participante || data.participant || {};
+  const A = data.attempt || data.intento || data || {};
+  const R = A.resultados || data.resultados || {};
+
+  const nombre = A.nombre || P.nombre || '';
+  const edad = A.edad_anios || P.edad_anios || '';
+  const institucion = A.institucion || P.institucion || '';
+  const grupo = A.grupo || P.grupo || '';
+  const curso = A.curso || P.curso || '';
+  const fecha = (A.created_at || A.fecha || '').toString().slice(0,10);
+
+  $('#hdr').innerHTML = `
+    <div><b>Nombre:</b> ${fmt(nombre)}</div>
+    <div><b>Edad:</b> ${fmt(edad)}</div>
+    <div><b>Curso/Grado:</b> ${fmt(curso)}</div>
+    <div><b>Institución:</b> ${fmt(institucion)}</div>
+    <div><b>Grupo:</b> ${fmt(grupo)}</div>
+    <div><b>Fecha:</b> ${fmt(fecha)}</div>
+  `;
+
+  const iie = A.iie ?? (R.globales && R.globales.IIE);
+  $('#iie').textContent = fmt(iie);
+
+  const subs = R.subhabilidades || [];
+  const findPct = key => {
+    for(const s of subs){
+      const nm = (s.sub||'').toLowerCase();
+      if(key==='agresion' && (nm==='agresión'||nm==='agresion')) return Number(s.pct);
+      if(key==='timidez' && nm==='timidez') return Number(s.pct);
+      if(key==='prop' && (nm==='propensión al cambio'||nm==='propension al cambio')) return Number(s.pct);
+    }
+    if(key==='prop' && R.bloques && R.bloques.propension_cambio!=null) return Number(R.bloques.propension_cambio);
+    return null;
+  };
+  placeMarker('#mkAg', findPct('agresion'));
+  placeMarker('#mkTi', findPct('timidez'));
+  placeMarker('#mkPc', findPct('prop'));
+
+  drawCurve(Number(iie));
+
+  const iv1 = A.iv1 ?? (R.globales && R.globales.IV1);
+  const iv2 = A.iv2 ?? (R.globales && R.globales.IV2);
+  const iv3 = A.iv3 ?? (R.globales && R.globales.IV3);
+  const mapIV1 = v => (v===0||v==='Se conoce o se compromete')?1:(v===1||v==='Se conoce o se compromete poco')?2:3;
+  const mapIV2 = v => (v===0||v==='No se contradice')?1:(v===1||v==='Se contradice')?2:3;
+  const mapIV3 = v => (v===0||/30\s*y\s*90/.test(v))?1:(v===1||/10\s*y\s*20/.test(v))?2:3;
+  selectIV(1, mapIV1(iv1));
+  selectIV(2, mapIV2(iv2));
+  selectIV(3, mapIV3(iv3));
+
+  // tablas
+  const tbodyS = $('#tblSubs tbody'); tbodyS.innerHTML='';
+  for(const s of subs){
+    const rango = rangeBadge(s.pct);
+    tbodyS.innerHTML += `<tr>
+      <td>${fmt(s.bloque||s.block)}</td>
+      <td>${fmt(s.sub||s.subhabilidad)}</td>
+      <td>${fmt(s.items||s.items_count||'')}</td>
+      <td>${fmt(s.puntos||s.points||'')}</td>
+      <td>${fmt(s.pct)}</td>
+      <td>${rango}</td>
+    </tr>`;
+  }
+
+  const tbodyB = $('#tblBloques tbody'); tbodyB.innerHTML='';
+  const addB = (label, val)=>{
+    if(val==null) return;
+    tbodyB.innerHTML += `<tr><td>${label}</td><td>${fmt(val)}</td><td>${rangeBadge(val)}</td></tr>`;
+  };
+  const b = R.bloques || {};
+  addB('Estilos de comunicación interpersonal', b.estilos_comunicacion);
+  addB('Habilidades interpersonales', b.interpersonales);
+  addB('Habilidades intrapersonales', b.intrapersonales);
+  addB('Habilidades para la vida', b.para_la_vida);
+  addB('Propensión al cambio', b.propension_cambio);
+}
+
+async function run(){
+  const code = $('#code').value.trim();
+  const msg = $('#msg'); msg.textContent='';
+  if(!code){ msg.textContent = 'Ingresa un código'; return; }
+  try{
+    const data = await fetchReport(code);
+    mapData(data);
+  }catch(e){
+    console.error(e); msg.textContent='No encontrado / error del servidor';
+  }
+}
+document.getElementById('btn').addEventListener('click', run);
+document.getElementById('code').addEventListener('keydown', e=>{ if(e.key==='Enter') run(); });
+
+drawCurve(null);
 </script>
 </body>
 </html>
