@@ -3,13 +3,19 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Descargar reporte_mhp100_v8.html SKILL MAP – Reporte MHP100</title>
+  <title>reporte_mhp100_v5 AAAMHP100 – Reporte PPA</title>
+
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd; --soft:#f7f7f7;
       --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757;
     }
-    html,body{background:#fff;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;margin:0}
+    html,body{
+      background:#fff;
+      color:var(--ink);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      margin:0;
+    }
     .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
     h1,h2,h3{margin:0 0 8px 0}
     .muted{color:var(--muted)}
@@ -26,7 +32,61 @@
     .msg.ok{color:#0a8}
     .msg.err{color:#c00}
     .hint{font-size:12px;color:var(--muted);margin-bottom:8px}
+
+    /* Encabezado tipo PDF */
+    .rep-top{
+      border-bottom:1px solid var(--line);
+      padding-bottom:6px;
+      margin-bottom:6px;
+    }
+    .rep-top-row1{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      font-size:12px;
+      margin-bottom:6px;
+    }
+    .rep-date{
+      justify-self:flex-start;
+    }
+    .rep-top-center{
+      text-align:center;
+      font-weight:700;
+      text-transform:uppercase;
+    }
+    .rep-top-logo{
+      justify-self:flex-end;
+    }
+    .lex-logo{
+      height:40px;
+      object-fit:contain;
+    }
+    .rep-top-row2{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:12px;
+      font-size:26px;
+      font-weight:800;
+      margin-bottom:2px;
+      text-transform:uppercase;
+    }
+    .mhp-logo{
+      height:50px;
+      margin-left:12px;
+      margin-top:-4px;
+      object-fit:contain;
+    }
+    .rep-top-row3{
+      text-align:center;
+      font-size:18px;
+      font-weight:800;
+    }
+
+    /* IV highlight (solo color, no cambia layout) */
     .iv-table td.hl{background:var(--yellow)}
+
+    /* Estilos para barras (rep-scale) */
     .bars-wrap{margin:8px 0}
     .bars-row{display:grid;grid-template-columns:220px 1fr;align-items:center;gap:8px;margin:6px 0}
     .bars-row .label{font-weight:700;font-size:12px}
@@ -39,6 +99,8 @@
       position:absolute;top:-2px;width:10px;height:16px;background:#111;border-radius:2px;
       transform:translateX(-50%);display:none
     }
+
+    /* Page 2 */
     .page{margin-top:10px}
     .page-break{height:0;margin:0;border:0}
     @media print{
@@ -61,92 +123,113 @@
     .b-red{background:var(--red)}
     .b-orange{background:var(--orange)}
     .b-green{background:var(--green)}
-    .header-grid{
-      display:grid;
-      grid-template-columns: 1.2fr 1fr 120px;
+    .bloque-title{
+      font-weight:800;
+      margin:12px 0 6px;
+      display:flex;
       align-items:center;
+      justify-content:space-between;
       gap:8px;
-      margin-bottom:6px;
     }
-    .logo-lexium{
-      justify-self:end;
-      height:52px;
+    .bloque-left{
+      display:flex;
+      align-items:center;
+      gap:6px;
     }
-    .logo-sello{
-      justify-self:end;
-      height:46px;
+    .bloque-bullet{
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:#f4a338;
+      flex:0 0 auto;
     }
-    .titulo-skill{
-      font-size:30px;
-      font-weight:900;
-      letter-spacing:0.06em;
-    }
-    .titulo-sub{
+    .ih-badge{
+      background:var(--yellow);
+      padding:2px 10px;
+      border-radius:2px;
+      min-width:36px;
       text-align:center;
-      font-size:18px;
       font-weight:800;
     }
-    .fecha-impresion{
+    .iie-row{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      margin:12px 0 6px;
+      font-weight:800;
+      gap:8px;
+    }
+    .iie-badge{
+      background:#1d4ed8;
+      color:#fff;
+      padding:3px 12px;
+      border-radius:2px;
+      min-width:40px;
+      text-align:center;
+    }
+
+  
+    .scale-range-header{
+      display:flex;
+      justify-content:flex-end;
+      gap:48px;
       font-size:11px;
-      margin-bottom:4px;
+      font-weight:700;
+      margin:0 0 2px;
     }
-    .tabla-ident{
-      width:100%;
-      border-collapse:collapse;
-      font-size:13px;
+    .scale-range-header span{
+      min-width:60px;
+      text-align:center;
     }
-    .tabla-ident td{
-      border:1px solid #000;
-      padding:4px 6px;
+    .scale-note-inline{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:2px;
     }
-    .tabla-ident b{font-weight:800}
-  </style>
+</style>
 </head>
+
 <body>
 <div class="wrap">
+
   <div class="topbar">
     <input id="codigoInput" placeholder="LEX001" maxlength="10"/>
     <button class="btn" id="btnVer">Ver reporte</button>
     <span id="msg" class="msg"></span>
   </div>
   <div class="hint">Tip: también puedes abrir ?codigo=LEX004</div>
+
   <div id="reporteContainer" style="display:none">
+
+    <!-- ===== PAGE 1 ===== -->
     <section id="page1" class="page page-1">
-      <div class="fecha-impresion" id="fechaImpresion"></div>
-      <div class="header-grid">
-        <div>
-          <div style="font-size:12px;text-transform:uppercase">GRÁFICA INDIVIDUAL MHP</div>
-          <div class="titulo-skill">SKILL MAP</div>
+
+      <!-- ENCABEZADO -->
+      <div class="rep-top">
+        <div class="rep-top-row1">
+          <div id="repDateLine" class="rep-date"></div>
+          <div class="rep-top-center">GRÁFICA INDIVIDUAL MHP</div>
+          <div class="rep-top-logo">
+            <img src="assets/img_sello.png" alt="MHP100" class="mhp-logo">
+          </div>
         </div>
-        <div style="text-align:center">
-          <img src="./assets/img_ident.jpg" alt="Lexium" class="logo-lexium"/>
-          <div class="titulo-sub">INTELIGENCIA EMOCIONAL</div>
+        <div class="rep-top-row2">
+          <span>SKILL MAP</span>
+          <img src="assets/img_ident.jpg" alt="Lexium" class="lex-logo">
         </div>
-        <div>
-          <img src="./assets/img_sello.png" alt="MHP100" class="logo-sello"/>
-        </div>
+        <div class="rep-top-row3">INTELIGENCIA EMOCIONAL</div>
       </div>
-      <table class="tabla-ident" style="margin-top:6px">
-        <tbody>
-          <tr>
-            <td style="width:40%"><b>Nombre:</b> <span id="hdrNombre">—</span></td>
-            <td style="width:20%"><b>Edad:</b> <span id="hdrEdad">—</span></td>
-            <td style="width:40%"><b>Grado:</b> <span id="hdrGrado">—</span></td>
-          </tr>
-          <tr>
-            <td><b>Institución:</b> <span id="hdrInst">—</span></td>
-            <td><b>Grupo:</b> <span id="hdrGrupo">—</span></td>
-            <td><b>Fecha:</b> <span id="hdrFechaEval">—</span></td>
-          </tr>
-          <tr>
-            <td><b>Código:</b> <span id="hdrCodigo">—</span></td>
-            <td colspan="2"></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="rep-mid" style="display:grid;grid-template-columns:1.1fr 1fr;gap:12px;margin-top:8px">
+
+      <!-- Caja de datos del participante -->
+      <div class="rep-ids" id="repHeaderBox"
+           style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:12px;margin-top:8px">
+      </div>
+
+      <div class="rep-mid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
         <div class="curve">
           <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
+
+          <!-- SVG con campana -->
           <svg id="freqCurve" viewBox="0 0 520 140" width="100%" height="140">
             <defs>
               <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -157,23 +240,30 @@
                 <stop offset="100%" stop-color="#38bdf8"/>
               </linearGradient>
             </defs>
+
             <rect x="10" y="100" width="500" height="6" fill="url(#grad1)" />
+
             <line x1="10" y1="92" x2="10" y2="114" stroke="#111"/>
             <text x="10" y="130" font-size="12">1</text>
+
             <line x1="205" y1="92" x2="205" y2="114" stroke="#111"/>
             <text x="205" y="130" font-size="12" text-anchor="middle">40</text>
+
             <line x1="355" y1="92" x2="355" y2="114" stroke="#111"/>
             <text x="355" y="130" font-size="12" text-anchor="middle">70</text>
+
             <line x1="510" y1="92" x2="510" y2="114" stroke="#111"/>
             <text x="510" y="130" font-size="12" text-anchor="end">100</text>
+
             <path id="bellPath" d="" fill="none" stroke="#111" stroke-width="2"/>
             <circle id="curveMarker" cx="260" cy="60" r="5" fill="#111"/>
           </svg>
         </div>
+
         <div class="rep-iv">
           <table class="iv-table" style="width:100%;border-collapse:collapse;font-size:12px">
             <tr id="iv1Row">
-              <th style="border:1px solid #111;padding:6px;width:40px">IV1</th>
+              <th style="border:1px solid #111;padding:6px">IV1</th>
               <td style="border:1px solid #111;padding:6px">Se conoce o se compromete</td>
               <td style="border:1px solid #111;padding:6px">Se conoce o se compromete poco</td>
               <td style="border:1px solid #111;padding:6px">Se requiere mayor autoconocimiento o auto compromiso</td>
@@ -193,54 +283,75 @@
           </table>
         </div>
       </div>
-      <div style="font-weight:800;margin:16px 0 6px">
-        ● HABILIDADES INTRAPERSONALES
-        <span style="float:right">IH INTRA: <span id="ihIntra">—</span></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">
-        <span></span>
-        <span>POR DESARROLLAR</span>
-        <span>POR FORTALECER</span>
-        <span>POR ENRIQUECER</span>
+
+      <div class="bloque-title">
+        <div class="bloque-left">
+          <span class="bloque-bullet"></span>
+          <span>HABILIDADES INTRAPERSONALES</span>
+        </div>
+        <div>IH INTRA: <span class="ih-badge" id="ihIntra">—</span></div>
       </div>
       <div class="rep-bloque" id="bloqueIntra"></div>
-      <div style="font-weight:800;margin:16px 0 6px">
-        ● HABILIDADES INTERPERSONALES
-        <span style="float:right">IH INTER: <span id="ihInter">—</span></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">
-        <span></span>
-        <span>POR DESARROLLAR</span>
-        <span>POR FORTALECER</span>
-        <span>POR ENRIQUECER</span>
+
+      <div class="bloque-title">
+        <div class="bloque-left">
+          <span class="bloque-bullet"></span>
+          <span>HABILIDADES INTERPERSONALES</span>
+        </div>
+        <div>IH INTER: <span class="ih-badge" id="ihInter">—</span></div>
       </div>
       <div class="rep-bloque" id="bloqueInter"></div>
-      <div style="font-weight:800;margin:16px 0 6px">
-        ● HABILIDADES PARA LA VIDA
-        <span style="float:right">IH PV: <span id="ihPV">—</span></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">
-        <span></span>
-        <span>POR DESARROLLAR</span>
-        <span>POR FORTALECER</span>
-        <span>POR ENRIQUECER</span>
+
+      <div class="bloque-title">
+        <div class="bloque-left">
+          <span class="bloque-bullet"></span>
+          <span>HABILIDADES PARA LA VIDA</span>
+        </div>
+        <div>IH PV: <span class="ih-badge" id="ihPV">—</span></div>
       </div>
       <div class="rep-bloque" id="bloquePV"></div>
-      <div style="font-weight:800;margin:16px 0 6px">
-        ÍNDICE DE INTELIGENCIA EMOCIONAL IIE:
-        <span id="repIIE" style="display:inline-block;padding:2px 12px;background:#1d4ed8;color:#fff;border-radius:3px;margin-left:4px">—</span>
+
+      
+      <div class="iie-row">
+        <span>ÍNDICE DE INTELIGENCIA EMOCIONAL IIE:</span>
+        <span class="iie-badge" id="repIIE">—</span>
       </div>
-      <div style="font-weight:800;margin:18px 0 6px">ESTILOS DE COMUNICACIÓN INTERPERSONAL</div>
-      <div class="rep-scale" id="estilos"></div>
-      <div style="font-weight:800;margin:18px 0 6px">PROPENSIÓN AL CAMBIO</div>
-      <div class="rep-scale" id="cambio"></div>
-      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+
+      <div class="scale-section">
+        <div class="section-title">
+          <div class="section-dot"></div>
+          <div>ESTILOS DE COMUNICACIÓN INTERPERSONAL</div>
+        </div>
+        <div class="scale-range-header">
+          <span></span>
+          <span>BAJO</span>
+          <span>PROMEDIO</span>
+          <span>ALTO</span>
+        </div>
+        <div class="rep-scale" id="estilos"></div>
+      </div>
+
+      <div class="scale-section">
+        <div class="section-title">
+          <div class="section-dot"></div>
+          <div>PROPENSIÓN AL CAMBIO</div>
+        </div>
+        <div class="rep-scale" id="cambio"></div>
+        <div class="scale-note-inline">Menor propensión al cambio — Mayor propensión al cambio</div>
+      </div>
+
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
         <button id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
         <button id="btnExportJSON" class="btn" style="background:#6b7280">Exportar JSON</button>
       </div>
+
     </section>
+
     <div class="page-break"></div>
+
+    <!-- ===== PAGE 2 (DETALLE HABILIDADES) ===== -->
     <section class="page page-2" id="page2">
+
       <div class="p2-title">
         <h2>RESULTADOS</h2>
         <div>
@@ -248,8 +359,10 @@
           <button class="btn" id="btnJSON" style="background:#6b7280">Exportar JSON</button>
         </div>
       </div>
+
       <div class="card">
         <div><b>Contestadas:</b> <span id="contestadasLine">—</span></div>
+
         <h3 style="margin-top:8px">Por sub-habilidad</h3>
         <table class="result-table" id="subTable">
           <thead>
@@ -259,6 +372,7 @@
           </thead>
           <tbody></tbody>
         </table>
+
         <h3 style="margin-top:10px">Por bloque</h3>
         <table class="result-table" id="bloqTable">
           <thead>
@@ -266,6 +380,7 @@
           </thead>
           <tbody></tbody>
         </table>
+
         <div class="hint" style="margin-top:6px">
           Rangos: <span class="badge b-red">1–40</span>
           <span class="badge b-orange">41–70</span>
@@ -273,19 +388,23 @@
         </div>
       </div>
     </section>
-  </div>
-</div>
+
+  </div><!-- /reporteContainer -->
+
+</div><!-- /wrap -->
 <script>
   const $ = sel => document.querySelector(sel);
   function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
   function normalizeBloqueName(name){
     return (name||"").replace(/\s+/g," ").trim().toLowerCase();
   }
+
   function rangoBadge(p){
     if (p<=40) return {txt:"1–40 Por desarrollar", cls:"b-red"};
     if (p<=70) return {txt:"41–70 Por fortalecer", cls:"b-orange"};
     return {txt:"71–100 Por enriquecer", cls:"b-green"};
   }
+
   function highlightIV(rowId, colIndex){
     const row = document.getElementById(rowId);
     if(!row) return;
@@ -294,20 +413,30 @@
     const td = row.children[idx];
     if(td) td.classList.add("hl");
   }
+
   function ivToCol(v){
     if (v === null || v === undefined) return 2;
     const n = Number(v);
     if (!Number.isNaN(n)){
+      // Categorías numéricas desde BD:
+      //  - 0,1,2 -> columnas 1,2,3
+      //  - 1,2,3 -> columnas 1,2,3
+      if (n === 0 || n === 1 || n === 2) return n + 1;
       if (Number.isInteger(n) && n>=1 && n<=3) return n;
-      if (n <= 40) return 1;
-      if (n <= 70) return 2;
-      return 3;
+      // Si accidentalmente viene un porcentaje (0–100), usamos la regla del IIE
+      if (n >= 0 && n <= 100){
+        if (n >= 71) return 1;
+        if (n >= 41) return 2;
+        return 3;
+      }
     }
     const s = String(v).toLowerCase();
     if (s.includes("no se contradice") || s.includes("tomó el tiempo adecuado")) return 1;
     if (s.includes("se contradice frecuentemente") || s.includes("demasiado lento")) return 3;
     return 2;
   }
+
+  /* ===== Curva campana (bell curve) ===== */
   function drawBellCurve(){
     const path = document.getElementById("bellPath");
     if(!path) return;
@@ -325,6 +454,7 @@
     }
     path.setAttribute("d", d);
   }
+
   function setCurveMarker(iie){
     drawBellCurve();
     const left=10, right=510, baseY=100, topY=18, mid=260, sigma=90;
@@ -338,6 +468,8 @@
       dot.setAttribute("cy", y);
     }
   }
+
+  /* ===== Bloques de habilidades (3 columnas) ===== */
   function addRow(container, name, pct){
     const row=document.createElement('div');
     row.style.display='grid';
@@ -345,11 +477,13 @@
     row.style.alignItems='center';
     row.style.gap='6px';
     row.style.margin='2px 0';
+
     const nameCell=document.createElement('div');
     nameCell.textContent=name;
     nameCell.style.fontWeight='700';
     nameCell.style.fontSize='12px';
     row.appendChild(nameCell);
+
     for(let i=0;i<3;i++){
       const track=document.createElement('div');
       track.style.position='relative';
@@ -358,6 +492,7 @@
       track.style.borderRadius='4px';
       track.style.background='#f3f5f8';
       track.style.overflow='hidden';
+
       const fill=document.createElement('div');
       fill.style.position='absolute';
       fill.style.left='0';
@@ -365,66 +500,139 @@
       fill.style.bottom='0';
       fill.style.background='#6b7280';
       fill.style.width='0';
+
       let w=0;
       if(i===0 && pct<=40)  w = Math.max(2, Math.round((pct/40)*100));
       if(i===1 && pct>40 && pct<=70) w = Math.max(2, Math.round(((pct-40)/30)*100));
       if(i===2 && pct>70)  w = Math.max(2, Math.round(((pct-70)/30)*100));
+
       fill.style.width = w + '%';
       track.appendChild(fill);
       row.appendChild(track);
     }
     container.appendChild(row);
   }
+
   function buildBloque(containerId, subRows, bloqueNombre){
     const cont = document.getElementById(containerId);
     if(!cont) return;
     cont.innerHTML = '';
-    subRows
-      .filter(r=> normalizeBloqueName(r.bloque||r.block||"")===normalizeBloqueName(bloqueNombre))
-      .forEach(r=>{
-        const sub = r.subhabilidad || r.sub || r.nombre || "";
-        const pct = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
-        addRow(cont, sub, pct);
+
+    const cols = document.createElement('div');
+    cols.style.display='grid';
+    cols.style.gridTemplateColumns='220px 1fr 1fr 1fr';
+    cols.style.gap='6px';
+    cols.style.marginBottom='6px';
+
+    const blank=document.createElement('div');
+    cols.appendChild(blank);
+
+    ['POR DESARROLLAR','POR FORTALECER','POR ENRIQUECER'].forEach(t=>{
+      const d=document.createElement('div');
+      d.style.fontSize='11px';
+      d.style.textAlign='center';
+      d.style.color='#374151';
+      d.textContent=t;
+      cols.appendChild(d);
+    });
+    cont.appendChild(cols);
+
+    const bloqueKey = normalizeBloqueName(bloqueNombre);
+    const ordenes = {
+      "habilidades intrapersonales": ["Autoestima","Manejo de la tensión","Bienestar físico"],
+      "habilidades interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
+      "habilidades para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de decisiones","Liderazgo"]
+    };
+
+    let rowsFiltradas = subRows
+      .filter(r=> normalizeBloqueName(r.bloque||r.block||"")===bloqueKey);
+
+    const orden = ordenes[bloqueKey];
+    if (orden){
+      rowsFiltradas.sort((a,b)=>{
+        const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
+        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
+        const ia = orden.findIndex(x=> x.toLowerCase()===nameA);
+        const ib = orden.findIndex(x=> x.toLowerCase()===nameB);
+        if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
+        if (ia===-1) return 1;
+        if (ib===-1) return -1;
+        return ia-ib;
       });
+    }
+
+    rowsFiltradas.forEach(r=>{
+      const sub = r.subhabilidad || r.sub || r.nombre || "";
+      const pct = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
+      addRow(cont, sub, pct);
+    });
   }
-  function renderBars(containerId, items, showNote){
-    const host=document.getElementById(containerId);
-    if(!host) return;
-    host.innerHTML="";
-    const wrap=document.createElement('div');
-    wrap.className="bars-wrap";
-    items.forEach(it=>{
-      const row=document.createElement('div');
-      row.className="bars-row";
-      row.innerHTML=`
-        <div class="label">${it.label} (10–100)</div>
-        <div class="bars-slot">
-          <div class="tick" style="left:0%"></div>
-          <div class="tick" style="left:100%"></div>
-          <div class="tick-label" style="left:0%">10</div>
-          <div class="tick-label" style="left:100%">100</div>
-          <div class="marker" id="${it.id}" style="display:none"></div>
-        </div>
-      `;
+
+
+/* ===== Barras estilos/propensión ===== */
+    function renderBars(containerId, items, showNote){
+    const host = document.getElementById(containerId);
+    if (!host) return;
+    host.innerHTML = "";
+    const wrap = document.createElement("div");
+    wrap.className = "bars-wrap";
+
+    items.forEach(it => {
+      const row = document.createElement("div");
+      row.className = "bars-row";
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = it.label + " (10–100)";
+      row.appendChild(label);
+
+      const slot = document.createElement("div");
+      slot.className = "bars-slot";
+
+      // Ticks y números 10–100
+      [10,40,70,100].forEach(v => {
+        const pct = (v - 10) / 90 * 100;
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        tick.style.left = pct + "%";
+        slot.appendChild(tick);
+
+        const tLabel = document.createElement("div");
+        tLabel.className = "tick-label";
+        tLabel.style.left = pct + "%";
+        tLabel.textContent = v;
+        slot.appendChild(tLabel);
+      });
+
+      const marker = document.createElement("div");
+      marker.className = "marker";
+      marker.id = it.id;
+      marker.style.display = "none";
+      slot.appendChild(marker);
+
+      row.appendChild(slot);
       wrap.appendChild(row);
     });
     host.appendChild(wrap);
-    if(showNote){
-      const note=document.createElement('div');
-      note.style.fontSize='12px';
-      note.textContent='*Un puntaje bajo indica mejor manejo en estas áreas.';
+
+    if (showNote) {
+      const note = document.createElement("div");
+      note.className = "scale-note-inline";
+      note.textContent = "*Un puntaje bajo indica mejor manejo en estas áreas.";
       host.appendChild(note);
     }
   }
-  function setMarker(id, val){
+
+function setMarker(id, val){
     const el = document.getElementById(id);
     if(!el) return;
     if(val==null || isNaN(val)) { el.style.display="none"; return; }
-    const n = clamp(Number(val)||0,10,100);
-    const pct = (n-10)/90*100;
+    const pct = (clamp(val,10,100)-10)/90*100;
     el.style.left = pct + "%";
     el.style.display="block";
   }
+
+  /* ===== Page 2 ===== */
   function renderPage2(subRows, bloqRows){
     const subT = $("#subTable tbody");
     subT.innerHTML = "";
@@ -446,11 +654,13 @@
       `;
       subT.appendChild(tr);
     });
+
     const bloqT = $("#bloqTable tbody");
     bloqT.innerHTML = "";
     const list = Array.isArray(bloqRows)
       ? bloqRows
       : Object.keys(bloqRows||{}).map(k=>({bloque:k, pct: bloqRows[k]}));
+
     list.forEach(r=>{
       const bloque = r.bloque || r.block || "";
       const pct = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? 0);
@@ -464,118 +674,153 @@
       bloqT.appendChild(tr);
     });
   }
-  function deriveEstilosFromSub(subRows){
-    let agresion=null, timidez=null;
-    subRows.forEach(r=>{
-      const name = (r.sub || r.subhabilidad || "").toLowerCase();
-      const pct = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
-      if(name.includes("agresión") || name.includes("agresion")) agresion = pct;
-      if(name.includes("timidez")) timidez = pct;
-    });
-    return {agresion, timidez};
-  }
+
   function renderAll(data){
+    // guardamos el último reporte para Exportar JSON
+    window.__LAST_REPORT__ = data;
+
     const attempt = data.attempt || data;
     const snap = attempt.snapshot || attempt.snap || attempt;
-    const subRows = attempt.subhabilidades || attempt.subRows || attempt.sub || [];
-    const bloqRows = attempt.bloqPercents || attempt.bloqRows || attempt.bloques || [];
-    const ahora = new Date();
-    try{
-      $("#fechaImpresion").textContent = ahora.toLocaleDateString("es-EC", {day:"2-digit",month:"2-digit",year:"numeric"}) +
-        ", " + ahora.toLocaleTimeString("es-EC",{hour:"numeric",minute:"2-digit"});
-    }catch{
-      $("#fechaImpresion").textContent = ahora.toISOString();
-    }
+
+    const resultados = attempt.resultados || attempt.resultados_json || attempt.result || {};
+    const subRows = attempt.subhabilidades || resultados.subhabilidades || attempt.subRows || attempt.sub || [];
+    const bloqRows = attempt.bloqPercents || resultados.bloqPercents || attempt.bloqRows || attempt.bloques || resultados.bloques || [];
+
     const codigoActual = ($("#codigoInput").value||"").toUpperCase();
-    const fechaEval = attempt.created_at || attempt.creado_en || attempt.fecha_intento;
-    const fechaFmt = fechaEval ? new Date(fechaEval) : null;
-    const fechaTexto = fechaFmt ? fechaFmt.toLocaleDateString("es-EC",{day:"2-digit",month:"2-digit",year:"numeric"}) : "—";
-    $("#hdrNombre").textContent = snap.nombre || attempt.nombre || "—";
-    $("#hdrEdad").textContent   = snap.edad_anios ?? snap.edad ?? attempt.edad_anios ?? "—";
-    $("#hdrGrado").textContent  = snap.curso || attempt.curso || "—";
-    $("#hdrGrupo").textContent  = snap.grupo || attempt.grupo || "—";
-    $("#hdrInst").textContent   = snap.institucion || attempt.institucion || "—";
-    $("#hdrCodigo").textContent = snap.codigo || attempt.codigo || codigoActual || "—";
-    $("#hdrFechaEval").textContent = fechaTexto;
+
+    // Fecha original desde BD (fecha de la evaluación)
+    const fechaRaw = attempt.created_at || attempt.creado_en || attempt.fecha_intento;
+    const fechaObj = fechaRaw ? new Date(fechaRaw) : null;
+
+    // Fecha/hora arriba a la izquierda = momento de generación del reporte
+    const ahora = new Date();
+    $("#repDateLine").textContent = ahora.toLocaleString("es-EC", { dateStyle:"short", timeStyle:"short" });
+
+    // Fecha larga para la caja de datos (fecha de evaluación)
+    const fechaTexto = fechaObj
+      ? fechaObj.toLocaleDateString("es-EC", { year:"numeric", month:"long", day:"2-digit" })
+      : "—";
+
+    // Header box (solo datos de BD)
+    $("#repHeaderBox").innerHTML = `
+      <div><b>Nombre:</b> ${snap.nombre || attempt.nombre || "—"}</div>
+      <div><b>Grado:</b> ${snap.curso || attempt.curso || "—"}</div>
+      <div><b>Edad:</b> ${snap.edad_anios ?? snap.edad ?? attempt.edad_anios ?? "—"}</div>
+      <div><b>Grupo:</b> ${snap.grupo || attempt.grupo || "—"}</div>
+      <div><b>Institución:</b> ${snap.institucion || attempt.institucion || "—"}</div>
+      <div><b>Fecha:</b> ${fechaTexto}</div>
+    `;
+
+    // Bloques porcentuales: usamos lo que venga, sin inventar
     function pctBloque(nombre){
+      const keyNorm = normalizeBloqueName(nombre);
       if(Array.isArray(bloqRows)){
         const f = bloqRows.find(r =>
-          normalizeBloqueName(r.bloque||r.block||"") === normalizeBloqueName(nombre)
+          normalizeBloqueName(r.bloque||r.block||"") === keyNorm
         );
-        return f ? Math.round(f.percent ?? f.pct ?? f.porcentaje ?? 0) : 0;
-      }else{
+        if (f) return Math.round(f.percent ?? f.pct ?? f.porcentaje ?? 0);
+      }else if (bloqRows && typeof bloqRows === "object"){
         const k = Object.keys(bloqRows||{}).find(k =>
-          normalizeBloqueName(k) === normalizeBloqueName(nombre)
+          normalizeBloqueName(k) === keyNorm
         );
-        return k ? Math.round(bloqRows[k]) : 0;
+        if (k) return Math.round(bloqRows[k]);
       }
+      // fallback directo desde resultados.bloques (intrapersonales, interpersonales, para_la_vida, etc.)
+      if (resultados.bloques){
+        if (keyNorm === "habilidades intrapersonales") return Math.round(resultados.bloques.intrapersonales || 0);
+        if (keyNorm === "habilidades interpersonales") return Math.round(resultados.bloques.interpersonales || 0);
+        if (keyNorm === "habilidades para la vida")   return Math.round(resultados.bloques.para_la_vida || 0);
+        if (keyNorm === "estilos de comunicación interpersonal") return Math.round(resultados.bloques.estilos_comunicacion || 0);
+        if (keyNorm === "propensión al cambio") return Math.round(resultados.bloques.propension_cambio || 0);
+      }
+      return 0;
     }
+
     const bIntra = pctBloque("Habilidades intrapersonales");
     const bInter = pctBloque("Habilidades interpersonales");
     const bPV    = pctBloque("Habilidades para la vida");
+
     $("#ihIntra").textContent = bIntra || "—";
     $("#ihInter").textContent = bInter || "—";
     $("#ihPV").textContent    = bPV || "—";
-    const iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie ??
-      ((bIntra||bInter||bPV) ? Math.round((bIntra+bInter+bPV)/3) : 0);
-    $("#repIIE").textContent = iie || "—";
-    setCurveMarker(iie || 0);
-    const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1;
-    const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2;
-    const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3;
+
+    // IIE: primero lo que venga de la BD (campo directo o resultados.globales.IIE)
+    let iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie ??
+      (resultados.globales ? resultados.globales.IIE : undefined);
+
+    const iieFinal = (iie != null && !Number.isNaN(Number(iie)))
+      ? Number(iie)
+      : ((bIntra||bInter||bPV) ? Math.round((bIntra+bInter+bPV)/3) : 0);
+
+    $("#repIIE").textContent = iieFinal || "—";
+    setCurveMarker(iieFinal || 0);
+
+    // IV1/IV2/IV3: usamos categorías que vengan desde la BD, no calculamos nada nuevo
+    const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1 ?? (resultados.globales && resultados.globales.IV1);
+    const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2 ?? (resultados.globales && resultados.globales.IV2);
+    const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3 ?? (resultados.globales && resultados.globales.IV3);
+
     highlightIV("iv1Row", ivToCol(iv1Val));
     highlightIV("iv2Row", ivToCol(iv2Val));
     highlightIV("iv3Row", ivToCol(iv3Val));
+
+    // Bloques 3 columnas
     buildBloque("bloqueIntra", subRows, "Habilidades intrapersonales");
     buildBloque("bloqueInter", subRows, "Habilidades interpersonales");
     buildBloque("bloquePV",    subRows, "Habilidades para la vida");
-    const estilosCalc = deriveEstilosFromSub(subRows);
-    const valAgresion = attempt.agresion ?? attempt.Agresion ?? estilosCalc.agresion;
-    const valTimidez  = attempt.timidez  ?? attempt.Timidez  ?? estilosCalc.timidez;
-    const valCambio   = attempt.propension_cambio ?? attempt.propCambio ?? attempt.PropCambio ?? pctBloque("Propensión al cambio");
+
+    // Barras: valores solo desde BD
     renderBars("estilos", [
-      {label:"AGRESIÓN", val: valAgresion, id:"mAgresion"},
-      {label:"TIMIDEZ",  val: valTimidez,  id:"mTimidez"}
+      {label:"AGRESIÓN", val: attempt.agresion ?? attempt.Agresion, id:"mAgresion"},
+      {label:"TIMIDEZ",  val: attempt.timidez  ?? attempt.Timidez,  id:"mTimidez"}
     ], true);
+
     renderBars("cambio", [
-      {label:"PROPENSIÓN AL CAMBIO", val: valCambio, id:"mCambio"}
+      {label:"PROPENSIÓN AL CAMBIO", val: attempt.propension_cambio ?? attempt.propCambio ?? attempt.PropCambio, id:"mCambio"}
     ], false);
-    setMarker("mAgresion", valAgresion);
-    setMarker("mTimidez",  valTimidez);
-    setMarker("mCambio",   valCambio);
+
+    setMarker("mAgresion", attempt.agresion ?? attempt.Agresion);
+    setMarker("mTimidez",  attempt.timidez  ?? attempt.Timidez);
+    setMarker("mCambio",   attempt.propension_cambio ?? attempt.propCambio ?? attempt.PropCambio);
+
+    // Contestadas + page2
     const contestadas = attempt.contestadas || attempt.n_respondidas || "244 de 244";
     $("#contestadasLine").textContent = contestadas;
     renderPage2(subRows, bloqRows);
+
     $("#reporteContainer").style.display="block";
   }
+
   async function cargarReporte(codigo){
     $("#msg").textContent = "Buscando...";
     $("#msg").className = "msg";
     $("#reporteContainer").style.display="none";
+
     try{
       const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
       const data = await r.json();
+
       if(!r.ok || data.error){
         $("#msg").textContent = data.error || "No encontrado";
         $("#msg").className="msg err";
         return;
       }
-      window.__LAST_REPORT__ = data;
       $("#msg").textContent = "Código válido.";
       $("#msg").className="msg ok";
       renderAll(data);
       window.scrollTo({top:0,behavior:"smooth"});
     }catch(e){
-      console.error(e);
       $("#msg").textContent="Error de conexión";
       $("#msg").className="msg err";
     }
   }
+
   $("#btnVer").addEventListener("click", ()=>{
     const c = $("#codigoInput").value.trim().toUpperCase();
     if(!c) return;
     cargarReporte(c);
   });
+
   function exportJSON(){
     const payload = window.__LAST_REPORT__ || {};
     const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
@@ -584,10 +829,12 @@
     a.download = "mhp100-reporte.json";
     a.click();
   }
+
   $("#btnImprimir").addEventListener("click", ()=>window.print());
   $("#btnExportJSON").addEventListener("click", exportJSON);
   $("#btnPDF").addEventListener("click", ()=>window.print());
   $("#btnJSON").addEventListener("click", exportJSON);
+
   (function init(){
     const qp = new URLSearchParams(location.search);
     const c = (qp.get("codigo")||"").trim().toUpperCase();
@@ -597,5 +844,6 @@
     }
   })();
 </script>
+
 </body>
 </html>
