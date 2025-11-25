@@ -1,1201 +1,268 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <title>YYYMHP100 – Evaluación PPA (Formulario)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MHP100 / Lexium – Inicio</title>
+
   <style>
-    :root {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #111827;
-      background: #ffffff;
+    :root{
+      --bg:#0f172a;
+      --card:#ffffff;
+      --accent:#22c55e;
+      --accent2:#2563eb;
+      --text:#0f172a;
+      --muted:#64748b;
     }
-    body {
-      margin: 0;
-      padding: 0;
-      background: #ffffff;
+    *{box-sizing:border-box;}
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:radial-gradient(circle at top,#1e293b 0,#020617 55%);
+      color:#f9fafb;
+      min-height:100vh;
     }
-    .layout {
-      display: grid;
-      grid-template-columns: 80px minmax(0, 1fr);
-      min-height: 100vh;
+    .wrap{
+      max-width:960px;
+      margin:0 auto;
+      padding:24px 16px 40px;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
     }
-    .side-strip {
-      background: #fef3c7;
-      border-right: 1px solid #fcd34d;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:32px;
     }
-    .side-strip span {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      font-weight: 800;
-      letter-spacing: 0.18em;
-      font-size: 32px;
-      color: #b45309;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
     }
-    .page {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 16px;
+    .brand-logo{
+      width:44px;
+      height:44px;
+      border-radius:999px;
+      background:#0b1120;
+      border:1px solid #1e293b;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      font-size:18px;
+      color:#22c55e;
     }
-    h1 {
-      font-size: 22px;
-      margin: 0 0 4px;
+    .brand-text-title{
+      font-weight:800;
+      font-size:18px;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
     }
-    h2 {
-      font-size: 16px;
-      margin: 16px 0 8px;
+    .brand-text-sub{
+      font-size:12px;
+      color:#94a3b8;
     }
-    .muted {
-      color: #6b7280;
-      font-size: 13px;
+    main{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
-    .card {
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 12px 14px;
-      margin-bottom: 16px;
-      background: #ffffff;
+    .card{
+      background:var(--card);
+      color:var(--text);
+      border-radius:18px;
+      padding:22px 18px 20px;
+      max-width:720px;
+      width:100%;
+      box-shadow:0 22px 45px rgba(15,23,42,0.55);
     }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px 16px;
+    .card-header{
+      margin-bottom:16px;
     }
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      font-size: 13px;
+    .card-title{
+      font-size:20px;
+      font-weight:800;
+      margin-bottom:4px;
     }
-    .field label {
-      font-weight: 600;
+    .card-sub{
+      font-size:13px;
+      color:var(--muted);
     }
-    .field input {
-      padding: 4px 6px;
-      border-radius: 4px;
-      border: 1px solid #d1d5db;
-      font-size: 14px;
+    .card-sub b{
+      color:#0f172a;
     }
-    .field input[readonly] {
-      background: #f9fafb;
-      color: #4b5563;
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+      margin-top:18px;
     }
-    .instructions p {
-      margin: 4px 0;
-      font-size: 14px;
-    }
-    .instructions ul {
-      margin: 4px 0 0 18px;
-      padding: 0;
-    }
-    .instructions li {
-      margin-bottom: 2px;
-      font-size: 14px;
-    }
-    .instructions-header {
-      font-weight: 700;
-      text-align: center;
-      margin: 8px 0;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: #1d4ed8;
-      color: #ffffff;
-      font-size: 13px;
-    }
-    .progress {
-      width: 100%;
-      height: 8px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      overflow: hidden;
-      margin-top: 4px;
-    }
-    .progress .bar {
-      height: 100%;
-      width: 0%;
-      background: #2563eb;
-      transition: width 0.2s ease-out;
-    }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid #d1d5db;
-      font-size: 12px;
-      background: #f9fafb;
-    }
-    .panel-note {
-      font-size: 12px;
-      color: #6b7280;
-      text-align: right;
-      margin-top: 4px;
-    }
-    .questions-header {
-      display: grid;
-      grid-template-columns: 40px 1fr repeat(3, 80px);
-      gap: 4px;
-      align-items: center;
-      font-size: 13px;
-      margin-top: 8px;
-      padding: 4px 0;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .questions-header div {
-      text-align: center;
-    }
-    .questions-header div:first-child,
-    .questions-header div:nth-child(2) {
-      text-align: left;
-    }
-    #questions {
-      margin-top: 4px;
-    }
-    .question {
-      display: grid;
-      grid-template-columns: 40px 1fr repeat(3, 80px);
-      gap: 4px;
-      align-items: center;
-      padding: 4px 0;
-      border-bottom: 1px solid #f3f4f6;
-      font-size: 14px;
-    }
-    .q-no {
-      font-variant-numeric: tabular-nums;
-      text-align: center;
-      color: #6b7280;
-    }
-    .q-text {
-      display: inline-block;
-    }
-    .q-cell {
-      text-align: center;
-    }
-    .q-cell input[type="radio"] {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-    }
-    .footer-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 12px;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    button {
-      border-radius: 999px;
-      border: none;
-      padding: 8px 18px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      background: #16a34a;
-      color: #ffffff;
-    }
-    button.primary {
-      background: #16a34a;
-    }
-    button.secondary {
-      background: #ffffff;
-      color: #111827;
-      border: 1px solid #d1d5db;
-    }
-    button:disabled {
-      opacity: 0.6;
-      cursor: default;
-    }
-    #pantalla-final {
-      margin-top: 32px;
-      padding: 24px 18px;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      background: #fefce8;
-      text-align: center;
-      display: none;
-    }
-    #pantalla-final h2 {
-      margin-top: 0;
-      margin-bottom: 8px;
-    }
-    .check-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      border: 2px solid #16a34a;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #16a34a;
-      font-size: 24px;
-      margin-bottom: 8px;
-    }
-    .scale-banner {
-      margin-top: 6px;
-      margin-bottom: 2px;
-      display: flex;
-      justify-content: flex-end;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-    .scale-badge {
-      background: #f97316;
-      color: #ffffff;
-      padding: 2px 8px 4px;
-      border-radius: 4px 4px 0 0;
-      font-size: 10px;
-      font-weight: 700;
-      text-align: center;
-      position: relative;
-      min-width: 80px;
-    }
-    .scale-badge::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: -4px;
-      width: 0;
-      height: 0;
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 4px solid #f97316;
-    }
-    .scale-num {
-      display: block;
-      font-size: 11px;
-      margin-bottom: 1px;
-    }
-    .hidden {
-      display: none;
-    }
-    @media (max-width: 840px) {
-      .layout {
-        grid-template-columns: 56px minmax(0, 1fr);
-      }
-      .side-strip span {
-        font-size: 24px;
+    @media(max-width:640px){
+      .grid{
+        grid-template-columns:1fr;
       }
     }
-    @media (max-width: 720px) {
-      .grid-2 {
-        grid-template-columns: 1fr;
-      }
-      .questions-header,
-      .question {
-        grid-template-columns: 32px 1fr repeat(3, 64px);
-      }
+
+    .option{
+      border-radius:16px;
+      padding:16px 14px 14px;
+      border:1px solid #e5e7eb;
+      background:#f9fafb;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .option-tag{
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      color:#6b7280;
+    }
+    .option-title{
+      font-size:16px;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .pill{
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      background:#e5f9ee;
+      color:#047857;
+    }
+    .pill-blue{
+      background:#e0edff;
+      color:#1d4ed8;
+    }
+    .option-desc{
+      font-size:13px;
+      color:#4b5563;
+    }
+    .option-footer{
+      margin-top:auto;
+      display:flex;
+      justify-content:flex-end;
+    }
+    .btn{
+      border:0;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      transition:transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
+    }
+    .btn-primary{
+      background:var(--accent);
+      color:#022c22;
+      box-shadow:0 10px 20px rgba(34,197,94,0.35);
+    }
+    .btn-primary:hover{
+      transform:translateY(-1px);
+      box-shadow:0 14px 28px rgba(34,197,94,0.45);
+    }
+    .btn-secondary{
+      background:var(--accent2);
+      color:#eff6ff;
+      box-shadow:0 10px 20px rgba(37,99,235,0.35);
+    }
+    .btn-secondary:hover{
+      transform:translateY(-1px);
+      box-shadow:0 14px 28px rgba(37,99,235,0.45);
+    }
+    .btn span.icon{
+      font-size:16px;
+      line-height:1;
+    }
+
+    footer{
+      margin-top:18px;
+      font-size:11px;
+      color:#64748b;
+      text-align:center;
     }
   </style>
 </head>
 <body>
-  <div class="layout">
-    <aside class="side-strip">
-      <span>MHP-100</span>
-    </aside>
-    <main class="page">
-      <header>
-        <h1>MHP100 – Evaluación PPA</h1>
-      </header>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="brand-logo">M</div>
+        <div>
+          <div class="brand-text-title">MHP100 · Lexium</div>
+          <div class="brand-text-sub">Plataforma de evaluación socioemocional</div>
+        </div>
+      </div>
+    </header>
 
-      <!-- Datos del participante (solo visibles en la primera pantalla y al final) -->
-      <section id="datos-participante" class="card">
-        <div class="grid-2">
-          <div class="field">
-            <label for="codigo">Código</label>
-            <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
-            <small id="codigoMsg" class="muted"></small>
-          </div>
-
-          <div class="field">
-            <label for="nombre">Nombre</label>
-            <input id="nombre" type="text" autocomplete="name" />
-          </div>
-          <div class="field">
-            <label for="edad">Edad (años)</label>
-            <input id="edad" type="number" min="5" max="99" />
-          </div>
-          <div class="field">
-            <label for="curso">Curso</label>
-            <input id="curso" type="text" readonly />
-          </div>
-          <div class="field">
-            <label for="institucion">Institución</label>
-            <input id="institucion" type="text" readonly />
-          </div>
-          <div class="field">
-            <label for="grupo">Grupo</label>
-            <input id="grupo" type="text" readonly />
-          </div>
-          <div class="field">
-            <label for="fecha">Fecha</label>
-            <input id="fecha" type="text" readonly />
+    <main>
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">¿Qué quieres hacer?</div>
+          <div class="card-sub">
+            Elige una opción para continuar. <b>Aplicar evaluación</b> inicia el cuestionario;
+            <b>Ver reportes</b> abre la pantalla donde puedes consultar los informes usando un código.
           </div>
         </div>
-      </section>
 
-      <!-- Pantalla de instrucciones -->
-      <section id="pantalla-inicio" class="card instructions">
-        <h2>Evaluación PPA – Autoevaluación de Inteligencia Emocional</h2>
-        <p>
-          El manejo efectivo de las emociones es un factor clave para lograr el éxito personal y profesional.
-          MHP100 es una herramienta que ha sido diseñada para que la persona adulta evalúe su nivel de desarrollo
-          en ciertas habilidades emocionales clave.
-        </p>
-        <p>
-          El Mapa de Habilidades Personales (MHP100) identifica 12 habilidades emocionales y 2 áreas relacionadas
-          con el estilo de comunicación interpersonal.
-        </p>
-        <p>
-          Al responder esta autoevaluación, que consta de 244 preguntas, es posible obtener un diagnóstico
-          sobre el manejo de la inteligencia emocional en cuatro áreas diferentes:
-        </p>
-        <ul>
-          <li>Habilidades intrapersonales.</li>
-          <li>Habilidades interpersonales.</li>
-          <li>Habilidades para la vida.</li>
-          <li>Estilo de comunicación interpersonal.</li>
-        </ul>
-        <div class="instructions-header">
-          INSTRUCCIONES PARA LLENAR LA AUTOEVALUACIÓN
-        </div>
-        <p>1. Lee con detenimiento cada enunciado.</p>
-        <p>2. Reflexiona en qué medida se parece a lo que haces o sientes habitualmente.</p>
-        <p>
-          3. Selecciona la casilla que corresponda a la respuesta deseada de acuerdo con los siguientes criterios:
-        </p>
-        <p style="margin-left: 12px; margin-top: 4px;">
-          1 = <strong>Casi siempre</strong> ·
-          2 = <strong>Algunas veces</strong> ·
-          3 = <strong>Rara vez</strong>
-        </p>
-        <p style="margin-top: 6px;">
-          <strong>IMPORTANTE:</strong> Una vez iniciada la evaluación, no podrás retroceder a las páginas anteriores.
-        </p>
-        <div style="margin-top: 12px; text-align: right;">
-          <button id="btnIniciar" class="primary">INICIAR</button>
-        </div>
-      </section>
-
-      <!-- Pantalla de preguntas (sin datos del participante arriba) -->
-      <section id="pantalla-preguntas" class="hidden">
-        <div class="card">
-          <h2>Responde las siguientes declaraciones</h2>
-          <p class="muted" id="nota-genero">
-            Nota: Las siguientes declaraciones pueden estar redactadas en género masculino, pero se entiende que también se refieren al género femenino.
-          </p>
-
-          <div class="scale-banner">
-            <div class="scale-badge">
-              <span class="scale-num">1</span>
-              CASI SIEMPRE
+        <div class="grid">
+          <!-- Opción: Aplicar evaluación -->
+          <div class="option">
+            <div class="option-tag">Ingreso a la evaluación</div>
+            <div class="option-title">
+              Aplicar evaluación
+              <span class="pill">Estudiante</span>
             </div>
-            <div class="scale-badge">
-              <span class="scale-num">2</span>
-              ALGUNAS VECES
+            <div class="option-desc">
+              Inicia el formulario para responder la Prueba de Habilidades Emocionales MHP100.
+              Esta opción se usa cuando el estudiante va a completar la evaluación.
             </div>
-            <div class="scale-badge">
-              <span class="scale-num">3</span>
-              RARA VEZ
+            <div class="option-footer">
+              <button class="btn btn-primary" onclick="window.location.href='evaluacion.html'">
+                <span class="icon">▶</span>
+                Empezar evaluación
+              </button>
             </div>
           </div>
 
-          <div class="progress" aria-label="Progreso">
-            <div class="bar" id="bar"></div>
-          </div>
-          <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
-            <small id="metaInfo" class="muted"></small>
-          </div>
-
-          <div class="questions-header">
-            <div>#</div>
-            <div>Declaración</div>
-            <div>1</div>
-            <div>2</div>
-            <div>3</div>
-          </div>
-          <div id="questions"></div>
-
-          <div class="footer-actions">
-            <div>
-              <small id="pageIndicator" class="muted"></small>
+          <!-- Opción: Ver reportes -->
+          <div class="option">
+            <div class="option-tag">Consulta de resultados</div>
+            <div class="option-title">
+              Ver reportes
+              <span class="pill pill-blue">Coordinación / Familia</span>
             </div>
-            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-              <small id="notaContinuar" class="panel-note">
-                NOTA: Para continuar debes contestar todas las preguntas. Contestadas: 0/0.
-              </small>
-              <button id="btnSiguiente" class="primary">SIGUIENTE</button>
+            <div class="option-desc">
+              Accede a la pantalla de reportes para ingresar un código (por ejemplo LEX001) y ver
+              la gráfica individual, la interpretación y el detalle de resultados.
+            </div>
+            <div class="option-footer">
+              <button class="btn btn-secondary" onclick="window.location.href='reporte10.html'">
+                <span class="icon">📊</span>
+                Ir a reportes
+              </button>
             </div>
           </div>
         </div>
-      </section>
-
-      <!-- Pantalla final -->
-      <section id="pantalla-final">
-        <div class="check-icon">✔</div>
-        <h2>Evaluación terminada</h2>
-        <p>Felicidades, has concluido tu evaluación de inteligencia emocional.</p>
-        <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
       </section>
     </main>
+
+    <footer>
+      MHP100 / Lexium · Uso institucional
+    </footer>
   </div>
-
-  <script>
-    // Marca de tiempo para IV3
-    let __startTime = performance.now();
-
-    let CODIGO_ACTUAL = null;
-     // === LOOKUP POR CÓDIGO (v6) ===
-     const codigoInput = document.getElementById('codigo');
-     const instInput   = document.getElementById('institucion');
-     const grupoInput  = document.getElementById('grupo');
-     const cursoInput  = document.getElementById('curso');
-     const btnIniciar  = document.getElementById('btnIniciar');
-     const codigoMsg   = document.getElementById('codigoMsg');
-
-     async function lookupCodigo() {
-       const codigo = codigoInput.value.trim().toUpperCase();
-       codigoInput.value = codigo;
-       CODIGO_ACTUAL = null;
-       btnIniciar.disabled = true;
-       if (codigoMsg) {
-         codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
-         codigoMsg.className = codigo ? 'muted' : 'err';
-       }
-       if (!codigo) {
-         instInput.value = grupoInput.value = cursoInput.value = '';
-         return;
-       }
-       try {
-         const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
-         const data = await r.json();
-         if (!r.ok) throw new Error(data.error || 'Código no válido');
-         instInput.value  = data.institucion || '';
-         grupoInput.value = data.grupo || '';
-         cursoInput.value = data.curso || '';
-         CODIGO_ACTUAL = data.codigo || codigo;
-         btnIniciar.disabled = false;
-         if (codigoMsg) {
-           codigoMsg.textContent = 'Código válido.';
-           codigoMsg.className = 'ok';
-         }
-       } catch (e) {
-         instInput.value = grupoInput.value = cursoInput.value = '';
-         if (codigoMsg) {
-           codigoMsg.textContent = 'Código no encontrado.';
-           codigoMsg.className = 'err';
-         }
-       }
-     }
-
-     codigoInput.addEventListener('input', () => {
-       codigoInput.value = codigoInput.value.toUpperCase();
-     });
-     codigoInput.addEventListener('blur', lookupCodigo);
-     codigoInput.addEventListener('keydown', (e) => {
-       if (e.key === 'Enter') {
-         e.preventDefault();
-         lookupCodigo();
-       }
-     });
-     // === FIN LOOKUP ===
-
-    const PUEDE_VER_RESULTADO = true;
-
-    const DATOS_FIJOS = {
-      institucion: "Institución por defecto",
-      grupo: "Grupo por defecto",
-      curso: "Curso por defecto"
-    };
-
-    const PAGE_SIZE = 10; // 10 preguntas por pantalla
-    let currentPage = 0;
-
-    // Aquí ya tienes pegadas tus 244 preguntas en tu versión local.
-    const PREGUNTAS_CSV = `
-1;Cuando realmente me enojo con alguien, me siento tenso, pero confortable por haber expresado exactamente lo que pensaba.;Estilos de comunicación interpersonal;Agresión;Sí
-2;Cuando realmente me enojo con alguien, me siento ansioso y confuso sobre lo que debo decir.;Estilos de comunicación interpersonal;Agresión;Sí
-3;Cuando realmente me enojo con alguien, me siento hostil y con ganas de confrontarlo verbalmente.;Estilos de comunicación interpersonal;Agresión;Sí
-4;Cuando realmente me enojo con alguien, pienso que no debo expresar mi enojo directamente.;Estilos de comunicación interpersonal;Agresión;Sí
-5;Cuando realmente me enojo con alguien, pienso: “bueno, estoy enojado, pero debo manejar esto constructivamente”.;Estilos de comunicación interpersonal;Agresión;Sí
-6;Cuando realmente me enojo con alguien, pienso que debo enfrentarlo y mostrar contundentemente mi enojo.;Estilos de comunicación interpersonal;Agresión;Sí
-7;Cuando realmente me enojo con alguien, me comporto expresándole lo que me molestó y tratando de llegar a una solución constructiva.;Estilos de comunicación interpersonal;Agresión;Sí
-8;Cuando realmente me enojo con alguien, me comporto expresándole mi enojo y entrando en una discusión.;Estilos de comunicación interpersonal;Agresión;Sí
-9;Cuando realmente me enojo con alguien, no digo nada para no herir sus sentimientos.;Estilos de comunicación interpersonal;Agresión;Sí
-10;Cuando alguien se enoja realmente conmigo, me siento tenso y con el derecho de entender la causa del enojo, respondiéndole directamente.;Estilos de comunicación interpersonal;Agresión;Sí
-11;Cuando alguien se enoja realmente conmigo, me siento enojado, hostil y con ganas de contraatacar.;Estilos de comunicación interpersonal;Agresión;Sí
-12;Cuando alguien se enoja realmente conmigo, me siento confuso, con miedo y con ganas de retirarme.;Habilidades para la vida;Motivación;Sí
-13;Cuando alguien se enoja realmente conmigo, pienso que probablemente hice algo mal y que no le caigo bien a esa persona.;Estilos de comunicación interpersonal;Timidez;Sí
-14;Cuando alguien se enoja realmente conmigo, pienso que le tengo que responder en forma aún más enérgica, para no quedar derrotado.;Estilos de comunicación interpersonal;Agresión;Sí
-15;Cuando alguien se enoja realmente conmigo, pienso que debo entender la razón de su enojo y responderle directamente para resolver el conflicto.;Estilos de comunicación interpersonal;Agresión;Sí
-16;Cuando alguien se enoja realmente conmigo, me comporto expresando mi enojo e intensificando la discusión.;Estilos de comunicación interpersonal;Agresión;Sí
-17;Cuando alguien se enoja realmente conmigo, me comporto pidiendo una explicación del enojo y manejando francamente los sentimientos.;Estilos de comunicación interpersonal;Agresión;Sí
-18;Cuando alguien se enoja realmente conmigo, me comporto retrocediendo, presentando excusas y no expresando lo que realmente siento.;Habilidades interpersonales;Asertividad;No
-19;Cuando me comunico con una persona que tiene “autoridad”, siento que tengo que estar a la defensiva y trato de encontrar la estrategia correcta para acercármele.;Habilidades interpersonales;Asertividad;No
-20;Cuando me comunico con una persona que tiene “autoridad”, me siento cómodo y me le acerco directamente.;Habilidades interpersonales;Asertividad;No
-21;Cuando me comunico con una persona que tiene “autoridad”, me siento nervioso y dudoso sobre cómo acercármele.;Habilidades interpersonales;Asertividad;Sí
-22;Cuando me comunico con una persona que tiene “autoridad”, pienso que realmente no debo molestarlo o quitarle el tiempo.;Habilidades interpersonales;Asertividad;No
-23;Cuando me comunico con una persona que tiene “autoridad”, pienso que lo que quiero o necesito es tan importante que puedo imponer mi punto de vista.;Habilidades interpersonales;Asertividad;No
-24;Cuando me comunico con una persona que tiene “autoridad”, pienso que mis necesidades son legítimas y que es correcto que se las exprese francamente.;Habilidades interpersonales;Asertividad;No
-25;Cuando me comunico con una persona que tiene “autoridad”, me comporto torpemente y presentando mis excusas.;Habilidades interpersonales;Asertividad;No
-26;Cuando me comunico con una persona que tiene “autoridad”, me comporto confortable y tranquilo.;Habilidades interpersonales;Asertividad;No
-27;Cuando me comunico con una persona que tiene “autoridad”, me comporto a la defensiva y hasta algo agresivo.;Habilidades interpersonales;Asertividad;Sí
-28;Cuando alguien me pide algo importante, me siento nervioso y ansioso de no dar la impresión de que quiero negarme.;Habilidades intrapersonales;Manejo de la tensión;Sí
-29;Cuando alguien me pide algo importante, me siento cómodo de decir “sí” o “no”.;Habilidades interpersonales;Empatía;No
-30;Cuando alguien me pide algo importante, me siento molesto de que espere que yo acepte.;Habilidades para la vida;Liderazgo;No
-31;Cuando alguien me pide algo importante, pienso que tengo el derecho de decir “sí” o “no” y me siento cómodo con ambas opciones.;Habilidades para la vida;Toma de decisiones;No
-32;Cuando alguien me pide algo importante, pienso que no quiero que se me imponga nada y entonces me niego, aunque no piense así.;Estilos de comunicación interpersonal;Timidez;No
-33;Cuando alguien me pide algo importante, digo “sí” aunque debo decir “no”.;Estilos de comunicación interpersonal;Timidez;No
-34;Cuando alguien me pide algo importante, me comporto a la defensiva y me niego, o bien, le hago ver que no me gustó su petición y la realizo a regañadientes.;Habilidades interpersonales;Asertividad;Sí
-35;Cuando alguien me pide algo importante, me comporto según sean mis verdaderos sentimientos y le digo francamente “sí” o “no”.;Estilos de comunicación interpersonal;Agresión;No
-36;Cuando alguien me pide algo importante, reacciono accediendo a lo que me piden aunque yo no lo desee.;Estilos de comunicación interpersonal;Agresión;No
-37;Cuando pido a alguien algo importante, me siento ansioso o con pocas ganas de acercármele.;Habilidades para la vida;Motivación;No
-38;Cuando pido a alguien algo importante, me inclino más a hacer lo que me conviene que a respetar los sentimientos de la otra persona.;Estilos de comunicación interpersonal;Timidez;No
-39;Cuando pido a alguien algo importante, me siento confiado y cómodo con el derecho de hacer mi petición.;Habilidades interpersonales;Asertividad;No
-40;Cuando pido a alguien algo importante, pienso que lo que necesito o deseo es importante, por lo que la persona debe responder inmediatamente.;Estilos de comunicación interpersonal;Timidez;No
-41;Cuando pido a alguien algo importante, pienso que realmente no debería estar molestándolo con mi petición.;Habilidades interpersonales;Asertividad;No
-42;Cuando pido a alguien algo importante, pienso que tengo el derecho de hacerlo, pero que respetaré la forma en que la persona decida responder.;Habilidades para la vida;Toma de decisiones;No
-43;Cuando pido a alguien algo importante, lo hago en forma exagerada e insistente.;Estilos de comunicación interpersonal;Timidez;No
-44;Cuando pido a alguien algo importante, me comporto con tranquilidad y haciendo francamente mi petición.;Habilidades interpersonales;Asertividad;No
-45;Cuando pido a alguien algo importante, me comporto dudoso y torpe al hacer mi petición.;Habilidades interpersonales;Asertividad;No
-46;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, me siento ansioso y confuso sobre la forma de hacerlo.;Propensión al cambio;Propensión al cambio;No
-47;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, me siento cómodo.;Propensión al cambio;Propensión al cambio;No
-48;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, me siento incómodo y presionado, pero lo hago.;Habilidades intrapersonales;Manejo de la tensión;No
-49;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, pienso que será interesante conocernos más.;Habilidades para la vida;Motivación;No
-50;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, pienso que lo debo hacer independientemente de que el grupo esté listo o no.;Propensión al cambio;Propensión al cambio;No
-51;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, pienso que ellos están más relajados que yo y que de cualquier forma no tengo mucho que decirles.;Habilidades para la vida;Liderazgo;Sí
-52;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, me comporto prudente y espero hasta que alguien me hable.;Habilidades para la vida;Compromiso;No
-53;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, tiendo a hablar mucho e incluso tiendo a caer pesado.;Habilidades para la vida;Compromiso;No
-54;Cuando me encuentro en un nuevo grupo de personas y necesito iniciar la comunicación, me comporto tranquilo, me presento a alguien que me parezca interesante, o simplemente me paseo.;Habilidades para la vida;Motivación;No
-55;Soy una persona alegre.;Habilidades interpersonales;Empatía;No
-56;Resuelvo mis problemas fácilmente.;Habilidades para la vida;Toma de decisiones;No
-57;Estoy satisfecho con la manera en que me relaciono con los demás.;Habilidades interpersonales;Conciencia de los demás;No
-58;Mi voz es clara y los demás la escuchan.;Habilidades interpersonales;Conciencia de los demás;No
-59;Mi relación con otras personas es fácil y cómoda.;Habilidades interpersonales;Conciencia de los demás;No
-60;Soy una persona a quien le importan los demás, y parece ser que ellos sienten eso de mí.;Habilidades interpersonales;Conciencia de los demás;No
-61;Mi vida cotidiana está llena de cosas que me mantienen interesado.;Habilidades para la vida;Motivación;No
-62;Se me dificulta hablar con personas que tienen autoridad.;Estilos de comunicación interpersonal;Agresión;No
-63;Siento que puedo decidirme muy fácilmente.;Habilidades para la vida;Toma de decisiones;No
-64;Soy una persona importante.;Habilidades interpersonales;Empatía;No
-65;Mis sentimientos no son fácilmente lastimados.;Habilidades interpersonales;Empatía;No
-66;Soy digno de confianza y realmente puedo depender de mí mismo.;Habilidades para la vida;Administración del tiempo;No
-67;Pareciera que no me importa lo que pueda sucederme.;Habilidades para la vida;Administración del tiempo;Sí
-68;Tengo confianza en mis habilidades para comunicarme fácil y efectivamente con otras personas.;Habilidades interpersonales;Conciencia de los demás;No
-69;Sé cuándo debo hablar y cuándo escuchar.;Habilidades para la vida;Administración del tiempo;No
-70;Puedo entender y ser paciente con una persona que esté pasando por una crisis emocional.;Habilidades para la vida;Administración del tiempo;No
-71;Puedo pedir a mis amigos que me ayuden, aunque no pueda devolverles el favor.;Habilidades para la vida;Administración del tiempo;No
-72;Encuentro muy difícil hablar frente a un grupo de personas.;Estilos de comunicación interpersonal;Timidez;Sí
-73;Enfrento y resuelvo los problemas conforme se presentan, en vez de evadirlos y dejarlos para después.;Habilidades para la vida;Toma de decisiones;No
-74;Soy una persona que confía en sí misma.;Habilidades para la vida;Toma de decisiones;No
-75;Disfruto crear nuevas relaciones interpersonales, y me puedo describir como alguien a quien le importan los demás.;Habilidades interpersonales;Conciencia de los demás;No
-76;Las personas me hacen cambiar fácilmente de opinión, aunque ya haya tomado una decisión.;Habilidades para la vida;Liderazgo;No
-77;Me impaciento con los demás fácilmente.;Habilidades interpersonales;Conciencia de los demás;No
-78;Mi comunicación no verbal (ojos, expresión facial, movimientos) facilita mi comunicación con los demás.;Habilidades interpersonales;Conciencia de los demás;No
-79;Soy una persona afectuosa y abierta, por lo que la gente se siente cómoda contándome sus preocupaciones y sentimientos personales.;Habilidades para la vida;Toma de decisiones;No
-80;Soy la clase de persona a la que la gente realmente le puede contar sus problemas personales.;Habilidades para la vida;Liderazgo;No
-81;Si se diera la oportunidad, podría ser un buen ejecutivo.;Habilidades para la vida;Liderazgo;No
-82;Me agrado a mí mismo y me siento satisfecho con el tipo de persona que soy.;Habilidades para la vida;Liderazgo;No
-83;Tengo miedo de ser yo mismo.;Habilidades para la vida;Liderazgo;Sí
-84;Disfruto las reuniones sociales solo por el hecho de estar con la gente.;Habilidades para la vida;Liderazgo;No
-85;Por ser tímido, me parece difícil defender mis derechos.;Estilos de comunicación interpersonal;Timidez;Sí
-86;Estoy emocionado por mí mismo y con el potencial que puedo desarrollar como persona.;Habilidades para la vida;Liderazgo;No
-87;Creo que debo decir lo que siento al tratar con otras personas.;Habilidades interpersonales;Conciencia de los demás;No
-88;Sé cómo pedir un favor sin imponerme.;Habilidades interpersonales;Asertividad;No
-89;Mis amigos me dicen que soy una persona comprensiva.;Habilidades para la vida;Compromiso;No
-90;Siento las emociones de los otros como ellos lo hacen.;Habilidades para la vida;Compromiso;No
-91;Para mí todo es posible si creo en mí mismo.;Habilidades para la vida;Compromiso;No
-92;Confío en mi habilidad para evaluar una situación que se me presenta.;Habilidades intrapersonales;Autoestima;No
-93;Puedo describirme como una persona creativa.;Habilidades interpersonales;Empatía;No
-94;Puedo soportar los altibajos del trabajo.;Habilidades interpersonales;Empatía;No
-95;Me siento cómodo al mostrar mis debilidades a mis amigos.;Habilidades interpersonales;Empatía;No
-96;Soy libre de ser yo mismo y puedo manejar las consecuencias.;Habilidades interpersonales;Empatía;No
-97;Mi saludo de mano es confiado y firme, y comunica a los demás una sólida personalidad.;Habilidades interpersonales;Conciencia de los demás;No
-98;Sé qué tan cerca puedo llegar con otra persona sin que se sienta incómoda.;Habilidades para la vida;Compromiso;No
-99;Tengo la habilidad para escuchar y entender realmente los sentimientos de las otras personas.;Habilidades interpersonales;Conciencia de los demás;No
-100;Otros me consideran bueno para escuchar.;Habilidades para la vida;Compromiso;No
-101;Vivir para el futuro le da su principal significado a mi vida.;Habilidades para la vida;Compromiso;No
-102;Para mí, el trabajo y la diversión son igualmente importantes en mi vida.;Habilidades para la vida;Compromiso;No
-103;Soy asertivo en mis relaciones con otras personas.;Habilidades interpersonales;Conciencia de los demás;No
-104;Siento que tengo el control de mi vida.;Habilidades para la vida;Compromiso;No
-105;Tengo la habilidad para cambiar o crecer en la forma que considere conveniente para mí.;Habilidades para la vida;Compromiso;No
-106;Puedo aceptar mis errores en vez de preocuparme por ellos.;Habilidades para la vida;Compromiso;No
-107;Puedo decidir qué tan amistoso ser con un extraño.;Habilidades para la vida;Toma de decisiones;No
-108;Puedo decidir si lo correcto es que yo me presente a otras personas o esperar a que alguien lo haga por mí.;Habilidades interpersonales;Conciencia de los demás;No
-109;Puedo entender cómo se siente una persona cuando está hablando conmigo.;Habilidades interpersonales;Empatía;No
-110;Cuando una persona me está diciendo algo importante, realmente me concentro en escucharla.;Habilidades para la vida;Compromiso;No
-111;El futuro me parece esperanzador.;Habilidades para la vida;Toma de decisiones;No
-112;Soy capaz de aceptar a los otros tal como son.;Habilidades para la vida;Liderazgo;No
-113;Me arrepiento de muchas cosas que he hecho en el pasado.;Propensión al cambio;Propensión al cambio;No
-114;En mi rutina diaria experimento cambios y novedades.;Propensión al cambio;Propensión al cambio;No
-115;Soy capaz de discutir puntos de vista que son contrarios al mío.;Estilos de comunicación interpersonal;Timidez;No
-116;Soy capaz de elogiar a quienes admiro.;Estilos de comunicación interpersonal;Timidez;No
-117;Tengo la habilidad de sentirme cómodo con todo tipo de personas.;Estilos de comunicación interpersonal;Timidez;No
-118;Sé cuándo es correcto dar una palmada en el hombro a otra persona.;Estilos de comunicación interpersonal;Timidez;No
-119;Parece que soy capaz de sentir precisamente cómo se siente otra persona.;Estilos de comunicación interpersonal;Timidez;No
-120;Cuando alguien me dice lo que siente, puedo escucharlo y comprender su punto de vista.;Propensión al cambio;Propensión al cambio;No
-121;Soy una persona abierta, honesta y espontánea.;Propensión al cambio;Propensión al cambio;No
-122;Soy considerado por otros como líder.;Habilidades para la vida;Liderazgo;No
-123;Soy capaz de crear nuevas amistades o relaciones.;Propensión al cambio;Propensión al cambio;No
-124;Establezco metas claras relacionadas con mi carrera o mi vida.;Habilidades para la vida;Motivación;No
-125;Cuando realizo una tarea, frecuentemente evalúo mi progreso y obtengo retroalimentación concreta de la persona a cargo.;Habilidades para la vida;Toma de decisiones;No
-126;Es más probable que tome una decisión y actúe, a que me esté preocupando por cuál alternativa tomar y me ponga tenso.;Habilidades para la vida;Toma de decisiones;Sí
-127;Tengo la habilidad para organizarme, cumpliendo un horario personal eficiente.;Habilidades para la vida;Administración del tiempo;No
-128;Puedo lograr que un grupo esté de acuerdo conmigo cuando se trata de algo que me importa mucho.;Habilidades para la vida;Motivación;No
-129;Trabajo intencionadamente en construir el futuro que quiero para mí.;Propensión al cambio;Propensión al cambio;No
-130;Cuando me involucro en una tarea, algunas veces pienso en cómo me sentiría si fallo.;Habilidades para la vida;Compromiso;No
-131;Cuando formo parte de un equipo de trabajo, me gusta supervisar que los planes se lleven a cabo eficientemente.;Habilidades para la vida;Liderazgo;No
-132;Tomo mis decisiones en forma independiente, y rara vez pido ayuda a jefes, maestros, amigos o familiares.;Propensión al cambio;Propensión al cambio;No
-133;Soy capaz de fijarme objetivos y de lograrlos dentro de un lapso de tiempo específico.;Habilidades para la vida;Motivación;No
-134;Tengo la habilidad para impactar fuerte y positivamente en la mayoría de la gente que conozco.;Propensión al cambio;Propensión al cambio;No
-135;Intento incorporar retos a mi vida.;Propensión al cambio;Propensión al cambio;No
-136;Prefiero las actividades desafiantes, es decir, aquellas que involucran riesgo o posibilidad de fracaso.;Habilidades para la vida;Toma de decisiones;Sí
-137;Dedico la mayor parte de mi tiempo y energía a proyectos importantes.;Propensión al cambio;Propensión al cambio;No
-138;He establecido un proceso que me guía en la toma de decisiones importantes.;Estilos de comunicación interpersonal;Timidez;No
-139;Tengo habilidad para planear y terminar mi trabajo en el tiempo programado.;Habilidades para la vida;Administración del tiempo;No
-140;Soy capaz de ser persuasivo (convencer) sin aprovecharme de los demás.;Habilidades interpersonales;Conciencia de los demás;No
-141;Asumo riesgos que me sacan de la monotonía.;Habilidades para la vida;Toma de decisiones;No
-142;Estoy dispuesto a emprender proyectos que implican algún riesgo de fallar.;Habilidades para la vida;Toma de decisiones;No
-143;Sé cómo establecer mis propias metas.;Habilidades para la vida;Motivación;No
-144;Si estoy involucrado en un proyecto de grupo, puedo sugerir soluciones que los demás miembros acepten.;Habilidades interpersonales;Conciencia de los demás;No
-145;Si fuera evaluado en términos de efectividad en el trabajo, obtendría un buen puntaje en la forma en que administro mi tiempo.;Habilidades para la vida;Administración del tiempo;No
-146;Me siento cómodo al acercarme a otra persona con la idea de venderle algo.;Habilidades para la vida;Liderazgo;No
-147;Busco actividades nuevas, aunque no me hagan sentir cómodo o seguro.;Habilidades para la vida;Liderazgo;Sí
-148;Pienso más acerca del éxito que del fracaso cuando inicio una nueva tarea.;Habilidades para la vida;Liderazgo;Sí
-149;Pienso que a pesar de lo incierto del futuro, conviene hacer planes.;Habilidades para la vida;Liderazgo;No
-150;Los cambios en mi vida me causan conflicto.;Propensión al cambio;Propensión al cambio;No
-151;Desperdicio poco tiempo.;Habilidades para la vida;Administración del tiempo;No
-152;Si el equipo al que pertenezco necesita alguien que hable por todos, tienden a escogerme a mí.;Habilidades para la vida;Liderazgo;No
-153;Aprender o hacer cosas nuevas me provoca entusiasmo.;Habilidades para la vida;Motivación;No
-154;Cuando estoy inmerso en una tarea difícil, pienso en todos los recursos que tengo disponibles para hacerla exitosamente.;Propensión al cambio;Propensión al cambio;Sí
-155;Siento que mi trabajo actual es satisfactorio.;Estilos de comunicación interpersonal;Agresión;No
-156;Cuando me enfrento a una situación difícil, soy capaz de ver varias alternativas y tomar una buena decisión.;Habilidades para la vida;Toma de decisiones;Sí
-157;Sé exactamente cuánto tiempo necesito para terminar tareas y proyectos.;Habilidades para la vida;Administración del tiempo;No
-158;Puedo hacerme cargo de una situación cuando es necesario.;Estilos de comunicación interpersonal;Timidez;No
-159;Disfruto las emociones que me provocan los cambios.;Propensión al cambio;Propensión al cambio;No
-160;Cuando estoy trabajando en una tarea difícil, intento corregir aquellas debilidades personales que pudieran interferir con su exitosa terminación.;Estilos de comunicación interpersonal;Timidez;Sí
-161;Prefiero proyectos que requieran un esfuerzo intenso o un compromiso a largo plazo.;Habilidades para la vida;Motivación;Sí
-162;Las tendencias del futuro me son indiferentes.;Estilos de comunicación interpersonal;Timidez;No
-163;Soy una persona eficiente y bien organizada.;Estilos de comunicación interpersonal;Timidez;No
-164;Debido a que soy una persona convincente y creíble, mis amigos tienden a pedirme que “hable” con alguien en lugar de hacerlo ellos mismos.;Estilos de comunicación interpersonal;Timidez;No
-165;Me atrevo a equivocarme.;Habilidades interpersonales;Empatía;No
-166;Pienso que el planear actividades a futuro no le quita lo interesante a la vida.;Habilidades para la vida;Motivación;No
-167;Puedo concentrarme en una tarea por un largo período de tiempo.;Habilidades para la vida;Administración del tiempo;No
-168;Mis decisiones tienden a ser aceptadas como “buenas” por las personas relacionadas.;Habilidades interpersonales;Conciencia de los demás;No
-169;Soy capaz de manejar mi tiempo en el presente para no verme presionado por las cosas que dejé de hacer.;Habilidades para la vida;Administración del tiempo;No
-170;Mis amigos me involucran en la solución de sus problemas.;Habilidades intrapersonales;Autoestima;No
-171;Innovo.;Propensión al cambio;Propensión al cambio;No
-172;Mi tendencia es la de no ceder fácilmente cuando me enfrento con un problema difícil.;Habilidades intrapersonales;Autoestima;Sí
-173;En proyectos que me encargan, prefiero trabajar con un “experto en la materia” que con un amigo o conocido.;Habilidades intrapersonales;Autoestima;No
-174;Mis amigos tienden a pedirme ayuda al tomar decisiones importantes.;Habilidades intrapersonales;Autoestima;No
-175;Soy de los primeros en llegar a las juntas o eventos.;Habilidades intrapersonales;Autoestima;No
-176;Soy un buen vendedor (promotor de mis ideas).;Habilidades intrapersonales;Autoestima;No
-177;Si fracaso, lo intento de nuevo.;Habilidades intrapersonales;Autoestima;Sí
-178;Tengo la habilidad para permanecer en un trabajo, aun cuando ya no tenga ganas.;Habilidades para la vida;Motivación;No
-179;Termino lo que empiezo.;Habilidades intrapersonales;Autoestima;No
-180;Soy capaz de decidir cuando una situación tensa o difícil requiere de acción inmediata.;Habilidades para la vida;Toma de decisiones;Sí
-181;Asisto a tiempo a mis compromisos.;Habilidades para la vida;Administración del tiempo;No
-182;Tiendo a hablar con personas que tienen diferencias para que resuelvan sus problemas.;Habilidades intrapersonales;Autoestima;No
-183;Estoy abierto a ideas nuevas.;Habilidades intrapersonales;Autoestima;No
-184;Soy capaz de establecer prioridades y llegar a los objetivos propuestos en forma eficiente.;Habilidades para la vida;Motivación;No
-185;Tengo suficiente energía durante todo el día para hacer lo que tengo que hacer.;Habilidades intrapersonales;Bienestar físico;No
-186;Estoy seguro de las decisiones que tomo.;Habilidades intrapersonales;Autoestima;No
-187;Soy capaz de trabajar al mismo tiempo en varios proyectos, con buenos resultados.;Habilidades para la vida;Administración del tiempo;No
-188;Parece que soy capaz de “vender mi imagen” a personas con autoridad, siendo tal como soy.;Habilidades intrapersonales;Autoestima;No
-189;Me entusiasma establecer metas personales difíciles de alcanzar.;Habilidades para la vida;Motivación;Sí
-190;Logro lo que me propongo.;Habilidades intrapersonales;Autoestima;No
-191;Deseo intensamente tener éxito en aquello que me propongo.;Habilidades intrapersonales;Autoestima;No
-192;Tomo decisiones fácilmente y con buenos resultados.;Habilidades interpersonales;Empatía;No
-193;Tengo la habilidad para controlar mis responsabilidades en vez de ser controlado por ellas.;Habilidades para la vida;Compromiso;No
-194;Soy incapaz de calmar a otros en situaciones tensas.;Habilidades intrapersonales;Manejo de la tensión;No
-195;Puedo modificar el rumbo de mi vida fácilmente si lo considero necesario.;Habilidades interpersonales;Conciencia de los demás;No
-196;Cuando empiezo una tarea difícil, me motiva más pensar en el éxito que en el fracaso.;Habilidades para la vida;Motivación;Sí
-197;Se me considera una persona confiable y responsable.;Habilidades para la vida;Compromiso;No
-198;Aun cuando he trabajado duro, no he llegado hasta donde puedo o quiero llegar porque mi educación o trabajo no me han dado la oportunidad.;Habilidades interpersonales;Asertividad;Sí
-199;No he podido encontrar el tiempo para verdaderamente disfrutar de la vida como quisiera.;Habilidades para la vida;Administración del tiempo;No
-200;Estoy preocupado por algunos síntomas físicos que tengo, tales como dolores de cabeza, insomnio, úlcera o alta presión arterial.;Habilidades intrapersonales;Manejo de la tensión;Sí
-201;Cuando se requiere hacer algo, la gente me busca.;Habilidades interpersonales;Asertividad;No
-202;Me impaciento viendo a alguien tratando de hacer algo que yo puedo hacer mucho más rápido.;Habilidades interpersonales;Asertividad;No
-203;Soy una persona tensa.;Habilidades intrapersonales;Autoestima;No
-204;Me siento físicamente sano y lleno de energía.;Habilidades interpersonales;Empatía;No
-205;He trabajado arduamente para terminar proyectos en la fecha fijada, acordada, o que yo mismo me impuse.;Habilidades interpersonales;Empatía;No
-206;Encuentro difícil despreocuparme y divertirme.;Habilidades interpersonales;Empatía;Sí
-207;No soy capaz de expresar cómodamente emociones fuertes, tales como miedo, ira o tristeza.;Habilidades interpersonales;Empatía;Sí
-208;Duermo mal.;Habilidades intrapersonales;Bienestar físico;Sí
-209;Tengo un fuerte sentido de lo que es bueno o malo para mí, y me comporto consecuentemente.;Habilidades interpersonales;Empatía;Sí
-210;Si realmente me tranquilizara y disfrutara de la vida como quisiera, me sentiría incómodo conmigo mismo.;Habilidades interpersonales;Empatía;No
-211;Aun estando de vacaciones o simplemente descansando y divirtiéndome, me presiono tratando de cumplir metas.;Habilidades para la vida;Compromiso;No
-212;Hago cosas que son perjudiciales para mi salud.;Habilidades intrapersonales;Bienestar físico;No
-213;Tengo confianza en mi habilidad de crear una buena vida para mí.;Habilidades intrapersonales;Bienestar físico;No
-214;Quiero que la gente hable más aprisa, y me encuentro deseando apresurarlos.;Habilidades intrapersonales;Bienestar físico;No
-215;Puedo relajarme al final de una larga jornada y luego dormir fácilmente.;Habilidades intrapersonales;Bienestar físico;No
-216;Tengo hábitos alimenticios sanos y nutritivos.;Habilidades intrapersonales;Bienestar físico;No
-217;Cuando decido hacer algo, lo llevo a cabo.;Habilidades para la vida;Toma de decisiones;No
-218;Percibo que no tengo el control sobre lo que pienso, siento o hago.;Habilidades intrapersonales;Bienestar físico;Sí
-219;No soy capaz de relajarme naturalmente, por lo que tiendo a depender de otras cosas para hacerlo.;Habilidades intrapersonales;Manejo de la tensión;Sí
-220;No me canso fácilmente, pues tengo suficiente vigor físico.;Habilidades intrapersonales;Bienestar físico;Sí
-221;Vivo mi vida de acuerdo a mis propios valores personales.;Habilidades intrapersonales;Bienestar físico;No
-222;Me siento tenso y presionado por la forma en la que tengo que vivir.;Habilidades intrapersonales;Manejo de la tensión;Sí
-223;Mis compañeros y amigos me aconsejan que descanse y me relaje.;Habilidades intrapersonales;Manejo de la tensión;No
-224;Hago ejercicio regularmente para mantenerme en buena condición física.;Habilidades intrapersonales;Bienestar físico;No
-225;En casi todos los tipos de actividades que realizo, soy capaz de desempeñarme bien.;Habilidades intrapersonales;Manejo de la tensión;No
-226;Me impaciento conmigo y con otros, y tiendo a presionar para acelerar las cosas.;Habilidades intrapersonales;Manejo de la tensión;No
-227;Estoy bajo una tensión tal, que puedo sentirla en mi cuerpo.;Habilidades intrapersonales;Manejo de la tensión;No
-228;Soy una persona sana y me cuido física y emocionalmente.;Habilidades intrapersonales;Manejo de la tensión;No
-229;Soy un buen trabajador, aun cuando no se me supervisa.;Habilidades intrapersonales;Manejo de la tensión;Sí
-230;Mis amigos tienden a decirme que me veo preocupado, tenso o nervioso.;Habilidades intrapersonales;Manejo de la tensión;Sí
-231;Manejo bien la tensión, y he aprendido varias formas saludables para relajarme.;Habilidades intrapersonales;Manejo de la tensión;No
-232;Me visualizo viviendo una vida larga y saludable.;Habilidades intrapersonales;Bienestar físico;No
-233;La gente admira mi habilidad para lograr lo que me propongo.;Habilidades para la vida;Motivación;No
-234;En mi trabajo tengo mucha tensión.;Habilidades intrapersonales;Manejo de la tensión;No
-235;He sido incapaz de romper mis hábitos negativos que son un problema para mí.;Habilidades intrapersonales;Bienestar físico;No
-236;Muchos de mis comportamientos tienden a ser nocivos para mi salud.;Habilidades intrapersonales;Bienestar físico;No
-237;Cumplo con mis tareas y obligaciones, aun cuando encuentre dificultades.;Habilidades intrapersonales;Manejo de la tensión;No
-238;Cuando realmente descanso y no hago absolutamente nada por varios días, tiendo a sentirme culpable por haber desperdiciado tanto tiempo.;Habilidades intrapersonales;Bienestar físico;Sí
-239;Me pongo extremadamente nervioso y tenso, y los doctores me han recomendado que me desacelere y me tranquilice.;Habilidades intrapersonales;Manejo de la tensión;Sí
-240;Despierto fresco y descansado por las mañanas.;Habilidades intrapersonales;Manejo de la tensión;No
-241;Tiendo a no fracasar en aquello que me parece importante.;Habilidades intrapersonales;Autoestima;No
-242;Parece que continuamente me estoy esforzando para lograr resultados, pero no me tomo el tiempo para preguntarme honestamente qué es lo que realmente quiero en la vida.;Habilidades para la vida;Motivación;Sí
-243;Aplico procedimientos que me permiten manejar eficazmente mis tensiones, tales como técnicas para el descanso, el ejercicio o la meditación.;Habilidades intrapersonales;Bienestar físico;No
-244;Comparado con otras personas de mi edad, soy enfermizo.;Habilidades interpersonales;Conciencia de los demás;No
-    `.trim();
-    // >>> En tu archivo final mantienes este bloque pero con las 244 líneas <<<
-
-    function norm(str) {
-      return (str || "").trim();
-    }
-
-    let ITEMS = [];
-    let answered = 0;
-
-    function parsePreguntas(csv) {
-      const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      const rows = [];
-      for (const line of lines) {
-        const parts = line.split(";").map(norm);
-        if (parts.length < 5) continue;
-        const id = Number(parts[0]);
-        const invertida = parts[parts.length - 1];
-        const subhab = parts[parts.length - 2];
-        const bloque = parts[parts.length - 3];
-        const pregunta = parts.slice(1, parts.length - 3).join(";");
-        if (!Number.isFinite(id) || !pregunta) continue;
-        rows.push({
-          id,
-          pregunta,
-          bloque,
-          subhabilidad: subhab,
-          invertida: /^s(i|í)$/i.test(invertida) ? "Sí" : "No",
-          value: null
-        });
-      }
-      rows.sort((a, b) => a.id - b.id);
-      return rows;
-    }
-
-    function updateProgress() {
-      const total = ITEMS.length;
-      const ans = ITEMS.filter(q => q.value != null).length;
-      const pct = total ? Math.round((ans / total) * 100) : 0;
-      const bar = document.getElementById("bar");
-      const pill = document.getElementById("pillTotal");
-      const meta = document.getElementById("metaInfo");
-      const nota = document.getElementById("notaContinuar");
-
-      bar.style.width = pct + "%";
-      pill.textContent = "Total: " + ans + " / " + total + " (" + pct + "%)";
-
-      const bloques = new Set(ITEMS.map(q => q.bloque));
-      const subs = new Set(ITEMS.map(q => q.subhabilidad));
-      meta.textContent = bloques.size + " bloques · " + subs.size + " sub-habilidades";
-
-      nota.textContent =
-        "NOTA: Para continuar debes contestar todas las preguntas. Contestadas: " +
-        ans +
-        "/" +
-        total +
-        ".";
-    }
-
-    function construirPreguntas() {
-      ITEMS = parsePreguntas(PREGUNTAS_CSV);
-      answered = 0;
-      currentPage = 0;
-      renderPage();
-      updateProgress();
-    }
-
-    function renderPage() {
-      const cont = document.getElementById("questions");
-      cont.innerHTML = "";
-      const total = ITEMS.length;
-      const start = currentPage * PAGE_SIZE;
-      const end = Math.min(start + PAGE_SIZE, total);
-
-      for (let i = start; i < end; i++) {
-        const q = ITEMS[i];
-        const row = document.createElement("div");
-        row.className = "question";
-
-        const colNo = document.createElement("div");
-        colNo.className = "q-no";
-        colNo.textContent = String(q.id).padStart(3, "0");
-        row.appendChild(colNo);
-
-        const colText = document.createElement("div");
-        const txt = document.createElement("span");
-        txt.className = "q-text";
-        txt.textContent = q.pregunta;
-        colText.appendChild(txt);
-        row.appendChild(colText);
-
-        ["CS", "AV", "RV"].forEach(code => {
-          const cell = document.createElement("div");
-          cell.className = "q-cell";
-          const r = document.createElement("input");
-          r.type = "radio";
-          r.className = "opt";
-          r.name = "q_" + q.id;
-          r.value = code;
-          r.title =
-            code === "CS"
-              ? "Casi siempre"
-              : code === "AV"
-              ? "Algunas veces"
-              : "Rara vez";
-          r.setAttribute("aria-label", r.title);
-
-          if (q.value != null) {
-            const inv = q.invertida === "Sí";
-            let expectedScore;
-            if (!inv) {
-              expectedScore = code === "CS" ? 3 : code === "AV" ? 2 : 1;
-            } else {
-              expectedScore = code === "CS" ? 1 : code === "AV" ? 2 : 3;
-            }
-            if (q.value === expectedScore) {
-              r.checked = true;
-            }
-          }
-
-          r.addEventListener("change", () => {
-            const inv = q.invertida === "Sí";
-            let score;
-            if (!inv) {
-              score = code === "CS" ? 3 : code === "AV" ? 2 : 1;
-            } else {
-              score = code === "CS" ? 1 : code === "AV" ? 2 : 3;
-            }
-            if (q.value == null) {
-              answered++;
-            }
-            q.value = score;
-            updateProgress();
-          });
-          cell.appendChild(r);
-          row.appendChild(cell);
-        });
-
-        cont.appendChild(row);
-      }
-
-      const pageIndicator = document.getElementById("pageIndicator");
-      pageIndicator.textContent =
-        "Preguntas " + (start + 1) + "–" + end + " de " + total;
-
-      const btnSiguiente = document.getElementById("btnSiguiente");
-      if (end >= total) {
-        btnSiguiente.textContent = "FINALIZAR";
-      } else {
-        btnSiguiente.textContent = "SIGUIENTE";
-      }
-    }
-
-    function paginaCompleta() {
-      const total = ITEMS.length;
-      const start = currentPage * PAGE_SIZE;
-      const end = Math.min(start + PAGE_SIZE, total);
-      for (let i = start; i < end; i++) {
-        if (ITEMS[i].value == null) return false;
-      }
-      return true;
-    }
-
-    function obtenerRespuestasCrudas() {
-      const map = {};
-      ITEMS.forEach(q => {
-        if (q.value != null) {
-          map[String(q.id)] = q.value;
-        }
-      });
-      return map;
-    }
-
-    // --- Helpers para resultados globales ---
-    function normalizeBloqueName(name) {
-      if (!name) return "";
-      return name.replace(/\s+/g, " ").trim().toLowerCase();
-    }
-
-    function calcIV1_IV2_categories(items) {
-      const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
-      const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
-      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
-      const stdev = arr => {
-        if (arr.length < 2) return 1;
-        const m = avg(arr);
-        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
-      };
-      const invNorm = invers.map(v => 4 - v);
-      const allNorm = direct.concat(invNorm);
-      if (!allNorm.length) {
-        return { iv1Cat: null, iv2Cat: null };
-      }
-      const s = stdev(allNorm);
-      const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
-      const diff = Math.abs(avg(direct) - avg(invNorm));
-      const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
-      return { iv1Cat, iv2Cat };
-    }
-
-    function calcularResultadosGlobales() {
-      if (!ITEMS.length) return null;
-
-      // Agregación por sub-habilidad
-      const subMap = new Map(); // sub -> {bloque, items, pts}
-      ITEMS.forEach(q => {
-        if (!subMap.has(q.subhabilidad))
-          subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
-        const s = subMap.get(q.subhabilidad);
-        s.items += 1;
-        s.pts += q.value ?? 0;
-      });
-
-      const subRows = Array.from(subMap.entries())
-        .map(([sub, v]) => {
-          const max = v.items * 3;
-          const pct = max ? Math.round((v.pts / max) * 100) : 0;
-          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct };
-        })
-        .sort(
-          (a, b) =>
-            (a.bloque || "").localeCompare(b.bloque || "") ||
-            (a.sub || "").localeCompare(b.sub || "")
-        );
-
-      // Promedios por bloque
-      const bloqMap = new Map(); // bloque -> {sumPct, n}
-      subRows.forEach(r => {
-        if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0 });
-        const b = bloqMap.get(r.bloque);
-        b.sumPct += r.pct;
-        b.n += 1;
-      });
-
-      const bloqPercents = {};
-      Array.from(bloqMap.entries()).forEach(([bloque, a]) => {
-        const pct = a.n ? Math.round(a.sumPct / a.n) : 0;
-        bloqPercents[bloque] = pct;
-      });
-
-      // IIE: promedio de Intra, Inter, Para la vida
-      function pctBloque(nombreEsperado) {
-        const key = Object.keys(bloqPercents).find(
-          k => normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado)
-        );
-        return key ? bloqPercents[key] : 0;
-      }
-
-      const bIntra = pctBloque("Habilidades intrapersonales");
-      const bInter = pctBloque("Habilidades interpersonales");
-      const bPV = pctBloque("Habilidades para la vida");
-      const iie =
-        [bIntra, bInter, bPV].filter(v => v > 0).length > 0
-          ? Math.round((bIntra + bInter + bPV) / 3)
-          : 0;
-
-      // IV1 / IV2 (consistencia de respuestas)
-      const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
-
-      // IV3 basado en tiempo de respuesta total (aprox)
-      const mins = Math.round((performance.now() - __startTime) / 60000);
-      const iv3Cat =
-        mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
-
-      // Bloques que nos interesan para la BD
-      const bEstilos = pctBloque("Estilos de comunicación interpersonal");
-      const bCambio = pctBloque("Propensión al cambio");
-
-      return {
-        globales: {
-          IIE: iie,
-          IV1: iv1Cat,
-          IV2: iv2Cat,
-          IV3: iv3Cat
-        },
-        bloques: {
-          intrapersonales: bIntra,
-          interpersonales: bInter,
-          para_la_vida: bPV,
-          estilos_comunicacion: bEstilos,
-          propension_cambio: bCambio
-        },
-        subhabilidades: subRows,        // <-- NUEVO
-  bloqPercents: bloqPercents      // <-- NUEVO (por si el reporte lo usa)
-      };
-    }
-
-    function onSiguienteClick() {
-      if (!paginaCompleta()) {
-        alert(
-          "NOTA: Para continuar debes contestar todas las preguntas de esta página."
-        );
-        return;
-      }
-
-      const total = ITEMS.length;
-      const start = currentPage * PAGE_SIZE;
-      const end = Math.min(start + PAGE_SIZE, total);
-
-      if (end >= total) {
-        onFinalizarClick();
-      } else {
-        currentPage++;
-        renderPage();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    }
-
-    function onFinalizarClick() {
-      const nombre = document.getElementById("nombre").value.trim();
-      const edadStr = document.getElementById("edad").value.trim();
-
-      if (!nombre) {
-        alert("Por favor ingresa el nombre.");
-        return;
-      }
-      if (!edadStr) {
-        alert("Por favor ingresa la edad.");
-        return;
-      }
-      const edad = Number(edadStr);
-      if (!Number.isFinite(edad) || edad <= 0) {
-        alert("Edad no válida.");
-        return;
-      }
-
-      const respuestas = obtenerRespuestasCrudas();
-      const total = ITEMS.length;
-      const contestadas = Object.keys(respuestas).length;
-      if (contestadas < total) {
-        alert("Aún hay preguntas sin responder.");
-        return;
-      }
-
-      const resultados = calcularResultadosGlobales();
-
-      const payload = {
-        codigo: CODIGO_ACTUAL,
-        snapshot: {
-          nombre,
-          edad_anios: edad,
-          institucion: document.getElementById("institucion").value,
-          grupo: document.getElementById("grupo").value,
-          curso: document.getElementById("curso").value,
-          version_banco: "MHP100-v1"
-        },
-        resultados,
-        responses: respuestas
-      };
-
-      console.log("Payload listo para enviar a servidor:", payload);
-fetch("/api/submit", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload)
-})
-  .then(r => r.json())
-  .then(data => console.log("Submit OK:", data))
-  .catch(err => console.error("Submit ERROR:", err));
-
-      // Mostrar nuevamente los datos del participante encima del mensaje final
-      document.getElementById("datos-participante").classList.remove("hidden");
-      document.getElementById("nombre").readOnly = true;
-      document.getElementById("edad").readOnly = true;
-
-      document.getElementById("pantalla-preguntas").classList.add("hidden");
-      const pantallaFinal = document.getElementById("pantalla-final");
-      pantallaFinal.style.display = "block";
-      pantallaFinal.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    function inicializarDatosFijos() {
-      document.getElementById("institucion").value = DATOS_FIJOS.institucion;
-      document.getElementById("grupo").value = DATOS_FIJOS.grupo;
-      document.getElementById("curso").value = DATOS_FIJOS.curso;
-
-      const hoy = new Date();
-      try {
-        const fmt = new Intl.DateTimeFormat("es-EC", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit"
-        });
-        document.getElementById("fecha").value = fmt.format(hoy);
-      } catch {
-        const dd = String(hoy.getDate()).padStart(2, "0");
-        const mm = String(hoy.getMonth() + 1).padStart(2, "0");
-        const yyyy = hoy.getFullYear();
-        document.getElementById("fecha").value = dd + "/" + mm + "/" + yyyy;
-      }
-    }
-
-    function validarAntesDeIniciar() {
-      const nombre = document.getElementById("nombre").value.trim();
-      const edadStr = document.getElementById("edad").value.trim();
-      if (!nombre || !edadStr) {
-        alert("Por favor ingresa tu nombre y edad antes de iniciar.");
-        return false;
-      }
-      const edad = Number(edadStr);
-      if (!Number.isFinite(edad) || edad <= 0) {
-        alert("Edad no válida.");
-        return false;
-      }
-      return true;
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      inicializarDatosFijos();
-      construirPreguntas();
-
-      document
-        .getElementById("btnIniciar")
-        .addEventListener("click", () => {
-          if (!validarAntesDeIniciar()) return;
-          __startTime = performance.now(); // inicia cronómetro IV3 al comenzar
-          document.getElementById("pantalla-inicio").classList.add("hidden");
-          document.getElementById("datos-participante").classList.add("hidden");
-          document
-            .getElementById("pantalla-preguntas")
-            .classList.remove("hidden");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-
-      document
-        .getElementById("btnSiguiente")
-        .addEventListener("click", onSiguienteClick);
-
-      document
-        .getElementById("btnRegresarMenu")
-        .addEventListener("click", () => {
-          window.location.reload();
-        });
-    });
-  </script>
 </body>
 </html>
