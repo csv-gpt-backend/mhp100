@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>arch 6 AAAMHP100 – Reporte PPA</title>
+  <title>fffAAAMHP100 – Reporte PPA</title>
 
   <style>
     :root{
@@ -121,6 +121,51 @@
     .b-red{background:var(--red)}
     .b-orange{background:var(--orange)}
     .b-green{background:var(--green)}
+    .bloque-title{
+      font-weight:800;
+      margin:12px 0 6px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .bloque-left{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .bloque-bullet{
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:#f4a338;
+      flex:0 0 auto;
+    }
+    .ih-badge{
+      background:var(--yellow);
+      padding:2px 10px;
+      border-radius:2px;
+      min-width:36px;
+      text-align:center;
+      font-weight:800;
+    }
+    .iie-row{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      margin:12px 0 6px;
+      font-weight:800;
+      gap:8px;
+    }
+    .iie-badge{
+      background:#1d4ed8;
+      color:#fff;
+      padding:3px 12px;
+      border-radius:2px;
+      min-width:40px;
+      text-align:center;
+    }
+
   </style>
 </head>
 
@@ -219,26 +264,36 @@
         </div>
       </div>
 
-      <div style="font-weight:800;margin:12px 0 6px">
-        HABILIDADES INTRAPERSONALES
-        <span style="float:right">IH INTRA: <span id="ihIntra">—</span></span>
+      <div class="bloque-title">
+        <div class="bloque-left">
+          <span class="bloque-bullet"></span>
+          <span>HABILIDADES INTRAPERSONALES</span>
+        </div>
+        <div>IH INTRA: <span class="ih-badge" id="ihIntra">—</span></div>
       </div>
       <div class="rep-bloque" id="bloqueIntra"></div>
 
-      <div style="font-weight:800;margin:12px 0 6px">
-        HABILIDADES INTERPERSONALES
-        <span style="float:right">IH INTER: <span id="ihInter">—</span></span>
+      <div class="bloque-title">
+        <div class="bloque-left">
+          <span class="bloque-bullet"></span>
+          <span>HABILIDADES INTERPERSONALES</span>
+        </div>
+        <div>IH INTER: <span class="ih-badge" id="ihInter">—</span></div>
       </div>
       <div class="rep-bloque" id="bloqueInter"></div>
 
-      <div style="font-weight:800;margin:12px 0 6px">
-        HABILIDADES PARA LA VIDA
-        <span style="float:right">IH PV: <span id="ihPV">—</span></span>
+      <div class="bloque-title">
+        <div class="bloque-left">
+          <span class="bloque-bullet"></span>
+          <span>HABILIDADES PARA LA VIDA</span>
+        </div>
+        <div>IH PV: <span class="ih-badge" id="ihPV">—</span></div>
       </div>
       <div class="rep-bloque" id="bloquePV"></div>
 
-      <div style="font-weight:800;margin:12px 0 6px">
-        ÍNDICE DE INTELIGENCIA EMOCIONAL IIE: <span id="repIIE">—</span>
+      <div class="iie-row">
+        <span>ÍNDICE DE INTELIGENCIA EMOCIONAL IIE:</span>
+        <span class="iie-badge" id="repIIE">—</span>
       </div>
 
       <div style="font-weight:800;margin:12px 0 6px">ESTILOS DE COMUNICACIÓN INTERPERSONAL</div>
@@ -568,8 +623,9 @@
     const attempt = data.attempt || data;
     const snap = attempt.snapshot || attempt.snap || attempt;
 
-    const subRows = attempt.subhabilidades || attempt.subRows || attempt.sub || [];
-    const bloqRows = attempt.bloqPercents || attempt.bloqRows || attempt.bloques || [];
+    const resultados = attempt.resultados || attempt.resultados_json || attempt.result || {};
+    const subRows = attempt.subhabilidades || resultados.subhabilidades || attempt.subRows || attempt.sub || [];
+    const bloqRows = attempt.bloqPercents || resultados.bloqPercents || attempt.bloqRows || attempt.bloques || resultados.bloques || [];
 
     const codigoActual = ($("#codigoInput").value||"").toUpperCase();
 
@@ -598,17 +654,27 @@
 
     // Bloques porcentuales: usamos lo que venga, sin inventar
     function pctBloque(nombre){
+      const keyNorm = normalizeBloqueName(nombre);
       if(Array.isArray(bloqRows)){
         const f = bloqRows.find(r =>
-          normalizeBloqueName(r.bloque||r.block||"") === normalizeBloqueName(nombre)
+          normalizeBloqueName(r.bloque||r.block||"") === keyNorm
         );
-        return f ? Math.round(f.percent ?? f.pct ?? f.porcentaje ?? 0) : 0;
-      }else{
+        if (f) return Math.round(f.percent ?? f.pct ?? f.porcentaje ?? 0);
+      }else if (bloqRows && typeof bloqRows === "object"){
         const k = Object.keys(bloqRows||{}).find(k =>
-          normalizeBloqueName(k) === normalizeBloqueName(nombre)
+          normalizeBloqueName(k) === keyNorm
         );
-        return k ? Math.round(bloqRows[k]) : 0;
+        if (k) return Math.round(bloqRows[k]);
       }
+      // fallback directo desde resultados.bloques (intrapersonales, interpersonales, para_la_vida, etc.)
+      if (resultados.bloques){
+        if (keyNorm === "habilidades intrapersonales") return Math.round(resultados.bloques.intrapersonales || 0);
+        if (keyNorm === "habilidades interpersonales") return Math.round(resultados.bloques.interpersonales || 0);
+        if (keyNorm === "habilidades para la vida")   return Math.round(resultados.bloques.para_la_vida || 0);
+        if (keyNorm === "estilos de comunicación interpersonal") return Math.round(resultados.bloques.estilos_comunicacion || 0);
+        if (keyNorm === "propensión al cambio") return Math.round(resultados.bloques.propension_cambio || 0);
+      }
+      return 0;
     }
 
     const bIntra = pctBloque("Habilidades intrapersonales");
@@ -619,17 +685,21 @@
     $("#ihInter").textContent = bInter || "—";
     $("#ihPV").textContent    = bPV || "—";
 
-    // IIE: primero lo que venga de la BD; solo si viene vacío usamos promedio
-    const iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie ??
-      ((bIntra||bInter||bPV) ? Math.round((bIntra+bInter+bPV)/3) : 0);
+    // IIE: primero lo que venga de la BD (campo directo o resultados.globales.IIE)
+    let iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie ??
+      (resultados.globales ? resultados.globales.IIE : undefined);
 
-    $("#repIIE").textContent = iie || "—";
-    setCurveMarker(iie || 0);
+    const iieFinal = (iie != null && !Number.isNaN(Number(iie)))
+      ? Number(iie)
+      : ((bIntra||bInter||bPV) ? Math.round((bIntra+bInter+bPV)/3) : 0);
+
+    $("#repIIE").textContent = iieFinal || "—";
+    setCurveMarker(iieFinal || 0);
 
     // IV1/IV2/IV3: usamos categorías que vengan desde la BD, no calculamos nada nuevo
-    const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1;
-    const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2;
-    const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3;
+    const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1 ?? (resultados.globales && resultados.globales.IV1);
+    const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2 ?? (resultados.globales && resultados.globales.IV2);
+    const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3 ?? (resultados.globales && resultados.globales.IV3);
 
     highlightIV("iv1Row", ivToCol(iv1Val));
     highlightIV("iv2Row", ivToCol(iv2Val));
