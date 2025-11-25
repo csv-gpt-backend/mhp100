@@ -3,317 +3,398 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>REP 5 MHP100 — Reporte (match PDF)</title>
+<title>5555GRÁFICA INDIVIDUAL — MHP100</title>
 <style>
-  :root{
-    --txt:#1e1e1e; --mut:#666; --line:#e6e6e6;
-    --red:#e74c3c; --amber:#f1c40f; --green:#2ecc71;
-    --brand:#aa0d0d;
-  }
-  *{box-sizing:border-box}
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--txt); margin:0; background:#fff}
-  .wrap{max-width:1080px; margin:0 auto; padding:18px 22px 32px}
-  header{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
-  .brand{display:flex; align-items:center; gap:12px}
-  .brand .logo{width:54px; height:54px; background:#c81e2a; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800}
-  .title{font-size:22px; font-weight:800}
-  .card{border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:#fff}
-  .topbar{display:flex; gap:12px; align-items:center; margin-bottom:12px}
-  .topbar input[type=text]{border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:14px; width:180px}
-  .topbar button{border:1px solid var(--line); border-radius:8px; padding:8px 12px; background:#fafafa; cursor:pointer}
-  .info{display:grid; grid-template-columns:repeat(6,1fr); gap:10px; align-items:center}
-  .info div{padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-size:13px}
-  .row{display:flex; gap:18px; align-items:flex-start}
-  .colL{flex:1.4}
-  .colR{flex:0.9}
-  h3{font-size:14px; margin:18px 0 8px; letter-spacing:.2px}
-  .iieLine{display:flex; align-items:center; justify-content:space-between; font-weight:800; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:8px 0}
-  /* Bars */
-  .bar{position:relative; height:18px; border-radius:9px; overflow:hidden; background:#eee}
-  .bar .seg{position:absolute; top:0; bottom:0}
-  .seg.r{left:0; width:40%; background:var(--red)}
-  .seg.a{left:40%; width:30%; background:var(--amber)}
-  .seg.g{left:70%; width:30%; background:var(--green)}
-  .tickRow{display:flex; justify-content:space-between; font-size:11px; color:#777}
-  .marker{position:absolute; top:-4px; width:6px; height:26px; background:#111; border-radius:3px}
-  .note{font-size:11px; color:#777}
-  table{width:100%; border-collapse:collapse; font-size:12.5px}
-  th,td{border:1px solid var(--line); padding:6px 8px; text-align:left}
-  th{background:#fafafa}
-  .small{font-size:12px; color:#777}
-  /* curve */
-  .curve{position:relative; height:180px; border:1px solid var(--line); border-radius:10px; padding:8px 10px; background:#fff}
-  .curve canvas{width:100%; height:120px}
-  .legend{display:flex; gap:8px; align-items:center; justify-content:flex-end; font-size:11px; margin-top:4px}
-  .chip{width:26px; height:8px; border-radius:4px; display:inline-block}
-  /* IV grid */
-  .ivcard{border:1px solid var(--line); border-radius:10px; padding:8px 8px; margin-top:10px}
-  .ivgrid{display:grid; grid-template-columns:120px 1fr 1fr 1fr}
-  .ivgrid div{border:1px solid var(--line); padding:8px; font-size:12px}
-  .ivgrid .h{background:#fafafa; font-weight:700}
-  .sel{background:#fff4bf}
-  /* print */
-  @media print{
-    .topbar{display:none}
-    .wrap{padding:6mm 8mm}
-    .row{gap:14px}
-  }
+/* --- Paleta y tipografía (similar al PDF) --- */
+:root{
+  --txt:#0f1720; --mut:#6b7280; --line:#e5e7eb;
+  --rojo:#e64a45; --amar:#f6c544; --ver:#26b36a; --mark:#111;
+  --head:#101828;
+}
+html,body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--txt);background:#fff}
+.wrap{max-width:1060px;margin:24px auto;padding:0 16px}
+h1{font-size:22px;margin:0 0 12px;font-weight:800; letter-spacing:.2px}
+
+/* --- Cabecera con logos y ficha --- */
+.header{display:grid;grid-template-columns:160px 1fr 160px;align-items:center;gap:16px;margin-bottom:6px}
+.header .brand{display:flex;gap:10px;align-items:center}
+.header .brand img{height:52px}
+.header .right img{height:32px;margin-left:auto;display:block}
+.ficha{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:repeat(6,1fr);gap:8px 12px;align-items:center}
+.ficha div{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ficha b{font-weight:700}
+
+/* --- IIE línea única con valor a la derecha --- */
+.iieLine{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:14px 0 10px}
+.iieLine .lbl{font-weight:800}
+.iieLine .val{font-weight:900}
+
+/* --- Títulos de secciones --- */
+h2{font-size:15px;margin:14px 0 10px;font-weight:800;letter-spacing:.2px}
+.subnote{font-size:12px;color:var(--mut)}
+
+/* --- Barras 1–40 / 41–70 / 71–100 --- */
+.bar{position:relative;height:16px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.segR{position:absolute;left:0;top:0;bottom:0;width:40%;background:var(--rojo)}
+.segA{position:absolute;left:40%;top:0;bottom:0;width:30%;background:var(--amar)}
+.segV{position:absolute;left:70%;top:0;bottom:0;width:30%;background:var(--ver)}
+.mark{position:absolute;top:-4px;width:2px;height:24px;background:var(--mark);border-radius:2px}
+.scale{display:flex;justify-content:space-between;font-size:12px;color:#4b5563;margin-top:4px}
+.rowBar{margin-bottom:12px}
+
+/* --- Grid principal (tabla y gráficos a la derecha) --- */
+.mainGrid{display:grid;grid-template-columns:1fr 340px;gap:16px;margin-top:4px}
+
+/* --- Tarjetas con borde --- */
+.card{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+
+/* --- Tablas --- */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{border-top:1px solid var(--line);padding:8px 8px;text-align:left;vertical-align:middle}
+th{font-weight:800;background:#fafafa}
+tr:first-child th,tr:first-child td{border-top:0}
+.badge{display:inline-flex;align-items:center;gap:4px;background:#111;color:#fff;border-radius:999px;padding:2px 8px;font-size:12px}
+.badge.r{background:var(--rojo)} .badge.a{background:var(--amar); color:#111} .badge.v{background:var(--ver)}
+
+/* --- Curva --- */
+.canvasBox{height:220px}
+
+/* --- Matriz IV1/IV2/IV3 --- */
+.matrix th, .matrix td{border:1px solid var(--line)}
+.matrix th{background:#fafafa}
+.hit{background:#fff3c4} /* amarillo suave */
+
+/* --- Buscador --- */
+.search{display:flex;gap:8px;align-items:center;margin:8px 0 14px}
+.search input{padding:8px 10px;border:1px solid var(--line);border-radius:10px;width:240px}
+.search button{padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:#f8fafc;cursor:pointer}
+
+/* --- Impresión A4 --- */
+@media print{
+  .search{display:none}
+  .wrap{max-width:100%;margin:0;padding:0}
+  .header{margin-top:4mm}
+  body{margin:8mm}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div class="brand">
-      <div class="logo">❤</div>
-      <div class="title">GRÁFICA INDIVIDUAL — MHP100</div>
-    </div>
-    <img src="img_sello.png" alt="Sello" style="height:32px"/>
-  </header>
 
-  <div class="topbar card">
-    <input id="code" type="text" placeholder="Código (p.ej. LEX001)" />
-    <button id="btn">Buscar</button>
-    <span id="msg" class="small"></span>
+  <div class="header">
+    <div class="brand"><img src="assets/img_ident.jpg" alt="MHP100" /></div>
+    <h1>GRÁFICA INDIVIDUAL — MHP100</h1>
+    <div class="right"><img src="assets/img_sello.png" alt="Lexium" /></div>
   </div>
 
-  <div id="report" class="card" style="padding:14px 14px 18px">
-    <div class="info" id="hdr">
-      <div><b>Nombre:</b> —</div>
-      <div><b>Edad:</b> —</div>
-      <div><b>Curso/Grado:</b> —</div>
-      <div><b>Institución:</b> —</div>
-      <div><b>Grupo:</b> —</div>
-      <div><b>Fecha:</b> —</div>
+  <!-- Buscador por código -->
+  <div class="search">
+    <label for="code"><b>Código</b></label>
+    <input id="code" type="text" placeholder="Ej. LEX001" />
+    <button id="btnLoad">Buscar</button>
+    <span id="msg" style="color:#b42318;font-size:12px"></span>
+  </div>
+
+  <!-- Ficha -->
+  <div class="ficha" id="ficha">
+    <div><b>Nombre:</b> —</div>
+    <div><b>Edad:</b> —</div>
+    <div><b>Curso/Grado:</b> —</div>
+    <div><b>Institución:</b> —</div>
+    <div><b>Grupo:</b> —</div>
+    <div><b>Fecha:</b> —</div>
+  </div>
+
+  <!-- IIE en una sola línea -->
+  <div class="iieLine">
+    <div class="lbl">ÍNDICE DE INTELIGENCIA EMOCIONAL IIE:</div>
+    <div class="val" id="iieVal">—</div>
+  </div>
+
+  <!-- Estilos de comunicación -->
+  <h2>ESTILOS DE COMUNICACIÓN INTERPERSONAL</h2>
+
+  <div class="rowBar">
+    <div style="font-weight:700;margin-bottom:4px">AGRESIÓN</div>
+    <div class="bar"><span class="segR"></span><span class="segA"></span><span class="segV"></span><span class="mark" id="mkAgresion" style="left:0%"></span></div>
+    <div class="scale"><span>10</span><span>40</span><span>70</span><span>100</span></div>
+  </div>
+
+  <div class="rowBar">
+    <div style="font-weight:700;margin-bottom:4px">TIMIDEZ</div>
+    <div class="bar"><span class="segR"></span><span class="segA"></span><span class="segV"></span><span class="mark" id="mkTimidez" style="left:0%"></span></div>
+    <div class="scale"><span>10</span><span>40</span><span>70</span><span>100</span></div>
+  </div>
+
+  <div class="subnote">* Un puntaje bajo indica mejor manejo en estas áreas.</div>
+
+  <!-- Propensión al cambio -->
+  <h2 style="margin-top:16px">PROPENSIÓN AL CAMBIO</h2>
+  <div class="rowBar" style="margin-top:6px">
+    <div class="bar"><span class="segR"></span><span class="segA"></span><span class="segV"></span><span class="mark" id="mkCambio" style="left:0%"></span></div>
+    <div class="scale"><span>10</span><span>40</span><span>70</span><span>100</span></div>
+  </div>
+
+  <!-- Grid principal -->
+  <div class="mainGrid">
+
+    <!-- Tabla sub-habilidades -->
+    <div class="card">
+      <h2 style="margin-top:0">Por sub-habilidad</h2>
+      <table id="tblSubs">
+        <tr>
+          <th style="width:34%">Bloque</th>
+          <th style="width:32%">Sub-habilidad</th>
+          <th style="width:8%">Ítems</th>
+          <th style="width:10%">Puntos</th>
+          <th style="width:8%">%</th>
+          <th style="width:8%">Rango</th>
+        </tr>
+      </table>
     </div>
 
-    <div class="iieLine">ÍNDICE DE INTELIGENCIA EMOCIONAL <span style="font-weight:400">IIE:</span> <span id="iie" style="min-width:36px; text-align:right">—</span></div>
-
-    <div class="row">
-      <div class="colL">
-        <h3>ESTILOS DE COMUNICACIÓN INTERPERSONAL</h3>
-        <div style="margin-bottom:8px"><b>AGRESIÓN</b>
-          <div class="bar" style="margin-top:6px" id="barAg">
-            <span class="seg r"></span><span class="seg a"></span><span class="seg g"></span>
-            <span class="marker" id="mkAg"></span>
-          </div>
-          <div class="tickRow"><span>10</span><span>40</span><span>70</span><span>100</span></div>
-        </div>
-        <div style="margin-bottom:2px"><b>TIMIDEZ</b>
-          <div class="bar" style="margin-top:6px" id="barTi">
-            <span class="seg r"></span><span class="seg a"></span><span class="seg g"></span>
-            <span class="marker" id="mkTi"></span>
-          </div>
-          <div class="tickRow"><span>10</span><span>40</span><span>70</span><span>100</span></div>
-        </div>
-        <div class="note">* Un puntaje bajo indica mejor manejo en estas áreas.</div>
-
-        <h3 style="margin-top:18px">PROPENSIÓN AL CAMBIO</h3>
-        <div><b>PROPENSIÓN AL CAMBIO</b>
-          <div class="bar" style="margin-top:6px" id="barPc">
-            <span class="seg r"></span><span class="seg a"></span><span class="seg g"></span>
-            <span class="marker" id="mkPc"></span>
-          </div>
-          <div class="tickRow"><span>10</span><span>40</span><span>70</span><span>100</span></div>
-        </div>
-
-        <h3 style="margin-top:18px">Por sub-habilidad</h3>
-        <table id="tblSubs">
-          <thead><tr><th>Bloque</th><th>Sub-habilidad</th><th>Ítems</th><th>Puntos</th><th>%</th><th>Rango</th></tr></thead>
-          <tbody></tbody>
-        </table>
-
-        <h3 style="margin-top:18px">Por bloque</h3>
-        <table id="tblBloques">
-          <thead><tr><th>Bloque</th><th>Promedio %</th><th>Rango</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <div class="small" style="margin-top:8px">Rangos: <span class="chip" style="background:var(--red)"></span> 1–40 · <span class="chip" style="background:var(--amber)"></span> 41–70 · <span class="chip" style="background:var(--green)"></span> 71–100</div>
+    <!-- Curva + IVs -->
+    <div class="card">
+      <div class="canvasBox">
+        <h2 style="margin:0 0 8px">Curva de distribución de frecuencias</h2>
+        <canvas id="curve" width="320" height="180"></canvas>
+        <div class="scale" style="margin-top:2px"><span>1</span><span>40</span><span>70</span><span>100</span></div>
       </div>
 
-      <div class="colR">
-        <div class="curve">
-          <div class="small" style="font-weight:700; margin-bottom:4px">Curva de distribución de frecuencias</div>
-          <canvas id="cv"></canvas>
-          <div class="legend">
-            <span class="chip" style="background:var(--red)"></span>1–40
-            <span class="chip" style="background:var(--amber)"></span>41–70
-            <span class="chip" style="background:var(--green)"></span>71–100
-          </div>
-        </div>
-
-        <div class="ivcard">
-          <div class="small" style="font-weight:700; margin-bottom:6px">IV1 – IV2 – IV3</div>
-          <div class="ivgrid" id="ivgrid">
-            <div class="h"></div>
-            <div class="h">Se conoce o se compromete</div>
-            <div class="h">Se conoce o se compromete poco</div>
-            <div class="h">Se requiere mayor autoconocimiento o auto compromiso</div>
-
-            <div class="h">IV1</div><div></div><div></div><div></div>
-            <div class="h">IV2</div><div></div><div></div><div></div>
-            <div class="h">IV3</div>
-            <div>Entre 30 y 90 minutos<br/><span class="small">Tomó el tiempo adecuado</span></div>
-            <div>Entre 10 y 20 minutos<br/><span class="small">Demasiado breve</span></div>
-            <div>Más de 90 minutos<br/><span class="small">Demasiado lento</span></div>
-          </div>
-        </div>
+      <div style="margin-top:14px">
+        <h2 style="margin:0 0 8px">IV1 – IV2 – IV3</h2>
+        <table class="matrix" id="tblIV">
+          <tr>
+            <th style="width:25%"></th>
+            <th style="width:25%">Se conoce o se<br/>compromete</th>
+            <th style="width:25%">Se conoce o se<br/>compromete poco</th>
+            <th style="width:25%">Se requiere mayor<br/>autoconocimiento o auto<br/>compromiso</th>
+          </tr>
+          <tr>
+            <th>IV1</th><td id="iv1c0"></td><td id="iv1c1"></td><td id="iv1c2"></td>
+          </tr>
+          <tr>
+            <th>IV2</th>
+            <td id="iv2c0">No se contradice</td>
+            <td id="iv2c1">Se contradice</td>
+            <td id="iv2c2">Se contradice frecuentemente</td>
+          </tr>
+          <tr>
+            <th>IV3</th>
+            <td id="iv3c0">Entre 30 y 90<br/>minutos<br/><span style="font-size:12px;color:var(--mut)">Tomó el tiempo<br/>adecuado</span></td>
+            <td id="iv3c1">Entre 10 y 20<br/>minutos<br/><span style="font-size:12px;color:var(--mut)">Demasiado breve</span></td>
+            <td id="iv3c2">Más de 90 minutos<br/><span style="font-size:12px;color:var(--mut)">Demasiado lento</span></td>
+          </tr>
+        </table>
       </div>
     </div>
   </div>
+
+  <!-- Por bloque -->
+  <div class="card" style="margin-top:14px">
+    <h2 style="margin-top:0">Por bloque</h2>
+    <table id="tblBloques">
+      <tr><th>Bloque</th><th style="width:12%">Promedio %</th><th style="width:18%">Rango</th></tr>
+    </table>
+    <div class="subnote" style="margin-top:8px">Rangos: <span class="badge r">1–40</span> · <span class="badge a">41–70</span> · <span class="badge v">71–100</span></div>
+  </div>
+
 </div>
 
 <script>
-const $ = (s)=>document.querySelector(s);
-const fmt = v => (v===undefined||v===null||v==='')?'—':v;
-
-function placeMarker(id, val){
-  const mk = $(id); if(!mk) return;
-  if(val==null || isNaN(val)){ mk.style.display='none'; return; }
-  const x = Math.max(10, Math.min(100, Number(val)));
-  const pct = ((x-10)/(100-10))*100;
-  mk.style.left = pct + '%';
-  mk.style.display='block';
+/* ----------------- utilidades ----------------- */
+const $=s=>document.querySelector(s);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const pct=v=>Number.isFinite(+v)?+v:null;
+function badgeFor(p){
+  if(p==null) return '';
+  if(p<=40) return '<span class="badge r">1–40</span>';
+  if(p<=70) return '<span class="badge a">41–70</span>';
+  return '<span class="badge v">71–100</span>';
+}
+function setMarker(id, val){
+  const el=$(id);
+  if(!el) return;
+  if(val==null){ el.style.display="none"; return; }
+  const left=clamp(Math.round(val),10,100); // escala 10–100
+  el.style.left=left+'%';
+  el.style.display="block";
 }
 
-function drawCurve(score){
-  const cv = $('#cv'), ctx = cv.getContext('2d');
-  const w = cv.width = cv.clientWidth, h = cv.height = cv.clientHeight;
-  ctx.clearRect(0,0,w,h);
-  const y = h-16;
-  const rW = w*0.35, aW = w*0.25, gW = w*0.30;
-  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--red');  ctx.fillRect(0,y,rW,6);
-  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--amber');ctx.fillRect(rW,y,aW,6);
-  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--green');ctx.fillRect(rW+aW,y,gW,6);
-  ctx.strokeStyle = '#222'; ctx.lineWidth = 2; ctx.beginPath();
-  const cx = w*0.78, amp = h*0.55, spread = w*0.65;
-  for(let i=0;i<w;i++){
-    const t = (i - (w*0.1)) / spread;
-    const yv = y - amp * Math.exp(-t*t);
-    if(i===0) ctx.moveTo(i,yv); else ctx.lineTo(i,yv);
-  }
+/* ----------------- curva ----------------- */
+function drawCurve(canvas, iie){
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const x0=16, x1=W-16, y0=H-22; // base
+  // banda de colores
+  const stops=[
+    {x:x0+((40-1)/(100-1))*(x1-x0), color:'#e64a45'},
+    {x:x0+((70-1)/(100-1))*(x1-x0), color:'#f6c544'},
+    {x:x1, color:'#26b36a'}
+  ];
+  ctx.lineWidth=6;
+  // rojo
+  ctx.strokeStyle='#e64a45'; ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(stops[0].x,y0); ctx.stroke();
+  // amarillo
+  ctx.strokeStyle='#f6c544'; ctx.beginPath(); ctx.moveTo(stops[0].x,y0); ctx.lineTo(stops[1].x,y0); ctx.stroke();
+  // verde
+  ctx.strokeStyle='#26b36a'; ctx.beginPath(); ctx.moveTo(stops[1].x,y0); ctx.lineTo(stops[2].x,y0); ctx.stroke();
+
+  // arco
+  ctx.strokeStyle='#111'; ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(x0,y0);
+  ctx.quadraticCurveTo( (x0+x1)/2, 16, x1, y0 );
   ctx.stroke();
-  if(score!=null && !isNaN(score)){
-    const sx = Math.max(0, Math.min(w, (score/100)*w));
-    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(sx, y-8, 4, 0, Math.PI*2); ctx.fill();
+
+  // marcador de IIE
+  if(pct(iie)!=null){
+    const t=(clamp(iie,1,100)-1)/(100-1);
+    const x=x0 + t*(x1-x0);
+    const y=y0 - ( (1 - Math.abs(2*t-1)) * (y0-20) ); // proyectado al arco
+    ctx.fillStyle='#111';
+    ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2); ctx.fill();
   }
 }
 
-function rangeBadge(p){
-  if(p==null || isNaN(p)) return '—';
-  const n = Number(p);
-  if(n<=40) return '<span style="background:#e74c3c;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px">1–40</span>';
-  if(n<=70) return '<span style="background:#f1c40f;color:#000;padding:2px 8px;border-radius:12px;font-size:11px">41–70</span>';
-  return '<span style="background:#2ecc71;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px">71–100</span>';
+/* ----------------- IVs ----------------- */
+function hit(cellId){ const td=$(cellId); if(td) td.classList.add('hit'); }
+
+/* ----------------- mapeo de respuesta ----------------- */
+function putFicha(p){
+  const f=$('#ficha');
+  f.children[0].innerHTML = `<b>Nombre:</b> ${p.nombre??'—'}`;
+  f.children[1].innerHTML = `<b>Edad:</b> ${p.edad_anios??'—'}`;
+  f.children[2].innerHTML = `<b>Curso/Grado:</b> ${p.curso??'—'}`;
+  f.children[3].innerHTML = `<b>Institución:</b> ${p.institucion??'—'}`;
+  f.children[4].innerHTML = `<b>Grupo:</b> ${p.grupo??'—'}`;
+  f.children[5].innerHTML = `<b>Fecha:</b> ${(p.created_at||p.fecha||'').toString().slice(0,10) || '—'}`;
 }
 
-function selectIV(row, col){
-  const grid = $('#ivgrid'); if(!grid) return;
-  grid.querySelectorAll('.sel').forEach(el=>el.classList.remove('sel'));
-  const base = 4;
-  const idx = base + (row-1)*4 + col;
-  const cell = grid.children[idx];
-  if(cell) cell.classList.add('sel');
-}
-
-async function fetchReport(code){
-  const res = await fetch('/api/report?codigo='+encodeURIComponent(code));
-  if(!res.ok) throw new Error('No encontrado');
-  return await res.json();
-}
-
-function mapData(data){
-  const P = data.participante || data.participant || {};
+function fillTables(data){
   const A = data.attempt || data.intento || data || {};
   const R = A.resultados || data.resultados || {};
 
-  const nombre = A.nombre || P.nombre || '';
-  const edad = A.edad_anios || P.edad_anios || '';
-  const institucion = A.institucion || P.institucion || '';
-  const grupo = A.grupo || P.grupo || '';
-  const curso = A.curso || P.curso || '';
-  const fecha = (A.created_at || A.fecha || '').toString().slice(0,10);
+  /* IIE */
+  const iie = A.iie ?? (R.globales && R.globales.IIE) ?? null;
+  $('#iieVal').textContent = (iie??'—');
 
-  $('#hdr').innerHTML = `
-    <div><b>Nombre:</b> ${fmt(nombre)}</div>
-    <div><b>Edad:</b> ${fmt(edad)}</div>
-    <div><b>Curso/Grado:</b> ${fmt(curso)}</div>
-    <div><b>Institución:</b> ${fmt(institucion)}</div>
-    <div><b>Grupo:</b> ${fmt(grupo)}</div>
-    <div><b>Fecha:</b> ${fmt(fecha)}</div>
-  `;
-
-  const iie = A.iie ?? (R.globales && R.globales.IIE);
-  $('#iie').textContent = fmt(iie);
-
-  const subs = R.subhabilidades || [];
-  const findPct = key => {
-    for(const s of subs){
-      const nm = (s.sub||'').toLowerCase();
-      if(key==='agresion' && (nm==='agresión'||nm==='agresion')) return Number(s.pct);
-      if(key==='timidez' && nm==='timidez') return Number(s.pct);
-      if(key==='prop' && (nm==='propensión al cambio'||nm==='propension al cambio')) return Number(s.pct);
-    }
-    if(key==='prop' && R.bloques && R.bloques.propension_cambio!=null) return Number(R.bloques.propension_cambio);
-    return null;
-  };
-  placeMarker('#mkAg', findPct('agresion'));
-  placeMarker('#mkTi', findPct('timidez'));
-  placeMarker('#mkPc', findPct('prop'));
-
-  drawCurve(Number(iie));
-
-  const iv1 = A.iv1 ?? (R.globales && R.globales.IV1);
-  const iv2 = A.iv2 ?? (R.globales && R.globales.IV2);
-  const iv3 = A.iv3 ?? (R.globales && R.globales.IV3);
-  const mapIV1 = v => (v===0||v==='Se conoce o se compromete')?1:(v===1||v==='Se conoce o se compromete poco')?2:3;
-  const mapIV2 = v => (v===0||v==='No se contradice')?1:(v===1||v==='Se contradice')?2:3;
-  const mapIV3 = v => (v===0||/30\s*y\s*90/.test(v))?1:(v===1||/10\s*y\s*20/.test(v))?2:3;
-  selectIV(1, mapIV1(iv1));
-  selectIV(2, mapIV2(iv2));
-  selectIV(3, mapIV3(iv3));
-
-  // tablas
-  const tbodyS = $('#tblSubs tbody'); tbodyS.innerHTML='';
+  /* Barras */
+  let agresion=null, timidez=null, prop=null;
+  const subs = (R.subhabilidades||[]);
   for(const s of subs){
-    const rango = rangeBadge(s.pct);
-    tbodyS.innerHTML += `<tr>
-      <td>${fmt(s.bloque||s.block)}</td>
-      <td>${fmt(s.sub||s.subhabilidad)}</td>
-      <td>${fmt(s.items||s.items_count||'')}</td>
-      <td>${fmt(s.puntos||s.points||'')}</td>
-      <td>${fmt(s.pct)}</td>
-      <td>${rango}</td>
+    const sub=(s.sub||s.subhabilidad||'').toLowerCase();
+    const v=pct(s.pct);
+    if(sub==='agresión' || sub==='agresion') agresion=v;
+    if(sub==='timidez') timidez=v;
+    if(sub==='propensión al cambio' || sub==='propension al cambio') prop=v;
+  }
+  if(prop==null && R.bloques && R.bloques.propension_cambio!=null) prop=pct(R.bloques.propension_cambio);
+
+  setMarker('#mkAgresion',agresion);
+  setMarker('#mkTimidez',timidez);
+  setMarker('#mkCambio',prop);
+
+  /* Curva */
+  drawCurve(document.getElementById('curve'), iie);
+
+  /* IVs (resalta amarillo) */
+  // IV1 por terciles del IIE (coherente con PDF)
+  if(pct(iie)!=null){
+    if(iie>=71) hit('#iv1c0');        // Se conoce o se compromete
+    else if(iie>=41) hit('#iv1c1');   // Se conoce o se compromete poco
+    else hit('#iv1c2');               // Requiere mayor autoconocimiento...
+  }
+  // IV2 por dispersión/consistencia si viene; si no, aproximación
+  const iv2 = A.iv2 ?? (R.globales && R.globales.IV2);
+  if(typeof iv2==='number'){
+    if(iv2===0) hit('#iv2c0'); else if(iv2===1) hit('#iv2c1'); else if(iv2===2) hit('#iv2c2');
+  }else{
+    // Heurística: si bloques muy uniformes => no se contradice
+    const bi=pct(A.b_intra ?? (R.bloques&&R.bloques.intrapersonales));
+    const be=pct(A.b_inter ?? (R.bloques&&R.bloques.interpersonales));
+    const bv=pct(A.b_pv    ?? (R.bloques&&R.bloques.para_la_vida));
+    if([bi,be,bv].every(v=>v!=null)){
+      const dif=Math.max(bi,be,bv)-Math.min(bi,be,bv);
+      if(dif<=8) hit('#iv2c0'); else if(dif<=18) hit('#iv2c1'); else hit('#iv2c2');
+    }
+  }
+  // IV3 por tiempo efectivo si llega; si no, no se marca
+  const iv3 = A.iv3 ?? (R.globales && R.globales.IV3);
+  if(typeof iv3==='number'){
+    if(iv3===0) hit('#iv3c0'); else if(iv3===1) hit('#iv3c1'); else if(iv3===2) hit('#iv3c2');
+  }else if(A.tiempo_min!=null){
+    const t=A.tiempo_min;
+    if(t>90) hit('#iv3c2'); else if(t<25) hit('#iv3c1'); else hit('#iv3c0');
+  }
+
+  /* Tabla sub-habilidades */
+  const tblS=$('#tblSubs');
+  tblS.innerHTML = `
+    <tr>
+      <th style="width:34%">Bloque</th>
+      <th style="width:32%">Sub-habilidad</th>
+      <th style="width:8%">Ítems</th>
+      <th style="width:10%">Puntos</th>
+      <th style="width:8%">%</th>
+      <th style="width:8%">Rango</th>
     </tr>`;
+  for(const s of subs){
+    const b=s.bloque||s.block||'';
+    const sub=s.sub||s.subhabilidad||'';
+    const it=s.items||s.items_count||s.ítems||'';
+    const pt=s.puntos??'—';
+    const p=s.pct;
+    tblS.insertAdjacentHTML('beforeend',
+      `<tr>
+        <td>${b||''}</td>
+        <td>${sub||''}</td>
+        <td>${it||''}</td>
+        <td>${pt}</td>
+        <td>${p??'—'}</td>
+        <td style="text-align:center">${badgeFor(p)}</td>
+      </tr>`);
   }
 
-  const tbodyB = $('#tblBloques tbody'); tbodyB.innerHTML='';
-  const addB = (label, val)=>{
-    if(val==null) return;
-    tbodyB.innerHTML += `<tr><td>${label}</td><td>${fmt(val)}</td><td>${rangeBadge(val)}</td></tr>`;
-  };
-  const b = R.bloques || {};
-  addB('Estilos de comunicación interpersonal', b.estilos_comunicacion);
-  addB('Habilidades interpersonales', b.interpersonales);
-  addB('Habilidades intrapersonales', b.intrapersonales);
-  addB('Habilidades para la vida', b.para_la_vida);
-  addB('Propensión al cambio', b.propension_cambio);
+  /* Por bloque */
+  const bi=pct(A.b_intra ?? (R.bloques&&R.bloques.intrapersonales));
+  const be=pct(A.b_inter ?? (R.bloques&&R.bloques.interpersonales));
+  const bv=pct(A.b_pv    ?? (R.bloques&&R.bloques.para_la_vida));
+  const pc=pct(R.bloques && R.bloques.propension_cambio);
+
+  const tblB=$('#tblBloques');
+  tblB.innerHTML=`
+    <tr><th>Bloque</th><th style="width:12%">Promedio %</th><th style="width:18%">Rango</th></tr>
+    <tr><td>Estilos de comunicación interpersonal</td><td>${pct(R.bloques&&R.bloques.estilos_comunicacion)||'—'}</td><td>${badgeFor(pct(R.bloques&&R.bloques.estilos_comunicacion))}</td></tr>
+    <tr><td>Habilidades interpersonales</td><td>${be??'—'}</td><td>${badgeFor(be)}</td></tr>
+    <tr><td>Habilidades intrapersonales</td><td>${bi??'—'}</td><td>${badgeFor(bi)}</td></tr>
+    <tr><td>Habilidades para la vida</td><td>${bv??'—'}</td><td>${badgeFor(bv)}</td></tr>
+    <tr><td>Propensión al cambio</td><td>${pc??'—'}</td><td>${badgeFor(pc)}</td></tr>
+  `;
 }
 
-async function run(){
-  const code = $('#code').value.trim();
-  const msg = $('#msg'); msg.textContent='';
-  if(!code){ msg.textContent = 'Ingresa un código'; return; }
+/* ----------------- fetch del reporte ----------------- */
+async function loadReport(){
+  const code=$('#code').value.trim(); const msg=$('#msg'); msg.textContent='';
+  if(!code){ msg.textContent='Ingresa un código'; return; }
+
   try{
-    const data = await fetchReport(code);
-    mapData(data);
+    const res=await fetch('/api/report?codigo='+encodeURIComponent(code));
+    if(!res.ok) throw new Error('No encontrado');
+    const data=await res.json();
+
+    const P=data.participante||data.participant||{};
+    const A=data.attempt||data.intento||data||{};
+    putFicha({...P,...A});
+    fillTables(data);
   }catch(e){
-    console.error(e); msg.textContent='No encontrado / error del servidor';
+    console.error(e); msg.textContent='No se pudo generar el reporte (verifica /api/report y el código).';
   }
 }
-document.getElementById('btn').addEventListener('click', run);
-document.getElementById('code').addEventListener('keydown', e=>{ if(e.key==='Enter') run(); });
-
-drawCurve(null);
+$('#btnLoad').addEventListener('click',loadReport);
+$('#code').addEventListener('keydown',e=>{if(e.key==='Enter') loadReport();});
 </script>
 </body>
 </html>
