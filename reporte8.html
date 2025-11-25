@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>funcional reporte_mhp100_v5 AAAMHP100 – Reporte PPA</title>
+  <title>FINAL reporte_mhp100_v5 AAAMHP100 – Reporte PPA</title>
 
   <style>
     :root{
@@ -238,7 +238,7 @@
       flex:0 0 auto;
     }
 
-    /* <<< CORREGIDO: encabezado BAJO / PROMEDIO / ALTO alineado con barras >>> */
+    /* Encabezado BAJO / PROMEDIO / ALTO alineado con barras */
     .scale-range-header{
       display:grid;
       grid-template-columns:220px 1fr 1fr 1fr;
@@ -741,6 +741,19 @@
     });
   }
 
+  /* === helper para buscar pct en subhabilidades === */
+  function findSubPct(subRows, bloqueNombre, subNombre){
+    const bloqueKey = normalizeBloqueName(bloqueNombre);
+    const subKey = normalizeBloqueName(subNombre);
+    const row = (subRows || []).find(r =>
+      normalizeBloqueName(r.bloque || r.block || "") === bloqueKey &&
+      normalizeBloqueName(r.subhabilidad || r.sub || r.nombre || "") === subKey
+    );
+    if(!row) return null;
+    const v = Number(row.percent ?? row.pct ?? row.porcentaje ?? row.value);
+    return Number.isNaN(v) ? null : v;
+  }
+
   function renderAll(data){
     window.__LAST_REPORT__ = data;
 
@@ -825,18 +838,26 @@
     buildBloque("bloqueInter", subRows, "Habilidades interpersonales");
     buildBloque("bloquePV",    subRows, "Habilidades para la vida");
 
+    // === valores para las barras de estilos / cambio ===
+    const agresionVal = attempt.agresion ?? attempt.Agresion ??
+      findSubPct(subRows,"Estilos de comunicación interpersonal","Agresión");
+    const timidezVal = attempt.timidez ?? attempt.Timidez ??
+      findSubPct(subRows,"Estilos de comunicación interpersonal","Timidez");
+    const propCambioVal = attempt.propension_cambio ?? attempt.propCambio ?? attempt.PropCambio ??
+      pctBloque("Propensión al cambio");
+
     renderBars("estilos", [
-      {label:"AGRESIÓN", val: attempt.agresion ?? attempt.Agresion, id:"mAgresion"},
-      {label:"TIMIDEZ",  val: attempt.timidez  ?? attempt.Timidez,  id:"mTimidez"}
+      {label:"AGRESIÓN", val: agresionVal, id:"mAgresion"},
+      {label:"TIMIDEZ",  val: timidezVal,  id:"mTimidez"}
     ], true);
 
     renderBars("cambio", [
-      {label:"PROPENSIÓN AL CAMBIO", val: attempt.propension_cambio ?? attempt.propCambio ?? attempt.PropCambio, id:"mCambio"}
+      {label:"PROPENSIÓN AL CAMBIO", val: propCambioVal, id:"mCambio"}
     ], false);
 
-    setMarker("mAgresion", attempt.agresion ?? attempt.Agresion);
-    setMarker("mTimidez",  attempt.timidez  ?? attempt.Timidez);
-    setMarker("mCambio",   attempt.propension_cambio ?? attempt.propCambio ?? attempt.PropCambio);
+    setMarker("mAgresion", agresionVal);
+    setMarker("mTimidez",  timidezVal);
+    setMarker("mCambio",   propCambioVal);
 
     const contestadas = attempt.contestadas || attempt.n_respondidas || "244 de 244";
     $("#contestadasLine").textContent = contestadas;
