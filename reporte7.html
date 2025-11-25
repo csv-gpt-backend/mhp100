@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>reporte_mhp100_v6 MHP100 – Reporte PPA</title>
+  <title>reporte_mhp100_v7 MHP100 – Reporte PPA</title>
 
   <style>
     :root{
@@ -639,16 +639,23 @@
     });
   }
 
+  
   function renderAll(data){
-    const attempt = data.attempt || data;
-    const snap = attempt.snapshot || attempt.snap || attempt;
+    // Soporta distintas formas de respuesta del backend.
+    // data -> {attempt} | { ... intento ... } | {resultados: {...}}
+    const root = data.attempt || data;
 
-    const subRows = attempt.subhabilidades || attempt.subRows || attempt.sub || [];
-    const bloqRows = attempt.bloqPercents || attempt.bloqRows || attempt.bloques || [];
+    // Los resultados (bloques, subhabilidades, globales) suelen venir en "resultados"
+    const res = root.resultados || root.reporte || root;
+
+    const snap = root.snapshot || root.snap || root;
+
+    const subRows = res.subhabilidades || res.subRows || res.sub || root.subhabilidades || [];
+    const bloqRows = res.bloqPercents || res.bloqRows || res.bloques || root.bloqPercents || root.bloqRows || root.bloques || [];
 
     const codigoActual = ($("#codigoInput").value||"").toUpperCase();
 
-    // helper: pct por sub-habilidad
+    // --- helpers ---
     function pctSub(nombre){
       const target = normalizeBloqueName(nombre);
       const row = subRows.find(r =>
@@ -657,56 +664,46 @@
       return row ? Math.round(row.percent ?? row.pct ?? row.porcentaje ?? 0) : 0;
     }
 
-    // Bloques porcentuales
-    function pctBloque(nombre){
+    function pctBloque(nombreEsperado){
       if(Array.isArray(bloqRows)){
-        const f = bloqRows.find(r =>
-          normalizeBloqueName(r.bloque||r.block||"") === normalizeBloqueName(nombre)
+        const found = bloqRows.find(r =>
+          normalizeBloqueName(r.bloque || r.block || r.nombre || "") === normalizeBloqueName(nombreEsperado)
         );
-        return f ? Math.round(f.percent ?? f.pct ?? f.porcentaje ?? 0) : 0;
+        if(found) return Math.round(found.percent ?? found.pct ?? found.porcentaje ?? found.value ?? 0);
+        return 0;
       }else{
-        const k = Object.keys(bloqRows||{}).find(k =>
-          normalizeBloqueName(k) === normalizeBloqueName(nombre)
+        const key = Object.keys(bloqRows||{}).find(k =>
+          normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado)
         );
-        return k ? Math.round(bloqRows[k]) : 0;
+        return key ? Math.round(bloqRows[key] ?? 0) : 0;
       }
     }
 
-    // Fecha de intento dentro del reporte
-    const fecha = attempt.created_at || attempt.creado_en || attempt.fecha_intento;
+    // --- fecha ---
+    const fecha =
+      root.created_at || root.creado_en || root.fecha_intento ||
+      res.created_at || res.creado_en || res.fecha_intento;
+
     // Cabecera de identificación (Nombre, edad, etc.)
     const repBox = $("#repHeaderBox");
     repBox.innerHTML = "";
     const rows = [
-      ["Nombre", snap.nombre || attempt.nombre || "—"],
-      ["Edad", snap.edad_anios ?? snap.edad ?? attempt.edad_anios ?? "—"],
-      ["Institución", snap.institucion || attempt.institucion || "—"],
-      ["Grado", snap.curso || attempt.curso || "—"],
-      ["Grupo", snap.grupo || attempt.grupo || "—"],
+      ["Nombre", snap.nombre || root.nombre || "—"],
+      ["Edad", snap.edad_anios ?? snap.edad ?? root.edad_anios ?? "—"],
+      ["Institución", snap.institucion || root.institucion || "—"],
+      ["Grado", snap.curso || root.curso || "—"],
+      ["Grupo", snap.grupo || root.grupo || "—"],
       ["Fecha", fecha ? new Date(fecha).toLocaleDateString("es-EC") : "—"],
-      ["Código", snap.codigo || attempt.codigo || codigoActual || "—"]
+      ["Código", snap.codigo || root.codigo || codigoActual || "—"]
     ];
     rows.forEach((r,idx)=>{
       const rowDiv = document.createElement("div");
-      rowDiv.className = "rep-ids-row";
-      // primera columna ocupa la mitad izquierda, segunda la mitad derecha
-      const label = document.createElement("div");
-      label.className="rep-ids-label";
-      label.textContent = r[0]+":";
-      const val = document.createElement("div");
-      val.className="rep-ids-value";
-      val.textContent = r[1];
-      rowDiv.appendChild(label);
-      rowDiv.appendChild(val);
+      rowDiv.className = "rep-row";
+      rowDiv.innerHTML = `<span class="lbl">${r[0]}:</span> <span class="val">${r[1]}</span>`;
       repBox.appendChild(rowDiv);
     });
 
-    // Poner fecha/hora actual arriba a la izquierda
-    const nowLine = document.getElementById("nowLine");
-    if(nowLine){
-      nowLine.textContent = new Date().toLocaleString("es-EC");
-    }
-
+    // === Bloques principales: INTRA / INTER / PV ===
     const bIntra = pctBloque("Habilidades intrapersonales");
     const bInter = pctBloque("Habilidades interpersonales");
     const bPV    = pctBloque("Habilidades para la vida");
@@ -715,60 +712,67 @@
     $("#ihInter").textContent = bInter || "—";
     $("#ihPV").textContent    = bPV || "—";
 
-    // IIE real desde BD (fallback a promedio solo si viene vacío)
-    const iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie ??
-      ((bIntra||bInter||bPV) ? Math.round((bIntra+bInter+bPV)/3) : 0);
-
+    // IIE e indicadores de validez
+    const gl = res.globales || root.globales || {};
+    const iie =
+      gl.IIE ?? gl.iie ?? root.iie ?? root.IIE ??
+      ((bIntra || bInter || bPV) ? Math.round((bIntra + bInter + bPV)/3) : 0);
     $("#repIIE").textContent = iie || "—";
     setCurveMarker(iie || 0);
 
-    // IVs reales desde BD
-    const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1;
-    const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2;
-    const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3;
+    const iv1Val = gl.IV1 ?? gl.iv1 ?? root.iv1Cat ?? root.iv1_cat ?? root.iv1 ?? root.IV1;
+    const iv2Val = gl.IV2 ?? gl.iv2 ?? root.iv2Cat ?? root.iv2_cat ?? root.iv2 ?? root.IV2;
+    const iv3Val = gl.IV3 ?? gl.iv3 ?? root.iv3Cat ?? root.iv3_cat ?? root.iv3 ?? root.IV3;
 
     highlightIV("iv1Row", ivToCol(iv1Val));
     highlightIV("iv2Row", ivToCol(iv2Val));
     highlightIV("iv3Row", ivToCol(iv3Val));
 
-    // Bloques 3 columnas
+    // === Bloques 3 columnas (sub-habilidades) ===
     buildBloque("bloqueIntra", subRows, "Habilidades intrapersonales");
     buildBloque("bloqueInter", subRows, "Habilidades interpersonales");
     buildBloque("bloquePV",    subRows, "Habilidades para la vida");
 
-    // Valores de estilos + propensión desde subhabilidades/bloques
-    const agresionVal = attempt.agresion ?? attempt.Agresion ?? pctSub("Agresión");
-    const timidezVal  = attempt.timidez  ?? attempt.Timidez  ?? pctSub("Timidez");
-    const propCambioVal =
-      attempt.propension_cambio ??
-      attempt.propCambio ??
-      attempt.PropCambio ??
-      pctBloque("Propensión al cambio");
-
-    // Barras estilos / propensión
+    // === Estilos de comunicación & propensión al cambio ===
     renderBars("estilos", [
-      {label:"AGRESIÓN (10–100)", val: agresionVal, id:"mAgresion"},
-      {label:"TIMIDEZ (10–100)",  val: timidezVal,  id:"mTimidez"}
+      {label:"AGRESIÓN (10–100)", val:
+        root.agresion ?? root.Agresion ??
+        pctSub("Agresión")
+      , id:"mAgresion"},
+      {label:"TIMIDEZ (10–100)", val:
+        root.timidez ?? root.Timidez ??
+        pctSub("Timidez")
+      , id:"mTimidez"}
     ], true);
 
     renderBars("cambio", [
-      {label:"PROPENSIÓN AL CAMBIO (10–100)", val: propCambioVal, id:"mCambio"}
+      {label:"PROPENSIÓN AL CAMBIO (10–100)", val:
+        root.propension_cambio ?? root.propCambio ?? pctBloque("Propensión al cambio") || pctSub("Propensión al cambio")
+      , id:"mCambio"}
     ], false);
 
-    setMarker("mAgresion", agresionVal);
-    setMarker("mTimidez",  timidezVal);
-    setMarker("mCambio",   propCambioVal);
+    setMarker("mAgresion",
+      root.agresion ?? root.Agresion ?? pctSub("Agresión")
+    );
+    setMarker("mTimidez",
+      root.timidez ?? root.Timidez ?? pctSub("Timidez")
+    );
+    setMarker("mCambio",
+      root.propension_cambio ?? root.propCambio ?? pctBloque("Propensión al cambio") || pctSub("Propensión al cambio")
+    );
 
-    // Contestadas + page2
-    const contestadas = attempt.contestadas || attempt.n_respondidas || "244 de 244";
+    // === Página 2: resultados tabulares ===
+    const contestadas = root.contestadas || root.n_respondidas ||
+      (res.total_respondidas || "244 de 244");
     $("#contestadasLine").textContent = contestadas;
+
     renderPage2(subRows, bloqRows);
 
-    window.__LAST_REPORT__ = data;
     $("#reporteContainer").style.display="block";
-  }
 
-  async function cargarReporte(codigo){
+    // Guardamos la última data cruda por si se desea exportar
+    window.__LAST_REPORT__ = data;
+  }async function cargarReporte(codigo){
     $("#msg").textContent = "Buscando...";
     $("#msg").className = "msg";
     $("#reporteContainer").style.display="none";
