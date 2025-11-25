@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>6666666AAAMHP100 – Reporte PPA</title>
+  <title>arch 6 AAAMHP100 – Reporte PPA</title>
 
   <style>
     :root{
@@ -325,10 +325,17 @@
     if (v === null || v === undefined) return 2;
     const n = Number(v);
     if (!Number.isNaN(n)){
+      // Categorías numéricas desde BD:
+      //  - 0,1,2 -> columnas 1,2,3
+      //  - 1,2,3 -> columnas 1,2,3
+      if (n === 0 || n === 1 || n === 2) return n + 1;
       if (Number.isInteger(n) && n>=1 && n<=3) return n;
-      if (n <= 40) return 1;
-      if (n <= 70) return 2;
-      return 3;
+      // Si accidentalmente viene un porcentaje (0–100), usamos la regla del IIE
+      if (n >= 0 && n <= 100){
+        if (n >= 71) return 1;
+        if (n >= 41) return 2;
+        return 3;
+      }
     }
     const s = String(v).toLowerCase();
     if (s.includes("no se contradice") || s.includes("tomó el tiempo adecuado")) return 1;
@@ -437,16 +444,39 @@
     });
     cont.appendChild(cols);
 
-    subRows
-      .filter(r=> normalizeBloqueName(r.bloque||r.block||"")===normalizeBloqueName(bloqueNombre))
-      .forEach(r=>{
-        const sub = r.subhabilidad || r.sub || r.nombre || "";
-        const pct = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
-        addRow(cont, sub, pct);
+    const bloqueKey = normalizeBloqueName(bloqueNombre);
+    const ordenes = {
+      "habilidades intrapersonales": ["Autoestima","Manejo de la tensión","Bienestar físico"],
+      "habilidades interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
+      "habilidades para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de decisiones","Liderazgo"]
+    };
+
+    let rowsFiltradas = subRows
+      .filter(r=> normalizeBloqueName(r.bloque||r.block||"")===bloqueKey);
+
+    const orden = ordenes[bloqueKey];
+    if (orden){
+      rowsFiltradas.sort((a,b)=>{
+        const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
+        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
+        const ia = orden.findIndex(x=> x.toLowerCase()===nameA);
+        const ib = orden.findIndex(x=> x.toLowerCase()===nameB);
+        if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
+        if (ia===-1) return 1;
+        if (ib===-1) return -1;
+        return ia-ib;
       });
+    }
+
+    rowsFiltradas.forEach(r=>{
+      const sub = r.subhabilidad || r.sub || r.nombre || "";
+      const pct = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
+      addRow(cont, sub, pct);
+    });
   }
 
-  /* ===== Barras estilos/propensión ===== */
+
+/* ===== Barras estilos/propensión ===== */
   function renderBars(containerId, items, showNote){
     const host=document.getElementById(containerId);
     if(!host) return;
@@ -543,16 +573,15 @@
 
     const codigoActual = ($("#codigoInput").value||"").toUpperCase();
 
-    // Fecha original desde BD
+    // Fecha original desde BD (fecha de la evaluación)
     const fechaRaw = attempt.created_at || attempt.creado_en || attempt.fecha_intento;
     const fechaObj = fechaRaw ? new Date(fechaRaw) : null;
 
-    // Fecha/hora arriba a la izquierda (no inventamos nada; usamos lo de BD)
-    $("#repDateLine").textContent = fechaObj
-      ? fechaObj.toLocaleString("es-EC", { dateStyle:"short", timeStyle:"short" })
-      : "—";
+    // Fecha/hora arriba a la izquierda = momento de generación del reporte
+    const ahora = new Date();
+    $("#repDateLine").textContent = ahora.toLocaleString("es-EC", { dateStyle:"short", timeStyle:"short" });
 
-    // Fecha larga para la caja de datos
+    // Fecha larga para la caja de datos (fecha de evaluación)
     const fechaTexto = fechaObj
       ? fechaObj.toLocaleDateString("es-EC", { year:"numeric", month:"long", day:"2-digit" })
       : "—";
