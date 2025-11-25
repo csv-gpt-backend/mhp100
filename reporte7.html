@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>rfeñp 7 AAAMHP100 – Reporte PPA</title>
+  <title>reporte_mhp100_v5AAAMHP100 – Reporte PPA</title>
 
   <style>
     :root{
@@ -168,7 +168,25 @@
       text-align:center;
     }
 
-  </style>
+  
+    .scale-range-header{
+      display:flex;
+      justify-content:flex-end;
+      gap:48px;
+      font-size:11px;
+      font-weight:700;
+      margin:0 0 2px;
+    }
+    .scale-range-header span{
+      min-width:60px;
+      text-align:center;
+    }
+    .scale-note-inline{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:2px;
+    }
+</style>
 </head>
 
 <body>
@@ -192,12 +210,12 @@
           <div id="repDateLine" class="rep-date"></div>
           <div class="rep-top-center">GRÁFICA INDIVIDUAL MHP</div>
           <div class="rep-top-logo">
-            <img src="assets/img_ident.jpg" alt="Lexium" class="lex-logo">
+            <img src="assets/img_sello.png" alt="MHP100" class="mhp-logo">
           </div>
         </div>
         <div class="rep-top-row2">
           <span>SKILL MAP</span>
-          <img src="assets/img_sello.png" alt="MHP100" class="mhp-logo">
+          <img src="assets/img_ident.jpg" alt="Lexium" class="lex-logo">
         </div>
         <div class="rep-top-row3">INTELIGENCIA EMOCIONAL</div>
       </div>
@@ -304,6 +322,12 @@
           <div class="section-dot"></div>
           <div>ESTILOS DE COMUNICACIÓN INTERPERSONAL</div>
         </div>
+        <div class="scale-range-header">
+          <span></span>
+          <span>BAJO</span>
+          <span>PROMEDIO</span>
+          <span>ALTO</span>
+        </div>
         <div class="rep-scale" id="estilos"></div>
       </div>
 
@@ -313,6 +337,7 @@
           <div>PROPENSIÓN AL CAMBIO</div>
         </div>
         <div class="rep-scale" id="cambio"></div>
+        <div class="scale-note-inline">Menor propensión al cambio — Mayor propensión al cambio</div>
       </div>
 
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
@@ -545,39 +570,60 @@
 
 
 /* ===== Barras estilos/propensión ===== */
-  function renderBars(containerId, items, showNote){
-    const host=document.getElementById(containerId);
-    if(!host) return;
-    host.innerHTML="";
-    const wrap=document.createElement('div');
-    wrap.className="bars-wrap";
+    function renderBars(containerId, items, showNote){
+    const host = document.getElementById(containerId);
+    if (!host) return;
+    host.innerHTML = "";
+    const wrap = document.createElement("div");
+    wrap.className = "bars-wrap";
 
-    items.forEach(it=>{
-      const row=document.createElement('div');
-      row.className="bars-row";
-      row.innerHTML=`
-        <div class="label">${it.label} (10–100)</div>
-        <div class="bars-slot">
-          <div class="tick" style="left:0%"></div>
-          <div class="tick" style="left:100%"></div>
-          <div class="tick-label" style="left:0%">10</div>
-          <div class="tick-label" style="left:100%">100</div>
-          <div class="marker" id="${it.id}" style="display:none"></div>
-        </div>
-      `;
+    items.forEach(it => {
+      const row = document.createElement("div");
+      row.className = "bars-row";
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = it.label + " (10–100)";
+      row.appendChild(label);
+
+      const slot = document.createElement("div");
+      slot.className = "bars-slot";
+
+      // Ticks y números 10–100
+      [10,40,70,100].forEach(v => {
+        const pct = (v - 10) / 90 * 100;
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        tick.style.left = pct + "%";
+        slot.appendChild(tick);
+
+        const tLabel = document.createElement("div");
+        tLabel.className = "tick-label";
+        tLabel.style.left = pct + "%";
+        tLabel.textContent = v;
+        slot.appendChild(tLabel);
+      });
+
+      const marker = document.createElement("div");
+      marker.className = "marker";
+      marker.id = it.id;
+      marker.style.display = "none";
+      slot.appendChild(marker);
+
+      row.appendChild(slot);
       wrap.appendChild(row);
     });
     host.appendChild(wrap);
 
-    if(showNote){
-      const note=document.createElement('div');
-      note.style.fontSize='12px';
-      note.textContent='*Un puntaje bajo indica mejor manejo en estas áreas.';
+    if (showNote) {
+      const note = document.createElement("div");
+      note.className = "scale-note-inline";
+      note.textContent = "*Un puntaje bajo indica mejor manejo en estas áreas.";
       host.appendChild(note);
     }
   }
 
-  function setMarker(id, val){
+function setMarker(id, val){
     const el = document.getElementById(id);
     if(!el) return;
     if(val==null || isNaN(val)) { el.style.display="none"; return; }
