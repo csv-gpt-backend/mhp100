@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>rep 13 FINAL reporte_mhp100_v5 AAAMHP100 – Reporte PPA</title>
+  <title>MODFINAL reporte_mhp100_v5 AAAMHP100 – Reporte PPA</title>
 
   <style>
     :root{
@@ -117,7 +117,7 @@
     }
     .bars-slot .tick-label{
       position:absolute;
-      top:16px;
+      top:19px;              /* ↓ Un poquito más abajo que antes */
       font-size:10px;
       transform:translateX(-50%)
     }
@@ -256,7 +256,7 @@
     .scale-note-inline{
       font-size:11px;
       color:var(--muted);
-      margin-top:2px;
+      margin-top:4px;     /* un poco más de espacio respecto a las barras */
     }
 
     /* ===== Página de interpretación ===== */
@@ -523,6 +523,7 @@
           <span>ALTO</span>
         </div>
         <div class="rep-scale" id="estilos"></div>
+        <!-- La nota de puntaje bajo va inmediatamente debajo de las barras (la pone renderBars) -->
       </div>
 
       <!-- PROPENSIÓN AL CAMBIO -->
@@ -532,6 +533,7 @@
           <div>PROPENSIÓN AL CAMBIO</div>
         </div>
         <div class="rep-scale" id="cambio"></div>
+        <!-- Nota directamente bajo las barras de propensión -->
         <div class="scale-note-inline">Menor propensión al cambio — Mayor propensión al cambio</div>
       </div>
 
@@ -556,7 +558,8 @@
           </div>
         </div>
         <div class="rep-top-row2">
-          <span>SKILL MAP</span>
+          <!-- Aquí reemplazamos SKILL MAP por Informe Socioemocional y Psicométrico -->
+          <span>Informe Socioemocional y Psicométrico</span>
           <img src="assets/img_ident.jpg" alt="Lexium" class="lex-logo">
         </div>
         <div class="rep-top-row3">INTELIGENCIA EMOCIONAL – INTERPRETACIÓN</div>
@@ -866,6 +869,7 @@
     });
     host.appendChild(wrap);
 
+    // Nota directamente debajo de las barras del contenedor (Estilos)
     if (showNote) {
       const note = document.createElement("div");
       note.className = "scale-note-inline";
@@ -987,8 +991,8 @@
       row.appendChild(desc);
     }
 
-    // Alerta automática para puntajes muy bajos (< 25) en cualquier habilidad
-    if (numeric != null && numeric < 25){
+    // Umbral < 35 para alerta en ROJO
+    if (numeric != null && numeric < 35){
       const alert = document.createElement("div");
       alert.className = "skill-row-desc skill-row-alert";
       alert.textContent = "El puntaje se encuentra en un rango bajo. Se recomienda un seguimiento cercano y actividades específicas para fortalecer esta habilidad.";
@@ -1169,7 +1173,6 @@
       lista.appendChild(li);
     });
 
-    // Ajustes según estilos de comunicación
     if(extras.agresionVal != null && extras.agresionVal > 70){
       const li = document.createElement("li");
       li.textContent = "Estilos de comunicación (agresión): trabajar en el control de impulsos y uso de un lenguaje respetuoso, enseñando alternativas para expresar enojo sin dañar a otros.";
@@ -1181,7 +1184,6 @@
       lista.appendChild(li);
     }
 
-    // Propensión al cambio
     if(extras.propCambioVal != null){
       if(extras.propCambioVal <= 40){
         const li = document.createElement("li");
@@ -1247,7 +1249,6 @@
     sub.textContent = "Este plan ofrece orientaciones generales para acompañar el desarrollo socioemocional desde el hogar y la institución educativa. No reemplaza una valoración clínica ni una intervención profesional especializada.";
     cont.appendChild(sub);
 
-    /* En el hogar */
     const hTitle = document.createElement("div");
     hTitle.className = "plan-section-title";
     hTitle.textContent = "En el hogar / familia:";
@@ -1262,7 +1263,6 @@
     });
     cont.appendChild(hList);
 
-    /* En la institución */
     const eTitle = document.createElement("div");
     eTitle.className = "plan-section-title";
     eTitle.textContent = "En el aula / institución educativa:";
@@ -1277,7 +1277,6 @@
       eList.appendChild(li);
     });
 
-    // Determinar bloque con menor puntaje para focalizar
     const bloques = [
       {key:"intra", label:"intrapersonales", val:extras.bIntra},
       {key:"inter", label:"interpersonales", val:extras.bInter},
@@ -1310,7 +1309,6 @@
 
     cont.appendChild(eList);
 
-    /* Apoyo especializado */
     const aTitle = document.createElement("div");
     aTitle.className = "plan-section-title";
     aTitle.textContent = "Con apoyo del orientador / psicólogo:";
@@ -1435,10 +1433,7 @@
       renderSkillRow(cambCont, "Propensión al cambio", extras.propCambioVal);
     }
 
-    // 3.- Perfil cuantitativo global
     renderPerfilGlobal(extras);
-
-    // 4.- Recomendaciones y plan de acción automáticos
     renderRecomendaciones(extras);
     renderPlanAccion(extras);
   }
@@ -1551,7 +1546,6 @@
     $("#contestadasLine").textContent = contestadas;
     renderPage2(subRows, bloqRows);
 
-    // Página 2: interpretación + perfil + recomendaciones + plan
     renderInterpretacion(subRows, bloqRows, {
       bIntra,
       bInter,
