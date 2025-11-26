@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>MODFINAL reporte_mhp100_v5 AAAMHP100 – Reporte PPA</title>
+  <title>11 37 FINAL reporte_mhp100_v5 AAAMHP100 – Reporte PPA</title>
 
   <style>
     :root{
@@ -95,7 +95,7 @@
       grid-template-columns:220px 1fr;
       align-items:center;
       gap:8px;
-      margin:12px 0; /* más espacio entre Agresión y Timidez */
+      margin:10px 0;
     }
     .bars-row .label{
       font-weight:700;
@@ -117,7 +117,7 @@
     }
     .bars-slot .tick-label{
       position:absolute;
-      top:19px;              /* ↓ Un poquito más abajo que antes */
+      top:19px;              /* un poco más abajo */
       font-size:10px;
       transform:translateX(-50%)
     }
@@ -137,7 +137,7 @@
     .page-break{height:0;margin:0;border:0}
     @media print{
       @page{ size:A4; margin:12mm 10mm }
-      body{zoom:0.95;} /* ayuda a que quepa mejor en una hoja */
+      body{zoom:0.95;}
       .topbar,.hint{display:none !important}
       .page-break{page-break-before:always}
       .page{break-inside:avoid}
@@ -256,7 +256,8 @@
     .scale-note-inline{
       font-size:11px;
       color:var(--muted);
-      margin-top:4px;     /* un poco más de espacio respecto a las barras */
+      margin-top:4px;
+      text-align:center;    /* centrado debajo de las barras */
     }
 
     /* ===== Página de interpretación ===== */
@@ -523,7 +524,7 @@
           <span>ALTO</span>
         </div>
         <div class="rep-scale" id="estilos"></div>
-        <!-- La nota de puntaje bajo va inmediatamente debajo de las barras (la pone renderBars) -->
+        <!-- Nota centrada debajo de las barras (agregada por JS) -->
       </div>
 
       <!-- PROPENSIÓN AL CAMBIO -->
@@ -533,7 +534,6 @@
           <div>PROPENSIÓN AL CAMBIO</div>
         </div>
         <div class="rep-scale" id="cambio"></div>
-        <!-- Nota directamente bajo las barras de propensión -->
         <div class="scale-note-inline">Menor propensión al cambio — Mayor propensión al cambio</div>
       </div>
 
@@ -558,7 +558,6 @@
           </div>
         </div>
         <div class="rep-top-row2">
-          <!-- Aquí reemplazamos SKILL MAP por Informe Socioemocional y Psicométrico -->
           <span>Informe Socioemocional y Psicométrico</span>
           <img src="assets/img_ident.jpg" alt="Lexium" class="lex-logo">
         </div>
@@ -588,6 +587,9 @@
           El color <b>rojo</b> indica habilidades por desarrollar, el <b>amarillo</b> habilidades por fortalecer y el <b>verde</b> habilidades por enriquecer. Un puntaje más alto refleja un mayor nivel de desarrollo o manejo en la habilidad evaluada.
         </div>
         <div class="interp-legend-row">
+          En las escalas de <b>Agresión</b> y <b>Timidez</b> la interpretación es inversa: puntajes bajos indican mejor manejo de estas áreas, mientras que puntajes altos sugieren mayor riesgo y requieren observación y apoyo.
+        </div>
+        <div class="interp-legend-row">
           La Prueba de Habilidades Emocionales evalúa tres grandes conjuntos de habilidades (intrapersonales, interpersonales y para la vida) organizadas en 14 subhabilidades específicas, además de los estilos de comunicación y la propensión al cambio.
         </div>
       </div>
@@ -601,7 +603,7 @@
 
       <div id="perfilGlobal" class="interp-bloque"></div>
 
-      <!-- Nuevas secciones: Recomendaciones y Plan de acción -->
+      <!-- Recomendaciones y Plan -->
       <div id="recomendaciones" class="interp-bloque"></div>
       <div id="planAccion" class="interp-bloque"></div>
 
@@ -836,6 +838,11 @@
       const row = document.createElement("div");
       row.className = "bars-row";
 
+      // Más espacio específicamente para TIMIDEZ
+      if (it.label === "TIMIDEZ") {
+        row.style.marginTop = "20px";
+      }
+
       const label = document.createElement("div");
       label.className = "label";
       label.textContent = it.label + " (10–100)";
@@ -869,7 +876,7 @@
     });
     host.appendChild(wrap);
 
-    // Nota directamente debajo de las barras del contenedor (Estilos)
+    // Nota directamente debajo del bloque de barras
     if (showNote) {
       const note = document.createElement("div");
       note.className = "scale-note-inline";
@@ -948,7 +955,7 @@
     intra: "Las habilidades intrapersonales son la capacidad de comprender y gestionar los propios pensamientos y emociones.",
     inter: "Son el conjunto de capacidades y comportamientos que permiten comunicarse y relacionarse eficazmente con otros para construir vínculos positivos y colaborar en distintos contextos.",
     vida: "Son aptitudes y destrezas que permiten enfrentar los desafíos cotidianos, adaptarse y desenvolverse positivamente en sociedad.",
-    estilos: "Los estilos de comunicación son las diferentes formas en que las personas expresan sus ideas y emociones en la interacción con los demás.",
+    estilos: "Los estilos de comunicación son las diferentes formas en que las personas expresan sus ideas y emociones en la interacción con los demás. En las escalas de Agresión y Timidez, puntajes bajos indican mejor manejo de estas áreas, mientras que puntajes altos sugieren mayor riesgo y requieren especial atención.",
     cambio: "Es la disposición y apertura de una persona para adaptarse y promover transformaciones positivas en su entorno."
   };
 
@@ -991,14 +998,6 @@
       row.appendChild(desc);
     }
 
-    // Umbral < 35 para alerta en ROJO
-    if (numeric != null && numeric < 35){
-      const alert = document.createElement("div");
-      alert.className = "skill-row-desc skill-row-alert";
-      alert.textContent = "El puntaje se encuentra en un rango bajo. Se recomienda un seguimiento cercano y actividades específicas para fortalecer esta habilidad.";
-      row.appendChild(alert);
-    }
-
     const bar = document.createElement("div");
     bar.className = "skill-bar";
 
@@ -1023,59 +1022,28 @@
     bar.appendChild(value);
     row.appendChild(bar);
 
-    parent.appendChild(row);
-  }
+    const isAggOrTim = (nombre === "Agresión" || nombre === "Timidez");
 
-  function renderBloqueInterpretacion(containerId, tituloBloque, bloqueDescKey, subRows, pctBloqueVal){
-    const cont = document.getElementById(containerId);
-    if(!cont) return;
-    cont.innerHTML = "";
-
-    const idxText = (pctBloqueVal != null && !Number.isNaN(pctBloqueVal)) ? pctBloqueVal : "—";
-
-    const header = document.createElement("div");
-    header.className = "interp-bloque-header";
-    header.innerHTML = `
-      <div class="interp-bloque-nombre">${tituloBloque}</div>
-      <div class="interp-bloque-indice">Índice: <span>${idxText}</span></div>
-    `;
-    cont.appendChild(header);
-
-    const desc = document.createElement("div");
-    desc.className = "interp-bloque-desc";
-    desc.textContent = BLOQUE_DESCS[bloqueDescKey] || "";
-    cont.appendChild(desc);
-
-    const bloqueKey = normalizeBloqueName(tituloBloque);
-    const ordenes = {
-      "habilidades intrapersonales": ["Autoestima","Manejo de la Tensión","Bienestar físico"],
-      "habilidades interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
-      "habilidades para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de Decisiones","Liderazgo"]
-    };
-
-    let rows = (subRows || []).filter(r =>
-      normalizeBloqueName(r.bloque || r.block || "") === bloqueKey
-    );
-
-    const orden = ordenes[bloqueKey];
-    if(orden){
-      rows.sort((a,b)=>{
-        const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
-        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
-        const ia = orden.findIndex(x=> x.toLowerCase() === nameA);
-        const ib = orden.findIndex(x=> x.toLowerCase() === nameB);
-        if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
-        if (ia===-1) return 1;
-        if (ib===-1) return -1;
-        return ia-ib;
-      });
+    if (numeric != null) {
+      if (isAggOrTim && numeric >= 71) {
+        // Alto riesgo: marcar en rojo
+        value.classList.add("skill-row-alert");
+        const alert = document.createElement("div");
+        alert.className = "skill-row-desc skill-row-alert";
+        alert.textContent = nombre === "Agresión"
+          ? "El puntaje se encuentra en un rango elevado de agresión. Se recomienda observación cercana, acompañamiento emocional y, de ser necesario, derivación a apoyo profesional."
+          : "El puntaje se encuentra en un rango elevado de timidez. Se sugiere favorecer espacios graduales de participación y valorar acompañamiento especializado si la dificultad persiste.";
+        row.appendChild(alert);
+      } else if (!isAggOrTim && numeric < 35) {
+        // Resto de habilidades: umbral bajo en rojo
+        const alert = document.createElement("div");
+        alert.className = "skill-row-desc skill-row-alert";
+        alert.textContent = "El puntaje se encuentra en un rango bajo. Se recomienda un seguimiento cercano y actividades específicas para fortalecer esta habilidad.";
+        row.appendChild(alert);
+      }
     }
 
-    rows.forEach(r=>{
-      const sub = r.subhabilidad || r.sub || r.nombre || "";
-      const pct = r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? null;
-      renderSkillRow(cont, sub, pct);
-    });
+    parent.appendChild(row);
   }
 
   /* ===== Recomendaciones y plan de acción ===== */
@@ -1368,23 +1336,85 @@
 
     const subt = document.createElement("div");
     subt.className = "plan-section-title";
-    subt.textContent = "Estilos de Comunicación Interpersonal (Puntajes bajos indican mejor manejo en estas áreas):";
+    subt.textContent = "Estilos de Comunicación Interpersonal (en estas escalas puntajes bajos indican mejor manejo):";
     cont.appendChild(subt);
 
     const ul2 = document.createElement("ul");
     ul2.className = "recom-list";
 
-    [
-      `Agresión: ${fmt(extras.agresionVal)}`,
-      `Timidez: ${fmt(extras.timidezVal)}`,
-      `Propensión al cambio: ${fmt(extras.propCambioVal)}`
-    ].forEach(t=>{
-      const li = document.createElement("li");
-      li.textContent = t;
-      ul2.appendChild(li);
-    });
+    const liA = document.createElement("li");
+    liA.textContent = "Agresión: " + fmt(extras.agresionVal);
+    if (extras.agresionVal != null && !Number.isNaN(extras.agresionVal) && extras.agresionVal >= 71){
+      liA.classList.add("skill-row-alert");
+      liA.textContent += " (rango alto, requiere atención y acompañamiento).";
+    }
+    ul2.appendChild(liA);
+
+    const liT = document.createElement("li");
+    liT.textContent = "Timidez: " + fmt(extras.timidezVal);
+    if (extras.timidezVal != null && !Number.isNaN(extras.timidezVal) && extras.timidezVal >= 71){
+      liT.classList.add("skill-row-alert");
+      liT.textContent += " (rango alto, sugiere inhibición social significativa).";
+    }
+    ul2.appendChild(liT);
+
+    const liC = document.createElement("li");
+    liC.textContent = "Propensión al cambio: " + fmt(extras.propCambioVal);
+    ul2.appendChild(liC);
 
     cont.appendChild(ul2);
+  }
+
+  function renderBloqueInterpretacion(containerId, tituloBloque, bloqueDescKey, subRows, pctBloqueVal){
+    const cont = document.getElementById(containerId);
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const idxText = (pctBloqueVal != null && !Number.isNaN(pctBloqueVal)) ? pctBloqueVal : "—";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `
+      <div class="interp-bloque-nombre">${tituloBloque}</div>
+      <div class="interp-bloque-indice">Índice: <span>${idxText}</span></div>
+    `;
+    cont.appendChild(header);
+
+    const desc = document.createElement("div");
+    desc.className = "interp-bloque-desc";
+    desc.textContent = BLOQUE_DESCS[bloqueDescKey] || "";
+    cont.appendChild(desc);
+
+    const bloqueKey = normalizeBloqueName(tituloBloque);
+    const ordenes = {
+      "habilidades intrapersonales": ["Autoestima","Manejo de la Tensión","Bienestar físico"],
+      "habilidades interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
+      "habilidades para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de Decisiones","Liderazgo"]
+    };
+
+    let rows = (subRows || []).filter(r =>
+      normalizeBloqueName(r.bloque || r.block || "") === bloqueKey
+    );
+
+    const orden = ordenes[bloqueKey];
+    if(orden){
+      rows.sort((a,b)=>{
+        const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
+        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
+        const ia = orden.findIndex(x=> x.toLowerCase() === nameA);
+        const ib = orden.findIndex(x=> x.toLowerCase() === nameB);
+        if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
+        if (ia===-1) return 1;
+        if (ib===-1) return -1;
+        return ia-ib;
+      });
+    }
+
+    rows.forEach(r=>{
+      const sub = r.subhabilidad || r.sub || r.nombre || "";
+      const pct = r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? null;
+      renderSkillRow(cont, sub, pct);
+    });
   }
 
   function renderInterpretacion(subRows, bloquePercents, extras){
