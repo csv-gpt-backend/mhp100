@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>11 37 FINAL reporte_mhp100_v5 AAAMHP100 – Reporte PPA</title>
+  <title>11 58 FINAL reporte_mhp100_v5 AAAMHP100 – Reporte PPA</title>
 
   <style>
     :root{
@@ -117,7 +117,7 @@
     }
     .bars-slot .tick-label{
       position:absolute;
-      top:19px;              /* un poco más abajo */
+      top:19px;
       font-size:10px;
       transform:translateX(-50%)
     }
@@ -257,7 +257,7 @@
       font-size:11px;
       color:var(--muted);
       margin-top:4px;
-      text-align:center;    /* centrado debajo de las barras */
+      text-align:center;
     }
 
     /* ===== Página de interpretación ===== */
@@ -524,7 +524,6 @@
           <span>ALTO</span>
         </div>
         <div class="rep-scale" id="estilos"></div>
-        <!-- Nota centrada debajo de las barras (agregada por JS) -->
       </div>
 
       <!-- PROPENSIÓN AL CAMBIO -->
@@ -665,6 +664,13 @@
     if (p<=40) return {txt:"1–40 Por desarrollar", cls:"b-red"};
     if (p<=70) return {txt:"41–70 Por fortalecer", cls:"b-orange"};
     return {txt:"71–100 Por enriquecer", cls:"b-green"};
+  }
+
+  // Para Agresión y Timidez: escala de riesgo
+  function rangoBadgeRiesgo(p){
+    if (p<=40) return {txt:"1–40 Bajo riesgo", cls:"b-green"};
+    if (p<=70) return {txt:"41–70 Riesgo medio", cls:"b-orange"};
+    return {txt:"71–100 Riesgo alto", cls:"b-red"};
   }
 
   function highlightIV(rowId, colIndex){
@@ -838,7 +844,6 @@
       const row = document.createElement("div");
       row.className = "bars-row";
 
-      // Más espacio específicamente para TIMIDEZ
       if (it.label === "TIMIDEZ") {
         row.style.marginTop = "20px";
       }
@@ -876,7 +881,6 @@
     });
     host.appendChild(wrap);
 
-    // Nota directamente debajo del bloque de barras
     if (showNote) {
       const note = document.createElement("div");
       note.className = "scale-note-inline";
@@ -904,7 +908,20 @@
       const items = r.items ?? r.n_items ?? "";
       const puntos = r.puntos ?? r.points ?? r.pts ?? "";
       const pct = Math.round(r.percent ?? r.pct ?? 0);
-      const badge = rangoBadge(pct);
+
+      const bloqueNorm = normalizeBloqueName(bloque);
+      const subNorm = normalizeBloqueName(sub);
+
+      let badge;
+      if (
+        bloqueNorm === "estilos de comunicación interpersonal" &&
+        (subNorm === "agresión" || subNorm === "timidez")
+      ){
+        badge = rangoBadgeRiesgo(pct);
+      }else{
+        badge = rangoBadge(pct);
+      }
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${bloque}</td>
@@ -1026,7 +1043,6 @@
 
     if (numeric != null) {
       if (isAggOrTim && numeric >= 71) {
-        // Alto riesgo: marcar en rojo
         value.classList.add("skill-row-alert");
         const alert = document.createElement("div");
         alert.className = "skill-row-desc skill-row-alert";
@@ -1035,7 +1051,6 @@
           : "El puntaje se encuentra en un rango elevado de timidez. Se sugiere favorecer espacios graduales de participación y valorar acompañamiento especializado si la dificultad persiste.";
         row.appendChild(alert);
       } else if (!isAggOrTim && numeric < 35) {
-        // Resto de habilidades: umbral bajo en rojo
         const alert = document.createElement("div");
         alert.className = "skill-row-desc skill-row-alert";
         alert.textContent = "El puntaje se encuentra en un rango bajo. Se recomienda un seguimiento cercano y actividades específicas para fortalecer esta habilidad.";
@@ -1358,11 +1373,19 @@
     }
     ul2.appendChild(liT);
 
-    const liC = document.createElement("li");
-    liC.textContent = "Propensión al cambio: " + fmt(extras.propCambioVal);
-    ul2.appendChild(liC);
-
     cont.appendChild(ul2);
+
+    const subt2 = document.createElement("div");
+    subt2.className = "plan-section-title";
+    subt2.textContent = "Propensión al cambio:";
+    cont.appendChild(subt2);
+
+    const ul3 = document.createElement("ul");
+    ul3.className = "recom-list";
+    const liC = document.createElement("li");
+    liC.textContent = "Propensión al cambio: " + fmt(extras.propCambioVal) + " (a mayor puntaje, mayor apertura al cambio).";
+    ul3.appendChild(liC);
+    cont.appendChild(ul3);
   }
 
   function renderBloqueInterpretacion(containerId, tituloBloque, bloqueDescKey, subRows, pctBloqueVal){
@@ -1600,7 +1623,7 @@
       const data = await r.json();
 
       if(!r.ok || data.error){
-        $("#msg").textContent = data.error || "No encontrado";
+        "#msg".textContent = data.error || "No encontrado";
         $("#msg").className="msg err";
         return;
       }
