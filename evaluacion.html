@@ -1200,27 +1200,40 @@ fetch("/api/submit", {
   </script>
   <script>
 (function(){
-  const LS_KEY = "mhp100_eval_state_v1";
+  // nueva versión de la clave para no chocar con datos viejos
+  const LS_KEY = "mhp100_eval_state_v2";
+
+  function getFieldKey(el){
+    // Usamos name si existe; si no, usamos id
+    if (el.name && el.name.trim() !== "") return el.name;
+    if (el.id && el.id.trim() !== "") return "__id__" + el.id;
+    return null;
+  }
 
   function collectFormState(){
     const data = {};
     const fields = document.querySelectorAll("input, select, textarea");
     fields.forEach(el=>{
-      if (!el.name) return;
+      const key = getFieldKey(el);
+      if (!key) return;
       const type = el.type;
       if (type === "radio" || type === "checkbox"){
         if (!el.checked) return;
         if (type === "checkbox"){
-          if (!Array.isArray(data[el.name])) data[el.name] = [];
-          data[el.name].push(el.value);
+          if (!Array.isArray(data[key])) data[key] = [];
+          data[key].push(el.value);
         }else{
-          data[el.name] = el.value;
+          data[key] = el.value;
         }
       }else{
-        if (el.value !== "") data[el.name] = el.value;
+        if (el.value !== "") data[key] = el.value;
       }
     });
-    return { updatedAt:new Date().toISOString(), data };
+    return {
+      updatedAt: new Date().toISOString(),
+      scrollY: window.scrollY || window.pageYOffset || 0,
+      data
+    };
   }
 
   function saveState(){
@@ -1251,8 +1264,9 @@ fetch("/api/submit", {
       const data = state.data;
       const fields = document.querySelectorAll("input, select, textarea");
       fields.forEach(el=>{
-        if (!el.name) return;
-        const stored = data[el.name];
+        const key = getFieldKey(el);
+        if (!key) return;
+        const stored = data[key];
         if (stored == null) return;
         const type = el.type;
 
@@ -1266,6 +1280,13 @@ fetch("/api/submit", {
           el.value = stored;
         }
       });
+
+      // Volver a la zona donde estaba respondiendo
+      if (typeof state.scrollY === "number"){
+        setTimeout(()=>{
+          window.scrollTo({ top: state.scrollY, behavior: "smooth" });
+        }, 100);
+      }
     }catch(e){
       console.error("No se pudo restaurar el avance MHP100", e);
     }
@@ -1275,7 +1296,7 @@ fetch("/api/submit", {
     localStorage.removeItem(LS_KEY);
   }
 
-  // Hacemos accesible un pequeño API por si quieres limpiar al enviar
+  // API pública simple
   window.mhp100Autosave = {
     save: saveState,
     clear: clearState
@@ -1299,6 +1320,7 @@ fetch("/api/submit", {
   });
 })();
 </script>
+
 
 </body>
 </html>
