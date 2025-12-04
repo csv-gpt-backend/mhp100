@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>MHP100 – Evaluación PPA (Formulario)</title>
+  <title>V3 MHP100 – Evaluación PPA (Formulario)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1200,8 +1200,8 @@ fetch("/api/submit", {
   </script>
   <script>
 (function(){
-  // nueva versión de la clave para no chocar con datos viejos
-  const LS_KEY = "mhp100_eval_state_v2";
+  // nueva versión de la clave, para no mezclar con formatos anteriores
+  const LS_KEY = "mhp100_eval_state_v3";
 
   function getFieldKey(el){
     // Usamos name si existe; si no, usamos id
@@ -1240,9 +1240,41 @@ fetch("/api/submit", {
     try{
       const state = collectFormState();
       localStorage.setItem(LS_KEY, JSON.stringify(state));
-      // console.log("MHP100: avance guardado", state);
     }catch(e){
       console.error("No se pudo guardar el avance MHP100", e);
+    }
+  }
+
+  function applyStoredValue(el, stored){
+    const type = el.type;
+    let changed = false;
+
+    if (type === "radio"){
+      const shouldCheck = (String(el.value) === String(stored));
+      if (el.checked !== shouldCheck){
+        el.checked = shouldCheck;
+        changed = true;
+      }
+    }else if (type === "checkbox"){
+      if (Array.isArray(stored)){
+        const shouldCheck = stored.includes(el.value);
+        if (el.checked !== shouldCheck){
+          el.checked = shouldCheck;
+          changed = true;
+        }
+      }
+    }else{
+      if (el.value !== String(stored)){
+        el.value = String(stored);
+        changed = true;
+      }
+    }
+
+    // Disparamos change para que la lógica del formulario (botón Siguiente, etc.)
+    // se actualice como si el usuario hubiera respondido a mano.
+    if (changed){
+      const ev = new Event("change", { bubbles:true });
+      el.dispatchEvent(ev);
     }
   }
 
@@ -1268,24 +1300,13 @@ fetch("/api/submit", {
         if (!key) return;
         const stored = data[key];
         if (stored == null) return;
-        const type = el.type;
-
-        if (type === "radio"){
-          el.checked = (String(el.value) === String(stored));
-        }else if (type === "checkbox"){
-          if (Array.isArray(stored)){
-            el.checked = stored.includes(el.value);
-          }
-        }else{
-          el.value = stored;
-        }
+        applyStoredValue(el, stored);
       });
 
-      // Volver a la zona donde estaba respondiendo
       if (typeof state.scrollY === "number"){
         setTimeout(()=>{
           window.scrollTo({ top: state.scrollY, behavior: "smooth" });
-        }, 100);
+        }, 120);
       }
     }catch(e){
       console.error("No se pudo restaurar el avance MHP100", e);
@@ -1296,7 +1317,6 @@ fetch("/api/submit", {
     localStorage.removeItem(LS_KEY);
   }
 
-  // API pública simple
   window.mhp100Autosave = {
     save: saveState,
     clear: clearState
@@ -1320,7 +1340,6 @@ fetch("/api/submit", {
   });
 })();
 </script>
-
 
 </body>
 </html>
