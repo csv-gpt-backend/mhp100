@@ -184,4 +184,72 @@
       <img src="assets/img_ident.jpg" alt="Lexium">
       <img src="assets/img_sello.png" alt="MHP100">
     </div>
-    <h1
+    <h1>Acceso MHP100</h1>
+    <div class="subtitle">Plataforma de aplicación y reportes – Lexium</div>
+
+    <!-- Bloque de contraseña -->
+    <div>
+      <label for="passInput">Contraseña de acceso</label>
+      <input type="password" id="passInput" autocomplete="off" placeholder="••••••••">
+      <button class="btn" id="btnEntrar">Entrar</button>
+      <div id="msg" class="msg"></div>
+      <div class="hint">
+        Uso interno de la institución. Si olvidaste la contraseña, consulta con el coordinador del proyecto.
+      </div>
+    </div>
+
+    <!-- Menú principal (se muestra solo si la contraseña es correcta) -->
+    <div id="menu" class="menu">
+      <div class="menu-title">Selecciona una opción</div>
+      <div class="menu-grid">
+        <a href="evaluacion.html" class="menu-btn">
+          Aplicar evaluación
+          <span>Acceso al formulario para responder el cuestionario MHP100.</span>
+        </a>
+        <a href="reporte10.html" class="menu-btn">
+          Ver reportes
+          <span>Consulta de resultados y generación de reportes individuales.</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 🔐 Cambia esta constante a la clave que tú quieras
+  const ACCESS_PASSWORD = "MHP1002025";
+
+  const $ = sel => document.querySelector(sel);
+  const passInput = $("#passInput");
+  const btnEntrar = $("#btnEntrar");
+  const msg = $("#msg");
+  const menu = $("#menu");
+
+  function checkPassword(){
+    const value = (passInput.value || "").trim();
+    if(!value){
+      msg.textContent = "Ingresa la contraseña.";
+      msg.className = "msg err";
+      menu.style.display = "none";
+      return;
+    }
+    if(value === ACCESS_PASSWORD){
+      msg.textContent = "Acceso concedido.";
+      msg.className = "msg ok";
+      menu.style.display = "block";
+    }else{
+      msg.textContent = "Contraseña incorrecta.";
+      msg.className = "msg err";
+      menu.style.display = "none";
+    }
+  }
+
+  btnEntrar.addEventListener("click", checkPassword);
+  passInput.addEventListener("keydown", e=>{
+    if(e.key === "Enter"){
+      checkPassword();
+    }
+  });
+</script>
+</body>
+</html>
