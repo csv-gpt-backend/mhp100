@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>V3 MHP100 – Evaluación PPA (Formulario)</title>
+  <title>V4 MHP100 – Evaluación PPA (Formulario)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1200,8 +1200,11 @@ fetch("/api/submit", {
   </script>
   <script>
 (function(){
-  // nueva versión de la clave, para no mezclar con formatos anteriores
-  const LS_KEY = "mhp100_eval_state_v3";
+  // nueva versión de la clave para no mezclar con formatos anteriores
+  const LS_KEY = "mhp100_eval_state_v4";
+
+  // aquí guardaremos los datos restaurados para reutilizarlos en todas las páginas
+  let restoredData = null;
 
   function getFieldKey(el){
     // Usamos name si existe; si no, usamos id
@@ -1270,12 +1273,54 @@ fetch("/api/submit", {
       }
     }
 
-    // Disparamos change para que la lógica del formulario (botón Siguiente, etc.)
-    // se actualice como si el usuario hubiera respondido a mano.
+    // Disparamos change para que la lógica del formulario (botón Siguiente, etc.) se actualice
     if (changed){
       const ev = new Event("change", { bubbles:true });
       el.dispatchEvent(ev);
     }
+  }
+
+  function applyToExistingFields(){
+    if (!restoredData) return;
+    const fields = document.querySelectorAll("input, select, textarea");
+    fields.forEach(el=>{
+      const key = getFieldKey(el);
+      if (!key) return;
+      const stored = restoredData[key];
+      if (stored == null) return;
+      applyStoredValue(el, stored);
+    });
+  }
+
+  function setupMutationObserver(){
+    if (!restoredData) return;
+
+    const observer = new MutationObserver(mutations=>{
+      mutations.forEach(m=>{
+        m.addedNodes.forEach(node=>{
+          if (!(node instanceof HTMLElement)) return;
+
+          // Si el nodo agregado es un campo, o contiene campos, aplicamos valores
+          const candidates = [];
+          if (node.matches && node.matches("input, select, textarea")){
+            candidates.push(node);
+          }
+          node.querySelectorAll && node.querySelectorAll("input, select, textarea").forEach(el=>{
+            candidates.push(el);
+          });
+
+          candidates.forEach(el=>{
+            const key = getFieldKey(el);
+            if (!key) return;
+            const stored = restoredData[key];
+            if (stored == null) return;
+            applyStoredValue(el, stored);
+          });
+        });
+      });
+    });
+
+    observer.observe(document.body, { childList:true, subtree:true });
   }
 
   function restoreState(){
@@ -1293,16 +1338,15 @@ fetch("/api/submit", {
         return;
       }
 
-      const data = state.data;
-      const fields = document.querySelectorAll("input, select, textarea");
-      fields.forEach(el=>{
-        const key = getFieldKey(el);
-        if (!key) return;
-        const stored = data[key];
-        if (stored == null) return;
-        applyStoredValue(el, stored);
-      });
+      restoredData = state.data;
 
+      // aplicamos a los campos que ya existen (cabecera + primera página)
+      applyToExistingFields();
+
+      // Nos suscribimos para aplicar a campos que se agreguen después (otras páginas)
+      setupMutationObserver();
+
+      // Volver a la zona aproximada donde estaba
       if (typeof state.scrollY === "number"){
         setTimeout(()=>{
           window.scrollTo({ top: state.scrollY, behavior: "smooth" });
@@ -1317,6 +1361,7 @@ fetch("/api/submit", {
     localStorage.removeItem(LS_KEY);
   }
 
+  // API pública por si quieres limpiar al terminar o reiniciar
   window.mhp100Autosave = {
     save: saveState,
     clear: clearState
