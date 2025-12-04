@@ -1196,6 +1196,109 @@ fetch("/api/submit", {
           window.location.reload();
         });
     });
+    
   </script>
+  <script>
+(function(){
+  const LS_KEY = "mhp100_eval_state_v1";
+
+  function collectFormState(){
+    const data = {};
+    const fields = document.querySelectorAll("input, select, textarea");
+    fields.forEach(el=>{
+      if (!el.name) return;
+      const type = el.type;
+      if (type === "radio" || type === "checkbox"){
+        if (!el.checked) return;
+        if (type === "checkbox"){
+          if (!Array.isArray(data[el.name])) data[el.name] = [];
+          data[el.name].push(el.value);
+        }else{
+          data[el.name] = el.value;
+        }
+      }else{
+        if (el.value !== "") data[el.name] = el.value;
+      }
+    });
+    return { updatedAt:new Date().toISOString(), data };
+  }
+
+  function saveState(){
+    try{
+      const state = collectFormState();
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      // console.log("MHP100: avance guardado", state);
+    }catch(e){
+      console.error("No se pudo guardar el avance MHP100", e);
+    }
+  }
+
+  function restoreState(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return;
+      const state = JSON.parse(raw);
+      if (!state || !state.data) return;
+
+      const aceptar = confirm(
+        "Se encontró una evaluación MHP100 sin finalizar guardada automáticamente.\n\n¿Quieres continuar donde la dejaste?"
+      );
+      if (!aceptar){
+        localStorage.removeItem(LS_KEY);
+        return;
+      }
+
+      const data = state.data;
+      const fields = document.querySelectorAll("input, select, textarea");
+      fields.forEach(el=>{
+        if (!el.name) return;
+        const stored = data[el.name];
+        if (stored == null) return;
+        const type = el.type;
+
+        if (type === "radio"){
+          el.checked = (String(el.value) === String(stored));
+        }else if (type === "checkbox"){
+          if (Array.isArray(stored)){
+            el.checked = stored.includes(el.value);
+          }
+        }else{
+          el.value = stored;
+        }
+      });
+    }catch(e){
+      console.error("No se pudo restaurar el avance MHP100", e);
+    }
+  }
+
+  function clearState(){
+    localStorage.removeItem(LS_KEY);
+  }
+
+  // Hacemos accesible un pequeño API por si quieres limpiar al enviar
+  window.mhp100Autosave = {
+    save: saveState,
+    clear: clearState
+  };
+
+  window.addEventListener("DOMContentLoaded", function(){
+    restoreState();
+
+    const fields = document.querySelectorAll("input, select, textarea");
+    fields.forEach(el=>{
+      el.addEventListener("change", saveState);
+
+      if (el.tagName === "INPUT" &&
+          (el.type === "text" || el.type === "number" || el.type === "date")){
+        el.addEventListener("input", function(){
+          clearTimeout(el._mhpDebounce);
+          el._mhpDebounce = setTimeout(saveState, 500);
+        });
+      }
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
