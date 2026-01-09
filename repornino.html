@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reporte Socioemocional 6–8</title>
+  <style>
+    :root { --pad: 16px; --r: 18px; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#f6f7fb; color:#111827; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: var(--pad); }
+    .card { background:#fff; border-radius: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.07); padding: 18px; }
+    .top { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:12px; }
+    .pill { background:#eef2ff; padding: 8px 12px; border-radius: 999px; font-weight: 900; font-size: 14px; }
+    .mini { font-size: 13px; opacity:.75; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px; }
+    button { border:0; border-radius: var(--r); padding: 12px 14px; cursor:pointer; font-weight: 900; background:#111827; color:#fff; }
+    button.secondary { background:#e5e7eb; color:#111827; }
+    .metric { background:#f8fafc; border-radius: 16px; padding: 12px; margin-top:10px; }
+    .bar { height: 10px; background:#e9ecf5; border-radius: 999px; overflow:hidden; margin-top:8px; }
+    .bar > div { height:100%; width:0%; background:#6b7cff; border-radius:999px; }
+    .grid { display:grid; grid-template-columns: 1fr; gap: 10px; }
+    .title { font-size: 20px; font-weight: 1000; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div class="pill">SEL 6–8 • Reporte</div>
+        <div class="mini" id="meta"></div>
+      </div>
+
+      <p class="title" id="headline">Cargando…</p>
+      <div class="metric" id="overall"></div>
+
+      <h3 style="margin:16px 0 6px;">Resultados por dominio</h3>
+      <div class="grid" id="domains"></div>
+
+      <div class="row">
+        <button id="btnBack" class="secondary">⬅️ Volver a evaluación</button>
+        <button id="btnExport" class="secondary">⬇️ Exportar reporte (JSON)</button>
+        <button id="btnReset" class="secondary">🧹 Reiniciar borrador</button>
+      </div>
+
+      <div class="metric" style="margin-top:14px;">
+        <strong>Nota</strong>
+        <div class="mini" style="margin-top:6px;">
+          Este reporte es un <b>screening escolar</b>. No es diagnóstico clínico.
+          Si hay señales persistentes, se recomienda observación y acompañamiento de un adulto/profesional.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const INSTRUMENT = "SEL_6_8_UNICA_V1";
+    const STORAGE_KEY_ACTIVE = `${INSTRUMENT}:draft:active`;
+
+    // Mismo mapeo de dominios (para recomendaciones)
+    const RECO = {
+      "Reconocer emociones": {
+        Adecuado: "Identifica emociones con claridad. Refuerza nombrarlas en situaciones diarias.",
+        "En desarrollo": "Practicar: “¿Cómo me siento?” con ejemplos simples y caritas.",
+        Fortalecer: "Usar historias cortas y practicar 1 emoción por vez con apoyo adulto."
+      },
+      "Autorregulación": {
+        Adecuado: "Buen autocontrol. Refuerza respiración y pedir ayuda cuando lo necesite.",
+        "En desarrollo": "Practicar “pausa + respirar + hablar” en juegos y filas.",
+        Fortalecer: "Enseñar rutinas: parar, respirar, pedir ayuda. Reforzar con adulto."
+      },
+      "Convivencia": {
+        Adecuado: "Buen trato con otros. Refuerza compartir y reparar cuando se equivoca.",
+        "En desarrollo": "Practicar turnos, compartir y pedir perdón en situaciones guiadas.",
+        Fortalecer: "Entrenar habilidades sociales básicas con adulto y reglas claras."
+      },
+      "Decisiones": {
+        Adecuado: "Toma decisiones cuidadosas. Reforzar resolución pacífica de conflictos.",
+        "En desarrollo": "Practicar opciones: hablar, turnarse, pedir ayuda.",
+        Fortalecer: "Modelar decisiones correctas y practicar con juegos de roles."
+      }
+    };
+
+    // Banco reducido para puntajes (solo necesitamos scores y dominios)
+    const TEST_ITEMS = [
+      // Reconocer emociones
+      { id:"r1", domain:"Reconocer emociones", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"r2", domain:"Reconocer emociones", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"r3", domain:"Reconocer emociones", options:[{id:"a",score:2},{id:"b",score:0},{id:"c",score:0}]},
+      { id:"r4", domain:"Reconocer emociones", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"r5", domain:"Reconocer emociones", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"r6", domain:"Reconocer emociones", options:[{id:"a",score:2},{id:"b",score:0},{id:"c",score:0}]},
+
+      // Autorregulación
+      { id:"a1", domain:"Autorregulación", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"a2", domain:"Autorregulación", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"a3", domain:"Autorregulación", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"a4", domain:"Autorregulación", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"a5", domain:"Autorregulación", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"a6", domain:"Autorregulación", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+
+      // Convivencia
+      { id:"c1", domain:"Convivencia", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"c2", domain:"Convivencia", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"c3", domain:"Convivencia", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"c4", domain:"Convivencia", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"c5", domain:"Convivencia", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"c6", domain:"Convivencia", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+
+      // Decisiones
+      { id:"d1", domain:"Decisiones", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"d2", domain:"Decisiones", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"d3", domain:"Decisiones", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"d4", domain:"Decisiones", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"d5", domain:"Decisiones", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+      { id:"d6", domain:"Decisiones", options:[{id:"a",score:2},{id:"b",score:1},{id:"c",score:0}]},
+    ];
+
+    function level(pct) {
+      if (pct >= 75) return "Adecuado";
+      if (pct >= 45) return "En desarrollo";
+      return "Fortalecer";
+    }
+
+    function compute(draft) {
+      const totals = {};
+      let overallScore = 0;
+      let overallMax = 0;
+
+      for (const item of TEST_ITEMS) {
+        const max = Math.max(...item.options.map(o => o.score));
+        overallMax += max;
+
+        if (!totals[item.domain]) totals[item.domain] = { score: 0, max: 0 };
+        totals[item.domain].max += max;
+
+        const ans = draft.answers?.[item.id];
+        if (!ans) continue;
+
+        const opt = item.options.find(o => o.id === ans.optionId);
+        if (!opt) continue;
+
+        totals[item.domain].score += opt.score;
+        overallScore += opt.score;
+      }
+
+      const overallPct = overallMax ? Math.round((overallScore / overallMax) * 100) : 0;
+
+      const domains = Object.fromEntries(Object.entries(totals).map(([dom, v]) => {
+        const pct = v.max ? Math.round((v.score / v.max) * 100) : 0;
+        const lev = level(pct);
+        return [dom, { ...v, pct, level: lev, reco: (RECO[dom]?.[lev] ?? "") }];
+      }));
+
+      return {
+        instrumento: INSTRUMENT,
+        draft_id: draft.draft_id,
+        started_at: draft.started_at,
+        updated_at: draft.updated_at,
+        overall: { score: overallScore, max: overallMax, pct: overallPct, level: level(overallPct) },
+        domains
+      };
+    }
+
+    function pctBar(pct) {
+      const outer = document.createElement("div");
+      outer.className = "bar";
+      const inner = document.createElement("div");
+      inner.style.width = `${pct}%`;
+      outer.appendChild(inner);
+      return outer;
+    }
+
+    function loadDraft() {
+      const raw = localStorage.getItem(STORAGE_KEY_ACTIVE);
+      if (!raw) return null;
+      try {
+        const d = JSON.parse(raw);
+        if (d?.instrumento !== INSTRUMENT) return null;
+        return d;
+      } catch { return null; }
+    }
+
+    function exportReport(rep) {
+      const blob = new Blob([JSON.stringify(rep, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${INSTRUMENT}_reporte_${rep.draft_id}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    const el = {
+      meta: document.getElementById("meta"),
+      headline: document.getElementById("headline"),
+      overall: document.getElementById("overall"),
+      domains: document.getElementById("domains"),
+      btnBack: document.getElementById("btnBack"),
+      btnExport: document.getElementById("btnExport"),
+      btnReset: document.getElementById("btnReset"),
+    };
+
+    const draft = loadDraft();
+    if (!draft) {
+      el.headline.textContent = "No hay borrador guardado.";
+      el.overall.textContent = "Vuelve a la evaluación y responde al menos una pregunta.";
+      el.btnExport.disabled = true;
+    } else {
+      const rep = compute(draft);
+
+      el.meta.textContent = `ID: ${rep.draft_id} • Actualizado: ${rep.updated_at ? new Date(rep.updated_at).toLocaleString() : "-"}`;
+      el.headline.textContent = `Resultado general: ${rep.overall.level} (${rep.overall.pct}%)`;
+
+      el.overall.innerHTML = `
+        <div><strong>Puntaje:</strong> ${rep.overall.score} / ${rep.overall.max}</div>
+        <div style="margin-top:6px;"><strong>Nivel:</strong> ${rep.overall.level}</div>
+      `;
+      el.overall.appendChild(pctBar(rep.overall.pct));
+
+      el.domains.innerHTML = "";
+      for (const [dom, v] of Object.entries(rep.domains)) {
+        const box = document.createElement("div");
+        box.className = "metric";
+        box.innerHTML = `
+          <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+            <div>
+              <strong>${dom}</strong><div class="mini">${v.score}/${v.max} • ${v.level}</div>
+            </div>
+            <div><strong>${v.pct}%</strong></div>
+          </div>
+          <div class="mini" style="margin-top:8px;">${v.reco}</div>
+        `;
+        box.appendChild(pctBar(v.pct));
+        el.domains.appendChild(box);
+      }
+
+      el.btnExport.addEventListener("click", () => exportReport(rep));
+    }
+
+    el.btnBack.addEventListener("click", () => window.location.href = "evaluacion.html");
+    el.btnReset.addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY_ACTIVE);
+      window.location.href = "evaluacion.html";
+    });
+  </script>
+</body>
+</html>
