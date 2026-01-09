@@ -358,23 +358,71 @@
     /********************
      * AUDIO
      ********************/
-    function speakTTS(text) {
-      return new Promise((resolve) => {
-        if (!("speechSynthesis" in window)) { resolve(); return; }
-        window.speechSynthesis.cancel();
-        speaking = true;
-        el.status.textContent = "Reproduciendo audio…";
-        el.srLive.textContent = "Reproduciendo audio.";
+    let VOICES = [];
 
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = "es-ES";
-        u.rate = 0.95;
-        u.pitch = 1.0;
-        u.onend = () => { speaking = false; resolve(); };
-        u.onerror = () => { speaking = false; resolve(); };
-        window.speechSynthesis.speak(u);
-      });
+function loadVoices() {
+  if (!("speechSynthesis" in window)) return;
+  VOICES = window.speechSynthesis.getVoices() || [];
+}
+if ("speechSynthesis" in window) {
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function pickSpanishFemaleVoice() {
+  const voices = VOICES || [];
+  const es = voices.filter(v => (v.lang || "").toLowerCase().startsWith("es"));
+  if (es.length === 0) return null;
+
+  // heurística: nombres comunes de voces femeninas en distintos sistemas
+  const femaleHints = [
+    "helena","sabina","monica","paulina","paloma","luciana","sofia","isabella",
+    "female","mujer","woman","zira" // algunos sistemas usan "female" / "zira"
+  ];
+
+  const byName = (v) => (v.name || "").toLowerCase();
+
+  // 1) preferir voces que matcheen hints
+  for (const hint of femaleHints) {
+    const found = es.find(v => byName(v).includes(hint));
+    if (found) return found;
+  }
+
+  // 2) fallback: primera voz en español
+  return es[0];
+}
+
+function speakTTS(text) {
+  return new Promise((resolve) => {
+    if (!("speechSynthesis" in window)) { resolve(); return; }
+
+    window.speechSynthesis.cancel();
+    speaking = true;
+    el.status.textContent = "Reproduciendo audio…";
+    el.srLive.textContent = "Reproduciendo audio.";
+
+    // recargar voces por si aún no estaban listas
+    loadVoices();
+    const preferred = pickSpanishFemaleVoice();
+
+    const u = new SpeechSynthesisUtterance(text);
+    if (preferred) {
+      u.voice = preferred;
+      u.lang = preferred.lang || "es-ES";
+    } else {
+      u.lang = "es-ES";
     }
+
+    u.rate = 0.92;   // un poquito más lento y amigable
+    u.pitch = 1.05;  // un poquito más “cálido”
+    u.onend = () => { speaking = false; resolve(); };
+    u.onerror = () => { speaking = false; resolve(); };
+
+    window.speechSynthesis.speak(u);
+  });
+}
+
+ **********************/
 
     async function playMP3(itemId) {
       return new Promise((resolve) => {
