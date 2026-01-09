@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Evaluación Socioemocional 6–8 (Audio + Pictogramas)</title>
+  <style>
+    :root { --pad: 16px; --r: 18px; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#f6f7fb; color:#111827; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: var(--pad); }
+    .card { background:#fff; border-radius: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.07); padding: 18px; }
+    .top { display:flex; gap: 12px; align-items:center; justify-content:space-between; margin-bottom: 12px; flex-wrap:wrap; }
+    .pill { background:#eef2ff; padding: 8px 12px; border-radius: 999px; font-weight: 800; font-size: 14px; }
+    .status { font-size: 14px; opacity:.85; }
+    .bar { height: 10px; background:#e9ecf5; border-radius: 999px; overflow:hidden; }
+    .bar > div { height: 100%; width: 0%; background:#6b7cff; border-radius: 999px; transition: width .25s ease; }
+    .prompt { margin: 16px 0 6px; font-size: 18px; font-weight: 900; }
+    .hint { margin: 0 0 14px; font-size: 14px; opacity:.75; }
+    .row { display:flex; gap: 10px; flex-wrap:wrap; margin-bottom: 12px; }
+    button { border: 0; border-radius: var(--r); padding: 14px 16px; cursor:pointer; font-size: 16px; font-weight: 900; background:#111827; color:#fff; min-height: 54px; }
+    button.secondary { background:#e5e7eb; color:#111827; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .opt { background:#f3f4f6; color:#111827; display:flex; align-items:center; justify-content:center; min-height: 108px; padding: 12px; border-radius: 18px; }
+    .opt.selected { outline: 4px solid #6b7cff; background:#eef2ff; }
+    .icon { width: 64px; height: 64px; }
+    .toast { margin-top: 10px; font-size: 13px; opacity:.75; }
+    .mini { font-size: 13px; opacity:.75; }
+    .sr { position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div class="pill">SEL 6–8 • Evaluación (V1)</div>
+        <div class="status" id="status">Listo</div>
+      </div>
+
+      <div class="bar" aria-label="Progreso"><div id="barFill"></div></div>
+
+      <div class="prompt" id="prompt">Presiona “Escuchar” para empezar.</div>
+      <div class="hint" id="hint">Escucha y luego toca un dibujo.</div>
+
+      <div class="row">
+        <button id="btnListen">🔊 Escuchar</button>
+        <button id="btnRepeat" class="secondary" disabled>🔁 Repetir</button>
+        <button id="btnReport" class="secondary">📄 Generar reporte</button>
+      </div>
+
+      <div class="grid" id="options"></div>
+
+      <div class="row" style="margin-top:14px;">
+        <button id="btnReset" class="secondary">🧹 Reiniciar</button>
+        <button id="btnExport" class="secondary">⬇️ Exportar respuestas (JSON)</button>
+      </div>
+
+      <div class="toast" id="toast"></div>
+      <div class="sr" id="srLive" aria-live="polite"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div class="mini">
+        <strong>Audio:</strong> por defecto usa voz del navegador (TTS). Si luego grabas MP3, lo activas con <code>AUDIO_MODE = "mp3"</code>.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /********************
+     * CONFIG
+     ********************/
+    const INSTRUMENT = "SEL_6_8_UNICA_V1";
+    const VERSION_SCHEMA = 1;
+
+    // "tts" = voz del navegador (rápido)
+    // "mp3" = usar archivos assets/audio/<itemId>.mp3
+    const AUDIO_MODE = "tts";
+
+    const STORAGE_KEY_ACTIVE = `${INSTRUMENT}:draft:active`;
+
+    const TEST = {
+      instrumento: INSTRUMENT,
+      version_schema: VERSION_SCHEMA,
+      practice: [
+        {
+          id: "p1", domain: "PRACTICA",
+          audioText: "Vamos a practicar. Toca el dibujo de la carita feliz.",
+          options: [
+            { id: "a", icon: "e-happy", score: null, label: "Feliz" },
+            { id: "b", icon: "e-sad",   score: null, label: "Triste" },
+            { id: "c", icon: "e-angry", score: null, label: "Enojado" }
+          ]
+        },
+        {
+          id: "p2", domain: "PRACTICA",
+          audioText: "Otra práctica. Si quieres hablar con calma, toca el dibujo de hablar.",
+          options: [
+            { id: "a", icon: "i-talk",  score: null, label: "Hablar" },
+            { id: "b", icon: "i-push",  score: null, label: "Empujar" },
+            { id: "c", icon: "i-help",  score: null, label: "Pedir ayuda" }
+          ]
+        }
+      ],
+      items: [
+        // Reconocer emociones (6)
+        { id:"r1", domain:"Reconocer emociones", audioText:"Tu amigo perdió un juego. ¿Cómo se siente?", options:[
+          {id:"a", icon:"e-sad", score:2, label:"Triste"},
+          {id:"b", icon:"e-angry", score:1, label:"Enojado"},
+          {id:"c", icon:"e-happy", score:0, label:"Feliz"},
+        ]},
+        { id:"r2", domain:"Reconocer emociones", audioText:"Estás esperando tu turno y te toca. ¿Cómo te sientes?", options:[
+          {id:"a", icon:"e-happy", score:2, label:"Feliz"},
+          {id:"b", icon:"e-calm", score:1, label:"Calmado"},
+          {id:"c", icon:"e-sad", score:0, label:"Triste"},
+        ]},
+        { id:"r3", domain:"Reconocer emociones", audioText:"Escuchas un ruido fuerte y te asustas. ¿Qué emoción es?", options:[
+          {id:"a", icon:"e-scared", score:2, label:"Asustado"},
+          {id:"b", icon:"e-angry", score:0, label:"Enojado"},
+          {id:"c", icon:"e-happy", score:0, label:"Feliz"},
+        ]},
+        { id:"r4", domain:"Reconocer emociones", audioText:"Te dicen que hoy no hay recreo. ¿Cómo te sientes?", options:[
+          {id:"a", icon:"e-angry", score:2, label:"Enojado"},
+          {id:"b", icon:"e-sad", score:1, label:"Triste"},
+          {id:"c", icon:"e-happy", score:0, label:"Feliz"},
+        ]},
+        { id:"r5", domain:"Reconocer emociones", audioText:"Terminas una tarea difícil. ¿Cómo te sientes?", options:[
+          {id:"a", icon:"e-happy", score:2, label:"Feliz"},
+          {id:"b", icon:"e-calm", score:1, label:"Calmado"},
+          {id:"c", icon:"e-scared", score:0, label:"Asustado"},
+        ]},
+        { id:"r6", domain:"Reconocer emociones", audioText:"Ves a alguien llorando. ¿Cómo se siente esa persona?", options:[
+          {id:"a", icon:"e-sad", score:2, label:"Triste"},
+          {id:"b", icon:"e-happy", score:0, label:"Feliz"},
+          {id:"c", icon:"e-calm", score:0, label:"Calmado"},
+        ]},
+
+        // Autorregulación (6)
+        { id:"a1", domain:"Autorregulación", audioText:"Alguien te empuja en la fila. ¿Qué haces?", options:[
+          {id:"a", icon:"i-breathe", score:2, label:"Respirar/calmarse"},
+          {id:"b", icon:"i-talk", score:1, label:"Hablar con calma"},
+          {id:"c", icon:"i-push", score:0, label:"Empujar"},
+        ]},
+        { id:"a2", domain:"Autorregulación", audioText:"Te equivocas y te sientes enojado. ¿Qué haces primero?", options:[
+          {id:"a", icon:"i-breathe", score:2, label:"Respirar"},
+          {id:"b", icon:"i-help", score:1, label:"Pedir ayuda"},
+          {id:"c", icon:"i-push", score:0, label:"Actuar agresivo"},
+        ]},
+        { id:"a3", domain:"Autorregulación", audioText:"Quieres hablar pero otro está hablando. ¿Qué haces?", options:[
+          {id:"a", icon:"i-wait", score:2, label:"Esperar turno"},
+          {id:"b", icon:"i-talk", score:1, label:"Hablar después"},
+          {id:"c", icon:"i-push", score:0, label:"Interrumpir/forzar"},
+        ]},
+        { id:"a4", domain:"Autorregulación", audioText:"Estás muy nervioso antes de una prueba. ¿Qué haces?", options:[
+          {id:"a", icon:"i-breathe", score:2, label:"Respirar"},
+          {id:"b", icon:"i-help", score:1, label:"Pedir apoyo"},
+          {id:"c", icon:"i-ignore", score:0, label:"Salir/ignorar todo"},
+        ]},
+        { id:"a5", domain:"Autorregulación", audioText:"Te molesta que te digan que esperes. ¿Qué haces?", options:[
+          {id:"a", icon:"i-stop", score:2, label:"Parar y controlarse"},
+          {id:"b", icon:"i-wait", score:1, label:"Esperar turno"},
+          {id:"c", icon:"i-push", score:0, label:"Empujar"},
+        ]},
+        { id:"a6", domain:"Autorregulación", audioText:"Quieres un juguete que tiene otro niño. ¿Qué haces?", options:[
+          {id:"a", icon:"i-talk", score:2, label:"Pedirlo con palabras"},
+          {id:"b", icon:"i-wait", score:1, label:"Esperar"},
+          {id:"c", icon:"i-push", score:0, label:"Quitarlo"},
+        ]},
+
+        // Convivencia (6)
+        { id:"c1", domain:"Convivencia", audioText:"Ves a alguien solo en el recreo. ¿Qué haces?", options:[
+          {id:"a", icon:"i-talk", score:2, label:"Invitar a jugar/hablar"},
+          {id:"b", icon:"i-help", score:1, label:"Avisar a un adulto"},
+          {id:"c", icon:"i-ignore", score:0, label:"Ignorar"},
+        ]},
+        { id:"c2", domain:"Convivencia", audioText:"Un compañero no entiende una tarea. ¿Qué haces?", options:[
+          {id:"a", icon:"i-help", score:2, label:"Ayudar o buscar ayuda"},
+          {id:"b", icon:"i-talk", score:1, label:"Explicar con calma"},
+          {id:"c", icon:"i-ignore", score:0, label:"No hacer nada"},
+        ]},
+        { id:"c3", domain:"Convivencia", audioText:"Sin querer golpeas a alguien con tu mochila. ¿Qué haces?", options:[
+          {id:"a", icon:"i-sorry", score:2, label:"Pedir perdón"},
+          {id:"b", icon:"i-talk", score:1, label:"Decir lo que pasó"},
+          {id:"c", icon:"i-ignore", score:0, label:"Irte sin decir nada"},
+        ]},
+        { id:"c4", domain:"Convivencia", audioText:"Alguien está triste. ¿Qué haces?", options:[
+          {id:"a", icon:"i-talk", score:2, label:"Preguntar si está bien"},
+          {id:"b", icon:"i-help", score:1, label:"Buscar un adulto"},
+          {id:"c", icon:"i-ignore", score:0, label:"Ignorar"},
+        ]},
+        { id:"c5", domain:"Convivencia", audioText:"Te piden prestar un lápiz por un momento. ¿Qué haces?", options:[
+          {id:"a", icon:"i-share", score:2, label:"Compartir"},
+          {id:"b", icon:"i-talk", score:1, label:"Decir sí/negociar"},
+          {id:"c", icon:"i-ignore", score:0, label:"Negarte sin hablar"},
+        ]},
+        { id:"c6", domain:"Convivencia", audioText:"Se burlan de un compañero. ¿Qué haces?", options:[
+          {id:"a", icon:"i-help", score:2, label:"Pedir ayuda a un adulto"},
+          {id:"b", icon:"i-talk", score:1, label:"Decir que paren"},
+          {id:"c", icon:"i-ignore", score:0, label:"Seguir/ignorar"},
+        ]},
+
+        // Decisiones (6)
+        { id:"d1", domain:"Decisiones", audioText:"Dos niños quieren el mismo balón. ¿Qué haces?", options:[
+          {id:"a", icon:"i-wait", score:2, label:"Turnarse"},
+          {id:"b", icon:"i-talk", score:1, label:"Hablar y acordar"},
+          {id:"c", icon:"i-push", score:0, label:"Quitarlo a la fuerza"},
+        ]},
+        { id:"d2", domain:"Decisiones", audioText:"Te dicen algo que no te gusta. ¿Qué haces?", options:[
+          {id:"a", icon:"i-talk", score:2, label:"Decirlo con calma"},
+          {id:"b", icon:"i-help", score:1, label:"Pedir ayuda"},
+          {id:"c", icon:"i-push", score:0, label:"Responder con agresión"},
+        ]},
+        { id:"d3", domain:"Decisiones", audioText:"Te equivocas y rompes algo sin querer. ¿Qué haces?", options:[
+          {id:"a", icon:"i-sorry", score:2, label:"Decir la verdad y pedir perdón"},
+          {id:"b", icon:"i-help", score:1, label:"Buscar un adulto"},
+          {id:"c", icon:"i-ignore", score:0, label:"Esconderlo/irse"},
+        ]},
+        { id:"d4", domain:"Decisiones", audioText:"No entiendes una instrucción. ¿Qué haces?", options:[
+          {id:"a", icon:"i-help", score:2, label:"Pedir que te expliquen"},
+          {id:"b", icon:"i-talk", score:1, label:"Preguntar con calma"},
+          {id:"c", icon:"i-ignore", score:0, label:"No hacer nada"},
+        ]},
+        { id:"d5", domain:"Decisiones", audioText:"Quieres jugar, pero están trabajando. ¿Qué haces?", options:[
+          {id:"a", icon:"i-wait", score:2, label:"Esperar el momento"},
+          {id:"b", icon:"i-talk", score:1, label:"Preguntar cuándo se puede"},
+          {id:"c", icon:"i-push", score:0, label:"Interrumpir"},
+        ]},
+        { id:"d6", domain:"Decisiones", audioText:"Un amigo te pide hacer algo que está mal. ¿Qué haces?", options:[
+          {id:"a", icon:"i-stop", score:2, label:"Decir no / parar"},
+          {id:"b", icon:"i-help", score:1, label:"Pedir ayuda"},
+          {id:"c", icon:"i-ignore", score:0, label:"Seguir sin pensar"},
+        ]}
+      ]
+    };
+
+    /********************
+     * STATE
+     ********************/
+    const nowIso = () => new Date().toISOString();
+    const uuid = () => (crypto.randomUUID?.() ?? (Date.now() + "-" + Math.random().toString(16).slice(2)));
+
+    let draft = {
+      instrumento: INSTRUMENT,
+      version_schema: VERSION_SCHEMA,
+      draft_id: uuid(),
+      started_at: null,
+      updated_at: null,
+      phase: "practice", // practice | items
+      index: 0,
+      // answers: { itemId: { optionId } }
+      answers: {}
+    };
+
+    const el = {
+      status: document.getElementById("status"),
+      barFill: document.getElementById("barFill"),
+      prompt: document.getElementById("prompt"),
+      hint: document.getElementById("hint"),
+      btnListen: document.getElementById("btnListen"),
+      btnRepeat: document.getElementById("btnRepeat"),
+      btnReport: document.getElementById("btnReport"),
+      options: document.getElementById("options"),
+      toast: document.getElementById("toast"),
+      btnReset: document.getElementById("btnReset"),
+      btnExport: document.getElementById("btnExport"),
+      srLive: document.getElementById("srLive")
+    };
+
+    let lastSpoken = "";
+    let speaking = false;
+    let mp3 = null;
+
+    /********************
+     * DRAFT IO
+     ********************/
+    function saveDraft() {
+      draft.updated_at = nowIso();
+      localStorage.setItem(STORAGE_KEY_ACTIVE, JSON.stringify(draft));
+      el.toast.textContent = "Guardado ✓";
+    }
+
+    function loadDraft() {
+      const raw = localStorage.getItem(STORAGE_KEY_ACTIVE);
+      if (!raw) return false;
+      try {
+        const d = JSON.parse(raw);
+        if (d?.instrumento !== INSTRUMENT) return false;
+        draft = { ...draft, ...d };
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function resetDraft() {
+      window.speechSynthesis?.cancel?.();
+      if (mp3) { try { mp3.pause(); } catch {} }
+      localStorage.removeItem(STORAGE_KEY_ACTIVE);
+      draft = {
+        instrumento: INSTRUMENT,
+        version_schema: VERSION_SCHEMA,
+        draft_id: uuid(),
+        started_at: null,
+        updated_at: null,
+        phase: "practice",
+        index: 0,
+        answers: {}
+      };
+      lastSpoken = "";
+      render();
+      el.toast.textContent = "Reiniciado.";
+    }
+
+    /********************
+     * ITEMS
+     ********************/
+    function currentItem() {
+      const list = (draft.phase === "practice") ? TEST.practice : TEST.items;
+      return list[draft.index] || null;
+    }
+
+    function totalCount() {
+      return TEST.practice.length + TEST.items.length;
+    }
+
+    function answeredCount() {
+      return Object.keys(draft.answers).length;
+    }
+
+    function progressPct() {
+      // Contamos práctica + items, aunque práctica no puntúe
+      const currentGlobalIndex = (draft.phase === "practice")
+        ? draft.index
+        : TEST.practice.length + draft.index;
+
+      const pct = Math.round((currentGlobalIndex / totalCount()) * 100);
+      return Math.max(0, Math.min(100, pct));
+    }
+
+    function isFinished() {
+      return draft.phase === "items" && draft.index >= TEST.items.length;
+    }
+
+    function advance() {
+      if (draft.phase === "practice") {
+        draft.index++;
+        if (draft.index >= TEST.practice.length) {
+          draft.phase = "items";
+          draft.index = 0;
+        }
+      } else {
+        draft.index++;
+      }
+      saveDraft();
+      render();
+    }
+
+    /********************
+     * AUDIO
+     ********************/
+    function speakTTS(text) {
+      return new Promise((resolve) => {
+        if (!("speechSynthesis" in window)) { resolve(); return; }
+        window.speechSynthesis.cancel();
+        speaking = true;
+        el.status.textContent = "Reproduciendo audio…";
+        el.srLive.textContent = "Reproduciendo audio.";
+
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = "es-ES";
+        u.rate = 0.95;
+        u.pitch = 1.0;
+        u.onend = () => { speaking = false; resolve(); };
+        u.onerror = () => { speaking = false; resolve(); };
+        window.speechSynthesis.speak(u);
+      });
+    }
+
+    async function playMP3(itemId) {
+      return new Promise((resolve) => {
+        try {
+          if (mp3) { mp3.pause(); mp3.currentTime = 0; }
+          mp3 = new Audio(`assets/audio/${itemId}.mp3`);
+          mp3.onended = () => resolve();
+          mp3.onerror = () => resolve();
+          mp3.play().catch(() => resolve());
+        } catch {
+          resolve();
+        }
+      });
+    }
+
+    async function playAudio(text, itemId) {
+      // Bloquear opciones hasta terminar el audio
+      setOptionsEnabled(false);
+      el.status.textContent = "Reproduciendo audio…";
+
+      if (!draft.started_at) draft.started_at = nowIso();
+      saveDraft();
+
+      if (AUDIO_MODE === "mp3") await playMP3(itemId);
+      else await speakTTS(text);
+
+      el.status.textContent = "Elige un dibujo";
+      el.srLive.textContent = "Elige un dibujo.";
+      setOptionsEnabled(true);
+    }
+
+    /********************
+     * UI
+     ********************/
+    function setOptionsEnabled(enabled) {
+      el.options.querySelectorAll("button").forEach(b => b.disabled = !enabled);
+    }
+
+    function iconUse(iconId) {
+      return `
+        <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+          <use href="assets/icons/sel_pictos.svg#${iconId}"></use>
+        </svg>
+      `;
+    }
+
+    function render() {
+      el.barFill.style.width = `${progressPct()}%`;
+
+      if (isFinished()) {
+        el.prompt.textContent = "¡Listo! Terminaste la evaluación.";
+        el.hint.textContent = "Ahora puedes generar el reporte.";
+        el.options.innerHTML = "";
+        el.btnRepeat.disabled = true;
+        el.status.textContent = "Completado";
+        el.toast.textContent = "";
+        return;
+      }
+
+      const item = currentItem();
+      if (!item) return;
+
+      const globalIndex = (draft.phase === "practice")
+        ? draft.index + 1
+        : TEST.practice.length + draft.index + 1;
+
+      el.prompt.textContent = `Pregunta ${globalIndex} de ${totalCount()}`;
+      el.hint.textContent = (draft.phase === "practice")
+        ? "Práctica (no puntúa). Escucha y toca el dibujo correcto."
+        : "Escucha y toca un dibujo.";
+
+      el.btnRepeat.disabled = !lastSpoken;
+      el.status.textContent = "Listo para escuchar";
+      el.toast.textContent = "";
+
+      el.options.innerHTML = "";
+      item.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "opt";
+        btn.type = "button";
+        btn.disabled = true; // se habilita tras el audio
+        btn.setAttribute("aria-label", opt.label);
+        btn.innerHTML = iconUse(opt.icon);
+
+        btn.addEventListener("click", () => {
+          // Guardar respuesta
+          draft.answers[item.id] = { optionId: opt.id };
+          saveDraft();
+
+          // feedback visual
+          el.options.querySelectorAll("button").forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+
+          // avanzar con pequeño delay
+          setTimeout(advance, 250);
+        });
+
+        el.options.appendChild(btn);
+      });
+
+      // Por seguridad: opciones deshabilitadas hasta escuchar
+      setOptionsEnabled(false);
+    }
+
+    /********************
+     * EXPORT / NAV
+     ********************/
+    function exportJson() {
+      const blob = new Blob([JSON.stringify(draft, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${INSTRUMENT}_${draft.draft_id}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      el.toast.textContent = "Exportado ✓";
+    }
+
+    function gotoReport() {
+      // El reporte leerá STORAGE_KEY_ACTIVE
+      window.location.href = "reporte10.html";
+    }
+
+    /********************
+     * EVENTS
+     ********************/
+    el.btnListen.addEventListener("click", async () => {
+      const item = currentItem();
+      if (!item) return;
+      lastSpoken = item.audioText;
+      el.btnRepeat.disabled = false;
+      await playAudio(item.audioText, item.id);
+    });
+
+    el.btnRepeat.addEventListener("click", async () => {
+      const item = currentItem();
+      if (!item || !lastSpoken) return;
+      await playAudio(lastSpoken, item.id);
+    });
+
+    el.btnReport.addEventListener("click", gotoReport);
+    el.btnReset.addEventListener("click", resetDraft);
+    el.btnExport.addEventListener("click", exportJson);
+
+    window.addEventListener("beforeunload", () => { try { saveDraft(); } catch {} });
+
+    /********************
+     * INIT
+     ********************/
+    const restored = loadDraft();
+    render();
+    if (restored && answeredCount() > 0) el.toast.textContent = "Borrador restaurado ✓";
+  </script>
+</body>
+</html>
