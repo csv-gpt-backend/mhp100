@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Evaluación Socioemocional 6–8 (Audio + Pictogramas)</title>
+  <title>Evaluación Socioemocional 6–8 (Audio + Cartoon)</title>
   <style>
     :root { --pad: 16px; --r: 18px; }
     body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#f6f7fb; color:#111827; }
     .wrap { max-width: 860px; margin: 0 auto; padding: var(--pad); }
     .card { background:#fff; border-radius: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.07); padding: 18px; }
     .top { display:flex; gap: 12px; align-items:center; justify-content:space-between; margin-bottom: 12px; flex-wrap:wrap; }
-    .pill { background:#eef2ff; padding: 8px 12px; border-radius: 999px; font-weight: 800; font-size: 14px; }
+    .pill { background:#eef2ff; padding: 8px 12px; border-radius: 999px; font-weight: 900; font-size: 14px; }
     .status { font-size: 14px; opacity:.85; }
     .bar { height: 10px; background:#e9ecf5; border-radius: 999px; overflow:hidden; }
     .bar > div { height: 100%; width: 0%; background:#6b7cff; border-radius: 999px; transition: width .25s ease; }
@@ -21,9 +21,9 @@
     button.secondary { background:#e5e7eb; color:#111827; }
     button:disabled { opacity:.5; cursor:not-allowed; }
     .grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-    .opt { background:#f3f4f6; color:#111827; display:flex; align-items:center; justify-content:center; min-height: 108px; padding: 12px; border-radius: 18px; }
+    .opt { background:#f3f4f6; color:#111827; display:flex; align-items:center; justify-content:center; min-height: 128px; padding: 12px; border-radius: 18px; }
     .opt.selected { outline: 4px solid #6b7cff; background:#eef2ff; }
-    .icon { width: 64px; height: 64px; }
+    .icon { width: 96px; height: 96px; } /* más grande para niños */
     .toast { margin-top: 10px; font-size: 13px; opacity:.75; }
     .mini { font-size: 13px; opacity:.75; }
     .sr { position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
@@ -61,7 +61,7 @@
 
     <div class="card" style="margin-top:14px;">
       <div class="mini">
-        <strong>Audio:</strong> por defecto usa voz del navegador (TTS). Si luego grabas MP3, lo activas con <code>AUDIO_MODE = "mp3"</code>.
+        <strong>Audio:</strong> Voz del navegador (TTS). El sistema intentará usar una voz femenina en español si existe.
       </div>
     </div>
   </div>
@@ -72,10 +72,6 @@
      ********************/
     const INSTRUMENT = "SEL_6_8_UNICA_V1";
     const VERSION_SCHEMA = 1;
-
-    // "tts" = voz del navegador (rápido)
-    // "mp3" = usar archivos assets/audio/<itemId>.mp3
-    const AUDIO_MODE = "tts";
 
     const STORAGE_KEY_ACTIVE = `${INSTRUMENT}:draft:active`;
 
@@ -96,7 +92,7 @@
           id: "p2", domain: "PRACTICA",
           audioText: "Otra práctica. Si quieres hablar con calma, toca el dibujo de hablar.",
           options: [
-            { id: "a", icon: "i-talk",  score: null, label: "Hablar" },
+            { id: "a", icon: "i-talk",  score: null, label: "Hablar con calma" },
             { id: "b", icon: "i-push",  score: null, label: "Empujar" },
             { id: "c", icon: "i-help",  score: null, label: "Pedir ayuda" }
           ]
@@ -137,7 +133,7 @@
 
         // Autorregulación (6)
         { id:"a1", domain:"Autorregulación", audioText:"Alguien te empuja en la fila. ¿Qué haces?", options:[
-          {id:"a", icon:"i-breathe", score:2, label:"Respirar/calmarse"},
+          {id:"a", icon:"i-breathe", score:2, label:"Respirar y calmarme"},
           {id:"b", icon:"i-talk", score:1, label:"Hablar con calma"},
           {id:"c", icon:"i-push", score:0, label:"Empujar"},
         ]},
@@ -147,29 +143,29 @@
           {id:"c", icon:"i-push", score:0, label:"Actuar agresivo"},
         ]},
         { id:"a3", domain:"Autorregulación", audioText:"Quieres hablar pero otro está hablando. ¿Qué haces?", options:[
-          {id:"a", icon:"i-wait", score:2, label:"Esperar turno"},
+          {id:"a", icon:"i-wait", score:2, label:"Esperar mi turno"},
           {id:"b", icon:"i-talk", score:1, label:"Hablar después"},
-          {id:"c", icon:"i-push", score:0, label:"Interrumpir/forzar"},
+          {id:"c", icon:"i-push", score:0, label:"Interrumpir a la fuerza"},
         ]},
         { id:"a4", domain:"Autorregulación", audioText:"Estás muy nervioso antes de una prueba. ¿Qué haces?", options:[
           {id:"a", icon:"i-breathe", score:2, label:"Respirar"},
           {id:"b", icon:"i-help", score:1, label:"Pedir apoyo"},
-          {id:"c", icon:"i-ignore", score:0, label:"Salir/ignorar todo"},
+          {id:"c", icon:"i-ignore", score:0, label:"Esconderme / no decir nada"},
         ]},
         { id:"a5", domain:"Autorregulación", audioText:"Te molesta que te digan que esperes. ¿Qué haces?", options:[
-          {id:"a", icon:"i-stop", score:2, label:"Parar y controlarse"},
+          {id:"a", icon:"i-stop", score:2, label:"Parar y controlarme"},
           {id:"b", icon:"i-wait", score:1, label:"Esperar turno"},
           {id:"c", icon:"i-push", score:0, label:"Empujar"},
         ]},
         { id:"a6", domain:"Autorregulación", audioText:"Quieres un juguete que tiene otro niño. ¿Qué haces?", options:[
           {id:"a", icon:"i-talk", score:2, label:"Pedirlo con palabras"},
           {id:"b", icon:"i-wait", score:1, label:"Esperar"},
-          {id:"c", icon:"i-push", score:0, label:"Quitarlo"},
+          {id:"c", icon:"i-push", score:0, label:"Quitarlo a la fuerza"},
         ]},
 
         // Convivencia (6)
         { id:"c1", domain:"Convivencia", audioText:"Ves a alguien solo en el recreo. ¿Qué haces?", options:[
-          {id:"a", icon:"i-talk", score:2, label:"Invitar a jugar/hablar"},
+          {id:"a", icon:"i-talk", score:2, label:"Invitar a jugar"},
           {id:"b", icon:"i-help", score:1, label:"Avisar a un adulto"},
           {id:"c", icon:"i-ignore", score:0, label:"Ignorar"},
         ]},
@@ -181,7 +177,7 @@
         { id:"c3", domain:"Convivencia", audioText:"Sin querer golpeas a alguien con tu mochila. ¿Qué haces?", options:[
           {id:"a", icon:"i-sorry", score:2, label:"Pedir perdón"},
           {id:"b", icon:"i-talk", score:1, label:"Decir lo que pasó"},
-          {id:"c", icon:"i-ignore", score:0, label:"Irte sin decir nada"},
+          {id:"c", icon:"i-ignore", score:0, label:"Irme sin decir nada"},
         ]},
         { id:"c4", domain:"Convivencia", audioText:"Alguien está triste. ¿Qué haces?", options:[
           {id:"a", icon:"i-talk", score:2, label:"Preguntar si está bien"},
@@ -190,13 +186,13 @@
         ]},
         { id:"c5", domain:"Convivencia", audioText:"Te piden prestar un lápiz por un momento. ¿Qué haces?", options:[
           {id:"a", icon:"i-share", score:2, label:"Compartir"},
-          {id:"b", icon:"i-talk", score:1, label:"Decir sí/negociar"},
-          {id:"c", icon:"i-ignore", score:0, label:"Negarte sin hablar"},
+          {id:"b", icon:"i-talk", score:1, label:"Hablar y acordar"},
+          {id:"c", icon:"i-ignore", score:0, label:"Negarme sin hablar"},
         ]},
         { id:"c6", domain:"Convivencia", audioText:"Se burlan de un compañero. ¿Qué haces?", options:[
           {id:"a", icon:"i-help", score:2, label:"Pedir ayuda a un adulto"},
           {id:"b", icon:"i-talk", score:1, label:"Decir que paren"},
-          {id:"c", icon:"i-ignore", score:0, label:"Seguir/ignorar"},
+          {id:"c", icon:"i-ignore", score:0, label:"Ignorar / seguir"},
         ]},
 
         // Decisiones (6)
@@ -213,10 +209,10 @@
         { id:"d3", domain:"Decisiones", audioText:"Te equivocas y rompes algo sin querer. ¿Qué haces?", options:[
           {id:"a", icon:"i-sorry", score:2, label:"Decir la verdad y pedir perdón"},
           {id:"b", icon:"i-help", score:1, label:"Buscar un adulto"},
-          {id:"c", icon:"i-ignore", score:0, label:"Esconderlo/irse"},
+          {id:"c", icon:"i-ignore", score:0, label:"Esconderlo / irme"},
         ]},
         { id:"d4", domain:"Decisiones", audioText:"No entiendes una instrucción. ¿Qué haces?", options:[
-          {id:"a", icon:"i-help", score:2, label:"Pedir que te expliquen"},
+          {id:"a", icon:"i-help", score:2, label:"Pedir que me expliquen"},
           {id:"b", icon:"i-talk", score:1, label:"Preguntar con calma"},
           {id:"c", icon:"i-ignore", score:0, label:"No hacer nada"},
         ]},
@@ -245,9 +241,8 @@
       draft_id: uuid(),
       started_at: null,
       updated_at: null,
-      phase: "practice", // practice | items
+      phase: "practice",
       index: 0,
-      // answers: { itemId: { optionId } }
       answers: {}
     };
 
@@ -267,8 +262,68 @@
     };
 
     let lastSpoken = "";
-    let speaking = false;
-    let mp3 = null;
+
+    /********************
+     * TTS: preferir voz femenina en español
+     ********************/
+    let VOICES = [];
+    function loadVoices() {
+      if (!("speechSynthesis" in window)) return;
+      VOICES = window.speechSynthesis.getVoices() || [];
+    }
+    if ("speechSynthesis" in window) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    function pickSpanishFemaleVoice() {
+      const voices = VOICES || [];
+      const es = voices.filter(v => (v.lang || "").toLowerCase().startsWith("es"));
+      if (es.length === 0) return null;
+
+      // Heurística: nombres comunes de voces femeninas
+      const femaleHints = [
+        "helena","sabina","monica","paulina","paloma","luciana","sofia","isabella",
+        "female","mujer","woman","zira"
+      ];
+      const byName = (v) => (v.name || "").toLowerCase();
+
+      for (const hint of femaleHints) {
+        const found = es.find(v => byName(v).includes(hint));
+        if (found) return found;
+      }
+      return es[0];
+    }
+
+    function speakTTS(text) {
+      return new Promise((resolve) => {
+        if (!("speechSynthesis" in window)) { resolve(); return; }
+
+        loadVoices();
+        window.speechSynthesis.cancel();
+
+        el.status.textContent = "Reproduciendo audio…";
+        el.srLive.textContent = "Reproduciendo audio.";
+
+        const preferred = pickSpanishFemaleVoice();
+
+        const u = new SpeechSynthesisUtterance(text);
+        if (preferred) {
+          u.voice = preferred;
+          u.lang = preferred.lang || "es-ES";
+        } else {
+          u.lang = "es-ES";
+        }
+
+        u.rate = 0.92;
+        u.pitch = 1.05;
+
+        u.onend = () => resolve();
+        u.onerror = () => resolve();
+
+        window.speechSynthesis.speak(u);
+      });
+    }
 
     /********************
      * DRAFT IO
@@ -287,14 +342,11 @@
         if (d?.instrumento !== INSTRUMENT) return false;
         draft = { ...draft, ...d };
         return true;
-      } catch {
-        return false;
-      }
+      } catch { return false; }
     }
 
     function resetDraft() {
       window.speechSynthesis?.cancel?.();
-      if (mp3) { try { mp3.pause(); } catch {} }
       localStorage.removeItem(STORAGE_KEY_ACTIVE);
       draft = {
         instrumento: INSTRUMENT,
@@ -319,22 +371,13 @@
       return list[draft.index] || null;
     }
 
-    function totalCount() {
-      return TEST.practice.length + TEST.items.length;
-    }
-
-    function answeredCount() {
-      return Object.keys(draft.answers).length;
-    }
+    function totalCount() { return TEST.practice.length + TEST.items.length; }
 
     function progressPct() {
-      // Contamos práctica + items, aunque práctica no puntúe
-      const currentGlobalIndex = (draft.phase === "practice")
+      const globalIndex = (draft.phase === "practice")
         ? draft.index
         : TEST.practice.length + draft.index;
-
-      const pct = Math.round((currentGlobalIndex / totalCount()) * 100);
-      return Math.max(0, Math.min(100, pct));
+      return Math.round((globalIndex / totalCount()) * 100);
     }
 
     function isFinished() {
@@ -356,105 +399,6 @@
     }
 
     /********************
-     * AUDIO
-     ********************/
-    let VOICES = [];
-
-function loadVoices() {
-  if (!("speechSynthesis" in window)) return;
-  VOICES = window.speechSynthesis.getVoices() || [];
-}
-if ("speechSynthesis" in window) {
-  loadVoices();
-  window.speechSynthesis.onvoiceschanged = loadVoices;
-}
-
-function pickSpanishFemaleVoice() {
-  const voices = VOICES || [];
-  const es = voices.filter(v => (v.lang || "").toLowerCase().startsWith("es"));
-  if (es.length === 0) return null;
-
-  // heurística: nombres comunes de voces femeninas en distintos sistemas
-  const femaleHints = [
-    "helena","sabina","monica","paulina","paloma","luciana","sofia","isabella",
-    "female","mujer","woman","zira" // algunos sistemas usan "female" / "zira"
-  ];
-
-  const byName = (v) => (v.name || "").toLowerCase();
-
-  // 1) preferir voces que matcheen hints
-  for (const hint of femaleHints) {
-    const found = es.find(v => byName(v).includes(hint));
-    if (found) return found;
-  }
-
-  // 2) fallback: primera voz en español
-  return es[0];
-}
-
-function speakTTS(text) {
-  return new Promise((resolve) => {
-    if (!("speechSynthesis" in window)) { resolve(); return; }
-
-    window.speechSynthesis.cancel();
-    speaking = true;
-    el.status.textContent = "Reproduciendo audio…";
-    el.srLive.textContent = "Reproduciendo audio.";
-
-    // recargar voces por si aún no estaban listas
-    loadVoices();
-    const preferred = pickSpanishFemaleVoice();
-
-    const u = new SpeechSynthesisUtterance(text);
-    if (preferred) {
-      u.voice = preferred;
-      u.lang = preferred.lang || "es-ES";
-    } else {
-      u.lang = "es-ES";
-    }
-
-    u.rate = 0.92;   // un poquito más lento y amigable
-    u.pitch = 1.05;  // un poquito más “cálido”
-    u.onend = () => { speaking = false; resolve(); };
-    u.onerror = () => { speaking = false; resolve(); };
-
-    window.speechSynthesis.speak(u);
-  });
-}
-
- **********************/
-
-    async function playMP3(itemId) {
-      return new Promise((resolve) => {
-        try {
-          if (mp3) { mp3.pause(); mp3.currentTime = 0; }
-          mp3 = new Audio(`assets/audio/${itemId}.mp3`);
-          mp3.onended = () => resolve();
-          mp3.onerror = () => resolve();
-          mp3.play().catch(() => resolve());
-        } catch {
-          resolve();
-        }
-      });
-    }
-
-    async function playAudio(text, itemId) {
-      // Bloquear opciones hasta terminar el audio
-      setOptionsEnabled(false);
-      el.status.textContent = "Reproduciendo audio…";
-
-      if (!draft.started_at) draft.started_at = nowIso();
-      saveDraft();
-
-      if (AUDIO_MODE === "mp3") await playMP3(itemId);
-      else await speakTTS(text);
-
-      el.status.textContent = "Elige un dibujo";
-      el.srLive.textContent = "Elige un dibujo.";
-      setOptionsEnabled(true);
-    }
-
-    /********************
      * UI
      ********************/
     function setOptionsEnabled(enabled) {
@@ -463,10 +407,22 @@ function speakTTS(text) {
 
     function iconUse(iconId) {
       return `
-        <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+        <svg class="icon" viewBox="0 0 128 128" aria-hidden="true">
           <use href="assets/icons/sel_pictos.svg#${iconId}"></use>
         </svg>
       `;
+    }
+
+    async function playAudio(text) {
+      setOptionsEnabled(false);
+      if (!draft.started_at) draft.started_at = nowIso();
+      saveDraft();
+
+      await speakTTS(text);
+
+      el.status.textContent = "Elige un dibujo";
+      el.srLive.textContent = "Elige un dibujo.";
+      setOptionsEnabled(true);
     }
 
     function render() {
@@ -503,33 +459,26 @@ function speakTTS(text) {
         const btn = document.createElement("button");
         btn.className = "opt";
         btn.type = "button";
-        btn.disabled = true; // se habilita tras el audio
+        btn.disabled = true;
         btn.setAttribute("aria-label", opt.label);
         btn.innerHTML = iconUse(opt.icon);
 
         btn.addEventListener("click", () => {
-          // Guardar respuesta
           draft.answers[item.id] = { optionId: opt.id };
           saveDraft();
 
-          // feedback visual
           el.options.querySelectorAll("button").forEach(b => b.classList.remove("selected"));
           btn.classList.add("selected");
 
-          // avanzar con pequeño delay
           setTimeout(advance, 250);
         });
 
         el.options.appendChild(btn);
       });
 
-      // Por seguridad: opciones deshabilitadas hasta escuchar
       setOptionsEnabled(false);
     }
 
-    /********************
-     * EXPORT / NAV
-     ********************/
     function exportJson() {
       const blob = new Blob([JSON.stringify(draft, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
@@ -542,7 +491,6 @@ function speakTTS(text) {
     }
 
     function gotoReport() {
-      // El reporte leerá STORAGE_KEY_ACTIVE
       window.location.href = "reporte10.html";
     }
 
@@ -554,19 +502,18 @@ function speakTTS(text) {
       if (!item) return;
       lastSpoken = item.audioText;
       el.btnRepeat.disabled = false;
-      await playAudio(item.audioText, item.id);
+      await playAudio(item.audioText);
     });
 
     el.btnRepeat.addEventListener("click", async () => {
       const item = currentItem();
       if (!item || !lastSpoken) return;
-      await playAudio(lastSpoken, item.id);
+      await playAudio(lastSpoken);
     });
 
     el.btnReport.addEventListener("click", gotoReport);
     el.btnReset.addEventListener("click", resetDraft);
     el.btnExport.addEventListener("click", exportJson);
-
     window.addEventListener("beforeunload", () => { try { saveDraft(); } catch {} });
 
     /********************
@@ -574,7 +521,7 @@ function speakTTS(text) {
      ********************/
     const restored = loadDraft();
     render();
-    if (restored && answeredCount() > 0) el.toast.textContent = "Borrador restaurado ✓";
+    if (restored && Object.keys(draft.answers).length > 0) el.toast.textContent = "Borrador restaurado ✓";
   </script>
 </body>
 </html>
