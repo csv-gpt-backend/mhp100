@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>VER 3 MHP100 – Evaluación PPA (Formulario)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #111827;
+      background: #ffffff;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    .side-strip {
+      background: #fef3c7;
+      border-right: 1px solid #fcd34d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .side-strip span {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      font-size: 32px;
+      color: #b45309;
+    }
+    .page {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    h1 {
+      font-size: 22px;
+      margin: 0 0 4px;
+    }
+    h2 {
+      font-size: 16px;
+      margin: 16px 0 8px;
+    }
+    .muted {
+      color: #6b7280;
+      font-size: 13px;
+    }
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      background: #ffffff;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 13px;
+    }
+    .field label {
+      font-weight: 600;
+    }
+    .field input {
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+    .field input[readonly] {
+      background: #f9fafb;
+      color: #4b5563;
+    }
+    .instructions p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    .instructions ul {
+      margin: 4px 0 0 18px;
+      padding: 0;
+    }
+    .instructions li {
+      margin-bottom: 2px;
+      font-size: 14px;
+    }
+    .instructions-header {
+      font-weight: 700;
+      text-align: center;
+      margin: 8px 0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #1d4ed8;
+      color: #ffffff;
+      font-size: 13px;
+    }
+    .progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .progress .bar {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: width 0.2s ease-out;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+      background: #f9fafb;
+    }
+    .panel-note {
+      font-size: 12px;
+      color: #6b7280;
+      text-align: right;
+      margin-top: 4px;
+    }
+    .questions-header {
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
+      gap: 4px;
+      align-items: center;
+      font-size: 13px;
+      margin-top: 8px;
+      padding: 4px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .questions-header div {
+      text-align: center;
+    }
+    .questions-header div:first-child,
+    .questions-header div:nth-child(2) {
+      text-align: left;
+    }
+    #questions {
+      margin-top: 4px;
+    }
+    .question {
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
+      gap: 4px;
+      align-items: center;
+      padding: 4px 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 14px;
+    }
+    .q-no {
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+      color: #6b7280;
+    }
+    .q-text {
+      display: inline-block;
+    }
+    .q-cell {
+      text-align: center;
+    }
+    .q-cell input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #16a34a;
+      color: #ffffff;
+    }
+    button.primary {
+      background: #16a34a;
+    }
+    button.secondary {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    #pantalla-final {
+      margin-top: 32px;
+      padding: 24px 18px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: #fefce8;
+      text-align: center;
+      display: none;
+    }
+    #pantalla-final h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    .check-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 2px solid #16a34a;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #16a34a;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .scale-banner {
+      margin-top: 6px;
+      margin-bottom: 2px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .scale-badge {
+      background: #f97316;
+      color: #ffffff;
+      padding: 2px 8px 4px;
+      border-radius: 4px 4px 0 0;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      position: relative;
+      min-width: 80px;
+    }
+    .scale-badge::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -4px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 4px solid #f97316;
+    }
+    .scale-num {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 1px;
+    }
+    .hidden {
+      display: none;
+    }
+    @media (max-width: 840px) {
+      .layout {
+        grid-template-columns: 56px minmax(0, 1fr);
+      }
+      .side-strip span {
+        font-size: 24px;
+      }
+    }
+    @media (max-width: 720px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .questions-header,
+      .question {
+        grid-template-columns: 32px 1fr repeat(3, 64px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="side-strip">
+      <span>MHP-100</span>
+    </aside>
+    <main class="page">
+      <header>
+        <h1>MHP100 – Evaluación PPA</h1>
+      </header>
+
+      <!-- Datos del participante (solo visibles en la primera pantalla y al final) -->
+      <section id="datos-participante" class="card">
+        <div class="grid-2">
+          <div class="field">
+            <label for="codigo">Código</label>
+            <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
+            <small id="codigoMsg" class="muted"></small>
+          </div>
+
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" type="text" autocomplete="name" />
+          </div>
+          <div class="field">
+            <label for="edad">Edad (años)</label>
+            <input id="edad" type="number" min="5" max="99" />
+          </div>
+          <div class="field">
+            <label for="curso">Curso</label>
+            <input id="curso" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="institucion">Institución</label>
+            <input id="institucion" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="grupo">Grupo</label>
+            <input id="grupo" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="fecha">Fecha</label>
+            <input id="fecha" type="text" readonly />
+          </div>
+        </div>
+      </section>
+
+      <!-- Pantalla de instrucciones -->
+      <section id="pantalla-inicio" class="card instructions">
+        <h2>Evaluación PPA – Autoevaluación de Inteligencia Emocional</h2>
+        <p>
+          El manejo efectivo de las emociones es un factor clave para lograr el éxito personal y profesional.
+          MHP100 es una herramienta que ha sido diseñada para que la persona adulta evalúe su nivel de desarrollo
+          en ciertas habilidades emocionales clave.
+        </p>
+        <p>
+          El Mapa de Habilidades Personales (MHP100) identifica 12 habilidades emocionales y 2 áreas relacionadas
+          con el estilo de comunicación interpersonal.
+        </p>
+        <p>
+          Al responder esta autoevaluación, que consta de 244 preguntas, es posible obtener un diagnóstico
+          sobre el manejo de la inteligencia emocional en cuatro áreas diferentes:
+        </p>
+        <ul>
+          <li>Habilidades intrapersonales.</li>
+          <li>Habilidades interpersonales.</li>
+          <li>Habilidades para la vida.</li>
+          <li>Estilo de comunicación interpersonal.</li>
+        </ul>
+        <div class="instructions-header">
+          INSTRUCCIONES PARA LLENAR LA AUTOEVALUACIÓN
+        </div>
+        <p>1. Lee con detenimiento cada enunciado.</p>
+        <p>2. Reflexiona en qué medida se parece a lo que haces o sientes habitualmente.</p>
+        <p>
+          3. Selecciona la casilla que corresponda a la respuesta deseada de acuerdo con los siguientes criterios:
+        </p>
+        <p style="margin-left: 12px; margin-top: 4px;">
+          1 = <strong>Casi siempre</strong> ·
+          2 = <strong>Algunas veces</strong> ·
+          3 = <strong>Rara vez</strong>
+        </p>
+        <p style="margin-top: 6px;">
+          <strong>IMPORTANTE:</strong> Una vez iniciada la evaluación, no podrás retroceder a las páginas anteriores.
+        </p>
+        <div style="margin-top: 12px; text-align: right;">
+          <button id="btnIniciar" class="primary">INICIAR</button>
+        </div>
+      </section>
+
+      <!-- Pantalla de preguntas (sin datos del participante arriba) -->
+      <section id="pantalla-preguntas" class="hidden">
+        <div class="card">
+          <h2>Responde las siguientes declaraciones</h2>
+          <p class="muted" id="nota-genero">
+            Nota: Las siguientes declaraciones pueden estar redactadas en género masculino, pero se entiende que también se refieren al género femenino.
+          </p>
+
+          <div class="scale-banner">
+            <div class="scale-badge">
+              <span class="scale-num">1</span>
+              CASI SIEMPRE
+            </div>
+            <div class="scale-badge">
+              <span class="scale-num">2</span>
+              ALGUNAS VECES
+            </div>
+            <div class="scale-badge">
+              <span class="scale-num">3</span>
+              RARA VEZ
+            </div>
+          </div>
+
+          <div class="progress" aria-label="Progreso">
+            <div class="bar" id="bar"></div>
+          </div>
+          <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
+            <small id="metaInfo" class="muted"></small>
+          </div>
+
+          <div class="questions-header">
+            <div>#</div>
+            <div>Declaración</div>
+            <div>1</div>
+            <div>2</div>
+            <div>3</div>
+          </div>
+          <div id="questions"></div>
+
+          <div class="footer-actions">
+            <div>
+              <small id="pageIndicator" class="muted"></small>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+              <small id="notaContinuar" class="panel-note">
+                NOTA: Para continuar debes contestar todas las preguntas. Contestadas: 0/0.
+              </small>
+              <button id="btnSiguiente" class="primary">SIGUIENTE</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pantalla final -->
+      <section id="pantalla-final">
+        <div class="check-icon">✔</div>
+        <h2>Evaluación terminada</h2>
+        <p>Felicidades, has concluido tu evaluación de inteligencia emocional.</p>
+        <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Marca de tiempo para IV3
+    let __startTime = performance.now();
+
+    let CODIGO_ACTUAL = null;
+     // === LOOKUP POR CÓDIGO (v6) ===
+     const codigoInput = document.getElementById('codigo');
+     const instInput   = document.getElementById('institucion');
+     const grupoInput  = document.getElementById('grupo');
+     const cursoInput  = document.getElementById('curso');
+     const btnIniciar  = document.getElementById('btnIniciar');
+     const codigoMsg   = document.getElementById('codigoMsg');
+
+     async function lookupCodigo() {
+       const codigo = codigoInput.value.trim().toUpperCase();
+       codigoInput.value = codigo;
+       CODIGO_ACTUAL = null;
+       btnIniciar.disabled = true;
+       if (codigoMsg) {
+         codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
+         codigoMsg.className = codigo ? 'muted' : 'err';
+       }
+       if (!codigo) {
+         instInput.value = grupoInput.value = cursoInput.value = '';
+         return;
+       }
+       try {
+         const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
+         const data = await r.json();
+         if (!r.ok) throw new Error(data.error || 'Código no válido');
+         instInput.value  = data.institucion || '';
+         grupoInput.value = data.grupo || '';
+         cursoInput.value = data.curso || '';
+         CODIGO_ACTUAL = data.codigo || codigo;
+         btnIniciar.disabled = false;
+         if (codigoMsg) {
+           codigoMsg.textContent = 'Código válido.';
+           codigoMsg.className = 'ok';
+         }
+       } catch (e) {
+         instInput.value = grupoInput.value = cursoInput.value = '';
+         if (codigoMsg) {
+           codigoMsg.textContent = 'Código no encontrado.';
+           codigoMsg.className = 'err';
+         }
+       }
+     }
+
+     codigoInput.addEventListener('input', () => {
+       codigoInput.value = codigoInput.value.toUpperCase();
+     });
+     codigoInput.addEventListener('blur', lookupCodigo);
+     codigoInput.addEventListener('keydown', (e) => {
+       if (e.key === 'Enter') {
+         e.preventDefault();
+         lookupCodigo();
+       }
+     });
+     // === FIN LOOKUP ===
+
+    const PUEDE_VER_RESULTADO = true;
+
+    const DATOS_FIJOS = {
+      institucion: "Institución por defecto",
+      grupo: "Grupo por defecto",
+      curso: "Curso por defecto"
+    };
+
+    const PAGE_SIZE = 10; // 10 preguntas por pantalla
+    let currentPage = 0;
+
+    // Aquí ya tienes pegadas tus 244 preguntas en tu versión local.
+    const PREGUNTAS_CSV = `
+
+    `.trim();
+    // >>> En tu archivo final mantienes este bloque pero con las 244 líneas <<<
+
+    function norm(str) {
+      return (str || "").trim();
+    }
+
+    let ITEMS = [];
+    let answered = 0;
+
+    function parsePreguntas(csv) {
+      const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const rows = [];
+      for (const line of lines) {
+        const parts = line.split(";").map(norm);
+        if (parts.length < 5) continue;
+        const id = Number(parts[0]);
+        const invertida = parts[parts.length - 1];
+        const subhab = parts[parts.length - 2];
+        const bloque = parts[parts.length - 3];
+        const pregunta = parts.slice(1, parts.length - 3).join(";");
+        if (!Number.isFinite(id) || !pregunta) continue;
+        rows.push({
+          id,
+          pregunta,
+          bloque,
+          subhabilidad: subhab,
+          invertida: /^s(i|í)$/i.test(invertida) ? "Sí" : "No",
+          value: null
+        });
+      }
+      rows.sort((a, b) => a.id - b.id);
+      return rows;
+    }
+
+    function updateProgress() {
+      const total = ITEMS.length;
+      const ans = ITEMS.filter(q => q.value != null).length;
+      const pct = total ? Math.round((ans / total) * 100) : 0;
+      const bar = document.getElementById("bar");
+      const pill = document.getElementById("pillTotal");
+      const meta = document.getElementById("metaInfo");
+      const nota = document.getElementById("notaContinuar");
+
+      bar.style.width = pct + "%";
+      pill.textContent = "Total: " + ans + " / " + total + " (" + pct + "%)";
+
+      const bloques = new Set(ITEMS.map(q => q.bloque));
+      const subs = new Set(ITEMS.map(q => q.subhabilidad));
+      meta.textContent = bloques.size + " bloques · " + subs.size + " sub-habilidades";
+
+      nota.textContent =
+        "NOTA: Para continuar debes contestar todas las preguntas. Contestadas: " +
+        ans +
+        "/" +
+        total +
+        ".";
+    }
+
+    function construirPreguntas() {
+      ITEMS = parsePreguntas(PREGUNTAS_CSV);
+      answered = 0;
+      currentPage = 0;
+      renderPage();
+      updateProgress();
+    }
+
+    function renderPage() {
+      const cont = document.getElementById("questions");
+      cont.innerHTML = "";
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+
+      for (let i = start; i < end; i++) {
+        const q = ITEMS[i];
+        const row = document.createElement("div");
+        row.className = "question";
+
+        const colNo = document.createElement("div");
+        colNo.className = "q-no";
+        colNo.textContent = String(q.id).padStart(3, "0");
+        row.appendChild(colNo);
+
+        const colText = document.createElement("div");
+        const txt = document.createElement("span");
+        txt.className = "q-text";
+        txt.textContent = q.pregunta;
+        colText.appendChild(txt);
+        row.appendChild(colText);
+
+        ["CS", "AV", "RV"].forEach(code => {
+          const cell = document.createElement("div");
+          cell.className = "q-cell";
+          const r = document.createElement("input");
+          r.type = "radio";
+          r.className = "opt";
+          r.name = "q_" + q.id;
+          r.value = code;
+          r.title =
+            code === "CS"
+              ? "Casi siempre"
+              : code === "AV"
+              ? "Algunas veces"
+              : "Rara vez";
+          r.setAttribute("aria-label", r.title);
+
+          if (q.value != null) {
+            const inv = q.invertida === "Sí";
+            let expectedScore;
+            if (!inv) {
+              expectedScore = code === "CS" ? 3 : code === "AV" ? 2 : 1;
+            } else {
+              expectedScore = code === "CS" ? 1 : code === "AV" ? 2 : 3;
+            }
+            if (q.value === expectedScore) {
+              r.checked = true;
+            }
+          }
+
+          r.addEventListener("change", () => {
+            const inv = q.invertida === "Sí";
+            let score;
+            if (!inv) {
+              score = code === "CS" ? 3 : code === "AV" ? 2 : 1;
+            } else {
+              score = code === "CS" ? 1 : code === "AV" ? 2 : 3;
+            }
+            if (q.value == null) {
+              answered++;
+            }
+            q.value = score;
+            updateProgress();
+          });
+          cell.appendChild(r);
+          row.appendChild(cell);
+        });
+
+        cont.appendChild(row);
+      }
+
+      const pageIndicator = document.getElementById("pageIndicator");
+      pageIndicator.textContent =
+        "Preguntas " + (start + 1) + "–" + end + " de " + total;
+
+      const btnSiguiente = document.getElementById("btnSiguiente");
+      if (end >= total) {
+        btnSiguiente.textContent = "FINALIZAR";
+      } else {
+        btnSiguiente.textContent = "SIGUIENTE";
+      }
+    }
+
+    function paginaCompleta() {
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+      for (let i = start; i < end; i++) {
+        if (ITEMS[i].value == null) return false;
+      }
+      return true;
+    }
+
+    function obtenerRespuestasCrudas() {
+      const map = {};
+      ITEMS.forEach(q => {
+        if (q.value != null) {
+          map[String(q.id)] = q.value;
+        }
+      });
+      return map;
+    }
+
+    // --- Helpers para resultados globales ---
+    function normalizeBloqueName(name) {
+      if (!name) return "";
+      return name.replace(/\s+/g, " ").trim().toLowerCase();
+    }
+
+    function calcIV1_IV2_categories(items) {
+      const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
+      const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
+      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+      const stdev = arr => {
+        if (arr.length < 2) return 1;
+        const m = avg(arr);
+        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
+      };
+      const invNorm = invers.map(v => 4 - v);
+      const allNorm = direct.concat(invNorm);
+      if (!allNorm.length) {
+        return { iv1Cat: null, iv2Cat: null };
+      }
+      const s = stdev(allNorm);
+      const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
+      const diff = Math.abs(avg(direct) - avg(invNorm));
+      const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
+      return { iv1Cat, iv2Cat };
+    }
+
+    function calcularResultadosGlobales() {
+      if (!ITEMS.length) return null;
+
+      // Agregación por sub-habilidad
+      const subMap = new Map(); // sub -> {bloque, items, pts}
+      ITEMS.forEach(q => {
+        if (!subMap.has(q.subhabilidad))
+          subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
+        const s = subMap.get(q.subhabilidad);
+        s.items += 1;
+        s.pts += q.value ?? 0;
+      });
+
+      const subRows = Array.from(subMap.entries())
+        .map(([sub, v]) => {
+          const max = v.items * 3;
+          const pct = max ? Math.round((v.pts / max) * 100) : 0;
+          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct };
+        })
+        .sort(
+          (a, b) =>
+            (a.bloque || "").localeCompare(b.bloque || "") ||
+            (a.sub || "").localeCompare(b.sub || "")
+        );
+
+      // Promedios por bloque
+      const bloqMap = new Map(); // bloque -> {sumPct, n}
+      subRows.forEach(r => {
+        if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0 });
+        const b = bloqMap.get(r.bloque);
+        b.sumPct += r.pct;
+        b.n += 1;
+      });
+
+      const bloqPercents = {};
+      Array.from(bloqMap.entries()).forEach(([bloque, a]) => {
+        const pct = a.n ? Math.round(a.sumPct / a.n) : 0;
+        bloqPercents[bloque] = pct;
+      });
+
+      // IIE: promedio de Intra, Inter, Para la vida
+      function pctBloque(nombreEsperado) {
+        const key = Object.keys(bloqPercents).find(
+          k => normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado)
+        );
+        return key ? bloqPercents[key] : 0;
+      }
+
+      const bIntra = pctBloque("Habilidades intrapersonales");
+      const bInter = pctBloque("Habilidades interpersonales");
+      const bPV = pctBloque("Habilidades para la vida");
+      const iie =
+        [bIntra, bInter, bPV].filter(v => v > 0).length > 0
+          ? Math.round((bIntra + bInter + bPV) / 3)
+          : 0;
+
+      // IV1 / IV2 (consistencia de respuestas)
+      const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
+
+      // IV3 basado en tiempo de respuesta total (aprox)
+      const mins = Math.round((performance.now() - __startTime) / 60000);
+      const iv3Cat =
+        mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
+
+      // Bloques que nos interesan para la BD
+      const bEstilos = pctBloque("Estilos de comunicación interpersonal");
+      const bCambio = pctBloque("Propensión al cambio");
+
+      return {
+        globales: {
+          IIE: iie,
+          IV1: iv1Cat,
+          IV2: iv2Cat,
+          IV3: iv3Cat
+        },
+        bloques: {
+          intrapersonales: bIntra,
+          interpersonales: bInter,
+          para_la_vida: bPV,
+          estilos_comunicacion: bEstilos,
+          propension_cambio: bCambio
+        },
+        subhabilidades: subRows,        // <-- NUEVO
+  bloqPercents: bloqPercents      // <-- NUEVO (por si el reporte lo usa)
+      };
+    }
+
+    function onSiguienteClick() {
+      if (!paginaCompleta()) {
+        alert(
+          "NOTA: Para continuar debes contestar todas las preguntas de esta página."
+        );
+        return;
+      }
+
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+
+      if (end >= total) {
+        onFinalizarClick();
+      } else {
+        currentPage++;
+        renderPage();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    function onFinalizarClick() {
+      const nombre = document.getElementById("nombre").value.trim();
+      const edadStr = document.getElementById("edad").value.trim();
+
+      if (!nombre) {
+        alert("Por favor ingresa el nombre.");
+        return;
+      }
+      if (!edadStr) {
+        alert("Por favor ingresa la edad.");
+        return;
+      }
+      const edad = Number(edadStr);
+      if (!Number.isFinite(edad) || edad <= 0) {
+        alert("Edad no válida.");
+        return;
+      }
+
+      const respuestas = obtenerRespuestasCrudas();
+      const total = ITEMS.length;
+      const contestadas = Object.keys(respuestas).length;
+      if (contestadas < total) {
+        alert("Aún hay preguntas sin responder.");
+        return;
+      }
+
+      const resultados = calcularResultadosGlobales();
+
+      const payload = {
+        codigo: CODIGO_ACTUAL,
+        snapshot: {
+          nombre,
+          edad_anios: edad,
+          institucion: document.getElementById("institucion").value,
+          grupo: document.getElementById("grupo").value,
+          curso: document.getElementById("curso").value,
+          version_banco: "MHP100-v1"
+        },
+        resultados,
+        responses: respuestas
+      };
+
+      console.log("Payload listo para enviar a servidor:", payload);
+fetch("/api/submit", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload)
+})
+  .then(r => r.json())
+  .then(data => console.log("Submit OK:", data))
+  .catch(err => console.error("Submit ERROR:", err));
+
+      // Mostrar nuevamente los datos del participante encima del mensaje final
+      document.getElementById("datos-participante").classList.remove("hidden");
+      document.getElementById("nombre").readOnly = true;
+      document.getElementById("edad").readOnly = true;
+
+      document.getElementById("pantalla-preguntas").classList.add("hidden");
+      const pantallaFinal = document.getElementById("pantalla-final");
+      pantallaFinal.style.display = "block";
+      pantallaFinal.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function inicializarDatosFijos() {
+      document.getElementById("institucion").value = DATOS_FIJOS.institucion;
+      document.getElementById("grupo").value = DATOS_FIJOS.grupo;
+      document.getElementById("curso").value = DATOS_FIJOS.curso;
+
+      const hoy = new Date();
+      try {
+        const fmt = new Intl.DateTimeFormat("es-EC", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit"
+        });
+        document.getElementById("fecha").value = fmt.format(hoy);
+      } catch {
+        const dd = String(hoy.getDate()).padStart(2, "0");
+        const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+        const yyyy = hoy.getFullYear();
+        document.getElementById("fecha").value = dd + "/" + mm + "/" + yyyy;
+      }
+    }
+
+    function validarAntesDeIniciar() {
+      const nombre = document.getElementById("nombre").value.trim();
+      const edadStr = document.getElementById("edad").value.trim();
+      if (!nombre || !edadStr) {
+        alert("Por favor ingresa tu nombre y edad antes de iniciar.");
+        return false;
+      }
+      const edad = Number(edadStr);
+      if (!Number.isFinite(edad) || edad <= 0) {
+        alert("Edad no válida.");
+        return false;
+      }
+      return true;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      inicializarDatosFijos();
+      construirPreguntas();
+
+      document
+        .getElementById("btnIniciar")
+        .addEventListener("click", () => {
+          if (!validarAntesDeIniciar()) return;
+          __startTime = performance.now(); // inicia cronómetro IV3 al comenzar
+          document.getElementById("pantalla-inicio").classList.add("hidden");
+          document.getElementById("datos-participante").classList.add("hidden");
+          document
+            .getElementById("pantalla-preguntas")
+            .classList.remove("hidden");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+      document
+        .getElementById("btnSiguiente")
+        .addEventListener("click", onSiguienteClick);
+
+      document
+        .getElementById("btnRegresarMenu")
+        .addEventListener("click", () => {
+          window.location.reload();
+        });
+    });
+  </script>
+</body>
+</html>
