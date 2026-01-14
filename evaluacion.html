@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluación socioemocional – Autoevaluación</title>
+  <title>Inteligencia emocional – Autoevaluación</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -299,7 +299,7 @@
     </aside>
     <main class="page">
       <header>
-        <h1>Evaluación PPA – Inteligencia Emocional</h1>
+        <h1>Inteligencia emocional – Autoevaluación</h1>
       </header>
 
       <!-- Datos del participante (solo visibles en la primera pantalla y al final) -->
@@ -315,10 +315,7 @@
             <label for="nombre">Nombre</label>
             <input id="nombre" type="text" autocomplete="name" />
           </div>
-          <div class="field">
-            <label for="edad">Edad (años)</label>
-            <input id="edad" type="number" min="5" max="99" />
-          </div>
+
           <div class="field">
             <label for="curso">Curso</label>
             <input id="curso" type="text" readonly />
@@ -340,7 +337,7 @@
 
       <!-- Pantalla de instrucciones -->
       <section id="pantalla-inicio" class="card instructions">
-        <h2>Evaluación PPA – Autoevaluación de Inteligencia Emocional</h2>
+        <h2>Inteligencia emocional – Autoevaluación</h2>
         <p>
           El manejo efectivo de las emociones es un factor clave para lograr el éxito personal y profesional.
           Esta evaluación ha sido diseñada para que la persona adulta valore su nivel de desarrollo
@@ -477,8 +474,21 @@
         const data = await r.json();
         if (!r.ok) throw new Error(data.error || 'Código no válido');
 
-        // Si el backend marca que el código ya fue usado / no disponible
-        if (data.usado || data.ya_usado || data.estado === 'completado' || data.disponible === false) {
+        // Normalizamos algunos posibles campos del backend
+        const estado = (data.estado || "").toString().toLowerCase();
+        const intentosMax = typeof data.intentos_max === "number" ? data.intentos_max : null;
+        const intentosUsados = typeof data.intentos_usados === "number" ? data.intentos_usados : null;
+        const intentosRestantes = typeof data.intentos_restantes === "number" ? data.intentos_restantes : null;
+
+        const codigoUsado =
+          data.usado === true ||
+          data.ya_usado === true ||
+          data.disponible === false ||
+          (estado && estado !== "activo") ||
+          (intentosRestantes !== null && intentosRestantes <= 0) ||
+          (intentosMax !== null && intentosUsados !== null && intentosUsados >= intentosMax);
+
+        if (codigoUsado) {
           instInput.value = grupoInput.value = cursoInput.value = '';
           CODIGO_ACTUAL = null;
           if (codigoMsg) {
@@ -965,7 +975,6 @@
         const state = {
           codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
           nombre: document.getElementById("nombre").value.trim(),
-          edad: document.getElementById("edad").value.trim(),
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
@@ -1008,7 +1017,6 @@
       if (!state) return;
 
       document.getElementById("nombre").value = state.nombre || "";
-      document.getElementById("edad").value = state.edad || "";
       document.getElementById("institucion").value = state.institucion || document.getElementById("institucion").value;
       document.getElementById("grupo").value = state.grupo || document.getElementById("grupo").value;
       document.getElementById("curso").value = state.curso || document.getElementById("curso").value;
@@ -1187,19 +1195,9 @@
 
     function onFinalizarClick() {
       const nombre = document.getElementById("nombre").value.trim();
-      const edadStr = document.getElementById("edad").value.trim();
 
       if (!nombre) {
         alert("Por favor ingresa el nombre.");
-        return;
-      }
-      if (!edadStr) {
-        alert("Por favor ingresa la edad.");
-        return;
-      }
-      const edad = Number(edadStr);
-      if (!Number.isFinite(edad) || edad <= 0) {
-        alert("Edad no válida.");
         return;
       }
 
@@ -1217,7 +1215,6 @@
         codigo: CODIGO_ACTUAL,
         snapshot: {
           nombre,
-          edad_anios: edad,
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
@@ -1243,7 +1240,6 @@
       // Mostrar nuevamente los datos del participante encima del mensaje final
       document.getElementById("datos-participante").classList.remove("hidden");
       document.getElementById("nombre").readOnly = true;
-      document.getElementById("edad").readOnly = true;
 
       document.getElementById("pantalla-preguntas").classList.add("hidden");
       const pantallaFinal = document.getElementById("pantalla-final");
@@ -1274,14 +1270,8 @@
 
     function validarAntesDeIniciar() {
       const nombre = document.getElementById("nombre").value.trim();
-      const edadStr = document.getElementById("edad").value.trim();
-      if (!nombre || !edadStr) {
-        alert("Por favor ingresa tu nombre y edad antes de iniciar.");
-        return false;
-      }
-      const edad = Number(edadStr);
-      if (!Number.isFinite(edad) || edad <= 0) {
-        alert("Edad no válida.");
+      if (!nombre) {
+        alert("Por favor ingresa tu nombre antes de iniciar.");
         return false;
       }
       return true;
