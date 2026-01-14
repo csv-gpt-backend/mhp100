@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>FINAL INTERPE reporte_mhp100_v5 AAAMHP100 – Reporte PPA</title>
+  <title>Reporte 1 – Inteligencia emocional</title>
 
   <style>
     :root{
@@ -11,10 +11,12 @@
       --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757;
     }
     html,body{
-      background:#fff;
-      color:var(--ink);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
       margin:0;
+      padding:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:#ffffff;
+      color:#0f172a;
+      min-height:100vh;
     }
     .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
     h1,h2,h3{margin:0 0 8px 0}
@@ -46,33 +48,26 @@
       font-size:12px;
       margin-bottom:6px;
     }
-    .rep-date{
-      justify-self:flex-start;
-    }
+    .rep-date{ justify-self:flex-start; }
     .rep-top-center{
       text-align:center;
       font-weight:700;
       text-transform:uppercase;
     }
-    .rep-top-logo{
-      justify-self:flex-end;
-    }
-    .lex-logo{
-      height:40px;
-      object-fit:contain;
-    }
+    .rep-top-logo{ justify-self:flex-end; }
+    .lex-logo{ height:40px; object-fit:contain; }
     .rep-top-row2{
       display:flex;
       justify-content:center;
       align-items:center;
       gap:12px;
-      font-size:26px;
+      font-size:24px;
       font-weight:800;
       margin-bottom:2px;
       text-transform:uppercase;
     }
     .mhp-logo{
-      height:50px;
+      height:60px;
       margin-left:12px;
       margin-top:-4px;
       object-fit:contain;
@@ -83,17 +78,17 @@
       font-weight:800;
     }
 
-    /* IV highlight (solo color, no cambia layout) */
+    /* IV highlight */
     .iv-table td.hl{background:var(--yellow)}
 
-    /* Estilos barras de bloques (POR DESARROLLAR / FORTALECER / ENRIQUECER) */
+    /* Bloques POR DESARROLLAR / FORTALECER / ENRIQUECER */
     .bars-wrap{margin:8px 0}
     .bars-row{
       display:grid;
       grid-template-columns:220px 1fr;
       align-items:center;
       gap:8px;
-      margin:6px 0
+      margin:10px 0;
     }
     .bars-row .label{
       font-weight:700;
@@ -115,7 +110,7 @@
     }
     .bars-slot .tick-label{
       position:absolute;
-      top:16px;
+      top:19px;
       font-size:10px;
       transform:translateX(-50%)
     }
@@ -134,11 +129,11 @@
     .page{margin-top:10px}
     .page-break{height:0;margin:0;border:0}
     @media print{
-      @page{ size:A4; margin:14mm 12mm }
+      @page{ size:A4; margin:12mm 10mm }
+      body{zoom:0.95;}
       .topbar,.hint{display:none !important}
       .page-break{page-break-before:always}
       .page{break-inside:avoid}
-      body{margin:0}
     }
     .p2-title{
       display:flex;
@@ -254,7 +249,8 @@
     .scale-note-inline{
       font-size:11px;
       color:var(--muted);
-      margin-top:2px;
+      margin-top:4px;
+      text-align:center;
     }
 
     /* ===== Página de interpretación ===== */
@@ -263,12 +259,23 @@
       font-size:18px;
       font-weight:800;
     }
+    .interp-legend{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+      margin-bottom:4px;
+    }
+    .interp-legend-row{
+      margin-top:3px;
+      margin-bottom:3px;
+    }
     .interp-bloque{
       border:1px solid var(--line);
       border-radius:10px;
       padding:10px;
       margin-top:8px;
       font-size:12px;
+      background:#fff;
     }
     .interp-bloque-header{
       display:flex;
@@ -311,6 +318,10 @@
       color:var(--muted);
       margin-bottom:4px;
     }
+    .skill-row-alert{
+      color: var(--red);
+      font-weight:600;
+    }
     .skill-bar{
       display:flex;
       align-items:center;
@@ -338,8 +349,30 @@
     .skill-bar-value{
       font-size:11px;
       font-weight:700;
-      min-width:32px;
+      min-width:48px;
       text-align:right;
+    }
+
+    /* Recomendaciones / plan de acción */
+    .recom-subtitle{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    .recom-list{
+      margin:4px 0 0 14px;
+      padding:0;
+      font-size:12px;
+      color:#374151;
+    }
+    .recom-list li{
+      margin-bottom:3px;
+    }
+    .plan-section-title{
+      font-weight:700;
+      font-size:12px;
+      margin-top:4px;
+      margin-bottom:2px;
     }
   </style>
 </head>
@@ -348,11 +381,11 @@
 <div class="wrap">
 
   <div class="topbar">
-    <input id="codigoInput" placeholder="LEX001" maxlength="10"/>
+    <input id="codigoInput" placeholder="CÓDIGO" maxlength="10"/>
     <button class="btn" id="btnVer">Ver reporte</button>
     <span id="msg" class="msg"></span>
   </div>
-  <div class="hint">Tip: también puedes abrir ?codigo=LEX004</div>
+  <div class="hint">Tip: también puedes abrir la página como <code>?codigo=ABC001</code></div>
 
   <div id="reporteContainer" style="display:none">
 
@@ -363,14 +396,14 @@
       <div class="rep-top">
         <div class="rep-top-row1">
           <div id="repDateLine" class="rep-date"></div>
-          <div class="rep-top-center">GRÁFICA INDIVIDUAL MHP</div>
+          <div class="rep-top-center">REPORTE INDIVIDUAL DE RESULTADOS</div>
           <div class="rep-top-logo">
-            <img src="assets/img_sello.png" alt="MHP100" class="mhp-logo">
+            <img src="assets/logo_adalam.png" alt="Logo de la institución" class="mhp-logo">
           </div>
         </div>
         <div class="rep-top-row2">
-          <span>SKILL MAP</span>
-          <img src="assets/img_ident.jpg" alt="Lexium" class="lex-logo">
+          <span>Evaluación socioemocional</span>
+          <img src="assets/img_ident.jpg" alt="Identidad gráfica" class="lex-logo">
         </div>
         <div class="rep-top-row3">INTELIGENCIA EMOCIONAL</div>
       </div>
@@ -382,9 +415,8 @@
 
       <div class="rep-mid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
         <div class="curve">
-          <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
+          <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE PUNTAJES.</div>
 
-          <!-- SVG con campana -->
           <svg id="freqCurve" viewBox="0 0 520 140" width="100%" height="140">
             <defs>
               <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -511,23 +543,47 @@
       <div class="rep-top">
         <div class="rep-top-row1">
           <div id="repDateLine2" class="rep-date"></div>
-          <div class="rep-top-center">GRÁFICA INDIVIDUAL MHP</div>
+          <div class="rep-top-center">Informe socioemocional y psicométrico</div>
           <div class="rep-top-logo">
-            <img src="assets/img_sello.png" alt="MHP100" class="mhp-logo">
+            <img src="assets/logo_adalam.png" alt="Logo de la institución" class="mhp-logo">
           </div>
         </div>
         <div class="rep-top-row2">
-          <span>SKILL MAP</span>
-          <img src="assets/img_ident.jpg" alt="Lexium" class="lex-logo">
+          <span>Informe socioemocional</span>
+          <img src="assets/img_ident.jpg" alt="Identidad gráfica" class="lex-logo">
         </div>
         <div class="rep-top-row3">INTELIGENCIA EMOCIONAL – INTERPRETACIÓN</div>
       </div>
 
+      <h2 class="interp-title">1.- Datos personales.</h2>
       <div class="rep-ids" id="repHeaderBox2"
-           style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:12px;margin-top:8px">
+           style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:12px;margin-top:4px">
       </div>
 
-      <h2 class="interp-title">Interpretación de resultados por bloque y sub-habilidad</h2>
+      <h2 class="interp-title">2.- Descripción del instrumento y criterios de interpretación</h2>
+
+      <div class="interp-legend">
+        <div class="interp-legend-row">
+          Los resultados se presentan en una escala de 1 a 100, equivalente a un puntaje tipo percentil. Esto permite saber si la persona se ubica por debajo, en la media o por encima del grupo de referencia de su edad.
+        </div>
+        <div class="interp-legend-row">
+          Para facilitar la lectura se utilizan tres rangos de interpretación:
+        </div>
+        <div class="interp-legend-row">
+          <span class="badge b-red">1–40 · Bajo</span>
+          <span class="badge b-orange">41–70 · Medio</span>
+          <span class="badge b-green">71–100 · Alto</span>
+        </div>
+        <div class="interp-legend-row">
+          El color <b>rojo</b> indica habilidades por desarrollar, el <b>amarillo</b> habilidades por fortalecer y el <b>verde</b> habilidades por enriquecer. Un puntaje más alto refleja un mayor nivel de desarrollo o manejo en la habilidad evaluada.
+        </div>
+        <div class="interp-legend-row">
+          En las escalas de <b>Agresión</b> y <b>Timidez</b> la interpretación es inversa: puntajes bajos indican mejor manejo de estas áreas, mientras que puntajes altos sugieren mayor riesgo y requieren observación y apoyo.
+        </div>
+        <div class="interp-legend-row">
+          La prueba evalúa tres grandes conjuntos de habilidades (intrapersonales, interpersonales y para la vida) organizadas en 14 subhabilidades específicas, además de los estilos de comunicación y la propensión al cambio.
+        </div>
+      </div>
 
       <div id="interpIntra"  class="interp-bloque"></div>
       <div id="interpInter"  class="interp-bloque"></div>
@@ -535,6 +591,11 @@
 
       <div id="interpEstilos" class="interp-bloque"></div>
       <div id="interpCambio"  class="interp-bloque"></div>
+
+      <div id="perfilGlobal" class="interp-bloque"></div>
+
+      <div id="recomendaciones" class="interp-bloque"></div>
+      <div id="planAccion" class="interp-bloque"></div>
 
     </section>
 
@@ -544,7 +605,7 @@
     <section class="page page-2" id="page2">
 
       <div class="p2-title">
-        <h2>RESULTADOS</h2>
+        <h2>RESULTADOS GLOBALES</h2>
         <div>
           <button class="btn" id="btnPDF" style="background:#2563eb">Imprimir / PDF</button>
           <button class="btn" id="btnJSON" style="background:#6b7280">Exportar JSON</button>
@@ -560,14 +621,6 @@
             <tr>
               <th>Bloque</th><th>Sub-habilidad</th><th>Ítems</th><th>Puntos</th><th>%</th><th>Rango</th>
             </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-
-        <h3 style="margin-top:10px">Por bloque</h3>
-        <table class="result-table" id="bloqTable">
-          <thead>
-            <tr><th>Bloque</th><th>Promedio %</th><th>Rango</th></tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -590,10 +643,47 @@
     return (name||"").replace(/\s+/g," ").trim().toLowerCase();
   }
 
+  /* =========================================================
+     AJUSTE GLOBAL DE PUNTAJES (VISUAL)
+     - Resta 10 puntos a escala 1..100 (clamp 1..100)
+     - NO cambia tu evaluación ni el JSON en BD, solo lo mostrado
+     ========================================================= */
+  const SCORE_ADJUST = {
+    ENABLED: true,
+    OFFSET: 10,               // resta 10
+    APPLY_TO_RISK: true       // Agresión/Timidez: si lo pones false, NO se ajustan
+  };
+
+  function isRiskScale(bloqueNorm, subNorm){
+    return (
+      bloqueNorm === "estilos de comunicación interpersonal" &&
+      (subNorm === "agresión" || subNorm === "timidez")
+    );
+  }
+
+  function adjScore(v, {bloqueNorm=null, subNorm=null} = {}){
+    const n = Number(v);
+    if(!Number.isFinite(n)) return v;
+    if(n <= 0) return n;
+
+    if(!SCORE_ADJUST.ENABLED) return Math.round(n);
+
+    if(isRiskScale(bloqueNorm || "", subNorm || "") && !SCORE_ADJUST.APPLY_TO_RISK){
+      return clamp(Math.round(n), 1, 100);
+    }
+    return clamp(Math.round(n - SCORE_ADJUST.OFFSET), 1, 100);
+  }
+
   function rangoBadge(p){
     if (p<=40) return {txt:"1–40 Por desarrollar", cls:"b-red"};
     if (p<=70) return {txt:"41–70 Por fortalecer", cls:"b-orange"};
     return {txt:"71–100 Por enriquecer", cls:"b-green"};
+  }
+
+  function rangoBadgeRiesgo(p){
+    if (p<=40) return {txt:"1–40 Bajo riesgo", cls:"b-green"};
+    if (p<=70) return {txt:"41–70 Riesgo medio", cls:"b-orange"};
+    return {txt:"71–100 Riesgo alto", cls:"b-red"};
   }
 
   function highlightIV(rowId, colIndex){
@@ -609,7 +699,6 @@
     if (v === null || v === undefined) return 2;
     const n = Number(v);
     if (!Number.isNaN(n)){
-      // 0,1,2 -> columnas 1,2,3
       if (n === 0 || n === 1 || n === 2) return n + 1;
       if (Number.isInteger(n) && n>=1 && n<=3) return n;
       if (n >= 0 && n <= 100){
@@ -624,7 +713,6 @@
     return 2;
   }
 
-  /* ===== Curva campana (bell curve) ===== */
   function drawBellCurve(){
     const path = document.getElementById("bellPath");
     if(!path) return;
@@ -657,7 +745,6 @@
     }
   }
 
-  /* ===== Bloques POR DESARROLLAR / FORTALECER / ENRIQUECER ===== */
   function addRow(container, name, pct){
     const row=document.createElement('div');
     row.style.display='grid';
@@ -719,7 +806,6 @@
       const d=document.createElement('div');
       d.style.fontSize='11px';
       d.style.textAlign='center';
-      d.style.color='#374151';
       d.textContent=t;
       cols.appendChild(d);
     });
@@ -751,12 +837,12 @@
 
     rowsFiltradas.forEach(r=>{
       const sub = r.subhabilidad || r.sub || r.nombre || "";
-      const pct = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
+      const pctRaw = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
+      const pct = adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeBloqueName(sub)});
       addRow(cont, sub, pct);
     });
   }
 
-  /* ===== Barras estilos / propensión ===== */
   function renderBars(containerId, items, showNote){
     const host = document.getElementById(containerId);
     if (!host) return;
@@ -767,6 +853,10 @@
     items.forEach(it => {
       const row = document.createElement("div");
       row.className = "bars-row";
+
+      if (it.label === "TIMIDEZ") {
+        row.style.marginTop = "20px";
+      }
 
       const label = document.createElement("div");
       label.className = "label";
@@ -818,7 +908,6 @@
     el.style.display="block";
   }
 
-  /* ===== Página 2 (RESULTADOS) ===== */
   function renderPage2(subRows, bloqRows){
     const subT = $("#subTable tbody");
     subT.innerHTML = "";
@@ -827,8 +916,20 @@
       const sub = r.subhabilidad || r.sub || "";
       const items = r.items ?? r.n_items ?? "";
       const puntos = r.puntos ?? r.points ?? r.pts ?? "";
-      const pct = Math.round(r.percent ?? r.pct ?? 0);
-      const badge = rangoBadge(pct);
+      const pctRaw = Math.round(r.percent ?? r.pct ?? 0);
+
+      const bloqueNorm = normalizeBloqueName(bloque);
+      const subNorm = normalizeBloqueName(sub);
+
+      const pct = adjScore(pctRaw, {bloqueNorm, subNorm});
+
+      let badge;
+      if (isRiskScale(bloqueNorm, subNorm)){
+        badge = rangoBadgeRiesgo(pct);
+      }else{
+        badge = rangoBadge(pct);
+      }
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${bloque}</td>
@@ -840,28 +941,8 @@
       `;
       subT.appendChild(tr);
     });
-
-    const bloqT = $("#bloqTable tbody");
-    bloqT.innerHTML = "";
-    const list = Array.isArray(bloqRows)
-      ? bloqRows
-      : Object.keys(bloqRows||{}).map(k=>({bloque:k, pct: bloqRows[k]}));
-
-    list.forEach(r=>{
-      const bloque = r.bloque || r.block || "";
-      const pct = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? 0);
-      const badge = rangoBadge(pct);
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${bloque}</td>
-        <td><b>${pct}%</b></td>
-        <td><span class="badge ${badge.cls}">${badge.txt}</span></td>
-      `;
-      bloqT.appendChild(tr);
-    });
   }
 
-  /* === helper para buscar pct en subhabilidades === */
   function findSubPct(subRows, bloqueNombre, subNombre){
     const bloqueKey = normalizeBloqueName(bloqueNombre);
     const subKey = normalizeBloqueName(subNombre);
@@ -870,34 +951,36 @@
       normalizeBloqueName(r.subhabilidad || r.sub || r.nombre || "") === subKey
     );
     if(!row) return null;
-    const v = Number(row.percent ?? row.pct ?? row.porcentaje ?? row.value);
-    return Number.isNaN(v) ? null : v;
+    const vRaw = Number(row.percent ?? row.pct ?? row.porcentaje ?? row.value);
+    if(Number.isNaN(vRaw)) return null;
+    return adjScore(vRaw, {bloqueNorm: bloqueKey, subNorm: subKey});
   }
 
-  /* ===== Textos de interpretación ===== */
   const BLOQUE_DESCS = {
     intra: "Las habilidades intrapersonales son la capacidad de comprender y gestionar los propios pensamientos y emociones.",
-    inter: "Son el conjunto de capacidades y comportamientos que permiten a una persona comunicarse y relacionarse eficazmente con otros para construir vínculos positivos y colaborar en distintos contextos.",
-    vida: "Son aptitudes y destrezas que permiten a las personas enfrentar y resolver eficazmente los desafíos cotidianos, adaptarse y desenvolverse positivamente en sociedad.",
-    estilos: "Los estilos de comunicación son las diferentes formas en que las personas expresan sus ideas y emociones.",
-    cambio: "Es la disposición y apertura de una persona o líder para adaptarse y promover transformaciones positivas en su entorno."
+    inter: "Son el conjunto de capacidades y comportamientos que permiten comunicarse y relacionarse eficazmente con otros para construir vínculos positivos y colaborar en distintos contextos.",
+    vida: "Son aptitudes y destrezas que permiten enfrentar los desafíos cotidianos, adaptarse y desenvolverse positivamente en sociedad.",
+    estilos: "Los estilos de comunicación son las diferentes formas en que las personas expresan sus ideas y emociones en la interacción con los demás. En las escalas de Agresión y Timidez, puntajes bajos indican mejor manejo de estas áreas, mientras que puntajes altos sugieren mayor riesgo y requieren especial atención.",
+    cambio: "Es la disposición y apertura de una persona para adaptarse y promover transformaciones positivas en su entorno."
   };
 
   const HABILIDAD_DESCS = {
     "Autoestima": "Es la valoración y percepción que una persona tiene de sí misma.",
     "Manejo de la Tensión": "Es la habilidad para identificar, controlar y reducir el estrés y la presión emocional de forma saludable.",
-    "Bienestar físico": "Es el estado de salud que permite realizar actividades diarias sin fatiga ni estrés, cuidando el cuerpo mediante ejercicio, alimentación y descanso adecuados.",
+    "Manejo de la tensión": "Es la habilidad para identificar, controlar y reducir el estrés y la presión emocional de forma saludable.",
+    "Bienestar físico": "Es el estado de salud que permite realizar actividades diarias cuidando el cuerpo mediante ejercicio, alimentación y descanso adecuados.",
     "Asertividad": "Es la habilidad para expresar opiniones, sentimientos y necesidades de manera clara, respetuosa y firme, sin agredir ni someterse a los demás.",
     "Conciencia de los demás": "Capacidad de percibir y entender las emociones, pensamientos y necesidades de otras personas para relacionarse empáticamente.",
     "Empatía": "Es la capacidad de comprender y compartir los sentimientos y emociones de otras personas poniéndose en su lugar.",
     "Motivación": "Es el impulso interno o externo que activa, dirige y sostiene el comportamiento hacia la consecución de metas u objetivos.",
-    "Compromiso": "Es la obligación interna y emocional que impulsa a una persona a cumplir con sus responsabilidades y decisiones con dedicación y constancia.",
-    "Administración del tiempo": "Es el proceso de planificar y controlar el uso consciente del tiempo para realizar actividades de manera eficiente y cumplir objetivos.",
+    "Compromiso": "Es la obligación interna y emocional que impulsa a cumplir responsabilidades y decisiones con dedicación y constancia.",
+    "Administración del tiempo": "Es el proceso de planificar y controlar el uso del tiempo para realizar actividades de manera eficiente y cumplir objetivos.",
     "Toma de Decisiones": "Es el proceso de elegir la mejor opción entre varias alternativas para resolver un problema o alcanzar un objetivo.",
+    "Toma de decisiones": "Es el proceso de elegir la mejor opción entre varias alternativas para resolver un problema o alcanzar un objetivo.",
     "Liderazgo": "Es la capacidad de dirigir, motivar e influir en un grupo para alcanzar objetivos comunes con eficacia y compromiso.",
-    "Agresión": "Es un comportamiento hostil o violento que puede manifestarse verbal, física o emocionalmente, y que busca causar daño o intimidar a otros.",
-    "Timidez": "Es la sensación de inseguridad y reserva que lleva a una persona a evitar situaciones sociales o a mostrarse retraída.",
-    "Propensión al cambio": "Es el grado de apertura y disposición de una persona para aceptar y adaptarse a nuevas ideas, situaciones y transformaciones."
+    "Agresión": "Es un comportamiento hostil o violento, verbal, físico o emocional, que busca causar daño o intimidar a otros.",
+    "Timidez": "Es la sensación de inseguridad y reserva que lleva a evitar situaciones sociales o a mostrarse retraído.",
+    "Propensión al cambio": "Es el grado de apertura y disposición para aceptar y adaptarse a nuevas ideas, situaciones y transformaciones."
   };
 
   function renderSkillRow(parent, nombre, pct){
@@ -906,8 +989,10 @@
 
     const title = document.createElement("div");
     title.className = "skill-row-title";
-    const pctTxt = (pct != null && !Number.isNaN(pct)) ? ` (${Math.round(pct)}%)` : "";
-    title.textContent = nombre + pctTxt;
+    const numeric = (pct != null && !Number.isNaN(Number(pct))) ? Math.round(pct) : null;
+    title.textContent = numeric != null
+      ? `${nombre} (Puntaje: ${numeric}/100)`
+      : nombre;
     row.appendChild(title);
 
     const descTxt = HABILIDAD_DESCS[nombre] || "";
@@ -924,25 +1009,376 @@
     const track = document.createElement("div");
     track.className = "skill-bar-track";
 
+    const isAggOrTim = (nombre === "Agresión" || nombre === "Timidez");
+    if (isAggOrTim){
+      track.style.background =
+        "linear-gradient(to right," +
+        "var(--green) 0%, var(--green) 40%," +
+        "var(--orange) 40%, var(--orange) 70%," +
+        "var(--red) 70%, var(--red) 100%)";
+    }
+
     const marker = document.createElement("div");
     marker.className = "skill-bar-marker";
-    if(pct == null || Number.isNaN(pct)){
+    if(numeric == null){
       marker.style.display = "none";
     }else{
-      const v = clamp(Math.round(pct),1,100);
+      const v = clamp(numeric,1,100);
       marker.style.left = v + "%";
     }
     track.appendChild(marker);
 
     const value = document.createElement("div");
     value.className = "skill-bar-value";
-    value.textContent = (pct != null && !Number.isNaN(pct)) ? Math.round(pct) + "%" : "—";
+    value.textContent = numeric != null ? `${numeric} / 100` : "—";
 
     bar.appendChild(track);
     bar.appendChild(value);
     row.appendChild(bar);
 
+    if (numeric != null) {
+      if (isAggOrTim && numeric > 70) {
+        value.classList.add("skill-row-alert");
+        const alert = document.createElement("div");
+        alert.className = "skill-row-desc skill-row-alert";
+        alert.textContent = nombre === "Agresión"
+          ? "El puntaje se encuentra en un rango elevado de agresión. Se recomienda observación cercana, acompañamiento emocional y, de ser necesario, derivación a apoyo profesional."
+          : "El puntaje se encuentra en un rango elevado de timidez. Se sugiere favorecer espacios graduales de participación y valorar acompañamiento especializado si la dificultad persiste.";
+        row.appendChild(alert);
+      } else if (!isAggOrTim && numeric <= 40) {
+        const alert = document.createElement("div");
+        alert.className = "skill-row-desc skill-row-alert";
+        alert.textContent = "El puntaje se encuentra en un rango bajo. Se recomienda un seguimiento cercano y actividades específicas para fortalecer esta habilidad.";
+        row.appendChild(alert);
+      }
+    }
+
     parent.appendChild(row);
+  }
+
+  function nivelFromPct(p){
+    if(p == null || Number.isNaN(p)) return "medio";
+    if(p <= 40) return "bajo";
+    if(p <= 70) return "medio";
+    return "alto";
+  }
+
+  const RECOM_BLOQUES = {
+    intra: {
+      bajo: [
+        "Trabajar en el reconocimiento de cualidades personales mediante actividades que fortalezcan la autoestima.",
+        "Incorporar rutinas breves de respiración, pausas activas o ejercicio suave para manejar mejor la tensión.",
+        "Supervisar hábitos de sueño y alimentación para mantener un adecuado bienestar físico."
+      ],
+      medio: [
+        "Reforzar los logros alcanzados, ayudando a la persona a identificar en qué es buena y qué ha mejorado.",
+        "Enseñar estrategias concretas para manejar el estrés en época de exámenes o cambios importantes."
+      ],
+      alto: [
+        "Aprovechar su buen autoconocimiento para proponerle metas personales desafiantes pero alcanzables.",
+        "Invitarle a modelar conductas de autocuidado y manejo de la tensión frente a sus pares."
+      ]
+    },
+    inter: {
+      bajo: [
+        "Practicar el uso de mensajes en primera persona (“yo siento… cuando…”) para mejorar la asertividad.",
+        "Promover espacios seguros de diálogo donde pueda expresar opiniones sin temor a burlas o juicios.",
+        "Trabajar juegos de rol o dinámicas que favorezcan ponerse en el lugar del otro (empatía)."
+      ],
+      medio: [
+        "Refinar habilidades de escucha activa (mirar, no interrumpir, resumir lo que el otro dijo).",
+        "Reforzar conductas positivas cada vez que muestra respeto, colaboración y cuidado por los demás."
+      ],
+      alto: [
+        "Ofrecerle oportunidades para apoyar a compañeros que necesitan ayuda en lo social o emocional.",
+        "Invitarle a participar en actividades donde pueda ser mediador o promotor de buena convivencia."
+      ]
+    },
+    vida: {
+      bajo: [
+        "Apoyar la organización diaria con horarios visibles, recordatorios y acompañamiento cercano.",
+        "Ayudar a dividir tareas grandes en pasos pequeños y manejables para facilitar la toma de decisiones.",
+        "Reforzar el cumplimiento de acuerdos sencillos, usando consecuencias claras y consistentes."
+      ],
+      medio: [
+        "Estimular que planifique con anticipación tareas académicas y responsabilidades en casa.",
+        "Ofrecerle pequeños roles de liderazgo en actividades concretas, con apoyo del adulto."
+      ],
+      alto: [
+        "Asignar responsabilidades estables (por ejemplo, coordinar un equipo o proyecto) para aprovechar sus capacidades.",
+        "Invitarle a participar en proyectos escolares o comunitarios donde pueda liderar y organizar a otros."
+      ]
+    }
+  };
+
+  function renderRecomendaciones(extras){
+    const cont = document.getElementById("recomendaciones");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">4.- Recomendaciones y plan de acción</div>`;
+    cont.appendChild(header);
+
+    const sub = document.createElement("div");
+    sub.className = "recom-subtitle";
+    sub.textContent = "Las siguientes recomendaciones se generan a partir de los puntajes obtenidos en cada bloque de habilidades y pueden ser usadas como guía inicial para el acompañamiento.";
+    cont.appendChild(sub);
+
+    const lista = document.createElement("ul");
+    lista.className = "recom-list";
+
+    const nIntra = nivelFromPct(extras.bIntra);
+    const nInter = nivelFromPct(extras.bInter);
+    const nPV    = nivelFromPct(extras.bPV);
+
+    (RECOM_BLOQUES.intra[nIntra] || []).forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = "Habilidades intrapersonales: " + t;
+      lista.appendChild(li);
+    });
+    (RECOM_BLOQUES.inter[nInter] || []).forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = "Habilidades interpersonales: " + t;
+      lista.appendChild(li);
+    });
+    (RECOM_BLOQUES.vida[nPV] || []).forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = "Habilidades para la vida: " + t;
+      lista.appendChild(li);
+    });
+
+    if(extras.agresionVal != null && extras.agresionVal > 70){
+      const li = document.createElement("li");
+      li.textContent = "Estilos de comunicación (agresión): trabajar en el control de impulsos y uso de un lenguaje respetuoso, enseñando alternativas para expresar enojo sin dañar a otros.";
+      lista.appendChild(li);
+    }
+    if(extras.timidezVal != null && extras.timidezVal > 70){
+      const li = document.createElement("li");
+      li.textContent = "Estilos de comunicación (timidez): favorecer la participación gradual en actividades grupales, comenzando por espacios pequeños y con apoyo de un adulto de confianza.";
+      lista.appendChild(li);
+    }
+
+    if(extras.propCambioVal != null){
+      if(extras.propCambioVal <= 40){
+        const li = document.createElement("li");
+        li.textContent = "Propensión al cambio: acompañar de cerca los procesos de cambio, explicando con anticipación lo que ocurrirá y respetando sus tiempos de adaptación.";
+        lista.appendChild(li);
+      }else if(extras.propCambioVal >= 71){
+        const li = document.createElement("li");
+        li.textContent = "Propensión al cambio: aprovechar su apertura a lo nuevo para involucrarle en proyectos innovadores y en la implementación de mejoras dentro del aula o institución.";
+        lista.appendChild(li);
+      }
+    }
+
+    cont.appendChild(lista);
+  }
+
+  const PLAN_BASE = {
+    hogar: {
+      general: [
+        "Destinar diariamente unos minutos para conversar sobre cómo se sintió en el día, validando sus emociones.",
+        "Reconocer con palabras concretas los esfuerzos y avances, más allá del resultado académico.",
+        "Establecer rutinas claras (horarios de estudio, descanso y ocio) visibles para toda la familia."
+      ]
+    },
+    escuela: {
+      general: [
+        "Favorecer un clima de aula donde se valore el respeto, la colaboración y la expresión emocional adecuada.",
+        "Registrar observaciones relevantes sobre su comportamiento socioemocional y compartirlas en reuniones con familia.",
+        "Incorporar actividades breves de educación emocional (dinámicas, debates, juegos cooperativos)."
+      ],
+      focoIntra: [
+        "Ofrecer oportunidades para que exprese sus opiniones en espacios seguros (tutorías, pequeños grupos).",
+        "Evitar comentarios descalificadores y reforzar mensajes que destaquen sus capacidades y progresos."
+      ],
+      focoInter: [
+        "Organizar trabajos cooperativos donde pueda practicar la escucha, el respeto y la empatía.",
+        "Observar y acompañar las interacciones con pares, interviniendo cuando haya conflictos para modelar formas adecuadas de resolverlos."
+      ],
+      focoVida: [
+        "Apoyar en la planificación de tareas escolares con fechas y pasos intermedios claros.",
+        "Proponerle pequeños roles de responsabilidad en el aula para fortalecer su organización y compromiso."
+      ]
+    },
+    apoyo: {
+      general: [
+        "Si las dificultades se mantienen o son muy intensas, considerar una evaluación más profunda por parte del departamento de Consejería Estudiantil u otro profesional especializado.",
+        "Mantener comunicación periódica entre familia y escuela para alinear estrategias y evitar mensajes contradictorios."
+      ]
+    }
+  };
+
+  function renderPlanAccion(extras){
+    const cont = document.getElementById("planAccion");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">Plan de acción sugerido</div>`;
+    cont.appendChild(header);
+
+    const sub = document.createElement("div");
+    sub.className = "recom-subtitle";
+    sub.textContent = "Este plan ofrece orientaciones generales para acompañar el desarrollo socioemocional desde el hogar y la institución educativa. No reemplaza una valoración clínica ni una intervención profesional especializada.";
+    cont.appendChild(sub);
+
+    const hTitle = document.createElement("div");
+    hTitle.className = "plan-section-title";
+    hTitle.textContent = "En el hogar / familia:";
+    cont.appendChild(hTitle);
+
+    const hList = document.createElement("ul");
+    hList.className = "recom-list";
+    PLAN_BASE.hogar.general.forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t;
+      hList.appendChild(li);
+    });
+    cont.appendChild(hList);
+
+    const eTitle = document.createElement("div");
+    eTitle.className = "plan-section-title";
+    eTitle.textContent = "En el aula / institución educativa:";
+    cont.appendChild(eTitle);
+
+    const eList = document.createElement("ul");
+    eList.className = "recom-list";
+
+    PLAN_BASE.escuela.general.forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t;
+      eList.appendChild(li);
+    });
+
+    const bloques = [
+      {key:"intra", label:"intrapersonales", val:extras.bIntra},
+      {key:"inter", label:"interpersonales", val:extras.bInter},
+      {key:"vida",  label:"para la vida",   val:extras.bPV}
+    ].filter(b=> b.val != null && !Number.isNaN(b.val));
+
+    if(bloques.length){
+      bloques.sort((a,b)=>a.val-b.val);
+      const masBajo = bloques[0].key;
+      if(masBajo === "intra"){
+        PLAN_BASE.escuela.focoIntra.forEach(t=>{
+          const li = document.createElement("li");
+          li.textContent = t;
+          eList.appendChild(li);
+        });
+      }else if(masBajo === "inter"){
+        PLAN_BASE.escuela.focoInter.forEach(t=>{
+          const li = document.createElement("li");
+          li.textContent = t;
+          eList.appendChild(li);
+        });
+      }else if(masBajo === "vida"){
+        PLAN_BASE.escuela.focoVida.forEach(t=>{
+          const li = document.createElement("li");
+          li.textContent = t;
+          eList.appendChild(li);
+        });
+      }
+    }
+
+    cont.appendChild(eList);
+
+    const aTitle = document.createElement("div");
+    aTitle.className = "plan-section-title";
+    aTitle.textContent = "Con apoyo del orientador / psicólogo:";
+    cont.appendChild(aTitle);
+
+    const aList = document.createElement("ul");
+    aList.className = "recom-list";
+    PLAN_BASE.apoyo.general.forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t;
+      aList.appendChild(li);
+    });
+    cont.appendChild(aList);
+
+    const foot = document.createElement("div");
+    foot.style.textAlign = "right";
+    foot.style.fontSize = "10px";
+    foot.style.color = "var(--muted)";
+    foot.style.marginTop = "8px";
+    foot.textContent = "IPLAED CORP 2025";
+    cont.appendChild(foot);
+  }
+
+  function renderPerfilGlobal(extras){
+    const cont = document.getElementById("perfilGlobal");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">3.- Perfil cuantitativo global</div>`;
+    cont.appendChild(header);
+
+    const p = document.createElement("div");
+    p.className = "interp-bloque-desc";
+    const nombre = extras.nombre || "el participante";
+    p.textContent = `Del reporte individual de ${nombre} se desprenden los siguientes índices:`;
+    cont.appendChild(p);
+
+    const ul = document.createElement("ul");
+    ul.className = "recom-list";
+
+    const fmt = v => (v != null && !Number.isNaN(v)) ? Math.round(v) : "—";
+
+    [
+      `Índice de Habilidades Intrapersonales (IH INTRA): ${fmt(extras.bIntra)}`,
+      `Índice de Habilidades Interpersonales (IH INTER): ${fmt(extras.bInter)}`,
+      `Índice de Habilidades para la Vida (IH PV): ${fmt(extras.bPV)}`,
+      `Índice Global de Inteligencia Emocional (IIE): ${fmt(extras.iieFinal)}`
+    ].forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t;
+      ul.appendChild(li);
+    });
+
+    cont.appendChild(ul);
+
+    const subt = document.createElement("div");
+    subt.className = "plan-section-title";
+    subt.textContent = "Estilos de Comunicación Interpersonal (en estas escalas puntajes bajos indican mejor manejo):";
+    cont.appendChild(subt);
+
+    const ul2 = document.createElement("ul");
+    ul2.className = "recom-list";
+
+    const liA = document.createElement("li");
+    liA.textContent = "Agresión: " + fmt(extras.agresionVal);
+    if (extras.agresionVal != null && !Number.isNaN(extras.agresionVal) && extras.agresionVal > 70){
+      liA.classList.add("skill-row-alert");
+      liA.textContent += " (rango alto, requiere atención y acompañamiento).";
+    }
+    ul2.appendChild(liA);
+
+    const liT = document.createElement("li");
+    liT.textContent = "Timidez: " + fmt(extras.timidezVal);
+    if (extras.timidezVal != null && !Number.isNaN(extras.timidezVal) && extras.timidezVal > 70){
+      liT.classList.add("skill-row-alert");
+      liT.textContent += " (rango alto, sugiere inhibición social significativa).";
+    }
+    ul2.appendChild(liT);
+
+    cont.appendChild(ul2);
+
+    const subt2 = document.createElement("div");
+    subt2.className = "plan-section-title";
+    subt2.textContent = "Propensión al cambio:";
+    cont.appendChild(subt2);
+
+    const ul3 = document.createElement("ul");
+    ul3.className = "recom-list";
+    const liC = document.createElement("li");
+    liC.textContent = "Propensión al cambio: " + fmt(extras.propCambioVal) + " (a mayor puntaje, mayor apertura al cambio).";
+    ul3.appendChild(liC);
+    cont.appendChild(ul3);
   }
 
   function renderBloqueInterpretacion(containerId, tituloBloque, bloqueDescKey, subRows, pctBloqueVal){
@@ -950,11 +1386,13 @@
     if(!cont) return;
     cont.innerHTML = "";
 
+    const idxText = (pctBloqueVal != null && !Number.isNaN(pctBloqueVal)) ? pctBloqueVal : "—";
+
     const header = document.createElement("div");
     header.className = "interp-bloque-header";
     header.innerHTML = `
       <div class="interp-bloque-nombre">${tituloBloque}</div>
-      <div class="interp-bloque-indice">Índice: <span>${pctBloqueVal ? pctBloqueVal + "%" : "—"}</span></div>
+      <div class="interp-bloque-indice">Índice: <span>${idxText}</span></div>
     `;
     cont.appendChild(header);
 
@@ -990,12 +1428,15 @@
 
     rows.forEach(r=>{
       const sub = r.subhabilidad || r.sub || r.nombre || "";
-      const pct = r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? null;
+      const pctRaw = Number(r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? null);
+      const pct = (pctRaw != null && !Number.isNaN(pctRaw))
+        ? adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeBloqueName(sub)})
+        : null;
       renderSkillRow(cont, sub, pct);
     });
   }
 
-  function renderInterpretacion(subRows, bloquePercents, extras){
+  function renderInterpretacion(subRows, bloqPercents, extras){
     const date1 = document.getElementById("repDateLine");
     const date2 = document.getElementById("repDateLine2");
     if(date1 && date2) date2.textContent = date1.textContent;
@@ -1040,6 +1481,10 @@
 
       renderSkillRow(cambCont, "Propensión al cambio", extras.propCambioVal);
     }
+
+    renderPerfilGlobal(extras);
+    renderRecomendaciones(extras);
+    renderPlanAccion(extras);
   }
 
   function renderAll(data){
@@ -1062,8 +1507,10 @@
       ? fechaObj.toLocaleDateString("es-EC", { year:"numeric", month:"long", day:"2-digit" })
       : "—";
 
+    const nombre = snap.nombre || attempt.nombre || "—";
+
     $("#repHeaderBox").innerHTML = `
-      <div><b>Nombre:</b> ${snap.nombre || attempt.nombre || "—"}</div>
+      <div><b>Nombre:</b> ${nombre}</div>
       <div><b>Grado:</b> ${snap.curso || attempt.curso || "—"}</div>
       <div><b>Edad:</b> ${snap.edad_anios ?? snap.edad ?? attempt.edad_anios ?? "—"}</div>
       <div><b>Grupo:</b> ${snap.grupo || attempt.grupo || "—"}</div>
@@ -1073,25 +1520,29 @@
 
     function pctBloque(nombre){
       const keyNorm = normalizeBloqueName(nombre);
+      let raw = 0;
+
       if(Array.isArray(bloqRows)){
         const f = bloqRows.find(r =>
           normalizeBloqueName(r.bloque||r.block||"") === keyNorm
         );
-        if (f) return Math.round(f.percent ?? f.pct ?? f.porcentaje ?? 0);
+        if (f) raw = Math.round(f.percent ?? f.pct ?? f.porcentaje ?? 0);
       }else if (bloqRows && typeof bloqRows === "object"){
         const k = Object.keys(bloqRows||{}).find(k =>
           normalizeBloqueName(k) === keyNorm
         );
-        if (k) return Math.round(bloqRows[k]);
+        if (k) raw = Math.round(bloqRows[k]);
       }
-      if (resultados.bloques){
-        if (keyNorm === "habilidades intrapersonales") return Math.round(resultados.bloques.intrapersonales || 0);
-        if (keyNorm === "habilidades interpersonales") return Math.round(resultados.bloques.interpersonales || 0);
-        if (keyNorm === "habilidades para la vida")   return Math.round(resultados.bloques.para_la_vida || 0);
-        if (keyNorm === "estilos de comunicación interpersonal") return Math.round(resultados.bloques.estilos_comunicacion || 0);
-        if (keyNorm === "propensión al cambio") return Math.round(resultados.bloques.propension_cambio || 0);
+
+      if (!raw && resultados.bloques){
+        if (keyNorm === "habilidades intrapersonales") raw = Math.round(resultados.bloques.intrapersonales || 0);
+        if (keyNorm === "habilidades interpersonales") raw = Math.round(resultados.bloques.interpersonales || 0);
+        if (keyNorm === "habilidades para la vida")   raw = Math.round(resultados.bloques.para_la_vida || 0);
+        if (keyNorm === "estilos de comunicación interpersonal") raw = Math.round(resultados.bloques.estilos_comunicacion || 0);
+        if (keyNorm === "propensión al cambio") raw = Math.round(resultados.bloques.propension_cambio || 0);
       }
-      return 0;
+
+      return adjScore(raw, {bloqueNorm: keyNorm, subNorm: ""});
     }
 
     const bIntra = pctBloque("Habilidades intrapersonales");
@@ -1105,9 +1556,11 @@
     let iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie ??
       (resultados.globales ? resultados.globales.IIE : undefined);
 
-    const iieFinal = (iie != null && !Number.isNaN(Number(iie)))
+    const iieBase = (iie != null && !Number.isNaN(Number(iie)))
       ? Number(iie)
       : ((bIntra||bInter||bPV) ? Math.round((bIntra+bInter+bPV)/3) : 0);
+
+    const iieFinal = adjScore(iieBase, {bloqueNorm:"", subNorm:""});
 
     $("#repIIE").textContent = iieFinal || "—";
     setCurveMarker(iieFinal || 0);
@@ -1124,12 +1577,9 @@
     buildBloque("bloqueInter", subRows, "Habilidades interpersonales");
     buildBloque("bloquePV",    subRows, "Habilidades para la vida");
 
-    const agresionVal = attempt.agresion ?? attempt.Agresion ??
-      findSubPct(subRows,"Estilos de comunicación interpersonal","Agresión");
-    const timidezVal = attempt.timidez ?? attempt.Timidez ??
-      findSubPct(subRows,"Estilos de comunicación interpersonal","Timidez");
-    const propCambioVal = attempt.propension_cambio ?? attempt.propCambio ?? attempt.PropCambio ??
-      pctBloque("Propensión al cambio");
+    const agresionVal = findSubPct(subRows,"Estilos de comunicación interpersonal","Agresión");
+    const timidezVal  = findSubPct(subRows,"Estilos de comunicación interpersonal","Timidez");
+    const propCambioVal = pctBloque("Propensión al cambio");
 
     renderBars("estilos", [
       {label:"AGRESIÓN", val: agresionVal, id:"mAgresion"},
@@ -1146,16 +1596,18 @@
 
     const contestadas = attempt.contestadas || attempt.n_respondidas || "244 de 244";
     $("#contestadasLine").textContent = contestadas;
+
     renderPage2(subRows, bloqRows);
 
-    // Página 2: interpretación
     renderInterpretacion(subRows, bloqRows, {
       bIntra,
       bInter,
       bPV,
       agresionVal,
       timidezVal,
-      propCambioVal
+      propCambioVal,
+      iieFinal,
+      nombre
     });
 
     $("#reporteContainer").style.display="block";
@@ -1175,11 +1627,37 @@
         $("#msg").className="msg err";
         return;
       }
-      $("#msg").textContent = "Código válido.";
+
+      // ============================
+      // CONTROL DE PUEDE_VER_RESULTADO
+      // ============================
+      const rawFlag =
+        data.puede_ver_resultado ??
+        (data.participante && data.participante.puede_ver_resultado) ??
+        (data.snapshot && data.snapshot.puede_ver_resultado) ??
+        (data.attempt && data.attempt.snapshot && data.attempt.snapshot.puede_ver_resultado);
+
+      const puedeVer =
+        rawFlag === true ||
+        rawFlag === "true" ||
+        rawFlag === "t" ||
+        rawFlag === 1 ||
+        rawFlag === "1";
+
+      if (!puedeVer){
+        console.log("Reporte bloqueado por puede_ver_resultado:", rawFlag);
+        $("#msg").textContent = "Este código no está habilitado para ver su reporte. Contacta a la coordinación.";
+        $("#msg").className = "msg err";
+        $("#reporteContainer").style.display="none";
+        return;
+      }
+
+      $("#msg").textContent = "Código válido. Mostrando reporte.";
       $("#msg").className="msg ok";
       renderAll(data);
       window.scrollTo({top:0,behavior:"smooth"});
     }catch(e){
+      console.error(e);
       $("#msg").textContent="Error de conexión";
       $("#msg").className="msg err";
     }
@@ -1196,7 +1674,7 @@
     const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "mhp100-reporte.json";
+    a.download = "reporte-inteligencia-emocional.json";
     a.click();
   }
 
