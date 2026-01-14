@@ -1619,60 +1619,49 @@
      puede_ver_resultado (compatible)
      ================================ */
   async function cargarReporte(codigo){
-    $("#msg").textContent = "Buscando...";
-    $("#msg").className = "msg";
-    $("#reporteContainer").style.display = "none";
+  $("#msg").textContent = "Buscando...";
+  $("#msg").className = "msg";
+  $("#reporteContainer").style.display = "none";
 
-    try{
-      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
-      const data = await r.json();
+  try{
+    const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+    const data = await r.json();
 
-      if(!r.ok || data.error){
-        $("#msg").textContent = data.error || "No encontrado";
-        $("#msg").className = "msg err";
-        return;
-      }
-
-      // ===== Lee el flag desde donde tú lo envíes =====
-      const rawFlag =
-        data.puede_ver_resultado ??
-        (data.participante && data.participante.puede_ver_resultado) ??
-        (data.snapshot && data.snapshot.puede_ver_resultado) ??
-        (data.attempt && data.attempt.snapshot && data.attempt.snapshot.puede_ver_resultado);
-
-      // Si NO viene nada, asumimos permitido (modo compatible)
-      if (rawFlag === undefined || rawFlag === null){
-        console.log("Reporte sin control de puede_ver_resultado; se permite mostrar.", rawFlag);
-      } else {
-        const puedeVer =
-          rawFlag === true ||
-          rawFlag === "true" ||
-          rawFlag === "t" ||
-          rawFlag === 1 ||
-          rawFlag === "1";
-
-        if (!puedeVer){
-          console.log("Reporte bloqueado por puede_ver_resultado:", rawFlag);
-          $("#msg").textContent = "Este código no está habilitado para ver su reporte. Contacta a la coordinación.";
-          $("#msg").className = "msg err";
-          $("#reporteContainer").style.display = "none";
-          return;
-        }
-      }
-
-      // Si llegamos aquí, mostramos el reporte
-      $("#msg").textContent = "Código válido. Mostrando reporte.";
-      $("#msg").className = "msg ok";
-      renderAll(data);
-      window.scrollTo({top:0, behavior:"smooth"});
-
-    }catch(e){
-      console.error(e);
-      $("#msg").textContent="Error de conexión";
-      $("#msg").className="msg err";
+    // 1) Error de servidor / código no encontrado
+    if (!r.ok || data.error) {
+      $("#msg").textContent = data.error || "No encontrado";
+      $("#msg").className = "msg err";
+      return;
     }
-  }
 
+    // 2) Si el backend dice que NO puede ver resultado → mensaje rojo y NO se muestra nada
+    if (data.puede_ver_resultado === false) {
+      $("#msg").textContent =
+        "Este código no está habilitado para ver su reporte. Contacta a la coordinación.";
+      $("#msg").className = "msg err";
+      console.log("Reporte bloqueado por puede_ver_resultado:", data.puede_ver_resultado);
+      return;
+    }
+
+    // 3) Si no hay intento guardado (nunca hizo la evaluación)
+    if (!data.attempt) {
+      $("#msg").textContent = "No se encontró una evaluación asociada a este código.";
+      $("#msg").className = "msg err";
+      return;
+    }
+
+    // 4) Todo OK → mostrar reporte
+    $("#msg").textContent = "Código válido.";
+    $("#msg").className = "msg ok";
+    renderAll(data);          // esta es la función que ya tienes
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+  } catch (e) {
+    console.error(e);
+    $("#msg").textContent = "Error de conexión";
+    $("#msg").className = "msg err";
+  }
+}
   $("#btnVer").addEventListener("click", ()=>{
     const c = $("#codigoInput").value.trim().toUpperCase();
     if(!c) return;
