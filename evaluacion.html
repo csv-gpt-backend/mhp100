@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Inteligencia emocional 2– Autoevaluación</title>
+  <title>Inteligencia emocional 2 – Autoevaluación</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -295,14 +295,14 @@
 <body>
   <div class="layout">
     <aside class="side-strip">
-      <span>EVAL</span>
+      <span>AUTOEVAL</span>
     </aside>
     <main class="page">
       <header>
         <h1>Inteligencia emocional – Autoevaluación</h1>
       </header>
 
-      <!-- Datos del participante (solo visibles en la primera pantalla y al final) -->
+      <!-- Datos del participante -->
       <section id="datos-participante" class="card">
         <div class="grid-2">
           <div class="field">
@@ -340,11 +340,11 @@
         <h2>Inteligencia emocional – Autoevaluación</h2>
         <p>
           El manejo efectivo de las emociones es un factor clave para lograr el éxito personal y profesional.
-          Esta evaluación ha sido diseñada para que la persona adulta valore su nivel de desarrollo
+          Esta evaluación ha sido diseñada para que la persona adulta evalúe su nivel de desarrollo
           en ciertas habilidades emocionales clave.
         </p>
         <p>
-          El mapa de habilidades personales identifica 12 habilidades emocionales y 2 áreas relacionadas
+          El instrumento identifica 12 habilidades emocionales y 2 áreas relacionadas
           con el estilo de comunicación interpersonal.
         </p>
         <p>
@@ -378,7 +378,7 @@
         </div>
       </section>
 
-      <!-- Pantalla de preguntas (sin datos del participante arriba) -->
+      <!-- Pantalla de preguntas -->
       <section id="pantalla-preguntas" class="hidden">
         <div class="card">
           <h2>Responde las siguientes declaraciones</h2>
@@ -443,10 +443,13 @@
   </div>
 
   <script>
+    console.log("ready!");
+
     // Marca de tiempo para IV3
     let __startTime = performance.now();
 
     let CODIGO_ACTUAL = null;
+    const STORAGE_PREFIX = "eval_ie_state_";
 
     // === LOOKUP POR CÓDIGO ===
     const codigoInput = document.getElementById('codigo');
@@ -455,6 +458,66 @@
     const cursoInput  = document.getElementById('curso');
     const btnIniciar  = document.getElementById('btnIniciar');
     const codigoMsg   = document.getElementById('codigoMsg');
+
+    function getStorageKey() {
+      const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+      return codigo ? STORAGE_PREFIX + codigo : null;
+    }
+
+    function loadStateForCurrentCode() {
+      const key = getStorageKey();
+      if (!key) return null;
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        console.warn("No se pudo leer el estado local:", e);
+        return null;
+      }
+    }
+
+    function clearState() {
+      const key = getStorageKey();
+      if (!key) return;
+      try {
+        localStorage.removeItem(key);
+      } catch (e) {
+        console.warn("No se pudo borrar el estado local:", e);
+      }
+    }
+
+    function isStateCompleted(state) {
+      if (!state) return false;
+      if (state.completed) return true;
+      const resp = state.responses || {};
+      return ITEMS.length > 0 && Object.keys(resp).length >= ITEMS.length;
+    }
+
+    function saveState(completedFlag) {
+      const key = getStorageKey();
+      if (!key) return;
+      try {
+        const prev = loadStateForCurrentCode() || {};
+        const state = {
+          ...prev,
+          codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
+          nombre: document.getElementById("nombre").value.trim(),
+          institucion: document.getElementById("institucion").value,
+          grupo: document.getElementById("grupo").value,
+          curso: document.getElementById("curso").value,
+          fecha: document.getElementById("fecha").value,
+          currentPage,
+          responses: obtenerRespuestasCrudas(),
+          startTime: __startTime || performance.now(),
+          completed: typeof completedFlag === "boolean"
+            ? completedFlag
+            : !!prev.completed
+        };
+        localStorage.setItem(key, JSON.stringify(state));
+      } catch (e) {
+        console.warn("No se pudo guardar el progreso local:", e);
+      }
+    }
 
     async function lookupCodigo() {
       const codigo = codigoInput.value.trim().toUpperCase();
@@ -472,28 +535,41 @@
       try {
         const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
         const data = await r.json();
+        console.log("lookup data:", data);
         if (!r.ok) throw new Error(data.error || 'Código no válido');
 
-        // Normalizamos algunos posibles campos del backend
-        const estado = (data.estado || "").toString().toLowerCase();
-        const intentosMax = typeof data.intentos_max === "number" ? data.intentos_max : null;
-        const intentosUsados = typeof data.intentos_usados === "number" ? data.intentos_usados : null;
-        const intentosRestantes = typeof data.intentos_restantes === "number" ? data.intentos_restantes : null;
-
+        // Heurística para ver si el backend lo marca como usado/inválido
         const codigoUsado =
           data.usado === true ||
-          data.ya_usado === true ||
-          data.disponible === false ||
-          (estado && estado !== "activo") ||
-          (intentosRestantes !== null && intentosRestantes <= 0) ||
-          (intentosMax !== null && intentosUsados !== null && intentosUsados >= intentosMax);
+          data.usado === "true" ||
+          (typeof data.disponible === "boolean" && data.disponible === false) ||
+          (data.estado && String(data.estado).toLowerCase() !== "activo") ||
+          (typeof data.intentos_max === "number" &&
+           typeof data.intentos_usados === "number" &&
+           data.intentos_usados >= data.intentos_max);
 
         if (codigoUsado) {
           instInput.value = grupoInput.value = cursoInput.value = '';
           CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
           if (codigoMsg) {
-            codigoMsg.textContent = data.mensaje || 'Este código ya fue utilizado en una evaluación.';
-            codigoMsg.className = 'err';
+            codigoMsg.textContent = "Este código ya fue utilizado o no está disponible.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
+
+        CODIGO_ACTUAL = data.codigo || codigo;
+
+        // Revisar si en este navegador ya se completó una evaluación con este código
+        const localState = loadStateForCurrentCode();
+        if (isStateCompleted(localState)) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "Este código ya fue utilizado para completar una evaluación en este dispositivo.";
+            codigoMsg.className = "err";
           }
           return;
         }
@@ -501,15 +577,14 @@
         instInput.value  = data.institucion || '';
         grupoInput.value = data.grupo || '';
         cursoInput.value = data.curso || '';
-        CODIGO_ACTUAL = data.codigo || codigo;
         btnIniciar.disabled = false;
         if (codigoMsg) {
           codigoMsg.textContent = 'Código válido.';
           codigoMsg.className = 'ok';
         }
       } catch (e) {
+        console.error(e);
         instInput.value = grupoInput.value = cursoInput.value = '';
-        CODIGO_ACTUAL = null;
         if (codigoMsg) {
           codigoMsg.textContent = 'Código no encontrado.';
           codigoMsg.className = 'err';
@@ -529,7 +604,7 @@
     });
     // === FIN LOOKUP ===
 
-    const PUEDE_VER_RESULTADO = true; // reservado para uso futuro
+    const PUEDE_VER_RESULTADO = true; // aquí no se usa, es para el reporte
 
     const DATOS_FIJOS = {
       institucion: "Institución por defecto",
@@ -537,10 +612,9 @@
       curso: "Curso por defecto"
     };
 
-    const PAGE_SIZE = 10; // 10 preguntas por pantalla
+    const PAGE_SIZE = 10;
     let currentPage = 0;
 
-    // Preguntas (244 ítems)
     const PREGUNTAS_CSV = `
 1;Cuando realmente me enojo con alguien, me siento tenso, pero confortable por haber expresado exactamente lo que pensaba.;Estilos de comunicación interpersonal;Agresión;Sí
 2;Cuando realmente me enojo con alguien, me siento ansioso y confuso sobre lo que debo decir.;Estilos de comunicación interpersonal;Agresión;Sí
@@ -793,7 +867,6 @@
     }
 
     let ITEMS = [];
-    let answered = 0;
 
     function parsePreguntas(csv) {
       const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
@@ -846,7 +919,6 @@
 
     function construirPreguntas() {
       ITEMS = parsePreguntas(PREGUNTAS_CSV);
-      answered = 0;
       currentPage = 0;
       renderPage();
       updateProgress();
@@ -913,12 +985,9 @@
             } else {
               score = code === "CS" ? 1 : code === "AV" ? 2 : 3;
             }
-            if (q.value == null) {
-              answered++;
-            }
             q.value = score;
             updateProgress();
-            saveState();
+            saveState(false); // en curso
           });
           cell.appendChild(r);
           row.appendChild(cell);
@@ -959,104 +1028,7 @@
       return map;
     }
 
-    // === Autoguardado local (localStorage) ===
-    const STORAGE_PREFIX = "eval_socioemocional_state_";
-
-    function getStorageKey() {
-      const code = (CODIGO_ACTUAL || codigoInput.value || "").trim().toUpperCase();
-      if (!code) return null;
-      return STORAGE_PREFIX + code;
-    }
-
-    function saveState() {
-      const key = getStorageKey();
-      if (!key) return;
-      try {
-        const state = {
-          codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
-          nombre: document.getElementById("nombre").value.trim(),
-          institucion: document.getElementById("institucion").value,
-          grupo: document.getElementById("grupo").value,
-          curso: document.getElementById("curso").value,
-          fecha: document.getElementById("fecha").value,
-          currentPage,
-          responses: obtenerRespuestasCrudas(),
-          startTime: __startTime || performance.now(),
-          completed: false
-        };
-        localStorage.setItem(key, JSON.stringify(state));
-      } catch (e) {
-        console.warn("No se pudo guardar el progreso local:", e);
-      }
-    }
-
-    function clearState() {
-      const key = getStorageKey();
-      if (!key) return;
-      try {
-        localStorage.removeItem(key);
-      } catch (e) {
-        console.warn("No se pudo limpiar el progreso local:", e);
-      }
-    }
-
-    function loadStateForCurrentCode() {
-      const key = getStorageKey();
-      if (!key) return null;
-      try {
-        const raw = localStorage.getItem(key);
-        if (!raw) return null;
-        return JSON.parse(raw);
-      } catch (e) {
-        console.warn("No se pudo leer el progreso local:", e);
-        return null;
-      }
-    }
-
-    function aplicarState(state) {
-      if (!state) return;
-
-      document.getElementById("nombre").value = state.nombre || "";
-      document.getElementById("institucion").value = state.institucion || document.getElementById("institucion").value;
-      document.getElementById("grupo").value = state.grupo || document.getElementById("grupo").value;
-      document.getElementById("curso").value = state.curso || document.getElementById("curso").value;
-      document.getElementById("fecha").value = state.fecha || document.getElementById("fecha").value;
-
-      const resp = state.responses || {};
-      ITEMS.forEach(q => {
-        const val = Number(resp[String(q.id)]);
-        if (val >= 1 && val <= 3) {
-          q.value = val;
-        } else {
-          q.value = null;
-        }
-      });
-
-      currentPage = state.currentPage || 0;
-      __startTime = state.startTime || performance.now();
-
-      renderPage();
-      updateProgress();
-    }
-
-    function mostrarPantallaPreguntas() {
-      document.getElementById("pantalla-inicio").classList.add("hidden");
-      document.getElementById("datos-participante").classList.add("hidden");
-      document.getElementById("pantalla-preguntas").classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function iniciarEvaluacionNueva() {
-      __startTime = performance.now();
-      currentPage = 0;
-      ITEMS.forEach(q => { q.value = null; });
-      renderPage();
-      updateProgress();
-      mostrarPantallaPreguntas();
-      saveState();
-    }
-
-    // --- Helpers para resultados globales ---
+    // --- Helpers de resultados globales (igual que antes) ---
     function normalizeBloqueName(name) {
       if (!name) return "";
       return name.replace(/\s+/g, " ").trim().toLowerCase();
@@ -1086,8 +1058,7 @@
     function calcularResultadosGlobales() {
       if (!ITEMS.length) return null;
 
-      // Agregación por sub-habilidad
-      const subMap = new Map(); // sub -> {bloque, items, pts}
+      const subMap = new Map();
       ITEMS.forEach(q => {
         if (!subMap.has(q.subhabilidad))
           subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
@@ -1108,8 +1079,7 @@
             (a.sub || "").localeCompare(b.sub || "")
         );
 
-      // Promedios por bloque
-      const bloqMap = new Map(); // bloque -> {sumPct, n}
+      const bloqMap = new Map();
       subRows.forEach(r => {
         if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0 });
         const b = bloqMap.get(r.bloque);
@@ -1123,7 +1093,6 @@
         bloqPercents[bloque] = pct;
       });
 
-      // IIE: promedio de Intra, Inter, Para la vida
       function pctBloque(nombreEsperado) {
         const key = Object.keys(bloqPercents).find(
           k => normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado)
@@ -1139,15 +1108,11 @@
           ? Math.round((bIntra + bInter + bPV) / 3)
           : 0;
 
-      // IV1 / IV2 (consistencia de respuestas)
       const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
-
-      // IV3 basado en tiempo de respuesta total (aprox)
       const mins = Math.round((performance.now() - __startTime) / 60000);
       const iv3Cat =
         mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
 
-      // Bloques que nos interesan para la BD
       const bEstilos = pctBloque("Estilos de comunicación interpersonal");
       const bCambio = pctBloque("Propensión al cambio");
 
@@ -1170,6 +1135,44 @@
       };
     }
 
+    function mostrarPantallaPreguntas() {
+      document.getElementById("pantalla-inicio").classList.add("hidden");
+      document.getElementById("datos-participante").classList.add("hidden");
+      document.getElementById("pantalla-final").style.display = "none";
+      document.getElementById("pantalla-preguntas").classList.remove("hidden");
+      renderPage();
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function aplicarState(state) {
+      if (!state) return;
+      document.getElementById("nombre").value = state.nombre || "";
+      document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
+      document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
+      document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
+      if (state.fecha) document.getElementById("fecha").value = state.fecha;
+
+      CODIGO_ACTUAL = state.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+
+      const resp = state.responses || {};
+      ITEMS.forEach(q => {
+        const v = resp[String(q.id)];
+        q.value = typeof v === "number" ? v : null;
+      });
+
+      currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
+      __startTime = state.startTime || performance.now();
+    }
+
+    function iniciarEvaluacionNueva() {
+      __startTime = performance.now();
+      ITEMS.forEach(q => { q.value = null; });
+      currentPage = 0;
+      saveState(false);
+      mostrarPantallaPreguntas();
+    }
+
     function onSiguienteClick() {
       if (!paginaCompleta()) {
         alert(
@@ -1188,7 +1191,7 @@
         currentPage++;
         renderPage();
         updateProgress();
-        saveState();
+        saveState(false);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
@@ -1218,13 +1221,17 @@
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
-          version_banco: "MHP100-v1"
+          version_banco: "IE-v1"
         },
         resultados,
         responses: respuestas
       };
 
       console.log("Payload listo para enviar a servidor:", payload);
+
+      // marcamos como completado en este navegador
+      saveState(true);
+
       fetch("/api/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1234,10 +1241,6 @@
         .then(data => console.log("Submit OK:", data))
         .catch(err => console.error("Submit ERROR:", err));
 
-      // una vez enviada, limpiamos el estado local
-      clearState();
-
-      // Mostrar nuevamente los datos del participante encima del mensaje final
       document.getElementById("datos-participante").classList.remove("hidden");
       document.getElementById("nombre").readOnly = true;
 
@@ -1281,24 +1284,22 @@
       inicializarDatosFijos();
       construirPreguntas();
 
-      document
-        .getElementById("btnIniciar")
-        .addEventListener("click", () => {
-          if (!validarAntesDeIniciar()) return;
-
-          const saved = loadStateForCurrentCode();
-          if (saved && saved.responses && Object.keys(saved.responses).length > 0) {
-            const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
-            if (retomar) {
-              aplicarState(saved);
-              mostrarPantallaPreguntas();
-              return;
-            } else {
-              clearState();
-            }
+      document.getElementById("btnIniciar").addEventListener("click", () => {
+        if (!validarAntesDeIniciar()) return;
+        const saved = loadStateForCurrentCode();
+        if (saved && !isStateCompleted(saved) &&
+            saved.responses && Object.keys(saved.responses).length > 0) {
+          const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
+          if (retomar) {
+            aplicarState(saved);
+            mostrarPantallaPreguntas();
+            return;
+          } else {
+            clearState();
           }
-          iniciarEvaluacionNueva();
-        });
+        }
+        iniciarEvaluacionNueva();
+      });
 
       document
         .getElementById("btnSiguiente")
@@ -1309,11 +1310,6 @@
         .addEventListener("click", () => {
           window.location.reload();
         });
-
-      // guardar por si se cierra la pestaña o se corta algo
-      window.addEventListener("beforeunload", () => {
-        saveState();
-      });
     });
   </script>
 </body>
