@@ -1,466 +1,1686 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>DEL 3 MHP100 — GRÁFICA INDIVIDUAL</title>
-<style>
-  :root{
-    --ink:#111; --mut:#666; --line:#e5e7eb; --paper:#fff;
-    --hilite:#fff3a6;
-    --red:#ef4444; --amber:#f59e0b; --green:#22c55e;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;background:#fafafa;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-  .wrap{max-width:980px;margin:20px auto 48px;padding:0 14px}
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Reporte – Inteligencia emocional</title>
 
-  /* Top */
-  h1{margin:0;font-size:22px;letter-spacing:.2px;font-weight:800}
-  .brand{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-  .brand .left{display:flex;align-items:center;gap:10px}
-  .brand img{display:block}
-  .logoL{height:44px}
-  .logoR{height:40px}
+  <style>
+    :root{
+      --ink:#111; --muted:#666; --line:#ddd; --soft:#f7f7f7;
+      --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757;
+    }
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:#ffffff;
+      color:#0f172a;
+      min-height:100vh;
+    }
+    .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
+    h1,h2,h3{margin:0 0 8px 0}
+    .muted{color:var(--muted)}
+    .topbar{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+    .topbar input{
+      flex:0 0 180px;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;
+      text-transform:uppercase
+    }
+    .btn{
+      padding:9px 14px;border-radius:999px;border:0;background:#1a8f3b;color:#fff;
+      font-weight:700;font-size:16px;cursor:pointer
+    }
+    .msg{margin-left:8px;font-weight:700}
+    .msg.ok{color:#0a8}
+    .msg.err{color:#c00}
+    .hint{font-size:12px;color:var(--muted);margin-bottom:8px}
 
-  /* Buscador */
-  .panel{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px}
-  label{font-weight:700}
-  input[type=text]{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;min-width:220px;text-transform:uppercase}
-  button{border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px 12px;cursor:pointer}
-  button:hover{background:#f6f6f6}
-  .msg{font-size:12px;color:#b42318;font-weight:700}
+    /* Encabezado tipo PDF */
+    .rep-top{
+      border-bottom:1px solid var(--line);
+      padding-bottom:6px;
+      margin-bottom:6px;
+    }
+    .rep-top-row1{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      font-size:12px;
+      margin-bottom:6px;
+    }
+    .rep-date{ justify-self:flex-start; }
+    .rep-top-center{
+      text-align:center;
+      font-weight:700;
+      text-transform:uppercase;
+    }
+    .rep-top-logo{ justify-self:flex-end; }
+    .mhp-logo{
+      height:200px;
+      margin-left:12px;
+      margin-top:-4px;
+      object-fit:contain;
+    }
+    .rep-top-row2{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:12px;
+      font-size:26px;
+      font-weight:800;
+      margin-bottom:2px;
+      text-transform:uppercase;
+    }
+    .rep-top-row3{
+      text-align:center;
+      font-size:18px;
+      font-weight:800;
+    }
 
-  /* Caja ficha + IIE */
-  .card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:12px}
-  .grid6{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-  .k{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
-  .k b{font-weight:800}
-  .k .v{font-weight:600}
+    /* IV highlight */
+    .iv-table td.hl{background:var(--yellow)}
 
-  .iie{display:flex;align-items:center;justify-content:space-between;margin-top:10px;
-       border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-weight:800}
-  .iie .val{min-width:64px;text-align:right}
+    /* Bloques POR DESARROLLAR / FORTALECER / ENRIQUECER */
+    .bars-wrap{margin:8px 0}
+    .bars-row{
+      display:grid;
+      grid-template-columns:220px 1fr;
+      align-items:center;
+      gap:8px;
+      margin:10px 0;
+    }
+    .bars-row .label{
+      font-weight:700;
+      font-size:12px
+    }
+    .bars-slot{
+      position:relative;
+      height:22px;
+      border:1px solid #9ca3af;
+      border-radius:4px;
+      background:#f3f4f6
+    }
+    .bars-slot .tick{
+      position:absolute;
+      top:-6px;
+      width:1px;
+      height:24px;
+      background:#9ca3af
+    }
+    .bars-slot .tick-label{
+      position:absolute;
+      top:19px;
+      font-size:10px;
+      transform:translateX(-50%)
+    }
+    .bars-slot .marker{
+      position:absolute;
+      top:-2px;
+      width:10px;
+      height:16px;
+      background:#111;
+      border-radius:2px;
+      transform:translateX(-50%);
+      display:none
+    }
 
-  /* Dos columnas (curva + IV) */
-  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-  h2{font-size:14px;margin:0 0 6px;font-weight:800;letter-spacing:.2px}
+    /* Page / impresión */
+    .page{margin-top:10px}
+    .page-break{height:0;margin:0;border:0}
+    @media print{
+      @page{ size:A4; margin:12mm 10mm }
+      body{zoom:0.95;}
+      .topbar,.hint{display:none !important}
+      .page-break{page-break-before:always}
+      .page{break-inside:avoid}
+    }
+    .p2-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:6px
+    }
+    .p2-title h2{
+      font-size:18px;
+      font-weight:800
+    }
+    .card{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:10px;
+      margin-top:8px
+    }
+    .result-table th,.result-table td{
+      border-bottom:1px solid #e5e5e5;
+      padding:6px 8px;
+      font-size:13px;
+      text-align:left
+    }
+    .result-table th{font-weight:800}
+    .badge{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:12px;
+      color:#fff
+    }
+    .b-red{background:var(--red)}
+    .b-orange{background:var(--orange)}
+    .b-green{background:var(--green)}
+    .bloque-title{
+      font-weight:800;
+      margin:12px 0 6px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .bloque-left{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .bloque-bullet{
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:#f4a338;
+      flex:0 0 auto;
+    }
+    .ih-badge{
+      background:var(--yellow);
+      padding:2px 10px;
+      border-radius:2px;
+      min-width:36px;
+      text-align:center;
+      font-weight:800;
+    }
+    .iie-row{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      margin:12px 0 6px;
+      font-weight:800;
+      gap:8px;
+    }
+    .iie-badge{
+      background:#1d4ed8;
+      color:#fff;
+      padding:3px 12px;
+      border-radius:2px;
+      min-width:40px;
+      text-align:center;
+    }
 
-  /* Curva */
-  .curve{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px}
-  svg text{fill:#374151}
+    /* Sección estilos / cambio */
+    .scale-section{
+      margin-top:14px;
+    }
+    .section-title{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-weight:800;
+      margin-bottom:2px;
+    }
+    .section-dot{
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:#f4a338;
+      flex:0 0 auto;
+    }
 
-  /* IV */
-  table{width:100%;border-collapse:collapse;background:#fff}
-  th,td{border:1px solid #111;padding:6px 8px;font-size:12px;text-align:left;vertical-align:top}
-  .iv td.hl{background:var(--hilite)}
+    .scale-range-header{
+      display:grid;
+      grid-template-columns:220px 1fr 1fr 1fr;
+      font-size:11px;
+      font-weight:700;
+      margin:0 0 2px;
+      align-items:flex-end;
+    }
+    .scale-range-header span{
+      text-align:center;
+    }
 
-  /* Estilos / Propensión */
-  .railCard{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px}
-  .rail{position:relative;height:16px;border:1px solid #9ca3af;border-radius:8px;overflow:hidden;
-        background:linear-gradient(90deg,var(--red) 0 40%, var(--amber) 40% 70%, var(--green) 70% 100%)}
-  .tick{position:absolute;top:-4px;width:1px;height:24px;background:#9ca3af}
-  .ticlbl{position:absolute;top:18px;font-size:10px;color:#374151;transform:translateX(-50%)}
-  .mark{position:absolute;top:-3px;width:3px;height:22px;background:#111;border-radius:2px;display:none}
+    .scale-note-inline{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:4px;
+      text-align:center;
+    }
 
-  /* Sub-habilidades y Bloques */
-  .colsMain{display:grid;grid-template-columns: 1fr 360px; gap:12px; margin-top:12px}
-  .card h3{margin:6px 0 6px;font-size:13px;font-weight:800}
-  .mut{color:#6b7280;font-size:12px}
-  .chip{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:24px;border-radius:999px;font-weight:800;font-size:12px;color:#111}
-  .cR{background:#ffd8d2} .cY{background:#ffe6b3} .cG{background:#c8f3da}
+    /* Página de interpretación */
+    .interp-title{
+      margin-top:8px;
+      font-size:18px;
+      font-weight:800;
+    }
+    .interp-legend{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+      margin-bottom:4px;
+    }
+    .interp-legend-row{
+      margin-top:3px;
+      margin-bottom:3px;
+    }
+    .interp-bloque{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:10px;
+      margin-top:8px;
+      font-size:12px;
+      background:#fff;
+    }
+    .interp-bloque-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      margin-bottom:4px;
+    }
+    .interp-bloque-nombre{
+      font-weight:800;
+      text-transform:uppercase;
+    }
+    .interp-bloque-indice{
+      font-weight:800;
+      font-size:12px;
+    }
+    .interp-bloque-indice span{
+      background:var(--yellow);
+      padding:2px 8px;
+      border-radius:2px;
+      min-width:36px;
+      text-align:center;
+      display:inline-block;
+    }
+    .interp-bloque-desc{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .skill-row{
+      margin:6px 0 10px;
+    }
+    .skill-row-title{
+      font-weight:700;
+      font-size:12px;
+      margin-bottom:2px;
+    }
+    .skill-row-desc{
+      font-size:11px;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    .skill-row-alert{
+      color: var(--red);
+      font-weight:600;
+    }
+    .skill-bar{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .skill-bar-track{
+      position:relative;
+      flex:1;
+      height:12px;
+      border-radius:999px;
+      overflow:hidden;
+      background:linear-gradient(to right,
+        var(--red) 0%, var(--red) 40%,
+        var(--orange) 40%, var(--orange) 70%,
+        var(--green) 70%, var(--green) 100%);
+    }
+    .skill-bar-marker{
+      position:absolute;
+      top:0;
+      bottom:0;
+      width:2px;
+      background:#111;
+      transform:translateX(-50%);
+    }
+    .skill-bar-value{
+      font-size:11px;
+      font-weight:700;
+      min-width:48px;
+      text-align:right;
+    }
 
-  /* Impresión */
-  @media print{
-    @page{ size:A4; margin:14mm 12mm }
-    .panel{display:none!important}
-    body{background:#fff}
-    .card{break-inside:avoid}
-  }
-</style>
+    .recom-subtitle{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    .recom-list{
+      margin:4px 0 0 14px;
+      padding:0;
+      font-size:12px;
+      color:#374151;
+    }
+    .recom-list li{
+      margin-bottom:3px;
+    }
+    .plan-section-title{
+      font-weight:700;
+      font-size:12px;
+      margin-top:4px;
+      margin-bottom:2px;
+    }
+  </style>
+
+  <!-- Librería para generar PDF limpio en el navegador -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+          integrity="sha512-YcsIP3QdHtr9BPRZA4nVrLOT9eFWx6tEN84ImU8vzU6RyX2hY6M4ZaChkCGbdJrYzsa3sGzZaG0/gtw8JkY0xw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
+
 <body>
 <div class="wrap">
 
-  <!-- Encabezado -->
-  <div class="brand">
-    <div class="left">
-      <img src="assets/img_ident.jpg" alt="Identidad" class="logoL">
-      <h1>GRÁFICA INDIVIDUAL — MHP100</h1>
-    </div>
-    <img src="assets/img_sello.png" alt="Sello" class="logoR">
-  </div>
-
-  <!-- Buscador por código -->
-  <div class="panel">
-    <label for="code">Código</label>
-    <input id="code" type="text" placeholder="LEX001" maxlength="16"/>
-    <button id="go">Ver reporte</button>
+  <div class="topbar">
+    <input id="codigoInput" placeholder="LEX001" maxlength="10"/>
+    <button class="btn" id="btnVer">Ver reporte</button>
     <span id="msg" class="msg"></span>
   </div>
+  <div class="hint">Tip: también puedes abrir ?codigo=LEX004</div>
 
-  <!-- Reporte -->
-  <div id="report" style="display:none">
+  <div id="reporteContainer" style="display:none">
 
-    <!-- Ficha + IIE -->
-    <div class="card">
-      <div class="grid6">
-        <div class="k"><b>Nombre:</b> <span id="k_nombre" class="v">—</span></div>
-        <div class="k"><b>Edad:</b> <span id="k_edad" class="v">—</span></div>
-        <div class="k"><b>Curso/Grado:</b> <span id="k_curso" class="v">—</span></div>
-        <div class="k"><b>Institución:</b> <span id="k_inst" class="v">—</span></div>
-        <div class="k"><b>Grupo:</b> <span id="k_grupo" class="v">—</span></div>
-        <div class="k"><b>Fecha:</b> <span id="k_fecha" class="v">—</span></div>
-      </div>
-      <div class="iie">
-        <div>ÍNDICE DE INTELIGENCIA EMOCIONAL IIE:</div>
-        <div id="iieVal" class="val">—</div>
-      </div>
-    </div>
+    <!-- ===== PAGE 1 ===== -->
+    <section id="page1" class="page page-1">
 
-    <!-- Curva + IV -->
-    <div class="cols2">
-      <div class="curve">
-        <h2>CURVA DE DISTRIBUCIÓN DE FRECUENCIAS</h2>
-        <svg id="curve" viewBox="0 0 520 150" width="100%" height="150" aria-label="Curva IIE">
-          <!-- franja 1–100 en base -->
-          <rect x="10" y="120" width="500" height="6"
-                fill="url(#grad)"/>
-          <defs>
-            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#ef4444"/>
-              <stop offset="40%" stop-color="#ef4444"/>
-              <stop offset="40%" stop-color="#f59e0b"/>
-              <stop offset="70%" stop-color="#f59e0b"/>
-              <stop offset="70%" stop-color="#22c55e"/>
-              <stop offset="100%" stop-color="#22c55e"/>
-            </linearGradient>
-          </defs>
-          <!-- ticks 1/40/70/100 -->
-          <line x1="10"  y1="112" x2="10"  y2="134" stroke="#111"/>
-          <text x="10"  y="146" font-size="11">1</text>
-          <line x1="210" y1="112" x2="210" y2="134" stroke="#111"/>
-          <text x="210" y="146" font-size="11" text-anchor="middle">40</text>
-          <line x1="360" y1="112" x2="360" y2="134" stroke="#111"/>
-          <text x="360" y="146" font-size="11" text-anchor="middle">70</text>
-          <line x1="510" y1="112" x2="510" y2="134" stroke="#111"/>
-          <text x="510" y="146" font-size="11" text-anchor="end">100</text>
-
-          <!-- campana -->
-          <path id="bell" d="" fill="none" stroke="#111" stroke-width="2"/>
-          <!-- marcador -->
-          <circle id="dot" cx="260" cy="60" r="4.5" fill="#111"/>
-        </svg>
+      <!-- ENCABEZADO -->
+      <div class="rep-top">
+        <div class="rep-top-row1">
+          <div id="repDateLine" class="rep-date"></div>
+          <div class="rep-top-center">GRÁFICA INDIVIDUAL</div>
+          <div class="rep-top-logo">
+            <img src="assets/logo_adalam.png" alt="Logo" class="mhp-logo">
+          </div>
+        </div>
+        <div class="rep-top-row2">
+          <span>SKILL MAP</span>
+        </div>
+        <div class="rep-top-row3">INTELIGENCIA EMOCIONAL</div>
       </div>
 
-      <div class="card">
-        <h2>IV1 – IV2 – IV3</h2>
-        <table class="iv" id="tblIV">
-          <colgroup><col style="width:16%"><col style="width:28%"><col style="width:28%"><col style="width:28%"></colgroup>
-          <tr id="iv1r">
-            <th>IV1</th>
-            <td id="iv1c0">Se conoce o se compromete</td>
-            <td id="iv1c1">Se conoce o se compromete poco</td>
-            <td id="iv1c2">Se requiere mayor autoconocimiento o auto compromiso</td>
-          </tr>
-          <tr id="iv2r">
-            <th>IV2</th>
-            <td id="iv2c0">No se contradice</td>
-            <td id="iv2c1">Se contradice</td>
-            <td id="iv2c2">Se contradice frecuentemente</td>
-          </tr>
-          <tr id="iv3r">
-            <th>IV3</th>
-            <td id="iv3c0">Entre 30 y 90 minutos<br><span class="mut">Tomó el tiempo adecuado</span></td>
-            <td id="iv3c1">Entre 10 y 20 minutos<br><span class="mut">Demasiado breve</span></td>
-            <td id="iv3c2">Más de 90 minutos<br><span class="mut">Demasiado lento</span></td>
-          </tr>
-        </table>
+      <!-- Caja de datos del participante -->
+      <div class="rep-ids" id="repHeaderBox"
+           style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:12px;margin-top:8px">
       </div>
-    </div>
 
-    <!-- Estilos + Propensión -->
-    <div class="cols2">
-      <div class="railCard">
-        <h2>ESTILOS DE COMUNICACIÓN INTERPERSONAL</h2>
-        <div style="font-weight:800;margin:8px 0 6px">AGRESIÓN</div>
-        <div class="rail">
-          <span class="tick" style="left:0%"></span>
-          <span class="tick" style="left:40%"></span>
-          <span class="tick" style="left:70%"></span>
-          <span class="tick" style="left:100%"></span>
-          <span class="ticlbl" style="left:0%">10</span>
-          <span class="ticlbl" style="left:40%">40</span>
-          <span class="ticlbl" style="left:70%">70</span>
-          <span class="ticlbl" style="left:100%">100</span>
-          <span id="mkAg" class="mark"></span>
+      <div class="rep-mid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+        <div class="curve">
+          <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
+
+          <svg id="freqCurve" viewBox="0 0 520 140" width="100%" height="140">
+            <defs>
+              <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ef4444"/>
+                <stop offset="25%" stop-color="#f59e0b"/>
+                <stop offset="50%" stop-color="#22c55e"/>
+                <stop offset="75%" stop-color="#22c55e"/>
+                <stop offset="100%" stop-color="#38bdf8"/>
+              </linearGradient>
+            </defs>
+
+            <rect x="10" y="100" width="500" height="6" fill="url(#grad1)" />
+
+            <line x1="10" y1="92" x2="10" y2="114" stroke="#111"/>
+            <text x="10" y="130" font-size="12">1</text>
+
+            <line x1="205" y1="92" x2="205" y2="114" stroke="#111"/>
+            <text x="205" y="130" font-size="12" text-anchor="middle">40</text>
+
+            <line x1="355" y1="92" x2="355" y2="114" stroke="#111"/>
+            <text x="355" y="130" font-size="12" text-anchor="middle">70</text>
+
+            <line x1="510" y1="92" x2="510" y2="114" stroke="#111"/>
+            <text x="510" y="130" font-size="12" text-anchor="end">100</text>
+
+            <path id="bellPath" d="" fill="none" stroke="#111" stroke-width="2"/>
+            <circle id="curveMarker" cx="260" cy="60" r="5" fill="#111"/>
+          </svg>
         </div>
 
-        <div style="font-weight:800;margin:14px 0 6px">TIMIDEZ</div>
-        <div class="rail">
-          <span class="tick" style="left:0%"></span>
-          <span class="tick" style="left:40%"></span>
-          <span class="tick" style="left:70%"></span>
-          <span class="tick" style="left:100%"></span>
-          <span class="ticlbl" style="left:0%">10</span>
-          <span class="ticlbl" style="left:40%">40</span>
-          <span class="ticlbl" style="left:70%">70</span>
-          <span class="ticlbl" style="left:100%">100</span>
-          <span id="mkTi" class="mark"></span>
-        </div>
-
-        <div class="mut" style="margin-top:6px">* Un puntaje bajo indica mejor manejo en estas áreas.</div>
-      </div>
-
-      <div class="railCard">
-        <h2>PROPENSIÓN AL CAMBIO</h2>
-        <div class="rail">
-          <span class="tick" style="left:0%"></span>
-          <span class="tick" style="left:40%"></span>
-          <span class="tick" style="left:70%"></span>
-          <span class="tick" style="left:100%"></span>
-          <span class="ticlbl" style="left:0%">10</span>
-          <span class="ticlbl" style="left:40%">40</span>
-          <span class="ticlbl" style="left:70%">70</span>
-          <span class="ticlbl" style="left:100%">100</span>
-          <span id="mkPc" class="mark"></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sub-habilidades + Por bloque -->
-    <div class="colsMain">
-      <div class="card">
-        <h2>RESULTADOS (sub-habilidades)</h2>
-        <table id="tblSubs">
-          <thead>
-            <tr>
-              <th style="width:28%">Bloque</th>
-              <th style="width:28%">Sub-habilidad</th>
-              <th style="width:8%">Ítems</th>
-              <th style="width:10%">Puntos</th>
-              <th style="width:8%">%</th>
-              <th style="width:18%">Rango</th>
+        <div class="rep-iv">
+          <table class="iv-table" style="width:100%;border-collapse:collapse;font-size:12px">
+            <tr id="iv1Row">
+              <th style="border:1px solid #111;padding:6px">IV1</th>
+              <td style="border:1px solid #111;padding:6px">Se conoce o se compromete</td>
+              <td style="border:1px solid #111;padding:6px">Se conoce o se compromete poco</td>
+              <td style="border:1px solid #111;padding:6px">Se requiere mayor autoconocimiento o auto compromiso</td>
             </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+            <tr id="iv2Row">
+              <th style="border:1px solid #111;padding:6px">IV2</th>
+              <td style="border:1px solid #111;padding:6px">No se contradice</td>
+              <td style="border:1px solid #111;padding:6px">Se contradice</td>
+              <td style="border:1px solid #111;padding:6px">Se contradice frecuentemente</td>
+            </tr>
+            <tr id="iv3Row">
+              <th style="border:1px solid #111;padding:6px">IV3</th>
+              <td style="border:1px solid #111;padding:6px">Entre 30 y 90 minutos<br><span class="muted">Tomó el tiempo adecuado</span></td>
+              <td style="border:1px solid #111;padding:6px">Entre 10 y 20 minutos<br><span class="muted">Demasiado breve</span></td>
+              <td style="border:1px solid #111;padding:6px">Más de 90 minutos<br><span class="muted">Demasiado lento</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="bloque-title">
+        <div class="bloque-left">
+          <span class="bloque-bullet"></span>
+          <span>HABILIDADES INTRAPERSONALES</span>
+        </div>
+        <div>IH INTRA: <span class="ih-badge" id="ihIntra">—</span></div>
+      </div>
+      <div class="rep-bloque" id="bloqueIntra"></div>
+
+      <div class="bloque-title">
+        <div class="bloque-left">
+          <span class="bloque-bullet"></span>
+          <span>HABILIDADES INTERPERSONALES</span>
+        </div>
+        <div>IH INTER: <span class="ih-badge" id="ihInter">—</span></div>
+      </div>
+      <div class="rep-bloque" id="bloqueInter"></div>
+
+      <div class="bloque-title">
+        <div class="bloque-left">
+          <span class="bloque-bullet"></span>
+          <span>HABILIDADES PARA LA VIDA</span>
+        </div>
+        <div>IH PV: <span class="ih-badge" id="ihPV">—</span></div>
+      </div>
+      <div class="rep-bloque" id="bloquePV"></div>
+
+      <div class="iie-row">
+        <span>ÍNDICE DE INTELIGENCIA EMOCIONAL IIE:</span>
+        <span class="iie-badge" id="repIIE">—</span>
+      </div>
+
+      <!-- ESTILOS DE COMUNICACIÓN -->
+      <div class="scale-section">
+        <div class="section-title">
+          <div class="section-dot"></div>
+          <div>ESTILOS DE COMUNICACIÓN INTERPERSONAL</div>
+        </div>
+        <div class="scale-range-header">
+          <span></span>
+          <span>BAJO</span>
+          <span>PROMEDIO</span>
+          <span>ALTO</span>
+        </div>
+        <div class="rep-scale" id="estilos"></div>
+      </div>
+
+      <!-- PROPENSIÓN AL CAMBIO -->
+      <div class="scale-section">
+        <div class="section-title">
+          <div class="section-dot"></div>
+          <div>PROPENSIÓN AL CAMBIO</div>
+        </div>
+        <div class="rep-scale" id="cambio"></div>
+        <div class="scale-note-inline">Menor propensión al cambio — Mayor propensión al cambio</div>
+      </div>
+
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btnImprimir" class="btn" style="background:#2563eb">Imprimir</button>
+        <button class="btn btnDescargarPDF" style="background:#111827">Descargar PDF</button>
+        <button id="btnExportJSON" class="btn" style="background:#6b7280">Exportar JSON</button>
+      </div>
+
+    </section>
+
+    <div class="page-break"></div>
+
+    <!-- ===== PAGE 2 (INTERPRETACIÓN) ===== -->
+    <section class="page page-interpretacion" id="pageInterpretacion">
+
+      <div class="rep-top">
+        <div class="rep-top-row1">
+          <div id="repDateLine2" class="rep-date"></div>
+          <div class="rep-top-center">Informe Socioemocional y Psicométrico</div>
+          <div class="rep-top-logo">
+            <img src="assets/logo_adalam.png" alt="Logo" class="mhp-logo">
+          </div>
+        </div>
+        <div class="rep-top-row2">
+          <span>Informe Socioemocional y Psicométrico</span>
+        </div>
+        <div class="rep-top-row3">INTELIGENCIA EMOCIONAL – INTERPRETACIÓN</div>
+      </div>
+
+      <h2 class="interp-title">1.- Datos personales.</h2>
+      <div class="rep-ids" id="repHeaderBox2"
+           style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:12px;margin-top:4px">
+      </div>
+
+      <h2 class="interp-title">2.- Descripción del instrumento y criterios de interpretación</h2>
+
+      <div class="interp-legend">
+        <div class="interp-legend-row">
+          Los resultados se presentan en una escala de 1 a 100, equivalente a un puntaje tipo percentil. Esto permite saber si la persona se ubica por debajo, en la media o por encima del grupo de referencia de su edad.
+        </div>
+        <div class="interp-legend-row">
+          Para facilitar la lectura se utilizan tres rangos de interpretación:
+        </div>
+        <div class="interp-legend-row">
+          <span class="badge b-red">1–40 · Bajo</span>
+          <span class="badge b-orange">41–70 · Medio</span>
+          <span class="badge b-green">71–100 · Alto</span>
+        </div>
+        <div class="interp-legend-row">
+          El color <b>rojo</b> indica habilidades por desarrollar, el <b>amarillo</b> habilidades por fortalecer y el <b>verde</b> habilidades por enriquecer. Un puntaje más alto refleja un mayor nivel de desarrollo o manejo en la habilidad evaluada.
+        </div>
+        <div class="interp-legend-row">
+          En las escalas de <b>Agresión</b> y <b>Timidez</b> la interpretación es inversa: puntajes bajos indican mejor manejo de estas áreas, mientras que puntajes altos sugieren mayor riesgo y requieren observación y apoyo.
+        </div>
+        <div class="interp-legend-row">
+          La Prueba de Habilidades Emocionales evalúa tres grandes conjuntos de habilidades (intrapersonales, interpersonales y para la vida) organizadas en 14 subhabilidades específicas, además de los estilos de comunicación y la propensión al cambio.
+        </div>
+      </div>
+
+      <div id="interpIntra"  class="interp-bloque"></div>
+      <div id="interpInter"  class="interp-bloque"></div>
+      <div id="interpPV"     class="interp-bloque"></div>
+
+      <div id="interpEstilos" class="interp-bloque"></div>
+      <div id="interpCambio"  class="interp-bloque"></div>
+
+      <div id="perfilGlobal" class="interp-bloque"></div>
+
+      <div id="recomendaciones" class="interp-bloque"></div>
+      <div id="planAccion" class="interp-bloque"></div>
+
+    </section>
+
+    <div class="page-break"></div>
+
+    <!-- ===== PAGE 3 (DETALLE HABILIDADES) ===== -->
+    <section class="page page-2" id="page2">
+
+      <div class="p2-title">
+        <h2>RESULTADOS GLOBALES</h2>
+        <div>
+          <button class="btn" id="btnPDF" style="background:#2563eb">Imprimir</button>
+          <button class="btn btnDescargarPDF" style="background:#111827">Descargar PDF</button>
+          <button class="btn" id="btnJSON" style="background:#6b7280">Exportar JSON</button>
+        </div>
       </div>
 
       <div class="card">
-        <h2>Por bloque</h2>
-        <table id="tblBloq">
+        <div><b>Contestadas:</b> <span id="contestadasLine">—</span></div>
+
+        <h3 style="margin-top:8px">Por sub-habilidad</h3>
+        <table class="result-table" id="subTable">
           <thead>
-            <tr><th>Bloque</th><th style="width:18%">Promedio %</th><th style="width:22%">Rango</th></tr>
+          <tr>
+            <th>Bloque</th><th>Sub-habilidad</th><th>Ítems</th><th>Puntos</th><th>%</th><th>Rango</th>
+          </tr>
           </thead>
           <tbody></tbody>
         </table>
-        <div class="mut" style="margin-top:6px">
-          Rangos: <span class="chip cR">1–40</span> · <span class="chip cY">41–70</span> · <span class="chip cG">71–100</span>
+
+        <div class="hint" style="margin-top:6px">
+          Rangos: <span class="badge b-red">1–40</span>
+          <span class="badge b-orange">41–70</span>
+          <span class="badge b-green">71–100</span>
         </div>
       </div>
-    </div>
+    </section>
 
-  </div><!--/report-->
-</div><!--/wrap-->
+  </div><!-- /reporteContainer -->
 
+</div><!-- /wrap -->
 <script>
-  const $ = s=>document.querySelector(s);
-  const el = id=>document.getElementById(id);
+  const $ = sel => document.querySelector(sel);
+  function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
+  function normalizeBloqueName(name){
+    return (name||"").replace(/\s+/g," ").trim().toLowerCase();
+  }
 
-  // ---------- util ----------
-  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-  const pct = v => { const n=Number(v); return Number.isFinite(n)? n : null; };
-  const chip = v => v==null ? '—'
-    : (v<=40? '<span class="chip cR">1–40</span>'
-    : v<=70? '<span class="chip cY">41–70</span>'
-    : '<span class="chip cG">71–100</span>');
+  const SCORE_ADJUST = {
+    ENABLED: true,
+    OFFSET: 10,
+    APPLY_TO_RISK: true
+  };
 
-  // ---------- curva ----------
-  function drawBell(){
-    const p=el('bell'); if(!p) return;
-    const left=10,right=510,base=115,top=25;
+  function isRiskScale(bloqueNorm, subNorm){
+    return (
+      bloqueNorm === "estilos de comunicación interpersonal" &&
+      (subNorm === "agresión" || subNorm === "timidez")
+    );
+  }
+
+  function adjScore(v, {bloqueNorm=null, subNorm=null} = {}){
+    const n = Number(v);
+    if(!Number.isFinite(n)) return v;
+    if(n <= 0) return n;
+    if(!SCORE_ADJUST.ENABLED) return Math.round(n);
+    if(isRiskScale(bloqueNorm || "", subNorm || "") && !SCORE_ADJUST.APPLY_TO_RISK){
+      return clamp(Math.round(n), 1, 100);
+    }
+    return clamp(Math.round(n - SCORE_ADJUST.OFFSET), 1, 100);
+  }
+
+  function rangoBadge(p){
+    if (p<=40) return {txt:"1–40 Por desarrollar", cls:"b-red"};
+    if (p<=70) return {txt:"41–70 Por fortalecer", cls:"b-orange"};
+    return {txt:"71–100 Por enriquecer", cls:"b-green"};
+  }
+
+  function rangoBadgeRiesgo(p){
+    if (p<=40) return {txt:"1–40 Bajo riesgo", cls:"b-green"};
+    if (p<=70) return {txt:"41–70 Riesgo medio", cls:"b-orange"};
+    return {txt:"71–100 Riesgo alto", cls:"b-red"};
+  }
+
+  function highlightIV(rowId, colIndex){
+    const row = document.getElementById(rowId);
+    if(!row) return;
+    [...row.children].forEach(td=>td.classList.remove("hl"));
+    const idx = Math.max(1, Math.min(3, colIndex|0));
+    const td = row.children[idx];
+    if(td) td.classList.add("hl");
+  }
+
+  function ivToCol(v){
+    if (v === null || v === undefined) return 2;
+    const n = Number(v);
+    if (!Number.isNaN(n)){
+      if (n === 0 || n === 1 || n === 2) return n + 1;
+      if (Number.isInteger(n) && n>=1 && n<=3) return n;
+      if (n >= 0 && n <= 100){
+        if (n >= 71) return 1;
+        if (n >= 41) return 2;
+        return 3;
+      }
+    }
+    const s = String(v).toLowerCase();
+    if (s.includes("no se contradice") || s.includes("tomó el tiempo adecuado")) return 1;
+    if (s.includes("se contradice frecuentemente") || s.includes("demasiado lento")) return 3;
+    return 2;
+  }
+
+  function drawBellCurve(){
+    const path = document.getElementById("bellPath");
+    if(!path) return;
+    const left=10, right=510, baseY=100, topY=18;
     const mid=(left+right)/2, sigma=90;
     const pts=[];
-    for(let x=left;x<=right;x+=4){
+    for(let x=left; x<=right; x+=5){
       const z=(x-mid)/sigma;
-      const y = base - Math.exp(-0.5*z*z)*(base-top);
+      const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
       pts.push([x,y]);
     }
-    let d=`M${pts[0][0]} ${pts[0][1]}`;
-    for(let i=1;i<pts.length;i++) d+=` L${pts[i][0]} ${pts[i][1]}`;
-    p.setAttribute('d', d);
+    let d=`M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+    for(let i=1;i<pts.length;i++){
+      d += ` L${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}`;
+    }
+    path.setAttribute("d", d);
   }
-  function setCurveDot(iie){
-    drawBell();
-    const left=10,right=510,base=115,top=25, mid=260, sigma=90;
-    const s=clamp(Number(iie)||1,1,100);
-    const x = left + (s-1)/99*(right-left);
+
+  function setCurveMarker(iie){
+    drawBellCurve();
+    const left=10, right=510, baseY=100, topY=18, mid=260, sigma=90;
+    const score = clamp(Number(iie)||0,1,100);
+    const x = left + (score-1)/99*(right-left);
     const z=(x-mid)/sigma;
-    const y = base - Math.exp(-0.5*z*z)*(base-top);
-    el('dot').setAttribute('cx', x);
-    el('dot').setAttribute('cy', y);
+    const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
+    const dot = document.getElementById("curveMarker");
+    if(dot){
+      dot.setAttribute("cx", x);
+      dot.setAttribute("cy", y);
+    }
   }
 
-  // ---------- IV hilite (una celda) ----------
-  function clearIV(){
-    ['iv1c0','iv1c1','iv1c2','iv2c0','iv2c1','iv2c2','iv3c0','iv3c1','iv3c2']
-      .forEach(id=>el(id).classList.remove('hl'));
-  }
-  function hiliteIV(row, col){
-    const td = el(`iv${row}c${col}`);
-    if(td) td.classList.add('hl');
-  }
-  function toCol(v, row){
-    // acepta 0/1/2, 1/2/3, % y texto
-    if(v===null || v===undefined) return null;
-    if(typeof v==='number'){
-      if(v===0||v===1||v===2) return v;
-      if(v>=1&&v<=3) return v-1;
-      if(v<=40) return 0; if(v<=70) return 1; return 2;
+  function addRow(container, name, pct){
+    const row=document.createElement('div');
+    row.style.display='grid';
+    row.style.gridTemplateColumns='220px 1fr 1fr 1fr';
+    row.style.alignItems='center';
+    row.style.gap='6px';
+    row.style.margin='2px 0';
+
+    const nameCell=document.createElement('div');
+    nameCell.textContent=name;
+    nameCell.style.fontWeight='700';
+    nameCell.style.fontSize='12px';
+    row.appendChild(nameCell);
+
+    for(let i=0;i<3;i++){
+      const track=document.createElement('div');
+      track.style.position='relative';
+      track.style.height='14px';
+      track.style.border='1px solid #aab';
+      track.style.borderRadius='4px';
+      track.style.background='#f3f5f8';
+      track.style.overflow='hidden';
+
+      const fill=document.createElement('div');
+      fill.style.position='absolute';
+      fill.style.left='0';
+      fill.style.top='0';
+      fill.style.bottom='0';
+      fill.style.background='#6b7280';
+      fill.style.width='0';
+
+      let w=0;
+      if(i===0 && pct<=40)  w = Math.max(2, Math.round((pct/40)*100));
+      if(i===1 && pct>40 && pct<=70) w = Math.max(2, Math.round(((pct-40)/30)*100));
+      if(i===2 && pct>70)  w = Math.max(2, Math.round(((pct-70)/30)*100));
+
+      fill.style.width = w + '%';
+      track.appendChild(fill);
+      row.appendChild(track);
     }
-    const s=String(v).toLowerCase();
-    if(row===1){ // IV1
-      if(s.includes('poco')) return 1;
-      if(s.includes('requiere')||s.includes('auto')) return 2;
-      return 0;
-    }
-    if(row===2){ // IV2
-      if(s.includes('frecuen')) return 2;
-      if(s.includes('contradice') && !s.includes('no')) return 1;
-      return 0;
-    }
-    if(row===3){ // IV3
-      if(s.includes('10')||s.includes('20')||s.includes('breve')) return 1;
-      if(s.includes('90')||s.includes('lento')) return 2;
-      return 0; // 30–90 adecuado
-    }
-    return null;
+    container.appendChild(row);
   }
 
-  // ---------- barras estilos / propensión ----------
+  function buildBloque(containerId, subRows, bloqueNombre){
+    const cont = document.getElementById(containerId);
+    if(!cont) return;
+    cont.innerHTML = '';
+
+    const cols = document.createElement('div');
+    cols.style.display='grid';
+    cols.style.gridTemplateColumns='220px 1fr 1fr 1fr';
+    cols.style.gap='6px';
+    cols.style.marginBottom='6px';
+
+    const blank=document.createElement('div');
+    cols.appendChild(blank);
+
+    ['POR DESARROLLAR','POR FORTALECER','POR ENRIQUECER'].forEach(t=>{
+      const d=document.createElement('div');
+      d.style.fontSize='11px';
+      d.style.textAlign='center';
+      d.style.color='#374151';
+      d.textContent=t;
+      cols.appendChild(d);
+    });
+    cont.appendChild(cols);
+
+    const bloqueKey = normalizeBloqueName(bloqueNombre);
+    const ordenes = {
+      "habilidades intrapersonales": ["Autoestima","Manejo de la Tensión","Bienestar físico"],
+      "habilidades interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
+      "habilidades para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de Decisiones","Liderazgo"]
+    };
+
+    let rowsFiltradas = subRows
+      .filter(r=> normalizeBloqueName(r.bloque||r.block||"")===bloqueKey);
+
+    const orden = ordenes[bloqueKey];
+    if (orden){
+      rowsFiltradas.sort((a,b)=>{
+        const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
+        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
+        const ia = orden.findIndex(x=> x.toLowerCase()===nameA);
+        const ib = orden.findIndex(x=> x.toLowerCase()===nameB);
+        if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
+        if (ia===-1) return 1;
+        if (ib===-1) return -1;
+        return ia-ib;
+      });
+    }
+
+    rowsFiltradas.forEach(r=>{
+      const sub = r.subhabilidad || r.sub || r.nombre || "";
+      const pctRaw = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
+      const pct = adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeBloqueName(sub)});
+      addRow(cont, sub, pct);
+    });
+  }
+
+  function renderBars(containerId, items, showNote){
+    const host = document.getElementById(containerId);
+    if (!host) return;
+    host.innerHTML = "";
+    const wrap = document.createElement("div");
+    wrap.className = "bars-wrap";
+
+    items.forEach(it => {
+      const row = document.createElement("div");
+      row.className = "bars-row";
+
+      if (it.label === "TIMIDEZ") {
+        row.style.marginTop = "20px";
+      }
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = it.label + " (10–100)";
+      row.appendChild(label);
+
+      const slot = document.createElement("div");
+      slot.className = "bars-slot";
+
+      [10,40,70,100].forEach(v => {
+        const pct = (v - 10) / 90 * 100;
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        tick.style.left = pct + "%";
+        slot.appendChild(tick);
+
+        const tLabel = document.createElement("div");
+        tLabel.className = "tick-label";
+        tLabel.style.left = pct + "%";
+        tLabel.textContent = v;
+        slot.appendChild(tLabel);
+      });
+
+      const marker = document.createElement("div");
+      marker.className = "marker";
+      marker.id = it.id;
+      marker.style.display = "none";
+      slot.appendChild(marker);
+
+      row.appendChild(slot);
+      wrap.appendChild(row);
+    });
+    host.appendChild(wrap);
+
+    if (showNote) {
+      const note = document.createElement("div");
+      note.className = "scale-note-inline";
+      note.textContent = "*Un puntaje bajo indica mejor manejo en estas áreas.";
+      host.appendChild(note);
+    }
+  }
+
   function setMarker(id, val){
-    const m=el(id); if(!m) return;
-    const v=pct(val);
-    if(v==null){ m.style.display='none'; return; }
-    const pos = (clamp(v,10,100)-10)/90*100;
-    m.style.left = pos+'%';
-    m.style.display='block';
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(val==null || isNaN(val)) { el.style.display="none"; return; }
+    const pct = (clamp(val,10,100)-10)/90*100;
+    el.style.left = pct + "%";
+    el.style.display="block";
   }
 
-  // ---------- tablas ----------
-  function fillSubs(rows){
-    const tb = $('#tblSubs tbody'); tb.innerHTML='';
-    (rows||[]).forEach(r=>{
-      const b = r.bloque||r.block||'';
-      const s = r.sub || r.subhabilidad || '';
-      const items = r.items ?? r.n_items ?? '';
-      const pts = r.puntos ?? r.points ?? r.pts ?? '';
-      const p = pct(r.pct ?? r.percent ?? r.porcentaje);
-      tb.innerHTML += `
-        <tr>
-          <td>${b}</td>
-          <td>${s}</td>
-          <td style="text-align:center">${items}</td>
-          <td style="text-align:center">${pts}</td>
-          <td style="text-align:center">${p ?? '—'}</td>
-          <td>${chip(p)}</td>
-        </tr>`;
+  function renderPage2(subRows, bloqRows){
+    const subT = $("#subTable tbody");
+    subT.innerHTML = "";
+    subRows.forEach(r=>{
+      const bloque = r.bloque || r.block || "";
+      const sub = r.subhabilidad || r.sub || "";
+      const items = r.items ?? r.n_items ?? "";
+      const puntos = r.puntos ?? r.points ?? r.pts ?? "";
+      const pctRaw = Math.round(r.percent ?? r.pct ?? 0);
+
+      const bloqueNorm = normalizeBloqueName(bloque);
+      const subNorm = normalizeBloqueName(sub);
+
+      const pct = adjScore(pctRaw, {bloqueNorm, subNorm});
+
+      let badge;
+      if (isRiskScale(bloqueNorm, subNorm)){
+        badge = rangoBadgeRiesgo(pct);
+      }else{
+        badge = rangoBadge(pct);
+      }
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${bloque}</td>
+        <td>${sub}</td>
+        <td>${items}</td>
+        <td>${puntos}</td>
+        <td><b>${pct}%</b></td>
+        <td><span class="badge ${badge.cls}">${badge.txt}</span></td>
+      `;
+      subT.appendChild(tr);
     });
   }
-  function fillBloques(obj){
-    const t = $('#tblBloq tbody'); t.innerHTML='';
-    const asList = Array.isArray(obj) ? obj
-      : Object.keys(obj||{}).map(k=>({bloque:k, pct: obj[k]}));
-    asList.forEach(r=>{
-      const p = pct(r.pct ?? r.percent ?? r.porcentaje ?? r.value);
-      t.innerHTML += `
-        <tr>
-          <td>${r.bloque||r.block||''}</td>
-          <td style="text-align:center">${p ?? '—'}</td>
-          <td>${chip(p)}</td>
-        </tr>`;
+
+  function findSubPct(subRows, bloqueNombre, subNombre){
+    const bloqueKey = normalizeBloqueName(bloqueNombre);
+    const subKey = normalizeBloqueName(subNombre);
+    const row = (subRows || []).find(r =>
+      normalizeBloqueName(r.bloque || r.block || "") === bloqueKey &&
+      normalizeBloqueName(r.subhabilidad || r.sub || r.nombre || "") === subKey
+    );
+    if(!row) return null;
+    const vRaw = Number(row.percent ?? row.pct ?? row.porcentaje ?? row.value);
+    if(Number.isNaN(vRaw)) return null;
+    return adjScore(vRaw, {bloqueNorm: bloqueKey, subNorm: subKey});
+  }
+
+  const BLOQUE_DESCS = {
+    intra: "Las habilidades intrapersonales son la capacidad de comprender y gestionar los propios pensamientos y emociones.",
+    inter: "Son el conjunto de capacidades y comportamientos que permiten comunicarse y relacionarse eficazmente con otros para construir vínculos positivos y colaborar en distintos contextos.",
+    vida: "Son aptitudes y destrezas que permiten enfrentar los desafíos cotidianos, adaptarse y desenvolverse positivamente en sociedad.",
+    estilos: "Los estilos de comunicación son las diferentes formas en que las personas expresan sus ideas y emociones en la interacción con los demás. En las escalas de Agresión y Timidez, puntajes bajos indican mejor manejo de estas áreas, mientras que puntajes altos sugieren mayor riesgo y requieren especial atención.",
+    cambio: "Es la disposición y apertura de una persona para adaptarse y promover transformaciones positivas en su entorno."
+  };
+
+  const HABILIDAD_DESCS = {
+    "Autoestima": "Es la valoración y percepción que una persona tiene de sí misma.",
+    "Manejo de la Tensión": "Es la habilidad para identificar, controlar y reducir el estrés y la presión emocional de forma saludable.",
+    "Manejo de la tensión": "Es la habilidad para identificar, controlar y reducir el estrés y la presión emocional de forma saludable.",
+    "Bienestar físico": "Es el estado de salud que permite realizar actividades diarias cuidando el cuerpo mediante ejercicio, alimentación y descanso adecuados.",
+    "Asertividad": "Es la habilidad para expresar opiniones, sentimientos y necesidades de manera clara, respetuosa y firme, sin agredir ni someterse a los demás.",
+    "Conciencia de los demás": "Capacidad de percibir y entender las emociones, pensamientos y necesidades de otras personas para relacionarse empáticamente.",
+    "Empatía": "Es la capacidad de comprender y compartir los sentimientos y emociones de otras personas poniéndose en su lugar.",
+    "Motivación": "Es el impulso interno o externo que activa, dirige y sostiene el comportamiento hacia la consecución de metas u objetivos.",
+    "Compromiso": "Es la obligación interna y emocional que impulsa a cumplir responsabilidades y decisiones con dedicación y constancia.",
+    "Administración del tiempo": "Es el proceso de planificar y controlar el uso del tiempo para realizar actividades de manera eficiente y cumplir objetivos.",
+    "Toma de Decisiones": "Es el proceso de elegir la mejor opción entre varias alternativas para resolver un problema o alcanzar un objetivo.",
+    "Toma de decisiones": "Es el proceso de elegir la mejor opción entre varias alternativas para resolver un problema o alcanzar un objetivo.",
+    "Liderazgo": "Es la capacidad de dirigir, motivar e influir en un grupo para alcanzar objetivos comunes con eficacia y compromiso.",
+    "Agresión": "Es un comportamiento hostil o violento, verbal, físico o emocional, que busca causar daño o intimidar a otros.",
+    "Timidez": "Es la sensación de inseguridad y reserva que lleva a evitar situaciones sociales o a mostrarse retraído.",
+    "Propensión al cambio": "Es el grado de apertura y disposición para aceptar y adaptarse a nuevas ideas, situaciones y transformaciones."
+  };
+
+  function renderSkillRow(parent, nombre, pct){
+    const row = document.createElement("div");
+    row.className = "skill-row";
+
+    const title = document.createElement("div");
+    title.className = "skill-row-title";
+    const numeric = (pct != null && !Number.isNaN(Number(pct))) ? Math.round(pct) : null;
+    title.textContent = numeric != null
+      ? `${nombre} (Puntaje: ${numeric}/100)`
+      : nombre;
+    row.appendChild(title);
+
+    const descTxt = HABILIDAD_DESCS[nombre] || "";
+    if(descTxt){
+      const desc = document.createElement("div");
+      desc.className = "skill-row-desc";
+      desc.textContent = descTxt;
+      row.appendChild(desc);
+    }
+
+    const bar = document.createElement("div");
+    bar.className = "skill-bar";
+
+    const track = document.createElement("div");
+    track.className = "skill-bar-track";
+
+    const isAggOrTim = (nombre === "Agresión" || nombre === "Timidez");
+    if (isAggOrTim){
+      track.style.background =
+        "linear-gradient(to right," +
+        "var(--green) 0%, var(--green) 40%," +
+        "var(--orange) 40%, var(--orange) 70%," +
+        "var(--red) 70%, var(--red) 100%)";
+    }
+
+    const marker = document.createElement("div");
+    marker.className = "skill-bar-marker";
+    if(numeric == null){
+      marker.style.display = "none";
+    }else{
+      const v = clamp(numeric,1,100);
+      marker.style.left = v + "%";
+    }
+    track.appendChild(marker);
+
+    const value = document.createElement("div");
+    value.className = "skill-bar-value";
+    value.textContent = numeric != null ? `${numeric} / 100` : "—";
+
+    bar.appendChild(track);
+    bar.appendChild(value);
+    row.appendChild(bar);
+
+    if (numeric != null) {
+      if (isAggOrTim && numeric > 70) {
+        value.classList.add("skill-row-alert");
+        const alert = document.createElement("div");
+        alert.className = "skill-row-desc skill-row-alert";
+        alert.textContent = nombre === "Agresión"
+          ? "El puntaje se encuentra en un rango elevado de agresión. Se recomienda observación cercana, acompañamiento emocional y, de ser necesario, derivación a apoyo profesional."
+          : "El puntaje se encuentra en un rango elevado de timidez. Se sugiere favorecer espacios graduales de participación y valorar acompañamiento especializado si la dificultad persiste.";
+        row.appendChild(alert);
+      } else if (!isAggOrTim && numeric <= 40) {
+        const alert = document.createElement("div");
+        alert.className = "skill-row-desc skill-row-alert";
+        alert.textContent = "El puntaje se encuentra en un rango bajo. Se recomienda un seguimiento cercano y actividades específicas para fortalecer esta habilidad.";
+        row.appendChild(alert);
+      }
+    }
+
+    parent.appendChild(row);
+  }
+
+  function nivelFromPct(p){
+    if(p == null || Number.isNaN(p)) return "medio";
+    if(p <= 40) return "bajo";
+    if(p <= 70) return "medio";
+    return "alto";
+  }
+
+  const RECOM_BLOQUES = {
+    intra: {
+      bajo: [
+        "Trabajar en el reconocimiento de cualidades personales mediante actividades que fortalezcan la autoestima.",
+        "Incorporar rutinas breves de respiración, pausas activas o ejercicio suave para manejar mejor la tensión.",
+        "Supervisar hábitos de sueño y alimentación para mantener un adecuado bienestar físico."
+      ],
+      medio: [
+        "Reforzar los logros alcanzados, ayudando a la persona a identificar en qué es buena y qué ha mejorado.",
+        "Enseñar estrategias concretas para manejar el estrés en época de exámenes o cambios importantes."
+      ],
+      alto: [
+        "Aprovechar su buen autoconocimiento para proponerle metas personales desafiantes pero alcanzables.",
+        "Invitarle a modelar conductas de autocuidado y manejo de la tensión frente a sus pares."
+      ]
+    },
+    inter: {
+      bajo: [
+        "Practicar el uso de mensajes en primera persona (“yo siento… cuando…”) para mejorar la asertividad.",
+        "Promover espacios seguros de diálogo donde pueda expresar opiniones sin temor a burlas o juicios.",
+        "Trabajar juegos de rol o dinámicas que favorezcan ponerse en el lugar del otro (empatía)."
+      ],
+      medio: [
+        "Refinar habilidades de escucha activa (mirar, no interrumpir, resumir lo que el otro dijo).",
+        "Reforzar conductas positivas cada vez que muestra respeto, colaboración y cuidado por los demás."
+      ],
+      alto: [
+        "Ofrecerle oportunidades para apoyar a compañeros que necesitan ayuda en lo social o emocional.",
+        "Invitarle a participar en actividades donde pueda ser mediador o promotor de buena convivencia."
+      ]
+    },
+    vida: {
+      bajo: [
+        "Apoyar la organización diaria con horarios visibles, recordatorios y acompañamiento cercano.",
+        "Ayudar a dividir tareas grandes en pasos pequeños y manejables para facilitar la toma de decisiones.",
+        "Reforzar el cumplimiento de acuerdos sencillos, usando consecuencias claras y consistentes."
+      ],
+      medio: [
+        "Estimular que planifique con anticipación tareas académicas y responsabilidades en casa.",
+        "Ofrecerle pequeños roles de liderazgo en actividades concretas, con apoyo del adulto."
+      ],
+      alto: [
+        "Asignar responsabilidades estables (por ejemplo, coordinar un equipo o proyecto) para aprovechar sus capacidades.",
+        "Invitarle a participar en proyectos escolares o comunitarios donde pueda liderar y organizar a otros."
+      ]
+    }
+  };
+
+  function renderRecomendaciones(extras){
+    const cont = document.getElementById("recomendaciones");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">4.- Recomendaciones y plan de acción</div>`;
+    cont.appendChild(header);
+
+    const sub = document.createElement("div");
+    sub.className = "recom-subtitle";
+    sub.textContent = "Las siguientes recomendaciones se generan a partir de los puntajes obtenidos en cada bloque de habilidades y pueden ser usadas como guía inicial para el acompañamiento.";
+    cont.appendChild(sub);
+
+    const lista = document.createElement("ul");
+    lista.className = "recom-list";
+
+    const nIntra = nivelFromPct(extras.bIntra);
+    const nInter = nivelFromPct(extras.bInter);
+    const nPV    = nivelFromPct(extras.bPV);
+
+    (RECOM_BLOQUES.intra[nIntra] || []).forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = "Habilidades intrapersonales: " + t;
+      lista.appendChild(li);
+    });
+    (RECOM_BLOQUES.inter[nInter] || []).forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = "Habilidades interpersonales: " + t;
+      lista.appendChild(li);
+    });
+    (RECOM_BLOQUES.vida[nPV] || []).forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = "Habilidades para la vida: " + t;
+      lista.appendChild(li);
+    });
+
+    if(extras.agresionVal != null && extras.agresionVal > 70){
+      const li = document.createElement("li");
+      li.textContent = "Estilos de comunicación (agresión): trabajar en el control de impulsos y uso de un lenguaje respetuoso, enseñando alternativas para expresar enojo sin dañar a otros.";
+      lista.appendChild(li);
+    }
+    if(extras.timidezVal != null && extras.timidezVal > 70){
+      const li = document.createElement("li");
+      li.textContent = "Estilos de comunicación (timidez): favorecer la participación gradual en actividades grupales, comenzando por espacios pequeños y con apoyo de un adulto de confianza.";
+      lista.appendChild(li);
+    }
+
+    if(extras.propCambioVal != null){
+      if(extras.propCambioVal <= 40){
+        const li = document.createElement("li");
+        li.textContent = "Propensión al cambio: acompañar de cerca los procesos de cambio, explicando con anticipación lo que ocurrirá y respetando sus tiempos de adaptación.";
+        lista.appendChild(li);
+      }else if(extras.propCambioVal >= 71){
+        const li = document.createElement("li");
+        li.textContent = "Propensión al cambio: aprovechar su apertura a lo nuevo para involucrarle en proyectos innovadores y en la implementación de mejoras dentro del aula o institución.";
+        lista.appendChild(li);
+      }
+    }
+
+    cont.appendChild(lista);
+  }
+
+  const PLAN_BASE = {
+    hogar: {
+      general: [
+        "Destinar diariamente unos minutos para conversar sobre cómo se sintió en el día, validando sus emociones.",
+        "Reconocer con palabras concretas los esfuerzos y avances, más allá del resultado académico.",
+        "Establecer rutinas claras (horarios de estudio, descanso y ocio) visibles para toda la familia."
+      ]
+    },
+    escuela: {
+      general: [
+        "Favorecer un clima de aula donde se valore el respeto, la colaboración y la expresión emocional adecuada.",
+        "Registrar observaciones relevantes sobre su comportamiento socioemocional y compartirlas en reuniones con familia.",
+        "Incorporar actividades breves de educación emocional (dinámicas, debates, juegos cooperativos)."
+      ],
+      focoIntra: [
+        "Ofrecer oportunidades para que exprese sus opiniones en espacios seguros (tutorías, pequeños grupos).",
+        "Evitar comentarios descalificadores y reforzar mensajes que destaquen sus capacidades y progresos."
+      ],
+      focoInter: [
+        "Organizar trabajos cooperativos donde pueda practicar la escucha, el respeto y la empatía.",
+        "Observar y acompañar las interacciones con pares, interviniendo cuando haya conflictos para modelar formas adecuadas de resolverlos."
+      ],
+      focoVida: [
+        "Apoyar en la planificación de tareas escolares con fechas y pasos intermedios claros.",
+        "Proponerle pequeños roles de responsabilidad en el aula para fortalecer su organización y compromiso."
+      ]
+    },
+    apoyo: {
+      general: [
+        "Si las dificultades se mantienen o son muy intensas, considerar una evaluación más profunda por parte del departamento de Consejería Estudiantil u otro profesional especializado.",
+        "Mantener comunicación periódica entre familia y escuela para alinear estrategias y evitar mensajes contradictorios."
+      ]
+    }
+  };
+
+  function renderPlanAccion(extras){
+    const cont = document.getElementById("planAccion");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">Plan de acción sugerido</div>`;
+    cont.appendChild(header);
+
+    const sub = document.createElement("div");
+    sub.className = "recom-subtitle";
+    sub.textContent = "Este plan ofrece orientaciones generales para acompañar el desarrollo socioemocional desde el hogar y la institución educativa. No reemplaza una valoración clínica ni una intervención profesional especializada.";
+    cont.appendChild(sub);
+
+    const hTitle = document.createElement("div");
+    hTitle.className = "plan-section-title";
+    hTitle.textContent = "En el hogar / familia:";
+    cont.appendChild(hTitle);
+
+    const hList = document.createElement("ul");
+    hList.className = "recom-list";
+    PLAN_BASE.hogar.general.forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t;
+      hList.appendChild(li);
+    });
+    cont.appendChild(hList);
+
+    const eTitle = document.createElement("div");
+    eTitle.className = "plan-section-title";
+    eTitle.textContent = "En el aula / institución educativa:";
+    cont.appendChild(eTitle);
+
+    const eList = document.createElement("ul");
+    eList.className = "recom-list";
+
+    PLAN_BASE.escuela.general.forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t;
+      eList.appendChild(li);
+    });
+
+    const bloques = [
+      {key:"intra", label:"intrapersonales", val:extras.bIntra},
+      {key:"inter", label:"interpersonales", val:extras.bInter},
+      {key:"vida",  label:"para la vida",   val:extras.bPV}
+    ].filter(b=> b.val != null && !Number.isNaN(b.val));
+
+    if(bloques.length){
+      bloques.sort((a,b)=>a.val-b.val);
+      const masBajo = bloques[0].key;
+      if(masBajo === "intra"){
+        PLAN_BASE.escuela.focoIntra.forEach(t=>{
+          const li = document.createElement("li");
+          li.textContent = t;
+          eList.appendChild(li);
+        });
+      }else if(masBajo === "inter"){
+        PLAN_BASE.escuela.focoInter.forEach(t=>{
+          const li = document.createElement("li");
+          li.textContent = t;
+          eList.appendChild(li);
+        });
+      }else if(masBajo === "vida"){
+        PLAN_BASE.escuela.focoVida.forEach(t=>{
+          const li = document.createElement("li");
+          li.textContent = t;
+          eList.appendChild(li);
+        });
+      }
+    }
+
+    cont.appendChild(eList);
+
+    const aTitle = document.createElement("div");
+    aTitle.className = "plan-section-title";
+    aTitle.textContent = "Con apoyo del orientador / psicólogo:";
+    cont.appendChild(aTitle);
+
+    const aList = document.createElement("ul");
+    aList.className = "recom-list";
+    PLAN_BASE.apoyo.general.forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t;
+      aList.appendChild(li);
+    });
+    cont.appendChild(aList);
+
+    const foot = document.createElement("div");
+    foot.style.textAlign = "right";
+    foot.style.fontSize = "10px";
+    foot.style.color = "var(--muted)";
+    foot.style.marginTop = "8px";
+    foot.textContent = "IPLAED CORP 2025";
+    cont.appendChild(foot);
+  }
+
+  function renderPerfilGlobal(extras){
+    const cont = document.getElementById("perfilGlobal");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">3.- Perfil cuantitativo global</div>`;
+    cont.appendChild(header);
+
+    const p = document.createElement("div");
+    p.className = "interp-bloque-desc";
+    const nombre = extras.nombre || "el participante";
+    p.textContent = `Del reporte individual de ${nombre} se desprenden los siguientes índices:`;
+    cont.appendChild(p);
+
+    const ul = document.createElement("ul");
+    ul.className = "recom-list";
+
+    const fmt = v => (v != null && !Number.isNaN(v)) ? Math.round(v) : "—";
+
+    [
+      `Índice de Habilidades Intrapersonales (IH INTRA): ${fmt(extras.bIntra)}`,
+      `Índice de Habilidades Interpersonales (IH INTER): ${fmt(extras.bInter)}`,
+      `Índice de Habilidades para la Vida (IH PV): ${fmt(extras.bPV)}`,
+      `Índice Global de Inteligencia Emocional (IIE): ${fmt(extras.iieFinal)}`
+    ].forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t;
+      ul.appendChild(li);
+    });
+
+    cont.appendChild(ul);
+
+    const subt = document.createElement("div");
+    subt.className = "plan-section-title";
+    subt.textContent = "Estilos de Comunicación Interpersonal (en estas escalas puntajes bajos indican mejor manejo):";
+    cont.appendChild(subt);
+
+    const ul2 = document.createElement("ul");
+    ul2.className = "recom-list";
+
+    const liA = document.createElement("li");
+    liA.textContent = "Agresión: " + fmt(extras.agresionVal);
+    if (extras.agresionVal != null && !Number.isNaN(extras.agresionVal) && extras.agresionVal > 70){
+      liA.classList.add("skill-row-alert");
+      liA.textContent += " (rango alto, requiere atención y acompañamiento).";
+    }
+    ul2.appendChild(liA);
+
+    const liT = document.createElement("li");
+    liT.textContent = "Timidez: " + fmt(extras.timidezVal);
+    if (extras.timidezVal != null && !Number.isNaN(extras.timidezVal) && extras.timidezVal > 70){
+      liT.classList.add("skill-row-alert");
+      liT.textContent += " (rango alto, sugiere inhibición social significativa).";
+    }
+    ul2.appendChild(liT);
+
+    cont.appendChild(ul2);
+
+    const subt2 = document.createElement("div");
+    subt2.className = "plan-section-title";
+    subt2.textContent = "Propensión al cambio:";
+    cont.appendChild(subt2);
+
+    const ul3 = document.createElement("ul");
+    ul3.className = "recom-list";
+    const liC = document.createElement("li");
+    liC.textContent = "Propensión al cambio: " + fmt(extras.propCambioVal) + " (a mayor puntaje, mayor apertura al cambio).";
+    ul3.appendChild(liC);
+    cont.appendChild(ul3);
+  }
+
+  function renderBloqueInterpretacion(containerId, tituloBloque, bloqueDescKey, subRows, pctBloqueVal){
+    const cont = document.getElementById(containerId);
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const idxText = (pctBloqueVal != null && !Number.isNaN(pctBloqueVal)) ? pctBloqueVal : "—";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `
+      <div class="interp-bloque-nombre">${tituloBloque}</div>
+      <div class="interp-bloque-indice">Índice: <span>${idxText}</span></div>
+    `;
+    cont.appendChild(header);
+
+    const desc = document.createElement("div");
+    desc.className = "interp-bloque-desc";
+    desc.textContent = BLOQUE_DESCS[bloqueDescKey] || "";
+    cont.appendChild(desc);
+
+    const bloqueKey = normalizeBloqueName(tituloBloque);
+    const ordenes = {
+      "habilidades intrapersonales": ["Autoestima","Manejo de la Tensión","Bienestar físico"],
+      "habilidades interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
+      "habilidades para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de Decisiones","Liderazgo"]
+    };
+
+    let rows = (subRows || []).filter(r =>
+      normalizeBloqueName(r.bloque || r.block || "") === bloqueKey
+    );
+
+    const orden = ordenes[bloqueKey];
+    if(orden){
+      rows.sort((a,b)=>{
+        const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
+        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
+        const ia = orden.findIndex(x=> x.toLowerCase() === nameA);
+        const ib = orden.findIndex(x=> x.toLowerCase() === nameB);
+        if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
+        if (ia===-1) return 1;
+        if (ib===-1) return -1;
+        return ia-ib;
+      });
+    }
+
+    rows.forEach(r=>{
+      const sub = r.subhabilidad || r.sub || r.nombre || "";
+      const pctRaw = Number(r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? null);
+      const pct = (pctRaw != null && !Number.isNaN(pctRaw))
+        ? adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeBloqueName(sub)})
+        : null;
+      renderSkillRow(cont, sub, pct);
     });
   }
 
-  // ---------- header ----------
-  function putHeader(P,A){
-    el('k_nombre').textContent = A.nombre || P.nombre || '—';
-    el('k_edad').textContent   = A.edad_anios ?? P.edad_anios ?? '—';
-    el('k_curso').textContent  = A.curso || P.curso || '—';
-    el('k_inst').textContent   = A.institucion || P.institucion || '—';
-    el('k_grupo').textContent  = A.grupo || P.grupo || '—';
-    const f = (A.created_at || A.fecha || '').toString().slice(0,10) || '—';
-    el('k_fecha').textContent  = f;
+  function renderInterpretacion(subRows, bloquePercents, extras){
+    const date1 = document.getElementById("repDateLine");
+    const date2 = document.getElementById("repDateLine2");
+    if(date1 && date2) date2.textContent = date1.textContent;
+
+    const h1 = document.getElementById("repHeaderBox");
+    const h2 = document.getElementById("repHeaderBox2");
+    if(h1 && h2) h2.innerHTML = h1.innerHTML;
+
+    renderBloqueInterpretacion("interpIntra","HABILIDADES INTRAPERSONALES","intra", subRows, extras.bIntra);
+    renderBloqueInterpretacion("interpInter","HABILIDADES INTERPERSONALES","inter", subRows, extras.bInter);
+    renderBloqueInterpretacion("interpPV","HABILIDADES PARA LA VIDA","vida", subRows, extras.bPV);
+
+    const estCont = document.getElementById("interpEstilos");
+    if(estCont){
+      estCont.innerHTML = "";
+      const header = document.createElement("div");
+      header.className = "interp-bloque-header";
+      header.innerHTML = `<div class="interp-bloque-nombre">ESTILOS DE COMUNICACIÓN INTERPERSONAL</div>`;
+      estCont.appendChild(header);
+
+      const desc = document.createElement("div");
+      desc.className = "interp-bloque-desc";
+      desc.textContent = BLOQUE_DESCS.estilos || "";
+      estCont.appendChild(desc);
+
+      renderSkillRow(estCont, "Agresión", extras.agresionVal);
+      renderSkillRow(estCont, "Timidez", extras.timidezVal);
+    }
+
+    const cambCont = document.getElementById("interpCambio");
+    if(cambCont){
+      cambCont.innerHTML = "";
+      const header = document.createElement("div");
+      header.className = "interp-bloque-header";
+      header.innerHTML = `<div class="interp-bloque-nombre">PROPENSIÓN AL CAMBIO</div>`;
+      cambCont.appendChild(header);
+
+      const desc = document.createElement("div");
+      desc.className = "interp-bloque-desc";
+      desc.textContent = BLOQUE_DESCS.cambio || "";
+      cambCont.appendChild(desc);
+
+      renderSkillRow(cambCont, "Propensión al cambio", extras.propCambioVal);
+    }
+
+    renderPerfilGlobal(extras);
+    renderRecomendaciones(extras);
+    renderPlanAccion(extras);
   }
 
-  // ---------- main load ----------
-  async function load(){
-    const code = el('code').value.trim().toUpperCase();
-    const msg = el('msg');
-    msg.textContent='';
-    $('#report').style.display='none';
-    if(!code){ msg.textContent='Ingresa un código.'; return; }
+  function renderAll(data){
+    window.__LAST_REPORT__ = data;
+
+    const attempt = data.attempt || data;
+    const snap = attempt.snapshot || attempt.snap || attempt;
+
+    const resultados = attempt.resultados || attempt.resultados_json || attempt.result || {};
+    const subRows = attempt.subhabilidades || resultados.subhabilidades || attempt.subRows || attempt.sub || [];
+    const bloqRows = attempt.bloqPercents || resultados.bloqPercents || attempt.bloqRows || attempt.bloques || resultados.bloques || [];
+
+    const fechaRaw = attempt.created_at || attempt.creado_en || attempt.fecha_intento;
+    const fechaObj = fechaRaw ? new Date(fechaRaw) : null;
+
+    const ahora = new Date();
+    $("#repDateLine").textContent = ahora.toLocaleString("es-EC", { dateStyle:"short", timeStyle:"short" });
+
+    const fechaTexto = fechaObj
+      ? fechaObj.toLocaleDateString("es-EC", { year:"numeric", month:"long", day:"2-digit" })
+      : "—";
+
+    const nombre = snap.nombre || attempt.nombre || "—";
+
+    $("#repHeaderBox").innerHTML = `
+      <div><b>Nombre:</b> ${nombre}</div>
+      <div><b>Grado:</b> ${snap.curso || attempt.curso || "—"}</div>
+      <div><b>Grupo:</b> ${snap.grupo || attempt.grupo || "—"}</div>
+      <div><b>Institución:</b> ${snap.institucion || attempt.institucion || "—"}</div>
+      <div><b>Fecha:</b> ${fechaTexto}</div>
+    `;
+
+    function pctBloque(nombre){
+      const keyNorm = normalizeBloqueName(nombre);
+      let raw = 0;
+
+      if(Array.isArray(bloqRows)){
+        const f = bloqRows.find(r =>
+          normalizeBloqueName(r.bloque||r.block||"") === keyNorm
+        );
+        if (f) raw = Math.round(f.percent ?? f.pct ?? f.porcentaje ?? 0);
+      }else if (bloqRows && typeof bloqRows === "object"){
+        const k = Object.keys(bloqRows||{}).find(k =>
+          normalizeBloqueName(k) === keyNorm
+        );
+        if (k) raw = Math.round(bloqRows[k]);
+      }
+
+      if (!raw && resultados.bloques){
+        if (keyNorm === "habilidades intrapersonales") raw = Math.round(resultados.bloques.intrapersonales || 0);
+        if (keyNorm === "habilidades interpersonales") raw = Math.round(resultados.bloques.interpersonales || 0);
+        if (keyNorm === "habilidades para la vida")   raw = Math.round(resultados.bloques.para_la_vida || 0);
+        if (keyNorm === "estilos de comunicación interpersonal") raw = Math.round(resultados.bloques.estilos_comunicacion || 0);
+        if (keyNorm === "propensión al cambio") raw = Math.round(resultados.bloques.propension_cambio || 0);
+      }
+
+      return adjScore(raw, {bloqueNorm: keyNorm, subNorm: ""});
+    }
+
+    const bIntra = pctBloque("Habilidades intrapersonales");
+    const bInter = pctBloque("Habilidades interpersonales");
+    const bPV    = pctBloque("Habilidades para la vida");
+
+    $("#ihIntra").textContent = bIntra || "—";
+    $("#ihInter").textContent = bInter || "—";
+    $("#ihPV").textContent    = bPV || "—";
+
+    let iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie ??
+      (resultados.globales ? resultados.globales.IIE : undefined);
+
+    const iieBase = (iie != null && !Number.isNaN(Number(iie)))
+      ? Number(iie)
+      : ((bIntra||bInter||bPV) ? Math.round((bIntra+bInter+bPV)/3) : 0);
+
+    const iieFinal = adjScore(iieBase, {bloqueNorm:"", subNorm:""});
+
+    $("#repIIE").textContent = iieFinal || "—";
+    setCurveMarker(iieFinal || 0);
+
+    const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1 ?? (resultados.globales && resultados.globales.IV1);
+    const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2 ?? (resultados.globales && resultados.globales.IV2);
+    const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3 ?? (resultados.globales && resultados.globales.IV3);
+
+    highlightIV("iv1Row", ivToCol(iv1Val));
+    highlightIV("iv2Row", ivToCol(iv2Val));
+    highlightIV("iv3Row", ivToCol(iv3Val));
+
+    buildBloque("bloqueIntra", subRows, "Habilidades intrapersonales");
+    buildBloque("bloqueInter", subRows, "Habilidades interpersonales");
+    buildBloque("bloquePV",    subRows, "Habilidades para la vida");
+
+    const agresionVal = findSubPct(subRows,"Estilos de comunicación interpersonal","Agresión");
+    const timidezVal  = findSubPct(subRows,"Estilos de comunicación interpersonal","Timidez");
+    const propCambioVal = pctBloque("Propensión al cambio");
+
+    renderBars("estilos", [
+      {label:"AGRESIÓN", val: agresionVal, id:"mAgresion"},
+      {label:"TIMIDEZ",  val: timidezVal,  id:"mTimidez"}
+    ], true);
+
+    renderBars("cambio", [
+      {label:"PROPENSIÓN AL CAMBIO", val: propCambioVal, id:"mCambio"}
+    ], false);
+
+    setMarker("mAgresion", agresionVal);
+    setMarker("mTimidez",  timidezVal);
+    setMarker("mCambio",   propCambioVal);
+
+    const contestadas = attempt.contestadas || attempt.n_respondidas || "244 de 244";
+    $("#contestadasLine").textContent = contestadas;
+
+    renderPage2(subRows, bloqRows);
+
+    renderInterpretacion(subRows, bloqRows, {
+      bIntra,
+      bInter,
+      bPV,
+      agresionVal,
+      timidezVal,
+      propCambioVal,
+      iieFinal,
+      nombre
+    });
+
+    $("#reporteContainer").style.display="block";
+  }
+
+  async function cargarReporte(codigo){
+    $("#msg").textContent = "Buscando...";
+    $("#msg").className = "msg";
+    $("#reporteContainer").style.display="none";
 
     try{
-      const res = await fetch('/api/report?codigo='+encodeURIComponent(code));
-      if(!res.ok) throw new Error('No encontrado');
-      const data = await res.json();
+      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const data = await r.json();
 
-      const P = data.participante || data.participant || {};
-      const A = data.attempt || data.intento || data || {};
-      const R = A.resultados || data.resultados || {};
-
-      // Header + IIE + curva
-      putHeader(P,A);
-      const iie = A.iie ?? (R.globales && R.globales.IIE) ?? null;
-      el('iieVal').textContent = (iie ?? '—');
-      setCurveDot(iie ?? 1);
-
-      // IVs
-      const iv1 = toCol(A.iv1 ?? (R.globales && R.globales.IV1), 1);
-      const iv2 = toCol(A.iv2 ?? (R.globales && R.globales.IV2), 2);
-      const iv3 = toCol(A.iv3 ?? (R.globales && R.globales.IV3), 3);
-      clearIV();
-      if(iv1!=null) hiliteIV(1, iv1);
-      if(iv2!=null) hiliteIV(2, iv2);
-      if(iv3!=null) hiliteIV(3, iv3);
-
-      // Estilos y propensión (marcadores)
-      let agresion=null, timidez=null, prop=null;
-      const subs = R.subhabilidades || [];
-      for(const s of subs){
-        const name=(s.sub||s.subhabilidad||'').toLowerCase();
-        const v=pct(s.pct ?? s.percent ?? s.porcentaje);
-        if(name==='agresión' || name==='agresion') agresion=v;
-        if(name==='timidez') timidez=v;
-        if(name==='propensión al cambio' || name==='propension al cambio') prop=v;
+      if(!r.ok || data.error){
+        $("#msg").textContent = data.error || "No encontrado";
+        $("#msg").className="msg err";
+        return;
       }
-      if(prop==null && R.bloques && (R.bloques.propension_cambio!=null))
-        prop = pct(R.bloques.propension_cambio);
-
-      setMarker('mkAg', agresion);
-      setMarker('mkTi', timidez);
-      setMarker('mkPc', prop);
-
-      // tablas
-      fillSubs(subs);
-      fillBloques(R.bloques || A.bloques || []);
-
-      // listo
-      $('#report').style.display='';
-      window.scrollTo({top:0,behavior:'smooth'});
+      $("#msg").textContent = "Código válido.";
+      $("#msg").className="msg ok";
+      window.__CODIGO_REPORTE__ = codigo;
+      renderAll(data);
+      window.scrollTo({top:0,behavior:"smooth"});
     }catch(e){
-      msg.textContent='No se pudo generar el reporte (verifica el código y el endpoint /api/report).';
-      console.error(e);
+      $("#msg").textContent="Error de conexión";
+      $("#msg").className="msg err";
     }
   }
 
-  // eventos
-  el('go').addEventListener('click', load);
-  el('code').addEventListener('keydown', e=>{ if(e.key==='Enter') load(); });
+  function exportJSON(){
+    const payload = window.__LAST_REPORT__ || {};
+    const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "reporte-inteligencia-emocional.json";
+    a.click();
+  }
 
-  // dibujar campana estática al cargar
-  drawBell();
+  function descargarPDF(){
+    const elemento = document.getElementById("reporteContainer");
+    if(!elemento) return;
+    const codigo = (window.__CODIGO_REPORTE__ || $("#codigoInput").value || "reporte").toUpperCase();
+    const opt = {
+      margin:       [10,10,10,10],
+      filename:     `reporte_inteligencia_emocional_${codigo}.pdf`,
+      image:        { type: 'jpeg', quality: 0.95 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: ['css','legacy'] }
+    };
+    html2pdf().set(opt).from(elemento).save();
+  }
+
+  $("#btnVer").addEventListener("click", ()=>{
+    const c = $("#codigoInput").value.trim().toUpperCase();
+    if(!c) return;
+    cargarReporte(c);
+  });
+
+  $("#btnImprimir").addEventListener("click", ()=>window.print());
+  $("#btnExportJSON").addEventListener("click", exportJSON);
+  $("#btnPDF").addEventListener("click", ()=>window.print());
+  $("#btnJSON").addEventListener("click", exportJSON);
+
+  document.querySelectorAll(".btnDescargarPDF").forEach(btn=>{
+    btn.addEventListener("click", descargarPDF);
+  });
+
+  (function init(){
+    const qp = new URLSearchParams(location.search);
+    const c = (qp.get("codigo")||"").trim().toUpperCase();
+    if(c){
+      $("#codigoInput").value=c;
+      cargarReporte(c);
+    }
+  })();
 </script>
+
 </body>
 </html>
