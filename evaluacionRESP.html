@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Inteligencia emocional 1 – Autoevaluación</title>
+  <title>Inteligencia emocional OK – Autoevaluación</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -52,6 +52,7 @@
       color: #6b7280;
       font-size: 13px;
     }
+    
     .card {
       border: 1px solid #e5e7eb;
       border-radius: 8px;
@@ -445,13 +446,12 @@
   <script>
     console.log("ready!");
 
-    // Marca de tiempo para IV3
-    let __startTime = performance.now();
+    // Marca de tiempo para IV3 (timestamp absoluto)
+    let __startTime = Date.now();
 
     let CODIGO_ACTUAL = null;
     const STORAGE_PREFIX = "eval_ie_state_";
 
-    // === LOOKUP POR CÓDIGO ===
     const codigoInput = document.getElementById('codigo');
     const instInput   = document.getElementById('institucion');
     const grupoInput  = document.getElementById('grupo');
@@ -493,6 +493,63 @@
       return ITEMS.length > 0 && Object.keys(resp).length >= ITEMS.length;
     }
 
+    // --- sincronización con servidor (autosave_eval) ---
+    async function syncAutosaveToServer(state) {
+      try {
+        const codigo = state.codigo;
+        if (!codigo) return;
+
+        const payload = {
+          codigo,
+          currentPage: state.currentPage || 0,
+          responses: state.responses || {},
+          snapshot: {
+            nombre: state.nombre || "",
+            institucion: state.institucion || "",
+            grupo: state.grupo || "",
+            curso: state.curso || "",
+            fecha: state.fecha || "",
+            startTime: state.startTime || null
+          }
+        };
+
+        await fetch("/api/autosave", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {
+        console.warn("No se pudo sincronizar autosave servidor:", e);
+      }
+    }
+
+    async function cargarAutosaveServidor(codigo) {
+      if (!codigo) return null;
+      try {
+        const r = await fetch(`/api/autosave?codigo=${encodeURIComponent(codigo)}`);
+        const data = await r.json();
+        if (!r.ok || !data.ok || !data.autosave) return null;
+
+        const row = data.autosave;
+        const snap = row.snapshot || {};
+        return {
+          codigo: row.codigo || codigo,
+          nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+          institucion: snap.institucion || DATOS_FIJOS.institucion,
+          grupo: snap.grupo || DATOS_FIJOS.grupo,
+          curso: snap.curso || DATOS_FIJOS.curso,
+          fecha: snap.fecha || document.getElementById("fecha").value,
+          currentPage: typeof row.current_page === "number" ? row.current_page : 0,
+          responses: row.responses || {},
+          startTime: snap.startTime || Date.now(),
+          completed: false
+        };
+      } catch (e) {
+        console.warn("No se pudo cargar autosave servidor:", e);
+        return null;
+      }
+    }
+
     function saveState(completedFlag) {
       const key = getStorageKey();
       if (!key) return;
@@ -508,17 +565,20 @@
           fecha: document.getElementById("fecha").value,
           currentPage,
           responses: obtenerRespuestasCrudas(),
-          startTime: __startTime || performance.now(),
+          startTime: __startTime || Date.now(),
           completed: typeof completedFlag === "boolean"
             ? completedFlag
             : !!prev.completed
         };
         localStorage.setItem(key, JSON.stringify(state));
+        // también guardamos en servidor (no esperamos la respuesta)
+        syncAutosaveToServer(state);
       } catch (e) {
         console.warn("No se pudo guardar el progreso local:", e);
       }
     }
 
+    // === LOOKUP POR CÓDIGO ===
     async function lookupCodigo() {
       const codigo = codigoInput.value.trim().toUpperCase();
       codigoInput.value = codigo;
@@ -538,7 +598,6 @@
         console.log("lookup data:", data);
         if (!r.ok) throw new Error(data.error || 'Código no válido');
 
-        // Heurística para ver si el backend lo marca como usado/inválido
         const codigoUsado =
           data.usado === true ||
           data.usado === "true" ||
@@ -561,7 +620,6 @@
 
         CODIGO_ACTUAL = data.codigo || codigo;
 
-        // Revisar si en este navegador ya se completó una evaluación con este código
         const localState = loadStateForCurrentCode();
         if (isStateCompleted(localState)) {
           instInput.value = grupoInput.value = cursoInput.value = '';
@@ -603,8 +661,6 @@
       }
     });
     // === FIN LOOKUP ===
-
-    const PUEDE_VER_RESULTADO = true; // aquí no se usa, es para el reporte
 
     const DATOS_FIJOS = {
       institucion: "Institución por defecto",
@@ -859,8 +915,9 @@
 241;Tiendo a no fracasar en aquello que me parece importante.;Habilidades intrapersonales;Autoestima;No
 242;Parece que continuamente me estoy esforzando para lograr resultados, pero no me tomo el tiempo para preguntarme honestamente qué es lo que realmente quiero en la vida.;Habilidades para la vida;Motivación;Sí
 243;Aplico procedimientos que me permiten manejar eficazmente mis tensiones, tales como técnicas para el descanso, el ejercicio o la meditación.;Habilidades intrapersonales;Bienestar físico;No
-244;Comparado con otras personas de mi edad, soy enfermizo.;Habilidades interpersonales;Conciencia de los demás;No
-    `.trim();
+244;Comparado con otras personas de mi edad, soy enfermizo.;Habilidades interpersonales;Conciencia de los demás;No    
+    `;// <--- aquí va TODO tu CSV igual que antes
+    // Para ahorrar espacio en este mensaje, deja EXACTAMENTE el mismo bloque CSV que ya tienes.
 
     function norm(str) {
       return (str || "").trim();
@@ -987,7 +1044,7 @@
             }
             q.value = score;
             updateProgress();
-            saveState(false); // en curso
+            // Ya no llamamos saveState aquí para no saturar el servidor.
           });
           cell.appendChild(r);
           row.appendChild(cell);
@@ -1028,7 +1085,6 @@
       return map;
     }
 
-    // --- Helpers de resultados globales (igual que antes) ---
     function normalizeBloqueName(name) {
       if (!name) return "";
       return name.replace(/\s+/g, " ").trim().toLowerCase();
@@ -1109,7 +1165,8 @@
           : 0;
 
       const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
-      const mins = Math.round((performance.now() - __startTime) / 60000);
+
+      const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
       const iv3Cat =
         mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
 
@@ -1162,11 +1219,11 @@
       });
 
       currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
-      __startTime = state.startTime || performance.now();
+      __startTime = state.startTime || Date.now();
     }
 
     function iniciarEvaluacionNueva() {
-      __startTime = performance.now();
+      __startTime = Date.now();
       ITEMS.forEach(q => { q.value = null; });
       currentPage = 0;
       saveState(false);
@@ -1189,9 +1246,9 @@
         onFinalizarClick();
       } else {
         currentPage++;
+        saveState(false);  // aquí sí se guarda en local + servidor
         renderPage();
         updateProgress();
-        saveState(false);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
@@ -1229,7 +1286,7 @@
 
       console.log("Payload listo para enviar a servidor:", payload);
 
-      // marcamos como completado en este navegador
+      // marcamos como completado en este navegador y en autosave servidor
       saveState(true);
 
       fetch("/api/submit", {
@@ -1284,20 +1341,38 @@
       inicializarDatosFijos();
       construirPreguntas();
 
-      document.getElementById("btnIniciar").addEventListener("click", () => {
+      document.getElementById("btnIniciar").addEventListener("click", async () => {
         if (!validarAntesDeIniciar()) return;
-        const saved = loadStateForCurrentCode();
-        if (saved && !isStateCompleted(saved) &&
-            saved.responses && Object.keys(saved.responses).length > 0) {
+
+        const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+
+        // 1) Intentamos cargar estado del servidor
+        let serverState = null;
+        if (codigo) {
+          serverState = await cargarAutosaveServidor(codigo);
+        }
+
+        // 2) Leemos estado local como respaldo
+        const localSaved = loadStateForCurrentCode();
+
+        const candidate = serverState || localSaved;
+
+        if (candidate &&
+            !isStateCompleted(candidate) &&
+            candidate.responses &&
+            Object.keys(candidate.responses).length > 0) {
+
           const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
           if (retomar) {
-            aplicarState(saved);
+            aplicarState(candidate);
             mostrarPantallaPreguntas();
             return;
           } else {
             clearState();
+            // El siguiente saveState sobrescribirá el autosave del servidor
           }
         }
+
         iniciarEvaluacionNueva();
       });
 
