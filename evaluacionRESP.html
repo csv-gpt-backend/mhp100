@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>VER FINAL EMOCIONALES</title>
+  <title>Inteligencia emocional 1 – Autoevaluación</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -295,14 +295,14 @@
 <body>
   <div class="layout">
     <aside class="side-strip">
-      <span>MHP-100</span>
+      <span>AUTOEVAL</span>
     </aside>
     <main class="page">
       <header>
-        <h1>MHP100 – Evaluación PPA</h1>
+        <h1>Inteligencia emocional – Autoevaluación</h1>
       </header>
 
-      <!-- Datos del participante (solo visibles en la primera pantalla y al final) -->
+      <!-- Datos del participante -->
       <section id="datos-participante" class="card">
         <div class="grid-2">
           <div class="field">
@@ -315,10 +315,7 @@
             <label for="nombre">Nombre</label>
             <input id="nombre" type="text" autocomplete="name" />
           </div>
-          <div class="field">
-            <label for="edad">Edad (años)</label>
-            <input id="edad" type="number" min="5" max="99" />
-          </div>
+
           <div class="field">
             <label for="curso">Curso</label>
             <input id="curso" type="text" readonly />
@@ -340,14 +337,14 @@
 
       <!-- Pantalla de instrucciones -->
       <section id="pantalla-inicio" class="card instructions">
-        <h2>Evaluación PPA – Autoevaluación de Inteligencia Emocional</h2>
+        <h2>Inteligencia emocional – Autoevaluación</h2>
         <p>
           El manejo efectivo de las emociones es un factor clave para lograr el éxito personal y profesional.
-          MHP100 es una herramienta que ha sido diseñada para que la persona adulta evalúe su nivel de desarrollo
+          Esta evaluación ha sido diseñada para que la persona adulta evalúe su nivel de desarrollo
           en ciertas habilidades emocionales clave.
         </p>
         <p>
-          El Mapa de Habilidades Personales (MHP100) identifica 12 habilidades emocionales y 2 áreas relacionadas
+          El instrumento identifica 12 habilidades emocionales y 2 áreas relacionadas
           con el estilo de comunicación interpersonal.
         </p>
         <p>
@@ -381,7 +378,7 @@
         </div>
       </section>
 
-      <!-- Pantalla de preguntas (sin datos del participante arriba) -->
+      <!-- Pantalla de preguntas -->
       <section id="pantalla-preguntas" class="hidden">
         <div class="card">
           <h2>Responde las siguientes declaraciones</h2>
@@ -446,66 +443,168 @@
   </div>
 
   <script>
+    console.log("ready!");
+
     // Marca de tiempo para IV3
     let __startTime = performance.now();
 
     let CODIGO_ACTUAL = null;
-     // === LOOKUP POR CÓDIGO (v6) ===
-     const codigoInput = document.getElementById('codigo');
-     const instInput   = document.getElementById('institucion');
-     const grupoInput  = document.getElementById('grupo');
-     const cursoInput  = document.getElementById('curso');
-     const btnIniciar  = document.getElementById('btnIniciar');
-     const codigoMsg   = document.getElementById('codigoMsg');
+    const STORAGE_PREFIX = "eval_ie_state_";
 
-     async function lookupCodigo() {
-       const codigo = codigoInput.value.trim().toUpperCase();
-       codigoInput.value = codigo;
-       CODIGO_ACTUAL = null;
-       btnIniciar.disabled = true;
-       if (codigoMsg) {
-         codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
-         codigoMsg.className = codigo ? 'muted' : 'err';
-       }
-       if (!codigo) {
-         instInput.value = grupoInput.value = cursoInput.value = '';
-         return;
-       }
-       try {
-         const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
-         const data = await r.json();
-         if (!r.ok) throw new Error(data.error || 'Código no válido');
-         instInput.value  = data.institucion || '';
-         grupoInput.value = data.grupo || '';
-         cursoInput.value = data.curso || '';
-         CODIGO_ACTUAL = data.codigo || codigo;
-         btnIniciar.disabled = false;
-         if (codigoMsg) {
-           codigoMsg.textContent = 'Código válido.';
-           codigoMsg.className = 'ok';
-         }
-       } catch (e) {
-         instInput.value = grupoInput.value = cursoInput.value = '';
-         if (codigoMsg) {
-           codigoMsg.textContent = 'Código no encontrado.';
-           codigoMsg.className = 'err';
-         }
-       }
-     }
+    // === LOOKUP POR CÓDIGO ===
+    const codigoInput = document.getElementById('codigo');
+    const instInput   = document.getElementById('institucion');
+    const grupoInput  = document.getElementById('grupo');
+    const cursoInput  = document.getElementById('curso');
+    const btnIniciar  = document.getElementById('btnIniciar');
+    const codigoMsg   = document.getElementById('codigoMsg');
 
-     codigoInput.addEventListener('input', () => {
-       codigoInput.value = codigoInput.value.toUpperCase();
-     });
-     codigoInput.addEventListener('blur', lookupCodigo);
-     codigoInput.addEventListener('keydown', (e) => {
-       if (e.key === 'Enter') {
-         e.preventDefault();
-         lookupCodigo();
-       }
-     });
-     // === FIN LOOKUP ===
+    function getStorageKey() {
+      const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+      return codigo ? STORAGE_PREFIX + codigo : null;
+    }
 
-    const PUEDE_VER_RESULTADO = true;
+    function loadStateForCurrentCode() {
+      const key = getStorageKey();
+      if (!key) return null;
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        console.warn("No se pudo leer el estado local:", e);
+        return null;
+      }
+    }
+
+    function clearState() {
+      const key = getStorageKey();
+      if (!key) return;
+      try {
+        localStorage.removeItem(key);
+      } catch (e) {
+        console.warn("No se pudo borrar el estado local:", e);
+      }
+    }
+
+    function isStateCompleted(state) {
+      if (!state) return false;
+      if (state.completed) return true;
+      const resp = state.responses || {};
+      return ITEMS.length > 0 && Object.keys(resp).length >= ITEMS.length;
+    }
+
+    function saveState(completedFlag) {
+      const key = getStorageKey();
+      if (!key) return;
+      try {
+        const prev = loadStateForCurrentCode() || {};
+        const state = {
+          ...prev,
+          codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
+          nombre: document.getElementById("nombre").value.trim(),
+          institucion: document.getElementById("institucion").value,
+          grupo: document.getElementById("grupo").value,
+          curso: document.getElementById("curso").value,
+          fecha: document.getElementById("fecha").value,
+          currentPage,
+          responses: obtenerRespuestasCrudas(),
+          startTime: __startTime || performance.now(),
+          completed: typeof completedFlag === "boolean"
+            ? completedFlag
+            : !!prev.completed
+        };
+        localStorage.setItem(key, JSON.stringify(state));
+      } catch (e) {
+        console.warn("No se pudo guardar el progreso local:", e);
+      }
+    }
+
+    async function lookupCodigo() {
+      const codigo = codigoInput.value.trim().toUpperCase();
+      codigoInput.value = codigo;
+      CODIGO_ACTUAL = null;
+      btnIniciar.disabled = true;
+      if (codigoMsg) {
+        codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
+        codigoMsg.className = codigo ? 'muted' : 'err';
+      }
+      if (!codigo) {
+        instInput.value = grupoInput.value = cursoInput.value = '';
+        return;
+      }
+      try {
+        const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
+        const data = await r.json();
+        console.log("lookup data:", data);
+        if (!r.ok) throw new Error(data.error || 'Código no válido');
+
+        // Heurística para ver si el backend lo marca como usado/inválido
+        const codigoUsado =
+          data.usado === true ||
+          data.usado === "true" ||
+          (typeof data.disponible === "boolean" && data.disponible === false) ||
+          (data.estado && String(data.estado).toLowerCase() !== "activo") ||
+          (typeof data.intentos_max === "number" &&
+           typeof data.intentos_usados === "number" &&
+           data.intentos_usados >= data.intentos_max);
+
+        if (codigoUsado) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "Este código ya fue utilizado o no está disponible.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
+
+        CODIGO_ACTUAL = data.codigo || codigo;
+
+        // Revisar si en este navegador ya se completó una evaluación con este código
+        const localState = loadStateForCurrentCode();
+        if (isStateCompleted(localState)) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "Este código ya fue utilizado para completar una evaluación en este dispositivo.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
+
+        instInput.value  = data.institucion || '';
+        grupoInput.value = data.grupo || '';
+        cursoInput.value = data.curso || '';
+        btnIniciar.disabled = false;
+        if (codigoMsg) {
+          codigoMsg.textContent = 'Código válido.';
+          codigoMsg.className = 'ok';
+        }
+      } catch (e) {
+        console.error(e);
+        instInput.value = grupoInput.value = cursoInput.value = '';
+        if (codigoMsg) {
+          codigoMsg.textContent = 'Código no encontrado.';
+          codigoMsg.className = 'err';
+        }
+      }
+    }
+
+    codigoInput.addEventListener('input', () => {
+      codigoInput.value = codigoInput.value.toUpperCase();
+    });
+    codigoInput.addEventListener('blur', lookupCodigo);
+    codigoInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        lookupCodigo();
+      }
+    });
+    // === FIN LOOKUP ===
+
+    const PUEDE_VER_RESULTADO = true; // aquí no se usa, es para el reporte
 
     const DATOS_FIJOS = {
       institucion: "Institución por defecto",
@@ -513,10 +612,9 @@
       curso: "Curso por defecto"
     };
 
-    const PAGE_SIZE = 10; // 10 preguntas por pantalla
+    const PAGE_SIZE = 10;
     let currentPage = 0;
 
-    // Aquí ya tienes pegadas tus 244 preguntas en tu versión local.
     const PREGUNTAS_CSV = `
 1;Cuando realmente me enojo con alguien, me siento tenso, pero confortable por haber expresado exactamente lo que pensaba.;Estilos de comunicación interpersonal;Agresión;Sí
 2;Cuando realmente me enojo con alguien, me siento ansioso y confuso sobre lo que debo decir.;Estilos de comunicación interpersonal;Agresión;Sí
@@ -763,14 +861,12 @@
 243;Aplico procedimientos que me permiten manejar eficazmente mis tensiones, tales como técnicas para el descanso, el ejercicio o la meditación.;Habilidades intrapersonales;Bienestar físico;No
 244;Comparado con otras personas de mi edad, soy enfermizo.;Habilidades interpersonales;Conciencia de los demás;No
     `.trim();
-    // >>> En tu archivo final mantienes este bloque pero con las 244 líneas <<<
 
     function norm(str) {
       return (str || "").trim();
     }
 
     let ITEMS = [];
-    let answered = 0;
 
     function parsePreguntas(csv) {
       const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
@@ -823,7 +919,6 @@
 
     function construirPreguntas() {
       ITEMS = parsePreguntas(PREGUNTAS_CSV);
-      answered = 0;
       currentPage = 0;
       renderPage();
       updateProgress();
@@ -890,11 +985,9 @@
             } else {
               score = code === "CS" ? 1 : code === "AV" ? 2 : 3;
             }
-            if (q.value == null) {
-              answered++;
-            }
             q.value = score;
             updateProgress();
+            saveState(false); // en curso
           });
           cell.appendChild(r);
           row.appendChild(cell);
@@ -935,7 +1028,7 @@
       return map;
     }
 
-    // --- Helpers para resultados globales ---
+    // --- Helpers de resultados globales (igual que antes) ---
     function normalizeBloqueName(name) {
       if (!name) return "";
       return name.replace(/\s+/g, " ").trim().toLowerCase();
@@ -965,8 +1058,7 @@
     function calcularResultadosGlobales() {
       if (!ITEMS.length) return null;
 
-      // Agregación por sub-habilidad
-      const subMap = new Map(); // sub -> {bloque, items, pts}
+      const subMap = new Map();
       ITEMS.forEach(q => {
         if (!subMap.has(q.subhabilidad))
           subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
@@ -987,8 +1079,7 @@
             (a.sub || "").localeCompare(b.sub || "")
         );
 
-      // Promedios por bloque
-      const bloqMap = new Map(); // bloque -> {sumPct, n}
+      const bloqMap = new Map();
       subRows.forEach(r => {
         if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0 });
         const b = bloqMap.get(r.bloque);
@@ -1002,7 +1093,6 @@
         bloqPercents[bloque] = pct;
       });
 
-      // IIE: promedio de Intra, Inter, Para la vida
       function pctBloque(nombreEsperado) {
         const key = Object.keys(bloqPercents).find(
           k => normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado)
@@ -1018,15 +1108,11 @@
           ? Math.round((bIntra + bInter + bPV) / 3)
           : 0;
 
-      // IV1 / IV2 (consistencia de respuestas)
       const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
-
-      // IV3 basado en tiempo de respuesta total (aprox)
       const mins = Math.round((performance.now() - __startTime) / 60000);
       const iv3Cat =
         mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
 
-      // Bloques que nos interesan para la BD
       const bEstilos = pctBloque("Estilos de comunicación interpersonal");
       const bCambio = pctBloque("Propensión al cambio");
 
@@ -1044,9 +1130,47 @@
           estilos_comunicacion: bEstilos,
           propension_cambio: bCambio
         },
-        subhabilidades: subRows,        // <-- NUEVO
-  bloqPercents: bloqPercents      // <-- NUEVO (por si el reporte lo usa)
+        subhabilidades: subRows,
+        bloqPercents: bloqPercents
       };
+    }
+
+    function mostrarPantallaPreguntas() {
+      document.getElementById("pantalla-inicio").classList.add("hidden");
+      document.getElementById("datos-participante").classList.add("hidden");
+      document.getElementById("pantalla-final").style.display = "none";
+      document.getElementById("pantalla-preguntas").classList.remove("hidden");
+      renderPage();
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function aplicarState(state) {
+      if (!state) return;
+      document.getElementById("nombre").value = state.nombre || "";
+      document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
+      document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
+      document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
+      if (state.fecha) document.getElementById("fecha").value = state.fecha;
+
+      CODIGO_ACTUAL = state.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+
+      const resp = state.responses || {};
+      ITEMS.forEach(q => {
+        const v = resp[String(q.id)];
+        q.value = typeof v === "number" ? v : null;
+      });
+
+      currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
+      __startTime = state.startTime || performance.now();
+    }
+
+    function iniciarEvaluacionNueva() {
+      __startTime = performance.now();
+      ITEMS.forEach(q => { q.value = null; });
+      currentPage = 0;
+      saveState(false);
+      mostrarPantallaPreguntas();
     }
 
     function onSiguienteClick() {
@@ -1066,25 +1190,17 @@
       } else {
         currentPage++;
         renderPage();
+        updateProgress();
+        saveState(false);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
 
     function onFinalizarClick() {
       const nombre = document.getElementById("nombre").value.trim();
-      const edadStr = document.getElementById("edad").value.trim();
 
       if (!nombre) {
         alert("Por favor ingresa el nombre.");
-        return;
-      }
-      if (!edadStr) {
-        alert("Por favor ingresa la edad.");
-        return;
-      }
-      const edad = Number(edadStr);
-      if (!Number.isFinite(edad) || edad <= 0) {
-        alert("Edad no válida.");
         return;
       }
 
@@ -1102,30 +1218,31 @@
         codigo: CODIGO_ACTUAL,
         snapshot: {
           nombre,
-          edad_anios: edad,
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
-          version_banco: "MHP100-v1"
+          version_banco: "IE-v1"
         },
         resultados,
         responses: respuestas
       };
 
       console.log("Payload listo para enviar a servidor:", payload);
-fetch("/api/submit", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload)
-})
-  .then(r => r.json())
-  .then(data => console.log("Submit OK:", data))
-  .catch(err => console.error("Submit ERROR:", err));
 
-      // Mostrar nuevamente los datos del participante encima del mensaje final
+      // marcamos como completado en este navegador
+      saveState(true);
+
+      fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then(r => r.json())
+        .then(data => console.log("Submit OK:", data))
+        .catch(err => console.error("Submit ERROR:", err));
+
       document.getElementById("datos-participante").classList.remove("hidden");
       document.getElementById("nombre").readOnly = true;
-      document.getElementById("edad").readOnly = true;
 
       document.getElementById("pantalla-preguntas").classList.add("hidden");
       const pantallaFinal = document.getElementById("pantalla-final");
@@ -1156,14 +1273,8 @@ fetch("/api/submit", {
 
     function validarAntesDeIniciar() {
       const nombre = document.getElementById("nombre").value.trim();
-      const edadStr = document.getElementById("edad").value.trim();
-      if (!nombre || !edadStr) {
-        alert("Por favor ingresa tu nombre y edad antes de iniciar.");
-        return false;
-      }
-      const edad = Number(edadStr);
-      if (!Number.isFinite(edad) || edad <= 0) {
-        alert("Edad no válida.");
+      if (!nombre) {
+        alert("Por favor ingresa tu nombre antes de iniciar.");
         return false;
       }
       return true;
@@ -1173,18 +1284,22 @@ fetch("/api/submit", {
       inicializarDatosFijos();
       construirPreguntas();
 
-      document
-        .getElementById("btnIniciar")
-        .addEventListener("click", () => {
-          if (!validarAntesDeIniciar()) return;
-          __startTime = performance.now(); // inicia cronómetro IV3 al comenzar
-          document.getElementById("pantalla-inicio").classList.add("hidden");
-          document.getElementById("datos-participante").classList.add("hidden");
-          document
-            .getElementById("pantalla-preguntas")
-            .classList.remove("hidden");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
+      document.getElementById("btnIniciar").addEventListener("click", () => {
+        if (!validarAntesDeIniciar()) return;
+        const saved = loadStateForCurrentCode();
+        if (saved && !isStateCompleted(saved) &&
+            saved.responses && Object.keys(saved.responses).length > 0) {
+          const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
+          if (retomar) {
+            aplicarState(saved);
+            mostrarPantallaPreguntas();
+            return;
+          } else {
+            clearState();
+          }
+        }
+        iniciarEvaluacionNueva();
+      });
 
       document
         .getElementById("btnSiguiente")
