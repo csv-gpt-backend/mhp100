@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluación Inteligencia Emocional GG</title>
+  <title>Evaluación Inteligencia Emocional DD</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -10,11 +10,18 @@
       color: #111827;
       background: #ffffff;
     }
+
+    /* ===== FIX #1: evita que el ancho “salte” por aparición/desaparición del scroll ===== */
+    html { overflow-y: scroll; }
+
+    /* ===== FIX #2: letra un poquito más grande (suave) ===== */
     body {
       margin: 0;
       padding: 0;
       background: #ffffff;
+      font-size: 16px;
     }
+
     .layout {
       display: grid;
       grid-template-columns: 80px minmax(0, 1fr);
@@ -72,6 +79,8 @@
       padding: 12px 14px;
       margin-bottom: 16px;
       background: #ffffff;
+      width: 100%;
+      box-sizing: border-box;
     }
     .grid-2 {
       display: grid;
@@ -170,6 +179,8 @@
       margin-top: 8px;
       padding: 4px 0;
       border-bottom: 1px solid #e5e7eb;
+      width: 100%;
+      box-sizing: border-box;
     }
     .questions-header div {
       text-align: center;
@@ -178,8 +189,16 @@
     .questions-header div:nth-child(2) {
       text-align: left;
     }
+
+    /* ===== FIX: permite que la columna del texto se encoja sin romper el grid ===== */
+    .questions-header > div:nth-child(2),
+    .question > div:nth-child(2){
+      min-width: 0;
+    }
+
     #questions {
       margin-top: 4px;
+      width: 100%;
     }
 
     .question {
@@ -189,7 +208,9 @@
       align-items: center;
       padding: 6px 0;
       border-bottom: 1px solid #f3f4f6;
-      font-size: 14px;
+      font-size: 15px; /* un poquito más grande */
+      width: 100%;
+      box-sizing: border-box;
     }
     /* Color suave alternado */
     .question:nth-child(even){
@@ -208,9 +229,14 @@
       text-align: center;
       color: #6b7280;
     }
+
+    /* ===== FIX: textos largos NO deben deformar el ancho ===== */
     .q-text {
-      display: inline-block;
+      display: block;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
+
     .q-cell {
       text-align: center;
     }
@@ -285,6 +311,8 @@
       grid-template-columns: 40px 1fr repeat(3, 80px);
       gap: 4px;
       align-items: end;
+      width: 100%;
+      box-sizing: border-box;
     }
     .scale-spacer { height: 1px; }
     .scale-badge {
@@ -966,9 +994,8 @@
 241;Tiendo a no fracasar en aquello que me parece importante.;Habilidades intrapersonales;Autoestima;No
 242;Parece que continuamente me estoy esforzando para lograr resultados, pero no me tomo el tiempo para preguntarme honestamente qué es lo que realmente quiero en la vida.;Habilidades para la vida;Motivación;Sí
 243;Aplico procedimientos que me permiten manejar eficazmente mis tensiones, tales como técnicas para el descanso, el ejercicio o la meditación.;Habilidades intrapersonales;Bienestar físico;No
-244;Comparado con otras personas de mi edad, soy enfermizo.;Habilidades interpersonales;Conciencia de los demás;No    
-
-    `; // <-- pega aquí tu bloque completo 1..244
+244;Comparado con otras personas de mi edad, soy enfermizo.;Habilidades interpersonales;Conciencia de los demás;No
+    `;
 
     function norm(str) { return (str || "").trim(); }
 
@@ -1051,7 +1078,6 @@
         colText.appendChild(txt);
         row.appendChild(colText);
 
-        // Mantengo tu lógica interna (CS/AV/RV) pero mostrando SIEMPRE en pantalla
         ["CS","AV","RV"].forEach(code=>{
           const cell = document.createElement("div");
           cell.className="q-cell";
@@ -1081,16 +1107,13 @@
             q.value = score;
             markRowAnswered(row, q);
             updateProgress();
-            // No guardamos por cada click para no saturar (igual que tu versión)
           });
 
           cell.appendChild(r);
           row.appendChild(cell);
         });
 
-        // pinta bonito si ya estaba respondida (al retomar)
         markRowAnswered(row, q);
-
         cont.appendChild(row);
       }
 
@@ -1303,7 +1326,6 @@
         body: JSON.stringify(payload)
       }).catch(()=>{});
 
-      // Mostrar datos del evaluado (como tu versión funcional)
       document.getElementById("datos-participante").classList.remove("hidden");
       document.getElementById("nombre").readOnly = true;
 
@@ -1340,13 +1362,11 @@
       inicializarDatosFijos();
       construirPreguntas();
 
-      // por seguridad: INICIAR solo si código válido
       btnIniciar.disabled = true;
 
       btnIniciar.addEventListener("click", async () => {
         if (!validarAntesDeIniciar()) return;
 
-        // Si no han validado el código, lo validamos aquí
         if (!CODIGO_ACTUAL) {
           await lookupCodigo();
         }
@@ -1380,7 +1400,6 @@
       document.getElementById("btnSiguiente").addEventListener("click", onSiguienteClick);
 
       document.getElementById("btnRegresarMenu").addEventListener("click", () => {
-        // Si tienes menú en index.html, volvemos ahí; si no, recarga como antes
         window.location.href = "index.html";
       });
     });
