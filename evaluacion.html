@@ -2,305 +2,362 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Inteligencia emocional – Autoevaluación</title>
+  <title>Evaluación de Inteligencia Emocional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root {
+    :root{
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: #111827;
       background: #ffffff;
     }
-    body {
-      margin: 0;
-      padding: 0;
-      background: #ffffff;
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      padding:0;
+      background:#ffffff;
     }
-    .layout {
-      display: grid;
-      grid-template-columns: 80px minmax(0, 1fr);
+
+    /* Layout ancho fijo y estable */
+    .layout{
+      display:grid;
+      grid-template-columns: 72px minmax(0, 1fr);
       min-height: 100vh;
     }
-    .side-strip {
-      background: #fef3c7;
-      border-right: 1px solid #fcd34d;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+
+    /* Franja izquierda */
+    .side-strip{
+      background:#fef3c7;
+      border-right:1px solid #fcd34d;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
-    .side-strip span {
+    .side-strip span{
       writing-mode: vertical-rl;
       transform: rotate(180deg);
-      font-weight: 800;
-      letter-spacing: 0.18em;
-      font-size: 32px;
-      color: #b45309;
+      font-weight: 900;
+      letter-spacing: .18em;
+      font-size: 26px;
+      color:#b45309;
     }
-    .page {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 16px;
+
+    /* Contenido principal: más ancho posible sin cambiar al avanzar */
+    .page{
+      width:100%;
+      max-width: 1280px;
+      margin:0 auto;
+      padding: 10px 14px 18px; /* menos arriba para ganar espacio */
     }
-    h1 {
-      font-size: 22px;
-      margin: 0 0 4px;
+
+    header{
+      margin:0 0 6px;
+      padding:0;
     }
-    h2 {
+    h1{
+      font-size: 20px;
+      margin:0 0 2px;
+      letter-spacing:.01em;
+    }
+    h2{
       font-size: 16px;
-      margin: 16px 0 8px;
+      margin: 10px 0 6px;
     }
-    .muted {
-      color: #6b7280;
-      font-size: 13px;
+    .muted{ color:#6b7280; font-size:13px; }
+    .ok{ color:#16a34a; font-size:13px; font-weight:600; }
+    .err{ color:#dc2626; font-size:13px; font-weight:600; }
+
+    .card{
+      border:1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      background:#ffffff;
+      width:100%;
     }
-        .ok {
-      color: #16a34a;       /* verde */
-      font-size: 13px;
-      font-weight: 600;
-    }
-    .err {
-      color: #dc2626;       /* rojo */
-      font-size: 13px;
-      font-weight: 600;
-    }
-    #pantalla-preguntas .card {
-      min-height: 420px;   /* puedes subir a 480 si quieres más alto */
-    }
-    .card {
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 12px 14px;
-      margin-bottom: 16px;
-      background: #ffffff;
-    }
-    .grid-2 {
-      display: grid;
+
+    .grid-2{
+      display:grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px 16px;
     }
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      font-size: 13px;
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      font-size:13px;
     }
-    .field label {
-      font-weight: 600;
+    .field label{ font-weight:700; }
+    .field input{
+      padding: 6px 10px;
+      border-radius: 10px;
+      border:1px solid #d1d5db;
+      font-size:14px;
+      outline:none;
     }
-    .field input {
-      padding: 4px 6px;
-      border-radius: 4px;
-      border: 1px solid #d1d5db;
-      font-size: 14px;
+    .field input:focus{
+      border-color:#2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
     }
-    .field input[readonly] {
-      background: #f9fafb;
-      color: #4b5563;
+    .field input[readonly]{
+      background:#f9fafb;
+      color:#4b5563;
     }
-    .instructions p {
-      margin: 4px 0;
-      font-size: 14px;
-    }
-    .instructions ul {
-      margin: 4px 0 0 18px;
-      padding: 0;
-    }
-    .instructions li {
-      margin-bottom: 2px;
-      font-size: 14px;
-    }
-    .instructions-header {
-      font-weight: 700;
-      text-align: center;
-      margin: 8px 0;
-      padding: 4px 8px;
+
+    .instructions p{ margin: 6px 0; font-size:14px; line-height:1.35; }
+    .instructions ul{ margin: 6px 0 0 18px; padding:0; }
+    .instructions li{ margin-bottom: 2px; font-size:14px; }
+
+    .instructions-header{
+      font-weight:900;
+      text-align:center;
+      margin: 10px 0 8px;
+      padding: 6px 10px;
       border-radius: 999px;
-      background: #1d4ed8;
-      color: #ffffff;
-      font-size: 13px;
+      background:#1d4ed8;
+      color:#ffffff;
+      font-size: 12px;
+      letter-spacing:.02em;
     }
-    .progress {
-      width: 100%;
-      height: 8px;
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      padding: 2px 10px;
       border-radius: 999px;
-      background: #e5e7eb;
-      overflow: hidden;
+      border:1px solid #d1d5db;
+      font-size:12px;
+      background:#f9fafb;
+    }
+    .panel-note{
+      font-size:12px;
+      color:#6b7280;
+      text-align:right;
       margin-top: 4px;
     }
-    .progress .bar {
-      height: 100%;
-      width: 0%;
-      background: #2563eb;
+
+    /* Bloque sticky (escala + progreso + encabezado de columnas) */
+    .sticky-wrap{
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #ffffff;
+      padding-top: 6px;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .scale-banner{
+      margin: 0 0 6px;
+      display:flex;
+      justify-content:flex-end;
+      gap: 6px;
+      flex-wrap:wrap;
+    }
+    .scale-badge{
+      background:#f97316;
+      color:#ffffff;
+      padding: 3px 10px 5px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 900;
+      text-align:center;
+      min-width: 108px;
+      box-shadow: 0 10px 18px rgba(249,115,22,0.22);
+      line-height: 1.15;
+    }
+    .scale-num{
+      display:block;
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+
+    .progress{
+      width:100%;
+      height: 9px;
+      border-radius:999px;
+      background:#e5e7eb;
+      overflow:hidden;
+      margin-top: 2px;
+    }
+    .progress .bar{
+      height:100%;
+      width:0%;
+      background:#2563eb;
       transition: width 0.2s ease-out;
     }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid #d1d5db;
-      font-size: 12px;
-      background: #f9fafb;
-    }
-    .panel-note {
-      font-size: 12px;
-      color: #6b7280;
-      text-align: right;
-      margin-top: 4px;
-    }
-    .questions-header {
-      display: grid;
-      grid-template-columns: 40px 1fr repeat(3, 80px);
-      gap: 4px;
-      align-items: center;
-      font-size: 13px;
-      margin-top: 8px;
-      padding: 4px 0;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .questions-header div {
-      text-align: center;
-    }
-    .questions-header div:first-child,
-    .questions-header div:nth-child(2) {
-      text-align: left;
-    }
-    #questions {
-      margin-top: 4px;
-    }
-    .question {
-      display: grid;
-      grid-template-columns: 40px 1fr repeat(3, 80px);
-      gap: 4px;
-      align-items: center;
-      padding: 4px 0;
-      border-bottom: 1px solid #f3f4f6;
-      font-size: 14px;
-    }
-    .q-no {
-      font-variant-numeric: tabular-nums;
-      text-align: center;
-      color: #6b7280;
-    }
-    .q-text {
-      display: inline-block;
-    }
-    .q-cell {
-      text-align: center;
-    }
-    .q-cell input[type="radio"] {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-    }
-    .footer-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 12px;
+
+    .top-row{
+      margin: 6px 0 6px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
       gap: 8px;
-      flex-wrap: wrap;
+      flex-wrap:wrap;
     }
-    button {
-      border-radius: 999px;
-      border: none;
-      padding: 8px 18px;
+
+    /* Encabezado y filas: ancho estable */
+    .questions-header,
+    .question{
+      width:100%;
+      display:grid;
+      grid-template-columns: 52px minmax(240px, 1fr) 92px 92px 92px;
+      gap: 6px;
+      align-items:center;
       font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      background: #16a34a;
-      color: #ffffff;
     }
-    button.primary {
-      background: #16a34a;
+
+    .questions-header{
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing:.02em;
+      padding: 6px 0 6px;
+      border-top:1px solid #e5e7eb;
+      border-bottom:1px solid #e5e7eb;
     }
-    button.secondary {
-      background: #ffffff;
-      color: #111827;
-      border: 1px solid #d1d5db;
+    .questions-header div{ text-align:center; }
+    .questions-header div:first-child,
+    .questions-header div:nth-child(2){ text-align:left; }
+
+    #questions{
+      margin-top: 4px;
     }
-    button:disabled {
-      opacity: 0.6;
-      cursor: default;
+
+    .question{
+      padding: 8px 8px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      line-height: 1.35;
+      overflow-wrap:anywhere;
+      word-break: break-word;
     }
-    #pantalla-final {
-      margin-top: 32px;
-      padding: 24px 18px;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      background: #fefce8;
-      text-align: center;
-      display: none;
+    /* Zebra */
+    .question:nth-child(even){
+      background:#f9fafb;
+      border-color:#f3f4f6;
     }
-    #pantalla-final h2 {
-      margin-top: 0;
-      margin-bottom: 8px;
+    .question:nth-child(odd){
+      background:#ffffff;
     }
-    .check-icon {
-      width: 40px;
-      height: 40px;
+    /* Respondida */
+    .question.answered{
+      border-color: rgba(22,163,74,0.35);
+      box-shadow: 0 0 0 3px rgba(22,163,74,0.08);
+    }
+
+    .q-no{
+      font-variant-numeric: tabular-nums;
+      text-align:center;
+      color:#6b7280;
+      font-weight:800;
+    }
+    .q-text{
+      display:inline-block;
+    }
+    .q-cell{
+      text-align:center;
+    }
+
+    .q-cell input[type="radio"]{
+      width: 22px;
+      height: 22px;
+      cursor:pointer;
+      accent-color: #2563eb;
+    }
+    .q-cell input[type="radio"]:focus-visible{
+      outline: 3px solid rgba(37,99,235,0.35);
+      outline-offset: 3px;
+      border-radius: 999px;
+    }
+
+    .footer-actions{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top: 10px;
+      gap: 8px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      border-radius: 999px;
+      border:none;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor:pointer;
+      background:#16a34a;
+      color:#ffffff;
+      box-shadow: 0 12px 22px rgba(22,163,74,0.22);
+      transition: transform .05s ease, box-shadow .1s ease, background .15s ease;
+    }
+    button:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 16px 28px rgba(22,163,74,0.28);
+      background:#15803d;
+    }
+    button:active{
+      transform: translateY(0);
+      box-shadow: 0 10px 18px rgba(22,163,74,0.22);
+    }
+    button.secondary{
+      background:#ffffff;
+      color:#111827;
+      border:1px solid #d1d5db;
+      box-shadow:none;
+    }
+    button.secondary:hover{
+      background:#f3f4f6;
+      box-shadow:none;
+    }
+    button:disabled{
+      opacity:.6;
+      cursor:default;
+      transform:none;
+    }
+
+    #pantalla-final{
+      margin-top: 22px;
+      padding: 22px 16px;
+      border-radius: 12px;
+      border:1px solid #e5e7eb;
+      background:#fefce8;
+      text-align:center;
+      display:none;
+    }
+    .check-icon{
+      width: 46px;
+      height: 46px;
       border-radius: 999px;
       border: 2px solid #16a34a;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #16a34a;
-      font-size: 24px;
-      margin-bottom: 8px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      color:#16a34a;
+      font-size: 26px;
+      margin-bottom: 10px;
     }
-    .scale-banner {
-      margin-top: 6px;
-      margin-bottom: 2px;
-      display: flex;
-      justify-content: flex-end;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-    .scale-badge {
-      background: #f97316;
-      color: #ffffff;
-      padding: 2px 8px 4px;
-      border-radius: 4px 4px 0 0;
-      font-size: 10px;
-      font-weight: 700;
-      text-align: center;
-      position: relative;
-      min-width: 80px;
-    }
-    .scale-badge::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: -4px;
-      width: 0;
-      height: 0;
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 4px solid #f97316;
-    }
-    .scale-num {
-      display: block;
-      font-size: 11px;
-      margin-bottom: 1px;
-    }
-    .hidden {
-      display: none;
-    }
-    @media (max-width: 840px) {
-      .layout {
-        grid-template-columns: 56px minmax(0, 1fr);
-      }
-      .side-strip span {
-        font-size: 24px;
-      }
-    }
-    @media (max-width: 720px) {
-      .grid-2 {
-        grid-template-columns: 1fr;
-      }
+
+    .hidden{ display:none; }
+
+    @media (max-width: 920px){
+      .layout{ grid-template-columns: 56px minmax(0,1fr); }
+      .side-strip span{ font-size: 20px; }
       .questions-header,
-      .question {
-        grid-template-columns: 32px 1fr repeat(3, 64px);
+      .question{
+        grid-template-columns: 42px minmax(160px,1fr) 74px 74px 74px;
+      }
+      .scale-badge{ min-width: 96px; }
+    }
+
+    @media (max-width: 720px){
+      .page{ padding: 8px 10px 16px; }
+      .grid-2{ grid-template-columns: 1fr; }
+      .questions-header,
+      .question{
+        grid-template-columns: 36px minmax(140px,1fr) 62px 62px 62px;
+      }
+      .q-cell input[type="radio"]{
+        width: 24px;
+        height: 24px;
       }
     }
   </style>
@@ -308,11 +365,12 @@
 <body>
   <div class="layout">
     <aside class="side-strip">
-      <span>AUTOEVAL</span>
+      <span>EMOCIONAL</span>
     </aside>
+
     <main class="page">
       <header>
-        <h1>Inteligencia emocional – Autoevaluación</h1>
+        <h1>Evaluación de Inteligencia Emocional</h1>
       </header>
 
       <!-- Datos del participante -->
@@ -350,19 +408,15 @@
 
       <!-- Pantalla de instrucciones -->
       <section id="pantalla-inicio" class="card instructions">
-        <h2>Inteligencia emocional – Autoevaluación</h2>
+        <h2>Evaluación de Inteligencia Emocional</h2>
+
         <p>
-          El manejo efectivo de las emociones es un factor clave para lograr el éxito personal y profesional.
-          Esta evaluación ha sido diseñada para que la persona adulta evalúe su nivel de desarrollo
-          en ciertas habilidades emocionales clave.
+          El manejo efectivo de las emociones es un factor clave para el desarrollo personal y profesional.
+          Esta evaluación ha sido diseñada para identificar habilidades emocionales y aspectos del estilo de comunicación interpersonal.
         </p>
+
         <p>
-          El instrumento identifica 12 habilidades emocionales y 2 áreas relacionadas
-          con el estilo de comunicación interpersonal.
-        </p>
-        <p>
-          Al responder esta autoevaluación, que consta de 244 preguntas, es posible obtener un diagnóstico
-          sobre el manejo de la inteligencia emocional en cuatro áreas diferentes:
+          Al responder esta evaluación, que consta de 244 preguntas, es posible obtener un diagnóstico general en cuatro áreas:
         </p>
         <ul>
           <li>Habilidades intrapersonales.</li>
@@ -370,23 +424,26 @@
           <li>Habilidades para la vida.</li>
           <li>Estilo de comunicación interpersonal.</li>
         </ul>
+
         <div class="instructions-header">
-          INSTRUCCIONES PARA LLENAR LA AUTOEVALUACIÓN
+          INSTRUCCIONES PARA LLENAR LA EVALUACIÓN
         </div>
-        <p>1. Lee con detenimiento cada enunciado.</p>
+
+        <p>1. Lee con detenimiento cada pregunta.</p>
         <p>2. Reflexiona en qué medida se parece a lo que haces o sientes habitualmente.</p>
-        <p>
-          3. Selecciona la casilla que corresponda a la respuesta deseada de acuerdo con los siguientes criterios:
-        </p>
+        <p>3. Selecciona la opción de acuerdo con los siguientes criterios:</p>
+
         <p style="margin-left: 12px; margin-top: 4px;">
-          1 = <strong>Casi siempre</strong> ·
+          1 = <strong>Siempre</strong> ·
           2 = <strong>Algunas veces</strong> ·
           3 = <strong>Rara vez</strong>
         </p>
+
         <p style="margin-top: 6px;">
-          <strong>IMPORTANTE:</strong> Una vez iniciada la evaluación, no podrás retroceder a las páginas anteriores.
+          <strong>IMPORTANTE:</strong> Una vez que avances de página, no podrás regresar a páginas anteriores.
         </p>
-        <div style="margin-top: 12px; text-align: right;">
+
+        <div style="margin-top: 10px; text-align: right;">
           <button id="btnIniciar" class="primary">INICIAR</button>
         </div>
       </section>
@@ -394,41 +451,36 @@
       <!-- Pantalla de preguntas -->
       <section id="pantalla-preguntas" class="hidden">
         <div class="card">
-          <h2>Responde las siguientes declaraciones</h2>
+          <h2>Responde las siguientes preguntas</h2>
           <p class="muted" id="nota-genero">
-            Nota: Las siguientes declaraciones pueden estar redactadas en género masculino, pero se entiende que también se refieren al género femenino.
+            Nota: Algunas preguntas pueden estar redactadas en masculino; se entiende que aplican para cualquier género.
           </p>
 
-          <div class="scale-banner">
-            <div class="scale-badge">
-              <span class="scale-num">1</span>
-              CASI SIEMPRE
+          <div class="sticky-wrap">
+            <div class="scale-banner" aria-label="Escala">
+              <div class="scale-badge"><span class="scale-num">1</span>SIEMPRE</div>
+              <div class="scale-badge"><span class="scale-num">2</span>ALGUNAS VECES</div>
+              <div class="scale-badge"><span class="scale-num">3</span>RARA VEZ</div>
             </div>
-            <div class="scale-badge">
-              <span class="scale-num">2</span>
-              ALGUNAS VECES
+
+            <div class="progress" aria-label="Progreso">
+              <div class="bar" id="bar"></div>
             </div>
-            <div class="scale-badge">
-              <span class="scale-num">3</span>
-              RARA VEZ
+
+            <div class="top-row">
+              <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
+              <small id="metaInfo" class="muted"></small>
+            </div>
+
+            <div class="questions-header" role="row">
+              <div>#</div>
+              <div>Pregunta</div>
+              <div>1</div>
+              <div>2</div>
+              <div>3</div>
             </div>
           </div>
 
-          <div class="progress" aria-label="Progreso">
-            <div class="bar" id="bar"></div>
-          </div>
-          <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
-            <small id="metaInfo" class="muted"></small>
-          </div>
-
-          <div class="questions-header">
-            <div>#</div>
-            <div>Declaración</div>
-            <div>1</div>
-            <div>2</div>
-            <div>3</div>
-          </div>
           <div id="questions"></div>
 
           <div class="footer-actions">
@@ -449,7 +501,7 @@
       <section id="pantalla-final">
         <div class="check-icon">✔</div>
         <h2>Evaluación terminada</h2>
-        <p>Felicidades, has concluido tu evaluación de inteligencia emocional.</p>
+        <p>Has concluido tu evaluación.</p>
         <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
       </section>
     </main>
@@ -596,6 +648,7 @@
       codigoInput.value = codigo;
       CODIGO_ACTUAL = null;
       btnIniciar.disabled = true;
+
       if (codigoMsg) {
         codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
         codigoMsg.className = codigo ? 'muted' : 'err';
@@ -607,7 +660,6 @@
       try {
         const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
         const data = await r.json();
-        console.log("lookup data:", data);
         if (!r.ok) throw new Error(data.error || 'Código no válido');
 
         const codigoUsado =
@@ -653,7 +705,6 @@
           codigoMsg.className = 'ok';
         }
       } catch (e) {
-        console.error(e);
         instInput.value = grupoInput.value = cursoInput.value = '';
         if (codigoMsg) {
           codigoMsg.textContent = 'Código no encontrado.';
@@ -928,27 +979,25 @@
 242;Parece que continuamente me estoy esforzando para lograr resultados, pero no me tomo el tiempo para preguntarme honestamente qué es lo que realmente quiero en la vida.;Habilidades para la vida;Motivación;Sí
 243;Aplico procedimientos que me permiten manejar eficazmente mis tensiones, tales como técnicas para el descanso, el ejercicio o la meditación.;Habilidades intrapersonales;Bienestar físico;No
 244;Comparado con otras personas de mi edad, soy enfermizo.;Habilidades interpersonales;Conciencia de los demás;No    
-    `;// <--- aquí va TODO tu CSV igual que antes
-    // Para ahorrar espacio en este mensaje, deja EXACTAMENTE el mismo bloque CSV que ya tienes.
 
-    function norm(str) {
-      return (str || "").trim();
-    }
+    `; // Mantén aquí TODO tu CSV completo (igual al que ya tienes)
+
+    function norm(str){ return (str || "").trim(); }
 
     let ITEMS = [];
 
-    function parsePreguntas(csv) {
+    function parsePreguntas(csv){
       const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
       const rows = [];
-      for (const line of lines) {
+      for(const line of lines){
         const parts = line.split(";").map(norm);
-        if (parts.length < 5) continue;
+        if(parts.length < 5) continue;
         const id = Number(parts[0]);
         const invertida = parts[parts.length - 1];
         const subhab = parts[parts.length - 2];
         const bloque = parts[parts.length - 3];
         const pregunta = parts.slice(1, parts.length - 3).join(";");
-        if (!Number.isFinite(id) || !pregunta) continue;
+        if(!Number.isFinite(id) || !pregunta) continue;
         rows.push({
           id,
           pregunta,
@@ -958,11 +1007,11 @@
           value: null
         });
       }
-      rows.sort((a, b) => a.id - b.id);
+      rows.sort((a,b)=>a.id-b.id);
       return rows;
     }
 
-    function updateProgress() {
+    function updateProgress(){
       const total = ITEMS.length;
       const ans = ITEMS.filter(q => q.value != null).length;
       const pct = total ? Math.round((ans / total) * 100) : 0;
@@ -980,30 +1029,28 @@
 
       nota.textContent =
         "NOTA: Para continuar debes contestar todas las preguntas. Contestadas: " +
-        ans +
-        "/" +
-        total +
-        ".";
+        ans + "/" + total + ".";
     }
 
-    function construirPreguntas() {
+    function construirPreguntas(){
       ITEMS = parsePreguntas(PREGUNTAS_CSV);
       currentPage = 0;
       renderPage();
       updateProgress();
     }
 
-    function renderPage() {
+    function renderPage(){
       const cont = document.getElementById("questions");
       cont.innerHTML = "";
       const total = ITEMS.length;
       const start = currentPage * PAGE_SIZE;
       const end = Math.min(start + PAGE_SIZE, total);
 
-      for (let i = start; i < end; i++) {
+      for(let i = start; i < end; i++){
         const q = ITEMS[i];
         const row = document.createElement("div");
         row.className = "question";
+        if(q.value != null) row.classList.add("answered");
 
         const colNo = document.createElement("div");
         colNo.className = "q-no";
@@ -1017,7 +1064,7 @@
         colText.appendChild(txt);
         row.appendChild(colText);
 
-        ["CS", "AV", "RV"].forEach(code => {
+        ["S", "AV", "RV"].forEach(code => {
           const cell = document.createElement("div");
           cell.className = "q-cell";
           const r = document.createElement("input");
@@ -1025,39 +1072,40 @@
           r.className = "opt";
           r.name = "q_" + q.id;
           r.value = code;
-          r.title =
-            code === "CS"
-              ? "Casi siempre"
-              : code === "AV"
-              ? "Algunas veces"
-              : "Rara vez";
-          r.setAttribute("aria-label", r.title);
 
-          if (q.value != null) {
+          const label =
+            code === "S" ? "Siempre" :
+            code === "AV" ? "Algunas veces" :
+            "Rara vez";
+
+          r.title = label;
+          r.setAttribute("aria-label", label);
+
+          if(q.value != null){
             const inv = q.invertida === "Sí";
             let expectedScore;
-            if (!inv) {
-              expectedScore = code === "CS" ? 3 : code === "AV" ? 2 : 1;
-            } else {
-              expectedScore = code === "CS" ? 1 : code === "AV" ? 2 : 3;
+            if(!inv){
+              expectedScore = code === "S" ? 3 : code === "AV" ? 2 : 1;
+            }else{
+              expectedScore = code === "S" ? 1 : code === "AV" ? 2 : 3;
             }
-            if (q.value === expectedScore) {
-              r.checked = true;
-            }
+            if(q.value === expectedScore) r.checked = true;
           }
 
           r.addEventListener("change", () => {
             const inv = q.invertida === "Sí";
             let score;
-            if (!inv) {
-              score = code === "CS" ? 3 : code === "AV" ? 2 : 1;
-            } else {
-              score = code === "CS" ? 1 : code === "AV" ? 2 : 3;
+            if(!inv){
+              score = code === "S" ? 3 : code === "AV" ? 2 : 1;
+            }else{
+              score = code === "S" ? 1 : code === "AV" ? 2 : 3;
             }
             q.value = score;
+            row.classList.add("answered");
             updateProgress();
-            // Ya no llamamos saveState aquí para no saturar el servidor.
+            // No guardamos aquí para no saturar el servidor
           });
+
           cell.appendChild(r);
           row.appendChild(cell);
         });
@@ -1066,56 +1114,48 @@
       }
 
       const pageIndicator = document.getElementById("pageIndicator");
-      pageIndicator.textContent =
-        "Preguntas " + (start + 1) + "–" + end + " de " + total;
+      pageIndicator.textContent = "Preguntas " + (start + 1) + "–" + end + " de " + total;
 
       const btnSiguiente = document.getElementById("btnSiguiente");
-      if (end >= total) {
-        btnSiguiente.textContent = "FINALIZAR";
-      } else {
-        btnSiguiente.textContent = "SIGUIENTE";
-      }
+      btnSiguiente.textContent = (end >= total) ? "FINALIZAR" : "SIGUIENTE";
     }
 
-    function paginaCompleta() {
+    function paginaCompleta(){
       const total = ITEMS.length;
       const start = currentPage * PAGE_SIZE;
       const end = Math.min(start + PAGE_SIZE, total);
-      for (let i = start; i < end; i++) {
-        if (ITEMS[i].value == null) return false;
+      for(let i = start; i < end; i++){
+        if(ITEMS[i].value == null) return false;
       }
       return true;
     }
 
-    function obtenerRespuestasCrudas() {
+    function obtenerRespuestasCrudas(){
       const map = {};
       ITEMS.forEach(q => {
-        if (q.value != null) {
-          map[String(q.id)] = q.value;
-        }
+        if(q.value != null) map[String(q.id)] = q.value;
       });
       return map;
     }
 
-    function normalizeBloqueName(name) {
-      if (!name) return "";
-      return name.replace(/\s+/g, " ").trim().toLowerCase();
+    function normalizeBloqueName(name){
+      if(!name) return "";
+      return name.replace(/\s+/g," ").trim().toLowerCase();
     }
 
-    function calcIV1_IV2_categories(items) {
+    function calcIV1_IV2_categories(items){
       const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
       const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
-      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+      const avg = arr => (arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0);
       const stdev = arr => {
-        if (arr.length < 2) return 1;
+        if(arr.length < 2) return 1;
         const m = avg(arr);
-        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
+        return Math.sqrt(arr.reduce((s,x)=>s+(x-m)*(x-m),0)/arr.length);
       };
       const invNorm = invers.map(v => 4 - v);
       const allNorm = direct.concat(invNorm);
-      if (!allNorm.length) {
-        return { iv1Cat: null, iv2Cat: null };
-      }
+      if(!allNorm.length) return { iv1Cat:null, iv2Cat:null };
+
       const s = stdev(allNorm);
       const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
       const diff = Math.abs(avg(direct) - avg(invNorm));
@@ -1123,57 +1163,49 @@
       return { iv1Cat, iv2Cat };
     }
 
-    function calcularResultadosGlobales() {
-      if (!ITEMS.length) return null;
+    function calcularResultadosGlobales(){
+      if(!ITEMS.length) return null;
 
       const subMap = new Map();
-      ITEMS.forEach(q => {
-        if (!subMap.has(q.subhabilidad))
-          subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
+      ITEMS.forEach(q=>{
+        if(!subMap.has(q.subhabilidad))
+          subMap.set(q.subhabilidad, { bloque:q.bloque, items:0, pts:0 });
         const s = subMap.get(q.subhabilidad);
         s.items += 1;
         s.pts += q.value ?? 0;
       });
 
       const subRows = Array.from(subMap.entries())
-        .map(([sub, v]) => {
+        .map(([sub,v])=>{
           const max = v.items * 3;
           const pct = max ? Math.round((v.pts / max) * 100) : 0;
-          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct };
+          return { bloque:v.bloque, sub, items:v.items, pts:v.pts, pct };
         })
-        .sort(
-          (a, b) =>
-            (a.bloque || "").localeCompare(b.bloque || "") ||
-            (a.sub || "").localeCompare(b.sub || "")
-        );
+        .sort((a,b)=>(a.bloque||"").localeCompare(b.bloque||"") || (a.sub||"").localeCompare(b.sub||""));
 
       const bloqMap = new Map();
-      subRows.forEach(r => {
-        if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0 });
+      subRows.forEach(r=>{
+        if(!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct:0, n:0 });
         const b = bloqMap.get(r.bloque);
-        b.sumPct += r.pct;
-        b.n += 1;
+        b.sumPct += r.pct; b.n += 1;
       });
 
       const bloqPercents = {};
-      Array.from(bloqMap.entries()).forEach(([bloque, a]) => {
-        const pct = a.n ? Math.round(a.sumPct / a.n) : 0;
-        bloqPercents[bloque] = pct;
+      Array.from(bloqMap.entries()).forEach(([bloque,a])=>{
+        bloqPercents[bloque] = a.n ? Math.round(a.sumPct / a.n) : 0;
       });
 
-      function pctBloque(nombreEsperado) {
-        const key = Object.keys(bloqPercents).find(
-          k => normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado)
-        );
+      function pctBloque(nombreEsperado){
+        const key = Object.keys(bloqPercents).find(k => normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado));
         return key ? bloqPercents[key] : 0;
       }
 
       const bIntra = pctBloque("Habilidades intrapersonales");
       const bInter = pctBloque("Habilidades interpersonales");
-      const bPV = pctBloque("Habilidades para la vida");
+      const bPV    = pctBloque("Habilidades para la vida");
       const iie =
-        [bIntra, bInter, bPV].filter(v => v > 0).length > 0
-          ? Math.round((bIntra + bInter + bPV) / 3)
+        [bIntra,bInter,bPV].filter(v=>v>0).length > 0
+          ? Math.round((bIntra+bInter+bPV)/3)
           : 0;
 
       const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
@@ -1183,15 +1215,10 @@
         mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
 
       const bEstilos = pctBloque("Estilos de comunicación interpersonal");
-      const bCambio = pctBloque("Propensión al cambio");
+      const bCambio  = pctBloque("Propensión al cambio");
 
       return {
-        globales: {
-          IIE: iie,
-          IV1: iv1Cat,
-          IV2: iv2Cat,
-          IV3: iv3Cat
-        },
+        globales: { IIE:iie, IV1:iv1Cat, IV2:iv2Cat, IV3:iv3Cat },
         bloques: {
           intrapersonales: bIntra,
           interpersonales: bInter,
@@ -1200,11 +1227,11 @@
           propension_cambio: bCambio
         },
         subhabilidades: subRows,
-        bloqPercents: bloqPercents
+        bloqPercents
       };
     }
 
-    function mostrarPantallaPreguntas() {
+    function mostrarPantallaPreguntas(){
       document.getElementById("pantalla-inicio").classList.add("hidden");
       document.getElementById("datos-participante").classList.add("hidden");
       document.getElementById("pantalla-final").style.display = "none";
@@ -1214,18 +1241,18 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function aplicarState(state) {
-      if (!state) return;
+    function aplicarState(state){
+      if(!state) return;
       document.getElementById("nombre").value = state.nombre || "";
       document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
       document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
       document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
-      if (state.fecha) document.getElementById("fecha").value = state.fecha;
+      if(state.fecha) document.getElementById("fecha").value = state.fecha;
 
       CODIGO_ACTUAL = state.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
 
       const resp = state.responses || {};
-      ITEMS.forEach(q => {
+      ITEMS.forEach(q=>{
         const v = resp[String(q.id)];
         q.value = typeof v === "number" ? v : null;
       });
@@ -1234,19 +1261,17 @@
       __startTime = state.startTime || Date.now();
     }
 
-    function iniciarEvaluacionNueva() {
+    function iniciarEvaluacionNueva(){
       __startTime = Date.now();
-      ITEMS.forEach(q => { q.value = null; });
+      ITEMS.forEach(q=>{ q.value = null; });
       currentPage = 0;
       saveState(false);
       mostrarPantallaPreguntas();
     }
 
-    function onSiguienteClick() {
-      if (!paginaCompleta()) {
-        alert(
-          "NOTA: Para continuar debes contestar todas las preguntas de esta página."
-        );
+    function onSiguienteClick(){
+      if(!paginaCompleta()){
+        alert("NOTA: Para continuar debes contestar todas las preguntas de esta página.");
         return;
       }
 
@@ -1254,21 +1279,20 @@
       const start = currentPage * PAGE_SIZE;
       const end = Math.min(start + PAGE_SIZE, total);
 
-      if (end >= total) {
+      if(end >= total){
         onFinalizarClick();
-      } else {
+      }else{
         currentPage++;
-        saveState(false);  // aquí sí se guarda en local + servidor
+        saveState(false);
         renderPage();
         updateProgress();
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
 
-    function onFinalizarClick() {
+    function onFinalizarClick(){
       const nombre = document.getElementById("nombre").value.trim();
-
-      if (!nombre) {
+      if(!nombre){
         alert("Por favor ingresa el nombre.");
         return;
       }
@@ -1276,7 +1300,7 @@
       const respuestas = obtenerRespuestasCrudas();
       const total = ITEMS.length;
       const contestadas = Object.keys(respuestas).length;
-      if (contestadas < total) {
+      if(contestadas < total){
         alert("Aún hay preguntas sin responder.");
         return;
       }
@@ -1296,9 +1320,7 @@
         responses: respuestas
       };
 
-      console.log("Payload listo para enviar a servidor:", payload);
-
-      // marcamos como completado en este navegador y en autosave servidor
+      // Marcamos como completado (local + servidor)
       saveState(true);
 
       fetch("/api/submit", {
@@ -1319,84 +1341,72 @@
       pantallaFinal.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    function inicializarDatosFijos() {
+    function inicializarDatosFijos(){
       document.getElementById("institucion").value = DATOS_FIJOS.institucion;
       document.getElementById("grupo").value = DATOS_FIJOS.grupo;
       document.getElementById("curso").value = DATOS_FIJOS.curso;
 
       const hoy = new Date();
-      try {
-        const fmt = new Intl.DateTimeFormat("es-EC", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit"
-        });
+      try{
+        const fmt = new Intl.DateTimeFormat("es-EC", { year:"numeric", month:"2-digit", day:"2-digit" });
         document.getElementById("fecha").value = fmt.format(hoy);
-      } catch {
-        const dd = String(hoy.getDate()).padStart(2, "0");
-        const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+      }catch{
+        const dd = String(hoy.getDate()).padStart(2,"0");
+        const mm = String(hoy.getMonth()+1).padStart(2,"0");
         const yyyy = hoy.getFullYear();
         document.getElementById("fecha").value = dd + "/" + mm + "/" + yyyy;
       }
     }
 
-    function validarAntesDeIniciar() {
+    function validarAntesDeIniciar(){
       const nombre = document.getElementById("nombre").value.trim();
-      if (!nombre) {
+      if(!nombre){
         alert("Por favor ingresa tu nombre antes de iniciar.");
         return false;
       }
       return true;
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", ()=>{
       inicializarDatosFijos();
       construirPreguntas();
 
-      document.getElementById("btnIniciar").addEventListener("click", async () => {
-        if (!validarAntesDeIniciar()) return;
+      document.getElementById("btnIniciar").addEventListener("click", async ()=>{
+        if(!validarAntesDeIniciar()) return;
 
         const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
 
-        // 1) Intentamos cargar estado del servidor
         let serverState = null;
-        if (codigo) {
+        if(codigo){
           serverState = await cargarAutosaveServidor(codigo);
         }
-
-        // 2) Leemos estado local como respaldo
         const localSaved = loadStateForCurrentCode();
-
         const candidate = serverState || localSaved;
 
-        if (candidate &&
-            !isStateCompleted(candidate) &&
-            candidate.responses &&
-            Object.keys(candidate.responses).length > 0) {
+        if(candidate &&
+           !isStateCompleted(candidate) &&
+           candidate.responses &&
+           Object.keys(candidate.responses).length > 0){
 
           const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
-          if (retomar) {
+          if(retomar){
             aplicarState(candidate);
             mostrarPantallaPreguntas();
             return;
-          } else {
+          }else{
             clearState();
-            // El siguiente saveState sobrescribirá el autosave del servidor
           }
         }
 
         iniciarEvaluacionNueva();
       });
 
-      document
-        .getElementById("btnSiguiente")
-        .addEventListener("click", onSiguienteClick);
+      document.getElementById("btnSiguiente").addEventListener("click", onSiguienteClick);
 
-      document
-        .getElementById("btnRegresarMenu")
-        .addEventListener("click", () => {
-          window.location.reload();
-        });
+      // ✅ Regresar al menú (Index) SIN pedir contraseña otra vez (gracias a sesión del index)
+      document.getElementById("btnRegresarMenu").addEventListener("click", ()=>{
+        window.location.href = "index.html";
+      });
     });
   </script>
 </body>
