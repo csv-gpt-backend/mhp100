@@ -1,378 +1,351 @@
-<!doctype html> 
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluación Inteligencia EmocionalFFF</title>
+  <title>Evaluación Inteligencia Emocional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root{
-      --ink:#0f172a;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --bg:#ffffff;
-      --card:#ffffff;
-
-      --blue:#2563eb;
-      --green:#16a34a;
-      --amber-bg:#fef3c7;
-      --amber-line:#fcd34d;
-      --amber-ink:#b45309;
-
-      --rowA:#ffffff;
-      --rowB:#f8fafc;
-      --sticky:#ffffff;
-
-      /* ✅ highlight cuando la pregunta ya está contestada */
-      --answered:#ecfeff; /* celeste bajito */
-      --answered-line:#a5f3fc;
-    }
-
-    *{ box-sizing:border-box; }
-    html{ overflow-y: scroll; }
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--ink);
+    :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 15px;
+      color: #111827;
+      background: #ffffff;
     }
-
-    .layout{
-      display:grid;
-      grid-template-columns: 86px minmax(0, 1fr);
-      min-height:100vh;
+    body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
     }
-
-    .side-strip{
-      background:var(--amber-bg);
-      border-right:1px solid var(--amber-line);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:6px 0;
+    .layout {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      min-height: 100vh;
     }
-    .side-strip span{
+    .side-strip {
+      background: #fef3c7;
+      border-right: 1px solid #fcd34d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .side-strip span {
       writing-mode: vertical-rl;
       transform: rotate(180deg);
-      font-weight: 900;
-      letter-spacing: .12em;
-      font-size: 20px;
-      color: var(--amber-ink);
-      text-align:center;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      font-size: 24px; /* un poco más compacto para caber bien */
+      color: #b45309;
+      text-align: center;
     }
-
-    .page{
-      width: 100%;
-      max-width: 1200px;
+    .page {
+      max-width: 1000px;
       margin: 0 auto;
-      padding: 10px 14px 18px;
+      padding: 16px;
     }
-
-    header{ margin-bottom: 6px; }
-    h1{
-      font-size: 20px;
-      margin: 0 0 2px;
-      letter-spacing:.01em;
+    h1 {
+      font-size: 22px;
+      margin: 0 0 4px;
     }
-    h2{
+    h2 {
       font-size: 16px;
-      margin: 10px 0 6px;
+      margin: 16px 0 8px;
     }
-    .muted{ color:var(--muted); font-size:13px; }
-    .ok{ color:var(--green); font-size:13px; font-weight:700; }
-    .err{ color:#dc2626; font-size:13px; font-weight:700; }
-
-    .card{
-      border:1px solid var(--line);
-      border-radius: 14px;
-      background:var(--card);
+    .muted {
+      color: #6b7280;
+      font-size: 13px;
+    }
+    .ok {
+      color: #16a34a;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .err {
+      color: #dc2626;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    #pantalla-preguntas .card {
+      min-height: 420px;
+    }
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
       padding: 12px 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 14px 34px rgba(15,23,42,.06);
+      margin-bottom: 16px;
+      background: #ffffff;
     }
-
-    .grid-2{
-      display:grid;
+    .grid-2 {
+      display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px 16px;
     }
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      font-size:13px;
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 13px;
     }
-    .field label{ font-weight:700; }
-    .field input{
-      padding: 6px 10px;
-      border-radius: 10px;
-      border:1px solid #d1d5db;
+    .field label {
+      font-weight: 600;
+    }
+    .field input {
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
       font-size: 14px;
-      outline:none;
     }
-    .field input:focus{
-      border-color: var(--blue);
-      box-shadow: 0 0 0 2px rgba(37,99,235,.12);
+    .field input[readonly] {
+      background: #f9fafb;
+      color: #4b5563;
     }
-    .field input[readonly]{ background:#f9fafb; color:#4b5563; }
-
-    .instructions p, .instructions li{
-      margin: 6px 0;
-      font-size: 15px;
-      line-height: 1.35;
-    }
-    .instructions ul{ margin: 6px 0 0 18px; padding:0; }
-    .instructions-header{
-      font-weight: 900;
-      text-align:center;
-      margin: 10px 0 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--blue);
-      color: #fff;
-      font-size: 12px;
-      letter-spacing:.06em;
-    }
-
-    button{
-      border-radius: 999px;
-      border:none;
-      padding: 10px 18px;
+    .instructions p {
+      margin: 4px 0;
       font-size: 14px;
-      font-weight: 800;
-      cursor:pointer;
-      background: var(--green);
-      color: #fff;
-      box-shadow: 0 12px 22px rgba(22,163,74,.18);
-      transition: transform .05s, box-shadow .12s;
     }
-    button:hover{ transform: translateY(-1px); box-shadow: 0 16px 28px rgba(22,163,74,.22); }
-    button:active{ transform: translateY(0); box-shadow: 0 10px 18px rgba(22,163,74,.18); }
-    button.secondary{
-      background: #ffffff;
-      color: var(--ink);
-      border:1px solid #d1d5db;
-      box-shadow:none;
+    .instructions ul {
+      margin: 4px 0 0 18px;
+      padding: 0;
     }
-    button:disabled{ opacity:.55; cursor: default; transform:none; }
-
-    .hidden{ display:none; }
-
-    /* ===== Pantalla preguntas ===== */
-    #pantalla-preguntas .card{
-      padding: 10px 12px 12px;
+    .instructions li {
+      margin-bottom: 2px;
+      font-size: 14px;
+    }
+    .instructions-header {
+      font-weight: 700;
+      text-align: center;
+      margin: 8px 0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #1d4ed8;
+      color: #ffffff;
+      font-size: 13px;
     }
 
+    /* ===== Sticky header (opción 2) ===== */
     .sticky-wrap{
       position: sticky;
       top: 0;
-      z-index: 999;
-      background: var(--sticky);
-      padding-top: 6px;
-      border-bottom: 1px solid rgba(229,231,235,.9);
+      z-index: 50;
+      background: #ffffff;
+      padding-top: 8px;
+      margin-top: -8px; /* para que quede pegadito arriba */
+      border-bottom: 1px solid #e5e7eb;
     }
 
-    .progress{
-      width:100%;
+    .progress {
+      width: 100%;
       height: 8px;
       border-radius: 999px;
       background: #e5e7eb;
-      overflow:hidden;
-      margin-top: 6px;
+      overflow: hidden;
+      margin-top: 4px;
     }
-    .progress .bar{
-      height:100%;
-      width:0%;
-      background: var(--blue);
-      transition: width .2s ease-out;
+    .progress .bar {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: width 0.2s ease-out;
     }
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      padding: 2px 10px;
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
       border-radius: 999px;
       border: 1px solid #d1d5db;
       font-size: 12px;
       background: #f9fafb;
-      font-weight: 700;
     }
-    .panel-note{
+    .panel-note {
       font-size: 12px;
-      color: var(--muted);
-      text-align:right;
+      color: #6b7280;
+      text-align: right;
       margin-top: 4px;
     }
 
-    /* ✅ Alineación: el banner ahora usa el MISMO ancho que las 3 columnas (3*86px) */
-    .scale-banner{
-      margin-top: 6px;
-      display:flex;
-      justify-content:flex-end;
-    }
-    .scale-banner-inner{
-      width: calc(86px * 3);
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-    }
-    .scale-badge{
-      background: #f97316;
-      color:#fff;
-      padding: 3px 12px 6px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 900;
-      text-align:center;
-      line-height:1.05;
-    }
-    .scale-num{
-      display:block;
-      font-size: 12px;
-      margin-bottom: 2px;
-    }
-
-    .questions-header{
-      display:grid;
-      grid-template-columns: 54px 1fr repeat(3, 86px);
-      gap: 6px;
-      align-items:center;
-      font-size: 14px;
-      padding: 10px 0 10px;
-      font-weight: 900;
-      border-top: 1px solid rgba(229,231,235,.6);
-    }
-    .questions-header div{ text-align:center; }
-    .questions-header div:first-child,
-    .questions-header div:nth-child(2){ text-align:left; }
-
-    #questions{ margin-top: 2px; }
-
-    .question{
-      display:grid;
-      grid-template-columns: 54px 1fr repeat(3, 86px);
-      gap: 6px;
+    .questions-header {
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
+      gap: 4px;
       align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #eef2f7;
-      font-size: 16px;
-      border-radius: 10px;
+      font-size: 13px;
+      margin-top: 8px;
+      padding: 4px 0;
+      border-bottom: 1px solid #e5e7eb;
     }
-    .question:nth-child(odd){ background: var(--rowA); }
-    .question:nth-child(even){ background: var(--rowB); }
+    .questions-header div {
+      text-align: center;
+    }
+    .questions-header div:first-child,
+    .questions-header div:nth-child(2) {
+      text-align: left;
+    }
+    #questions {
+      margin-top: 4px;
+    }
 
-    /* ✅ clase aplicada por JS cuando la pregunta ya está respondida */
+    .question {
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
+      gap: 4px;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 14px;
+    }
+    /* Color suave alternado */
+    .question:nth-child(even){
+      background: #f8fafc;
+    }
+    /* Color “bonito” cuando se responde */
     .question.answered{
-      background: var(--answered) !important;
-      outline: 1px solid var(--answered-line);
+      background: #ecfdf5 !important;
+      outline: 1px solid #bbf7d0;
+      outline-offset: -1px;
+      border-bottom-color: #bbf7d0;
     }
 
-    .q-no{
+    .q-no {
       font-variant-numeric: tabular-nums;
-      text-align:center;
-      color: var(--muted);
-      font-weight: 900;
+      text-align: center;
+      color: #6b7280;
     }
-    .q-text{
-      display:inline-block;
-      padding-right: 8px;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      line-height: 1.25;
+    .q-text {
+      display: inline-block;
     }
-    .q-cell{ text-align:center; }
-    .q-cell input[type="radio"]{
-      width: 20px;
-      height: 20px;
-      cursor:pointer;
+    .q-cell {
+      text-align: center;
+    }
+    .q-cell input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
     }
 
-    .footer-actions{
-      display:flex;
+    .footer-actions {
+      display: flex;
       justify-content: space-between;
-      align-items:center;
-      margin-top: 10px;
-      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      gap: 8px;
       flex-wrap: wrap;
     }
-
-    #pantalla-final{
-      margin-top: 18px;
-      padding: 24px 18px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: #fefce8;
-      text-align:center;
-      display:none;
-      box-shadow: 0 14px 34px rgba(15,23,42,.06);
-    }
-    .check-icon{
-      width: 44px;
-      height: 44px;
+    button {
       border-radius: 999px;
-      border: 2px solid var(--green);
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      color: var(--green);
+      border: none;
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #16a34a;
+      color: #ffffff;
+    }
+    button.primary {
+      background: #16a34a;
+    }
+    button.secondary {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    #pantalla-final {
+      margin-top: 32px;
+      padding: 24px 18px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: #fefce8;
+      text-align: center;
+      display: none;
+    }
+    #pantalla-final h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    .check-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 2px solid #16a34a;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #16a34a;
       font-size: 24px;
       margin-bottom: 8px;
-      font-weight: 900;
     }
 
-    /* ✅ panel de datos en pantalla final */
-    .final-data{
-      margin: 14px auto 0;
-      max-width: 760px;
-      text-align:left;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius: 12px;
-      padding: 12px 12px;
+    /* ===== Escala naranjas alineadas con columnas 1/2/3 ===== */
+    .scale-banner {
+      margin-top: 6px;
+      margin-bottom: 2px;
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
+      gap: 4px;
+      align-items: end;
     }
-    .final-data h3{
-      margin:0 0 8px;
-      font-size: 13px;
-      letter-spacing:.06em;
-      text-transform: uppercase;
-      color: var(--muted);
+    .scale-spacer { height: 1px; }
+    .scale-badge {
+      background: #f97316;
+      color: #ffffff;
+      padding: 2px 8px 4px;
+      border-radius: 4px 4px 0 0;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      position: relative;
+      min-width: 80px;
+      justify-self: center; /* clave: centrado exacto */
+      width: 80px;          /* mismo ancho de columna */
     }
-    .final-grid{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px 14px;
-      font-size: 14px;
+    .scale-badge::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -4px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 4px solid #f97316;
     }
-    .final-item b{ display:block; font-size:12px; color:var(--muted); }
-    .final-item span{ display:block; font-weight: 800; }
+    .scale-num {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 1px;
+    }
 
-    @media (max-width: 980px){
-      .layout{ grid-template-columns: 62px minmax(0,1fr); }
-      .side-strip span{ font-size: 16px; letter-spacing:.10em; }
+    .hidden {
+      display: none;
+    }
 
-      .questions-header, .question{
-        grid-template-columns: 42px 1fr repeat(3, 70px);
+    @media (max-width: 840px) {
+      .layout {
+        grid-template-columns: 56px minmax(0, 1fr);
       }
-
-      .scale-banner-inner{ width: calc(70px * 3); }
-
-      .question{ font-size: 15px; }
-    }
-    @media (max-width: 720px){
-      .grid-2{ grid-template-columns: 1fr; }
-
-      .questions-header, .question{
-        grid-template-columns: 34px 1fr repeat(3, 62px);
+      .side-strip span {
+        font-size: 18px;
       }
-
-      .scale-banner-inner{ width: calc(62px * 3); }
-
-      .scale-badge{ font-size: 11px; }
-      .final-grid{ grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .questions-header,
+      .question,
+      .scale-banner {
+        grid-template-columns: 32px 1fr repeat(3, 64px);
+      }
+      .scale-badge{
+        min-width: 64px;
+        width: 64px;
+      }
     }
   </style>
 </head>
-
 <body>
   <div class="layout">
     <aside class="side-strip">
@@ -402,17 +375,14 @@
             <label for="curso">Curso</label>
             <input id="curso" type="text" readonly />
           </div>
-
           <div class="field">
             <label for="institucion">Institución</label>
             <input id="institucion" type="text" readonly />
           </div>
-
           <div class="field">
             <label for="grupo">Grupo</label>
             <input id="grupo" type="text" readonly />
           </div>
-
           <div class="field">
             <label for="fecha">Fecha</label>
             <input id="fecha" type="text" readonly />
@@ -423,50 +393,43 @@
       <!-- Pantalla de instrucciones -->
       <section id="pantalla-inicio" class="card instructions">
         <h2>Evaluación Inteligencia Emocional</h2>
-
         <p>
           El manejo efectivo de las emociones es un factor clave para lograr el éxito personal y profesional.
           Esta evaluación ha sido diseñada para que la persona adulta evalúe su nivel de desarrollo
           en ciertas habilidades emocionales clave.
         </p>
-
         <p>
           El instrumento identifica 12 habilidades emocionales y 2 áreas relacionadas
           con el estilo de comunicación interpersonal.
         </p>
-
         <p>
-          Al responder esta evaluación, que consta de 244 preguntas, es posible obtener un diagnóstico
+          La evaluación consta de 244 preguntas, y es posible obtener un diagnóstico
           sobre el manejo de la inteligencia emocional en cuatro áreas diferentes:
         </p>
-
         <ul>
           <li>Habilidades intrapersonales.</li>
           <li>Habilidades interpersonales.</li>
           <li>Habilidades para la vida.</li>
           <li>Estilo de comunicación interpersonal.</li>
         </ul>
-
         <div class="instructions-header">
           INSTRUCCIONES PARA LLENAR LA EVALUACIÓN
         </div>
-
         <p>1. Lee con detenimiento cada enunciado.</p>
         <p>2. Reflexiona en qué medida se parece a lo que haces o sientes habitualmente.</p>
-        <p>3. Selecciona la casilla que corresponda a la respuesta deseada de acuerdo con los siguientes criterios:</p>
-
-        <p style="margin-left: 12px; margin-top: 6px;">
+        <p>
+          3. Selecciona la casilla que corresponda a la respuesta deseada de acuerdo con los siguientes criterios:
+        </p>
+        <p style="margin-left: 12px; margin-top: 4px;">
           1 = <strong>Siempre</strong> ·
           2 = <strong>Algunas veces</strong> ·
           3 = <strong>Rara vez</strong>
         </p>
-
-        <p style="margin-top: 8px;">
+        <p style="margin-top: 6px;">
           <strong>IMPORTANTE:</strong> Una vez iniciada la evaluación, no podrás retroceder a las páginas anteriores.
         </p>
-
         <div style="margin-top: 12px; text-align: right;">
-          <button id="btnIniciar" class="primary">INICIAR</button>
+          <button id="btnIniciar" class="primary" disabled>INICIAR</button>
         </div>
       </section>
 
@@ -475,18 +438,26 @@
         <div class="card">
 
           <div class="sticky-wrap">
-            <h2 style="margin:0 0 2px;">Responde las siguientes preguntas</h2>
-
-            <!-- ✅ Nota vuelve -->
-            <p class="muted" id="nota-genero" style="margin:0 0 8px;">
+            <h2 style="margin:0 0 6px;">Responde las siguientes preguntas</h2>
+            <p class="muted" id="nota-genero" style="margin:0 0 6px;">
               Nota: Las siguientes preguntas pueden estar redactadas en género masculino, pero se entiende que también se refieren al género femenino.
             </p>
 
             <div class="scale-banner" aria-label="Escala">
-              <div class="scale-banner-inner">
-                <div class="scale-badge"><span class="scale-num">1</span>SIEMPRE</div>
-                <div class="scale-badge"><span class="scale-num">2</span>ALGUNAS VECES</div>
-                <div class="scale-badge"><span class="scale-num">3</span>RARA VEZ</div>
+              <div class="scale-spacer"></div>
+              <div class="scale-spacer"></div>
+
+              <div class="scale-badge">
+                <span class="scale-num">1</span>
+                SIEMPRE
+              </div>
+              <div class="scale-badge">
+                <span class="scale-num">2</span>
+                ALGUNAS VECES
+              </div>
+              <div class="scale-badge">
+                <span class="scale-num">3</span>
+                RARA VEZ
               </div>
             </div>
 
@@ -527,25 +498,9 @@
       <!-- Pantalla final -->
       <section id="pantalla-final">
         <div class="check-icon">✔</div>
-        <h2 style="margin:0 0 8px;">Evaluación terminada</h2>
-        <p style="margin:0 0 12px;">Felicidades, has concluido tu evaluación de inteligencia emocional.</p>
-
-        <!-- ✅ Datos del evaluado vuelven aquí -->
-        <div class="final-data" id="finalData">
-          <h3>Datos del evaluado</h3>
-          <div class="final-grid">
-            <div class="final-item"><b>Código</b><span id="fdCodigo">—</span></div>
-            <div class="final-item"><b>Nombre</b><span id="fdNombre">—</span></div>
-            <div class="final-item"><b>Institución</b><span id="fdInstitucion">—</span></div>
-            <div class="final-item"><b>Grupo</b><span id="fdGrupo">—</span></div>
-            <div class="final-item"><b>Curso</b><span id="fdCurso">—</span></div>
-            <div class="final-item"><b>Fecha</b><span id="fdFecha">—</span></div>
-          </div>
-        </div>
-
-        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top: 14px;">
-          <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
-        </div>
+        <h2>Evaluación terminada</h2>
+        <p>Felicidades, has concluido tu evaluación de inteligencia emocional.</p>
+        <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
       </section>
     </main>
   </div>
@@ -554,6 +509,7 @@
     console.log("ready!");
 
     let __startTime = Date.now();
+
     let CODIGO_ACTUAL = null;
     const STORAGE_PREFIX = "eval_ie_state_";
 
@@ -651,12 +607,10 @@
       }
     }
 
-    let currentPage = 0;
-    const PAGE_SIZE = 10;
-
     function saveState(completedFlag) {
       const key = getStorageKey();
       if (!key) return;
+
       try {
         const prev = loadStateForCurrentCode() || {};
         const state = {
@@ -670,8 +624,9 @@
           currentPage,
           responses: obtenerRespuestasCrudas(),
           startTime: __startTime || Date.now(),
-          completed: typeof completedFlag === "boolean" ? completedFlag : !!prev.completed
+          completed: (typeof completedFlag === "boolean") ? completedFlag : !!prev.completed
         };
+
         localStorage.setItem(key, JSON.stringify(state));
         syncAutosaveToServer(state);
       } catch (e) {
@@ -763,6 +718,9 @@
       grupo: "Grupo por defecto",
       curso: "Curso por defecto"
     };
+
+    const PAGE_SIZE = 10;
+    let currentPage = 0;
 
     const PREGUNTAS_CSV = `
 1;Cuando realmente me enojo con alguien, me siento tenso, pero confortable por haber expresado exactamente lo que pensaba.;Estilos de comunicación interpersonal;Agresión;Sí
@@ -1009,9 +967,11 @@
 242;Parece que continuamente me estoy esforzando para lograr resultados, pero no me tomo el tiempo para preguntarme honestamente qué es lo que realmente quiero en la vida.;Habilidades para la vida;Motivación;Sí
 243;Aplico procedimientos que me permiten manejar eficazmente mis tensiones, tales como técnicas para el descanso, el ejercicio o la meditación.;Habilidades intrapersonales;Bienestar físico;No
 244;Comparado con otras personas de mi edad, soy enfermizo.;Habilidades interpersonales;Conciencia de los demás;No    
-    `;
+
+    `; // <-- pega aquí tu bloque completo 1..244
 
     function norm(str) { return (str || "").trim(); }
+
     let ITEMS = [];
 
     function parsePreguntas(csv) {
@@ -1060,6 +1020,12 @@
       updateProgress();
     }
 
+    function markRowAnswered(rowEl, q) {
+      if (!rowEl) return;
+      if (q && q.value != null) rowEl.classList.add("answered");
+      else rowEl.classList.remove("answered");
+    }
+
     function renderPage() {
       const cont = document.getElementById("questions");
       cont.innerHTML = "";
@@ -1072,7 +1038,6 @@
         const q = ITEMS[i];
         const row = document.createElement("div");
         row.className = "question";
-        if (q.value != null) row.classList.add("answered"); // ✅ distintivo bonito
 
         const colNo = document.createElement("div");
         colNo.className = "q-no";
@@ -1086,7 +1051,8 @@
         colText.appendChild(txt);
         row.appendChild(colText);
 
-        ["S","AV","RV"].forEach(code=>{
+        // Mantengo tu lógica interna (CS/AV/RV) pero mostrando SIEMPRE en pantalla
+        ["CS","AV","RV"].forEach(code=>{
           const cell = document.createElement("div");
           cell.className="q-cell";
 
@@ -1095,31 +1061,35 @@
           r.name="q_"+q.id;
           r.value=code;
 
-          r.title = (code==="S")?"Siempre":(code==="AV")?"Algunas veces":"Rara vez";
+          r.title = (code==="CS")?"Siempre":(code==="AV")?"Algunas veces":"Rara vez";
           r.setAttribute("aria-label", r.title);
 
           if (q.value != null) {
             const inv = q.invertida === "Sí";
             let expectedScore;
-            if (!inv) expectedScore = (code==="S")?3:(code==="AV")?2:1;
-            else expectedScore = (code==="S")?1:(code==="AV")?2:3;
+            if (!inv) expectedScore = (code==="CS")?3:(code==="AV")?2:1;
+            else expectedScore = (code==="CS")?1:(code==="AV")?2:3;
             if (q.value === expectedScore) r.checked = true;
           }
 
           r.addEventListener("change", ()=>{
             const inv = q.invertida === "Sí";
             let score;
-            if (!inv) score = (code==="S")?3:(code==="AV")?2:1;
-            else score = (code==="S")?1:(code==="AV")?2:3;
+            if (!inv) score = (code==="CS")?3:(code==="AV")?2:1;
+            else score = (code==="CS")?1:(code==="AV")?2:3;
 
             q.value = score;
-            row.classList.add("answered"); // ✅ se marca al responder
+            markRowAnswered(row, q);
             updateProgress();
+            // No guardamos por cada click para no saturar (igual que tu versión)
           });
 
           cell.appendChild(r);
           row.appendChild(cell);
         });
+
+        // pinta bonito si ya estaba respondida (al retomar)
+        markRowAnswered(row, q);
 
         cont.appendChild(row);
       }
@@ -1202,14 +1172,104 @@
       }
     }
 
-    function llenarDatosFinales() {
-      const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase()) || "—";
-      document.getElementById("fdCodigo").textContent = codigo;
-      document.getElementById("fdNombre").textContent = document.getElementById("nombre").value || "—";
-      document.getElementById("fdInstitucion").textContent = document.getElementById("institucion").value || "—";
-      document.getElementById("fdGrupo").textContent = document.getElementById("grupo").value || "—";
-      document.getElementById("fdCurso").textContent = document.getElementById("curso").value || "—";
-      document.getElementById("fdFecha").textContent = document.getElementById("fecha").value || "—";
+    function normalizeBloqueName(name) {
+      if (!name) return "";
+      return name.replace(/\s+/g, " ").trim().toLowerCase();
+    }
+
+    function calcIV1_IV2_categories(items) {
+      const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
+      const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
+      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+      const stdev = arr => {
+        if (arr.length < 2) return 1;
+        const m = avg(arr);
+        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
+      };
+      const invNorm = invers.map(v => 4 - v);
+      const allNorm = direct.concat(invNorm);
+      if (!allNorm.length) return { iv1Cat: null, iv2Cat: null };
+      const s = stdev(allNorm);
+      const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
+      const diff = Math.abs(avg(direct) - avg(invNorm));
+      const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
+      return { iv1Cat, iv2Cat };
+    }
+
+    function calcularResultadosGlobales() {
+      if (!ITEMS.length) return null;
+
+      const subMap = new Map();
+      ITEMS.forEach(q => {
+        if (!subMap.has(q.subhabilidad))
+          subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
+        const s = subMap.get(q.subhabilidad);
+        s.items += 1;
+        s.pts += q.value ?? 0;
+      });
+
+      const subRows = Array.from(subMap.entries())
+        .map(([sub, v]) => {
+          const max = v.items * 3;
+          const pct = max ? Math.round((v.pts / max) * 100) : 0;
+          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct };
+        })
+        .sort(
+          (a, b) =>
+            (a.bloque || "").localeCompare(b.bloque || "") ||
+            (a.sub || "").localeCompare(b.sub || "")
+        );
+
+      const bloqMap = new Map();
+      subRows.forEach(r => {
+        if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0 });
+        const b = bloqMap.get(r.bloque);
+        b.sumPct += r.pct;
+        b.n += 1;
+      });
+
+      const bloqPercents = {};
+      Array.from(bloqMap.entries()).forEach(([bloque, a]) => {
+        const pct = a.n ? Math.round(a.sumPct / a.n) : 0;
+        bloqPercents[bloque] = pct;
+      });
+
+      function pctBloque(nombreEsperado) {
+        const key = Object.keys(bloqPercents).find(
+          k => normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado)
+        );
+        return key ? bloqPercents[key] : 0;
+      }
+
+      const bIntra = pctBloque("Habilidades intrapersonales");
+      const bInter = pctBloque("Habilidades interpersonales");
+      const bPV = pctBloque("Habilidades para la vida");
+      const iie =
+        [bIntra, bInter, bPV].filter(v => v > 0).length > 0
+          ? Math.round((bIntra + bInter + bPV) / 3)
+          : 0;
+
+      const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
+
+      const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
+      const iv3Cat =
+        mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
+
+      const bEstilos = pctBloque("Estilos de comunicación interpersonal");
+      const bCambio = pctBloque("Propensión al cambio");
+
+      return {
+        globales: { IIE: iie, IV1: iv1Cat, IV2: iv2Cat, IV3: iv3Cat },
+        bloques: {
+          intrapersonales: bIntra,
+          interpersonales: bInter,
+          para_la_vida: bPV,
+          estilos_comunicacion: bEstilos,
+          propension_cambio: bCambio
+        },
+        subhabilidades: subRows,
+        bloqPercents: bloqPercents
+      };
     }
 
     function onFinalizarClick() {
@@ -1220,6 +1280,8 @@
       const total = ITEMS.length;
       if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
 
+      const resultados = calcularResultadosGlobales();
+
       const payload = {
         codigo: CODIGO_ACTUAL,
         snapshot: {
@@ -1229,7 +1291,7 @@
           curso: document.getElementById("curso").value,
           version_banco: "IE-v1"
         },
-        resultados: null,
+        resultados,
         responses: respuestas
       };
 
@@ -1241,8 +1303,9 @@
         body: JSON.stringify(payload)
       }).catch(()=>{});
 
-      // ✅ mostrar pantalla final con datos
-      llenarDatosFinales();
+      // Mostrar datos del evaluado (como tu versión funcional)
+      document.getElementById("datos-participante").classList.remove("hidden");
+      document.getElementById("nombre").readOnly = true;
 
       document.getElementById("pantalla-preguntas").classList.add("hidden");
       const pantallaFinal = document.getElementById("pantalla-final");
@@ -1277,10 +1340,23 @@
       inicializarDatosFijos();
       construirPreguntas();
 
-      document.getElementById("btnIniciar").addEventListener("click", async () => {
+      // por seguridad: INICIAR solo si código válido
+      btnIniciar.disabled = true;
+
+      btnIniciar.addEventListener("click", async () => {
         if (!validarAntesDeIniciar()) return;
 
+        // Si no han validado el código, lo validamos aquí
+        if (!CODIGO_ACTUAL) {
+          await lookupCodigo();
+        }
+        if (!CODIGO_ACTUAL) {
+          alert("Por favor valida el código antes de iniciar.");
+          return;
+        }
+
         const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+
         let serverState = null;
         if (codigo) serverState = await cargarAutosaveServidor(codigo);
 
@@ -1297,12 +1373,14 @@
             clearState();
           }
         }
+
         iniciarEvaluacionNueva();
       });
 
       document.getElementById("btnSiguiente").addEventListener("click", onSiguienteClick);
 
       document.getElementById("btnRegresarMenu").addEventListener("click", () => {
+        // Si tienes menú en index.html, volvemos ahí; si no, recarga como antes
         window.location.href = "index.html";
       });
     });
