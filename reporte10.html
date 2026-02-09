@@ -449,19 +449,19 @@
         <div class="rep-iv">
           <table class="iv-table" style="width:100%;border-collapse:collapse;font-size:12px">
             <tr id="iv1Row">
-              <th style="border:1px solid #111;padding:6px">IV1</th>
+              <th style="border:1px solid #111;padding:6px">Nivel de Autoconocimiento</th>
               <td style="border:1px solid #111;padding:6px">Se conoce o se compromete</td>
               <td style="border:1px solid #111;padding:6px">Se conoce o se compromete poco</td>
               <td style="border:1px solid #111;padding:6px">Se requiere mayor autoconocimiento o auto compromiso</td>
             </tr>
             <tr id="iv2Row">
-              <th style="border:1px solid #111;padding:6px">IV2</th>
+              <th style="border:1px solid #111;padding:6px">Nivel de Contradicción</th>
               <td style="border:1px solid #111;padding:6px">No se contradice</td>
               <td style="border:1px solid #111;padding:6px">Se contradice</td>
               <td style="border:1px solid #111;padding:6px">Se contradice frecuentemente</td>
             </tr>
             <tr id="iv3Row">
-              <th style="border:1px solid #111;padding:6px">IV3</th>
+              <th style="border:1px solid #111;padding:6px">Promedio del Tiempo</th>
               <td style="border:1px solid #111;padding:6px">Entre 30 y 90 minutos<br><span class="muted">Tomó el tiempo adecuado</span></td>
               <td style="border:1px solid #111;padding:6px">Entre 10 y 20 minutos<br><span class="muted">Demasiado breve</span></td>
               <td style="border:1px solid #111;padding:6px">Más de 90 minutos<br><span class="muted">Demasiado lento</span></td>
@@ -473,7 +473,7 @@
       <div class="bloque-title">
         <div class="bloque-left">
           <span class="bloque-bullet"></span>
-          <span>HABILIDADES INTRAPERSONALES</span>
+          <span>DESARROLLO PERSONAL</span>
         </div>
         <div>IH INTRA: <span class="ih-badge" id="ihIntra">—</span></div>
       </div>
@@ -482,7 +482,7 @@
       <div class="bloque-title">
         <div class="bloque-left">
           <span class="bloque-bullet"></span>
-          <span>HABILIDADES INTERPERSONALES</span>
+          <span>DESARROLLO SOCIAL</span>
         </div>
         <div>IH INTER: <span class="ih-badge" id="ihInter">—</span></div>
       </div>
@@ -491,7 +491,7 @@
       <div class="bloque-title">
         <div class="bloque-left">
           <span class="bloque-bullet"></span>
-          <span>HABILIDADES PARA LA VIDA</span>
+          <span>DESARROLLO INTERPERSONAL</span>
         </div>
         <div>IH PV: <span class="ih-badge" id="ihPV">—</span></div>
       </div>
@@ -517,11 +517,11 @@
         <div class="rep-scale" id="estilos"></div>
       </div>
 
-      <!-- PROPENSIÓN AL CAMBIO -->
+      <!-- ADAPTACIÓN AL CAMBIO -->
       <div class="scale-section">
         <div class="section-title">
           <div class="section-dot"></div>
-          <div>PROPENSIÓN AL CAMBIO</div>
+          <div>ADAPTACIÓN AL CAMBIO</div>
         </div>
         <div class="rep-scale" id="cambio"></div>
         <div class="scale-note-inline">Menor propensión al cambio — Mayor propensión al cambio</div>
@@ -641,6 +641,58 @@
     return (name||"").replace(/\s+/g," ").trim().toLowerCase();
   }
 
+  /* ====== CAMBIO DE TÉRMINOS (SOLO VISUAL) ====== */
+  const TERM_MAP = {
+    bloques: {
+      "habilidades intrapersonales": "Desarrollo Personal",
+      "habilidades interpersonales": "Desarrollo Social",
+      "habilidades para la vida": "Desarrollo Interpersonal",
+      "propensión al cambio": "Adaptación al Cambio",
+      "propension al cambio": "Adaptación al Cambio",
+    },
+    sub: {
+      "autoestima": "Conocimiento de Sí Mismo",
+      "manejo de la tensión": "Manejo de Estrés",
+      "manejo de la tension": "Manejo de Estrés",
+      "bienestar físico": "Bienestar Personal",
+      "bienestar fisico": "Bienestar Personal",
+      "asertividad": "Comunicación Efectiva",
+      "conciencia de los demás": "Conciencia Social",
+      "conciencia de los demas": "Conciencia Social",
+      "empatía": "Habilidad Social",
+      "empatia": "Habilidad Social",
+      "motivación": "Motivación y Liderazgo",
+      "motivacion": "Motivación y Liderazgo",
+      "compromiso": "Compromiso",
+      "administración del tiempo": "Manejo del Tiempo",
+      "administracion del tiempo": "Manejo del Tiempo",
+      "toma de decisiones": "Toma de Decisiones",
+      "liderazgo": "Motivación y Liderazgo",
+      "propensión al cambio": "Flexibilidad ante Cambios",
+      "propension al cambio": "Flexibilidad ante Cambios",
+      "agresión": "Agresión",
+      "agresion": "Agresión",
+      "timidez": "Timidez"
+    },
+    iv: {
+      "IV1": "Nivel de Autoconocimiento",
+      "IV2": "Nivel de Contradicción",
+      "IV3": "Promedio del Tiempo",
+    }
+  };
+
+  function displayBloque(name){
+    const key = normalizeBloqueName(name);
+    return TERM_MAP.bloques[key] || name || "";
+  }
+  function displaySub(name){
+    const key = normalizeBloqueName(name);
+    return TERM_MAP.sub[key] || name || "";
+  }
+  function displayIV(label){
+    return TERM_MAP.iv[label] || label;
+  }
+
   /* =========================================================
      AJUSTE GLOBAL DE PUNTAJES (VISUAL)
      - Resta 10 puntos a escala 1..100 (clamp 1..100)
@@ -752,7 +804,7 @@
     row.style.margin='2px 0';
 
     const nameCell=document.createElement('div');
-    nameCell.textContent=name;
+    nameCell.textContent = displaySub(name);
     nameCell.style.fontWeight='700';
     nameCell.style.fontSize='12px';
     row.appendChild(nameCell);
@@ -824,7 +876,7 @@
     if (orden){
       rowsFiltradas.sort((a,b)=>{
         const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
-        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
+        const nameB = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
         const ia = orden.findIndex(x=> x.toLowerCase()===nameA);
         const ib = orden.findIndex(x=> x.toLowerCase()===nameB);
         if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
@@ -911,14 +963,18 @@
     const subT = $("#subTable tbody");
     subT.innerHTML = "";
     subRows.forEach(r=>{
-      const bloque = r.bloque || r.block || "";
-      const sub = r.subhabilidad || r.sub || "";
+      const bloqueRaw = r.bloque || r.block || "";
+      const subRaw = r.subhabilidad || r.sub || "";
+
+      const bloque = displayBloque(bloqueRaw);
+      const sub = displaySub(subRaw);
+
       const items = r.items ?? r.n_items ?? "";
       const puntos = r.puntos ?? r.points ?? r.pts ?? "";
       const pctRaw = Math.round(r.percent ?? r.pct ?? 0);
 
-      const bloqueNorm = normalizeBloqueName(bloque);
-      const subNorm = normalizeBloqueName(sub);
+      const bloqueNorm = normalizeBloqueName(bloqueRaw);
+      const subNorm = normalizeBloqueName(subRaw);
 
       const pct = adjScore(pctRaw, {bloqueNorm, subNorm});
 
@@ -989,9 +1045,13 @@
     const title = document.createElement("div");
     title.className = "skill-row-title";
     const numeric = (pct != null && !Number.isNaN(Number(pct))) ? Math.round(pct) : null;
+
+    const shownName = displaySub(nombre);
+
     title.textContent = numeric != null
-      ? `${nombre} (Puntaje: ${numeric}/100)`
-      : nombre;
+      ? `${shownName} (Puntaje: ${numeric}/100)`
+      : shownName;
+
     row.appendChild(title);
 
     const descTxt = HABILIDAD_DESCS[nombre] || "";
@@ -1134,17 +1194,17 @@
 
     (RECOM_BLOQUES.intra[nIntra] || []).forEach(t=>{
       const li = document.createElement("li");
-      li.textContent = "Habilidades intrapersonales: " + t;
+      li.textContent = "Desarrollo personal: " + t;
       lista.appendChild(li);
     });
     (RECOM_BLOQUES.inter[nInter] || []).forEach(t=>{
       const li = document.createElement("li");
-      li.textContent = "Habilidades interpersonales: " + t;
+      li.textContent = "Desarrollo social: " + t;
       lista.appendChild(li);
     });
     (RECOM_BLOQUES.vida[nPV] || []).forEach(t=>{
       const li = document.createElement("li");
-      li.textContent = "Habilidades para la vida: " + t;
+      li.textContent = "Desarrollo interpersonal: " + t;
       lista.appendChild(li);
     });
 
@@ -1162,11 +1222,11 @@
     if(extras.propCambioVal != null){
       if(extras.propCambioVal <= 40){
         const li = document.createElement("li");
-        li.textContent = "Propensión al cambio: acompañar de cerca los procesos de cambio, explicando con anticipación lo que ocurrirá y respetando sus tiempos de adaptación.";
+        li.textContent = "Adaptación al cambio: acompañar de cerca los procesos de cambio, explicando con anticipación lo que ocurrirá y respetando sus tiempos de adaptación.";
         lista.appendChild(li);
       }else if(extras.propCambioVal >= 71){
         const li = document.createElement("li");
-        li.textContent = "Propensión al cambio: aprovechar su apertura a lo nuevo para involucrarle en proyectos innovadores y en la implementación de mejoras dentro del aula o institución.";
+        li.textContent = "Adaptación al cambio: aprovechar su apertura a lo nuevo para involucrarle en proyectos innovadores y en la implementación de mejoras dentro del aula o institución.";
         lista.appendChild(li);
       }
     }
@@ -1253,9 +1313,9 @@
     });
 
     const bloques = [
-      {key:"intra", label:"intrapersonales", val:extras.bIntra},
-      {key:"inter", label:"interpersonales", val:extras.bInter},
-      {key:"vida",  label:"para la vida",   val:extras.bPV}
+      {key:"intra", label:"personal", val:extras.bIntra},
+      {key:"inter", label:"social", val:extras.bInter},
+      {key:"vida",  label:"interpersonal", val:extras.bPV}
     ].filter(b=> b.val != null && !Number.isNaN(b.val));
 
     if(bloques.length){
@@ -1329,9 +1389,9 @@
     const fmt = v => (v != null && !Number.isNaN(v)) ? Math.round(v) : "—";
 
     [
-      `Índice de Habilidades Intrapersonales (IH INTRA): ${fmt(extras.bIntra)}`,
-      `Índice de Habilidades Interpersonales (IH INTER): ${fmt(extras.bInter)}`,
-      `Índice de Habilidades para la Vida (IH PV): ${fmt(extras.bPV)}`,
+      `Índice de Desarrollo Personal (IH INTRA): ${fmt(extras.bIntra)}`,
+      `Índice de Desarrollo Social (IH INTER): ${fmt(extras.bInter)}`,
+      `Índice de Desarrollo Interpersonal (IH PV): ${fmt(extras.bPV)}`,
       `Índice Global de Inteligencia Emocional (IIE): ${fmt(extras.iieFinal)}`
     ].forEach(t=>{
       const li = document.createElement("li");
@@ -1369,13 +1429,13 @@
 
     const subt2 = document.createElement("div");
     subt2.className = "plan-section-title";
-    subt2.textContent = "Propensión al cambio:";
+    subt2.textContent = "Adaptación al cambio:";
     cont.appendChild(subt2);
 
     const ul3 = document.createElement("ul");
     ul3.className = "recom-list";
     const liC = document.createElement("li");
-    liC.textContent = "Propensión al cambio: " + fmt(extras.propCambioVal) + " (a mayor puntaje, mayor apertura al cambio).";
+    liC.textContent = "Adaptación al cambio: " + fmt(extras.propCambioVal) + " (a mayor puntaje, mayor apertura al cambio).";
     ul3.appendChild(liC);
     cont.appendChild(ul3);
   }
@@ -1390,7 +1450,7 @@
     const header = document.createElement("div");
     header.className = "interp-bloque-header";
     header.innerHTML = `
-      <div class="interp-bloque-nombre">${tituloBloque}</div>
+      <div class="interp-bloque-nombre">${displayBloque(tituloBloque)}</div>
       <div class="interp-bloque-indice">Índice: <span>${idxText}</span></div>
     `;
     cont.appendChild(header);
@@ -1470,7 +1530,7 @@
       cambCont.innerHTML = "";
       const header = document.createElement("div");
       header.className = "interp-bloque-header";
-      header.innerHTML = `<div class="interp-bloque-nombre">PROPENSIÓN AL CAMBIO</div>`;
+      header.innerHTML = `<div class="interp-bloque-nombre">ADAPTACIÓN AL CAMBIO</div>`;
       cambCont.appendChild(header);
 
       const desc = document.createElement("div");
