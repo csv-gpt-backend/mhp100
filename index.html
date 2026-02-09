@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>InicioCC</title>
+  <title>Iniciohh</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
@@ -88,7 +88,6 @@
       max-width:720px;
     }
 
-    /* Login block */
     .login-block{
       border-radius:14px;
       background:#f9fafb;
@@ -156,7 +155,6 @@
       transform:translateY(0);
       box-shadow:0 8px 16px rgba(22,163,74,0.22);
     }
-
     .btn-logout{
       background:#ffffff;
       color:#111827;
@@ -177,10 +175,9 @@
     .msg.err{color:#dc2626;}
     .msg.ok{color:#16a34a;}
 
-    /* Menu */
     .menu{
       margin-top:10px;
-      display:none; /* ✅ SIEMPRE oculto al cargar */
+      display:none;
     }
     .catalog{
       display:flex;
@@ -314,12 +311,13 @@
     </header>
 
     <main class="card">
-      <p class="card-subtitle">
+      <!-- ✅ Este texto se oculta cuando ya estás dentro -->
+      <p id="introText" class="card-subtitle">
         Para continuar, ingresa la contraseña de acceso proporcionada por el administrador.
         Una vez validada podrás elegir entre aplicar la evaluación o consultar los reportes individuales.
       </p>
 
-      <!-- ✅ IMPORTANTE: Este bloque se OCULTA cuando hay sesión activa -->
+      <!-- ✅ Este bloque se oculta cuando hay sesión activa -->
       <section id="loginBlock" class="login-block">
         <div class="login-left">
           <div class="login-label">Contraseña de acceso</div>
@@ -334,7 +332,7 @@
         </div>
       </section>
 
-      <!-- Botón cerrar sesión (solo aparece con menú visible) -->
+      <!-- Botón cerrar sesión -->
       <div style="display:flex; justify-content:flex-end; margin-top:-6px; margin-bottom:10px;">
         <button class="btn btn-logout" id="btnSalir" type="button" style="display:none;">Cerrar sesión</button>
       </div>
@@ -342,10 +340,8 @@
       <section id="menu" class="menu">
         <div class="catalog">
 
-          <!-- SOCIOEMOCIONAL -->
           <section class="catalog-section">
             <h2 class="catalog-title">EVALUACIÓN SOCIOEMOCIONAL</h2>
-
             <div class="menu-grid">
               <article class="pane">
                 <h2>Evaluación <span class="pane-tag">Participante</span></h2>
@@ -370,10 +366,8 @@
             </div>
           </section>
 
-          <!-- VALORES E INTEGRIDAD -->
           <section class="catalog-section">
             <h2 class="catalog-title">EVALUACIÓN VALORES E INTEGRIDAD</h2>
-
             <div class="menu-grid">
               <article class="pane">
                 <h2>Evaluación <span class="pane-tag gold">Nuevo</span></h2>
@@ -410,27 +404,25 @@
 <script>
   const ACCESS_PASSWORD = "ADALAM";
 
-  // === Sesión temporal (Opción 2) ===
+  // ✅ Sesión por navegador/pestaña (NO comparte entre equipos o navegadores)
   const ACCESS_SESSION_KEY = "adal_access_session";
-  const ACCESS_SESSION_HOURS = 6; // cambia si quieres (2,4,8)
 
   function setAccessSession(){
-    const expiresAt = Date.now() + ACCESS_SESSION_HOURS * 60 * 60 * 1000;
-    const payload = { ok: true, expiresAt };
-    try { localStorage.setItem(ACCESS_SESSION_KEY, JSON.stringify(payload)); } catch {}
+    const payload = { ok: true, createdAt: Date.now() };
+    try { sessionStorage.setItem(ACCESS_SESSION_KEY, JSON.stringify(payload)); } catch {}
   }
   function hasValidAccessSession(){
     try{
-      const raw = localStorage.getItem(ACCESS_SESSION_KEY);
+      const raw = sessionStorage.getItem(ACCESS_SESSION_KEY);
       if(!raw) return false;
       const s = JSON.parse(raw);
-      return !!s.ok && typeof s.expiresAt === "number" && Date.now() < s.expiresAt;
+      return !!s.ok;
     } catch {
       return false;
     }
   }
   function clearAccessSession(){
-    try { localStorage.removeItem(ACCESS_SESSION_KEY); } catch {}
+    try { sessionStorage.removeItem(ACCESS_SESSION_KEY); } catch {}
   }
 
   const $ = sel => document.querySelector(sel);
@@ -441,16 +433,19 @@
   const msg        = $("#msg");
   const menu       = $("#menu");
   const loginBlock = $("#loginBlock");
+  const introText  = $("#introText");
 
   function showMenu(){
     menu.style.display = "block";
     btnSalir.style.display = "inline-block";
-    if (loginBlock) loginBlock.style.display = "none"; // ✅ oculta contraseña
+    if (loginBlock) loginBlock.style.display = "none";
+    if (introText) introText.style.display = "none";
   }
   function hideMenu(){
     menu.style.display = "none";
     btnSalir.style.display = "none";
-    if (loginBlock) loginBlock.style.display = "flex"; // ✅ muestra contraseña
+    if (loginBlock) loginBlock.style.display = "flex";
+    if (introText) introText.style.display = "block";
   }
 
   function checkPassword(){
