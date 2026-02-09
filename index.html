@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>InicioXX</title>
+  <title>InicioCC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
@@ -59,7 +59,6 @@
       justify-content:center;
       text-align:center;
     }
-    .avatar{ display:none; }
     .header-text h1{
       margin:0;
       font-size:18px;
@@ -89,6 +88,7 @@
       max-width:720px;
     }
 
+    /* Login block */
     .login-block{
       border-radius:14px;
       background:#f9fafb;
@@ -134,6 +134,7 @@
       border-color:var(--accent);
       box-shadow:0 0 0 1px rgba(37,99,235,0.18);
     }
+
     .btn{
       padding:8px 12px;
       font-size:13px;
@@ -155,6 +156,7 @@
       transform:translateY(0);
       box-shadow:0 8px 16px rgba(22,163,74,0.22);
     }
+
     .btn-logout{
       background:#ffffff;
       color:#111827;
@@ -175,11 +177,11 @@
     .msg.err{color:#dc2626;}
     .msg.ok{color:#16a34a;}
 
+    /* Menu */
     .menu{
       margin-top:10px;
-      display:none;
+      display:none; /* ✅ SIEMPRE oculto al cargar */
     }
-
     .catalog{
       display:flex;
       flex-direction:column;
@@ -296,6 +298,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="page">
 
@@ -316,7 +319,8 @@
         Una vez validada podrás elegir entre aplicar la evaluación o consultar los reportes individuales.
       </p>
 
-      <section class="login-block">
+      <!-- ✅ IMPORTANTE: Este bloque se OCULTA cuando hay sesión activa -->
+      <section id="loginBlock" class="login-block">
         <div class="login-left">
           <div class="login-label">Contraseña de acceso</div>
           <input type="password" id="passInput" autocomplete="off" placeholder="••••••••">
@@ -327,9 +331,13 @@
         </div>
         <div class="login-right">
           <button class="btn" id="btnEntrar">Validar contraseña</button>
-          <button class="btn btn-logout" id="btnSalir" type="button" style="display:none;">Cerrar sesión</button>
         </div>
       </section>
+
+      <!-- Botón cerrar sesión (solo aparece con menú visible) -->
+      <div style="display:flex; justify-content:flex-end; margin-top:-6px; margin-bottom:10px;">
+        <button class="btn btn-logout" id="btnSalir" type="button" style="display:none;">Cerrar sesión</button>
+      </div>
 
       <section id="menu" class="menu">
         <div class="catalog">
@@ -341,9 +349,7 @@
             <div class="menu-grid">
               <article class="pane">
                 <h2>Evaluación <span class="pane-tag">Participante</span></h2>
-                <p>
-                  Inicia el formulario para responder la Evaluación Socioemocional.
-                </p>
+                <p>Inicia el formulario para responder la Evaluación Socioemocional.</p>
                 <a href="evaluacion.html" class="pane-button">
                   <span class="icon">▶</span>
                   <span>Iniciar evaluación</span>
@@ -371,9 +377,7 @@
             <div class="menu-grid">
               <article class="pane">
                 <h2>Evaluación <span class="pane-tag gold">Nuevo</span></h2>
-                <p>
-                  Inicia el formulario para responder la Evaluación de Valores e Integridad.
-                </p>
+                <p>Inicia el formulario para responder la Evaluación de Valores e Integridad.</p>
                 <a href="evaluacion-valores.html" class="pane-button">
                   <span class="icon">▶</span>
                   <span>Iniciar evaluación</span>
@@ -430,19 +434,23 @@
   }
 
   const $ = sel => document.querySelector(sel);
-  const passInput = $("#passInput");
-  const btnEntrar = $("#btnEntrar");
-  const btnSalir  = $("#btnSalir");
-  const msg = $("#msg");
-  const menu = $("#menu");
+
+  const passInput  = $("#passInput");
+  const btnEntrar  = $("#btnEntrar");
+  const btnSalir   = $("#btnSalir");
+  const msg        = $("#msg");
+  const menu       = $("#menu");
+  const loginBlock = $("#loginBlock");
 
   function showMenu(){
     menu.style.display = "block";
     btnSalir.style.display = "inline-block";
+    if (loginBlock) loginBlock.style.display = "none"; // ✅ oculta contraseña
   }
   function hideMenu(){
     menu.style.display = "none";
     btnSalir.style.display = "none";
+    if (loginBlock) loginBlock.style.display = "flex"; // ✅ muestra contraseña
   }
 
   function checkPassword(){
@@ -474,17 +482,23 @@
 
   btnSalir.addEventListener("click", ()=>{
     clearAccessSession();
-    msg.textContent = "Sesión cerrada.";
-    msg.className = "msg";
-    passInput.value = "";
+    if(passInput) passInput.value = "";
+    if(msg){
+      msg.textContent = "Sesión cerrada.";
+      msg.className = "msg";
+    }
     hideMenu();
   });
 
   window.addEventListener("DOMContentLoaded", ()=>{
     if(hasValidAccessSession()){
-      msg.textContent = "Acceso activo.";
-      msg.className = "msg ok";
+      if(msg){
+        msg.textContent = "Acceso activo.";
+        msg.className = "msg ok";
+      }
       showMenu();
+    }else{
+      hideMenu();
     }
   });
 </script>
