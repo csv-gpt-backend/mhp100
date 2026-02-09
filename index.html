@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>InicioCC</title>
+  <title>InicioPP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
@@ -37,7 +37,6 @@
       padding:20px 16px 32px;
     }
 
-    /* Logo ADALAM centrado */
     .brand-logo{
       display:flex;
       justify-content:center;
@@ -51,7 +50,6 @@
       filter:drop-shadow(0 8px 22px rgba(15,23,42,0.28));
     }
 
-    /* Header */
     .header{
       display:flex;
       align-items:center;
@@ -157,20 +155,31 @@
       transform:translateY(0);
       box-shadow:0 8px 16px rgba(22,163,74,0.22);
     }
+    .btn-logout{
+      background:#ffffff;
+      color:#111827;
+      border:1px solid #d1d5db;
+      box-shadow:none;
+    }
+    .btn-logout:hover{
+      background:#f3f4f6;
+      transform:translateY(-1px);
+      box-shadow:none;
+    }
+
     .msg{
       font-size:12px;
       min-height:16px;
       margin-top:2px;
     }
-    .msg.err{color:var(--danger);}
-    .msg.ok{color:var(--primary);}
+    .msg.err{color:#dc2626;}
+    .msg.ok{color:#16a34a;}
 
     .menu{
       margin-top:10px;
       display:none;
     }
 
-    /* Secciones del catálogo */
     .catalog{
       display:flex;
       flex-direction:column;
@@ -277,9 +286,7 @@
       background:#1d4ed8;
       box-shadow:0 14px 26px rgba(37,99,235,0.35);
     }
-    .pane-button span.icon{
-      font-size:14px;
-    }
+    .pane-button span.icon{ font-size:14px; }
 
     .footer{
       text-align:center;
@@ -320,15 +327,14 @@
         </div>
         <div class="login-right">
           <button class="btn" id="btnEntrar">Validar contraseña</button>
+          <button class="btn btn-logout" id="btnSalir" type="button" style="display:none;">Cerrar sesión</button>
         </div>
       </section>
 
       <section id="menu" class="menu">
         <div class="catalog">
 
-          <!-- =======================
-               SECCIÓN: SOCIOEMOCIONAL
-          ======================== -->
+          <!-- SOCIOEMOCIONAL -->
           <section class="catalog-section">
             <h2 class="catalog-title">EVALUACIÓN SOCIOEMOCIONAL</h2>
 
@@ -337,7 +343,6 @@
                 <h2>Evaluación <span class="pane-tag">Participante</span></h2>
                 <p>
                   Inicia el formulario para responder la Evaluación Socioemocional.
-                  Esta opción se utiliza cuando la persona va a completar la evaluación.
                 </p>
                 <a href="evaluacion.html" class="pane-button">
                   <span class="icon">▶</span>
@@ -359,9 +364,7 @@
             </div>
           </section>
 
-          <!-- ============================
-               SECCIÓN: VALORES E INTEGRIDAD
-          ============================= -->
+          <!-- VALORES E INTEGRIDAD -->
           <section class="catalog-section">
             <h2 class="catalog-title">EVALUACIÓN VALORES E INTEGRIDAD</h2>
 
@@ -370,9 +373,7 @@
                 <h2>Evaluación <span class="pane-tag gold">Nuevo</span></h2>
                 <p>
                   Inicia el formulario para responder la Evaluación de Valores e Integridad.
-                  Esta opción se utiliza cuando la persona va a completar la evaluación.
                 </p>
-                <!-- Ajusta el href a tu archivo/ruta real -->
                 <a href="evaluacion-valores.html" class="pane-button">
                   <span class="icon">▶</span>
                   <span>Iniciar evaluación</span>
@@ -385,7 +386,6 @@
                   Ingresa el código de evaluación (por ejemplo, INTEGRIDAD001) para visualizar la gráfica individual
                   y el informe de valores e integridad.
                 </p>
-                <!-- Ajusta el href a tu archivo/ruta real -->
                 <a href="reporte-valores.html" class="pane-button btn-secondary">
                   <span class="icon">📊</span>
                   <span>Ver reporte</span>
@@ -406,28 +406,62 @@
 <script>
   const ACCESS_PASSWORD = "ADALAM";
 
+  // === Sesión temporal (Opción 2) ===
+  const ACCESS_SESSION_KEY = "adal_access_session";
+  const ACCESS_SESSION_HOURS = 6; // cambia si quieres (2,4,8)
+
+  function setAccessSession(){
+    const expiresAt = Date.now() + ACCESS_SESSION_HOURS * 60 * 60 * 1000;
+    const payload = { ok: true, expiresAt };
+    try { localStorage.setItem(ACCESS_SESSION_KEY, JSON.stringify(payload)); } catch {}
+  }
+  function hasValidAccessSession(){
+    try{
+      const raw = localStorage.getItem(ACCESS_SESSION_KEY);
+      if(!raw) return false;
+      const s = JSON.parse(raw);
+      return !!s.ok && typeof s.expiresAt === "number" && Date.now() < s.expiresAt;
+    } catch {
+      return false;
+    }
+  }
+  function clearAccessSession(){
+    try { localStorage.removeItem(ACCESS_SESSION_KEY); } catch {}
+  }
+
   const $ = sel => document.querySelector(sel);
   const passInput = $("#passInput");
   const btnEntrar = $("#btnEntrar");
+  const btnSalir  = $("#btnSalir");
   const msg = $("#msg");
   const menu = $("#menu");
+
+  function showMenu(){
+    menu.style.display = "block";
+    btnSalir.style.display = "inline-block";
+  }
+  function hideMenu(){
+    menu.style.display = "none";
+    btnSalir.style.display = "none";
+  }
 
   function checkPassword(){
     const value = (passInput.value || "").trim();
     if(!value){
       msg.textContent = "Ingresa la contraseña.";
       msg.className = "msg err";
-      menu.style.display = "none";
+      hideMenu();
       return;
     }
     if(value === ACCESS_PASSWORD){
+      setAccessSession();
       msg.textContent = "Acceso concedido.";
       msg.className = "msg ok";
-      menu.style.display = "block";
+      showMenu();
     }else{
       msg.textContent = "Contraseña incorrecta.";
       msg.className = "msg err";
-      menu.style.display = "none";
+      hideMenu();
     }
   }
 
@@ -435,6 +469,22 @@
   passInput.addEventListener("keydown", e=>{
     if(e.key === "Enter"){
       checkPassword();
+    }
+  });
+
+  btnSalir.addEventListener("click", ()=>{
+    clearAccessSession();
+    msg.textContent = "Sesión cerrada.";
+    msg.className = "msg";
+    passInput.value = "";
+    hideMenu();
+  });
+
+  window.addEventListener("DOMContentLoaded", ()=>{
+    if(hasValidAccessSession()){
+      msg.textContent = "Acceso activo.";
+      msg.className = "msg ok";
+      showMenu();
     }
   });
 </script>
