@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>RInteligencia Emocional – Reporte</title>
+  <title>ZInteligencia Emocional – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -38,11 +38,14 @@
     .page{margin-top:10px}
     .page-break{height:0;margin:0;border:0}
     @media print{
-      @page{ size:A4; margin:12mm 10mm }
-      body{zoom:0.95;}
+      @page{ size:A4; margin:10mm 8mm }
+      body{zoom:0.88;}
       .topbar,.hint{display:none !important}
       .page-break{page-break-before:always}
       .page{break-inside:avoid}
+      .mhp-logo{height:140px !important;}
+      .rep-top-row2{font-size:22px !important;}
+      .scale-section{margin-top:10px !important;}
     }
 
     .bloque-title{font-weight:800;margin:12px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -256,40 +259,6 @@
         <button id="btnExportJSON" class="btn" style="background:#6b7280">Exportar JSON</button>
       </div>
     </section>
-
-    <div class="page-break"></div>
-
-    <!-- ===== PAGE 2 (ESCALAS COMPLEMENTARIAS) ===== -->
-    <section id="pageEscalas" class="page page-escalas">
-      <div class="rep-top">
-        <div class="rep-top-row1">
-          <div id="repDateLineEsc" class="rep-date"></div>
-          <div class="rep-top-center">ESCALAS COMPLEMENTARIAS</div>
-          <div class="rep-top-logo">
-            <img src="assets/logo_adalam.png" alt="Logotipo" class="mhp-logo">
-          </div>
-        </div>
-        <div class="rep-top-row2"><span>ESCALAS COMPLEMENTARIAS</span></div>
-        <div class="rep-top-row3">COMUNICACIÓN INTERPERSONAL Y ADAPTACIÓN AL CAMBIO</div>
-      </div>
-
-      <div class="scale-section">
-        <div class="section-title"><div class="section-dot"></div><div>COMUNICACIÓN INTERPERSONAL</div></div>
-        <div class="scale-range-header">
-          <span></span><span>BAJO</span><span>PROMEDIO</span><span>ALTO</span>
-        </div>
-        <div class="rep-scale" id="estilos"></div>
-        <div class="scale-note-inline">*En estas escalas un puntaje bajo indica mejor manejo.</div>
-      </div>
-
-      <div class="scale-section">
-        <div class="section-title"><div class="section-dot"></div><div>ADAPTACIÓN AL CAMBIO</div></div>
-        <div class="rep-scale" id="cambio"></div>
-        <div class="scale-note-inline">Menor apertura al cambio — Mayor apertura al cambio</div>
-      </div>
-    </section>
-
-    <div class="page-break"></div>
 
     <!-- ===== PAGE 3 (INTERPRETACIÓN LARGA) ===== -->
     <section class="page page-interpretacion" id="pageInterpretacion">
@@ -645,7 +614,7 @@
     if (showNote) {
       const note = document.createElement("div");
       note.className = "scale-note-inline";
-      note.textContent = "*Un puntaje bajo indica mejor manejo en estas áreas.";
+      note.textContent = "";
       host.appendChild(note);
     }
   }
@@ -732,6 +701,38 @@
     "Flexibilidad ante Cambios": "Apertura para adaptarse a nuevas condiciones, ideas o rutinas, ajustando conductas y estrategias cuando el contexto lo requiere."
   };
 
+  const DATA_BLOQUE_POR_TITULO = {
+    "DESARROLLO PERSONAL": "Habilidades intrapersonales",
+    "VÍNCULOS INTERPERSONALES": "Habilidades interpersonales",
+    "COMPETENCIAS PARA LA VIDA": "Habilidades para la vida",
+    "COMUNICACIÓN INTERPERSONAL": "Estilos de comunicación interpersonal",
+    "ADAPTACIÓN AL CAMBIO": "Propensión al cambio"
+  };
+
+  const SUB_DISPLAY = {
+    "Autoestima": "Autoestima",
+    "Asertividad": "Expresión Asertiva",
+    "Conciencia de los demás": "Percepción de los Demás",
+    "Empatía": "Sensibilidad Empática",
+    "Compromiso": "Nivel de Compromiso",
+    "Motivación": "Motivación Interna",
+    "Liderazgo": "Liderazgo",
+    "Manejo de la Tensión": "Manejo del Estrés",
+    "Manejo de la tensión": "Manejo del Estrés",
+    "Administración del tiempo": "Organización del Tiempo",
+    "Toma de Decisiones": "Decisión y Elección",
+    "Toma de decisiones": "Decisión y Elección",
+    "Bienestar físico": "Hábitos Saludables",
+    "Propensión al cambio": "Flexibilidad ante Cambios",
+    "Agresión": "Agresión",
+    "Timidez": "Timidez"
+  };
+
+  function dispSub(n){
+    const key = (n||"").trim();
+    return SUB_DISPLAY[key] || key;
+  }
+
   function renderSkillRow(parent, nombre, pct){
     const row = document.createElement("div");
     row.className = "skill-row";
@@ -743,7 +744,7 @@
     title.textContent = numeric != null ? `${nombreDisp} (Puntaje: ${numeric}/100)` : nombreDisp;
     row.appendChild(title);
 
-    const descTxt = HABILIDAD_DESCS[nombre] || "";
+    const descTxt = HABILIDAD_DESCS[nombre] || HABILIDAD_DESCS[Object.keys(SUB_DISPLAY).find(k=>SUB_DISPLAY[k]===nombre)] || "";
     if(descTxt){
       const desc = document.createElement("div");
       desc.className = "skill-row-desc";
@@ -954,7 +955,7 @@
       const sub=r.subhabilidad || r.sub || r.nombre || "";
       const pctRaw=Number(r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? null);
       const pct=(pctRaw!=null && !Number.isNaN(pctRaw)) ? adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeName(sub)}) : null;
-      renderSkillRow(cont, sub, pct);
+      renderSkillRow(cont, dispSub(sub), pct);
     });
   }
 
@@ -1077,18 +1078,18 @@
     highlightIV("iv2Row", ivToCol(iv2Val));
     highlightIV("iv3Row", ivToCol(iv3Val));
 
-    buildBloque("bloqueIntra", subRows, "Desarrollo Personal");
-    buildBloque("bloqueInter", subRows, "Vínculos Interpersonales");
-    buildBloque("bloquePV", subRows, "Competencias Para la Vida");
+    buildBloque("bloqueIntra", subRows, "Habilidades intrapersonales");
+    buildBloque("bloqueInter", subRows, "Habilidades interpersonales");
+    buildBloque("bloquePV", subRows, "Habilidades para la vida");
 
-    const agresionVal = findSubPct(subRows,"Comunicación interpersonal","Agresión");
-    const timidezVal  = findSubPct(subRows,"Comunicación interpersonal","Timidez");
-    const propCambioVal = pctBloque("Adaptación al cambio");
+    const agresionVal = findSubPct(subRows,"Estilos de comunicación interpersonal","Agresión");
+    const timidezVal  = findSubPct(subRows,"Estilos de comunicación interpersonal","Timidez");
+    const propCambioVal = pctBloque("Propensión al cambio");
 
     renderBars("estilos", [
       {label:"AGRESIÓN", val: agresionVal, id:"mAgresion"},
       {label:"TIMIDEZ",  val: timidezVal,  id:"mTimidez"}
-    ], true);
+    ], false);
     renderBars("cambio", [
       {label:"ADAPTACIÓN AL CAMBIO", val: propCambioVal, id:"mCambio"}
     ], false);
