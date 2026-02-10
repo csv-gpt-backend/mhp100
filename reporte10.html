@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>ZInteligencia Emocional – Reporte</title>
+  <title>WInteligencia Emocional – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -38,11 +38,13 @@
     .page{margin-top:10px}
     .page-break{height:0;margin:0;border:0}
     @media print{
+      .page-1{page-break-after:always}
+
       @page{ size:A4; margin:10mm 8mm }
       body{zoom:0.88;}
       .topbar,.hint{display:none !important}
       .page-break{page-break-before:always}
-      .page{break-inside:avoid}
+      .page{break-inside:auto}
       .mhp-logo{height:140px !important;}
       .rep-top-row2{font-size:22px !important;}
       .scale-section{margin-top:10px !important;}
@@ -125,6 +127,8 @@
       margin-top:2px;
     }
     @media print{
+      .page-1{page-break-after:always}
+
       .complementarias{ page-break-before: always; break-before: page; border-top:0; padding-top:0; }
     }
 
@@ -611,6 +615,21 @@
     });
     host.appendChild(wrap);
 
+    // Alertas tipo reporte antiguo (rojo) para Agresión/Timidez cuando el puntaje es alto
+    items.forEach(it => {
+      if ((it.label === "AGRESIÓN" || it.label === "TIMIDEZ") && (it.val != null) && !isNaN(it.val) && Number(it.val) > 70) {
+        const alert = document.createElement("div");
+        alert.className = "scale-note-inline";
+        alert.style.color = "var(--red)";
+        alert.style.fontWeight = "700";
+        alert.style.marginTop = "6px";
+        alert.textContent = it.label === "AGRESIÓN"
+          ? "El puntaje se encuentra en un rango elevado de agresión. Se recomienda observación cercana, acompañamiento emocional y, de ser necesario, derivación a apoyo profesional."
+          : "El puntaje se encuentra en un rango elevado de timidez. Se sugiere favorecer espacios graduales de participación y valorar acompañamiento especializado si la dificultad persiste.";
+        host.appendChild(alert);
+      }
+    });
+
     if (showNote) {
       const note = document.createElement("div");
       note.className = "scale-note-inline";
@@ -906,30 +925,76 @@
   }
 
   function renderPerfilGlobal(extras){
-    const cont=document.getElementById("perfilGlobal");
+    const cont = document.getElementById("perfilGlobal");
     if(!cont) return;
-    cont.innerHTML="";
+    cont.innerHTML = "";
 
-    const header=document.createElement("div");
-    header.className="interp-bloque-header";
-    header.innerHTML=`<div class="interp-bloque-nombre">3.- Perfil cuantitativo global</div>`;
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">3.- Perfil cuantitativo global</div>`;
     cont.appendChild(header);
 
-    const p=document.createElement("div");
-    p.className="interp-bloque-desc";
-    const nombre=extras.nombre || "el participante";
-    p.textContent=`Del reporte individual de ${nombre} se desprenden los siguientes índices:`;
+    const p = document.createElement("div");
+    p.className = "interp-bloque-desc";
+    const nombre = extras.nombre || "el participante";
+    p.textContent = `Del reporte individual de ${nombre} se desprenden los siguientes índices:`;
     cont.appendChild(p);
 
-    const fmt=v => (v!=null && !Number.isNaN(v)) ? Math.round(v) : "—";
-    const ul=document.createElement("ul"); ul.className="recom-list";
+    const ul = document.createElement("ul");
+    ul.className = "recom-list";
+
+    const fmt = v => (v != null && !Number.isNaN(v)) ? Math.round(v) : "—";
+
     [
       `Índice de Desarrollo Personal: ${fmt(extras.bIntra)}`,
       `Índice de Vínculos Interpersonales: ${fmt(extras.bInter)}`,
-      `Índice de Competencias para la Vida: ${fmt(extras.bPV)}`,
+      `Índice de Competencias Para la Vida: ${fmt(extras.bPV)}`,
       `Índice Global de Inteligencia Emocional (IIE): ${fmt(extras.iieFinal)}`
-    ].forEach(t=>{ const li=document.createElement("li"); li.textContent=t; ul.appendChild(li); });
+    ].forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t;
+      ul.appendChild(li);
+    });
+
     cont.appendChild(ul);
+
+    const subt = document.createElement("div");
+    subt.className = "plan-section-title";
+    subt.textContent = "Comunicación interpersonal (en estas escalas puntajes bajos indican mejor manejo):";
+    cont.appendChild(subt);
+
+    const ul2 = document.createElement("ul");
+    ul2.className = "recom-list";
+
+    const liA = document.createElement("li");
+    liA.textContent = "Agresión: " + fmt(extras.agresionVal);
+    if (extras.agresionVal != null && !Number.isNaN(extras.agresionVal) && extras.agresionVal > 70){
+      liA.classList.add("skill-row-alert");
+      liA.textContent += " (rango alto, requiere atención y acompañamiento).";
+    }
+    ul2.appendChild(liA);
+
+    const liT = document.createElement("li");
+    liT.textContent = "Timidez: " + fmt(extras.timidezVal);
+    if (extras.timidezVal != null && !Number.isNaN(extras.timidezVal) && extras.timidezVal > 70){
+      liT.classList.add("skill-row-alert");
+      liT.textContent += " (rango alto, sugiere inhibición social significativa).";
+    }
+    ul2.appendChild(liT);
+
+    cont.appendChild(ul2);
+
+    const subt2 = document.createElement("div");
+    subt2.className = "plan-section-title";
+    subt2.textContent = "Adaptación al cambio:";
+    cont.appendChild(subt2);
+
+    const ul3 = document.createElement("ul");
+    ul3.className = "recom-list";
+    const liC = document.createElement("li");
+    liC.textContent = "Flexibilidad ante Cambios: " + fmt(extras.propCambioVal) + " (a mayor puntaje, mayor apertura al cambio).";
+    ul3.appendChild(liC);
+    cont.appendChild(ul3);
   }
 
   function renderBloqueInterpretacion(containerId, tituloDisplay, bloqueKeyOriginal, bloqueDescKey, subRows, pctBloqueVal){
