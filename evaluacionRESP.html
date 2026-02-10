@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Inteligencia emocional OKK – Autoevaluación</title>
+  <title>REvaluación Inteligencia Emocional DD</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -10,11 +10,18 @@
       color: #111827;
       background: #ffffff;
     }
+
+    /* ===== FIX #1: evita que el ancho “salte” por aparición/desaparición del scroll ===== */
+    html { overflow-y: scroll; }
+
+    /* ===== FIX #2: letra un poquito más grande (suave) ===== */
     body {
       margin: 0;
       padding: 0;
       background: #ffffff;
+      font-size: 16px;
     }
+
     .layout {
       display: grid;
       grid-template-columns: 80px minmax(0, 1fr);
@@ -32,8 +39,9 @@
       transform: rotate(180deg);
       font-weight: 800;
       letter-spacing: 0.18em;
-      font-size: 32px;
+      font-size: 24px; /* un poco más compacto para caber bien */
       color: #b45309;
+      text-align: center;
     }
     .page {
       max-width: 1000px;
@@ -52,18 +60,18 @@
       color: #6b7280;
       font-size: 13px;
     }
-        .ok {
-      color: #16a34a;       /* verde */
+    .ok {
+      color: #16a34a;
       font-size: 13px;
       font-weight: 600;
     }
     .err {
-      color: #dc2626;       /* rojo */
+      color: #dc2626;
       font-size: 13px;
       font-weight: 600;
     }
     #pantalla-preguntas .card {
-      min-height: 420px;   /* puedes subir a 480 si quieres más alto */
+      min-height: 420px;
     }
     .card {
       border: 1px solid #e5e7eb;
@@ -71,6 +79,8 @@
       padding: 12px 14px;
       margin-bottom: 16px;
       background: #ffffff;
+      width: 100%;
+      box-sizing: border-box;
     }
     .grid-2 {
       display: grid;
@@ -118,6 +128,18 @@
       color: #ffffff;
       font-size: 13px;
     }
+
+    /* ===== Sticky header (opción 2) ===== */
+    .sticky-wrap{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: #ffffff;
+      padding-top: 8px;
+      margin-top: -8px; /* para que quede pegadito arriba */
+      border-bottom: 1px solid #e5e7eb;
+    }
+
     .progress {
       width: 100%;
       height: 8px;
@@ -147,6 +169,7 @@
       text-align: right;
       margin-top: 4px;
     }
+
     .questions-header {
       display: grid;
       grid-template-columns: 40px 1fr repeat(3, 80px);
@@ -156,6 +179,8 @@
       margin-top: 8px;
       padding: 4px 0;
       border-bottom: 1px solid #e5e7eb;
+      width: 100%;
+      box-sizing: border-box;
     }
     .questions-header div {
       text-align: center;
@@ -164,26 +189,54 @@
     .questions-header div:nth-child(2) {
       text-align: left;
     }
+
+    /* ===== FIX: permite que la columna del texto se encoja sin romper el grid ===== */
+    .questions-header > div:nth-child(2),
+    .question > div:nth-child(2){
+      min-width: 0;
+    }
+
     #questions {
       margin-top: 4px;
+      width: 100%;
     }
+
     .question {
       display: grid;
       grid-template-columns: 40px 1fr repeat(3, 80px);
       gap: 4px;
       align-items: center;
-      padding: 4px 0;
+      padding: 6px 0;
       border-bottom: 1px solid #f3f4f6;
-      font-size: 14px;
+      font-size: 15px; /* un poquito más grande */
+      width: 100%;
+      box-sizing: border-box;
     }
+    /* Color suave alternado */
+    .question:nth-child(even){
+      background: #f8fafc;
+    }
+    /* Color “bonito” cuando se responde */
+    .question.answered{
+      background: #ecfdf5 !important;
+      outline: 1px solid #bbf7d0;
+      outline-offset: -1px;
+      border-bottom-color: #bbf7d0;
+    }
+
     .q-no {
       font-variant-numeric: tabular-nums;
       text-align: center;
       color: #6b7280;
     }
+
+    /* ===== FIX: textos largos NO deben deformar el ancho ===== */
     .q-text {
-      display: inline-block;
+      display: block;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
+
     .q-cell {
       text-align: center;
     }
@@ -192,6 +245,7 @@
       height: 18px;
       cursor: pointer;
     }
+
     .footer-actions {
       display: flex;
       justify-content: space-between;
@@ -222,6 +276,7 @@
       opacity: 0.6;
       cursor: default;
     }
+
     #pantalla-final {
       margin-top: 32px;
       padding: 24px 18px;
@@ -247,14 +302,19 @@
       font-size: 24px;
       margin-bottom: 8px;
     }
+
+    /* ===== Escala naranjas alineadas con columnas 1/2/3 ===== */
     .scale-banner {
       margin-top: 6px;
       margin-bottom: 2px;
-      display: flex;
-      justify-content: flex-end;
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
       gap: 4px;
-      flex-wrap: wrap;
+      align-items: end;
+      width: 100%;
+      box-sizing: border-box;
     }
+    .scale-spacer { height: 1px; }
     .scale-badge {
       background: #f97316;
       color: #ffffff;
@@ -265,6 +325,8 @@
       text-align: center;
       position: relative;
       min-width: 80px;
+      justify-self: center; /* clave: centrado exacto */
+      width: 80px;          /* mismo ancho de columna */
     }
     .scale-badge::after {
       content: "";
@@ -283,15 +345,17 @@
       font-size: 11px;
       margin-bottom: 1px;
     }
+
     .hidden {
       display: none;
     }
+
     @media (max-width: 840px) {
       .layout {
         grid-template-columns: 56px minmax(0, 1fr);
       }
       .side-strip span {
-        font-size: 24px;
+        font-size: 18px;
       }
     }
     @media (max-width: 720px) {
@@ -299,20 +363,84 @@
         grid-template-columns: 1fr;
       }
       .questions-header,
-      .question {
+      .question,
+      .scale-banner {
         grid-template-columns: 32px 1fr repeat(3, 64px);
       }
+      .scale-badge{
+        min-width: 64px;
+        width: 64px;
+      }
     }
+    /* =========================
+   AJUSTES SOLO DE FORMA (3 puntos)
+   Pegar al FINAL del <style>, justo ANTES de </style>
+   ========================= */
+
+/* (1) Franja lateral izquierda: gris + texto plata tipo metal */
+.side-strip{
+  background: linear-gradient(180deg, #f3f4f6 0%, #d1d5db 55%, #eef2f7 100%);
+  border-right: 1px solid #9ca3af;
+}
+.side-strip span{
+  color: #d1d5db; /* base plata */
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.75),
+    0 -1px 0 rgba(0,0,0,.18),
+    0 10px 18px rgba(0,0,0,.14);
+  /* brillo metálico sutil */
+  background: linear-gradient(180deg,
+    #ffffff 0%,
+    #e5e7eb 22%,
+    #bfc6d2 45%,
+    #f8fafc 62%,
+    #aeb6c2 78%,
+    #ffffff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* (2) Ancho estable (evitar saltos por scroll/overflow) */
+html{ overflow-y: scroll; }
+@supports (scrollbar-gutter: stable){
+  html{ scrollbar-gutter: stable; }
+}
+html, body{ overflow-x: hidden; }
+
+/* (3) Separar títulos naranjas (1/2/3) para que no queden pegados */
+.scale-banner{
+  gap: 10px;        /* más separación horizontal */
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+.scale-badge{
+  width: 80px;
+  min-width: 80px;
+  padding: 3px 6px 6px;
+  line-height: 1.05;
+  box-shadow: 0 1px 6px rgba(0,0,0,.10);
+}
+@media (max-width: 720px){
+  .scale-banner{ gap: 8px; }
+  .scale-badge{
+    width: 64px;
+    min-width: 64px;
+    padding: 3px 4px 6px;
+  }
+}
+
   </style>
 </head>
 <body>
   <div class="layout">
     <aside class="side-strip">
-      <span>AUTOEVAL</span>
+      <span>INTELIGENCIA EMOCIONAL</span>
     </aside>
+
     <main class="page">
       <header>
-        <h1>Inteligencia emocional – Autoevaluación</h1>
+        <h1>Evaluación Inteligencia Emocional</h1>
       </header>
 
       <!-- Datos del participante -->
@@ -350,7 +478,7 @@
 
       <!-- Pantalla de instrucciones -->
       <section id="pantalla-inicio" class="card instructions">
-        <h2>Inteligencia emocional – Autoevaluación</h2>
+        <h2>Evaluación Inteligencia Emocional</h2>
         <p>
           El manejo efectivo de las emociones es un factor clave para lograr el éxito personal y profesional.
           Esta evaluación ha sido diseñada para que la persona adulta evalúe su nivel de desarrollo
@@ -361,7 +489,7 @@
           con el estilo de comunicación interpersonal.
         </p>
         <p>
-          Al responder esta autoevaluación, que consta de 244 preguntas, es posible obtener un diagnóstico
+          La evaluación consta de 244 preguntas, y es posible obtener un diagnóstico
           sobre el manejo de la inteligencia emocional en cuatro áreas diferentes:
         </p>
         <ul>
@@ -371,7 +499,7 @@
           <li>Estilo de comunicación interpersonal.</li>
         </ul>
         <div class="instructions-header">
-          INSTRUCCIONES PARA LLENAR LA AUTOEVALUACIÓN
+          INSTRUCCIONES PARA LLENAR LA EVALUACIÓN
         </div>
         <p>1. Lee con detenimiento cada enunciado.</p>
         <p>2. Reflexiona en qué medida se parece a lo que haces o sientes habitualmente.</p>
@@ -379,7 +507,7 @@
           3. Selecciona la casilla que corresponda a la respuesta deseada de acuerdo con los siguientes criterios:
         </p>
         <p style="margin-left: 12px; margin-top: 4px;">
-          1 = <strong>Casi siempre</strong> ·
+          1 = <strong>Siempre</strong> ·
           2 = <strong>Algunas veces</strong> ·
           3 = <strong>Rara vez</strong>
         </p>
@@ -387,48 +515,56 @@
           <strong>IMPORTANTE:</strong> Una vez iniciada la evaluación, no podrás retroceder a las páginas anteriores.
         </p>
         <div style="margin-top: 12px; text-align: right;">
-          <button id="btnIniciar" class="primary">INICIAR</button>
+          <button id="btnIniciar" class="primary" disabled>INICIAR</button>
         </div>
       </section>
 
       <!-- Pantalla de preguntas -->
       <section id="pantalla-preguntas" class="hidden">
         <div class="card">
-          <h2>Responde las siguientes declaraciones</h2>
-          <p class="muted" id="nota-genero">
-            Nota: Las siguientes declaraciones pueden estar redactadas en género masculino, pero se entiende que también se refieren al género femenino.
-          </p>
 
-          <div class="scale-banner">
-            <div class="scale-badge">
-              <span class="scale-num">1</span>
-              CASI SIEMPRE
+          <div class="sticky-wrap">
+            <h2 style="margin:0 0 6px;">Responde las siguientes preguntas</h2>
+            <p class="muted" id="nota-genero" style="margin:0 0 6px;">
+              Nota: Las siguientes preguntas pueden estar redactadas en género masculino, pero se entiende que también se refieren al género femenino.
+            </p>
+
+            <div class="scale-banner" aria-label="Escala">
+              <div class="scale-spacer"></div>
+              <div class="scale-spacer"></div>
+
+              <div class="scale-badge">
+                <span class="scale-num">1</span>
+                SIEMPRE
+              </div>
+              <div class="scale-badge">
+                <span class="scale-num">2</span>
+                ALGUNAS VECES
+              </div>
+              <div class="scale-badge">
+                <span class="scale-num">3</span>
+                RARA VEZ
+              </div>
             </div>
-            <div class="scale-badge">
-              <span class="scale-num">2</span>
-              ALGUNAS VECES
+
+            <div class="progress" aria-label="Progreso">
+              <div class="bar" id="bar"></div>
             </div>
-            <div class="scale-badge">
-              <span class="scale-num">3</span>
-              RARA VEZ
+
+            <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
+              <small id="metaInfo" class="muted"></small>
+            </div>
+
+            <div class="questions-header">
+              <div>#</div>
+              <div>Pregunta</div>
+              <div>1</div>
+              <div>2</div>
+              <div>3</div>
             </div>
           </div>
 
-          <div class="progress" aria-label="Progreso">
-            <div class="bar" id="bar"></div>
-          </div>
-          <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
-            <small id="metaInfo" class="muted"></small>
-          </div>
-
-          <div class="questions-header">
-            <div>#</div>
-            <div>Declaración</div>
-            <div>1</div>
-            <div>2</div>
-            <div>3</div>
-          </div>
           <div id="questions"></div>
 
           <div class="footer-actions">
@@ -458,7 +594,6 @@
   <script>
     console.log("ready!");
 
-    // Marca de tiempo para IV3 (timestamp absoluto)
     let __startTime = Date.now();
 
     let CODIGO_ACTUAL = null;
@@ -491,11 +626,8 @@
     function clearState() {
       const key = getStorageKey();
       if (!key) return;
-      try {
-        localStorage.removeItem(key);
-      } catch (e) {
-        console.warn("No se pudo borrar el estado local:", e);
-      }
+      try { localStorage.removeItem(key); }
+      catch (e) { console.warn("No se pudo borrar el estado local:", e); }
     }
 
     function isStateCompleted(state) {
@@ -505,7 +637,6 @@
       return ITEMS.length > 0 && Object.keys(resp).length >= ITEMS.length;
     }
 
-    // --- sincronización con servidor (autosave_eval) ---
     async function syncAutosaveToServer(state) {
       try {
         const codigo = state.codigo;
@@ -565,6 +696,7 @@
     function saveState(completedFlag) {
       const key = getStorageKey();
       if (!key) return;
+
       try {
         const prev = loadStateForCurrentCode() || {};
         const state = {
@@ -578,24 +710,22 @@
           currentPage,
           responses: obtenerRespuestasCrudas(),
           startTime: __startTime || Date.now(),
-          completed: typeof completedFlag === "boolean"
-            ? completedFlag
-            : !!prev.completed
+          completed: (typeof completedFlag === "boolean") ? completedFlag : !!prev.completed
         };
+
         localStorage.setItem(key, JSON.stringify(state));
-        // también guardamos en servidor (no esperamos la respuesta)
         syncAutosaveToServer(state);
       } catch (e) {
         console.warn("No se pudo guardar el progreso local:", e);
       }
     }
 
-    // === LOOKUP POR CÓDIGO ===
     async function lookupCodigo() {
       const codigo = codigoInput.value.trim().toUpperCase();
       codigoInput.value = codigo;
       CODIGO_ACTUAL = null;
       btnIniciar.disabled = true;
+
       if (codigoMsg) {
         codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
         codigoMsg.className = codigo ? 'muted' : 'err';
@@ -607,7 +737,6 @@
       try {
         const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
         const data = await r.json();
-        console.log("lookup data:", data);
         if (!r.ok) throw new Error(data.error || 'Código no válido');
 
         const codigoUsado =
@@ -648,12 +777,12 @@
         grupoInput.value = data.grupo || '';
         cursoInput.value = data.curso || '';
         btnIniciar.disabled = false;
+
         if (codigoMsg) {
           codigoMsg.textContent = 'Código válido.';
           codigoMsg.className = 'ok';
         }
       } catch (e) {
-        console.error(e);
         instInput.value = grupoInput.value = cursoInput.value = '';
         if (codigoMsg) {
           codigoMsg.textContent = 'Código no encontrado.';
@@ -667,12 +796,8 @@
     });
     codigoInput.addEventListener('blur', lookupCodigo);
     codigoInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        lookupCodigo();
-      }
+      if (e.key === 'Enter') { e.preventDefault(); lookupCodigo(); }
     });
-    // === FIN LOOKUP ===
 
     const DATOS_FIJOS = {
       institucion: "Institución por defecto",
@@ -927,13 +1052,10 @@
 241;Tiendo a no fracasar en aquello que me parece importante.;Habilidades intrapersonales;Autoestima;No
 242;Parece que continuamente me estoy esforzando para lograr resultados, pero no me tomo el tiempo para preguntarme honestamente qué es lo que realmente quiero en la vida.;Habilidades para la vida;Motivación;Sí
 243;Aplico procedimientos que me permiten manejar eficazmente mis tensiones, tales como técnicas para el descanso, el ejercicio o la meditación.;Habilidades intrapersonales;Bienestar físico;No
-244;Comparado con otras personas de mi edad, soy enfermizo.;Habilidades interpersonales;Conciencia de los demás;No    
-    `;// <--- aquí va TODO tu CSV igual que antes
-    // Para ahorrar espacio en este mensaje, deja EXACTAMENTE el mismo bloque CSV que ya tienes.
+244;Comparado con otras personas de mi edad, soy enfermizo.;Habilidades interpersonales;Conciencia de los demás;No
+    `;
 
-    function norm(str) {
-      return (str || "").trim();
-    }
+    function norm(str) { return (str || "").trim(); }
 
     let ITEMS = [];
 
@@ -950,15 +1072,13 @@
         const pregunta = parts.slice(1, parts.length - 3).join(";");
         if (!Number.isFinite(id) || !pregunta) continue;
         rows.push({
-          id,
-          pregunta,
-          bloque,
+          id, pregunta, bloque,
           subhabilidad: subhab,
           invertida: /^s(i|í)$/i.test(invertida) ? "Sí" : "No",
           value: null
         });
       }
-      rows.sort((a, b) => a.id - b.id);
+      rows.sort((a,b)=>a.id-b.id);
       return rows;
     }
 
@@ -966,24 +1086,16 @@
       const total = ITEMS.length;
       const ans = ITEMS.filter(q => q.value != null).length;
       const pct = total ? Math.round((ans / total) * 100) : 0;
-      const bar = document.getElementById("bar");
-      const pill = document.getElementById("pillTotal");
-      const meta = document.getElementById("metaInfo");
-      const nota = document.getElementById("notaContinuar");
 
-      bar.style.width = pct + "%";
-      pill.textContent = "Total: " + ans + " / " + total + " (" + pct + "%)";
+      document.getElementById("bar").style.width = pct + "%";
+      document.getElementById("pillTotal").textContent = "Total: " + ans + " / " + total + " (" + pct + "%)";
 
       const bloques = new Set(ITEMS.map(q => q.bloque));
       const subs = new Set(ITEMS.map(q => q.subhabilidad));
-      meta.textContent = bloques.size + " bloques · " + subs.size + " sub-habilidades";
+      document.getElementById("metaInfo").textContent = bloques.size + " bloques · " + subs.size + " sub-habilidades";
 
-      nota.textContent =
-        "NOTA: Para continuar debes contestar todas las preguntas. Contestadas: " +
-        ans +
-        "/" +
-        total +
-        ".";
+      document.getElementById("notaContinuar").textContent =
+        "NOTA: Para continuar debes contestar todas las preguntas. Contestadas: " + ans + "/" + total + ".";
     }
 
     function construirPreguntas() {
@@ -993,9 +1105,16 @@
       updateProgress();
     }
 
+    function markRowAnswered(rowEl, q) {
+      if (!rowEl) return;
+      if (q && q.value != null) rowEl.classList.add("answered");
+      else rowEl.classList.remove("answered");
+    }
+
     function renderPage() {
       const cont = document.getElementById("questions");
       cont.innerHTML = "";
+
       const total = ITEMS.length;
       const start = currentPage * PAGE_SIZE;
       const end = Math.min(start + PAGE_SIZE, total);
@@ -1017,84 +1136,121 @@
         colText.appendChild(txt);
         row.appendChild(colText);
 
-        ["CS", "AV", "RV"].forEach(code => {
+        ["CS","AV","RV"].forEach(code=>{
           const cell = document.createElement("div");
-          cell.className = "q-cell";
+          cell.className="q-cell";
+
           const r = document.createElement("input");
-          r.type = "radio";
-          r.className = "opt";
-          r.name = "q_" + q.id;
-          r.value = code;
-          r.title =
-            code === "CS"
-              ? "Casi siempre"
-              : code === "AV"
-              ? "Algunas veces"
-              : "Rara vez";
+          r.type="radio";
+          r.name="q_"+q.id;
+          r.value=code;
+
+          r.title = (code==="CS")?"Siempre":(code==="AV")?"Algunas veces":"Rara vez";
           r.setAttribute("aria-label", r.title);
 
           if (q.value != null) {
             const inv = q.invertida === "Sí";
             let expectedScore;
-            if (!inv) {
-              expectedScore = code === "CS" ? 3 : code === "AV" ? 2 : 1;
-            } else {
-              expectedScore = code === "CS" ? 1 : code === "AV" ? 2 : 3;
-            }
-            if (q.value === expectedScore) {
-              r.checked = true;
-            }
+            if (!inv) expectedScore = (code==="CS")?3:(code==="AV")?2:1;
+            else expectedScore = (code==="CS")?1:(code==="AV")?2:3;
+            if (q.value === expectedScore) r.checked = true;
           }
 
-          r.addEventListener("change", () => {
+          r.addEventListener("change", ()=>{
             const inv = q.invertida === "Sí";
             let score;
-            if (!inv) {
-              score = code === "CS" ? 3 : code === "AV" ? 2 : 1;
-            } else {
-              score = code === "CS" ? 1 : code === "AV" ? 2 : 3;
-            }
+            if (!inv) score = (code==="CS")?3:(code==="AV")?2:1;
+            else score = (code==="CS")?1:(code==="AV")?2:3;
+
             q.value = score;
+            markRowAnswered(row, q);
             updateProgress();
-            // Ya no llamamos saveState aquí para no saturar el servidor.
           });
+
           cell.appendChild(r);
           row.appendChild(cell);
         });
 
+        markRowAnswered(row, q);
         cont.appendChild(row);
       }
 
-      const pageIndicator = document.getElementById("pageIndicator");
-      pageIndicator.textContent =
+      document.getElementById("pageIndicator").textContent =
         "Preguntas " + (start + 1) + "–" + end + " de " + total;
 
-      const btnSiguiente = document.getElementById("btnSiguiente");
-      if (end >= total) {
-        btnSiguiente.textContent = "FINALIZAR";
-      } else {
-        btnSiguiente.textContent = "SIGUIENTE";
-      }
+      document.getElementById("btnSiguiente").textContent = (end >= total) ? "FINALIZAR" : "SIGUIENTE";
     }
 
     function paginaCompleta() {
       const total = ITEMS.length;
       const start = currentPage * PAGE_SIZE;
       const end = Math.min(start + PAGE_SIZE, total);
-      for (let i = start; i < end; i++) {
-        if (ITEMS[i].value == null) return false;
-      }
+      for (let i = start; i < end; i++) if (ITEMS[i].value == null) return false;
       return true;
     }
 
     function obtenerRespuestasCrudas() {
       const map = {};
-      ITEMS.forEach(q => {
-        if (q.value != null) {
-          map[String(q.id)] = q.value;
-        }
-      });
+      ITEMS.forEach(q => { if (q.value != null) map[String(q.id)] = q.value; });
       return map;
+    }
+
+    function mostrarPantallaPreguntas() {
+      document.getElementById("pantalla-inicio").classList.add("hidden");
+      document.getElementById("datos-participante").classList.add("hidden");
+      document.getElementById("pantalla-final").style.display = "none";
+      document.getElementById("pantalla-preguntas").classList.remove("hidden");
+      renderPage();
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function aplicarState(state) {
+      if (!state) return;
+
+      document.getElementById("nombre").value = state.nombre || "";
+      document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
+      document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
+      document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
+      if (state.fecha) document.getElementById("fecha").value = state.fecha;
+
+      CODIGO_ACTUAL = state.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+
+      const resp = state.responses || {};
+      ITEMS.forEach(q => {
+        const v = resp[String(q.id)];
+        q.value = (typeof v === "number") ? v : null;
+      });
+
+      currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
+      __startTime = state.startTime || Date.now();
+    }
+
+    function iniciarEvaluacionNueva() {
+      __startTime = Date.now();
+      ITEMS.forEach(q => { q.value = null; });
+      currentPage = 0;
+      saveState(false);
+      mostrarPantallaPreguntas();
+    }
+
+    function onSiguienteClick() {
+      if (!paginaCompleta()) {
+        alert("NOTA: Para continuar debes contestar todas las preguntas de esta página.");
+        return;
+      }
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+
+      if (end >= total) onFinalizarClick();
+      else {
+        currentPage++;
+        saveState(false);
+        renderPage();
+        updateProgress();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     }
 
     function normalizeBloqueName(name) {
@@ -1113,9 +1269,7 @@
       };
       const invNorm = invers.map(v => 4 - v);
       const allNorm = direct.concat(invNorm);
-      if (!allNorm.length) {
-        return { iv1Cat: null, iv2Cat: null };
-      }
+      if (!allNorm.length) return { iv1Cat: null, iv2Cat: null };
       const s = stdev(allNorm);
       const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
       const diff = Math.abs(avg(direct) - avg(invNorm));
@@ -1186,12 +1340,7 @@
       const bCambio = pctBloque("Propensión al cambio");
 
       return {
-        globales: {
-          IIE: iie,
-          IV1: iv1Cat,
-          IV2: iv2Cat,
-          IV3: iv3Cat
-        },
+        globales: { IIE: iie, IV1: iv1Cat, IV2: iv2Cat, IV3: iv3Cat },
         bloques: {
           intrapersonales: bIntra,
           interpersonales: bInter,
@@ -1204,82 +1353,13 @@
       };
     }
 
-    function mostrarPantallaPreguntas() {
-      document.getElementById("pantalla-inicio").classList.add("hidden");
-      document.getElementById("datos-participante").classList.add("hidden");
-      document.getElementById("pantalla-final").style.display = "none";
-      document.getElementById("pantalla-preguntas").classList.remove("hidden");
-      renderPage();
-      updateProgress();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function aplicarState(state) {
-      if (!state) return;
-      document.getElementById("nombre").value = state.nombre || "";
-      document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
-      document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
-      document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
-      if (state.fecha) document.getElementById("fecha").value = state.fecha;
-
-      CODIGO_ACTUAL = state.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
-
-      const resp = state.responses || {};
-      ITEMS.forEach(q => {
-        const v = resp[String(q.id)];
-        q.value = typeof v === "number" ? v : null;
-      });
-
-      currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
-      __startTime = state.startTime || Date.now();
-    }
-
-    function iniciarEvaluacionNueva() {
-      __startTime = Date.now();
-      ITEMS.forEach(q => { q.value = null; });
-      currentPage = 0;
-      saveState(false);
-      mostrarPantallaPreguntas();
-    }
-
-    function onSiguienteClick() {
-      if (!paginaCompleta()) {
-        alert(
-          "NOTA: Para continuar debes contestar todas las preguntas de esta página."
-        );
-        return;
-      }
-
-      const total = ITEMS.length;
-      const start = currentPage * PAGE_SIZE;
-      const end = Math.min(start + PAGE_SIZE, total);
-
-      if (end >= total) {
-        onFinalizarClick();
-      } else {
-        currentPage++;
-        saveState(false);  // aquí sí se guarda en local + servidor
-        renderPage();
-        updateProgress();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    }
-
     function onFinalizarClick() {
       const nombre = document.getElementById("nombre").value.trim();
-
-      if (!nombre) {
-        alert("Por favor ingresa el nombre.");
-        return;
-      }
+      if (!nombre) { alert("Por favor ingresa el nombre."); return; }
 
       const respuestas = obtenerRespuestasCrudas();
       const total = ITEMS.length;
-      const contestadas = Object.keys(respuestas).length;
-      if (contestadas < total) {
-        alert("Aún hay preguntas sin responder.");
-        return;
-      }
+      if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
 
       const resultados = calcularResultadosGlobales();
 
@@ -1296,19 +1376,13 @@
         responses: respuestas
       };
 
-      console.log("Payload listo para enviar a servidor:", payload);
-
-      // marcamos como completado en este navegador y en autosave servidor
       saveState(true);
 
       fetch("/api/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
-      })
-        .then(r => r.json())
-        .then(data => console.log("Submit OK:", data))
-        .catch(err => console.error("Submit ERROR:", err));
+      }).catch(()=>{});
 
       document.getElementById("datos-participante").classList.remove("hidden");
       document.getElementById("nombre").readOnly = true;
@@ -1326,11 +1400,7 @@
 
       const hoy = new Date();
       try {
-        const fmt = new Intl.DateTimeFormat("es-EC", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit"
-        });
+        const fmt = new Intl.DateTimeFormat("es-EC", { year:"numeric", month:"2-digit", day:"2-digit" });
         document.getElementById("fecha").value = fmt.format(hoy);
       } catch {
         const dd = String(hoy.getDate()).padStart(2, "0");
@@ -1342,10 +1412,7 @@
 
     function validarAntesDeIniciar() {
       const nombre = document.getElementById("nombre").value.trim();
-      if (!nombre) {
-        alert("Por favor ingresa tu nombre antes de iniciar.");
-        return false;
-      }
+      if (!nombre) { alert("Por favor ingresa tu nombre antes de iniciar."); return false; }
       return true;
     }
 
@@ -1353,27 +1420,28 @@
       inicializarDatosFijos();
       construirPreguntas();
 
-      document.getElementById("btnIniciar").addEventListener("click", async () => {
+      btnIniciar.disabled = true;
+
+      btnIniciar.addEventListener("click", async () => {
         if (!validarAntesDeIniciar()) return;
+
+        if (!CODIGO_ACTUAL) {
+          await lookupCodigo();
+        }
+        if (!CODIGO_ACTUAL) {
+          alert("Por favor valida el código antes de iniciar.");
+          return;
+        }
 
         const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
 
-        // 1) Intentamos cargar estado del servidor
         let serverState = null;
-        if (codigo) {
-          serverState = await cargarAutosaveServidor(codigo);
-        }
+        if (codigo) serverState = await cargarAutosaveServidor(codigo);
 
-        // 2) Leemos estado local como respaldo
         const localSaved = loadStateForCurrentCode();
-
         const candidate = serverState || localSaved;
 
-        if (candidate &&
-            !isStateCompleted(candidate) &&
-            candidate.responses &&
-            Object.keys(candidate.responses).length > 0) {
-
+        if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
           const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
           if (retomar) {
             aplicarState(candidate);
@@ -1381,22 +1449,17 @@
             return;
           } else {
             clearState();
-            // El siguiente saveState sobrescribirá el autosave del servidor
           }
         }
 
         iniciarEvaluacionNueva();
       });
 
-      document
-        .getElementById("btnSiguiente")
-        .addEventListener("click", onSiguienteClick);
+      document.getElementById("btnSiguiente").addEventListener("click", onSiguienteClick);
 
-      document
-        .getElementById("btnRegresarMenu")
-        .addEventListener("click", () => {
-          window.location.reload();
-        });
+      document.getElementById("btnRegresarMenu").addEventListener("click", () => {
+        window.location.href = "index.html";
+      });
     });
   </script>
 </body>
