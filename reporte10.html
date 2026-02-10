@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>GInteligencia Emocional – Reporte</title>
+  <title>HInteligencia Emocional – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -54,6 +54,23 @@
       .rep-top-row3{font-size:16px !important}
       .bloque-title{margin:8px 0 4px !important}
       .scale-section{margin-top:8px !important}
+      /* Compactación para confirmar que la Página 1 quede completa */
+      #page1{page-break-after:always; break-after:page;}
+      #page1 *{break-inside:avoid;}
+      .rep-top{padding-bottom:4px;margin-bottom:4px}
+      .rep-top-row2{font-size:22px;margin-bottom:0}
+      .rep-top-row3{font-size:16px}
+      .mhp-logo{height:140px;margin-top:-14px}
+      #repHeaderBox{padding:4px !important}
+      .rep-mid{margin-top:6px !important}
+      .bloque-title{margin:8px 0 4px}
+      .iie-row{margin:8px 0 4px}
+      .scale-section{margin-top:8px}
+      .bars-row{margin:6px 0}
+      .bars-slot{height:18px}
+      .bars-slot .tick-label{top:15px}
+      .scale-note-inline{margin-top:2px}
+
     }
 
 
@@ -249,13 +266,13 @@
       <div class="rep-bloque" id="bloqueIntra"></div>
 
       <div class="bloque-title">
-        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblInter">VÍNCULOS INTERPERSONALES</span></div>
+        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblInter">VINCULOS INTERPERSONALES</span></div>
         <div>IVI: <span class="ih-badge" id="ihInter">—</span></div>
       </div>
       <div class="rep-bloque" id="bloqueInter"></div>
 
       <div class="bloque-title">
-        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblVida">COMPETENCIAS PARA LA VIDA</span></div>
+        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblVida">HABILIDADES PARA LA VIDA</span></div>
         <div>ICV: <span class="ih-badge" id="ihPV">—</span></div>
       </div>
       <div class="rep-bloque" id="bloquePV"></div>
@@ -393,8 +410,8 @@
   const DISPLAY = {
     bloque: {
       "desarrollo personal": "DESARROLLO PERSONAL",
-      "vínculos interpersonales": "VÍNCULOS INTERPERSONALES",
-      "competencias para la vida": "COMPETENCIAS PARA LA VIDA",
+      "vínculos interpersonales": "VINCULOS INTERPERSONALES",
+      "competencias para la vida": "HABILIDADES PARA LA VIDA",
       "estilos de comunicación interpersonal": "COMUNICACIÓN INTERPERSONAL",
       "propensión al cambio": "ADAPTACIÓN AL CAMBIO"
     },
@@ -656,8 +673,8 @@
         alert.style.fontWeight = "700";
         alert.style.marginTop = "6px";
         alert.textContent = it.label === "AGRESIÓN"
-          ? "El puntaje se encuentra en un rango elevado de agresión. Se recomienda observación cercana, acompañamiento emocional y, de ser necesario, derivación a apoyo profesional."
-          : "El puntaje se encuentra en un rango elevado de timidez. Se sugiere favorecer espacios graduales de participación y valorar acompañamiento especializado si la dificultad persiste.";
+          ? "Se observa un puntaje elevado en agresión. Se recomienda observación, acompañamiento y estrategias de regulación emocional."
+          : "Se observa un puntaje elevado en timidez. Se sugiere acompañamiento gradual para fortalecer la participación social.";
         host.appendChild(alert);
       }
     });
@@ -754,8 +771,8 @@
 
   const DATA_BLOQUE_POR_TITULO = {
     "DESARROLLO PERSONAL": "Habilidades intrapersonales",
-    "VÍNCULOS INTERPERSONALES": "Habilidades interpersonales",
-    "COMPETENCIAS PARA LA VIDA": "Habilidades para la vida",
+    "VINCULOS INTERPERSONALES": "Habilidades interpersonales",
+    "HABILIDADES PARA LA VIDA": "Habilidades para la vida",
     "COMUNICACIÓN INTERPERSONAL": "Estilos de comunicación interpersonal",
     "ADAPTACIÓN AL CAMBIO": "Propensión al cambio"
   };
@@ -880,8 +897,8 @@
     const nPV    = nivelFromPct(extras.bPV);
 
     (RECOM_BLOQUES.intra[nIntra] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "DESARROLLO PERSONAL: " + t; lista.appendChild(li); });
-    (RECOM_BLOQUES.inter[nInter] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "VÍNCULOS INTERPERSONALES: " + t; lista.appendChild(li); });
-    (RECOM_BLOQUES.vida[nPV] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "COMPETENCIAS PARA LA VIDA: " + t; lista.appendChild(li); });
+    (RECOM_BLOQUES.inter[nInter] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "VINCULOS INTERPERSONALES: " + t; lista.appendChild(li); });
+    (RECOM_BLOQUES.vida[nPV] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "HABILIDADES PARA LA VIDA: " + t; lista.appendChild(li); });
 
     if(extras.agresionVal != null && extras.agresionVal > 70){
       const li=document.createElement("li");
@@ -980,7 +997,7 @@
     [
       `Índice de Desarrollo Personal: ${fmt(extras.bIntra)}`,
       `Índice de Vínculos Interpersonales: ${fmt(extras.bInter)}`,
-      `Índice de Competencias Para la Vida: ${fmt(extras.bPV)}`,
+      `Índice de Habilidades para la Vida: ${fmt(extras.bPV)}`,
       `Índice Global de Inteligencia Emocional (IIE): ${fmt(extras.iieFinal)}`
     ].forEach(t=>{
       const li = document.createElement("li");
@@ -1068,8 +1085,8 @@
     if(h1 && h2) h2.innerHTML = h1.innerHTML;
 
     renderBloqueInterpretacion("interpIntra","DESARROLLO PERSONAL","Desarrollo Personal","desarrollo", subRows, extras.bIntra);
-    renderBloqueInterpretacion("interpInter","VÍNCULOS INTERPERSONALES","Vínculos Interpersonales","vinculos", subRows, extras.bInter);
-    renderBloqueInterpretacion("interpPV","COMPETENCIAS PARA LA VIDA","Competencias Para la Vida","competencias", subRows, extras.bPV);
+    renderBloqueInterpretacion("interpInter","VINCULOS INTERPERSONALES","Vínculos Interpersonales","vinculos", subRows, extras.bInter);
+    renderBloqueInterpretacion("interpPV","HABILIDADES PARA LA VIDA","Competencias Para la Vida","competencias", subRows, extras.bPV);
 
     const estCont=document.getElementById("interpEstilos");
     if(estCont){
