@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>GGGInteligencia Emocional – Reporte</title>
+  <title>RInteligencia Emocional – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -100,6 +100,31 @@
     .b-red{background:var(--red)}
     .b-orange{background:var(--orange)}
     .b-green{background:var(--green)}
+  
+    .complementarias{
+      margin-top:14px;
+      border-top:1px solid var(--line);
+      padding-top:10px;
+    }
+    .esc-comp-header{
+      text-align:center;
+      margin-bottom:8px;
+    }
+    .esc-comp-title{
+      font-weight:900;
+      font-size:14px;
+      text-transform:uppercase;
+    }
+    .esc-comp-subtitle{
+      font-weight:800;
+      font-size:12px;
+      text-transform:uppercase;
+      margin-top:2px;
+    }
+    @media print{
+      .complementarias{ page-break-before: always; break-before: page; border-top:0; padding-top:0; }
+    }
+
   </style>
 </head>
 <body>
@@ -205,19 +230,19 @@
 
       <div class="bloque-title">
         <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblIntra">DESARROLLO PERSONAL</span></div>
-        <div>IH INTRA: <span class="ih-badge" id="ihIntra">—</span></div>
+        <div>IDP: <span class="ih-badge" id="ihIntra">—</span></div>
       </div>
       <div class="rep-bloque" id="bloqueIntra"></div>
 
       <div class="bloque-title">
         <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblInter">VÍNCULOS INTERPERSONALES</span></div>
-        <div>IH INTER: <span class="ih-badge" id="ihInter">—</span></div>
+        <div>IVI: <span class="ih-badge" id="ihInter">—</span></div>
       </div>
       <div class="rep-bloque" id="bloqueInter"></div>
 
       <div class="bloque-title">
         <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblVida">COMPETENCIAS PARA LA VIDA</span></div>
-        <div>IH PV: <span class="ih-badge" id="ihPV">—</span></div>
+        <div>ICV: <span class="ih-badge" id="ihPV">—</span></div>
       </div>
       <div class="rep-bloque" id="bloquePV"></div>
 
@@ -362,9 +387,9 @@
 
   const DISPLAY = {
     bloque: {
-      "habilidades intrapersonales": "DESARROLLO PERSONAL",
-      "habilidades interpersonales": "VÍNCULOS INTERPERSONALES",
-      "habilidades para la vida": "COMPETENCIAS PARA LA VIDA",
+      "desarrollo personal": "DESARROLLO PERSONAL",
+      "vínculos interpersonales": "VÍNCULOS INTERPERSONALES",
+      "competencias para la vida": "COMPETENCIAS PARA LA VIDA",
       "estilos de comunicación interpersonal": "COMUNICACIÓN INTERPERSONAL",
       "propensión al cambio": "ADAPTACIÓN AL CAMBIO"
     },
@@ -372,7 +397,7 @@
   };
   // sub mapping (normalizado, sin tildes) construido en runtime:
   (function(){
-    const src = {"autoestima": "Autoestima", "asertividad": "Expresión Asertiva", "conciencia de los demas": "Percepción de los Demás", "empatia": "Sensibilidad Empática", "compromiso": "Nivel de Compromiso", "motivacion": "Motivación Interna", "liderazgo": "Liderazgo", "manejo de la tension": "Manejo del Estrés", "administracion del tiempo": "Organización del Tiempo", "toma de decisions": "Decisión y Elección", "bienestar fisico": "Hábitos Saludables", "propension al cambio": "Flexibilidad ante Cambios", "agresion": "Agresión", "timidez": "Timidez"};
+    const src = {"autoestima": "Autoestima", "manejo de la tension": "Manejo de Estrés", "manejo de la tensión": "Manejo de Estrés", "bienestar fisico": "Hábitos Saludables", "bienestar físico": "Hábitos Saludables", "asertividad": "Expresión Asertiva", "conciencia de los demas": "Percepción de los Demás", "conciencia de los demás": "Percepción de los Demás", "empatia": "Sensibilidad Empática", "empatía": "Sensibilidad Empática", "motivacion": "Motivación Interna", "motivación": "Motivación Interna", "compromiso": "Nivel de Compromiso", "administracion del tiempo": "Organización del Tiempo", "administración del tiempo": "Organización del Tiempo", "toma de decisiones": "Toma de Decisiones", "toma de desiciones": "Toma de Decisiones", "liderazgo": "Liderazgo", "propensión al cambio": "Flexibilidad ante Cambios", "propension al cambio": "Flexibilidad ante Cambios"};
     const strip = s => (s||"").normalize("NFD").replace(/\p{Diacritic}/gu,"");
     for (const [k,v] of Object.entries(src)) {
       DISPLAY.sub[k] = v;
@@ -393,7 +418,9 @@
   /* Ajuste visual -10 (solo visual, no BD) */
   const SCORE_ADJUST = { ENABLED:true, OFFSET:10, APPLY_TO_RISK:true };
   function isRiskScale(bloqueNorm, subNorm){
-    return (bloqueNorm === "estilos de comunicación interpersonal" && (subNorm === "agresión" || subNorm === "timidez"));
+    const s = (subNorm||"").toLowerCase();
+    // Agresión y Timidez son escalas inversas (a menor puntaje, mejor manejo)
+    return (s === "agresión" || s === "timidez");
   }
   function adjScore(v, {bloqueNorm=null, subNorm=null}={}){
     const n = Number(v);
@@ -541,9 +568,9 @@
 
     const bloqueKey = normalizeName(bloqueNombre);
     const ordenes = {
-      "habilidades intrapersonales": ["Autoestima","Manejo de la Tensión","Bienestar físico"],
-      "habilidades interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
-      "habilidades para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de Decisiones","Liderazgo"]
+      "desarrollo personal": ["Autoestima","Manejo de Estrés","Hábitos Saludables"],
+      "vínculos interpersonales": ["Expresión Asertiva","Percepción de los Demás","Sensibilidad Empática"],
+      "competencias para la vida": ["Motivación Interna","Nivel de Compromiso","Organización del Tiempo","Toma de Decisiones","Liderazgo"]
     };
 
     let rowsFiltradas = (subRows||[]).filter(r=> normalizeName(r.bloque||r.block||"")===bloqueKey);
@@ -678,25 +705,31 @@
   }
 
   const BLOQUE_DESCS = {
-    intra: "Este grupo reúne habilidades de autogestión: reconocer emociones, regular respuestas y cuidar el propio bienestar.",
-    inter: "Este grupo reúne habilidades para relacionarse: comunicarse con claridad, comprender a los demás y construir vínculos positivos.",
-    vida:  "Este grupo reúne competencias para organizarse, tomar decisiones y actuar con responsabilidad en distintos contextos.",
-    estilos: "Estas escalas describen estilos de comunicación. En Agresión y Timidez, un puntaje bajo indica mejor manejo, mientras que un puntaje alto sugiere mayor riesgo y requiere observación y apoyo.",
-    cambio: "Esta escala refleja la apertura y flexibilidad para adaptarse a situaciones nuevas y promover cambios positivos."
+    desarrollo: "El desarrollo personal reúne capacidades para comprenderse, regularse y cuidarse. Incluye la forma en que la persona se percibe (autoestima), maneja el estrés y sostiene hábitos de hábitos saludables.",
+    vinculos: "Los vínculos interpersonales agrupan habilidades para relacionarse de manera respetuosa y efectiva. Incluye la capacidad de vincularse, percibir a los demás y responder con sensibilidad empática.",
+    competencias: "Las competencias para la vida son destrezas que favorecen el funcionamiento cotidiano y el logro de metas. Incluye motivación interna, compromiso, organización del tiempo, toma de decisiones y liderazgo.",
+    comunicacion: "La comunicación interpersonal describe estilos de interacción. En Agresión y Timidez la interpretación es inversa: puntajes bajos sugieren mejor manejo, mientras que puntajes altos indican mayor riesgo y requieren observación y apoyo.",
+    adaptacion: "La adaptación al cambio refleja la apertura y flexibilidad para ajustarse a situaciones nuevas, aceptar transformaciones y promover cambios positivos en el entorno."
   };
 
   const HABILIDAD_DESCS = {
-    "Autoestima": "Se refiere a la valoración y confianza personal.",
-    "Manejo de la Tensión": "Capacidad para regular emociones y manejar estrés de forma saludable.",
-    "Bienestar físico": "Prácticas de autocuidado: sueño, alimentación, actividad y hábitos saludables.",
-    "Asertividad": "Expresar ideas y necesidades de manera clara y respetuosa.",
-    "Conciencia de los demás": "Percibir y comprender emociones y necesidades de otras personas.",
-    "Empatía": "Comprender el punto de vista del otro y responder con sensibilidad.",
-    "Motivación": "Impulso interno para iniciar y sostener metas u objetivos.",
-    "Compromiso": "Responsabilidad y constancia para cumplir acuerdos y tareas.",
-    "Administración del tiempo": "Planificar y organizar el tiempo para cumplir objetivos.",
-    "Toma de Decisiones": "Elegir opciones responsables considerando consecuencias.",
-    "Liderazgo": "Iniciativa para influir positivamente y coordinar acciones."
+    "Autoestima": "Es la percepción que una persona tiene de sí misma: cómo se describe, qué cree que puede lograr y cómo interpreta sus propias capacidades.",
+    "Manejo de Estrés": "Capacidad para reconocer señales de tensión, regular la respuesta emocional y utilizar estrategias saludables para afrontar presión, frustración o incertidumbre.",
+    "Hábitos Saludables": "Conjunto de hábitos y decisiones orientadas a cuidar el bienestar físico y mental (sueño, alimentación, movimiento, higiene, descanso y límites saludables).",
+
+    "Expresión Asertiva": "Habilidad para construir relaciones positivas, cooperar, resolver desacuerdos y mantener una convivencia respetuosa.",
+    "Percepción de los Demás": "Capacidad de observar y comprender señales sociales y emocionales en otras personas (gestos, tono, intención) para relacionarse con mayor ajuste.",
+    "Sensibilidad Empática": "Capacidad de ponerse en el lugar del otro, comprender cómo se siente y responder con consideración y apoyo cuando corresponde.",
+
+    "Motivación Interna": "Impulso personal para iniciar y sostener acciones hacia metas, incluso cuando hay dificultad, manteniendo interés y esfuerzo.",
+    "Nivel de Compromiso": "Grado en que la persona asume responsabilidades, cumple acuerdos y mantiene constancia con lo que decide o promete.",
+    "Organización del Tiempo": "Capacidad de planificar, priorizar y distribuir el tiempo para cumplir tareas y objetivos, evitando la postergación excesiva.",
+    "Toma de Decisiones": "Proceso de analizar alternativas, evaluar consecuencias y elegir la opción más adecuada para resolver problemas o alcanzar objetivos.",
+    "Liderazgo": "Capacidad de influir de manera positiva, coordinar esfuerzos, motivar a otros y tomar iniciativa para lograr metas comunes.",
+
+    "Agresión": "Tendencia a responder de forma hostil o impulsiva (verbal, física o emocional) ante conflictos o frustración.",
+    "Timidez": "Tendencia a inhibirse o evitar interacción social por inseguridad, temor a la evaluación o dificultad para expresarse.",
+    "Flexibilidad ante Cambios": "Apertura para adaptarse a nuevas condiciones, ideas o rutinas, ajustando conductas y estrategias cuando el contexto lo requiere."
   };
 
   function renderSkillRow(parent, nombre, pct){
@@ -756,9 +789,9 @@
 
   const RECOM_BLOQUES = {
     intra: {
-      bajo: ["Fortalecer rutinas de autocuidado y autoconfianza.","Practicar técnicas breves de regulación emocional (respiración, pausas)."],
-      medio: ["Consolidar hábitos de autocuidado y reconocer logros alcanzados.","Aplicar estrategias de manejo del estrés en momentos demandantes."],
-      alto: ["Proponer metas personales desafiantes y realistas.","Modelar hábitos positivos de autocuidado y regulación emocional."]
+      bajo: ["Fortalecer rutinas de hábitos saludables y autoconfianza.","Practicar técnicas breves de regulación emocional (respiración, pausas)."],
+      medio: ["Consolidar hábitos de hábitos saludables y reconocer logros alcanzados.","Aplicar estrategias de manejo del estrés en momentos demandantes."],
+      alto: ["Proponer metas personales desafiantes y realistas.","Modelar hábitos positivos de hábitos saludables y regulación emocional."]
     },
     inter: {
       bajo: ["Practicar comunicación asertiva con mensajes en primera persona.","Realizar dinámicas guiadas para desarrollar conciencia social y empatía."],
@@ -890,10 +923,10 @@
     const fmt=v => (v!=null && !Number.isNaN(v)) ? Math.round(v) : "—";
     const ul=document.createElement("ul"); ul.className="recom-list";
     [
-      `IH INTRA: ${fmt(extras.bIntra)}`,
-      `IH INTER: ${fmt(extras.bInter)}`,
-      `IH PV: ${fmt(extras.bPV)}`,
-      `IIE: ${fmt(extras.iieFinal)}`
+      `Índice de Desarrollo Personal: ${fmt(extras.bIntra)}`,
+      `Índice de Vínculos Interpersonales: ${fmt(extras.bInter)}`,
+      `Índice de Competencias para la Vida: ${fmt(extras.bPV)}`,
+      `Índice Global de Inteligencia Emocional (IIE): ${fmt(extras.iieFinal)}`
     ].forEach(t=>{ const li=document.createElement("li"); li.textContent=t; ul.appendChild(li); });
     cont.appendChild(ul);
   }
@@ -936,9 +969,9 @@
     const h2=document.getElementById("repHeaderBox2");
     if(h1 && h2) h2.innerHTML = h1.innerHTML;
 
-    renderBloqueInterpretacion("interpIntra","DESARROLLO PERSONAL","Habilidades intrapersonales","intra", subRows, extras.bIntra);
-    renderBloqueInterpretacion("interpInter","VÍNCULOS INTERPERSONALES","Habilidades interpersonales","inter", subRows, extras.bInter);
-    renderBloqueInterpretacion("interpPV","COMPETENCIAS PARA LA VIDA","Habilidades para la vida","vida", subRows, extras.bPV);
+    renderBloqueInterpretacion("interpIntra","DESARROLLO PERSONAL","Desarrollo Personal","desarrollo", subRows, extras.bIntra);
+    renderBloqueInterpretacion("interpInter","VÍNCULOS INTERPERSONALES","Vínculos Interpersonales","vinculos", subRows, extras.bInter);
+    renderBloqueInterpretacion("interpPV","COMPETENCIAS PARA LA VIDA","Competencias Para la Vida","competencias", subRows, extras.bPV);
 
     const estCont=document.getElementById("interpEstilos");
     if(estCont){
@@ -970,7 +1003,7 @@
       desc.textContent=BLOQUE_DESCS.cambio;
       cambCont.appendChild(desc);
 
-      renderSkillRow(cambCont, "Propensión al cambio", extras.propCambioVal);
+      renderSkillRow(cambCont, "Adaptación al cambio", extras.propCambioVal);
     }
 
     renderPerfilGlobal(extras);
@@ -1013,18 +1046,18 @@
         if (k) raw = Math.round(bloqRows[k]);
       }
       if (!raw && resultados.bloques){
-        if (keyNorm === "habilidades intrapersonales") raw = Math.round(resultados.bloques.intrapersonales || 0);
-        if (keyNorm === "habilidades interpersonales") raw = Math.round(resultados.bloques.interpersonales || 0);
-        if (keyNorm === "habilidades para la vida")   raw = Math.round(resultados.bloques.para_la_vida || 0);
+        if (keyNorm === "desarrollo personal") raw = Math.round(resultados.bloques.intrapersonales || 0);
+        if (keyNorm === "vínculos interpersonales") raw = Math.round(resultados.bloques.interpersonales || 0);
+        if (keyNorm === "competencias para la vida")   raw = Math.round(resultados.bloques.para_la_vida || 0);
         if (keyNorm === "estilos de comunicación interpersonal") raw = Math.round(resultados.bloques.estilos_comunicacion || 0);
         if (keyNorm === "propensión al cambio") raw = Math.round(resultados.bloques.propension_cambio || 0);
       }
       return adjScore(raw, {bloqueNorm: keyNorm, subNorm: ""});
     }
 
-    const bIntra = pctBloque("Habilidades intrapersonales");
-    const bInter = pctBloque("Habilidades interpersonales");
-    const bPV    = pctBloque("Habilidades para la vida");
+    const bIntra = pctBloque("Desarrollo Personal");
+    const bInter = pctBloque("Vínculos Interpersonales");
+    const bPV    = pctBloque("Competencias Para la Vida");
 
     document.getElementById("ihIntra").textContent = bIntra || "—";
     document.getElementById("ihInter").textContent = bInter || "—";
@@ -1044,20 +1077,20 @@
     highlightIV("iv2Row", ivToCol(iv2Val));
     highlightIV("iv3Row", ivToCol(iv3Val));
 
-    buildBloque("bloqueIntra", subRows, "Habilidades intrapersonales");
-    buildBloque("bloqueInter", subRows, "Habilidades interpersonales");
-    buildBloque("bloquePV", subRows, "Habilidades para la vida");
+    buildBloque("bloqueIntra", subRows, "Desarrollo Personal");
+    buildBloque("bloqueInter", subRows, "Vínculos Interpersonales");
+    buildBloque("bloquePV", subRows, "Competencias Para la Vida");
 
-    const agresionVal = findSubPct(subRows,"Estilos de comunicación interpersonal","Agresión");
-    const timidezVal  = findSubPct(subRows,"Estilos de comunicación interpersonal","Timidez");
-    const propCambioVal = pctBloque("Propensión al cambio");
+    const agresionVal = findSubPct(subRows,"Comunicación interpersonal","Agresión");
+    const timidezVal  = findSubPct(subRows,"Comunicación interpersonal","Timidez");
+    const propCambioVal = pctBloque("Adaptación al cambio");
 
     renderBars("estilos", [
       {label:"AGRESIÓN", val: agresionVal, id:"mAgresion"},
       {label:"TIMIDEZ",  val: timidezVal,  id:"mTimidez"}
     ], true);
     renderBars("cambio", [
-      {label:"PROPENSIÓN AL CAMBIO", val: propCambioVal, id:"mCambio"}
+      {label:"ADAPTACIÓN AL CAMBIO", val: propCambioVal, id:"mCambio"}
     ], false);
 
     setMarker("mAgresion", agresionVal);
