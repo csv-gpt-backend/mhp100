@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>HInteligencia Emocional – Reporte</title>
+  <title>Inteligencia Emocional – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -40,7 +40,7 @@
     @media print{
       @page{ size:A4; margin:8mm 8mm }
       .topbar,.hint{display:none !important}
-      body{zoom:1;}
+      body{zoom:0.92;}
       .wrap{max-width:none;margin:0 auto;padding:0 6px}
       .page{margin-top:0;break-inside:auto}
       .page-break{page-break-before:always}
@@ -407,6 +407,26 @@
   function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
   function normalizeName(name){ return (name||"").replace(/\s+/g," ").trim().toLowerCase(); }
 
+  // Alias de nombres de bloques: permite que el reporte muestre los NUEVOS títulos,
+  // pero siga encontrando los datos aunque vengan con nombres anteriores en la BD/API.
+  const BLOQUE_ALIAS = {
+    // Nuevos -> antiguos (normalizados)
+    "desarrollo personal": "habilidades intrapersonales",
+    "vínculos interpersonales": "habilidades interpersonales",
+    "vinculos interpersonales": "habilidades interpersonales",
+    "competencias para la vida": "habilidades para la vida",
+    "comunicación interpersonal": "estilos de comunicación interpersonal",
+    "comunicacion interpersonal": "estilos de comunicación interpersonal",
+    "adaptación al cambio": "propensión al cambio",
+    "adaptacion al cambio": "propensión al cambio"
+  };
+
+  function canonBloque(name){
+    const n = normalizeName(name);
+    return BLOQUE_ALIAS[n] || n;
+  }
+
+
   const DISPLAY = {
     bloque: {
       "desarrollo personal": "DESARROLLO PERSONAL",
@@ -440,9 +460,9 @@
   /* Ajuste visual -10 (solo visual, no BD) */
   const SCORE_ADJUST = { ENABLED:true, OFFSET:10, APPLY_TO_RISK:true };
   function isRiskScale(bloqueNorm, subNorm){
-    const s = (subNorm||"").toLowerCase();
-    // Agresión y Timidez son escalas inversas (a menor puntaje, mejor manejo)
-    return (s === "agresión" || s === "timidez");
+    const b = canonBloque(bloqueNorm || "");
+    const s = normalizeName(subNorm || "");
+    return (b === normalizeName("estilos de comunicación interpersonal") && (s === "agresión" || s === "timidez"));
   }
   function adjScore(v, {bloqueNorm=null, subNorm=null}={}){
     const n = Number(v);
@@ -588,14 +608,14 @@
     });
     cont.appendChild(cols);
 
-    const bloqueKey = normalizeName(bloqueNombre);
+    const bloqueKey = canonBloque(bloqueNombre);
     const ordenes = {
       "desarrollo personal": ["Autoestima","Manejo de Estrés","Hábitos Saludables"],
       "vínculos interpersonales": ["Expresión Asertiva","Percepción de los Demás","Sensibilidad Empática"],
       "competencias para la vida": ["Motivación Interna","Nivel de Compromiso","Organización del Tiempo","Toma de Decisiones","Liderazgo"]
     };
 
-    let rowsFiltradas = (subRows||[]).filter(r=> normalizeName(r.bloque||r.block||"")===bloqueKey);
+    let rowsFiltradas = (subRows||[]).filter(r=> canonBloque(r.bloque||r.block||"")===bloqueKey);
 
     const orden = ordenes[bloqueKey];
     if (orden){
@@ -629,11 +649,15 @@
     items.forEach(it => {
       const row = document.createElement("div");
       row.className = "bars-row";
-      if (it.label === "TIMIDEZ") row.style.marginTop = "20px";
+
+      // Separación visual entre Agresión y Timidez
+      if (it.label === "TIMIDEZ") {
+        row.style.marginTop = "20px";
+      }
 
       const label = document.createElement("div");
       label.className = "label";
-      label.textContent = dispSub(it.label) + " (10–100)";
+      label.textContent = it.label + " (10–100)";
       row.appendChild(label);
 
       const slot = document.createElement("div");
@@ -662,27 +686,14 @@
       row.appendChild(slot);
       wrap.appendChild(row);
     });
+
     host.appendChild(wrap);
 
-    // Alertas tipo reporte antiguo (rojo) para Agresión/Timidez cuando el puntaje es alto
-    items.forEach(it => {
-      if ((it.label === "AGRESIÓN" || it.label === "TIMIDEZ") && (it.val != null) && !isNaN(it.val) && Number(it.val) > 70) {
-        const alert = document.createElement("div");
-        alert.className = "scale-note-inline";
-        alert.style.color = "var(--red)";
-        alert.style.fontWeight = "700";
-        alert.style.marginTop = "6px";
-        alert.textContent = it.label === "AGRESIÓN"
-          ? "Se observa un puntaje elevado en agresión. Se recomienda observación, acompañamiento y estrategias de regulación emocional."
-          : "Se observa un puntaje elevado en timidez. Se sugiere acompañamiento gradual para fortalecer la participación social.";
-        host.appendChild(alert);
-      }
-    });
-
+    // Nota SOLO para la Página 1 (no alertas rojas aquí)
     if (showNote) {
       const note = document.createElement("div");
       note.className = "scale-note-inline";
-      note.textContent = "";
+      note.textContent = "Un puntaje bajo indica mejor manejo en estas áreas.";
       host.appendChild(note);
     }
   }
@@ -706,7 +717,7 @@
       const puntos = r.puntos ?? r.points ?? r.pts ?? "";
       const pctRaw = Math.round(r.percent ?? r.pct ?? 0);
 
-      const bloqueNorm = normalizeName(bloque);
+      const bloqueNorm = canonBloque(bloque);
       const subNorm = normalizeName(sub);
 
       const pct = adjScore(pctRaw, {bloqueNorm, subNorm});
@@ -729,10 +740,10 @@
   }
 
   function findSubPct(subRows, bloqueNombre, subNombre){
-    const bloqueKey = normalizeName(bloqueNombre);
+    const bloqueKey = canonBloque(bloqueNombre);
     const subKey = normalizeName(subNombre);
     const row = (subRows || []).find(r =>
-      normalizeName(r.bloque || r.block || "") === bloqueKey &&
+      canonBloque(r.bloque || r.block || "") === bloqueKey &&
       normalizeName(r.subhabilidad || r.sub || r.nombre || "") === subKey
     );
     if(!row) return null;
@@ -1062,8 +1073,8 @@
     desc.textContent=BLOQUE_DESCS[bloqueDescKey] || "";
     cont.appendChild(desc);
 
-    const bloqueKey = normalizeName(bloqueKeyOriginal);
-    let rows=(subRows||[]).filter(r=> normalizeName(r.bloque||r.block||"")===bloqueKey);
+    const bloqueKey = canonBloque(bloqueKeyOriginal);
+    let rows=(subRows||[]).filter(r=> canonBloque(r.bloque||r.block||"")===bloqueKey);
 
     rows.forEach(r=>{
       const sub=r.subhabilidad || r.sub || r.nombre || "";
@@ -1151,10 +1162,10 @@
     `;
 
     function pctBloque(nombre){
-      const keyNorm = normalizeName(nombre);
+      const keyNorm = canonBloque(nombre);
       let raw = 0;
       if(Array.isArray(bloqRows)){
-        const f = bloqRows.find(r => normalizeName(r.bloque||r.block||"") === keyNorm);
+        const f = bloqRows.find(r => canonBloque(r.bloque||r.block||"") === keyNorm);
         if (f) raw = Math.round(f.percent ?? f.pct ?? f.porcentaje ?? 0);
       } else if (bloqRows && typeof bloqRows === "object") {
         const k = Object.keys(bloqRows||{}).find(k => normalizeName(k) === keyNorm);
