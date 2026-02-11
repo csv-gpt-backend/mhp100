@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluacion Integridad GG</title>
+  <title>Evaluacion Integridad</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -390,7 +390,86 @@ padding-right: calc(100vw - 100%);
       .scale-banner { gap: 8px; }
     }
  
-  </style>
+  
+/* --- Integridad: pantallas previas (intro / instrucciones / secciones) --- */
+.preintro-backdrop{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.preintro-card{
+  width: min(920px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 18px 60px rgba(0,0,0,.25);
+  padding: 22px 22px 18px;
+}
+.preintro-title{
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+.preintro-subtitle{
+  font-size: 16px;
+  font-weight: 700;
+  margin: 14px 0 8px;
+}
+.preintro-p{
+  margin: 10px 0;
+  line-height: 1.45;
+  color: #222;
+}
+.preintro-grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 14px;
+  margin-top: 10px;
+}
+.preintro-box{
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.preintro-box h4{
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.preintro-ul{
+  margin: 0; padding-left: 18px;
+}
+.preintro-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+.preintro-btn{
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.preintro-btn.primary{
+  background: #16a34a;
+  color: #fff;
+}
+.preintro-btn.secondary{
+  background: rgba(0,0,0,.06);
+  color: #111;
+}
+@media (max-width: 720px){
+  .preintro-grid{ grid-template-columns: 1fr; }
+  .preintro-title{ font-size: 22px; }
+}
+
+</style>
 </head>
 <body>
   <div class="layout">
@@ -911,7 +990,10 @@ function norm(str) { return (str || "").trim(); }
 
     function construirPreguntas() {
       ITEMS = parsePreguntas(PREGUNTAS_CSV);
-      currentPage = 0;
+      
+    wirePreintroButtons();
+    startPreintroFlow();
+currentPage = 0;
       renderPage();
       updateProgress();
     }
@@ -1306,5 +1388,17 @@ for (let i = start; i < end; i++) {
       });
     });
   </script>
+
+<!-- Pantallas previas (sin logos) -->
+<div class="preintro-backdrop" id="preintroBackdrop" aria-hidden="true">
+  <div class="preintro-card" role="dialog" aria-modal="true" aria-labelledby="preintroTitle">
+    <div id="preintroContent"></div>
+    <div class="preintro-actions">
+      <button class="preintro-btn secondary" id="preintroBackBtn" type="button" style="display:none;">Atrás</button>
+      <button class="preintro-btn primary" id="preintroNextBtn" type="button">Siguiente</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
