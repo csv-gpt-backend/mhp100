@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>ENTRE2Inteligencia Emocional – Reporte</title>
+  <title>Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -86,7 +86,14 @@
     .section-dot{width:10px;height:10px;border-radius:999px;background:#f4a338;flex:0 0 auto;}
     .scale-range-header{display:grid;grid-template-columns:220px 1fr 1fr 1fr;font-size:11px;font-weight:700;margin:0 0 2px;align-items:flex-end;}
     .scale-range-header span{text-align:center;}
-    .scale-note-inline{font-size:11px;color:var(--muted);margin-top:4px;text-align:center;}
+.scale-note-inline{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+  text-align:center;
+  position: relative;
+  left: 4cm;
+}
 
     .bars-wrap{margin:8px 0}
     .bars-row{display:grid;grid-template-columns:220px 1fr;align-items:center;gap:8px;margin:10px 0;}
@@ -304,7 +311,7 @@
           <div>ADAPTACIÓN AL CAMBIO</div>
         </div>
         <div class="rep-scale" id="cambio"></div>
-        <div class="scale-note-inline">Menor propensión al cambio — Mayor propensión al cambio</div>
+        <div class="scale-note-inline">      Menor adaptación al cambio       —        Mayor adaptación al cambio</div>
       </div>
 
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
@@ -433,24 +440,28 @@
       "vínculos interpersonales": "VINCULOS INTERPERSONALES",
       "competencias para la vida": "HABILIDADES PARA LA VIDA",
       "estilos de comunicación interpersonal": "COMUNICACIÓN INTERPERSONAL",
-      "propensión al cambio": "ADAPTACIÓN AL CAMBIO"
+      "propensión al cambio": "ADAPTACIÓN AL CAMBIO",
+
+      "habilidades intrapersonales": "DESARROLLO PERSONAL",
+    "habilidades interpersonales": "VINCULOS INTERPERSONALES",
+    "habilidades para la vida": "HABILIDADES PARA LA VIDA"
     },
     sub: {}
   };
   // sub mapping (normalizado, sin tildes) construido en runtime:
   (function(){
-    const src = {"autoestima": "Autoestima", "manejo de la tension": "Manejo de Estrés", "manejo de la tensión": "Manejo de Estrés", "bienestar fisico": "Hábitos Saludables", "bienestar físico": "Hábitos Saludables", "asertividad": "Expresión Asertiva", "conciencia de los demas": "Percepción de los Demás", "conciencia de los demás": "Percepción de los Demás", "empatia": "Sensibilidad Empática", "empatía": "Sensibilidad Empática", "motivacion": "Motivación Interna", "motivación": "Motivación Interna", "compromiso": "Nivel de Compromiso", "administracion del tiempo": "Organización del Tiempo", "administración del tiempo": "Organización del Tiempo", "toma de decisiones": "Toma de Decisiones", "toma de desiciones": "Toma de Decisiones", "liderazgo": "Liderazgo", "propensión al cambio": "Flexibilidad ante Cambios", "propension al cambio": "Flexibilidad ante Cambios"};
+    const src = {"autoestima": "Autoestima", "manejo de la tension": "Manejo de Estrés", "manejo de la tensión": "Manejo de Estrés", "bienestar fisico": "Hábitos Saludables", "bienestar físico": "Hábitos Saludables", "asertividad": "Expresión Asertiva", "conciencia de los demas": "Percepción de los Demás", "conciencia de los demás": "Percepción de los Demás", "empatia": "Sensibilidad Empática", "empatía": "Sensibilidad Empática", "motivacion": "Motivación Interna", "motivación": "Motivación Interna", "compromiso": "Nivel de Compromiso", "administracion del tiempo": "Organización del Tiempo", "administración del tiempo": "Organización del Tiempo", "toma de decisiones": "Toma de Decisiones", "toma de desiciones": "Toma de Decisiones", "liderazgo": "Liderazgo", "propensión al cambio": "Adaptación al cambio", "propension al cambio": "Adaptación al cambio"};
     const strip = s => (s||"").normalize("NFD").replace(/\p{Diacritic}/gu,"");
     for (const [k,v] of Object.entries(src)) {
       DISPLAY.sub[k] = v;
     }
     DISPLAY._strip = strip;
   })();
+function dispBloque(name){
+  const canon = canonBloque(name);      // convierte lo que venga a nombre canónico (BD)
+  return DISPLAY.bloque[canon] || name; // devuelve el nombre NUEVO si existe
+}
 
-  function dispBloque(name){
-    const k = normalizeName(name);
-    return DISPLAY.bloque[k] || name;
-  }
   function dispSub(name){
     const strip = DISPLAY._strip;
     const k = strip(normalizeName(name));
@@ -762,6 +773,7 @@
 
   const HABILIDAD_DESCS = {
     "Autoestima": "Es la percepción que una persona tiene de sí misma: cómo se describe, qué cree que puede lograr y cómo interpreta sus propias capacidades.",
+    "Manejo del Estrés": "Capacidad para reconocer señales de tensión, regular la respuesta emocional y utilizar estrategias saludables para afrontar presión, frustración o incertidumbre.",
     "Manejo de Estrés": "Capacidad para reconocer señales de tensión, regular la respuesta emocional y utilizar estrategias saludables para afrontar presión, frustración o incertidumbre.",
     "Hábitos Saludables": "Conjunto de hábitos y decisiones orientadas a cuidar el bienestar físico y mental (sueño, alimentación, movimiento, higiene, descanso y límites saludables).",
 
@@ -777,7 +789,7 @@
 
     "Agresión": "Tendencia a responder de forma hostil o impulsiva (verbal, física o emocional) ante conflictos o frustración.",
     "Timidez": "Tendencia a inhibirse o evitar interacción social por inseguridad, temor a la evaluación o dificultad para expresarse.",
-    "Flexibilidad ante Cambios": "Apertura para adaptarse a nuevas condiciones, ideas o rutinas, ajustando conductas y estrategias cuando el contexto lo requiere."
+    "Adaptación al cambio": "Apertura para adaptarse a nuevas condiciones, ideas o rutinas, ajustando conductas y estrategias cuando el contexto lo requiere."
   };
 
   const DATA_BLOQUE_POR_TITULO = {
@@ -802,7 +814,7 @@
     "Toma de Decisiones": "Decisión y Elección",
     "Toma de decisiones": "Decisión y Elección",
     "Bienestar físico": "Hábitos Saludables",
-    "Propensión al cambio": "Flexibilidad ante Cambios",
+    "Propensión al cambio": "Adaptación al cambio",
     "Agresión": "Agresión",
     "Timidez": "Timidez"
   };
@@ -823,7 +835,12 @@
     title.textContent = numeric != null ? `${nombreDisp} (Puntaje: ${numeric}/100)` : nombreDisp;
     row.appendChild(title);
 
-    const descTxt = HABILIDAD_DESCS[nombre] || HABILIDAD_DESCS[Object.keys(SUB_DISPLAY).find(k=>SUB_DISPLAY[k]===nombre)] || "";
+    const descTxt =
+  HABILIDAD_DESCS[nombreDisp] ||
+  HABILIDAD_DESCS[nombre] ||
+  HABILIDAD_DESCS[Object.keys(SUB_DISPLAY).find(k => SUB_DISPLAY[k] === nombre)] ||
+  "";
+
     if(descTxt){
       const desc = document.createElement("div");
       desc.className = "skill-row-desc";
@@ -1052,7 +1069,7 @@
     const ul3 = document.createElement("ul");
     ul3.className = "recom-list";
     const liC = document.createElement("li");
-    liC.textContent = "Flexibilidad ante Cambios: " + fmt(extras.propCambioVal) + " (a mayor puntaje, mayor apertura al cambio).";
+    liC.textContent = "Adaptación al cambio: " + fmt(extras.propCambioVal) + " (a mayor puntaje, mayor apertura al cambio).";
     ul3.appendChild(liC);
     cont.appendChild(ul3);
   }
@@ -1214,7 +1231,7 @@
     renderBars("estilos", [
       {label:"AGRESIÓN", val: agresionVal, id:"mAgresion"},
       {label:"TIMIDEZ",  val: timidezVal,  id:"mTimidez"}
-    ], false);
+    ], true);
     renderBars("cambio", [
       {label:"ADAPTACIÓN AL CAMBIO", val: propCambioVal, id:"mCambio"}
     ], false);
