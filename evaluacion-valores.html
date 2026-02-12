@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>CEvaluacion Integridad</title>
+  <title>DEvaluacion Integridad</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -617,6 +617,104 @@ padding-right: calc(100vw - 100%);
     console.log("ready!");
 
     
+
+
+
+// --- Integridad: showPreintro/hidePreintro fallback (si no existe el modal) ---
+function ensurePreintroModal(){
+  let bd = document.getElementById("preintroBackdrop");
+  if (bd) return bd;
+
+  bd = document.createElement("div");
+  bd.className = "preintro-backdrop";
+  bd.id = "preintroBackdrop";
+  bd.style.display = "none";
+  bd.style.alignItems = "center";
+  bd.style.justifyContent = "center";
+  bd.style.position = "fixed";
+  bd.style.inset = "0";
+  bd.style.background = "rgba(0,0,0,.35)";
+  bd.style.zIndex = "9999";
+
+  const card = document.createElement("div");
+  card.className = "preintro-card";
+  card.style.width = "min(920px, calc(100vw - 32px))";
+  card.style.maxHeight = "calc(100vh - 32px)";
+  card.style.overflow = "auto";
+  card.style.background = "#fff";
+  card.style.borderRadius = "14px";
+  card.style.boxShadow = "0 18px 60px rgba(0,0,0,.25)";
+  card.style.padding = "22px 22px 18px";
+
+  const content = document.createElement("div");
+  content.id = "preintroContent";
+
+  const actions = document.createElement("div");
+  actions.className = "preintro-actions";
+  actions.style.display = "flex";
+  actions.style.justifyContent = "flex-end";
+  actions.style.gap = "10px";
+  actions.style.marginTop = "14px";
+
+  const backBtn = document.createElement("button");
+  backBtn.className = "preintro-btn secondary";
+  backBtn.id = "preintroBackBtn";
+  backBtn.type = "button";
+  backBtn.textContent = "Atrás";
+  backBtn.style.display = "none";
+  backBtn.style.border = "0";
+  backBtn.style.borderRadius = "999px";
+  backBtn.style.padding = "10px 16px";
+  backBtn.style.fontWeight = "800";
+  backBtn.style.cursor = "pointer";
+  backBtn.style.background = "rgba(0,0,0,.06)";
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "preintro-btn primary";
+  nextBtn.id = "preintroNextBtn";
+  nextBtn.type = "button";
+  nextBtn.textContent = "Siguiente";
+  nextBtn.style.border = "0";
+  nextBtn.style.borderRadius = "999px";
+  nextBtn.style.padding = "10px 16px";
+  nextBtn.style.fontWeight = "800";
+  nextBtn.style.cursor = "pointer";
+  nextBtn.style.background = "#16a34a";
+  nextBtn.style.color = "#fff";
+
+  actions.appendChild(backBtn);
+  actions.appendChild(nextBtn);
+
+  card.appendChild(content);
+  card.appendChild(actions);
+  bd.appendChild(card);
+  document.body.appendChild(bd);
+
+  return bd;
+}
+
+function showPreintro(htmlStr, {showBack=false, nextText="Siguiente"} = {}){
+  const bd = ensurePreintroModal();
+  const ct = document.getElementById("preintroContent");
+  const nextBtn = document.getElementById("preintroNextBtn");
+  const backBtn = document.getElementById("preintroBackBtn");
+  if (ct) ct.innerHTML = htmlStr || "";
+  if (bd){
+    bd.style.display = "flex";
+    bd.setAttribute("aria-hidden", "false");
+  }
+  if (backBtn) backBtn.style.display = showBack ? "inline-flex" : "none";
+  if (nextBtn) nextBtn.textContent = nextText;
+  setTimeout(() => { try { nextBtn && nextBtn.focus(); } catch(e){} }, 0);
+}
+
+function hidePreintro(){
+  const bd = document.getElementById("preintroBackdrop");
+  if (bd){
+    bd.style.display = "none";
+    bd.setAttribute("aria-hidden", "true");
+  }
+}
 
 // --- Integridad: PREINTRO fallback (por si el bloque no se insertó) ---
 if (typeof PREINTRO === "undefined") {
