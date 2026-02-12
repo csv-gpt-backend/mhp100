@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Integridad - Reporte (AFINADO)</title>
+  <title>AIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -276,6 +276,18 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 .card, .mini-box, .box{ overflow:hidden; }
 .grid2, .two-col, .row2{ gap:18px; }
 
+
+.mhp-logo{height:110px !important;width:auto !important;object-fit:contain;display:block;margin-left:auto;}
+
+.starNote{margin-top:10px;font-size:12.5px;line-height:1.35;}
+
+.curve{position:relative;}
+.curve-svg{position:absolute;inset:6px 8px 22px 8px; width:calc(100% - 16px); height:calc(100% - 28px); pointer-events:none;}
+.curve-line{fill:none;stroke:rgba(0,0,0,.45);stroke-width:1.4;}
+.curve-fill{fill:rgba(0,0,0,.06);stroke:none;}
+.curve-marker{position:absolute;top:6px;bottom:22px;width:2px;background:rgba(0,0,0,.65);}
+.curve-marker::after{content:"";position:absolute;top:2px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:999px;background:#111;opacity:.85;}
+
 </style>
 </head>
 <body>
@@ -308,6 +320,11 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
         <div class="mini">
           <div class="mini-title">Curva de distribución</div>
           <div class="curve">
+
+            <svg id="curveSvg" class="curve-svg" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+              <path id="curveFill" d="" class="curve-fill"></path>
+              <path id="curveLine" d="" class="curve-line"></path>
+            </svg>
             <div class="curve-band"></div>
             <div class="curve-marker" id="curveMarker" style="left:0%"></div>
             <div class="curve-axis">
@@ -320,8 +337,9 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
           <div class="mini-title">Índices de validación</div>
           <div class="ivline"><b>Incoherencia</b>: <span id="repIncoh">N/D</span></div>
           <div class="ivline"><b>Contradicción</b>: <span id="repContra">N/D</span></div>
+          <div class="muted" id="ivNote" style="display:none;font-size:12px;margin-top:6px">* Índices calculados automáticamente según patrón de respuesta.</div>
         </div>
-      </div>
+      </div
     </div>
 
     <div class="cards2x2">
@@ -357,6 +375,12 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
     </div>
 
     <div class="iviLegend muted" id="iviLegend">Los valores de integridad de esta persona son:</div>
+
+    <div class="starNote muted" id="starNote">
+      <b>Estrellas:</b> reflejan el nivel global (IVI) y la consistencia general de las respuestas. 
+      A mayor número de estrellas, mayor solidez y coherencia en el perfil observado.
+    </div>
+
   </section>
 
   <!-- ===== PAGE 2+ (Interpretación) ===== -->
@@ -1211,13 +1235,26 @@ function renderAll(data){
   const vals = [pHon,pRec,pJus,pVer].filter(v => typeof v === "number" && v > 0);
   const ivi = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
   document.getElementById("repIVI").textContent = ivi || "—";
+  buildCurveSvg();
   setCurveMarker(ivi || 0);
 
+  
   const incoh = attempt.incoherencia ?? attempt.incoherencia_pct ?? attempt.incoherenciaPct ?? (resultados.validacion && (resultados.validacion.incoherencia ?? resultados.validacion.incoherencia_pct));
   const contra = attempt.contradiccion ?? attempt.contradiccion_pct ?? attempt.contradiccionPct ?? (resultados.validacion && (resultados.validacion.contradiccion ?? resultados.validacion.contradiccion_pct));
 
-  const incohN = (incoh == null || incoh === "") ? null : Math.round(Number(incoh));
-  const contraN = (contra == null || contra === "") ? null : Math.round(Number(contra));
+  let incohN = (incoh == null || incoh === "") ? null : Math.round(Number(incoh));
+  let contraN = (contra == null || contra === "") ? null : Math.round(Number(contra));
+
+  if ((incohN == null || Number.isNaN(incohN)) && (contraN == null || Number.isNaN(contraN))) {
+    const est = estimateValidation(attempt);
+    if (est){
+      incohN = est.incoh;
+      contraN = est.contra;
+      const note = document.getElementById("ivNote");
+      if (note) note.style.display = "block";
+    }
+  }
+
 
   document.getElementById("repIncoh").textContent = (incohN == null || Number.isNaN(incohN)) ? "N/D" : `${incohN}%`;
   document.getElementById("repContra").textContent = (contraN == null || Number.isNaN(contraN)) ? "N/D" : `${contraN}%`;
@@ -1229,10 +1266,10 @@ function renderAll(data){
   const stars = calcStars(ivi, validIdx);
   paintStars(stars);
 
-  setInterp(pHon, "bHon", "tHon");
-  setInterp(pRec, "bRec", "tRec");
-  setInterp(pJus, "bJus", "tJus");
-  setInterp(pVer, "bVer", "tVer");
+  setInterp(pHon, "bHon", "tHon", "Honestidad");
+  setInterp(pRec, "bRec", "tRec", "Rectitud");
+  setInterp(pJus, "bJus", "tJus", "Justicia");
+  setInterp(pVer, "bVer", "tVer", "Veracidad");
 
   document.getElementById("bIVI").textContent = ivi || "—";
   document.getElementById("tIVI").textContent = interpGlobal(ivi, stars);
@@ -1240,11 +1277,80 @@ function renderAll(data){
   document.getElementById("reporteContainer").style.display = "block";
 }
 
+
+function buildCurveSvg(){
+  const svg = document.getElementById("curveSvg");
+  const line = document.getElementById("curveLine");
+  const fill = document.getElementById("curveFill");
+  if (!svg || !line || !fill) return;
+
+  // simple gaussian curve in viewBox 0..100 x 0..32
+  const pts = [];
+  const mu = 50, sigma = 16;
+  for (let x=0; x<=100; x+=2){
+    const y = Math.exp(-0.5*Math.pow((x-mu)/sigma,2)); // 0..1
+    const yy = 30 - y*24; // top padding
+    pts.push([x, yy]);
+  }
+  const dLine = "M " + pts.map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L ");
+  const dFill = dLine + " L 100 30 L 0 30 Z";
+  line.setAttribute("d", dLine);
+  fill.setAttribute("d", dFill);
+}
+
 function setCurveMarker(pct){
   const el = document.getElementById("curveMarker");
   const p = Math.max(0, Math.min(100, Number(pct)||0));
   if (el) el.style.left = p + "%";
 }
+
+function calcStars
+
+
+function extractAnswers(attempt){
+  const cand = attempt.answers ?? attempt.respuestas ?? attempt.respuestas_json ?? attempt.payload?.answers ?? attempt.data?.answers;
+  if (!cand) return null;
+  try{
+    if (Array.isArray(cand)) return cand;
+    if (typeof cand === "string") return JSON.parse(cand);
+    if (typeof cand === "object") return cand;
+  }catch(e){ return null; }
+  return null;
+}
+
+// Estimación automática (proxy) cuando no existen pares de incoherencia/contradicción.
+// - Incoherencia: variabilidad global de respuestas (más variabilidad -> más incoherencia).
+// - Contradicción: alternancia entre respuestas consecutivas (más cambios bruscos -> más contradicción).
+function estimateValidation(attempt){
+  const a = extractAnswers(attempt);
+  // esperamos 96 respuestas en escala 1-3
+  const arr = Array.isArray(a) ? a : (a && Array.isArray(a.items) ? a.items : null);
+  if (!arr || !arr.length) return null;
+
+  const vals = [];
+  for (const it of arr){
+    const v = (typeof it === "number") ? it : (it && (it.value ?? it.v ?? it.respuesta ?? it.answer));
+    const n = Number(v);
+    if (n>=1 && n<=3) vals.push(n);
+  }
+  if (vals.length < 20) return null;
+
+  const mean = vals.reduce((s,x)=>s+x,0)/vals.length;
+  const varr = vals.reduce((s,x)=>s+Math.pow(x-mean,2),0)/vals.length;
+  const sd = Math.sqrt(varr);
+
+  // max sd for {1,3} split is 1.0; but in 1-3 with middle, practical max ~1.0
+  const incoh = Math.round(Math.max(0, Math.min(100, (sd/1.0)*100)));
+
+  let switches = 0;
+  for (let i=1;i<vals.length;i++){
+    if (vals[i] !== vals[i-1]) switches++;
+  }
+  const contra = Math.round(Math.max(0, Math.min(100, (switches/Math.max(1, vals.length-1))*100)));
+
+  return { incoh, contra };
+}
+
 
 function calcStars(ivi, validIdx){
   const v = Number(ivi)||0;
@@ -1273,9 +1379,12 @@ function interpBand(pct){
   return {tag:"Íntegro", txt:"Este resultado sugiere una vivencia consistente del valor. Mantén prácticas que lo sostengan y busca retos donde puedas modelarlo y fortalecerlo aún más."};
 }
 
-function setInterp(pct, badgeId, textId){
-  const b = interpBand(pct);
+function setInterp(pct, badgeId, textId, skillName){
+  const b = interpBandSkill(pct, skillName);
   document.getElementById(badgeId).textContent = `${pct || "—"} • ${b.tag}`;
+  document.getElementById(textId).textContent = b.txt;
+}
+• ${b.tag}`;
   document.getElementById(textId).textContent = b.txt;
 }
 
