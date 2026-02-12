@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluacion Integridad FULL</title>
+  <title>Evaluacion Integridad</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -616,7 +616,60 @@ padding-right: calc(100vw - 100%);
   <script>
     console.log("ready!");
 
-    let __startTime = Date.now();
+    
+
+// --- Integridad: PREINTRO fallback (por si el bloque no se insertó) ---
+if (typeof PREINTRO === "undefined") {
+  // eslint-disable-next-line no-var
+  var PREINTRO = {
+    introHtml: `
+      <h2 class="preintro-title" id="preintroTitle">Evaluación Integridad</h2>
+      <p class="preintro-p"><b>La integridad</b> se refiere a la capacidad para mantener las propias ideas, opiniones y acciones basadas principalmente en cuatro valores: <b>honestidad</b>, <b>rectitud</b>, <b>verdad</b> y <b>justicia</b>.</p>
+      <p class="preintro-p"><b>Valores de Integridad</b> es una autoevaluación compuesta por <b>96 afirmaciones</b> divididas en <b>tres secciones</b> diferentes, cuyo objetivo principal es identificar las ideas, opiniones y acciones que tienes, te has formado y realizas respecto a los valores antes mencionados.</p>
+      <p class="preintro-p">Es una autoevaluación porque te invita a la reflexión y a que te conozcas más en relación a esta capacidad llamada integridad; por lo tanto, es importante que leas detenidamente la afirmación y que la contestes sinceramente, apoyándote en el conocimiento que tienes de ti mismo(a) y de la forma como actúas ante diferentes situaciones de la vida cotidiana.</p>
+    `,
+    instruccionesHtml: `
+      <h2 class="preintro-title" id="preintroTitle">Instrucciones</h2>
+      <ul class="preintro-ul">
+        <li>Lee con detenimiento cada afirmación.</li>
+        <li>Reflexiona.</li>
+        <li>Selecciona el alvéolo que corresponda a tu respuesta.</li>
+        <li>Una vez que inicies la autoevaluación continúa hasta terminar.</li>
+        <li>Te tomará 20 minutos, aproximadamente.</li>
+      </ul>
+      <div class="preintro-grid">
+        <div class="preintro-box">
+          <h4>Sección 1</h4>
+          <ul class="preintro-ul"><li>Rara vez</li><li>Algunas veces</li><li>Frecuentemente</li></ul>
+        </div>
+        <div class="preintro-box">
+          <h4>Sección 2</h4>
+          <ul class="preintro-ul"><li>Poco</li><li>Algo</li><li>Mucho</li></ul>
+        </div>
+        <div class="preintro-box">
+          <h4>Sección 3</h4>
+          <ul class="preintro-ul"><li>En desacuerdo</li><li>De acuerdo</li><li>Totalmente de acuerdo</li></ul>
+        </div>
+      </div>
+    `,
+    seccionHtml: (sec) => {
+      const safeLabels = (typeof labelsPorSeccion === "function")
+        ? labelsPorSeccion(sec)
+        : (sec === 1 ? ["Frecuentemente","Algunas veces","Rara vez"] : sec === 2 ? ["Mucho","Algo","Poco"] : ["Totalmente de acuerdo","De acuerdo","En desacuerdo"]);
+      return `
+        <h2 class="preintro-title" id="preintroTitle">Sección ${sec}</h2>
+        <p class="preintro-p"><b>Contesta ahora en base a los siguientes criterios:</b></p>
+        <ul class="preintro-ul">
+          <li>${safeLabels[2]}</li>
+          <li>${safeLabels[1]}</li>
+          <li>${safeLabels[0]}</li>
+        </ul>
+      `;
+    }
+  };
+}
+
+let __startTime = Date.now();
 
     let CODIGO_ACTUAL = null;
     const STORAGE_PREFIX = "eval_ie_state_";
