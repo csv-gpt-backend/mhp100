@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>vvEvaluacion Integridad</title>
+  <title>Evaluacion Integridad FULL</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1328,7 +1328,55 @@ for (let i = start; i < end; i++) {
 
       btnIniciar.disabled = true;
 
-      btnIniciar.addEventListener("click", async () => {
+      
+// --- Integridad: runner de pantallas previas antes de mostrar preguntas ---
+function runPreintroAntesDePreguntas(onDone){
+  try {
+    const steps = [
+      PREINTRO.introHtml,
+      PREINTRO.instruccionesHtml,
+      PREINTRO.seccionHtml(1)
+    ];
+    let i = 0;
+
+    const renderStep = () => {
+      const isLast = i === steps.length - 1;
+      showPreintro(steps[i], { showBack: i > 0, nextText: isLast ? "Comenzar" : "Siguiente" });
+
+      const nextBtn = document.getElementById("preintroNextBtn");
+      const backBtn = document.getElementById("preintroBackBtn");
+
+      if (nextBtn){
+        nextBtn.onclick = () => {
+          if (i < steps.length - 1){
+            i += 1;
+            renderStep();
+          } else {
+            preintroSeenSection[1] = true;
+            hidePreintro();
+            if (typeof onDone === "function") onDone();
+          }
+        };
+      }
+      if (backBtn){
+        backBtn.onclick = () => {
+          if (i > 0){
+            i -= 1;
+            renderStep();
+          }
+        };
+      }
+    };
+
+    renderStep();
+  } catch (e){
+    console.warn("runPreintroAntesDePreguntas skipped:", e);
+    if (typeof onDone === "function") onDone();
+  }
+}
+
+
+btnIniciar.addEventListener("click", async () => {
         if (!validarAntesDeIniciar()) return;
 
         if (!CODIGO_ACTUAL) {
