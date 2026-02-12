@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>hBNNNNNIntegridad - Reporte (AFINADO)</title>
+  <title>robBNNNNNIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -309,6 +309,12 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   margin-left:auto !important;
 }
 
+/* Parte 2 (interpretación) */
+.p2-card h4{margin:10px 0 6px;font-size:14px;}
+.p2-card ul{margin:6px 0 10px 18px;}
+.p2-card li{margin:4px 0;}
+.p2-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+@media (max-width: 820px){.p2-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -1402,30 +1408,101 @@ function interpBand(pct){
 
 // Interpretación por subprueba (rangos solicitados: <=40, <=70, >70)
 function interpBandSkill(pct, skillName){
-  const p = Number(pct)||0;
-  const sk = (skillName || "este valor").toLowerCase();
+  const p = Number(pct) || 0;
+  const name = (skillName || "este valor");
+
+  // Terminología "opción B"
   if (p <= 40) {
     return {
-      tag: "A fortalecer",
-      txt: `Este puntaje sugiere que ${sk} puede presentarse de manera inconsistente o bajo presión. Conviene definir 2–3 acciones concretas (ej.: decir la verdad aunque incomode, reconocer errores, respetar acuerdos) y practicar su aplicación en situaciones reales.`
+      label: "Por desarrollar",
+      tone: "low",
+      summary: `El resultado indica que ${name.toLowerCase()} puede no sostenerse con consistencia, especialmente cuando hay presión, conflicto o ambigüedad.`,
+      focos: [
+        "Clarificar criterios personales (qué es negociable y qué no).",
+        "Cuidar la coherencia entre lo que se dice y lo que se hace.",
+        "Evitar racionalizaciones del tipo “depende de la circunstancia”."
+      ],
+      riesgos: [
+        "Mensajes inconsistentes hacia otros (confianza frágil).",
+        "Decisiones reactivas que priorizan conveniencia inmediata."
+      ],
+      acciones: [
+        "Define 2 reglas prácticas para el día a día (ej.: “si me equivoco, lo digo y lo reparo”).",
+        "Antes de actuar, pregunta: ¿Esto es justo? ¿Es veraz? ¿Es recto? ¿Es honesto?",
+        "Cierra el ciclo: si prometes, registra y cumple; si no puedes, renegocia a tiempo."
+      ]
     };
   }
+
   if (p <= 70) {
     return {
-      tag: "Adecuado",
-      txt: `Este puntaje sugiere un manejo generalmente consistente de ${sk}, con oportunidades puntuales de mejora. Mantén hábitos que lo sostengan y observa en qué contextos tiende a bajar (estrés, prisa, presión social) para reforzarlo.`
+      label: "Por fortalecer",
+      tone: "mid",
+      summary: `El resultado sugiere una vivencia generalmente consistente de ${name.toLowerCase()}, con margen para sostenerla mejor en situaciones exigentes.`,
+      focos: [
+        "Mantener la conducta aun cuando existan costos (tiempo, imagen, presión).",
+        "Ser explícito/a con los límites y expectativas.",
+        "Revisar sesgos: “yo soy así” vs. “yo elijo actuar así”."
+      ],
+      riesgos: [
+        "Ceder ante presión social o urgencias.",
+        "Inconsistencia puntual en momentos de estrés."
+      ],
+      acciones: [
+        "Identifica 1 situación recurrente donde flaqueas y prepara una respuesta estándar.",
+        "Practica una conversación difícil a la semana (verdad + respeto).",
+        "Usa recordatorios: acuerdos por escrito, checklist ético, o un ‘buddy’ de rendición de cuentas."
+      ]
     };
   }
+
   return {
-    tag: "Fortaleza",
-    txt: `Este puntaje sugiere que ${sk} es una fortaleza clara. Procura sostenerlo incluso en escenarios difíciles y úsalo como ejemplo (modelaje) para tu entorno, sin perder flexibilidad ni empatía.`
+    label: "Por enriquecer",
+    tone: "high",
+    summary: `El resultado refleja una vivencia sólida y estable de ${name.toLowerCase()}. El foco ahora es modelarlo, consolidarlo y expandirlo a contextos más complejos.`,
+    focos: [
+      "Ser referente: coherencia visible y predecible.",
+      "Tomar decisiones difíciles sin perder humanidad.",
+      "Elevar estándar: de “cumplir” a “inspirar confianza”."
+    ],
+    riesgos: [
+      "Ser percibido/a como rígido/a si no se acompaña de empatía.",
+      "Exigencia alta hacia otros sin acordar criterios."
+    ],
+    acciones: [
+      "Comparte tu estándar: explicita por qué decides así y cómo evalúas lo correcto.",
+      "Mentorea/acompaña a alguien en una decisión ética real.",
+      "Busca retos: escenarios con trade-offs (tiempo vs. verdad, relación vs. justicia) y documenta aprendizajes."
+    ]
   };
 }
 
-function setInterp(pct, badgeId, textId, skillName){
-  const b = interpBandSkill(pct, skillName);
-  document.getElementById(badgeId).textContent = `${pct || "—"} • ${b.tag}`;
-  document.getElementById(textId).textContent = b.txt;
+function buildSkillHTML(skillName, band){
+  const li = (arr)=> (arr||[]).map(x=>`<li>${x}</li>`).join("");
+  return `
+    <p><strong>${band.label}.</strong> ${band.summary}</p>
+    <div class="p2-grid">
+      <div>
+        <h4>Focos recomendados</h4>
+        <ul>${li(band.focos)}</ul>
+      </div>
+      <div>
+        <h4>Riesgos típicos</h4>
+        <ul>${li(band.riesgos)}</ul>
+      </div>
+    </div>
+    <h4>Acciones prácticas</h4>
+    <ul>${li(band.acciones)}</ul>
+  `;
+}
+
+function setInterp(skillName, pct, badgeId, textId){
+  const band = interpBandSkill(pct, skillName);
+  const elBadge = document.getElementById(badgeId);
+  const elText  = document.getElementById(textId);
+
+  if (elBadge) elBadge.textContent = `${pct} • ${band.label}`;
+  if (elText)  elText.innerHTML = buildSkillHTML(skillName, band);
 }
 
 function interpGlobal(ivi, stars){
