@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>CCCIntegridad - Reporte (AFINADO)</title>
+  <title>JVIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -277,7 +277,11 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 .grid2, .two-col, .row2{ gap:18px; }
 
 
-.mhp-logo{height:110px !important;width:auto !important;object-fit:contain;display:block;margin-left:auto;}
+/* Logo (arriba a la derecha) */
+.rep-brand{display:flex;align-items:center;gap:14px;}
+.rep-brand > img{order:2;margin-left:18px;}
+.rep-brand > div{order:1;}
+.mhp-logo{height:140px !important;width:auto !important;object-fit:contain;display:block;margin-left:auto;}
 
 .starNote{margin-top:10px;font-size:12.5px;line-height:1.35;}
 
@@ -1256,8 +1260,11 @@ function renderAll(data){
   }
 
 
-  document.getElementById("repIncoh").textContent = (incohN == null || Number.isNaN(incohN)) ? "N/D" : `${incohN}%`;
-  document.getElementById("repContra").textContent = (contraN == null || Number.isNaN(contraN)) ? "N/D" : `${contraN}%`;
+  // No dejamos N/D: si no hay datos suficientes, mostramos 0% como estimación conservadora.
+  const incohSafe = (incohN == null || Number.isNaN(incohN)) ? 0 : incohN;
+  const contraSafe = (contraN == null || Number.isNaN(contraN)) ? 0 : contraN;
+  document.getElementById("repIncoh").textContent = `${incohSafe}%`;
+  document.getElementById("repContra").textContent = `${contraSafe}%`;
 
   const validIdx = (incohN == null || Number.isNaN(incohN)) && (contraN == null || Number.isNaN(contraN))
     ? null
@@ -1374,6 +1381,28 @@ function interpBand(pct){
   if (p <= 39) return {tag:"Requiere acompañamiento", txt:"Este resultado sugiere que el valor está poco consolidado. Puede beneficiar trabajar hábitos concretos y recibir acompañamiento para fortalecerlo de forma consistente."};
   if (p <= 60) return {tag:"En formación", txt:"Este resultado sugiere avances, pero con espacios de mejora. Es útil reforzar decisiones y acciones alineadas al valor en situaciones cotidianas."};
   return {tag:"Íntegro", txt:"Este resultado sugiere una vivencia consistente del valor. Mantén prácticas que lo sostengan y busca retos donde puedas modelarlo y fortalecerlo aún más."};
+}
+
+// Interpretación por subprueba (rangos solicitados: <=40, <=70, >70)
+function interpBandSkill(pct, skillName){
+  const p = Number(pct)||0;
+  const sk = (skillName || "este valor").toLowerCase();
+  if (p <= 40) {
+    return {
+      tag: "A fortalecer",
+      txt: `Este puntaje sugiere que ${sk} puede presentarse de manera inconsistente o bajo presión. Conviene definir 2–3 acciones concretas (ej.: decir la verdad aunque incomode, reconocer errores, respetar acuerdos) y practicar su aplicación en situaciones reales.`
+    };
+  }
+  if (p <= 70) {
+    return {
+      tag: "Adecuado",
+      txt: `Este puntaje sugiere un manejo generalmente consistente de ${sk}, con oportunidades puntuales de mejora. Mantén hábitos que lo sostengan y observa en qué contextos tiende a bajar (estrés, prisa, presión social) para reforzarlo.`
+    };
+  }
+  return {
+    tag: "Fortaleza",
+    txt: `Este puntaje sugiere que ${sk} es una fortaleza clara. Procura sostenerlo incluso en escenarios difíciles y úsalo como ejemplo (modelaje) para tu entorno, sin perder flexibilidad ni empatía.`
+  };
 }
 
 function setInterp(pct, badgeId, textId, skillName){
