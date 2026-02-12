@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>MMMBNNNNNIntegridad - Reporte (AFINADO)</title>
+  <title>XBNNNNNIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -26,7 +26,7 @@
     .rep-date{justify-self:flex-start;}
     .rep-top-center{text-align:center;font-weight:700;text-transform:uppercase;}
     .rep-top-logo{justify-self:flex-end;}
-    .mhp-logo{height:56px !important;width:auto !important;object-fit:contain;display:block;}
+    .mhp-logo{height:auto;}
     .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase;}
     .rep-top-row3{text-align:center;font-size:18px;font-weight:800;}
 
@@ -168,9 +168,9 @@
   
     /* ===== Integridad layout ===== */
     .rep-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-    .rep-brand{display:flex;align-items:center;gap:12px}
-    .rep-brand img{width:64px;height:64px;object-fit:contain}
-    .rep-title{font-size:20px;font-weight:900;letter-spacing:.2px}
+    .rep-brand{display:flex;align-items:center;justify-content:center;gap:10px;position:relative;flex:1;padding-right:140px;}
+    .rep-brand img{position:absolute;right:0;top:-6px;width:120px;height:auto;max-height:90px;object-fit:contain;}
+    .rep-title{font-size:34px;font-weight:900;letter-spacing:.2px;line-height:1.05;}
     .rep-subtitle{font-size:13px}
     .rep-meta{font-size:12px;white-space:nowrap}
     .rep-box{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin:10px 0 8px}
@@ -1407,73 +1407,77 @@ function interpBand(pct){
 }
 
 // Interpretación por subprueba (rangos solicitados: <=40, <=70, >70)
-function interpBandSkill(pct, skillName){
-  const p = Number(pct) || 0;
-  const name = String((skillName ?? "este valor"));
-
-  // Terminología "opción B"
-  if (p <= 40) {
-    return {
-      label: "Por desarrollar",
-      tone: "low",
-      summary: `El resultado indica que ${name.toLowerCase()} puede no sostenerse con consistencia, especialmente cuando hay presión, conflicto o ambigüedad.`,
-      focos: [
-        "Clarificar criterios personales (qué es negociable y qué no).",
-        "Cuidar la coherencia entre lo que se dice y lo que se hace.",
-        "Evitar racionalizaciones del tipo “depende de la circunstancia”."
-      ],
-      riesgos: [
-        "Mensajes inconsistentes hacia otros (confianza frágil).",
-        "Decisiones reactivas que priorizan conveniencia inmediata."
-      ],
-      acciones: [
-        "Define 2 reglas prácticas para el día a día (ej.: “si me equivoco, lo digo y lo reparo”).",
-        "Antes de actuar, pregunta: ¿Esto es justo? ¿Es veraz? ¿Es recto? ¿Es honesto?",
-        "Cierra el ciclo: si prometes, registra y cumple; si no puedes, renegocia a tiempo."
-      ]
-    };
+const INTERP_SKILL = {
+  "honestidad": {
+    bajo: "Puede indicar dificultad para reconocer y comunicar con transparencia lo que piensas, sientes o haces. En entornos de presión, la tendencia puede ser proteger la imagen o evitar consecuencias.",
+    promedio: "Sueles actuar con sinceridad, aunque en situaciones específicas podrías omitir información o suavizar la verdad para evitar conflicto. Trabajar la consistencia te dará mayor credibilidad.",
+    alto: "Tiendes a decir la verdad incluso cuando es incómodo. Esto construye confianza; cuida también la forma y el momento para que el mensaje sea efectivo."
+  },
+  "rectitud": {
+    bajo: "Puede reflejar flexibilidad excesiva frente a normas o principios cuando 'no conviene' cumplirlos. Es útil clarificar límites no negociables y practicar decisiones coherentes.",
+    promedio: "Generalmente actúas de acuerdo a lo correcto, pero podría variar según el contexto. Fortalecer criterios y anticipar dilemas te ayudará a sostener el estándar.",
+    alto: "Tiendes a mantener principios y normas incluso en situaciones difíciles. Esto favorece coherencia y respeto; procura equilibrarlo con criterio y empatía."
+  },
+  "veracidad": {
+    bajo: "Podría haber tendencia a distorsionar, minimizar u ocultar información ante posibles conflictos. Trabajar la claridad y responsabilidad comunicativa es clave.",
+    promedio: "La información que compartes suele ser verdadera, aunque podrías reservar detalles para evitar tensión. Practicar comunicación asertiva aumentará tu consistencia.",
+    alto: "Tu comunicación tiende a ser directa y basada en hechos. Eso fortalece decisiones y relaciones; complementa con escucha activa para evitar malentendidos."
+  },
+  "justicia": {
+    bajo: "Puede indicar que el criterio de equidad se ve afectado por preferencias, conveniencia o presión. Conviene revisar cómo decides en situaciones donde hay intereses en juego.",
+    promedio: "Sueles buscar trato justo, aunque puede variar según personas o circunstancias. Establecer reglas claras y consistentes mejora percepción de imparcialidad.",
+    alto: "Tu toma de decisiones tiende a ser imparcial y equitativa. Esto fortalece confianza en equipos; vigila sesgos sutiles y comunica criterios."
   }
+};
 
-  if (p <= 70) {
-    return {
-      label: "Por fortalecer",
-      tone: "mid",
-      summary: `El resultado sugiere una vivencia generalmente consistente de ${name.toLowerCase()}, con margen para sostenerla mejor en situaciones exigentes.`,
-      focos: [
-        "Mantener la conducta aun cuando existan costos (tiempo, imagen, presión).",
-        "Ser explícito/a con los límites y expectativas.",
-        "Revisar sesgos: “yo soy así” vs. “yo elijo actuar así”."
-      ],
-      riesgos: [
-        "Ceder ante presión social o urgencias.",
-        "Inconsistencia puntual en momentos de estrés."
-      ],
-      acciones: [
-        "Identifica 1 situación recurrente donde flaqueas y prepara una respuesta estándar.",
-        "Practica una conversación difícil a la semana (verdad + respeto).",
-        "Usa recordatorios: acuerdos por escrito, checklist ético, o un ‘buddy’ de rendición de cuentas."
-      ]
-    };
-  }
+function interpBandSkill(skillName, pct){
+  const name = (skillName == null) ? "este valor" : String(skillName);
+  const key = name.toLowerCase();
+  const p = Number.isFinite(pct) ? pct : 0;
 
+  // Etiquetas (3 rangos). Ajustable si luego cambias umbrales.
+  const band = (p <= 40) ? "bajo" : (p <= 70) ? "promedio" : "alto";
+
+  // Mensajes robustos por habilidad (si existe) y por rango.
+  const bySkill = INTERP_SKILL?.[key] || INTERP_SKILL?.[key.normalize?.("NFD").replace(/\p{Diacritic}/gu,"")] || null;
+
+  const common = {
+    bajo: {
+      titulo: "Por desarrollar",
+      foco: "Hay margen claro para fortalecer hábitos consistentes en este valor.",
+      accion: [
+        "Define 1–2 conductas observables que quieras repetir cada semana.",
+        "Anticípate a situaciones de presión: prepara una respuesta 'por defecto' alineada al valor.",
+        "Pide retroalimentación a alguien de confianza en situaciones reales."
+      ],
+    },
+    promedio: {
+      titulo: "Por fortalecer",
+      foco: "La vivencia del valor es aceptable; conviene volverla más estable y deliberada.",
+      accion: [
+        "Identifica tus 'puntos ciegos' (momentos donde cedes por conveniencia o presión).",
+        "Crea recordatorios/rituales simples (checklist, pausa de 10 segundos antes de decidir).",
+        "Refuerza la coherencia: que lo que dices, decides y haces apunte a lo mismo."
+      ],
+    },
+    alto: {
+      titulo: "Por enriquecer",
+      foco: "Hay una vivencia sólida del valor; puedes modelarlo e influir positivamente en otros.",
+      accion: [
+        "Sé ejemplo: explica el 'por qué' de tus decisiones éticas cuando sea oportuno.",
+        "Mentoriza: ayuda a otros a traducir el valor en conductas concretas.",
+        "Busca retos más complejos donde sostener el valor requiera criterio y constancia."
+      ],
+    }
+  }[band];
+
+  const detail = bySkill?.[band] || bySkill?.default || "";
   return {
-    label: "Por enriquecer",
-    tone: "high",
-    summary: `El resultado refleja una vivencia sólida y estable de ${name.toLowerCase()}. El foco ahora es modelarlo, consolidarlo y expandirlo a contextos más complejos.`,
-    focos: [
-      "Ser referente: coherencia visible y predecible.",
-      "Tomar decisiones difíciles sin perder humanidad.",
-      "Elevar estándar: de “cumplir” a “inspirar confianza”."
-    ],
-    riesgos: [
-      "Ser percibido/a como rígido/a si no se acompaña de empatía.",
-      "Exigencia alta hacia otros sin acordar criterios."
-    ],
-    acciones: [
-      "Comparte tu estándar: explicita por qué decides así y cómo evalúas lo correcto.",
-      "Mentorea/acompaña a alguien en una decisión ética real.",
-      "Busca retos: escenarios con trade-offs (tiempo vs. verdad, relación vs. justicia) y documenta aprendizajes."
-    ]
+    band,
+    label: common.titulo,
+    foco: common.foco,
+    accion: common.accion,
+    detalle: detail
   };
 }
 
