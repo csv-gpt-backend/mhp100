@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>XBNNNNNIntegridad - Reporte (AFINADO)</title>
+  <title>CCBNNNNNIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1482,22 +1482,30 @@ function interpBandSkill(skillName, pct){
 }
 
 function buildSkillHTML(skillName, band){
-  const li = (arr)=> (arr||[]).map(x=>`<li>${x}</li>`).join("");
-  return `
-    <p><strong>${band.label}.</strong> ${band.summary}</p>
-    <div class="p2-grid">
-      <div>
-        <h4>Focos recomendados</h4>
-        <ul>${li(band.focos)}</ul>
+  const esc = (s)=>String(s??"").replace(/[&<>]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]));
+  const li = (arr)=> (arr||[]).map(x=>`<li>${esc(x)}</li>`).join("");
+  const foco = li(band.foco || []);
+  const accion = li(band.accion || []);
+  const nivelTxt = band.label ? `<span class="pill">${esc(band.label)}</span>` : "";
+  const seccion = `
+    <div class="interp-block">
+      <div class="interp-topline">
+        <div class="interp-skill">${esc(skillName)}</div>
+        ${nivelTxt}
       </div>
-      <div>
-        <h4>Riesgos típicos</h4>
-        <ul>${li(band.riesgos)}</ul>
+      <div class="interp-summary">${esc(band.detalle || "")}</div>
+      <div class="interp-cols">
+        <div class="interp-col">
+          <div class="interp-h">Enfócate en</div>
+          <ul class="interp-ul">${foco || "<li>—</li>"}</ul>
+        </div>
+        <div class="interp-col">
+          <div class="interp-h">Acciones sugeridas</div>
+          <ul class="interp-ul">${accion || "<li>—</li>"}</ul>
+        </div>
       </div>
-    </div>
-    <h4>Acciones prácticas</h4>
-    <ul>${li(band.acciones)}</ul>
-  `;
+    </div>`;
+  return seccion;
 }
 
 function setInterp(skillName, pct, badgeId, textId){
