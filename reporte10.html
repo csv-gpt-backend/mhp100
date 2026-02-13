@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Inteligencia Emocional – Reporte u</title>
+  <title>GInteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -832,8 +832,14 @@ function dispBloque(name){
     title.className = "skill-row-title";
     const numeric = (pct != null && !Number.isNaN(Number(pct))) ? Math.round(pct) : null;
     const nombreDisp = dispSub(nombre);
+    const isAggOrTim = (nombreDisp === "Agresión" || nombreDisp === "Timidez");
+
     title.textContent = numeric != null ? `${nombreDisp} (Puntaje: ${numeric}/100)` : nombreDisp;
     row.appendChild(title);
+let shouldAlert = false;
+if (numeric != null){
+  shouldAlert = isAggOrTim ? (numeric >= 71) : (numeric <= 40);
+}
 
     const descTxt =
   HABILIDAD_DESCS[nombreDisp] ||
@@ -873,6 +879,14 @@ function dispBloque(name){
     bar.appendChild(track);
     bar.appendChild(value);
     row.appendChild(bar);
+if (shouldAlert){
+  const al = document.createElement("div");
+  al.className = "skill-row-alert";
+  al.textContent = isAggOrTim
+    ? "Alerta: puntaje elevado en esta escala."
+    : "Alerta: puntaje bajo en esta habilidad.";
+  row.appendChild(al);
+}
 
     parent.appendChild(row);
   }
