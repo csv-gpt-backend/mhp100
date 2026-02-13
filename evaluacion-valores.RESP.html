@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluacion Integridad GG</title>
+  <title>JJEvaluacion Integridad</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -390,7 +390,86 @@ padding-right: calc(100vw - 100%);
       .scale-banner { gap: 8px; }
     }
  
-  </style>
+  
+/* --- Integridad: pantallas previas (intro / instrucciones / secciones) --- */
+.preintro-backdrop{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.preintro-card{
+  width: min(920px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 18px 60px rgba(0,0,0,.25);
+  padding: 22px 22px 18px;
+}
+.preintro-title{
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+.preintro-subtitle{
+  font-size: 16px;
+  font-weight: 700;
+  margin: 14px 0 8px;
+}
+.preintro-p{
+  margin: 10px 0;
+  line-height: 1.45;
+  color: #222;
+}
+.preintro-grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 14px;
+  margin-top: 10px;
+}
+.preintro-box{
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.preintro-box h4{
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.preintro-ul{
+  margin: 0; padding-left: 18px;
+}
+.preintro-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+.preintro-btn{
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.preintro-btn.primary{
+  background: #16a34a;
+  color: #fff;
+}
+.preintro-btn.secondary{
+  background: rgba(0,0,0,.06);
+  color: #111;
+}
+@media (max-width: 720px){
+  .preintro-grid{ grid-template-columns: 1fr; }
+  .preintro-title{ font-size: 22px; }
+}
+
+</style>
 </head>
 <body>
   <div class="layout">
@@ -440,24 +519,7 @@ padding-right: calc(100vw - 100%);
       <section id="pantalla-inicio" class="card instructions">
         <h2>Evaluación Integridad</h2>
         <p>
-          El manejo efectivo de las emociones es un factor clave para lograr el éxito personal y profesional.
-          Esta evaluación ha sido diseñada para que la persona adulta evalúe su nivel de desarrollo
-          en ciertas habilidades emocionales clave.
-        </p>
-        <p>
-          El instrumento identifica 12 habilidades emocionales y 2 áreas relacionadas
-          con el estilo de comunicación interpersonal.
-        </p>
-        <p>
-          La evaluación consta de 244 preguntas, y es posible obtener un diagnóstico
-          sobre el manejo de la inteligencia emocional en cuatro áreas diferentes:
-        </p>
-        <ul>
-          <li>Desarrollo Personal.</li>
-          <li>Vínculos Interpersonales.</li>
-          <li>Competencias para la Vida.</li>
-          <li>Comunicación Interpersonal.</li>
-        </ul>
+          <p><b>La integridad</b> se refiere a la capacidad para mantener las propias ideas, opiniones y acciones basadas principalmente en cuatro valores: <b>honestidad</b>, <b>rectitud</b>, <b>verdad</b> y <b>justicia</b>.</p><p><b>Valores de Integridad</b> es una autoevaluación compuesta por <b>96 afirmaciones</b> divididas en <b>tres secciones</b> diferentes, cuyo objetivo principal es identificar las ideas, opiniones y acciones que tienes, te has formado y realizas respecto a los valores antes mencionados.</p><p>Es una autoevaluación porque te invita a la reflexión y a que te conozcas más en relación a esta capacidad llamada integridad; por lo tanto, es importante que leas detenidamente la afirmación y que la contestes sinceramente, apoyándote en el conocimiento que tienes de ti mismo(a) y de la forma como actúas ante diferentes situaciones de la vida cotidiana.</p>
         <div class="instructions-header">
           INSTRUCCIONES PARA LLENAR LA EVALUACIÓN
         </div>
@@ -554,7 +616,166 @@ padding-right: calc(100vw - 100%);
   <script>
     console.log("ready!");
 
-    let __startTime = Date.now();
+    
+
+
+
+
+
+// --- Integridad: estado de pantallas de sección (global) ---
+if (typeof preintroSeenSection === "undefined") {
+  // eslint-disable-next-line no-var
+  var preintroSeenSection = { 1:false, 2:false, 3:false };
+}
+
+// --- Integridad: showPreintro/hidePreintro fallback (si no existe el modal) ---
+function ensurePreintroModal(){
+  let bd = document.getElementById("preintroBackdrop");
+  if (bd) return bd;
+
+  bd = document.createElement("div");
+  bd.className = "preintro-backdrop";
+  bd.id = "preintroBackdrop";
+  bd.style.display = "none";
+  bd.style.alignItems = "center";
+  bd.style.justifyContent = "center";
+  bd.style.position = "fixed";
+  bd.style.inset = "0";
+  bd.style.background = "rgba(0,0,0,.35)";
+  bd.style.zIndex = "9999";
+
+  const card = document.createElement("div");
+  card.className = "preintro-card";
+  card.style.width = "min(920px, calc(100vw - 32px))";
+  card.style.maxHeight = "calc(100vh - 32px)";
+  card.style.overflow = "auto";
+  card.style.background = "#fff";
+  card.style.borderRadius = "14px";
+  card.style.boxShadow = "0 18px 60px rgba(0,0,0,.25)";
+  card.style.padding = "22px 22px 18px";
+
+  const content = document.createElement("div");
+  content.id = "preintroContent";
+
+  const actions = document.createElement("div");
+  actions.className = "preintro-actions";
+  actions.style.display = "flex";
+  actions.style.justifyContent = "flex-end";
+  actions.style.gap = "10px";
+  actions.style.marginTop = "14px";
+
+  const backBtn = document.createElement("button");
+  backBtn.className = "preintro-btn secondary";
+  backBtn.id = "preintroBackBtn";
+  backBtn.type = "button";
+  backBtn.textContent = "Atrás";
+  backBtn.style.display = "none";
+  backBtn.style.border = "0";
+  backBtn.style.borderRadius = "999px";
+  backBtn.style.padding = "10px 16px";
+  backBtn.style.fontWeight = "800";
+  backBtn.style.cursor = "pointer";
+  backBtn.style.background = "rgba(0,0,0,.06)";
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "preintro-btn primary";
+  nextBtn.id = "preintroNextBtn";
+  nextBtn.type = "button";
+  nextBtn.textContent = "Siguiente";
+  nextBtn.style.border = "0";
+  nextBtn.style.borderRadius = "999px";
+  nextBtn.style.padding = "10px 16px";
+  nextBtn.style.fontWeight = "800";
+  nextBtn.style.cursor = "pointer";
+  nextBtn.style.background = "#16a34a";
+  nextBtn.style.color = "#fff";
+
+  actions.appendChild(backBtn);
+  actions.appendChild(nextBtn);
+
+  card.appendChild(content);
+  card.appendChild(actions);
+  bd.appendChild(card);
+  document.body.appendChild(bd);
+
+  return bd;
+}
+
+function showPreintro(htmlStr, {showBack=false, nextText="Siguiente"} = {}){
+  const bd = ensurePreintroModal();
+  const ct = document.getElementById("preintroContent");
+  const nextBtn = document.getElementById("preintroNextBtn");
+  const backBtn = document.getElementById("preintroBackBtn");
+  if (ct) ct.innerHTML = htmlStr || "";
+  if (bd){
+    bd.style.display = "flex";
+    bd.setAttribute("aria-hidden", "false");
+  }
+  if (backBtn) backBtn.style.display = showBack ? "inline-flex" : "none";
+  if (nextBtn) nextBtn.textContent = nextText;
+  setTimeout(() => { try { nextBtn && nextBtn.focus(); } catch(e){} }, 0);
+}
+
+function hidePreintro(){
+  const bd = document.getElementById("preintroBackdrop");
+  if (bd){
+    bd.style.display = "none";
+    bd.setAttribute("aria-hidden", "true");
+  }
+}
+
+// --- Integridad: PREINTRO fallback (por si el bloque no se insertó) ---
+if (typeof PREINTRO === "undefined") {
+  // eslint-disable-next-line no-var
+  var PREINTRO = {
+    introHtml: `
+      <h2 class="preintro-title" id="preintroTitle">Evaluación Integridad</h2>
+      <p class="preintro-p"><b>La integridad</b> se refiere a la capacidad para mantener las propias ideas, opiniones y acciones basadas principalmente en cuatro valores: <b>honestidad</b>, <b>rectitud</b>, <b>verdad</b> y <b>justicia</b>.</p>
+      <p class="preintro-p"><b>Valores de Integridad</b> es una autoevaluación compuesta por <b>96 afirmaciones</b> divididas en <b>tres secciones</b> diferentes, cuyo objetivo principal es identificar las ideas, opiniones y acciones que tienes, te has formado y realizas respecto a los valores antes mencionados.</p>
+      <p class="preintro-p">Es una autoevaluación porque te invita a la reflexión y a que te conozcas más en relación a esta capacidad llamada integridad; por lo tanto, es importante que leas detenidamente la afirmación y que la contestes sinceramente, apoyándote en el conocimiento que tienes de ti mismo(a) y de la forma como actúas ante diferentes situaciones de la vida cotidiana.</p>
+    `,
+    instruccionesHtml: `
+      <h2 class="preintro-title" id="preintroTitle">Instrucciones</h2>
+      <ul class="preintro-ul">
+        <li>Lee con detenimiento cada afirmación.</li>
+        <li>Reflexiona.</li>
+        <li>Selecciona el alvéolo que corresponda a tu respuesta.</li>
+        <li>Una vez que inicies la autoevaluación continúa hasta terminar.</li>
+        <li>Te tomará 20 minutos, aproximadamente.</li>
+      </ul>
+      <div class="preintro-grid">
+        <div class="preintro-box">
+          <h4>Sección 1</h4>
+          <ul class="preintro-ul"><li>Rara vez</li><li>Algunas veces</li><li>Frecuentemente</li></ul>
+        </div>
+        <div class="preintro-box">
+          <h4>Sección 2</h4>
+          <ul class="preintro-ul"><li>Poco</li><li>Algo</li><li>Mucho</li></ul>
+        </div>
+        <div class="preintro-box">
+          <h4>Sección 3</h4>
+          <ul class="preintro-ul"><li>En desacuerdo</li><li>De acuerdo</li><li>Totalmente de acuerdo</li></ul>
+        </div>
+      </div>
+    `,
+    seccionHtml: (sec) => {
+      const safeLabels = (typeof labelsPorSeccion === "function")
+        ? labelsPorSeccion(sec)
+        : (sec === 1 ? ["Frecuentemente","Algunas veces","Rara vez"] : sec === 2 ? ["Mucho","Algo","Poco"] : ["Totalmente de acuerdo","De acuerdo","En desacuerdo"]);
+      return `
+        <h2 class="preintro-title" id="preintroTitle">Sección ${sec}</h2>
+        <p class="preintro-p"><b>Contesta ahora en base a los siguientes criterios:</b></p>
+        <ul class="preintro-ul">
+          <li>${safeLabels[2]}</li>
+          <li>${safeLabels[1]}</li>
+          <li>${safeLabels[0]}</li>
+        </ul>
+      `;
+    }
+  };
+}
+
+let __startTime = Date.now();
 
     let CODIGO_ACTUAL = null;
     const STORAGE_PREFIX = "eval_ie_state_";
@@ -911,7 +1132,7 @@ function norm(str) { return (str || "").trim(); }
 
     function construirPreguntas() {
       ITEMS = parsePreguntas(PREGUNTAS_CSV);
-      currentPage = 0;
+currentPage = 0;
       renderPage();
       updateProgress();
     }
@@ -1075,7 +1296,7 @@ for (let i = start; i < end; i++) {
       ITEMS.forEach(q => { q.value = null; });
       currentPage = 0;
       saveState(false);
-      mostrarPantallaPreguntas();
+      // NOTA: La pantalla de preguntas se muestra después de las pantallas intro/instrucciones.
     }
 
     function onSiguienteClick() {
@@ -1266,7 +1487,55 @@ for (let i = start; i < end; i++) {
 
       btnIniciar.disabled = true;
 
-      btnIniciar.addEventListener("click", async () => {
+      
+// --- Integridad: runner de pantallas previas antes de mostrar preguntas ---
+function runPreintroAntesDePreguntas(onDone){
+  try {
+    const steps = [
+      PREINTRO.introHtml,
+      PREINTRO.instruccionesHtml,
+      PREINTRO.seccionHtml(1)
+    ];
+    let i = 0;
+
+    const renderStep = () => {
+      const isLast = i === steps.length - 1;
+      showPreintro(steps[i], { showBack: i > 0, nextText: isLast ? "Comenzar" : "Siguiente" });
+
+      const nextBtn = document.getElementById("preintroNextBtn");
+      const backBtn = document.getElementById("preintroBackBtn");
+
+      if (nextBtn){
+        nextBtn.onclick = () => {
+          if (i < steps.length - 1){
+            i += 1;
+            renderStep();
+          } else {
+            preintroSeenSection[1] = true;
+            hidePreintro();
+            if (typeof onDone === "function") onDone();
+          }
+        };
+      }
+      if (backBtn){
+        backBtn.onclick = () => {
+          if (i > 0){
+            i -= 1;
+            renderStep();
+          }
+        };
+      }
+    };
+
+    renderStep();
+  } catch (e){
+    console.warn("runPreintroAntesDePreguntas skipped:", e);
+    if (typeof onDone === "function") onDone();
+  }
+}
+
+
+btnIniciar.addEventListener("click", async () => {
         if (!validarAntesDeIniciar()) return;
 
         if (!CODIGO_ACTUAL) {
@@ -1295,16 +1564,29 @@ for (let i = start; i < end; i++) {
             clearState();
           }
         }
-
         iniciarEvaluacionNueva();
+        runPreintroAntesDePreguntas(() => {
+          mostrarPantallaPreguntas();
+        });
       });
-
-      document.getElementById("btnSiguiente").addEventListener("click", onSiguienteClick);
+document.getElementById("btnSiguiente").addEventListener("click", onSiguienteClick);
 
       document.getElementById("btnRegresarMenu").addEventListener("click", () => {
         window.location.href = "index.html";
       });
     });
   </script>
+
+<!-- Pantallas previas (sin logos) -->
+<div class="preintro-backdrop" id="preintroBackdrop" aria-hidden="true">
+  <div class="preintro-card" role="dialog" aria-modal="true" aria-labelledby="preintroTitle">
+    <div id="preintroContent"></div>
+    <div class="preintro-actions">
+      <button class="preintro-btn secondary" id="preintroBackBtn" type="button" style="display:none;">Atrás</button>
+      <button class="preintro-btn primary" id="preintroNextBtn" type="button">Siguiente</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
