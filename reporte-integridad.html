@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>KKGGCCCBNNNNNIntegridad - Reporte (AFINADO)</title>
+  <title>Integridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1402,7 +1402,27 @@ function extractAnswers(attempt){
 function estimateValidation(attempt){
   const a = extractAnswers(attempt);
   // esperamos 96 respuestas en escala 1-3
-  const arr = Array.isArray(a) ? a : (a && Array.isArray(a.items) ? a.items : null);
+  //const arr = Array.isArray(a) ? a : (a && Array.isArray(a.items) ? a.items : null);
+  let arr = null;
+
+// Caso 1: array directo
+if (Array.isArray(a)) {
+  arr = a;
+}
+// Caso 2: {items:[...]}
+else if (a && Array.isArray(a.items)) {
+  arr = a.items;
+}
+// Caso 3: {"1":3,"2":2,...}  (objeto con llaves numéricas)
+else if (a && typeof a === "object") {
+  const keys = Object.keys(a).filter(k => /^\d+$/.test(k));
+  if (keys.length) {
+    keys.sort((x,y)=>Number(x)-Number(y));
+    arr = keys.map(k => a[k]);
+  }
+}
+
+  
   if (!arr || !arr.length) return null;
 
   const vals = [];
