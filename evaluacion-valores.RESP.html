@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>gEvaluacion Integridad</title>
+  <title>kMkEvaluacion Integridad</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -469,6 +469,42 @@ padding-right: calc(100vw - 100%);
   .preintro-title{ font-size: 22px; }
 }
 
+
+
+/* === AJUSTE: rótulo de sección dentro de preguntas (no bloqueante) === */
+.section-banner{
+  margin: 10px 0 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  color: #92400e;
+}
+
+/* === AJUSTE: ampliar datos del usuario === */
+.page{ max-width: 1200px; }
+
+#datos-participante .field label{
+  font-size: 14px;
+  font-weight: 700;
+}
+#datos-participante .field input{
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+@media (min-width: 980px){
+  #datos-participante .grid-2{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 18px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -567,6 +603,8 @@ padding-right: calc(100vw - 100%);
               <div>3</div>
             </div>
           </div>
+
+          <div id="sectionBanner" class="section-banner">Sección 1</div>
 
           <div id="questions"></div>
 
@@ -1139,7 +1177,15 @@ currentPage = 0;
       return ["Totalmente de acuerdo","De acuerdo","En desacuerdo"];
     }
 
-    function updateScaleBadgesForPage(startIdx){
+    function updateSectionBanner(startIdx){
+      const q = ITEMS[startIdx];
+      if (!q) return;
+      const sec = getSeccionById(q.id);
+      const b = document.getElementById('sectionBanner');
+      if (b) b.textContent = `Sección ${sec}`;
+    }
+
+function updateScaleBadgesForPage(startIdx){
       const q = ITEMS[startIdx];
       if (!q) return;
       const sec = getSeccionById(q.id);
@@ -1163,6 +1209,7 @@ function renderPage() {
       
 
       updateScaleBadgesForPage(start);
+      updateSectionBanner(start);
 for (let i = start; i < end; i++) {
         const q = ITEMS[i];
         const row = document.createElement("div");
@@ -1474,9 +1521,7 @@ function runPreintroAntesDePreguntas(onDone){
   try {
     const steps = [
       PREINTRO.introHtml,
-      PREINTRO.instruccionesHtml,
-      PREINTRO.seccionHtml(1)
-    ];
+      PREINTRO.instruccionesHtml];
     let i = 0;
 
     const renderStep = () => {
