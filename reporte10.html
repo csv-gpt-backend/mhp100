@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>BBBczzInteligencia Emocional – Reporte u</title>
+  <title>FIN BBBczzInteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1485,6 +1485,26 @@ const PLAN_ROLES_NIVEL = {
       items.forEach(x=>{ const li=document.createElement("li"); li.textContent=x; ul.appendChild(li); });
       cont.appendChild(ul);
     };
+        // ===== Plan por rol basado en los focos Top 3 =====
+    const hogar = [];
+    const aula  = [];
+    const apoyo = [];
+
+    focos.forEach(f=>{
+      const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel];
+      if(!pack) return;
+
+      // Agregamos 1–2 acciones por foco y rol (para que no sea infinito)
+      (pack.hogar || []).slice(0,2).forEach(x => hogar.push(`${f.key}: ${x}`));
+      (pack.aula  || []).slice(0,2).forEach(x => aula.push(`${f.key}: ${x}`));
+      (pack.apoyo || []).slice(0,2).forEach(x => apoyo.push(`${f.key}: ${x}`));
+    });
+
+    if(hogar.length) mkList("En el hogar / familia (según puntajes):", hogar);
+    if(aula.length)  mkList("En el aula / institución educativa (según puntajes):", aula);
+    if(apoyo.length) mkList("Con apoyo del orientador / psicólogo / HR (según puntajes):", apoyo);
+    // ===== Fin plan por rol =====
+
     const mkLinks=(title, links)=>{
       const t=document.createElement("div");
       t.className="plan-section-title";
@@ -1503,22 +1523,22 @@ const PLAN_ROLES_NIVEL = {
       cont.appendChild(ul);
     };
 
-    mkList("En el hogar / familia:", [
-      "Conversar diariamente sobre emociones y experiencias del día (validación).",
-      "Reconocer esfuerzos y avances con mensajes concretos.",
-      "Mantener rutinas claras de estudio, descanso y ocio."
-    ]);
+   // mkList("En el hogar / familia:", [
+   //   "Conversar diariamente sobre emociones y experiencias del día (validación).",
+   //   "Reconocer esfuerzos y avances con mensajes concretos.",
+    //  "Mantener rutinas claras de estudio, descanso y ocio."
+   // ]);
 
-    mkList("En el aula / institución educativa:", [
-      "Promover respeto, colaboración y expresión emocional adecuada.",
-      "Observar conductas socioemocionales relevantes y coordinar con la familia.",
-      "Incluir actividades breves de educación emocional."
-    ]);
+   // mkList("En el aula / institución educativa:", [
+   //   "Promover respeto, colaboración y expresión emocional adecuada.",
+   //   "Observar conductas socioemocionales relevantes y coordinar con la familia.",
+   //   "Incluir actividades breves de educación emocional."
+  //  ]);
 
-    mkList("Con apoyo del orientador / psicólogo:", [
-      "Si las dificultades se sostienen o son intensas, considerar evaluación más profunda y acompañamiento especializado.",
-      "Mantener comunicación periódica entre familia y escuela para alinear estrategias."
-    ]);
+   // mkList("Con apoyo del orientador / psicólogo:", [
+    //  "Si las dificultades se sostienen o son intensas, considerar evaluación más profunda y acompañamiento especializado.",
+    //  "Mantener comunicación periódica entre familia y escuela para alinear estrategias."
+   // ]);
     mkLinks("Recursos de apoyo (Escolar) — opcionales", [
       { text: "UNICEF: salud mental en adolescentes (recursos y orientación)", href: "https://www.unicef.org/parenting/mental-health" },
       { text: "OMS/WHO: habilidades para la vida (Life Skills Education)", href: "https://www.who.int/teams/health-promotion/enhanced-wellbeing/health-skills-and-education/life-skills" },
