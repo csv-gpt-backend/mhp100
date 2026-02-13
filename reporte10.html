@@ -1437,11 +1437,26 @@ const RECOM_ESTILOS = {
       li.textContent = "COMUNICACIÓN INTERPERSONAL (Agresión): trabajar control de impulsos y alternativas para expresar enojo sin dañar a otros.";
       lista.appendChild(li);
     }
-    if(extras.timidezVal != null && extras.timidezVal > 70){
-      const li=document.createElement("li");
-      li.textContent = "COMUNICACIÓN INTERPERSONAL (Timidez): favorecer participación gradual en actividades grupales con apoyo de un adulto.";
-      lista.appendChild(li);
-    }
+   // Timidez (invertida)
+if (extras.timidezVal != null){
+  const nivT = nivelFromPctInv(extras.timidezVal, true); // invertido
+  (RECOM_ESTILOS.timidez[nivT] || []).forEach(txt=>{
+    const li=document.createElement("li");
+    li.textContent = `COMUNICACIÓN INTERPERSONAL (Timidez): ${txt}`;
+    lista.appendChild(li);
+  });
+}
+
+// Agresión (invertida)
+if (extras.agresionVal != null){
+  const nivA = nivelFromPctInv(extras.agresionVal, true); // invertido
+  (RECOM_ESTILOS.agresion[nivA] || []).forEach(txt=>{
+    const li=document.createElement("li");
+    li.textContent = `COMUNICACIÓN INTERPERSONAL (Agresión): ${txt}`;
+    lista.appendChild(li);
+  });
+}
+
     if(extras.propCambioVal != null){
       if(extras.propCambioVal <= 40){
         const li=document.createElement("li");
