@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Inteligencia Emocional – Reporte u</title>
+  <title>cInteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -162,6 +162,15 @@
 
       .complementarias{ page-break-before: always; break-before: page; border-top:0; padding-top:0; }
     }
+  /* tus estilos existentes... */
+
+  /* AQUÍ PEGAS ESTO */
+  .plan-focus-box{margin:10px 0 14px;padding:10px 12px;border:1px solid #e6e6e6;border-radius:10px;}
+  .plan-focus-item{margin-top:10px;}
+  .plan-focus-head{margin-bottom:4px;}
+  .plan-focus-obj{margin:4px 0 6px;}
+  .plan-focus-meta{margin:4px 0;}
+
 
   </style>
 </head>
@@ -896,6 +905,25 @@ if (shouldAlert){
     if(p <= 70) return "medio";
     return "alto";
   }
+function nivelFromPctInv(p, invert=false){
+  if(p == null || Number.isNaN(p)) return "medio";
+  const v = Math.round(p);
+
+  if(!invert){
+    if(v <= 40) return "bajo";
+    if(v <= 70) return "medio";
+    return "alto";
+  }else{
+    // invertido para Timidez/Agresión: alto es “peor” (prioridad)
+    if(v <= 40) return "alto";
+    if(v <= 70) return "medio";
+    return "bajo";
+  }
+}
+
+function pctTxt(p){
+  return (p==null || Number.isNaN(p)) ? "—" : `${Math.round(p)}/100`;
+}
 
   const RECOM_BLOQUES = {
   intra: {
@@ -944,6 +972,172 @@ if (shouldAlert){
     ]
   }
 };
+const PLAN_ACCION_NIVEL = {
+  "DESARROLLO PERSONAL": {
+    bajo: {
+      objetivo: "Construir hábitos básicos de autorregulación y autoconfianza en 2–3 semanas.",
+      acciones: [
+        "Rutina breve diaria (5 min): identificar emoción + causa + acción útil.",
+        "Práctica 4 días/sem: respiración 4–6 (2 min) antes de tareas demandantes.",
+        "Registro semanal: 2 logros concretos + 1 ajuste para la semana siguiente."
+      ],
+      indicador: "4 prácticas/semana + 1 registro semanal completado.",
+      revision: "Revisión semanal de 10 minutos (familia/docente u otro adulto)."
+    },
+    medio: {
+      objetivo: "Consolidar estrategias de manejo de estrés y sostener hábitos saludables.",
+      acciones: [
+        "Planificar 3 prioridades por día (checklist simple) 4 días/semana.",
+        "Aplicar 1 estrategia de calma ante estrés (pausa, respiración, reencuadre) y evaluarla.",
+        "Fortalecer sueño/descanso: horario estable y higiene digital antes de dormir."
+      ],
+      indicador: "Checklist 4 días/sem + uso de estrategia ante estrés 2 veces/sem.",
+      revision: "Revisión quincenal con seguimiento de avances."
+    },
+    alto: {
+      objetivo: "Potenciar autonomía: metas personales desafiantes y liderazgo de hábitos.",
+      acciones: [
+        "Definir una meta mensual con hitos semanales (medible).",
+        "Modelar hábitos positivos en el entorno (ejemplo, apoyo a pares).",
+        "Reflexión quincenal: qué funcionó / qué mejorar / próximo objetivo."
+      ],
+      indicador: "Cumplimiento de hitos semanales (≥70%).",
+      revision: "Revisión quincenal de 15 minutos."
+    }
+  },
+
+  "VINCULOS INTERPERSONALES": {
+    bajo: {
+      objetivo: "Mejorar comunicación asertiva y empatía en interacciones cotidianas.",
+      acciones: [
+        "2 veces/sem: practicar mensajes en primera persona (yo siento / yo necesito).",
+        "Ejercicio guiado 1 vez/sem: perspectiva del otro (qué pensó/sintió/necesitó).",
+        "Resolución de conflicto: situación–emoción–pedido (plantilla breve) en 1 caso real/sem."
+      ],
+      indicador: "2 prácticas asertivas/sem + 1 ejercicio de empatía/sem.",
+      revision: "Revisión semanal: 2 ejemplos reales + feedback."
+    },
+    medio: {
+      objetivo: "Consolidar escucha activa, cooperación y límites respetuosos.",
+      acciones: [
+        "Escucha activa: resumir lo entendido y preguntar para aclarar (2 conversaciones/sem).",
+        "Reconocer conductas prosociales y cooperación (refuerzo con ejemplos).",
+        "Participar en una actividad grupal con rol definido (semanal)."
+      ],
+      indicador: "2 conversaciones/sem con escucha activa + 1 rol grupal/sem.",
+      revision: "Revisión quincenal."
+    },
+    alto: {
+      objetivo: "Potenciar liderazgo positivo y mediación constructiva.",
+      acciones: [
+        "Asumir rol de mediación/apoyo con supervisión cuando corresponda.",
+        "Facilitar convivencia: promover acuerdos y respeto en el grupo.",
+        "Mentoría breve a un par (acompañar objetivo/organización)."
+      ],
+      indicador: "1 rol de apoyo/sem + evidencia de acuerdos logrados.",
+      revision: "Revisión mensual."
+    }
+  },
+
+  "HABILIDADES PARA LA VIDA": {
+    bajo: {
+      objetivo: "Fortalecer organización, planificación y toma de decisiones.",
+      acciones: [
+        "Plan diario: 3 tareas máximas + checklist (inicio y cierre del día).",
+        "Decisión guiada: 2 opciones + consecuencias corto/largo plazo (1 caso/sem).",
+        "Micro-meta semanal: definir, ejecutar y medir avance (%)"
+      ],
+      indicador: "Checklist 4 días/sem + 1 decisión guiada/sem.",
+      revision: "Revisión semanal breve."
+    },
+    medio: {
+      objetivo: "Sostener cumplimiento de tareas y asumir iniciativas pequeñas.",
+      acciones: [
+        "Bloques de trabajo 20–25 min (2–3 veces/sem) con pausa breve.",
+        "Rol pequeño de iniciativa/liderazgo con supervisión (semanal).",
+        "Revisión de tareas: qué quedó pendiente y plan de recuperación."
+      ],
+      indicador: "2 bloques/sem + 1 rol/sem.",
+      revision: "Revisión quincenal."
+    },
+    alto: {
+      objetivo: "Expandir liderazgo, autonomía y coordinación de proyectos.",
+      acciones: [
+        "Responsabilidad estable (encargo fijo) con seguimiento semanal.",
+        "Coordinar una actividad/proyecto (plan–ejecución–cierre).",
+        "Reflexión: lecciones aprendidas y mejoras para el siguiente proyecto."
+      ],
+      indicador: "Proyecto completado + seguimiento semanal.",
+      revision: "Revisión mensual."
+    }
+  },
+
+  "TIMIDEZ": {
+    bajo: {
+      objetivo: "Reducir evitación y aumentar participación gradual en 2–3 semanas.",
+      acciones: [
+        "Exposición gradual: 1 interacción breve por día (saludar/preguntar/participar).",
+        "Guiones sociales: inicio–mantención–cierre (2 prácticas/sem, 5 min).",
+        "Apoyo: elegir un “compañero puente” o adulto de referencia para situaciones grupales."
+      ],
+      indicador: "≥5 interacciones/sem + 2 prácticas de guion/sem.",
+      revision: "Revisión semanal con registro simple."
+    },
+    medio: {
+      objetivo: "Sostener participación y fortalecer seguridad al expresarse.",
+      acciones: [
+        "Intervenir 1 vez por clase/reunión (o equivalente) y registrar avance.",
+        "Practicar pedir ayuda / expresar opinión con retroalimentación (2 veces/sem).",
+        "Preparar frases de inicio (2–3) para contextos frecuentes."
+      ],
+      indicador: "≥3 participaciones/sem + 2 prácticas/sem.",
+      revision: "Revisión quincenal."
+    },
+    alto: {
+      objetivo: "Mantener participación funcional y asumir pequeños roles comunicacionales.",
+      acciones: [
+        "Asumir un rol breve de comunicación (presentar, coordinar, informar).",
+        "Mantener práctica de habilidades sociales (semanal).",
+        "Refuerzo de logros y ajuste de metas (mensual)."
+      ],
+      indicador: "Rol comunicacional 1 vez/mes + participación sostenida.",
+      revision: "Revisión mensual."
+    }
+  },
+
+  "AGRESION": {
+    bajo: {
+      objetivo: "Disminuir reacciones impulsivas y mejorar manejo del conflicto en 2–3 semanas.",
+      acciones: [
+        "Pausa antes de responder: respiración 4–6 + ‘tiempo fuera’ breve (1–2 min).",
+        "Identificar detonantes y usar frases puente (‘lo reviso y vuelvo’, ‘necesito un minuto’).",
+        "Resolución de conflicto: describir hechos + pedir cambio específico sin descalificar (1 caso/sem)."
+      ],
+      indicador: "≥3 pausas aplicadas/sem + 1 conflicto abordado con guía/sem.",
+      revision: "Revisión semanal con ejemplos concretos."
+    },
+    medio: {
+      objetivo: "Sostener autocontrol y comunicación asertiva en situaciones demandantes.",
+      acciones: [
+        "Monitorear señales tempranas y aplicar estrategia de regulación (2–3 veces/sem).",
+        "Practicar límites respetuosos (2 situaciones/sem).",
+        "Reparación: si hubo conflicto, conversar y acordar alternativa."
+      ],
+      indicador: "2 estrategias/sem + 2 límites/sem.",
+      revision: "Revisión quincenal."
+    },
+    alto: {
+      objetivo: "Mantener control emocional y modelar resolución pacífica de conflictos.",
+      acciones: [
+        "Modelar comunicación calmada y negociación (cuando corresponda).",
+        "Revisar semanalmente situaciones difíciles y estrategias efectivas.",
+        "Apoyar acuerdos y convivencia (rol de apoyo con supervisión)."
+      ],
+      indicador: "Incidentes críticos disminuyen + estrategias registradas.",
+      revision: "Revisión mensual."
+    }
+  }
+};
 
   function renderRecomendaciones(extras){
     const cont = document.getElementById("recomendaciones");
@@ -959,6 +1153,43 @@ if (shouldAlert){
     sub.className = "recom-subtitle";
     sub.textContent = "Las siguientes recomendaciones se generan a partir de los puntajes obtenidos y pueden usarse como guía inicial de acompañamiento.";
     cont.appendChild(sub);
+    // ===== Prioridades según puntaje (Top 3) =====
+    const items = [
+      { key:"DESARROLLO PERSONAL", pct: extras.bIntra, invert:false },
+      { key:"VINCULOS INTERPERSONALES", pct: extras.bInter, invert:false },
+      { key:"HABILIDADES PARA LA VIDA", pct: extras.bPV, invert:false },
+    ];
+    if (extras.timidezVal != null) items.push({ key:"TIMIDEZ", pct: extras.timidezVal, invert:true });
+    if (extras.agresionVal != null) items.push({ key:"AGRESION", pct: extras.agresionVal, invert:true });
+
+    items.forEach(it => it.nivel = nivelFromPctInv(it.pct, it.invert));
+
+    const ord = { bajo: 0, medio: 1, alto: 2 };
+    items.sort((a,b)=> (ord[a.nivel]??9) - (ord[b.nivel]??9));
+
+    const candidatos = items.filter(x => x.nivel !== "alto");
+    const focos = (candidatos.length ? candidatos : items).slice(0,3);
+
+    const box = document.createElement("div");
+    box.className = "plan-focus-box";
+    box.innerHTML = `<div class="plan-section-title">Prioridades según puntaje</div>`;
+    focos.forEach(f=>{
+      const pack = PLAN_ACCION_NIVEL[f.key]?.[f.nivel];
+      if(!pack) return;
+
+      const sec = document.createElement("div");
+      sec.className = "plan-focus-item";
+      sec.innerHTML = `
+        <div class="plan-focus-head"><b>${f.key}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
+        <div class="plan-focus-obj"><b>Objetivo:</b> ${pack.objetivo}</div>
+        <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(a)}</li>`).join("")}</ul>
+        <div class="plan-focus-meta"><b>Indicador:</b> ${pack.indicador}</div>
+        <div class="plan-focus-meta"><b>Revisión:</b> ${pack.revision}</div>
+      `;
+      box.appendChild(sec);
+    });
+    cont.appendChild(box);
+    // ===== Fin prioridades =====
 
     const lista = document.createElement("ul");
     lista.className = "recom-list";
