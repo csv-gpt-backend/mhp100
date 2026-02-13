@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>KKKAAOOFIN BBBczzInteligencia Emocional – Reporte u</title>
+  <title>TAAOOFIN BBBczzInteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -282,7 +282,7 @@
       <div class="rep-bloque" id="bloqueIntra"></div>
 
       <div class="bloque-title">
-        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblInter">VÍNCULOS INTERPERSONALES</span></div>
+        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblInter">VINCULOS INTERPERSONALES</span></div>
         <div>IVI: <span class="ih-badge" id="ihInter">—</span></div>
       </div>
       <div class="rep-bloque" id="bloqueInter"></div>
@@ -446,13 +446,13 @@
   const DISPLAY = {
     bloque: {
       "desarrollo personal": "DESARROLLO PERSONAL",
-      "vínculos interpersonales": "VÍNCULOS INTERPERSONALES",
+      "vínculos interpersonales": "VINCULOS INTERPERSONALES",
       "competencias para la vida": "HABILIDADES PARA LA VIDA",
       "estilos de comunicación interpersonal": "COMUNICACIÓN INTERPERSONAL",
       "propensión al cambio": "ADAPTACIÓN AL CAMBIO",
 
       "habilidades intrapersonales": "DESARROLLO PERSONAL",
-    "habilidades interpersonales": "VÍNCULOS INTERPERSONALES",
+    "habilidades interpersonales": "VINCULOS INTERPERSONALES",
     "habilidades para la vida": "HABILIDADES PARA LA VIDA"
     },
     sub: {}
@@ -803,7 +803,7 @@ function dispBloque(name){
 
   const DATA_BLOQUE_POR_TITULO = {
     "DESARROLLO PERSONAL": "Habilidades intrapersonales",
-    "VÍNCULOS INTERPERSONALES": "Habilidades interpersonales",
+    "VINCULOS INTERPERSONALES": "Habilidades interpersonales",
     "HABILIDADES PARA LA VIDA": "Habilidades para la vida",
     "COMUNICACIÓN INTERPERSONAL": "Estilos de comunicación interpersonal",
     "ADAPTACIÓN AL CAMBIO": "Propensión al cambio"
@@ -1432,17 +1432,19 @@ const RECOM_ESTILOS = {
     (RECOM_BLOQUES.inter[nInter] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "VÍNCULOS INTERPERSONALES: " + t; lista.appendChild(li); });
     (RECOM_BLOQUES.vida[nPV] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "HABILIDADES PARA LA VIDA: " + t; lista.appendChild(li); });
 
-    if(extras.agresionVal != null && extras.agresionVal > 70){
-      const li=document.createElement("li");
-      li.textContent = "COMUNICACIÓN INTERPERSONAL (Agresión): trabajar control de impulsos y alternativas para expresar enojo sin dañar a otros.";
-      lista.appendChild(li);
+    // Encabezado único para Comunicación Interpersonal
+    if (extras.timidezVal != null || extras.agresionVal != null){
+      const liHead = document.createElement("li");
+      liHead.textContent = "COMUNICACIÓN INTERPERSONAL:";
+      liHead.style.fontWeight = "800";
+      lista.appendChild(liHead);
     }
-   // Timidez (invertida)
+// Timidez (invertida)
 if (extras.timidezVal != null){
   const nivT = nivelFromPctInv(extras.timidezVal, true); // invertido
   (RECOM_ESTILOS.timidez[nivT] || []).forEach(txt=>{
     const li=document.createElement("li");
-    li.textContent = `COMUNICACIÓN INTERPERSONAL (Timidez): ${txt}`;
+    li.textContent = `Timidez: ${txt}`;
     lista.appendChild(li);
   });
 }
@@ -1452,7 +1454,7 @@ if (extras.agresionVal != null){
   const nivA = nivelFromPctInv(extras.agresionVal, true); // invertido
   (RECOM_ESTILOS.agresion[nivA] || []).forEach(txt=>{
     const li=document.createElement("li");
-    li.textContent = `COMUNICACIÓN INTERPERSONAL (Agresión): ${txt}`;
+    li.textContent = `Agresión: ${txt}`;
     lista.appendChild(li);
   });
 }
@@ -1513,7 +1515,7 @@ if (extras.agresionVal != null){
       const sec = document.createElement("div");
       sec.className = "plan-focus-item";
       sec.innerHTML = `
-<div class="plan-focus-head"><b>${((f.key==="AGRESION")?"AGRESIÓN":(f.key==="VINCULOS INTERPERSONALES")?"VÍNCULOS INTERPERSONALES":f.key)}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
+<div class="plan-focus-head"><b>${(f.key==="AGRESION"?"AGRESIÓN":f.key)}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
         <div class="plan-focus-obj"><b>Objetivo:</b> ${pack.objetivo}</div>
         <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(a)}</li>`).join("")}</ul>
         <div class="plan-focus-meta"><b>Indicador:</b> ${pack.indicador}</div>
@@ -1539,10 +1541,7 @@ if (extras.agresionVal != null){
       const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel];
       if(!pack) return;
 
-      const keyDisp =
-        (f.key === "AGRESION") ? "AGRESIÓN" :
-        (f.key === "VINCULOS INTERPERSONALES") ? "VÍNCULOS INTERPERSONALES" :
-        f.key;
+      const keyDisp = (f.key === "AGRESION") ? "AGRESIÓN" : f.key;
 
       // Agregamos 1–2 acciones por foco y rol (para que no sea infinito)
       (pack.hogar || []).slice(0,2).forEach(x => hogar.push(`${keyDisp}: ${x}`));
@@ -1723,7 +1722,7 @@ if (extras.agresionVal != null){
     if(h1 && h2) h2.innerHTML = h1.innerHTML;
 
     renderBloqueInterpretacion("interpIntra","DESARROLLO PERSONAL","Desarrollo Personal","desarrollo", subRows, extras.bIntra);
-    renderBloqueInterpretacion("interpInter","VÍNCULOS INTERPERSONALES","Vínculos Interpersonales","vinculos", subRows, extras.bInter);
+    renderBloqueInterpretacion("interpInter","VINCULOS INTERPERSONALES","Vínculos Interpersonales","vinculos", subRows, extras.bInter);
     renderBloqueInterpretacion("interpPV","HABILIDADES PARA LA VIDA","Competencias Para la Vida","competencias", subRows, extras.bPV);
 // === TEST TEMPORAL: forzar niveles bajos (solo para verificar 3 bullets) ===
 // extras.bIntra = 30;   // Desarrollo personal -> bajo
