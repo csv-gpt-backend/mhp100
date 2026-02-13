@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>BInteligencia Emocional – Reporte</title>
+  <title>HHTAAOOFIN BBBczzInteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -69,7 +69,13 @@
       .bars-row{margin:6px 0}
       .bars-slot{height:18px}
       .bars-slot .tick-label{top:15px}
-      .scale-note-inline{margin-top:2px}
+      .scale-note-inline{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+  text-align:left;
+  position: static;
+}
 
     }
 
@@ -90,9 +96,8 @@
   font-size:11px;
   color:var(--muted);
   margin-top:4px;
-  text-align:center;
-  position: relative;
-  left: 4cm;
+  text-align:left;
+  position: static;
 }
 
     .bars-wrap{margin:8px 0}
@@ -282,7 +287,7 @@
       <div class="rep-bloque" id="bloqueIntra"></div>
 
       <div class="bloque-title">
-        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblInter">VÍNCULOS INTERPERSONALES</span></div>
+        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblInter">VINCULOS INTERPERSONALES</span></div>
         <div>IVI: <span class="ih-badge" id="ihInter">—</span></div>
       </div>
       <div class="rep-bloque" id="bloqueInter"></div>
@@ -310,6 +315,7 @@
           <span>PROMEDIO</span>
           <span>ALTO</span>
         </div>
+        <div class="scale-note-inline" id="estilosDesc"></div>
         <div class="rep-scale" id="estilos"></div>
       </div>
 
@@ -319,8 +325,8 @@
           <div class="section-dot"></div>
           <div>ADAPTACIÓN AL CAMBIO</div>
         </div>
+        <div class="scale-note-inline" id="cambioDesc"></div>
         <div class="rep-scale" id="cambio"></div>
-        <div class="scale-note-inline">      Menor adaptación al cambio       —        Mayor adaptación al cambio</div>
       </div>
 
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
@@ -446,13 +452,13 @@
   const DISPLAY = {
     bloque: {
       "desarrollo personal": "DESARROLLO PERSONAL",
-      "vínculos interpersonales": "VÍNCULOS INTERPERSONALES",
+      "vínculos interpersonales": "VINCULOS INTERPERSONALES",
       "competencias para la vida": "HABILIDADES PARA LA VIDA",
       "estilos de comunicación interpersonal": "COMUNICACIÓN INTERPERSONAL",
       "propensión al cambio": "ADAPTACIÓN AL CAMBIO",
 
       "habilidades intrapersonales": "DESARROLLO PERSONAL",
-    "habilidades interpersonales": "VÍNCULOS INTERPERSONALES",
+    "habilidades interpersonales": "VINCULOS INTERPERSONALES",
     "habilidades para la vida": "HABILIDADES PARA LA VIDA"
     },
     sub: {}
@@ -1515,7 +1521,7 @@ if (extras.agresionVal != null){
       const sec = document.createElement("div");
       sec.className = "plan-focus-item";
       sec.innerHTML = `
-<div class="plan-focus-head"><b>${(f.key==="AGRESION"?"AGRESIÓN":(f.key==="VINCULOS INTERPERSONALES"?"VÍNCULOS INTERPERSONALES":f.key))}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
+<div class="plan-focus-head"><b>${(f.key==="AGRESION"?"AGRESIÓN":f.key)}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
         <div class="plan-focus-obj"><b>Objetivo:</b> ${pack.objetivo}</div>
         <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(a)}</li>`).join("")}</ul>
         <div class="plan-focus-meta"><b>Indicador:</b> ${pack.indicador}</div>
@@ -1541,7 +1547,7 @@ if (extras.agresionVal != null){
       const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel];
       if(!pack) return;
 
-      const keyDisp = (f.key === "AGRESION") ? "AGRESIÓN" : (f.key === "VINCULOS INTERPERSONALES") ? "VÍNCULOS INTERPERSONALES" : f.key;
+      const keyDisp = (f.key === "AGRESION") ? "AGRESIÓN" : f.key;
 
       // Agregamos 1–2 acciones por foco y rol (para que no sea infinito)
       (pack.hogar || []).slice(0,2).forEach(x => hogar.push(`${keyDisp}: ${x}`));
@@ -1849,22 +1855,13 @@ if (extras.agresionVal != null){
     renderBars("cambio", [
       {label:"ADAPTACIÓN AL CAMBIO", val: propCambioVal, id:"mCambio"}
     ], false);
-// ---- Descripciones debajo del título (detalle) ----
-const estilosEl = document.getElementById("estilos");
-if (estilosEl && BLOQUE_DESCS.comunicacion) {
-  const desc = document.createElement("div");
-  desc.className = "scale-note-inline";
-  desc.textContent = BLOQUE_DESCS.comunicacion;
-  estilosEl.insertBefore(desc, estilosEl.firstChild);
-}
 
-const cambioEl = document.getElementById("cambio");
-if (cambioEl && BLOQUE_DESCS.adaptacion) {
-  const desc = document.createElement("div");
-  desc.className = "scale-note-inline";
-  desc.textContent = BLOQUE_DESCS.adaptacion;
-  cambioEl.insertBefore(desc, cambioEl.firstChild);
-}
+
+// Descripciones (detalle)
+const eDesc = document.getElementById("estilosDesc");
+if (eDesc) eDesc.textContent = BLOQUE_DESCS.comunicacion || "";
+const cDesc = document.getElementById("cambioDesc");
+if (cDesc) cDesc.textContent = BLOQUE_DESCS.adaptacion || "";
 
     setMarker("mAgresion", agresionVal);
     setMarker("mTimidez", timidezVal);
