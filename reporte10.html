@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>czzInteligencia Emocional – Reporte u</title>
+  <title>BBBczzInteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1162,44 +1162,7 @@ const PLAN_ACCION_NIVEL = {
     sub.className = "recom-subtitle";
     sub.textContent = "Las siguientes recomendaciones se generan a partir de los puntajes obtenidos y pueden usarse como guía inicial de acompañamiento.";
     cont.appendChild(sub);
-    // ===== Prioridades según puntaje (Top 3) =====
-    const items = [
-      { key:"DESARROLLO PERSONAL", pct: extras.bIntra, invert:false },
-      { key:"VINCULOS INTERPERSONALES", pct: extras.bInter, invert:false },
-      { key:"HABILIDADES PARA LA VIDA", pct: extras.bPV, invert:false },
-    ];
-    if (extras.timidezVal != null) items.push({ key:"TIMIDEZ", pct: extras.timidezVal, invert:true });
-    if (extras.agresionVal != null) items.push({ key:"AGRESION", pct: extras.agresionVal, invert:true });
-
-    items.forEach(it => it.nivel = nivelFromPctInv(it.pct, it.invert));
-
-    const ord = { bajo: 0, medio: 1, alto: 2 };
-    items.sort((a,b)=> (ord[a.nivel]??9) - (ord[b.nivel]??9));
-
-    const candidatos = items.filter(x => x.nivel !== "alto");
-    const focos = (candidatos.length ? candidatos : items).slice(0,3);
-
-    const box = document.createElement("div");
-    box.className = "plan-focus-box";
-    box.innerHTML = `<div class="plan-section-title">Prioridades según puntaje</div>`;
-    focos.forEach(f=>{
-      const pack = PLAN_ACCION_NIVEL[f.key]?.[f.nivel];
-      if(!pack) return;
-
-      const sec = document.createElement("div");
-      sec.className = "plan-focus-item";
-      sec.innerHTML = `
-        <div class="plan-focus-head"><b>${f.key}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
-        <div class="plan-focus-obj"><b>Objetivo:</b> ${pack.objetivo}</div>
-        <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(a)}</li>`).join("")}</ul>
-        <div class="plan-focus-meta"><b>Indicador:</b> ${pack.indicador}</div>
-        <div class="plan-focus-meta"><b>Revisión:</b> ${pack.revision}</div>
-      `;
-      box.appendChild(sec);
-    });
-    cont.appendChild(box);
-    // ===== Fin prioridades =====
-
+    
     const lista = document.createElement("ul");
     lista.className = "recom-list";
 
@@ -1250,6 +1213,43 @@ const PLAN_ACCION_NIVEL = {
     sub.className="recom-subtitle";
     sub.textContent="Orientaciones generales para acompañar el desarrollo socioemocional. No reemplaza valoración clínica.";
     cont.appendChild(sub);
+// ===== Prioridades según puntaje (Top 3) =====
+    const items = [
+      { key:"DESARROLLO PERSONAL", pct: extras.bIntra, invert:false },
+      { key:"VINCULOS INTERPERSONALES", pct: extras.bInter, invert:false },
+      { key:"HABILIDADES PARA LA VIDA", pct: extras.bPV, invert:false },
+    ];
+    if (extras.timidezVal != null) items.push({ key:"TIMIDEZ", pct: extras.timidezVal, invert:true });
+    if (extras.agresionVal != null) items.push({ key:"AGRESION", pct: extras.agresionVal, invert:true });
+
+    items.forEach(it => it.nivel = nivelFromPctInv(it.pct, it.invert));
+
+    const ord = { bajo: 0, medio: 1, alto: 2 };
+    items.sort((a,b)=> (ord[a.nivel]??9) - (ord[b.nivel]??9));
+
+    const candidatos = items.filter(x => x.nivel !== "alto");
+    const focos = (candidatos.length ? candidatos : items).slice(0,3);
+
+    const box = document.createElement("div");
+    box.className = "plan-focus-box";
+    box.innerHTML = `<div class="plan-section-title">Prioridades según puntaje</div>`;
+    focos.forEach(f=>{
+      const pack = PLAN_ACCION_NIVEL[f.key]?.[f.nivel];
+      if(!pack) return;
+
+      const sec = document.createElement("div");
+      sec.className = "plan-focus-item";
+      sec.innerHTML = `
+        <div class="plan-focus-head"><b>${f.key}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
+        <div class="plan-focus-obj"><b>Objetivo:</b> ${pack.objetivo}</div>
+        <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(a)}</li>`).join("")}</ul>
+        <div class="plan-focus-meta"><b>Indicador:</b> ${pack.indicador}</div>
+        <div class="plan-focus-meta"><b>Revisión:</b> ${pack.revision}</div>
+      `;
+      box.appendChild(sec);
+    });
+    cont.appendChild(box);
+    // ===== Fin prioridades =====
 
     const mkList=(title, items)=>{
       const t=document.createElement("div"); t.className="plan-section-title"; t.textContent=title; cont.appendChild(t);
