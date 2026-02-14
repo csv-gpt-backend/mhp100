@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>fffEvaluación de Integridad</title>
+  <title>XCXEvaluación de Integridad</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -12,19 +12,21 @@
     }
 
     /* ===== FIX #1: evita que el ancho “salte” por aparición/desaparición del scroll ===== */
-    html { overflow-y: scroll; }
-html { scrollbar-gutter: stable; }
+html{
+  overflow-y: scroll;                 /* fuerza scroll siempre */
+  scrollbar-gutter: stable both-edges;/* reserva espacio SIEMPRE */
+}
 
-    /* ===== FIX #2: letra un poquito más grande (suave) ===== */
-    body {
-      margin: 0;
-      padding: 0;
-      background: #ffffff;
-      font-size: 16px;
-      overflow-y: scroll;
-padding-right: calc(100vw - 100%);
+body{
+  margin:0;
+  padding:0;
+  background:#fff;
+  font-size:16px;
+  overflow-x:hidden;                  /* evita micro-scroll horizontal */
+  /* OJO: NO pongas overflow-y aquí */
+  /* OJO: QUITA el padding-right: calc(100vw - 100%); */
+}
 
-    }
 
     .layout {
       display: grid;
@@ -527,12 +529,12 @@ padding-right: calc(100vw - 100%);
 
     <main class="page">
       <header>
-        <h1>Evaluación Integridad</h1>
+<h1 style="text-align:center;">EVALUACIÓN DE INTEGRIDAD</h1>
       </header>
 
       <!-- Datos del participante -->
-      <section id="datos-participante" class="card">
-        <div class="grid-2">
+<section id="datos-participante" class="card" style="margin-top: 50px;"> 
+  <div class="grid-2">
           <div class="field">
             <label for="codigo">Código</label>
             <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
@@ -1013,102 +1015,103 @@ let __startTime = Date.now();
     let currentPage = 0;
 
     const PREGUNTAS_CSV = `
-1;Cito de quien fue la idea de algo que me parece bueno.;Integridad;Rectitud;Sí
-2;Distingo la diferencia entre un favor y un soborno.;Integridad;Honestidad;Sí
-3;Notifico cuando percibo que no estoy preparado para la tarea que me encomiendan.;Integridad;Rectitud;Sí
-4;Doy información verdadera, incluyendo la que pueda afectar el resultado que deseo.;Integridad;Veracidad;No
-5;Trato a los demás como quiero ser tratado.;Integridad;Justicia;No
-6;Cumplo mis promesas.;Integridad;Rectitud;No
-7;Hago lo posible para que nadie note mis errores.;Integridad;Rectitud;No
-8;El bien y el mal se me confunden.;Integridad;Honestidad;Sí
-9;Hago otras cosas en el tiempo que debo dedicar a tareas o responsabilidades que me piden.;Integridad;Justicia;Sí
-10;Cuando no sé algo lo invento o finjo que lo sé.;Integridad;Veracidad;Sí
-11;Digo verdades a medias.;Integridad;Veracidad;No
-12;En las discusiones me inclino a dar la razón al que más me convenga.;Integridad;Honestidad;No
-13;Distingo fácilmente lo que es bueno de lo que es malo.;Integridad;Veracidad;No
-14;Doy la cara ante los problemas afrontando las consecuencias.;Integridad;Justicia;No
-15;Presento los hechos tal y como sucedieron aun y cuando esto pueda afectarme negativamente.;Integridad;Veracidad;No
-16;Acepto mis errores sin buscar otros culpables.;Integridad;Justicia;No
-17;Evito el contacto visual.;Integridad;Honestidad;No
-18;Convenzo a la gente diciéndole lo que quiere oír.;Integridad;Honestidad;No
-19;Trato bien o mal a las personas dependiendo de cómo me caigan.;Integridad;Honestidad;No
-20;Miro a los ojos cuando estoy hablando con una persona.;Integridad;Honestidad;No
-21;Enfrento mis errores para que no culpen a terceros.;Integridad;Honestidad;No
-22;Reconozco los méritos de los demás.;Integridad;Honestidad;No
-23;Comparto información confidencial con amigos o familiares.;Integridad;Veracidad;Sí
-24;No decir toda la verdad me da resultados para obtener lo que deseo.;Integridad;Veracidad;No
-25;Prefiero no opinar, aunque sepa que se está cometiendo una injusticia.;Integridad;Justicia;No
-26;Me doy tiempo suficiente para observar y escuchar antes de juzgar una situación.;Integridad;Honestidad;No
-27;Para evitarme problemas prefiero no decir toda la verdad.;Integridad;Veracidad;No
-28;Incluyo a otros como cómplices de mis errores.;Integridad;Honestidad;No
-29;Devuelvo lo que me prestan.;Integridad;Justicia;No
-30;Expreso los hechos abiertamente.;Integridad;Veracidad;Sí
-31;Las personas me buscan como árbitro cuando tienen discusiones.;Integridad;Honestidad;No
-32;Denuncio aquello que me parece mala práctica, engaño o manipulación.;Integridad;Justicia;Sí
-33;Expongo la información que tengo tal y como es independientemente de que me beneficie o me perjudique.;Integridad;Veracidad;Sí
-34;No respeto horarios.;Integridad;Honestidad;No
-35;Reconozco cuando me he equivocado.;Integridad;Honestidad;Sí
-36;Si estoy seguro de algo lo expongo tal y como es.;Integridad;Honestidad;Sí
-37;El soborno lo entiendo también como un favor especial.;Integridad;Honestidad;Sí
-38;Me formo una opinión sobre las acciones de las personas o sus situaciones rápidamente y sin mucha profundización.;Integridad;Veracidad;Sí
-39;Ser sincero me parece una buena estrategia para lograr mis objetivos.;Integridad;Honestidad;Sí
-40;Lo que digo es diferente a lo que pienso.;Integridad;Honestidad;Sí
-41;El cumplir mis promesas depende de las circunstancias.;Integridad;Rectitud;Sí
-42;Presento las ideas de otros sin darles el crédito.;Integridad;Honestidad;Sí
-43;Realizo en tiempo y forma lo que se me pide.;Integridad;Honestidad;Sí
-44;Trato a los demás dependiendo de mi humor en el momento.;Integridad;Justicia;No
-45;Digo solo lo que me conviene que el otro escuche aunque no sea toda la verdad.;Integridad;Veracidad;No
-46;Le doy la razón a quien la tiene independientemente de mi propia conveniencia.;Integridad;Veracidad;Sí
-47;Disimulo bien cuando no sé hacer algo que los demás piensan que sé.;Integridad;Honestidad;Sí
-48;Doy a cada quien lo que merece no importa si me cae bien o mal.;Integridad;Justicia;No
-49;Intento que mis errores o negligencias parezcan ser culpa de todo el equipo o de mis jefes.;Integridad;Justicia;No
-50;Denuncio la injusticia.;Integridad;Justicia;No
-51;Evito la confrontación aun cuando tenga algo que evidenciar o denunciar.;Integridad;Honestidad;Sí
-52;Confronto a las personas que están mintiendo sobre algo importante.;Integridad;Honestidad;Sí
-53;Si no me piden las cosas olvido devolverlas.;Integridad;Justicia;No
-54;Disculpo las malas prácticas que observo.;Integridad;Honestidad;No
-55;Cuido la información catalogada como confidencial.;Integridad;Veracidad;Sí
-56;Soy coherente con las cosas que digo, hago y pienso.;Integridad;Rectitud;No
-57;La información que tengo la manipulo a mi conveniencia.;Integridad;Veracidad;Sí
-58;Aun sin vigilancia cumplo las normas.;Integridad;Rectitud;No
-59;Me cuesta trabajo dar a otros el crédito que se merecen.;Integridad;Justicia;Sí
-60;La vigilancia es lo que me hace seguir las normas establecidas.;Integridad;Rectitud;Sí
-61;Hay situaciones en que hacer lo que es correcto no me conviene.;Integridad;Rectitud;No
-62;La verdad se debe decir aún y cuando cause conflictos.;Integridad;Veracidad;No
-63;Cumplir las normas depende de las circunstancias.;Integridad;Rectitud;Sí
-64;Enfrentar los propios errores no ayuda a corregir los problemas.;Integridad;Justicia;Sí
-65;Lo ideal es mantener los valores propios aun en situaciones difíciles.;Integridad;Rectitud;Sí
-66;Me comporto de acuerdo a lo que pienso que es correcto hacer.;Integridad;Rectitud;No
-67;Si sé que algo está mal y no me incumbe, mejor me quedo callado.;Integridad;Rectitud;Sí
-68;Conviene ir ajustando nuestros valores a las circunstancias.;Integridad;Justicia;Sí
-69;Me importa más lograr mis objetivos que hacer lo correcto.;Integridad;Rectitud;No
-70;Si un producto me es de utilidad me da lo mismo si es o no original.;Integridad;Rectitud;Sí
-71;Que cada uno se defienda solo.;Integridad;Rectitud;Sí
-72;Un documento firmado merece respeto.;Integridad;Justicia;No
-73;Cuando las cosas se ponen difíciles mis principios morales son una brújula para seguir.;Integridad;Rectitud;No
-74;Prefiero quedar mal por decir una verdad, que perder la confianza de alguien por sostener una mentira.;Integridad;Veracidad;No
-75;Las acciones injustas deben denunciarse.;Integridad;Justicia;Sí
-76;Si alguien dice mentiras que afectan a los demás, es mejor no contradecirlo.;Integridad;Veracidad;Sí
-77;En las crisis ser justo no es tan importante.;Integridad;Justicia;Sí
-78;Las normas deben respetarse sin importar las circunstancias.;Integridad;Rectitud;Sí
-79;Omitir deliberadamente información relevante para la toma de decisiones es una forma de mentir.;Integridad;Veracidad;Sí
-80;La firma en un documento en realidad no significa gran cosa.;Integridad;Veracidad;Sí
-81;Hay que adecuar los principios morales a las situaciones que se presentan.;Integridad;Rectitud;No
-82;Cuando es oportuno, es válido ocultar la verdad o decir una mentira.;Integridad;Veracidad;Sí
-83;Si uno observa injusticias es mejor no involucrarse.;Integridad;Justicia;Sí
-84;Hacer lo correcto implica voluntad.;Integridad;Rectitud;No
-85;Evito adquirir productos copiados o que son de dudosa procedencia.;Integridad;Justicia;Sí
-86;Convencer a las personas de cosas que no son verdad afectaría mi imagen.;Integridad;Veracidad;No
-87;El fin justifica los medios.;Integridad;Justicia;Sí
-88;Cuando se trabaja en equipo los méritos personales no deben reconocerse.;Integridad;Rectitud;Sí
-89;Creo que la denuncia oportuna sobre malas prácticas evita muchos problemas.;Integridad;Justicia;Sí
-90;El buen juez por su casa empieza.;Integridad;Rectitud;Sí
-91;No se debe compartir toda la información que se sabe si esta te puede afectar, aunque te la pidan.;Integridad;Veracidad;No
-92;La impuntualidad es una falta de respeto al compromiso establecido.;Integridad;Rectitud;No
-93;Cuando ésta puede afectar el resultado que espero, es mejor no decir toda la verdad.;Integridad;Veracidad;No
-94;Se debe reconocer a cada uno lo que merece de acuerdo al esfuerzo que realizó.;Integridad;Justicia;Sí
-95;Para resolver bien una situación se debe tomar muy en cuenta la justicia.;Integridad;Justicia;No
-96;Hay que hacer lo moralmente correcto aunque no siempre se obtenga un beneficio.;Integridad;Rectitud;No
+1;Cito de quien fue la idea de algo que me parece bueno.;Integridad;Honestidad;1
+2;Distingo la diferencia entre un favor y un soborno.;Integridad;Honestidad;1
+3;Notifico cuando percibo que no estoy preparado para la tarea que me encomiendan.;Integridad;Honestidad;1
+4;Doy información verdadera, incluyendo la que pueda afectar el resultado que deseo.;Integridad;Veracidad;0
+5;Trato a los demás como quiero ser tratado.;Integridad;Justicia;0
+6;Cumplo mis promesas.;Integridad;Rectitud;0
+7;Hago lo posible para que nadie note mis errores.;Integridad;Honestidad;0
+8;El bien y el mal se me confunden.;Integridad;Rectitud;1
+9;Hago otras cosas en el tiempo que debo dedicar a tareas o responsabilidades que me piden.;Integridad;Rectitud;1
+10;Cuando no sé algo lo invento o finjo que lo sé.;Integridad;Veracidad;1
+11;Digo verdades a medias.;Integridad;Veracidad;0
+12;En las discusiones me inclino a dar la razón al que más me convenga.;Integridad;Honestidad;0
+13;Distingo fácilmente lo que es bueno de lo que es malo.;Integridad;Rectitud;0
+14;Doy la cara ante los problemas afrontando las consecuencias.;Integridad;Rectitud;0
+15;Presento los hechos tal y como sucedieron aun y cuando esto pueda afectarme negativamente.;Integridad;Veracidad;0
+16;Acepto mis errores sin buscar otros culpables.;Integridad;Justicia;0
+17;Evito el contacto visual.;Integridad;Honestidad;0
+18;Convenzo a la gente diciéndole lo que quiere oír.;Integridad;Honestidad;0
+19;Trato bien o mal a las personas dependiendo de cómo me caigan.;Integridad;Justicia;0
+20;Miro a los ojos cuando estoy hablando con una persona.;Integridad;Honestidad;0
+21;Enfrento mis errores para que no culpen a terceros.;Integridad;Justicia;0
+22;Reconozco los méritos de los demás.;Integridad;Justicia;0
+23;Comparto información confidencial con amigos o familiares.;Integridad;Rectitud;1
+24;No decir toda la verdad me da resultados para obtener lo que deseo.;Integridad;Veracidad;0
+25;Prefiero no opinar, aunque sepa que se está cometiendo una injusticia.;Integridad;Justicia;0
+26;Me doy tiempo suficiente para observar y escuchar antes de juzgar una situación.;Integridad;Justicia;0
+27;Para evitarme problemas prefiero no decir toda la verdad.;Integridad;Veracidad;0
+28;Incluyo a otros como cómplices de mis errores.;Integridad;Justicia;0
+29;Devuelvo lo que me prestan.;Integridad;Justicia;0
+30;Expreso los hechos abiertamente.;Integridad;Veracidad;1
+31;Las personas me buscan como árbitro cuando tienen discusiones.;Integridad;Justicia;0
+32;Denuncio aquello que me parece mala práctica, engaño o manipulación.;Integridad;Rectitud;1
+33;Expongo la información que tengo tal y como es independientemente de que me beneficie o me perjudique.;Integridad;Veracidad;1
+34;No respeto horarios.;Integridad;Rectitud;0
+35;Reconozco cuando me he equivocado.;Integridad;Honestidad;1
+36;Si estoy seguro de algo lo expongo tal y como es.;Integridad;Veracidad;1
+37;El soborno lo entiendo también como un favor especial.;Integridad;Honestidad;1
+38;Me formo una opinión sobre las acciones de las personas o sus situaciones rápidamente y sin mucha profundización.;Integridad;Justicia;1
+39;Ser sincero me parece una buena estrategia para lograr mis objetivos.;Integridad;Honestidad;1
+40;Lo que digo es diferente a lo que pienso.;Integridad;Veracidad;1
+41;El cumplir mis promesas depende de las circunstancias.;Integridad;Rectitud;1
+42;Presento las ideas de otros sin darles el crédito.;Integridad;Justicia;1
+43;Realizo en tiempo y forma lo que se me pide.;Integridad;Rectitud;1
+44;Trato a los demás dependiendo de mi humor en el momento.;Integridad;Justicia;0
+45;Digo solo lo que me conviene que el otro escuche aunque no sea toda la verdad.;Integridad;Veracidad;0
+46;Le doy la razón a quien la tiene independientemente de mi propia conveniencia.;Integridad;Justicia;1
+47;Disimulo bien cuando no sé hacer algo que los demás piensan que sé.;Integridad;Honestidad;1
+48;Doy a cada quien lo que merece no importa si me cae bien o mal.;Integridad;Justicia;0
+49;Intento que mis errores o negligencias parezcan ser culpa de todo el equipo o de mis jefes.;Integridad;Justicia;0
+50;Denuncio la injusticia.;Integridad;Justicia;0
+51;Evito la confrontación aun cuando tenga algo que evidenciar o denunciar.;Integridad;Rectitud;1
+52;Confronto a las personas que están mintiendo sobre algo importante.;Integridad;Veracidad;1
+53;Si no me piden las cosas olvido devolverlas.;Integridad;Justicia;0
+54;Disculpo las malas prácticas que observo.;Integridad;Rectitud;0
+55;Cuido la información catalogada como confidencial.;Integridad;Rectitud;1
+56;Soy coherente con las cosas que digo, hago y pienso.;Integridad;Rectitud;0
+57;La información que tengo la manipulo a mi conveniencia.;Integridad;Veracidad;1
+58;Aun sin vigilancia cumplo las normas.;Integridad;Rectitud;0
+59;Me cuesta trabajo dar a otros el crédito que se merecen.;Integridad;Justicia;1
+60;La vigilancia es lo que me hace seguir las normas establecidas.;Integridad;Rectitud;1
+61;Hay situaciones en que hacer lo que es correcto no me conviene.;Integridad;Rectitud;0
+62;La verdad se debe decir aún y cuando cause conflictos.;Integridad;Veracidad;0
+63;Cumplir las normas depende de las circunstancias.;Integridad;Rectitud;1
+64;Enfrentar los propios errores no ayuda a corregir los problemas.;Integridad;Honestidad;1
+65;Lo ideal es mantener los valores propios aun en situaciones difíciles.;Integridad;Rectitud;1
+66;Me comporto de acuerdo a lo que pienso que es correcto hacer.;Integridad;Rectitud;0
+67;Si sé que algo está mal y no me incumbe, mejor me quedo callado.;Integridad;Justicia;1
+68;Conviene ir ajustando nuestros valores a las circunstancias.;Integridad;Rectitud;1
+69;Me importa más lograr mis objetivos que hacer lo correcto.;Integridad;Rectitud;0
+70;Si un producto me es de utilidad me da lo mismo si es o no original.;Integridad;Honestidad;1
+71;Que cada uno se defienda solo.;Integridad;Justicia;1
+72;Un documento firmado merece respeto.;Integridad;Rectitud;0
+73;Cuando las cosas se ponen difíciles mis principios morales son una brújula para seguir.;Integridad;Rectitud;0
+74;Prefiero quedar mal por decir una verdad, que perder la confianza de alguien por sostener una mentira.;Integridad;Veracidad;0
+75;Las acciones injustas deben denunciarse.;Integridad;Justicia;1
+76;Si alguien dice mentiras que afectan a los demás, es mejor no contradecirlo.;Integridad;Veracidad;1
+77;En las crisis ser justo no es tan importante.;Integridad;Justicia;1
+78;Las normas deben respetarse sin importar las circunstancias.;Integridad;Rectitud;1
+79;Omitir deliberadamente información relevante para la toma de decisiones es una forma de mentir.;Integridad;Veracidad;1
+80;La firma en un documento en realidad no significa gran cosa.;Integridad;Rectitud;1
+81;Hay que adecuar los principios morales a las situaciones que se presentan.;Integridad;Rectitud;0
+82;Cuando es oportuno, es válido ocultar la verdad o decir una mentira.;Integridad;Veracidad;1
+83;Si uno observa injusticias es mejor no involucrarse.;Integridad;Justicia;1
+84;Hacer lo correcto implica voluntad.;Integridad;Rectitud;0
+85;Evito adquirir productos copiados o que son de dudosa procedencia.;Integridad;Honestidad;1
+86;Convencer a las personas de cosas que no son verdad afectaría mi imagen.;Integridad;Veracidad;0
+87;El fin justifica los medios.;Integridad;Rectitud;1
+88;Cuando se trabaja en equipo los méritos personales no deben reconocerse.;Integridad;Justicia;1
+89;Creo que la denuncia oportuna sobre malas prácticas evita muchos problemas.;Integridad;Justicia;1
+90;El buen juez por su casa empieza.;Integridad;Rectitud;1
+91;No se debe compartir toda la información que se sabe si esta te puede afectar, aunque te la pidan.;Integridad;Veracidad;0
+92;La impuntualidad es una falta de respeto al compromiso establecido.;Integridad;Rectitud;0
+93;Cuando ésta puede afectar el resultado que espero, es mejor no decir toda la verdad.;Integridad;Veracidad;0
+94;Se debe reconocer a cada uno lo que merece de acuerdo al esfuerzo que realizó.;Integridad;Justicia;1
+95;Para resolver bien una situación se debe tomar muy en cuenta la justicia.;Integridad;Justicia;0
+96;Hay que hacer lo moralmente correcto aunque no siempre se obtenga un beneficio.;Integridad;Rectitud;0
+
 `;
 function norm(str) { return (str || "").trim(); }
 
