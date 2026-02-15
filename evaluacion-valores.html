@@ -2,19 +2,23 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>JXDDDDEvaluación de Integridad</title>
+  <title>VVVJXDDDDEvaluación de Integridad</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: #111827;
       background: #ffffff;
+      --sbw: 0px;
+
     }
 
     /* ===== FIX #1: evita que el ancho “salte” por aparición/desaparición del scroll ===== */
 html{
   overflow-y: scroll;          /* reserva SIEMPRE */
   scrollbar-gutter: stable;    /* (opcional) */
+  padding-right: var(--sbw);
+
 }
 
 body { overflow-y: scroll; 
@@ -647,6 +651,14 @@ max-width: 100%;
 
   <script>
     console.log("ready!");
+(function lockScrollbarWidth(){
+  function setSBW(){
+    const sbw = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.setProperty("--sbw", (sbw > 0 ? sbw : 0) + "px");
+  }
+  setSBW();
+  window.addEventListener("resize", setSBW);
+})();
 
     
 // --- Integridad: estado de pantallas de sección (global) ---
