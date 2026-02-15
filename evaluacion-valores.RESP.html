@@ -2,30 +2,34 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>XCXEvaluación de Integridad</title>
+  <title>7777AAZZZVVVJXDDDDEvaluación de Integridad</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: #111827;
       background: #ffffff;
+      --sbw: 0px;
+
     }
 
     /* ===== FIX #1: evita que el ancho “salte” por aparición/desaparición del scroll ===== */
 html{
-  overflow-y: scroll;                 /* fuerza scroll siempre */
-  scrollbar-gutter: stable both-edges;/* reserva espacio SIEMPRE */
+  overflow-y: scroll;          /* reserva SIEMPRE */
+  scrollbar-gutter: stable;    /* (opcional) */
+  padding-right: var(--sbw);
+
 }
 
-body{
-  margin:0;
-  padding:0;
-  background:#fff;
-  font-size:16px;
-  overflow-x:hidden;                  /* evita micro-scroll horizontal */
-  /* OJO: NO pongas overflow-y aquí */
-  /* OJO: QUITA el padding-right: calc(100vw - 100%); */
+body { overflow-y: scroll; 
+    margin: 0;
+  padding: 0;
+  background: #fff;
+  font-size: 16px;
+  overflow-x: hidden;
 }
+
+
 
 
     .layout {
@@ -56,9 +60,12 @@ body{
 }
 
     .page {
-      max-width: 1000px;
+max-width: 1200px;
       margin: 0 auto;
       padding: 16px;
+      width: 100%;
+     width: 100%;
+     box-sizing: border-box;
     }
     h1 {
       font-size: 22px;
@@ -82,12 +89,12 @@ body{
       font-size: 13px;
       font-weight: 600;
     }
-   #pantalla-preguntas .card {
-  min-height: 420px;
-
+#pantalla-preguntas .card{
+overflow-x: hidden !important;
+  overflow-y: visible;
+  max-width: 100%;
 }
 
-    }
 .card {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -96,7 +103,6 @@ body{
   background: #ffffff;
   width: 100%;
   box-sizing: border-box;
-  overflow: visible;
 }
 
     .grid-2 {
@@ -190,7 +196,7 @@ body{
 
     .questions-header {
       display: grid;
-      grid-template-columns: 40px 1fr repeat(3, 80px);
+      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 80px);
       gap: 4px;
       align-items: center;
       font-size: 13px;
@@ -221,7 +227,7 @@ body{
 
     .question {
       display: grid;
-      grid-template-columns: 40px 1fr repeat(3, 80px);
+      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 80px);
       gap: 4px;
       align-items: center;
       padding: 6px 0;
@@ -326,7 +332,7 @@ body{
       margin-top: 6px;
       margin-bottom: 2px;
       display: grid;
-      grid-template-columns: 40px 1fr repeat(3, 80px);
+      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 80px);
       gap: 10px;
       align-items: end;
       width: 100%;
@@ -402,15 +408,19 @@ body{
   justify-content: center;
   z-index: 9999;
 }
+    
 .preintro-card{
-  width: min(920px, calc(100vw - 32px));
+  width: min(920px, calc(100% - 32px));
+
   max-height: calc(100vh - 32px);
   overflow: auto;
+
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 18px 60px rgba(0,0,0,.25);
   padding: 22px 22px 18px;
 }
+
 .preintro-title{
   font-size: 26px;
   font-weight: 800;
@@ -500,7 +510,6 @@ body{
 
 
 /* === AJUSTE: ampliar datos del usuario === */
-.page{ max-width: 1200px; }
 
 #datos-participante .field label{
   font-size: 14px;
@@ -645,6 +654,14 @@ body{
 
   <script>
     console.log("ready!");
+(function lockScrollbarWidth(){
+  function setSBW(){
+    const sbw = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.setProperty("--sbw", (sbw > 0 ? sbw : 0) + "px");
+  }
+  setSBW();
+  window.addEventListener("resize", setSBW);
+})();
 
     
 // --- Integridad: estado de pantallas de sección (global) ---
@@ -671,7 +688,7 @@ function ensurePreintroModal(){
 
   const card = document.createElement("div");
   card.className = "preintro-card";
-  card.style.width = "min(920px, calc(100vw - 32px))";
+  card.style.width = "min(920px, calc(100% - 32px))";
   card.style.maxHeight = "calc(100vh - 32px)";
   card.style.overflow = "auto";
   card.style.background = "#fff";
@@ -1302,7 +1319,7 @@ for (let i = start; i < end; i++) {
       document.getElementById("pantalla-preguntas").classList.remove("hidden");
       renderPage();
       updateProgress();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+window.scrollTo(0, 0);
     }
 
     function aplicarState(state) {
@@ -1349,8 +1366,7 @@ for (let i = start; i < end; i++) {
         saveState(false);
         renderPage();
         updateProgress();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
+        window.scrollTo(0, 0);      }
     }
 
     function normalizeBloqueName(name) {
@@ -1490,7 +1506,7 @@ for (let i = start; i < end; i++) {
       document.getElementById("pantalla-preguntas").classList.add("hidden");
       const pantallaFinal = document.getElementById("pantalla-final");
       pantallaFinal.style.display = "block";
-      pantallaFinal.scrollIntoView({ behavior: "smooth", block: "start" });
+       pantallaFinal.scrollIntoView({ block: "start" });
     }
 
     function inicializarDatosFijos() {
