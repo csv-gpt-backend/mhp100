@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>QgIntegridad - Reporte (AFINADO)</title>
+  <title>HQgIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1732,13 +1732,18 @@ const incohFromBackend =
   attempt?.resultados?.globales?.IV1 ??
   null;
 
-const incohEst = estimateValidation(attempt).incohPct;
+let incohSafe = 0;
 
-const incohSafe = Number.isFinite(Number(incohFromBackend))
-  ? Number(incohFromBackend)
-  : Number(incohEst) || 0;
+if (Number.isFinite(Number(incohFromBackend))) {
+  incohSafe = Number(incohFromBackend);
+} else {
+  const est = estimateValidation(attempt) || { incohPct: 0 };
+  incohSafe = Number(est.incohPct) || 0;
+}
 
-  document.getElementById("repIncoh").textContent = `${incohSafe}%`;
+document.getElementById("repIncoh").textContent = `${incohSafe}%`;
+
+  
 const g = (resultados && resultados.globales) ? resultados.globales : {};
 const nc = (g.IV2 == null ? null : Math.round(Number(g.IV2) || 0));
 document.getElementById("repContra").textContent = (nc == null ? "—" : `${nc} pts`);
