@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>UUUUssszzzBBCXIntegridad - Reporte (AFINADO)</title>
+  <title>Integridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1730,7 +1730,10 @@ function renderAll(data){
   const incohSafe = (incohN == null || Number.isNaN(incohN)) ? 0 : incohN;
   const contraSafe = (contraN == null || Number.isNaN(contraN)) ? 0 : contraN;
   document.getElementById("repIncoh").textContent = `${incohSafe}%`;
- document.getElementById("repContra").textContent = `${contraSafe}%`;
+ // document.getElementById("repContra").textContent = `${contraSafe}%`;
+const g = (resultados && resultados.globales) ? resultados.globales : {};
+const nc = (g.IV2 == null ? null : Math.round(Number(g.IV2) || 0));
+document.getElementById("repContra").textContent = (nc == null ? "—" : `${nc} pts`);
 // Tiempo (PT) desde BD: resultados.globales.IV3 (0/1/2) con rango 20–30 min
 const pt = (g.IV3 == null || g.IV3 === "") ? null : Math.round(Number(g.IV3) || 0);
 
@@ -1829,284 +1832,63 @@ function extractAnswers(attempt){
 // Estimación automática (proxy) cuando no existen pares de incoherencia/contradicción.
 // - Incoherencia: variabilidad global de respuestas (más variabilidad -> más incoherencia).
 // - Contradicción: alternancia entre respuestas consecutivas (más cambios bruscos -> más contradicción).
-
-// ===== ÍNDICES IV1 (Incoherencia) e IV2 (Contradicción) — estimación por pares =====
-// Definiciones (según ficha técnica):
-// - IV1: ante dos afirmaciones similares, responder de forma opuesta.
-// - IV2: ante dos afirmaciones en conflicto, responder de forma similar.
-//
-// Nota: Sin el "anexo" oficial de pares, aquí inferimos pares desde el banco (texto + subescala + invertida).
-const __INTEGRIDAD_CSV__ = `1;Cito de quien fue la idea de algo que me parece bueno.;Integridad;Honestidad;1
-2;Distingo la diferencia entre un favor y un soborno.;Integridad;Honestidad;1
-3;Notifico cuando percibo que no estoy preparado para la tarea que me encomiendan.;Integridad;Honestidad;1
-4;Doy información verdadera, incluyendo la que pueda afectar el resultado que deseo.;Integridad;Veracidad;0
-5;Trato a los demás como quiero ser tratado.;Integridad;Justicia;0
-6;Cumplo mis promesas.;Integridad;Rectitud;0
-7;Hago lo posible para que nadie note mis errores.;Integridad;Honestidad;0
-8;El bien y el mal se me confunden.;Integridad;Rectitud;1
-9;Hago otras cosas en el tiempo que debo dedicar a tareas o responsabilidades que me piden.;Integridad;Rectitud;1
-10;Cuando no sé algo lo invento o finjo que lo sé.;Integridad;Veracidad;1
-11;Digo verdades a medias.;Integridad;Veracidad;0
-12;En las discusiones me inclino a dar la razón al que más me convenga.;Integridad;Honestidad;0
-13;Distingo fácilmente lo que es bueno de lo que es malo.;Integridad;Rectitud;0
-14;Doy la cara ante los problemas afrontando las consecuencias.;Integridad;Rectitud;0
-15;Presento los hechos tal y como sucedieron aun y cuando esto pueda afectarme negativamente.;Integridad;Veracidad;0
-16;Acepto mis errores sin buscar otros culpables.;Integridad;Justicia;0
-17;Evito el contacto visual.;Integridad;Honestidad;0
-18;Convenzo a la gente diciéndole lo que quiere oír.;Integridad;Honestidad;0
-19;Trato bien o mal a las personas dependiendo de cómo me caigan.;Integridad;Justicia;0
-20;Miro a los ojos cuando estoy hablando con una persona.;Integridad;Honestidad;0
-21;Enfrento mis errores para que no culpen a terceros.;Integridad;Justicia;0
-22;Reconozco los méritos de los demás.;Integridad;Justicia;0
-23;Comparto información confidencial con amigos o familiares.;Integridad;Rectitud;1
-24;No decir toda la verdad me da resultados para obtener lo que deseo.;Integridad;Veracidad;0
-25;Prefiero no opinar, aunque sepa que se está cometiendo una injusticia.;Integridad;Justicia;0
-26;Me doy tiempo suficiente para observar y escuchar antes de juzgar una situación.;Integridad;Justicia;0
-27;Para evitarme problemas prefiero no decir toda la verdad.;Integridad;Veracidad;0
-28;Incluyo a otros como cómplices de mis errores.;Integridad;Justicia;0
-29;Devuelvo lo que me prestan.;Integridad;Justicia;0
-30;Expreso los hechos abiertamente.;Integridad;Veracidad;1
-31;Las personas me buscan como árbitro cuando tienen discusiones.;Integridad;Justicia;0
-32;Denuncio aquello que me parece mala práctica, engaño o manipulación.;Integridad;Rectitud;1
-33;Expongo la información que tengo tal y como es independientemente de que me beneficie o me perjudique.;Integridad;Veracidad;1
-34;No respeto horarios.;Integridad;Rectitud;0
-35;Reconozco cuando me he equivocado.;Integridad;Honestidad;1
-36;Si estoy seguro de algo lo expongo tal y como es.;Integridad;Veracidad;1
-37;El soborno lo entiendo también como un favor especial.;Integridad;Honestidad;1
-38;Me formo una opinión sobre las acciones de las personas o sus situaciones rápidamente y sin mucha profundización.;Integridad;Justicia;1
-39;Ser sincero me parece una buena estrategia para lograr mis objetivos.;Integridad;Honestidad;1
-40;Lo que digo es diferente a lo que pienso.;Integridad;Veracidad;1
-41;El cumplir mis promesas depende de las circunstancias.;Integridad;Rectitud;1
-42;Presento las ideas de otros sin darles el crédito.;Integridad;Justicia;1
-43;Realizo en tiempo y forma lo que se me pide.;Integridad;Rectitud;1
-44;Trato a los demás dependiendo de mi humor en el momento.;Integridad;Justicia;0
-45;Digo solo lo que me conviene que el otro escuche aunque no sea toda la verdad.;Integridad;Veracidad;0
-46;Le doy la razón a quien la tiene independientemente de mi propia conveniencia.;Integridad;Justicia;1
-47;Disimulo bien cuando no sé hacer algo que los demás piensan que sé.;Integridad;Honestidad;1
-48;Doy a cada quien lo que merece no importa si me cae bien o mal.;Integridad;Justicia;0
-49;Intento que mis errores o negligencias parezcan ser culpa de todo el equipo o de mis jefes.;Integridad;Justicia;0
-50;Denuncio la injusticia.;Integridad;Justicia;0
-51;Evito la confrontación aun cuando tenga algo que evidenciar o denunciar.;Integridad;Rectitud;1
-52;Confronto a las personas que están mintiendo sobre algo importante.;Integridad;Veracidad;1
-53;Si no me piden las cosas olvido devolverlas.;Integridad;Justicia;0
-54;Disculpo las malas prácticas que observo.;Integridad;Rectitud;0
-55;Cuido la información catalogada como confidencial.;Integridad;Rectitud;1
-56;Soy coherente con las cosas que digo, hago y pienso.;Integridad;Rectitud;0
-57;La información que tengo la manipulo a mi conveniencia.;Integridad;Veracidad;1
-58;Aun sin vigilancia cumplo las normas.;Integridad;Rectitud;0
-59;Me cuesta trabajo dar a otros el crédito que se merecen.;Integridad;Justicia;1
-60;La vigilancia es lo que me hace seguir las normas establecidas.;Integridad;Rectitud;1
-61;Hay situaciones en que hacer lo que es correcto no me conviene.;Integridad;Rectitud;0
-62;La verdad se debe decir aún y cuando cause conflictos.;Integridad;Veracidad;0
-63;Cumplir las normas depende de las circunstancias.;Integridad;Rectitud;1
-64;Enfrentar los propios errores no ayuda a corregir los problemas.;Integridad;Honestidad;1
-65;Lo ideal es mantener los valores propios aun en situaciones difíciles.;Integridad;Rectitud;1
-66;Me comporto de acuerdo a lo que pienso que es correcto hacer.;Integridad;Rectitud;0
-67;Si sé que algo está mal y no me incumbe, mejor me quedo callado.;Integridad;Justicia;1
-68;Conviene ir ajustando nuestros valores a las circunstancias.;Integridad;Rectitud;1
-69;Me importa más lograr mis objetivos que hacer lo correcto.;Integridad;Rectitud;0
-70;Si un producto me es de utilidad me da lo mismo si es o no original.;Integridad;Honestidad;1
-71;Que cada uno se defienda solo.;Integridad;Justicia;1
-72;Un documento firmado merece respeto.;Integridad;Rectitud;0
-73;Cuando las cosas se ponen difíciles mis principios morales son una brújula para seguir.;Integridad;Rectitud;0
-74;Prefiero quedar mal por decir una verdad, que perder la confianza de alguien por sostener una mentira.;Integridad;Veracidad;0
-75;Las acciones injustas deben denunciarse.;Integridad;Justicia;1
-76;Si alguien dice mentiras que afectan a los demás, es mejor no contradecirlo.;Integridad;Veracidad;1
-77;En las crisis ser justo no es tan importante.;Integridad;Justicia;1
-78;Las normas deben respetarse sin importar las circunstancias.;Integridad;Rectitud;1
-79;Omitir deliberadamente información relevante para la toma de decisiones es una forma de mentir.;Integridad;Veracidad;1
-80;La firma en un documento en realidad no significa gran cosa.;Integridad;Rectitud;1
-81;Hay que adecuar los principios morales a las situaciones que se presentan.;Integridad;Rectitud;0
-82;Cuando es oportuno, es válido ocultar la verdad o decir una mentira.;Integridad;Veracidad;1
-83;Si uno observa injusticias es mejor no involucrarse.;Integridad;Justicia;1
-84;Hacer lo correcto implica voluntad.;Integridad;Rectitud;0
-85;Evito adquirir productos copiados o que son de dudosa procedencia.;Integridad;Honestidad;1
-86;Convencer a las personas de cosas que no son verdad afectaría mi imagen.;Integridad;Veracidad;0
-87;El fin justifica los medios.;Integridad;Rectitud;1
-88;Cuando se trabaja en equipo los méritos personales no deben reconocerse.;Integridad;Justicia;1
-89;Creo que la denuncia oportuna sobre malas prácticas evita muchos problemas.;Integridad;Justicia;1
-90;El buen juez por su casa empieza.;Integridad;Rectitud;1
-91;No se debe compartir toda la información que se sabe si esta te puede afectar, aunque te la pidan.;Integridad;Veracidad;0
-92;La impuntualidad es una falta de respeto al compromiso establecido.;Integridad;Rectitud;0
-93;Cuando ésta puede afectar el resultado que espero, es mejor no decir toda la verdad.;Integridad;Veracidad;0
-94;Se debe reconocer a cada uno lo que merece de acuerdo al esfuerzo que realizó.;Integridad;Justicia;1
-95;Para resolver bien una situación se debe tomar muy en cuenta la justicia.;Integridad;Justicia;0
-96;Hay que hacer lo moralmente correcto aunque no siempre se obtenga un beneficio.;Integridad;Rectitud;0`;
-
-let __ITEMS__ = null;
-let __PAIRS_SIM__ = null;
-let __PAIRS_CONFLICT__ = null;
-
-function __normText(s){
-  return String(s||"")
-    .toLowerCase()
-    .normalize("NFD").replace(/\p{Diacritic}/gu,"")
-    .replace(/[^a-z0-9ñáéíóúü\s]/gi," ")
-    .replace(/\s+/g," ")
-    .trim();
-}
-
-function __tokenSet(s){
-  const stop = new Set(["de","la","el","los","las","y","o","u","a","en","un","una","unos","unas","por","para","con","sin","que","se","me","mi","mis","tu","tus","su","sus","al","del","lo","le","les","como","cuando","porque","pero","muy","ya","no"]);
-  const t = __normText(s).split(" ").filter(w=>w && w.length>2 && !stop.has(w));
-  return new Set(t);
-}
-
-function __jaccard(A,B){
-  if (!A.size || !B.size) return 0;
-  let inter=0;
-  for (const x of A) if (B.has(x)) inter++;
-  const uni = A.size + B.size - inter;
-  return uni ? inter/uni : 0;
-}
-
-function __parseItems(){
-  if (__ITEMS__) return __ITEMS__;
-  const lines = __INTEGRIDAD_CSV__.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-  __ITEMS__ = [];
-  for (const line of lines){
-    const parts = line.split(";");
-    if (parts.length < 5) continue;
-    const id = Number(parts[0]);
-    const text = parts[1];
-    const sub = parts[3];
-    const inv = Number(parts[4]) === 1;
-    if (!Number.isFinite(id)) continue;
-    __ITEMS__.push({id, text, sub, inv, toks: __tokenSet(text)});
-  }
-  return __ITEMS__;
-}
-
-function __buildPairs(){
-  if (__PAIRS_SIM__ && __PAIRS_CONFLICT__) return;
-  const items = __parseItems();
-  const bySub = new Map();
-  for (const it of items){
-    if (!bySub.has(it.sub)) bySub.set(it.sub, []);
-    bySub.get(it.sub).push(it);
-  }
-
-  const negWords = [" no "," nunca "," jamas "," jamás "," evito "," evitar "," rechazo "," niego "," oculto "," miento "," falseo "," soborno "," corrup"];
-  function hasNeg(it){
-    const tx = " " + __normText(it.text) + " ";
-    return negWords.some(w=>tx.includes(w));
-  }
-
-  const simPairs = [];
-  const conflictPairs = [];
-
-  for (const [sub, arr] of bySub.entries()){
-    for (let i=0;i<arr.length;i++){
-      for (let j=i+1;j<arr.length;j++){
-        const a=arr[i], b=arr[j];
-        const sim = __jaccard(a.toks,b.toks);
-
-        // IV1: similares
-        if (sim >= 0.42){
-          simPairs.push({a:a.id,b:b.id,sim});
-        }
-
-        // IV2: conflicto (sim moderada + invertida/negación distinta)
-        const negDiff = hasNeg(a) !== hasNeg(b);
-        const invDiff = a.inv !== b.inv;
-        if (sim >= 0.30 && (invDiff || negDiff)){
-          conflictPairs.push({a:a.id,b:b.id,sim});
-        }
-      }
-    }
-  }
-
-  simPairs.sort((x,y)=>y.sim-x.sim);
-  conflictPairs.sort((x,y)=>y.sim-x.sim);
-
-  function pickTop(list, maxPairs){
-    const picked=[];
-    const usedCount=new Map();
-    for (const p of list){
-      const ca = usedCount.get(p.a)||0;
-      const cb = usedCount.get(p.b)||0;
-      if (ca>=3 || cb>=3) continue;
-      picked.push([p.a,p.b]);
-      usedCount.set(p.a, ca+1);
-      usedCount.set(p.b, cb+1);
-      if (picked.length>=maxPairs) break;
-    }
-    return picked;
-  }
-
-  __PAIRS_SIM__ = pickTop(simPairs, 16);
-  __PAIRS_CONFLICT__ = pickTop(conflictPairs, 16);
-}
-
-function __answersMap(attempt){
+function estimateValidation(attempt){
   const a = extractAnswers(attempt);
+  // esperamos 96 respuestas en escala 1-3
+  //const arr = Array.isArray(a) ? a : (a && Array.isArray(a.items) ? a.items : null);
   let arr = null;
 
-  if (Array.isArray(a)) arr = a;
-  else if (a && Array.isArray(a.items)) arr = a.items;
-  else if (a && typeof a === "object") {
-    const keys = Object.keys(a).filter(k => /^\d+$/.test(k));
-    if (keys.length){
-      keys.sort((x,y)=>Number(x)-Number(y));
-      arr = keys.map(k => a[k]);
-    }
+// Caso 1: array directo
+if (Array.isArray(a)) {
+  arr = a;
+}
+// Caso 2: {items:[...]}
+else if (a && Array.isArray(a.items)) {
+  arr = a.items;
+}
+// Caso 3: {"1":3,"2":2,...}  (objeto con llaves numéricas)
+else if (a && typeof a === "object") {
+  const keys = Object.keys(a).filter(k => /^\d+$/.test(k));
+  if (keys.length) {
+    keys.sort((x,y)=>Number(x)-Number(y));
+    arr = keys.map(k => a[k]);
   }
-  if (!arr || !arr.length) return null;
-
-  const map = new Map();
-  for (let i=0;i<arr.length;i++){
-    const raw = arr[i];
-    let n;
-    if (typeof raw === "number" || typeof raw === "string") n = Number(raw);
-    else n = Number(raw?.value ?? raw?.v ?? raw?.respuesta ?? raw?.answer);
-    if (n>=1 && n<=3) map.set(i+1, n);
-  }
-  return map;
 }
 
-function estimateValidation(attempt){
-  try{
-    __buildPairs();
-    const ans = __answersMap(attempt);
-    if (!ans) return null;
+  
+  if (!arr || !arr.length) return null;
 
-    let incohHits=0, incohN=0;
-    for (const [a,b] of __PAIRS_SIM__){
-      const ra = ans.get(a), rb = ans.get(b);
-      if (!(ra>=1 && rb>=1)) continue;
-      incohN++;
-      if (Math.abs(ra-rb) >= 2) incohHits++;
-    }
+const vals = [];
+for (const it of arr){
+  let n;
 
-    let contraHits=0, contraN=0;
-    for (const [a,b] of __PAIRS_CONFLICT__){
-      const ra = ans.get(a), rb = ans.get(b);
-      if (!(ra>=1 && rb>=1)) continue;
-      contraN++;
-      if (ra === rb) contraHits++;
-    }
-
-    // Fallback proxy si hay muy pocos pares respondidos
-    if (incohN < 4 && contraN < 4){
-      const vals = [...ans.values()];
-      if (vals.length < 20) return null;
-      const mean = vals.reduce((s,x)=>s+x,0)/vals.length;
-      const varr = vals.reduce((s,x)=>s+Math.pow(x-mean,2),0)/vals.length;
-      const sd = Math.sqrt(varr);
-      const incoh = Math.round(Math.max(0, Math.min(100, (sd/1.0)*100)));
-      let switches=0;
-      for (let i=1;i<vals.length;i++) if (vals[i] !== vals[i-1]) switches++;
-      const contra = Math.round(Math.max(0, Math.min(100, (switches/Math.max(1, vals.length-1))*100)));
-      return { incoh, contra };
-    }
-
-    const incoh = Math.round((incohHits/Math.max(1,incohN))*100);
-    const contra = Math.round((contraHits/Math.max(1,contraN))*100);
-    return { incoh, contra };
-  }catch(e){
-    console.error("estimateValidation error", e);
-    return null;
+  // Si viene como número o string ("1","2","3")
+  if (typeof it === "number" || typeof it === "string") {
+    n = Number(it);
+  } else {
+    // Si viene como objeto {value:...} o {respuesta:...}
+    n = Number(it?.value ?? it?.v ?? it?.respuesta ?? it?.answer);
   }
+
+  if (n >= 1 && n <= 3) vals.push(n);
+}
+
+  if (vals.length < 20) return null;
+
+  const mean = vals.reduce((s,x)=>s+x,0)/vals.length;
+  const varr = vals.reduce((s,x)=>s+Math.pow(x-mean,2),0)/vals.length;
+  const sd = Math.sqrt(varr);
+
+  // max sd for {1,3} split is 1.0; but in 1-3 with middle, practical max ~1.0
+  const incoh = Math.round(Math.max(0, Math.min(100, (sd/1.0)*100)));
+
+  let switches = 0;
+  for (let i=1;i<vals.length;i++){
+    if (vals[i] !== vals[i-1]) switches++;
+  }
+  const contra = Math.round(Math.max(0, Math.min(100, (switches/Math.max(1, vals.length-1))*100)));
+
+  return { incoh, contra };
 }
 
 
@@ -2362,36 +2144,12 @@ function interpGlobal(ivi, stars){
 }
 
 
-  const FALLBACK_API = "https://evaluacion-snowy.vercel.app";
-/** Fetch JSON with automatic fallback:
- *  1) Same-origin (/api/...) when available
- *  2) Fallback Vercel base (useful for file:// or when report is hosted elsewhere)
- */
-async function fetchJSONWithFallback(path, opts){
-  const urls = [];
-  if (location.protocol !== "file:" && location.origin !== "null") {
-    urls.push(path); // same-origin
-  }
-  urls.push(FALLBACK_API + path); // fallback
-  let lastErr = null;
-  for (const u of urls) {
-    try{
-      const res = await fetch(u, opts);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
-    }catch(e){
-      lastErr = e;
-    }
-  }
-  throw lastErr || new Error("No se pudo conectar");
-}
-
-async function cargarReporte(codigo){
+  async function cargarReporte(codigo){
     document.getElementById("msg").textContent = "Buscando...";
     document.getElementById("msg").className = "msg";
     document.getElementById("reporteContainer").style.display = "none";
     try{
-      const r = await fetchJSONWithFallback(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
       const data = await r.json();
       if(!r.ok || data.error){
         document.getElementById("msg").textContent = data.error || "No encontrado";
