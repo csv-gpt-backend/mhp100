@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>xBBCXIntegridad - Reporte (AFINADO)</title>
+  <title>VVVBBCXIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -188,15 +188,15 @@
     
     /* ===== Curva / gráfica moderna ===== */
     .curve{position:relative;border-radius:16px;padding:10px 12px;background:linear-gradient(180deg,#ffffff 0%, #f8fafc 100%);box-shadow:0 12px 28px rgba(0,0,0,.08);overflow:hidden}
-    .curve-svg{width:100%;height:86px;display:block}
+    .curve-svg{width:100%;height:72px;display:block}
     .curve-band{height:10px;border-radius:999px;background:linear-gradient(90deg,#e45757 0%, #f4a338 38%, #2e9b4f 68%, #2e9b4f 100%);opacity:.95;box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}
-    .curve-marker{position:absolute;top:18px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;transition:left .35s cubic-bezier(.2,.8,.2,1)}
+    .curve-marker{position:absolute;top:92px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;transition:left .35s cubic-bezier(.2,.8,.2,1)}
     .curve-marker .pin{width:14px;height:14px;border-radius:999px;background:#111;box-shadow:0 10px 22px rgba(0,0,0,.25)}
     .curve-marker .stem{width:2px;height:12px;background:#111;border-radius:999px;opacity:.9}
     .curve-marker .halo{position:absolute;inset:-12px auto auto -12px;width:38px;height:38px;border-radius:999px;background:radial-gradient(circle,rgba(17,17,17,.22),rgba(17,17,17,0) 60%);filter:blur(.2px)}
     .curve-axis{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px}
-    .curve-legend{position:absolute;right:12px;top:10px;font-size:11px;color:var(--muted);background:rgba(255,255,255,.75);backdrop-filter:blur(6px);padding:4px 8px;border-radius:999px;border:1px solid rgba(0,0,0,.06)}
-    .curve-3d{filter:drop-shadow(0 14px 14px rgba(0,0,0,.12))}
+.curve-caption{display:flex;justify-content:flex-end;font-size:12px;color:var(--muted);margin:0 0 6px 0}
+        .curve-3d{filter:drop-shadow(0 14px 14px rgba(0,0,0,.12))}
     .curve-fill{fill:url(#curveGrad);opacity:.95}
     .curve-line{fill:none;stroke:url(#curveLineGrad);stroke-width:1.6}
     .curve-hi{fill:none;stroke:rgba(255,255,255,.9);stroke-width:1.2;opacity:.65}
@@ -378,7 +378,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
         <div class="mini">
           <div class="mini-title">Curva de distribución</div>
           <div class="curve">
-            <div class="curve-legend">Tu puntaje</div>
+            <div class="curve-caption" id="curveCaption">Tu puntaje: —</div>
 
             <svg id="curveSvg" class="curve-svg curve-3d" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
               <defs>
@@ -1817,8 +1817,10 @@ function buildCurveSvg(){
 
 function setCurveMarker(pct){
   const el = document.getElementById("curveMarker");
+  const cap = document.getElementById("curveCaption");
   const p = Math.max(0, Math.min(100, Number(pct)||0));
   if (el) el.style.left = p + "%";
+  if (cap) cap.textContent = "Tu puntaje: " + Math.round(p) + " / 100";
 }
 
 function extractAnswers(attempt){
