@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>7777AAZZZVVVJXDDDDEvaluación de Integridad</title>
+  <title>6667777AAZZZVVVJXDDDDEvaluación de Integridad</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1374,24 +1374,48 @@ window.scrollTo(0, 0);
       return name.replace(/\s+/g, " ").trim().toLowerCase();
     }
 
-    function calcIV1_IV2_categories(items) {
-      const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
-      const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
-      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
-      const stdev = arr => {
-        if (arr.length < 2) return 1;
-        const m = avg(arr);
-        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
-      };
-      const invNorm = invers.map(v => 4 - v);
-      const allNorm = direct.concat(invNorm);
-      if (!allNorm.length) return { iv1Cat: null, iv2Cat: null };
-      const s = stdev(allNorm);
-      const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
-      const diff = Math.abs(avg(direct) - avg(invNorm));
-      const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
-      return { iv1Cat, iv2Cat };
-    }
+function calcIV1_IV2_categories(items) {
+  const direct = items
+    .filter(q => q.invertida === "No" && q.value != null)
+    .map(q => Number(q.value));
+
+  const invers = items
+    .filter(q => q.invertida === "Sí" && q.value != null)
+    .map(q => Number(q.value));
+
+  const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+
+  const stdev = arr => {
+    if (arr.length < 2) return 0;
+    const m = avg(arr);
+    return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
+  };
+
+  // normalizamos invertidas a misma dirección: 1<->3, 2 queda
+  const invNorm = invers.map(v => 4 - v);
+  const allNorm = direct.concat(invNorm);
+
+  if (!allNorm.length) {
+    return { iv1Cat: null, iv2Cat: null, incohPct: 0, contraPts: 0 };
+  }
+
+  // ===== IV1 (INCOHERENCIA) como % =====
+  const s = stdev(allNorm);               // 0..~1
+  const incohPct = Math.round(Math.max(0, Math.min(100, (s / 1.0) * 100)));
+
+  // mantenemos categoría por si la usas en otros lados
+  const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
+
+  // ===== IV2 (CONTRADICCIÓN) como puntos =====
+  const diff = Math.abs(avg(direct) - avg(invNorm));
+  const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
+
+  // “puntos” = 0/1/2 (lo que ya vienes guardando)
+  const contraPts = iv2Cat;
+
+  return { iv1Cat, iv2Cat, incohPct, contraPts };
+}
+
 
     function calcularResultadosGlobales() {
       if (!ITEMS.length) return null;
@@ -1446,7 +1470,7 @@ window.scrollTo(0, 0);
           ? Math.round((bIntra + bInter + bPV) / 3)
           : 0;
 
-      const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
+const { incohPct, contraPts } = calcIV1_IV2_categories(ITEMS);
 
       const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
       const iv3Cat =
@@ -1456,7 +1480,13 @@ window.scrollTo(0, 0);
       const bCambio = pctBloque("Propensión al cambio");
 
       return {
-        globales: { IIE: iie, IV1: iv1Cat, IV2: iv2Cat, IV3: iv3Cat },
+globales: {
+  IIE: iie,
+  IV1: incohPct,     // <-- ahora SI es % real 0..100
+  IV2: contraPts,    // <-- puntos 0/1/2
+  IV3: iv3Cat
+}
+
         bloques: {
           intrapersonales: bIntra,
           interpersonales: bInter,
