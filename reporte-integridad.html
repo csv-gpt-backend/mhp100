@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>MMMssszzzBBCXIntegridad - Reporte (AFINADO)</title>
+  <title>UUUUssszzzBBCXIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -2362,16 +2362,36 @@ function interpGlobal(ivi, stars){
 }
 
 
-  const API_BASE = (location.protocol === "file:" || location.origin === "null") 
-  ? "https://evaluacion-snowy.vercel.app"
-  : "";
+  const FALLBACK_API = "https://evaluacion-snowy.vercel.app";
+/** Fetch JSON with automatic fallback:
+ *  1) Same-origin (/api/...) when available
+ *  2) Fallback Vercel base (useful for file:// or when report is hosted elsewhere)
+ */
+async function fetchJSONWithFallback(path, opts){
+  const urls = [];
+  if (location.protocol !== "file:" && location.origin !== "null") {
+    urls.push(path); // same-origin
+  }
+  urls.push(FALLBACK_API + path); // fallback
+  let lastErr = null;
+  for (const u of urls) {
+    try{
+      const res = await fetch(u, opts);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    }catch(e){
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error("No se pudo conectar");
+}
 
 async function cargarReporte(codigo){
     document.getElementById("msg").textContent = "Buscando...";
     document.getElementById("msg").className = "msg";
     document.getElementById("reporteContainer").style.display = "none";
     try{
-      const r = await fetch(`${API_BASE}/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const r = await fetchJSONWithFallback(`/api/report?codigo=${encodeURIComponent(codigo)}`);
       const data = await r.json();
       if(!r.ok || data.error){
         document.getElementById("msg").textContent = data.error || "No encontrado";
