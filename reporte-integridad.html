@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>BBCXIntegridad - Reporte (AFINADO)</title>
+  <title>xBBCXIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -185,10 +185,22 @@
     .row2{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin:6px 0 10px}
     .mini{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
     .mini-title{font-weight:900;margin-bottom:8px}
-    .curve{position:relative}
-    .curve-band{height:14px;border-radius:999px;background:linear-gradient(90deg,#e45757 0%, #f4a338 35%, #2e9b4f 65%, #2e9b4f 100%);opacity:.9}
-    .curve-marker{position:absolute;top:-6px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:12px solid #111;transform:translateX(-8px)}
-    .curve-axis{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px}
+    
+    /* ===== Curva / gráfica moderna ===== */
+    .curve{position:relative;border-radius:16px;padding:10px 12px;background:linear-gradient(180deg,#ffffff 0%, #f8fafc 100%);box-shadow:0 12px 28px rgba(0,0,0,.08);overflow:hidden}
+    .curve-svg{width:100%;height:86px;display:block}
+    .curve-band{height:10px;border-radius:999px;background:linear-gradient(90deg,#e45757 0%, #f4a338 38%, #2e9b4f 68%, #2e9b4f 100%);opacity:.95;box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}
+    .curve-marker{position:absolute;top:18px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;transition:left .35s cubic-bezier(.2,.8,.2,1)}
+    .curve-marker .pin{width:14px;height:14px;border-radius:999px;background:#111;box-shadow:0 10px 22px rgba(0,0,0,.25)}
+    .curve-marker .stem{width:2px;height:12px;background:#111;border-radius:999px;opacity:.9}
+    .curve-marker .halo{position:absolute;inset:-12px auto auto -12px;width:38px;height:38px;border-radius:999px;background:radial-gradient(circle,rgba(17,17,17,.22),rgba(17,17,17,0) 60%);filter:blur(.2px)}
+    .curve-axis{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px}
+    .curve-legend{position:absolute;right:12px;top:10px;font-size:11px;color:var(--muted);background:rgba(255,255,255,.75);backdrop-filter:blur(6px);padding:4px 8px;border-radius:999px;border:1px solid rgba(0,0,0,.06)}
+    .curve-3d{filter:drop-shadow(0 14px 14px rgba(0,0,0,.12))}
+    .curve-fill{fill:url(#curveGrad);opacity:.95}
+    .curve-line{fill:none;stroke:url(#curveLineGrad);stroke-width:1.6}
+    .curve-hi{fill:none;stroke:rgba(255,255,255,.9);stroke-width:1.2;opacity:.65}
+
     .ivline{font-size:14px;margin:4px 0}
     .cards2x2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
     .cards2x2 .card{border-radius:12px;background:#bdebf0;display:flex;align-items:center;justify-content:space-between;padding:16px 18px}
@@ -366,13 +378,35 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
         <div class="mini">
           <div class="mini-title">Curva de distribución</div>
           <div class="curve">
+            <div class="curve-legend">Tu puntaje</div>
 
-            <svg id="curveSvg" class="curve-svg" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
-              <path id="curveFill" d="" class="curve-fill"></path>
+            <svg id="curveSvg" class="curve-svg curve-3d" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="curveGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#22c55e" stop-opacity="0.55"/>
+                  <stop offset="55%" stop-color="#f4a338" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#e45757" stop-opacity="0.22"/>
+                </linearGradient>
+                <linearGradient id="curveLineGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#e45757"/>
+                  <stop offset="45%" stop-color="#f4a338"/>
+                  <stop offset="70%" stop-color="#2e9b4f"/>
+                  <stop offset="100%" stop-color="#2e9b4f"/>
+                </linearGradient>
+                <filter id="softShadow" x="-20%" y="-40%" width="140%" height="200%">
+                  <feDropShadow dx="0" dy="2.5" stdDeviation="2.2" flood-color="#000" flood-opacity="0.18"/>
+                </filter>
+              </defs>
+              <path id="curveFill" d="" class="curve-fill" filter="url(#softShadow)"></path>
               <path id="curveLine" d="" class="curve-line"></path>
+              <path id="curveHi" d="" class="curve-hi"></path>
             </svg>
             <div class="curve-band"></div>
-            <div class="curve-marker" id="curveMarker" style="left:0%"></div>
+            <div class="curve-marker" id="curveMarker" style="left:0%">
+              <span class="halo" aria-hidden="true"></span>
+              <span class="pin" aria-hidden="true"></span>
+              <span class="stem" aria-hidden="true"></span>
+            </div>
             <div class="curve-axis">
               <span>0</span><span>40</span><span>60</span><span>100</span>
             </div>
@@ -1762,19 +1796,22 @@ function buildCurveSvg(){
   const svg = document.getElementById("curveSvg");
   const line = document.getElementById("curveLine");
   const fill = document.getElementById("curveFill");
-  if (!svg || !line || !fill) return;
+  const hi   = document.getElementById("curveHi");
+  if (!svg || !line || !fill || !hi) return;
 
-  // simple gaussian curve in viewBox 0..100 x 0..32
+  // Curva tipo campana (gaussiana) en viewBox 0..100 x 0..32
   const pts = [];
   const mu = 50, sigma = 16;
   for (let x=0; x<=100; x+=2){
     const y = Math.exp(-0.5*Math.pow((x-mu)/sigma,2)); // 0..1
-    const yy = 30 - y*24; // top padding
+    const yy = 30 - y*24; // altura
     pts.push([x, yy]);
   }
   const dLine = "M " + pts.map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L ");
   const dFill = dLine + " L 100 30 L 0 30 Z";
+
   line.setAttribute("d", dLine);
+  hi.setAttribute("d", dLine);
   fill.setAttribute("d", dFill);
 }
 
