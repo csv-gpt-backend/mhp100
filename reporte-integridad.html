@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>GGssszzzBBCXIntegridad - Reporte (AFINADO)</title>
+  <title>FFFssszzzBBCXIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1730,7 +1730,10 @@ function renderAll(data){
   const incohSafe = (incohN == null || Number.isNaN(incohN)) ? 0 : incohN;
   const contraSafe = (contraN == null || Number.isNaN(contraN)) ? 0 : contraN;
   document.getElementById("repIncoh").textContent = `${incohSafe}%`;
-  document.getElementById("repContra").textContent = `${contraSafe}%`;
+ // document.getElementById("repContra").textContent = `${contraSafe}%`;
+const g = (resultados && resultados.globales) ? resultados.globales : {};
+const nc = (g.IV2 == null ? null : Math.round(Number(g.IV2) || 0));
+document.getElementById("repContra").textContent = (nc == null ? "—" : `${nc} pts`);
 // Tiempo (PT) desde BD: resultados.globales.IV3 (0/1/2) con rango 20–30 min
 const pt = (g.IV3 == null || g.IV3 === "") ? null : Math.round(Number(g.IV3) || 0);
 
@@ -1826,10 +1829,17 @@ function extractAnswers(attempt){
   return null;
 }
 
+// Estimación automática (proxy) cuando no existen pares de incoherencia/contradicción.
+// - Incoherencia: variabilidad global de respuestas (más variabilidad -> más incoherencia).
+// - Contradicción: alternancia entre respuestas consecutivas (más cambios bruscos -> más contradicción).
 
-// ===== Banco de ítems (para índices IV1/IV2) =====
-// Formato CSV: id;texto;test;subescala;invertida(0/1)
-const PREGUNTAS_CSV = `1;Cito de quien fue la idea de algo que me parece bueno.;Integridad;Honestidad;1
+// ===== ÍNDICES IV1 (Incoherencia) e IV2 (Contradicción) — estimación por pares =====
+// Definiciones (según ficha técnica):
+// - IV1: ante dos afirmaciones similares, responder de forma opuesta.
+// - IV2: ante dos afirmaciones en conflicto, responder de forma similar.
+//
+// Nota: Sin el "anexo" oficial de pares, aquí inferimos pares desde el banco (texto + subescala + invertida).
+const __INTEGRIDAD_CSV__ = `1;Cito de quien fue la idea de algo que me parece bueno.;Integridad;Honestidad;1
 2;Distingo la diferencia entre un favor y un soborno.;Integridad;Honestidad;1
 3;Notifico cuando percibo que no estoy preparado para la tarea que me encomiendan.;Integridad;Honestidad;1
 4;Doy información verdadera, incluyendo la que pueda afectar el resultado que deseo.;Integridad;Veracidad;0
@@ -1926,239 +1936,180 @@ const PREGUNTAS_CSV = `1;Cito de quien fue la idea de algo que me parece bueno.;
 95;Para resolver bien una situación se debe tomar muy en cuenta la justicia.;Integridad;Justicia;0
 96;Hay que hacer lo moralmente correcto aunque no siempre se obtenga un beneficio.;Integridad;Rectitud;0`;
 
-function parseItemBank(){
-  const rows = PREGUNTAS_CSV.trim().split(/\r?\n/);
-  const items = [];
-  for (const row of rows){
-    const parts = row.split(";");
-    if (parts.length < 5) continue;
-    const id = Number(parts[0]);
-    if (!id) continue;
-    items.push({
-      id,
-      text: (parts[1]||"").trim(),
-      test: (parts[2]||"").trim(),
-      sub: (parts[3]||"").trim(),
-      inv: Number(parts[4]) ? 1 : 0
-    });
-  }
-  return items;
-}
+let __ITEMS__ = null;
+let __PAIRS_SIM__ = null;
+let __PAIRS_CONFLICT__ = null;
 
-function normalizeText(s){
-  return (s||"")
+function __normText(s){
+  return String(s||"")
     .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")  // sin tildes
-    .replace(/[^a-z0-9ñ\s]/g," ")
+    .normalize("NFD").replace(/\p{Diacritic}/gu,"")
+    .replace(/[^a-z0-9ñáéíóúü\s]/gi," ")
     .replace(/\s+/g," ")
     .trim();
 }
 
-const ES_STOP = new Set(("de la el los las y o u a ante bajo con contra desde durante en entre hacia hasta mediante para por segun sin sobre tras del al un una unos unas mi mis tu tus su sus me te se lo la le les nos os que como cuando donde quien cual cuales ya tambien").split(" "));
-
-function tokens(s){
-  const w = normalizeText(s).split(" ").filter(Boolean);
-  return w.filter(t => t.length > 2 && !ES_STOP.has(t));
+function __tokenSet(s){
+  const stop = new Set(["de","la","el","los","las","y","o","u","a","en","un","una","unos","unas","por","para","con","sin","que","se","me","mi","mis","tu","tus","su","sus","al","del","lo","le","les","como","cuando","porque","pero","muy","ya","no"]);
+  const t = __normText(s).split(" ").filter(w=>w && w.length>2 && !stop.has(w));
+  return new Set(t);
 }
 
-function jaccard(a,b){
-  if (!a.length || !b.length) return 0;
-  const A = new Set(a), B = new Set(b);
-  let inter = 0;
+function __jaccard(A,B){
+  if (!A.size || !B.size) return 0;
+  let inter=0;
   for (const x of A) if (B.has(x)) inter++;
   const uni = A.size + B.size - inter;
   return uni ? inter/uni : 0;
 }
 
-// Precomputamos pares:
-// - similares: mismo polo (inv igual) + texto parecido
-// - conflicto: polos opuestos (inv distinto) + texto parecido
-const ITEM_BANK = parseItemBank();
-const ITEM_BY_ID = Object.fromEntries(ITEM_BANK.map(it => [it.id, it]));
-const SIMILAR_PAIRS = [];
-const CONFLICT_PAIRS = [];
-(function buildPairs(){
-  const bySub = {};
-  for (const it of ITEM_BANK){
-    (bySub[it.sub] ||= []).push(it);
+function __parseItems(){
+  if (__ITEMS__) return __ITEMS__;
+  const lines = __INTEGRIDAD_CSV__.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  __ITEMS__ = [];
+  for (const line of lines){
+    const parts = line.split(";");
+    if (parts.length < 5) continue;
+    const id = Number(parts[0]);
+    const text = parts[1];
+    const sub = parts[3];
+    const inv = Number(parts[4]) === 1;
+    if (!Number.isFinite(id)) continue;
+    __ITEMS__.push({id, text, sub, inv, toks: __tokenSet(text)});
   }
-  const TH = 0.34; // umbral de parecido (ajustable)
-  for (const sub of Object.keys(bySub)){
-    const arr = bySub[sub];
-    const tok = arr.map(it => tokens(it.text));
-    const scored = [];
-    for (let i=0;i<arr.length;i++){
-      for (let j=i+1;j<arr.length;j++){
-        const sim = jaccard(tok[i], tok[j]);
-        if (sim < TH) continue;
-        scored.push({i,j,sim, same: arr[i].inv === arr[j].inv});
-      }
-    }
-    scored.sort((a,b)=>b.sim-a.sim);
-    // Top por subescala (evita demasiados pares)
-    let takeSim=0, takeCon=0;
-    for (const p of scored){
-      const pair = [arr[p.i].id, arr[p.j].id];
-      if (p.same && takeSim < 12){
-        SIMILAR_PAIRS.push(pair);
-        takeSim++;
-      } else if (!p.same && takeCon < 10){
-        CONFLICT_PAIRS.push(pair);
-        takeCon++;
-      }
-      if (takeSim>=12 && takeCon>=10) break;
-    }
-  }
-})();
-
-// Detecta si las respuestas guardadas vienen "crudas" (sin invertir) o ya "alineadas".
-// Heurística: si los ítems invertidos tienen media notablemente menor, asumimos que está crudo.
-function inferResponseMode(rawMap){
-  let s0=0,c0=0,s1=0,c1=0;
-  for (const it of ITEM_BANK){
-    const v = Number(rawMap[it.id]);
-    if (!(v>=1 && v<=3)) continue;
-    if (it.inv){ s1+=v; c1++; } else { s0+=v; c0++; }
-  }
-  const m0 = c0? s0/c0 : 2;
-  const m1 = c1? s1/c1 : 2;
-  // si invertidos mucho más bajos -> probablemente crudo
-  return (m0 - m1) > 0.30 ? "crudo" : "alineado";
+  return __ITEMS__;
 }
 
-function answersToMap(attempt){
+function __buildPairs(){
+  if (__PAIRS_SIM__ && __PAIRS_CONFLICT__) return;
+  const items = __parseItems();
+  const bySub = new Map();
+  for (const it of items){
+    if (!bySub.has(it.sub)) bySub.set(it.sub, []);
+    bySub.get(it.sub).push(it);
+  }
+
+  const negWords = [" no "," nunca "," jamas "," jamás "," evito "," evitar "," rechazo "," niego "," oculto "," miento "," falseo "," soborno "," corrup"];
+  function hasNeg(it){
+    const tx = " " + __normText(it.text) + " ";
+    return negWords.some(w=>tx.includes(w));
+  }
+
+  const simPairs = [];
+  const conflictPairs = [];
+
+  for (const [sub, arr] of bySub.entries()){
+    for (let i=0;i<arr.length;i++){
+      for (let j=i+1;j<arr.length;j++){
+        const a=arr[i], b=arr[j];
+        const sim = __jaccard(a.toks,b.toks);
+
+        // IV1: similares
+        if (sim >= 0.42){
+          simPairs.push({a:a.id,b:b.id,sim});
+        }
+
+        // IV2: conflicto (sim moderada + invertida/negación distinta)
+        const negDiff = hasNeg(a) !== hasNeg(b);
+        const invDiff = a.inv !== b.inv;
+        if (sim >= 0.30 && (invDiff || negDiff)){
+          conflictPairs.push({a:a.id,b:b.id,sim});
+        }
+      }
+    }
+  }
+
+  simPairs.sort((x,y)=>y.sim-x.sim);
+  conflictPairs.sort((x,y)=>y.sim-x.sim);
+
+  function pickTop(list, maxPairs){
+    const picked=[];
+    const usedCount=new Map();
+    for (const p of list){
+      const ca = usedCount.get(p.a)||0;
+      const cb = usedCount.get(p.b)||0;
+      if (ca>=3 || cb>=3) continue;
+      picked.push([p.a,p.b]);
+      usedCount.set(p.a, ca+1);
+      usedCount.set(p.b, cb+1);
+      if (picked.length>=maxPairs) break;
+    }
+    return picked;
+  }
+
+  __PAIRS_SIM__ = pickTop(simPairs, 16);
+  __PAIRS_CONFLICT__ = pickTop(conflictPairs, 16);
+}
+
+function __answersMap(attempt){
   const a = extractAnswers(attempt);
   let arr = null;
+
   if (Array.isArray(a)) arr = a;
   else if (a && Array.isArray(a.items)) arr = a.items;
-  else if (a && typeof a === "object"){
-    const keys = Object.keys(a).filter(k => /^\d+$/.test(k)).sort((x,y)=>Number(x)-Number(y));
-    if (keys.length) arr = keys.map(k => a[k]);
+  else if (a && typeof a === "object") {
+    const keys = Object.keys(a).filter(k => /^\d+$/.test(k));
+    if (keys.length){
+      keys.sort((x,y)=>Number(x)-Number(y));
+      arr = keys.map(k => a[k]);
+    }
   }
-  if (!arr) return null;
+  if (!arr || !arr.length) return null;
 
-  const map = {};
+  const map = new Map();
   for (let i=0;i<arr.length;i++){
-    const id = i+1;
-    const it = arr[i];
+    const raw = arr[i];
     let n;
-    if (typeof it === "number" || typeof it === "string") n = Number(it);
-    else n = Number(it?.value ?? it?.v ?? it?.respuesta ?? it?.answer);
-    if (n>=1 && n<=3) map[id]=n;
+    if (typeof raw === "number" || typeof raw === "string") n = Number(raw);
+    else n = Number(raw?.value ?? raw?.v ?? raw?.respuesta ?? raw?.answer);
+    if (n>=1 && n<=3) map.set(i+1, n);
   }
   return map;
 }
 
-function computeIV1IV2(attempt){
-  const map = answersToMap(attempt);
-  if (!map) return null;
-
-  const mode = inferResponseMode(map);
-  // raw: lo que marcó la persona (1..3)
-  // aligned: siempre en dirección "integridad alta" (1..3) para puntajes
-  const raw = {};
-  const aligned = {};
-  for (const it of ITEM_BANK){
-    const v = Number(map[it.id]);
-    if (!(v>=1 && v<=3)) continue;
-    if (mode === "crudo"){
-      raw[it.id] = v;
-      aligned[it.id] = it.inv ? (4 - v) : v;
-    } else {
-      aligned[it.id] = v;
-      raw[it.id] = it.inv ? (4 - v) : v;
-    }
-  }
-
-  // IV1 Incoherencia: en afirmaciones similares, responder opuesto (1 vs 3)
-  let t1=0, b1=0;
-  for (const [a,b] of SIMILAR_PAIRS){
-    const va = raw[a], vb = raw[b];
-    if (!(va>=1 && va<=3 && vb>=1 && vb<=3)) continue;
-    t1++;
-    if (Math.abs(va - vb) >= 2) b1++;
-  }
-  const incoh = t1 ? Math.round((b1/t1)*100) : null;
-
-  // IV2 Contradicción: en afirmaciones en conflicto, responder "similar" (misma opción)
-  let t2=0, b2=0;
-  for (const [a,b] of CONFLICT_PAIRS){
-    const va = raw[a], vb = raw[b];
-    if (!(va>=1 && va<=3 && vb>=1 && vb<=3)) continue;
-    t2++;
-    if (va === vb) b2++;
-  }
-  const contra = t2 ? Math.round((b2/t2)*100) : null;
-
-  return { incoh, contra, mode, t1, t2 };
-}
-
-// Estimación automática (proxy) cuando no existen pares de incoherencia/contradicción.
-// - Incoherencia: variabilidad global de respuestas (más variabilidad -> más incoherencia).
-// - Contradicción: alternancia entre respuestas consecutivas (más cambios bruscos -> más contradicción).
 function estimateValidation(attempt){
-  // 1) Intento IV1/IV2 por pares (más cercano a lo psicométrico)
-  const byPairs = computeIV1IV2(attempt);
-  if (byPairs && (byPairs.incoh != null || byPairs.contra != null)){
-    return { incoh: byPairs.incoh ?? 0, contra: byPairs.contra ?? 0, _byPairs:true };
+  try{
+    __buildPairs();
+    const ans = __answersMap(attempt);
+    if (!ans) return null;
+
+    let incohHits=0, incohN=0;
+    for (const [a,b] of __PAIRS_SIM__){
+      const ra = ans.get(a), rb = ans.get(b);
+      if (!(ra>=1 && rb>=1)) continue;
+      incohN++;
+      if (Math.abs(ra-rb) >= 2) incohHits++;
+    }
+
+    let contraHits=0, contraN=0;
+    for (const [a,b] of __PAIRS_CONFLICT__){
+      const ra = ans.get(a), rb = ans.get(b);
+      if (!(ra>=1 && rb>=1)) continue;
+      contraN++;
+      if (ra === rb) contraHits++;
+    }
+
+    // Fallback proxy si hay muy pocos pares respondidos
+    if (incohN < 4 && contraN < 4){
+      const vals = [...ans.values()];
+      if (vals.length < 20) return null;
+      const mean = vals.reduce((s,x)=>s+x,0)/vals.length;
+      const varr = vals.reduce((s,x)=>s+Math.pow(x-mean,2),0)/vals.length;
+      const sd = Math.sqrt(varr);
+      const incoh = Math.round(Math.max(0, Math.min(100, (sd/1.0)*100)));
+      let switches=0;
+      for (let i=1;i<vals.length;i++) if (vals[i] !== vals[i-1]) switches++;
+      const contra = Math.round(Math.max(0, Math.min(100, (switches/Math.max(1, vals.length-1))*100)));
+      return { incoh, contra };
+    }
+
+    const incoh = Math.round((incohHits/Math.max(1,incohN))*100);
+    const contra = Math.round((contraHits/Math.max(1,contraN))*100);
+    return { incoh, contra };
+  }catch(e){
+    console.error("estimateValidation error", e);
+    return null;
   }
-
-  const a = extractAnswers(attempt);
-  // esperamos 96 respuestas en escala 1-3
-  //const arr = Array.isArray(a) ? a : (a && Array.isArray(a.items) ? a.items : null);
-  let arr = null;
-
-// Caso 1: array directo
-if (Array.isArray(a)) {
-  arr = a;
-}
-// Caso 2: {items:[...]}
-else if (a && Array.isArray(a.items)) {
-  arr = a.items;
-}
-// Caso 3: {"1":3,"2":2,...}  (objeto con llaves numéricas)
-else if (a && typeof a === "object") {
-  const keys = Object.keys(a).filter(k => /^\d+$/.test(k));
-  if (keys.length) {
-    keys.sort((x,y)=>Number(x)-Number(y));
-    arr = keys.map(k => a[k]);
-  }
-}
-
-  
-  if (!arr || !arr.length) return null;
-
-const vals = [];
-for (const it of arr){
-  let n;
-
-  // Si viene como número o string ("1","2","3")
-  if (typeof it === "number" || typeof it === "string") {
-    n = Number(it);
-  } else {
-    // Si viene como objeto {value:...} o {respuesta:...}
-    n = Number(it?.value ?? it?.v ?? it?.respuesta ?? it?.answer);
-  }
-
-  if (n >= 1 && n <= 3) vals.push(n);
-}
-
-  if (vals.length < 20) return null;
-
-  const mean = vals.reduce((s,x)=>s+x,0)/vals.length;
-  const varr = vals.reduce((s,x)=>s+Math.pow(x-mean,2),0)/vals.length;
-  const sd = Math.sqrt(varr);
-
-  // max sd for {1,3} split is 1.0; but in 1-3 with middle, practical max ~1.0
-  const incoh = Math.round(Math.max(0, Math.min(100, (sd/1.0)*100)));
-
-  let switches = 0;
-  for (let i=1;i<vals.length;i++){
-    if (vals[i] !== vals[i-1]) switches++;
-  }
-  const contra = Math.round(Math.max(0, Math.min(100, (switches/Math.max(1, vals.length-1))*100)));
-
-  return { incoh, contra };
 }
 
 
@@ -2414,12 +2365,16 @@ function interpGlobal(ivi, stars){
 }
 
 
-  async function cargarReporte(codigo){
+  const API_BASE = (location.protocol === "file:" || location.origin === "null") 
+  ? "https://evaluacion-snowy.vercel.app"
+  : "";
+
+async function cargarReporte(codigo){
     document.getElementById("msg").textContent = "Buscando...";
     document.getElementById("msg").className = "msg";
     document.getElementById("reporteContainer").style.display = "none";
     try{
-      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const r = await fetch(`${API_BASE}/api/report?codigo=${encodeURIComponent(codigo)}`);
       const data = await r.json();
       if(!r.ok || data.error){
         document.getElementById("msg").textContent = data.error || "No encontrado";
