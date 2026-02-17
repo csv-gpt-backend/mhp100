@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>mar 16 18 Integridad -  Reporte (AFINADO)</title>
+  <title>mar 17 52 41 Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -234,13 +234,7 @@
     .cards2x2 .card{border-radius:12px;background:#bdebf0;display:flex;align-items:center;justify-content:space-between;padding:16px 18px}
     .cards2x2 .card-label{font-weight:900;font-size:18px}
     .cards2x2 .card-score{width:56px;height:44px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px}
-.iviRow{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  margin:18px 0 8px;
-}
-           
+    .iviRow{display:flex;align-items:center;justify-content:center;gap:22px;margin:18px 0 8px}
     .iviLeft{
   display:flex;
   align-items:center;
@@ -434,18 +428,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   margin:0;            /* clave: que no baje */
   font-size:14px;
   line-height:1.1;
-}
-.iviRowTop{
-  display:flex;
-  justify-content:center;
-}
-
-.iviRowBottom{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  flex-wrap:wrap;
+  white-space: nowrap;
 }
 
 
@@ -553,17 +536,15 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
     </div>
 
 <div class="iviRow">
-  <div class="iviRowTop">
-    <div class="iviLeft">
-      <div class="iviCaption">INDICE DE VALORES E INTEGRIDAD</div>
-      <div class="iviBox">
-        <div class="iviTag">IVI</div>
-        <div class="iviVal" id="repIVI">—</div>
-      </div>
+  <div class="iviLeft">
+    <div class="iviCaption">INDICE DE VALORES E INTEGRIDAD</div>
+    <div class="iviBox">
+      <div class="iviTag">IVI</div>
+      <div class="iviVal" id="repIVI">—</div>
     </div>
   </div>
 
-  <div class="iviRowBottom">
+  <div class="iviRight">
     <div class="iviLegend muted" id="iviLegend">La integridad de esta persona es:</div>
 
     <div class="seals" id="repSeals" aria-label="sellos">
@@ -970,7 +951,7 @@ function dispBloque(name){
 
     host.appendChild(wrap);
 
-    // Nota SOLO para la Página 1 (no alertas rojas  aquí)
+    // Nota SOLO para la Página 1 (no alertas rojas aquí)
     if (showNote) {
       const note = document.createElement("div");
       note.className = "scale-note-inline";
@@ -2066,23 +2047,26 @@ for (const it of arr){
 }
 
 
-function calcSellos(ivi, incohPct, contradPct){
+function calcSellos(ivi, incohPts, contradPts){
   const v = Number(ivi) || 0;
 
-  // 1) Por IVI
+  // 1) Base por IVI (manual)
   if (v <= 39) return 1;       // requiere acompañamiento / no recomendado
   if (v <= 60) return 2;       // en formación / con reserva
 
-  // 2) IVI 61–100: depende de validación
-  const incoh = Number(incohPct) || 0;
-  const contra = Number(contradPct) || 0;
-
-  // Usamos el peor caso (más alto) como "índice de validación"
+  // 2) IVI 61–100: "muy íntegro" solo si la validación no es alta
+  // En BD IV1/IV2 se guardan como 0, 1 o 2 (puntos, no %). Usamos el peor caso.
+  const incoh = Number(incohPts) || 0;
+  const contra = Number(contradPts) || 0;
   const validacion = Math.max(incoh, contra);
 
-  if (validacion <= 10) return 4;  // muy íntegro / muy recomendable
-  return 3;                        // íntegro / recomendable
+  // Regla intermedia:
+  // - validación 0 o 1 -> 4 sellos
+  // - validación 2      -> 3 sellos
+  if (validacion <= 1) return 4;
+  return 3;
 }
+
 
 
 
