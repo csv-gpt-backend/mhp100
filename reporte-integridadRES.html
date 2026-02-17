@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>ssszzzBBCXIntegridad - Reporte (AFINADO)</title>
+  <title>HQgIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1727,10 +1727,23 @@ function renderAll(data){
 
 
   // No dejamos N/D: si no hay datos suficientes, mostramos 0% como estimación conservadora.
-  const incohSafe = (incohN == null || Number.isNaN(incohN)) ? 0 : incohN;
-  const contraSafe = (contraN == null || Number.isNaN(contraN)) ? 0 : contraN;
-  document.getElementById("repIncoh").textContent = `${incohSafe}%`;
- // document.getElementById("repContra").textContent = `${contraSafe}%`;
+const incohFromBackend =
+  attempt?.iv1 ??
+  attempt?.resultados?.globales?.IV1 ??
+  null;
+
+let incohSafe = 0;
+
+if (Number.isFinite(Number(incohFromBackend))) {
+  incohSafe = Number(incohFromBackend);
+} else {
+  const est = estimateValidation(attempt) || { incohPct: 0 };
+  incohSafe = Number(est.incohPct) || 0;
+}
+
+document.getElementById("repIncoh").textContent = `${incohSafe}%`;
+
+  
 const g = (resultados && resultados.globales) ? resultados.globales : {};
 const nc = (g.IV2 == null ? null : Math.round(Number(g.IV2) || 0));
 document.getElementById("repContra").textContent = (nc == null ? "—" : `${nc} pts`);
