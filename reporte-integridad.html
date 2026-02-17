@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>4SSSDDDFHQgIntegridad - Reporte (AFINADO)</title>
+  <title>3334SSSDDDFHQgIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -248,6 +248,20 @@
     .stars{font-size:30px;letter-spacing:3px}
     .star{color:#e5e7eb}
     .star.on{color:#f59e0b}
+    .seals{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.seal{
+  width:22px;       /* ajustable */
+  height:auto;
+  opacity:0.18;     /* difuminado */
+}
+.seal.on{
+  opacity:1;        /* clarito */
+}
+
     .iviLegend{margin-top:6px;font-size:14px}
     .interpGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
     .interpCard{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
@@ -491,12 +505,13 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   <!-- aquí van los sellos (Paso 3) -->
 </div>
 
-    <div class="stars" id="repStars" aria-label="estrellas">
-        <span class="star" data-i="1">★</span>
-        <span class="star" data-i="2">★</span>
-        <span class="star" data-i="3">★</span>
-        <span class="star" data-i="4">★</span>
-      </div>
+  <div class="seals" id="repSeals" aria-label="sellos">
+  <img class="seal" data-i="1" src="mhp100/assets/adalam_mini.png" alt="Sello 1">
+  <img class="seal" data-i="2" src="mhp100/assets/adalam_mini.png" alt="Sello 2">
+  <img class="seal" data-i="3" src="mhp100/assets/adalam_mini.png" alt="Sello 3">
+  <img class="seal" data-i="4" src="mhp100/assets/adalam_mini.png" alt="Sello 4">
+</div>
+
     </div>
 
     <div class="iviLegend muted" id="iviLegend">La integridad de esta persona es:</div>
@@ -1827,8 +1842,9 @@ if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} ${pt === 1 ? "pt" : "p
     ? null
     : Math.max(incohN || 0, contraN || 0);
 
-  const stars = calcStars(ivi, validIdx);
-  paintStars(stars);
+  const sellos = calcSellos(ivi);
+paintSellos(sellos);
+
 
   setInterp(pHon, "interpHonBadge", "interpHonBody", "Honestidad");
   setInterp(pRec, "interpRecBadge", "interpRecBody", "Rectitud");
@@ -1969,25 +1985,26 @@ for (const it of arr){
 }
 
 
-function calcStars(ivi, validIdx){
-  const v = Number(ivi)||0;
-  if (v <= 39) return 1;
-  if (v <= 60) return 2;
-  if (validIdx == null) return 3;
-  const vi = Number(validIdx)||0;
-  if (vi <= 10) return 4;
-  return 3;
+function calcSellos(ivi){
+  const v = Number(ivi) || 0;
+  if (v < 25) return 1;
+  if (v < 51) return 2;
+  if (v < 76) return 3;
+  return 4; // 76..100
 }
 
-function paintStars(n){
-  const root = document.getElementById("repStars");
+
+function paintSellos(n){
+  const root = document.getElementById("repSeals");
   if (!root) return;
-  const stars = root.querySelectorAll(".star");
-  stars.forEach((s, idx) => {
-    if (idx < n) s.classList.add("on");
-    else s.classList.remove("on");
+
+  const seals = root.querySelectorAll(".seal");
+  seals.forEach((img, idx) => {
+    if (idx < n) img.classList.add("on");
+    else img.classList.remove("on");
   });
 }
+
 
 function interpBand(pct){
   const p = Number(pct)||0;
