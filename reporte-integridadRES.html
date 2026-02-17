@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>mar 16 18 Integridad -  Reporte (AFINADO)</title>
+  <title>mar 18 31 Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -237,25 +237,34 @@
 .iviRow{
   display:flex;
   flex-direction:column;
-  gap:10px;
-  margin:18px 0 8px;
-}
-           
-    .iviLeft{
-  display:flex;
   align-items:center;
-  gap:12px;
+  gap:10px;
+}
+    /* Título “INDICE DE VALORES E INTEGRIDAD” más grande y centrado */
+/* 🔧 Forzar 1 sola línea: Título + [IVI|xx] */
+.iviLeft{
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:14px !important;
+  flex-wrap:nowrap !important;
 }
 
-    .iviBox{display:flex;align-items:stretch;border:1px solid #222}
+/* La caja IVI se mantiene compacta y en línea */
+.iviBox{
+  display:inline-flex !important;
+  flex:0 0 auto !important;
+  margin:0 !important;
+}
     .iviTag{padding:10px 12px;font-weight:900;display:flex;align-items:center}
     .iviVal{padding:10px 16px;background:var(--yellow);font-weight:900;font-size:20px;display:flex;align-items:center}
-    .iviCaption{
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .3px;
+    /* El título NO debe ocupar todo el ancho */
+.iviCaption{
+  display:inline !important;
+  width:auto !important;
+  margin:0 !important;
+  white-space:nowrap !important;
 }
     .stars{font-size:30px;letter-spacing:3px}
     .star{color:#e5e7eb}
@@ -424,30 +433,28 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   font-size: 12px;
   color:#6b7280;
 }
-.iviRight{
+    .iviRight{
+  width:100%;
   display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-.iviLegend{
-  margin:0;            /* clave: que no baje */
-  font-size:14px;
-  line-height:1.1;
-}
-.iviRowTop{
-  display:flex;
-  justify-content:center;
-}
-
-.iviRowBottom{
-  display:flex;
-  align-items:center;
+  align-items:baseline;
   justify-content:center;
   gap:12px;
   flex-wrap:wrap;
 }
-
+.iviLegend{
+  margin:0;
+  white-space:nowrap;
+}
+.iviBox .iviTag{
+  padding:10px 14px;
+  font-weight:900;
+  background:#fff;
+}
+.iviBox .iviVal{
+  padding:10px 18px;
+  font-weight:900;
+  background:#ffe76a;
+}
 
 </style>
 </head>
@@ -553,17 +560,15 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
     </div>
 
 <div class="iviRow">
-  <div class="iviRowTop">
-    <div class="iviLeft">
-      <div class="iviCaption">INDICE DE VALORES E INTEGRIDAD</div>
-      <div class="iviBox">
-        <div class="iviTag">IVI</div>
-        <div class="iviVal" id="repIVI">—</div>
-      </div>
+  <div class="iviLeft">
+    <div class="iviCaption">INDICE DE VALORES E INTEGRIDAD</div>
+    <div class="iviBox">
+      <div class="iviTag">IVI</div>
+      <div class="iviVal" id="repIVI">—</div>
     </div>
   </div>
 
-  <div class="iviRowBottom">
+  <div class="iviRight">
     <div class="iviLegend muted" id="iviLegend">La integridad de esta persona es:</div>
 
     <div class="seals" id="repSeals" aria-label="sellos">
@@ -970,7 +975,7 @@ function dispBloque(name){
 
     host.appendChild(wrap);
 
-    // Nota SOLO para la Página 1 (no alertas rojas  aquí)
+    // Nota SOLO para la Página 1 (no alertas rojas aquí)
     if (showNote) {
       const note = document.createElement("div");
       note.className = "scale-note-inline";
@@ -2066,23 +2071,26 @@ for (const it of arr){
 }
 
 
-function calcSellos(ivi, incohPct, contradPct){
+function calcSellos(ivi, incohPts, contradPts){
   const v = Number(ivi) || 0;
 
-  // 1) Por IVI
+  // 1) Base por IVI (manual)
   if (v <= 39) return 1;       // requiere acompañamiento / no recomendado
   if (v <= 60) return 2;       // en formación / con reserva
 
-  // 2) IVI 61–100: depende de validación
-  const incoh = Number(incohPct) || 0;
-  const contra = Number(contradPct) || 0;
-
-  // Usamos el peor caso (más alto) como "índice de validación"
+  // 2) IVI 61–100: "muy íntegro" solo si la validación no es alta
+  // En BD IV1/IV2 se guardan como 0, 1 o 2 (puntos, no %). Usamos el peor caso.
+  const incoh = Number(incohPts) || 0;
+  const contra = Number(contradPts) || 0;
   const validacion = Math.max(incoh, contra);
 
-  if (validacion <= 10) return 4;  // muy íntegro / muy recomendable
-  return 3;                        // íntegro / recomendable
+  // Regla intermedia:
+  // - validación 0 o 1 -> 4 sellos
+  // - validación 2      -> 3 sellos
+  if (validacion <= 1) return 4;
+  return 3;
 }
+
 
 
 
