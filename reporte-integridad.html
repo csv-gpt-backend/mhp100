@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>2 08 Integridad -  Reporte (AFINADO)</title>
+  <title>2 15 Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1850,7 +1850,7 @@ if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} ${pt === 1 ? "pt" : "p
     ? null
     : Math.max(incohN || 0, contraN || 0);
 
-  const sellos = calcSellos(ivi);
+const sellos = calcSellos(ivi, incohSafe, nc);
 paintSellos(sellos);
   
 
@@ -1996,13 +1996,24 @@ for (const it of arr){
 }
 
 
-function calcSellos(ivi){
+function calcSellos(ivi, incohPct, contradPct){
   const v = Number(ivi) || 0;
-  if (v < 25) return 1;
-  if (v < 51) return 2;
-  if (v < 76) return 3;
-  return 4; // 76..100
+
+  // 1) Por IVI
+  if (v <= 39) return 1;       // requiere acompañamiento / no recomendado
+  if (v <= 60) return 2;       // en formación / con reserva
+
+  // 2) IVI 61–100: depende de validación
+  const incoh = Number(incohPct) || 0;
+  const contra = Number(contradPct) || 0;
+
+  // Usamos el peor caso (más alto) como "índice de validación"
+  const validacion = Math.max(incoh, contra);
+
+  if (validacion <= 10) return 4;  // muy íntegro / muy recomendable
+  return 3;                        // íntegro / recomendable
 }
+
 
 
 function paintSellos(n){
