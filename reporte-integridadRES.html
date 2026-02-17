@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>HQgIntegridad - Reporte (AFINADO)</title>
+  <title>FHQgIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -72,6 +72,27 @@
       .bars-slot{height:18px}
       .bars-slot .tick-label{top:15px}
       .scale-note-inline{margin-top:2px}
+  /* === FIX PDF: asegurar que la curva (SVG) se imprima === */
+  *{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .curve{
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .curve-caption{
+    background: #fff !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Quitar filtros que suelen "romper" SVG en PDF */
+  .curve-3d{ filter: none !important; }
+  #curveFill{ filter: none !important; }
 
     }
 
@@ -2221,6 +2242,39 @@ function exportJSON(){
       cargarReporte(c);
     }
   })();
+  // === FIX PDF: Chrome a veces NO imprime SVG con filtros (feDropShadow) ===
+(function fixCurveForPrint(){
+  const fill = document.getElementById("curveFill");
+  if (!fill) return;
+
+  let prevFilterAttr = null;
+
+  window.addEventListener("beforeprint", () => {
+    prevFilterAttr = fill.getAttribute("filter");
+    fill.removeAttribute("filter"); // quita url(#softShadow)
+  });
+
+  window.addEventListener("afterprint", () => {
+    if (prevFilterAttr) fill.setAttribute("filter", prevFilterAttr);
+  });
+})();
+// === FIX PDF: Chrome a veces NO imprime SVG con filtros (feDropShadow) ===
+(function fixCurveForPrint(){
+  const fill = document.getElementById("curveFill");
+  if (!fill) return;
+
+  let prevFilterAttr = null;
+
+  window.addEventListener("beforeprint", () => {
+    prevFilterAttr = fill.getAttribute("filter");
+    fill.removeAttribute("filter"); // quita url(#softShadow)
+  });
+
+  window.addEventListener("afterprint", () => {
+    if (prevFilterAttr) fill.setAttribute("filter", prevFilterAttr);
+  });
+})();
+
 </script>
 </body>
 </html>
