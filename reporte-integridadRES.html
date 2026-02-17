@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>2 08 Integridad -  Reporte (AFINADO)</title>
+  <title>2 44 Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -420,7 +420,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
         <div class="rep-brand">
           <img id="brandLogo" alt="ADALAM" src="assets/logo_adalam.png" onerror="this.style.display='none'" class="mhp-logo"/>
           <div>
-            <div class="rep-title">Integridad</div>
+            <div class="rep-title">VALORES E INTEGRIDAD</div>
             <div class="rep-subtitle muted">Reporte individual</div>
           </div>
         </div>
@@ -505,7 +505,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 
 <div class="iviRow">
   <div class="iviLeft">
-    <div class="iviCaption">INDICE DE VALORES DE INTEGRIDAD</div>
+    <div class="iviCaption">INDICE DE VALORES E INTEGRIDAD</div>
     <div class="iviBox">
       <div class="iviTag">IVI</div>
       <div class="iviVal" id="repIVI">—</div>
@@ -524,10 +524,17 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 
     <div class="iviLegend muted" id="iviLegend">La integridad de esta persona es:</div>
 
-    <div class="starNote muted" id="starNote">
-  <b>Sellos:</b> reflejan el nivel global (IVI) y la consistencia general de las respuestas.
-  A mayor número de sellos, mayor solidez y coherencia en el perfil observado.
+<div class="starNote muted" id="starNote">
+  <b>Sellos:</b> reflejan el nivel global (IVI) y la consistencia/coherencia de las respuestas (índices de validación).
+  A mayor número de sellos, mayor solidez del perfil observado.
+  <br><br>
+
+  <b>1 sello:</b> IVI 0–39 → Requiere acompañamiento <span class="muted">(No recomendado)</span><br>
+  <b>2 sellos:</b> IVI 40–60 → En formación <span class="muted">(Con reserva)</span><br>
+  <b>3 sellos:</b> IVI 61–100 y Validación 11–100% → Íntegro <span class="muted">(Recomendable)</span><br>
+  <b>4 sellos:</b> IVI 61–100 y Validación 0–10% → Muy íntegro <span class="muted">(Muy recomendable)</span>
 </div>
+
 
 
   </section>
@@ -1850,7 +1857,7 @@ if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} ${pt === 1 ? "pt" : "p
     ? null
     : Math.max(incohN || 0, contraN || 0);
 
-  const sellos = calcSellos(ivi);
+const sellos = calcSellos(ivi, incohSafe, nc);
 paintSellos(sellos);
   
 
@@ -1996,13 +2003,24 @@ for (const it of arr){
 }
 
 
-function calcSellos(ivi){
+function calcSellos(ivi, incohPct, contradPct){
   const v = Number(ivi) || 0;
-  if (v < 25) return 1;
-  if (v < 51) return 2;
-  if (v < 76) return 3;
-  return 4; // 76..100
+
+  // 1) Por IVI
+  if (v <= 39) return 1;       // requiere acompañamiento / no recomendado
+  if (v <= 60) return 2;       // en formación / con reserva
+
+  // 2) IVI 61–100: depende de validación
+  const incoh = Number(incohPct) || 0;
+  const contra = Number(contradPct) || 0;
+
+  // Usamos el peor caso (más alto) como "índice de validación"
+  const validacion = Math.max(incoh, contra);
+
+  if (validacion <= 10) return 4;  // muy íntegro / muy recomendable
+  return 3;                        // íntegro / recomendable
 }
+
 
 
 function paintSellos(n){
