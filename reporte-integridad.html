@@ -503,17 +503,15 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
     </div>
   </div>
 
-  <!-- aquí van los sellos (Paso 3) -->
-</div>
-
   <div class="seals" id="repSeals" aria-label="sellos">
-  <img class="seal" data-i="1" src="mhp100/assets/adalam_mini.png" alt="Sello 1">
-  <img class="seal" data-i="2" src="mhp100/assets/adalam_mini.png" alt="Sello 2">
-  <img class="seal" data-i="3" src="mhp100/assets/adalam_mini.png" alt="Sello 3">
-  <img class="seal" data-i="4" src="mhp100/assets/adalam_mini.png" alt="Sello 4">
+    <img class="seal" data-i="1" src="mhp100/assets/adalam_mini.png" alt="Sello 1">
+    <img class="seal" data-i="2" src="mhp100/assets/adalam_mini.png" alt="Sello 2">
+    <img class="seal" data-i="3" src="mhp100/assets/adalam_mini.png" alt="Sello 3">
+    <img class="seal" data-i="4" src="mhp100/assets/adalam_mini.png" alt="Sello 4">
+  </div>
 </div>
 
-    </div>
+
 
     <div class="iviLegend muted" id="iviLegend">La integridad de esta persona es:</div>
 
@@ -1845,6 +1843,7 @@ if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} ${pt === 1 ? "pt" : "p
 
   const sellos = calcSellos(ivi);
 paintSellos(sellos);
+const stars = sellos; // compatibilidad: el resto del reporte aún usa "stars"
 
 
   setInterp(pHon, "interpHonBadge", "interpHonBody", "Honestidad");
@@ -1854,11 +1853,11 @@ paintSellos(sellos);
   wireInterpToggles();
 
   const elBIVI = document.getElementById("bIVI") || document.getElementById("repIVI") || document.getElementById("iviScore2"); if (elBIVI) elBIVI.textContent = ivi || "—";
-  const elTIVI = document.getElementById("tIVI") || document.getElementById("iviText2"); if (elTIVI) elTIVI.textContent = interpGlobal(ivi, stars);
+  const elTIVI = document.getElementById("tIVI") || document.getElementById("iviText2"); if (elTIVI) elTIVI.textContent = interpGlobal(ivi, sellos);
   const s2 = document.getElementById("iviScore2");
   const t2 = document.getElementById("iviText2");
   if (s2) s2.textContent = ivi || "—";
-  if (t2) t2.textContent = interpGlobal(ivi, stars);
+  if (t2) t2.textContent = interpGlobal(ivi, sellos);
 
   // ===== PARTE 2 robusta (perfil + recomendaciones + plan) =====
   const ptLabel = (pt == null) ? "—" : `${pt} pts — ${PT_LABEL[pt] || ""}`.trim();
@@ -1868,7 +1867,7 @@ paintSellos(sellos);
     justicia: pJus,
     veracidad: pVer,
     ivi: ivi,
-    stars: stars,
+sellos: sellos,
     incoh: incohSafe,
     nc: nc,
     ptLabel: ptLabel
@@ -2233,8 +2232,7 @@ function wireInterpToggles(){
     });
   });
 }
-
-function interpGlobal(ivi, stars){
+function interpGlobal(ivi, sellos){
   const b = interpBand(ivi);
   const sTxt = stars === 4 ? "Alta consistencia de respuestas." : (stars === 3 ? "Consistencia aceptable de respuestas." : "");
   return `${b.txt} Nivel global: ${b.tag}. ${sTxt}`.trim();
