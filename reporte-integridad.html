@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>FHQgIntegridad - Reporte (AFINADO)</title>
+  <title>DDDFHQgIntegridad - Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1761,15 +1761,30 @@ if (Number.isFinite(Number(incohFromBackend))) {
   const est = estimateValidation(attempt) || { incohPct: 0 };
   incohSafe = Number(est.incohPct) || 0;
 }
+const iv1Val = (incohSafe == null ? null : Number(incohSafe));
+const iv1Txt = (iv1Val == null || Number.isNaN(iv1Val))
+  ? "—"
+  : `${iv1Val} ${iv1Val === 1 ? "pt" : "pts"}${iv1Val >= 1 ? " — Alerta" : ""}`;
 
-document.getElementById("repIncoh").textContent = `${incohSafe}%`;
+document.getElementById("repIncoh").textContent = iv1Txt;
 
   
 const g = (resultados && resultados.globales) ? resultados.globales : {};
 const nc = (g.IV2 == null ? null : Math.round(Number(g.IV2) || 0));
-document.getElementById("repContra").textContent = (nc == null ? "—" : `${nc} pts`);
+const iv2Val = (nc == null ? null : Number(nc));
+const iv2Txt = (iv2Val == null || Number.isNaN(iv2Val))
+  ? "—"
+  : `${iv2Val} ${iv2Val === 1 ? "pt" : "pts"}${iv2Val >= 1 ? " — Alerta" : ""}`;
+
+document.getElementById("repContra").textContent = iv2Txt;
+
+  
 // Tiempo (PT) desde BD: resultados.globales.IV3 (0/1/2) con rango 20–30 min
 const pt = (g.IV3 == null || g.IV3 === "") ? null : Math.round(Number(g.IV3) || 0);
+const ptVal = (pt == null ? null : Number(pt));
+const ptPrefix = (ptVal == null || Number.isNaN(ptVal))
+  ? "—"
+  : `${ptVal} ${ptVal === 1 ? "pt" : "pts"}`;
 
 const PT_LABEL = {
   2: "Tiempo adecuado (20–30 min)",
@@ -1778,7 +1793,7 @@ const PT_LABEL = {
 };
 
 const elPT = document.getElementById("repTiempo");
-if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} pts — ${PT_LABEL[pt] || ""}`);
+if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} ${pt === 1 ? "pt" : "pts"} — ${PT_LABEL[pt] || ""}`);
 
   const validIdx = (incohN == null || Number.isNaN(incohN)) && (contraN == null || Number.isNaN(contraN))
     ? null
