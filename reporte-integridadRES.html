@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>FHQgIntegridad - Reporte (AFINADO)</title>
+  <title>2 08 Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -13,6 +13,13 @@
     .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
     h1,h2,h3{margin:0 0 8px 0}
     .muted{color:var(--muted)}
+    .val-note{
+  margin-top: 10px;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.35;
+}
+
     .topbar{display:flex;gap:12px;align-items:center;margin-bottom:8px}
     .topbar input{flex:0 0 180px;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;text-transform:uppercase}
     .btn{padding:9px 14px;border-radius:999px;border:0;background:#1a8f3b;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
@@ -228,12 +235,39 @@
     .cards2x2 .card-label{font-weight:900;font-size:18px}
     .cards2x2 .card-score{width:56px;height:44px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px}
     .iviRow{display:flex;align-items:center;justify-content:center;gap:22px;margin:18px 0 8px}
+    .iviLeft{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
     .iviBox{display:flex;align-items:stretch;border:1px solid #222}
     .iviTag{padding:10px 12px;font-weight:900;display:flex;align-items:center}
     .iviVal{padding:10px 16px;background:var(--yellow);font-weight:900;font-size:20px;display:flex;align-items:center}
+    .iviCaption{
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
     .stars{font-size:30px;letter-spacing:3px}
     .star{color:#e5e7eb}
     .star.on{color:#f59e0b}
+    .seals{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.seal{
+  width:22px;       /* ajustable */
+  height:auto;
+  opacity:0.18;     /* difuminado */
+}
+.seal.on{
+  opacity:1;        /* clarito */
+}
+
     .iviLegend{margin-top:6px;font-size:14px}
     .interpGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
     .interpCard{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
@@ -361,6 +395,10 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 .interpBody h4{margin:10px 0 6px 0;font-size:14px}
 .interpBody ul{margin:6px 0 10px 18px}
 .interpBody li{margin:4px 0}
+#repSeals .seal{
+  width: 66px;   /* doble aprox */
+  height: auto;
+}
 
 </style>
 </head>
@@ -373,7 +411,8 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   </div>
   <div class="hint">Tip: también puedes abrir ?codigo=COD001</div>
 
-  <div id="reporteContainer" style="display:none">
+
+    <div id="reporteContainer" style="display:none;">
   <!-- ===== PAGE 1 ===== -->
   <section id="page1" class="page page-break">
     <div class="rep-top">
@@ -434,8 +473,13 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
           <div class="ivline"><b>Incoherencia</b>: <span id="repIncoh">0%</span></div>
           <div class="ivline"><b>Contradicción</b>: <span id="repContra">0%</span></div>
           <div class="ivline"><b>Tiempo (PT)</b>: <span id="repTiempo">—</span></div>
+<div class="val-note">
+  Nota: estos indicadores evalúan consistencia y tiempo de respuesta. Si aparece “Alerta”, interpreta los resultados con mayor cautela.
+</div>
+<div class="muted val-note" id="ivNote" style="display:none">
+  * Índices calculados automáticamente según patrón de respuesta.
+</div>
 
-          <div class="muted" id="ivNote" style="display:none;font-size:12px;margin-top:6px">* Índices calculados automáticamente según patrón de respuesta.</div>
         </div>
       </div>
     </div>
@@ -459,25 +503,32 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
       </div>
     </div>
 
-    <div class="iviRow">
-      <div class="iviBox">
-        <div class="iviTag">IVI</div>
-        <div class="iviVal" id="repIVI">—</div>
-      </div>
-      <div class="stars" id="repStars" aria-label="estrellas">
-        <span class="star" data-i="1">★</span>
-        <span class="star" data-i="2">★</span>
-        <span class="star" data-i="3">★</span>
-        <span class="star" data-i="4">★</span>
-      </div>
+<div class="iviRow">
+  <div class="iviLeft">
+    <div class="iviCaption">INDICE DE VALORES DE INTEGRIDAD</div>
+    <div class="iviBox">
+      <div class="iviTag">IVI</div>
+      <div class="iviVal" id="repIVI">—</div>
     </div>
+  </div>
+
+  <div class="seals" id="repSeals" aria-label="sellos">
+    <img class="seal" data-i="1" src="/assets/adalam_mini.png" alt="Sello 1">
+    <img class="seal" data-i="2" src="/assets/adalam_mini.png" alt="Sello 2">
+    <img class="seal" data-i="3" src="/assets/adalam_mini.png" alt="Sello 3">
+    <img class="seal" data-i="4" src="/assets/adalam_mini.png" alt="Sello 4">
+  </div>
+</div>
+
+
 
     <div class="iviLegend muted" id="iviLegend">La integridad de esta persona es:</div>
 
     <div class="starNote muted" id="starNote">
-      <b>Estrellas:</b> reflejan el nivel global (IVI) y la consistencia general de las respuestas. 
-      A mayor número de estrellas, mayor solidez y coherencia en el perfil observado.
-    </div>
+  <b>Sellos:</b> reflejan el nivel global (IVI) y la consistencia general de las respuestas.
+  A mayor número de sellos, mayor solidez y coherencia en el perfil observado.
+</div>
+
 
   </section>
 
@@ -1761,15 +1812,30 @@ if (Number.isFinite(Number(incohFromBackend))) {
   const est = estimateValidation(attempt) || { incohPct: 0 };
   incohSafe = Number(est.incohPct) || 0;
 }
+const iv1Val = (incohSafe == null ? null : Number(incohSafe));
+const iv1Txt = (iv1Val == null || Number.isNaN(iv1Val))
+  ? "—"
+  : `${iv1Val} ${iv1Val === 1 ? "pt" : "pts"}${iv1Val >= 1 ? " — Alerta" : ""}`;
 
-document.getElementById("repIncoh").textContent = `${incohSafe}%`;
+document.getElementById("repIncoh").textContent = iv1Txt;
 
   
 const g = (resultados && resultados.globales) ? resultados.globales : {};
 const nc = (g.IV2 == null ? null : Math.round(Number(g.IV2) || 0));
-document.getElementById("repContra").textContent = (nc == null ? "—" : `${nc} pts`);
+const iv2Val = (nc == null ? null : Number(nc));
+const iv2Txt = (iv2Val == null || Number.isNaN(iv2Val))
+  ? "—"
+  : `${iv2Val} ${iv2Val === 1 ? "pt" : "pts"}${iv2Val >= 1 ? " — Alerta" : ""}`;
+
+document.getElementById("repContra").textContent = iv2Txt;
+
+  
 // Tiempo (PT) desde BD: resultados.globales.IV3 (0/1/2) con rango 20–30 min
 const pt = (g.IV3 == null || g.IV3 === "") ? null : Math.round(Number(g.IV3) || 0);
+const ptVal = (pt == null ? null : Number(pt));
+const ptPrefix = (ptVal == null || Number.isNaN(ptVal))
+  ? "—"
+  : `${ptVal} ${ptVal === 1 ? "pt" : "pts"}`;
 
 const PT_LABEL = {
   2: "Tiempo adecuado (20–30 min)",
@@ -1778,14 +1844,18 @@ const PT_LABEL = {
 };
 
 const elPT = document.getElementById("repTiempo");
-if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} pts — ${PT_LABEL[pt] || ""}`);
+if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} ${pt === 1 ? "pt" : "pts"} — ${PT_LABEL[pt] || ""}`);
 
   const validIdx = (incohN == null || Number.isNaN(incohN)) && (contraN == null || Number.isNaN(contraN))
     ? null
     : Math.max(incohN || 0, contraN || 0);
 
-  const stars = calcStars(ivi, validIdx);
-  paintStars(stars);
+  const sellos = calcSellos(ivi);
+paintSellos(sellos);
+  
+
+const stars = sellos; // compatibilidad: el resto del reporte aún usa "stars"
+
 
   setInterp(pHon, "interpHonBadge", "interpHonBody", "Honestidad");
   setInterp(pRec, "interpRecBadge", "interpRecBody", "Rectitud");
@@ -1794,11 +1864,11 @@ if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} pts — ${PT_LABEL[pt]
   wireInterpToggles();
 
   const elBIVI = document.getElementById("bIVI") || document.getElementById("repIVI") || document.getElementById("iviScore2"); if (elBIVI) elBIVI.textContent = ivi || "—";
-  const elTIVI = document.getElementById("tIVI") || document.getElementById("iviText2"); if (elTIVI) elTIVI.textContent = interpGlobal(ivi, stars);
+  const elTIVI = document.getElementById("tIVI") || document.getElementById("iviText2"); if (elTIVI) elTIVI.textContent = interpGlobal(ivi, sellos);
   const s2 = document.getElementById("iviScore2");
   const t2 = document.getElementById("iviText2");
   if (s2) s2.textContent = ivi || "—";
-  if (t2) t2.textContent = interpGlobal(ivi, stars);
+  if (t2) t2.textContent = interpGlobal(ivi, sellos);
 
   // ===== PARTE 2 robusta (perfil + recomendaciones + plan) =====
   const ptLabel = (pt == null) ? "—" : `${pt} pts — ${PT_LABEL[pt] || ""}`.trim();
@@ -1808,7 +1878,7 @@ if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} pts — ${PT_LABEL[pt]
     justicia: pJus,
     veracidad: pVer,
     ivi: ivi,
-    stars: stars,
+sellos: sellos,
     incoh: incohSafe,
     nc: nc,
     ptLabel: ptLabel
@@ -1926,25 +1996,28 @@ for (const it of arr){
 }
 
 
-function calcStars(ivi, validIdx){
-  const v = Number(ivi)||0;
-  if (v <= 39) return 1;
-  if (v <= 60) return 2;
-  if (validIdx == null) return 3;
-  const vi = Number(validIdx)||0;
-  if (vi <= 10) return 4;
-  return 3;
+function calcSellos(ivi){
+  const v = Number(ivi) || 0;
+  if (v < 25) return 1;
+  if (v < 51) return 2;
+  if (v < 76) return 3;
+  return 4; // 76..100
 }
 
-function paintStars(n){
-  const root = document.getElementById("repStars");
-  if (!root) return;
-  const stars = root.querySelectorAll(".star");
-  stars.forEach((s, idx) => {
-    if (idx < n) s.classList.add("on");
-    else s.classList.remove("on");
+
+function paintSellos(n){
+  const root = document.getElementById("repSeals");
+  if (!root) return; // evita que rompa
+
+  const seals = root.querySelectorAll(".seal");
+  if (!seals || seals.length === 0) return;
+
+  seals.forEach((img, idx) => {
+    img.classList.toggle("on", idx < n);
   });
 }
+
+
 
 function interpBand(pct){
   const p = Number(pct)||0;
@@ -2170,10 +2243,10 @@ function wireInterpToggles(){
     });
   });
 }
-
-function interpGlobal(ivi, stars){
+function interpGlobal(ivi, sellos){
   const b = interpBand(ivi);
-  const sTxt = stars === 4 ? "Alta consistencia de respuestas." : (stars === 3 ? "Consistencia aceptable de respuestas." : "");
+  const sTxt = sellos === 4 ? "Alta consistencia de respuestas."
+  : (sellos === 3 ? "Consistencia aceptable de respuestas." : "");
   return `${b.txt} Nivel global: ${b.tag}. ${sTxt}`.trim();
 }
 
