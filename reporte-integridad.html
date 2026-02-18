@@ -460,6 +460,116 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   display: none !important;
 }
 
+
+/* ===== Parte 2: equivalencias + barras (robusto y llamativo) ===== */
+.equivCard{
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:14px 16px;
+  background:#fff;
+}
+.equivTitle{
+  font-weight:900;
+  letter-spacing:.2px;
+  margin:0 0 6px 0;
+}
+.equivSubtitle{
+  margin:0 0 12px 0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.35;
+}
+.equivGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+}
+@media (max-width: 720px){
+  .equivGrid{ grid-template-columns: 1fr; }
+}
+.equivCol{
+  border:1px solid #eee;
+  border-radius:12px;
+  padding:12px;
+}
+.equivCol h4{
+  margin:0 0 8px 0;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.2px;
+}
+.equivItem{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:7px 8px;
+  border-radius:10px;
+  margin:6px 0;
+  background:#fafafa;
+  border:1px solid #f0f0f0;
+}
+.equivItem b{ font-weight:800; }
+.equivItem .muted{ color:var(--muted); font-size:12px; }
+.equivItem.is-active{
+  background: rgba(255,227,106,.35);
+  border-color: rgba(255,227,106,.9);
+}
+.equivNote{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.35;
+}
+
+/* barras por subescala */
+.barList{ margin-top:10px; display:flex; flex-direction:column; gap:10px; }
+.barRow{
+  display:grid;
+  grid-template-columns: 160px 1fr 70px;
+  align-items:center;
+  gap:12px;
+}
+@media (max-width: 720px){
+  .barRow{ grid-template-columns: 1fr; gap:6px; }
+}
+.barLbl{
+  font-weight:800;
+}
+.barTrack{
+  position:relative;
+  height:12px;
+  border-radius:999px;
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,.08);
+  background: linear-gradient(to right,
+    var(--red) 0%,
+    var(--red) 40%,
+    var(--orange) 40%,
+    var(--orange) 70%,
+    var(--green) 70%,
+    var(--green) 100%);
+}
+.barMarker{
+  position:absolute;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:14px;
+  height:14px;
+  border-radius:999px;
+  background:#111;
+  border:2px solid #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
+.barVal{
+  text-align:right;
+  font-weight:900;
+}
+.barTag{
+  margin-top:2px;
+  font-size:12px;
+  color:var(--muted);
+}
+
 </style>
 </head>
 <body>
@@ -697,7 +807,10 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
     </div>
   </div>
 
-  <!-- ===== PARTE 2 (robusta) ===== -->
+  
+  <div id="equivEtapa" class="equivCard" style="margin-top:14px"></div>
+
+<!-- ===== PARTE 2 (robusta) ===== -->
   <div id="perfilGlobal" class="interp-bloque" style="margin-top:14px"></div>
   <div id="recomendaciones" class="interp-bloque"></div>
   <div id="planAccion" class="interp-bloque"></div>
@@ -1179,6 +1292,96 @@ function dispBloque(name){
     return "alto";
   }
 
+
+  function barTagFromPct(p){
+    const b = rangoBadge(p);
+    // convierte “1–40 Por desarrollar” -> “Por desarrollar”
+    return b.txt.replace(/^\d+–\d+\s*/,'');
+  }
+  function renderBarRow(label, value){
+    const v = (value==null || Number.isNaN(value)) ? null : clamp(Math.round(Number(value)),0,100);
+    const tag = v==null ? "—" : barTagFromPct(v);
+    const markerLeft = v==null ? 0 : v;
+    return `
+      <div class="barRow">
+        <div>
+          <div class="barLbl">${label}</div>
+          <div class="barTag">${tag}</div>
+        </div>
+        <div class="barTrack" aria-hidden="true">
+          <div class="barMarker" style="left:${markerLeft}%; ${v==null?'display:none;':''}"></div>
+        </div>
+        <div class="barVal">${v==null?'—':v}</div>
+      </div>
+    `;
+  }
+
+  function etiquetaEscolar(stars, ivi){
+    // estrellas/sellos 1..4 -> etiqueta escolar
+    const s = Number(stars)||0;
+    if (Number(ivi)||0 <= 39) return "Requiere acompañamiento";
+    if (Number(ivi)||0 <= 60) return "En formación";
+    return s >= 4 ? "Muy íntegro" : "Íntegro";
+  }
+  function etiquetaAdulto(stars, ivi){
+    const s = Number(stars)||0;
+    if (Number(ivi)||0 <= 39) return "No recomendado";
+    if (Number(ivi)||0 <= 60) return "Con reserva";
+    return s >= 4 ? "Muy recomendable" : "Recomendable";
+  }
+
+  function renderEquivEtapa(extras){
+    const el = document.getElementById("equivEtapa");
+    if(!el) return;
+    const ivi = extras.ivi;
+    const stars = extras.stars;
+
+    const escAct = etiquetaEscolar(stars, ivi);
+    const adAct  = etiquetaAdulto(stars, ivi);
+
+    const escItems = [
+      {k:"1 sello", v:"Requiere acompañamiento"},
+      {k:"2 sellos", v:"En formación"},
+      {k:"3 sellos", v:"Íntegro"},
+      {k:"4 sellos", v:"Muy íntegro"},
+    ];
+    const adItems = [
+      {k:"Nivel 1", v:"No recomendado"},
+      {k:"Nivel 2", v:"Con reserva"},
+      {k:"Nivel 3", v:"Recomendable"},
+      {k:"Nivel 4", v:"Muy recomendable"},
+    ];
+
+    const mk = (items, active) => items.map(it=>`
+      <div class="equivItem ${it.v===active?'is-active':''}">
+        <div><b>${it.k}</b></div>
+        <div class="muted">${it.v}</div>
+      </div>
+    `).join("");
+
+    el.innerHTML = `
+      <div class="equivTitle">Guía de lectura por etapa</div>
+      <div class="equivSubtitle">
+        Para facilitar la interpretación, estas etiquetas muestran la equivalencia de lectura en contexto escolar y en contexto adulto/profesional.
+        El nivel global se refleja con los sellos y se matiza con los índices de validación (incoherencia/contradicción).
+      </div>
+
+      <div class="equivGrid">
+        <div class="equivCol">
+          <h4>Secundaria / Preparatoria</h4>
+          ${mk(escItems, escAct)}
+        </div>
+        <div class="equivCol">
+          <h4>Adulto / Profesional</h4>
+          ${mk(adItems, adAct)}
+        </div>
+      </div>
+
+      <div class="equivNote">
+        Nota: En este reporte, los índices de validación se registran como puntos (0–2). Un valor 2 sugiere mayor cautela al interpretar resultados.
+      </div>
+    `;
+  }
   const RECOM_BLOQUES = {
     intra: {
       bajo: ["Fortalecer rutinas de hábitos saludables y autoconfianza.","Practicar técnicas breves de regulación emocional (respiración, pausas)."],
@@ -1653,31 +1856,38 @@ function dispBloque(name){
 
     const p = document.createElement("div");
     p.className = "interp-bloque-desc";
-    p.textContent = `Del reporte individual se desprenden los siguientes índices:`;
+    p.textContent = `A continuación se muestran los puntajes (0–100) por subescala y el IVI (promedio).`;
     cont.appendChild(p);
 
-    const ul = document.createElement("ul");
-    ul.className = "recom-list";
-    const fmt = v => (v!=null && !Number.isNaN(v)) ? Math.round(v) : "—";
+    const bars = document.createElement("div");
+    bars.className = "barList";
+    bars.innerHTML = [
+      renderBarRow("Honestidad", extras.honestidad),
+      renderBarRow("Rectitud", extras.rectitud),
+      renderBarRow("Justicia", extras.justicia),
+      renderBarRow("Veracidad", extras.veracidad),
+      renderBarRow("IVI", extras.ivi),
+    ].join("");
+    cont.appendChild(bars);
 
-    [
-      `Honestidad: ${fmt(extras.honestidad)}/100`,
-      `Rectitud: ${fmt(extras.rectitud)}/100`,
-      `Justicia: ${fmt(extras.justicia)}/100`,
-      `Veracidad: ${fmt(extras.veracidad)}/100`,
-      `Índice de  Integridad (IVI): ${fmt(extras.ivi)}/100`
-    ].forEach(t=>{
-      const li=document.createElement("li"); li.textContent=t; ul.appendChild(li);
-    });
+    // Validación (resumen breve)
+    const incoh = extras.incoh;
+    const contra = extras.nc;
+    const ptLbl = extras.ptLabel || "—";
+    const v = Math.max(Number(incoh)||0, Number(contra)||0);
 
-    // Validación
-    const liV = document.createElement("li");
-    liV.textContent = `Validación: Incoherencia ${fmt(extras.incoh)}% · Contradicción ${fmt(extras.nc)} pts · Tiempo (PT): ${extras.ptLabel || "—"}`;
-    ul.appendChild(liV);
+    const note = document.createElement("div");
+    note.className = "equivNote";
+    note.style.marginTop = "12px";
+    note.textContent =
+      v >= 2
+        ? `Índices de validación: se detecta alerta alta (valor 2). Interpreta con mayor cautela.`
+        : (v >= 1
+            ? `Índices de validación: se detecta alerta leve (valor 1). Interpreta con cautela.`
+            : `Índices de validación: sin alertas (0).`);
 
-    cont.appendChild(ul);
+    cont.appendChild(note);
   }
-
   function renderRecomendacionesIntegridad(extras){
     const cont = document.getElementById("recomendaciones");
     if(!cont) return;
