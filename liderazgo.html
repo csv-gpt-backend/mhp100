@@ -1,0 +1,1676 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>555557777AAZZZVVVJXDDDDEvaluación Factores de Liderazgo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #111827;
+      background: #ffffff;
+      --sbw: 0px;
+
+    }
+
+    /* ===== FIX #1: evita que el ancho “salte” por aparición/desaparición del scroll ===== */
+html{
+  overflow-y: scroll;          /* reserva SIEMPRE */
+  scrollbar-gutter: stable;    /* (opcional) */
+  padding-right: var(--sbw);
+
+}
+
+body { overflow-y: scroll; 
+    margin: 0;
+  padding: 0;
+  background: #fff;
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+
+
+
+    .layout {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+.side-strip {
+  background: #e5e7eb;
+  border-right: 1px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.side-strip span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  font-size: 24px; /* un poco más compacto para caber bien */
+  text-align: center;
+
+  color: #6b7280; /* plata/metal oscuro (se lee bien) */
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.8),
+    0 -1px 0 rgba(0,0,0,.18);
+}
+
+    .page {
+max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+      width: 100%;
+     width: 100%;
+     box-sizing: border-box;
+    }
+    h1 {
+      font-size: 22px;
+      margin: 0 0 4px;
+    }
+    h2 {
+      font-size: 16px;
+      margin: 16px 0 8px;
+    }
+    .muted {
+      color: #6b7280;
+      font-size: 13px;
+    }
+    .ok {
+      color: #16a34a;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .err {
+      color: #dc2626;
+      font-size: 13px;
+      font-weight: 600;
+    }
+#pantalla-preguntas .card{
+overflow-x: hidden !important;
+  overflow-y: visible;
+  max-width: 100%;
+}
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 13px;
+    }
+    .field label {
+      font-weight: 600;
+    }
+    .field input {
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+    .field input[readonly] {
+      background: #f9fafb;
+      color: #4b5563;
+    }
+    .instructions p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    .instructions ul {
+      margin: 4px 0 0 18px;
+      padding: 0;
+    }
+    .instructions li {
+      margin-bottom: 2px;
+      font-size: 14px;
+    }
+    .instructions-header {
+      font-weight: 700;
+      text-align: center;
+      margin: 8px 0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #1d4ed8;
+      color: #ffffff;
+      font-size: 13px;
+    }
+
+    /* ===== Sticky header (opción 2) ===== */
+
+.sticky-wrap{
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: #ffffff;
+  padding-top: 8px;
+  margin-top: 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+    .progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .progress .bar {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: width 0.2s ease-out;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+      background: #f9fafb;
+    }
+    .panel-note {
+      font-size: 12px;
+      color: #6b7280;
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    .questions-header {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 80px);
+      gap: 4px;
+      align-items: center;
+      font-size: 13px;
+      margin-top: 8px;
+      padding: 4px 0;
+      border-bottom: 1px solid #e5e7eb;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .questions-header div {
+      text-align: center;
+    }
+    .questions-header div:first-child,
+    .questions-header div:nth-child(2) {
+      text-align: left;
+    }
+
+    /* ===== FIX: permite que la columna del texto se encoja sin romper el grid ===== */
+    .questions-header > div:nth-child(2),
+    .question > div:nth-child(2){
+      min-width: 0;
+    }
+
+    #questions {
+      margin-top: 4px;
+      width: 100%;
+    }
+
+    .question {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 80px);
+      gap: 4px;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 15px; /* un poquito más grande */
+      width: 100%;
+      box-sizing: border-box;
+    }
+    /* Color suave alternado */
+    .question:nth-child(even){
+      background: #f8fafc;
+    }
+    /* Color “bonito” cuando se responde */
+    .question.answered{
+      background: #ecfdf5 !important;
+      outline: 1px solid #bbf7d0;
+      outline-offset: -1px;
+      border-bottom-color: #bbf7d0;
+    }
+
+    .q-no {
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    /* ===== FIX: textos largos NO deben deformar el ancho ===== */
+    .q-text {
+      display: block;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .q-cell {
+      text-align: center;
+    }
+    .q-cell input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #16a34a;
+      color: #ffffff;
+    }
+    button.primary {
+      background: #16a34a;
+    }
+    button.secondary {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    #pantalla-final {
+      margin-top: 32px;
+      padding: 24px 18px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: #fefce8;
+      text-align: center;
+      display: none;
+    }
+    #pantalla-final h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    .check-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 2px solid #16a34a;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #16a34a;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    /* ===== Escala naranjas alineadas con columnas 1/2/3 ===== */
+    .scale-banner {
+      margin-top: 6px;
+      margin-bottom: 2px;
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 80px);
+      gap: 10px;
+      align-items: end;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .scale-spacer { height: 1px; }
+    .scale-badge {
+      background: #f97316;
+      color: #ffffff;
+      padding: 2px 8px 4px;
+      border-radius: 4px 4px 0 0;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      position: relative;
+      min-width: 72px;
+      justify-self: center; /* clave: centrado exacto */
+      width: 72px;          /* mismo ancho de columna */
+    }
+    .scale-badge::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -4px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 4px solid #f97316;
+    }
+    .scale-num {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 1px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 840px) {
+      .layout {
+        grid-template-columns: 56px minmax(0, 1fr);
+      }
+      .side-strip span {
+        font-size: 18px;
+      }
+    }
+    @media (max-width: 720px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .questions-header,
+      .question,
+      .scale-banner {
+        grid-template-columns: 32px 1fr repeat(3, 64px);
+      }
+      .scale-badge{
+        min-width: 56px;
+        width: 56px;
+      }
+      .scale-banner { gap: 8px; }
+    }
+ 
+  
+/* --- Integridad: pantallas previas (intro / instrucciones / secciones) --- */
+.preintro-backdrop{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+    
+.preintro-card{
+  width: min(920px, calc(100% - 32px));
+
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 18px 60px rgba(0,0,0,.25);
+  padding: 22px 22px 18px;
+}
+
+.preintro-title{
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+.preintro-subtitle{
+  font-size: 16px;
+  font-weight: 700;
+  margin: 14px 0 8px;
+}
+.preintro-p{
+  margin: 10px 0;
+  line-height: 1.45;
+  color: #222;
+}
+.preintro-grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 14px;
+  margin-top: 10px;
+}
+.preintro-box{
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.preintro-box h4{
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.preintro-ul{
+  margin: 0; padding-left: 18px;
+}
+.preintro-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+.preintro-btn{
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.preintro-btn.primary{
+  background: #16a34a;
+  color: #fff;
+}
+.preintro-btn.secondary{
+  background: rgba(0,0,0,.06);
+  color: #111;
+}
+@media (max-width: 720px){
+  .preintro-grid{ grid-template-columns: 1fr; }
+  .preintro-title{ font-size: 22px; }
+}
+
+
+
+/* === AJUSTE: rótulo de sección dentro de preguntas (no bloqueante) === */
+.section-banner{
+  display: block;
+  width: auto;
+  min-width: 0;
+
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 4px 4px 0 0;
+
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: .35px;
+  text-transform: uppercase;
+
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  color: #92400e;
+
+  justify-self: center;
+  align-self: end;
+  white-space: nowrap;
+}
+
+
+
+/* === AJUSTE: ampliar datos del usuario === */
+
+#datos-participante .field label{
+  font-size: 14px;
+  font-weight: 700;
+}
+#datos-participante .field input{
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+@media (min-width: 980px){
+  #datos-participante .grid-2{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 18px;
+  }
+}
+
+</style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="side-strip">
+      <span>LIDERAZGO</span>
+    </aside>
+
+    <main class="page">
+      <header>
+<h1 style="text-align:center;">EVALUACIÓN DE INTEGRIDAD</h1>
+      </header>
+
+      <!-- Datos del participante -->
+<section id="datos-participante" class="card" style="margin-top: 50px;"> 
+  <div class="grid-2">
+          <div class="field">
+            <label for="codigo">Código</label>
+            <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
+            <small id="codigoMsg" class="muted"></small>
+          </div>
+
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" type="text" autocomplete="name" />
+          </div>
+
+          <div class="field">
+            <label for="curso">Curso</label>
+            <input id="curso" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="institucion">Institución</label>
+            <input id="institucion" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="grupo">Grupo</label>
+            <input id="grupo" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="fecha">Fecha</label>
+            <input id="fecha" type="text" readonly />
+          </div>
+        </div>
+      </section>
+
+      <!-- Pantalla de instrucciones -->
+      <section id="pantalla-inicio" class="card instructions">
+<div style="margin-top: 12px; text-align: right;">
+          <button id="btnIniciar" class="primary" disabled>Siguiente</button>
+        </div>
+      </section>
+
+      <!-- Pantalla de preguntas -->
+      <section id="pantalla-preguntas" class="hidden">
+        <div class="card">
+
+          <div class="sticky-wrap">
+            <h2 style="margin:0 0 6px;">Responde las siguientes preguntas</h2>
+            <p class="muted" id="nota-genero" style="margin:0 0 6px;">
+              Nota: Las siguientes preguntas pueden estar redactadas en género masculino, pero se entiende que también se refieren al género femenino.
+            </p>
+            <div class="scale-banner" aria-label="Escala">
+              <div class="scale-spacer"></div>
+             <div id="sectionBanner" class="section-banner">Sección 1</div>
+
+              <div class="scale-badge">
+                <span class="scale-num">1</span>
+                <span class="scale-label" id="scaleLabel1">SIEMPRE</span>
+              </div>
+              <div class="scale-badge">
+                <span class="scale-num">2</span>
+                <span class="scale-label" id="scaleLabel2">ALGUNAS VECES</span>
+              </div>
+              <div class="scale-badge">
+                <span class="scale-num">3</span>
+                <span class="scale-label" id="scaleLabel3">RARA VEZ</span>
+              </div>
+            </div>
+            
+            <div class="progress" aria-label="Progreso">
+              <div class="bar" id="bar"></div>
+            </div>
+
+            <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
+              <small id="metaInfo" class="muted"></small>
+            </div>
+
+            <div class="questions-header">
+              <div>#</div>
+              <div>Pregunta</div>
+              <div>1</div>
+              <div>2</div>
+              <div>3</div>
+            </div>
+          </div>
+
+          <div id="questions"></div>
+
+          <div class="footer-actions">
+            <div>
+              <small id="pageIndicator" class="muted"></small>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+              <small id="notaContinuar" class="panel-note">
+                NOTA: Para continuar debes contestar todas las preguntas. Contestadas: 0/0.
+              </small>
+              <button id="btnSiguiente" class="primary">SIGUIENTE</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pantalla final -->
+      <section id="pantalla-final">
+        <div class="check-icon">✔</div>
+        <h2>Evaluación terminada</h2>
+        <p>Felicidades, has concluido tu evaluación de inteligencia emocional.</p>
+        <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    console.log("ready!");
+(function lockScrollbarWidth(){
+  function setSBW(){
+    const sbw = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.setProperty("--sbw", (sbw > 0 ? sbw : 0) + "px");
+  }
+  setSBW();
+  window.addEventListener("resize", setSBW);
+})();
+
+    
+// --- Integridad: estado de pantallas de sección (global) ---
+if (typeof preintroSeenSection === "undefined") {
+  // eslint-disable-next-line no-var
+  var preintroSeenSection = { 1:false, 2:false, 3:false };
+}
+
+// --- Integridad: showPreintro/hidePreintro fallback (si no existe el modal) ---
+function ensurePreintroModal(){
+  let bd = document.getElementById("preintroBackdrop");
+  if (bd) return bd;
+
+  bd = document.createElement("div");
+  bd.className = "preintro-backdrop";
+  bd.id = "preintroBackdrop";
+  bd.style.display = "none";
+  bd.style.alignItems = "center";
+  bd.style.justifyContent = "center";
+  bd.style.position = "fixed";
+  bd.style.inset = "0";
+  bd.style.background = "rgba(0,0,0,.35)";
+  bd.style.zIndex = "9999";
+
+  const card = document.createElement("div");
+  card.className = "preintro-card";
+  card.style.width = "min(920px, calc(100% - 32px))";
+  card.style.maxHeight = "calc(100vh - 32px)";
+  card.style.overflow = "auto";
+  card.style.background = "#fff";
+  card.style.borderRadius = "14px";
+  card.style.boxShadow = "0 18px 60px rgba(0,0,0,.25)";
+  card.style.padding = "22px 22px 18px";
+
+  const content = document.createElement("div");
+  content.id = "preintroContent";
+
+  const actions = document.createElement("div");
+  actions.className = "preintro-actions";
+  actions.style.display = "flex";
+  actions.style.justifyContent = "flex-end";
+  actions.style.gap = "10px";
+  actions.style.marginTop = "14px";
+
+  const backBtn = document.createElement("button");
+  backBtn.className = "preintro-btn secondary";
+  backBtn.id = "preintroBackBtn";
+  backBtn.type = "button";
+  backBtn.textContent = "Atrás";
+  backBtn.style.display = "none";
+  backBtn.style.border = "0";
+  backBtn.style.borderRadius = "999px";
+  backBtn.style.padding = "10px 16px";
+  backBtn.style.fontWeight = "800";
+  backBtn.style.cursor = "pointer";
+  backBtn.style.background = "rgba(0,0,0,.06)";
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "preintro-btn primary";
+  nextBtn.id = "preintroNextBtn";
+  nextBtn.type = "button";
+  nextBtn.textContent = "Siguiente";
+  nextBtn.style.border = "0";
+  nextBtn.style.borderRadius = "999px";
+  nextBtn.style.padding = "10px 16px";
+  nextBtn.style.fontWeight = "800";
+  nextBtn.style.cursor = "pointer";
+  nextBtn.style.background = "#16a34a";
+  nextBtn.style.color = "#fff";
+
+  actions.appendChild(backBtn);
+  actions.appendChild(nextBtn);
+
+  card.appendChild(content);
+  card.appendChild(actions);
+  bd.appendChild(card);
+  document.body.appendChild(bd);
+
+  return bd;
+}
+
+function showPreintro(htmlStr, {showBack=false, nextText="Siguiente"} = {}){
+  const bd = ensurePreintroModal();
+  const ct = document.getElementById("preintroContent");
+  const nextBtn = document.getElementById("preintroNextBtn");
+  const backBtn = document.getElementById("preintroBackBtn");
+  if (ct) ct.innerHTML = htmlStr || "";
+  if (bd){
+    bd.style.display = "flex";
+    bd.setAttribute("aria-hidden", "false");
+  }
+  if (backBtn) backBtn.style.display = showBack ? "inline-flex" : "none";
+  if (nextBtn) nextBtn.textContent = nextText;
+  setTimeout(() => { try { nextBtn && nextBtn.focus(); } catch(e){} }, 0);
+}
+
+function hidePreintro(){
+  const bd = document.getElementById("preintroBackdrop");
+  if (bd){
+    bd.style.display = "none";
+    bd.setAttribute("aria-hidden", "true");
+  }
+}
+
+// --- Integridad: PREINTRO fallback (por si el bloque no se insertó) ---
+if (typeof PREINTRO === "undefined") {
+  // eslint-disable-next-line no-var
+  var PREINTRO = {
+    introHtml: `
+<h2 class="preintro-title">Evaluación Factores de Liderazgo</h2>
+<p class="muted" style="margin-top:6px">
+  Esta autoevaluación consta de <b>132 preguntas</b> y mide <b>12 factores</b> asociados al liderazgo.
+</p>
+<p class="muted">
+  Al finalizar, obtendrás un perfil por factor y una lectura global del resultado.
+</p>
+<div class="preintro-box" style="max-width:760px;margin:12px auto 0;">
+  <h4>Factores evaluados</h4>
+  <div class="muted" style="line-height:1.7">
+    Contacto personal · Pertenencia · Asertividad · Atención · Control · Influencia · Apertura · Ritmo de trabajo · Desempeño · Juicio · Visión · Enfoque estratégico
+  </div>
+</div>
+
+    `,
+    instruccionesHtml: `
+<h2 class="preintro-title" id="preintroTitle">Instrucciones</h2>
+<ul class="preintro-ul">
+  <li>Lee con detenimiento cada afirmación.</li>
+  <li>Reflexiona y responde con honestidad.</li>
+  <li>Selecciona la opción que mejor describa tu frecuencia.</li>
+  <li>Una vez que inicies la autoevaluación, continúa hasta terminar.</li>
+</ul>
+<div class="preintro-box" style="max-width:520px;margin:12px auto 0;">
+  <h4>Opciones de respuesta</h4>
+  <ul class="preintro-ul" style="margin:0;">
+    <li>CASI SIEMPRE</li>
+    <li>ALGUNAS VECES</li>
+    <li>RARA VEZ</li>
+  </ul>
+</div>
+
+    `,
+    seccionHtml: (sec) => {
+      const safeLabels = (typeof labelsPorSeccion === "function")
+        ? labelsPorSeccion(sec)
+        : (sec === 1 ? ["Frecuentemente","Algunas veces","Rara vez"] : sec === 2 ? ["Mucho","Algo","Poco"] : ["Totalmente de acuerdo","De acuerdo","En desacuerdo"]);
+      return `
+        <h2 class="preintro-title" id="preintroTitle">Sección ${sec}</h2>
+        <p class="preintro-p"><b>Contesta ahora en base a los siguientes criterios:</b></p>
+        <ul class="preintro-ul">
+          <li>${safeLabels[2]}</li>
+          <li>${safeLabels[1]}</li>
+          <li>${safeLabels[0]}</li>
+        </ul>
+      `;
+    }
+  };
+}
+
+let __startTime = Date.now();
+
+    let CODIGO_ACTUAL = null;
+    const STORAGE_PREFIX = "eval_ie_state_";
+
+    const codigoInput = document.getElementById('codigo');
+    const instInput   = document.getElementById('institucion');
+    const grupoInput  = document.getElementById('grupo');
+    const cursoInput  = document.getElementById('curso');
+    const btnIniciar  = document.getElementById('btnIniciar');
+    const codigoMsg   = document.getElementById('codigoMsg');
+
+    function getStorageKey() {
+      const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+      return codigo ? STORAGE_PREFIX + codigo : null;
+    }
+
+    function loadStateForCurrentCode() {
+      const key = getStorageKey();
+      if (!key) return null;
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        console.warn("No se pudo leer el estado local:", e);
+        return null;
+      }
+    }
+
+    function clearState() {
+      const key = getStorageKey();
+      if (!key) return;
+      try { localStorage.removeItem(key); }
+      catch (e) { console.warn("No se pudo borrar el estado local:", e); }
+    }
+
+    function isStateCompleted(state) {
+      if (!state) return false;
+      if (state.completed) return true;
+      const resp = state.responses || {};
+      return ITEMS.length > 0 && Object.keys(resp).length >= ITEMS.length;
+    }
+
+    async function syncAutosaveToServer(state) {
+      try {
+        const codigo = state.codigo;
+        if (!codigo) return;
+
+        const payload = {
+          codigo,
+          currentPage: state.currentPage || 0,
+          responses: state.responses || {},
+          snapshot: {
+            nombre: state.nombre || "",
+            institucion: state.institucion || "",
+            grupo: state.grupo || "",
+            curso: state.curso || "",
+            fecha: state.fecha || "",
+            startTime: state.startTime || null
+          }
+        };
+
+        await fetch("/api/autosave", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {
+        console.warn("No se pudo sincronizar autosave servidor:", e);
+      }
+    }
+
+    async function cargarAutosaveServidor(codigo) {
+      if (!codigo) return null;
+      try {
+        const r = await fetch(`/api/autosave?codigo=${encodeURIComponent(codigo)}`);
+        const data = await r.json();
+        if (!r.ok || !data.ok || !data.autosave) return null;
+
+        const row = data.autosave;
+        const snap = row.snapshot || {};
+        return {
+          codigo: row.codigo || codigo,
+          nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+          institucion: snap.institucion || DATOS_FIJOS.institucion,
+          grupo: snap.grupo || DATOS_FIJOS.grupo,
+          curso: snap.curso || DATOS_FIJOS.curso,
+          fecha: snap.fecha || document.getElementById("fecha").value,
+          currentPage: typeof row.current_page === "number" ? row.current_page : 0,
+          responses: row.responses || {},
+          startTime: snap.startTime || Date.now(),
+          completed: false
+        };
+      } catch (e) {
+        console.warn("No se pudo cargar autosave servidor:", e);
+        return null;
+      }
+    }
+
+    function saveState(completedFlag) {
+      const key = getStorageKey();
+      if (!key) return;
+
+      try {
+        const prev = loadStateForCurrentCode() || {};
+        const state = {
+          ...prev,
+          codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
+          nombre: document.getElementById("nombre").value.trim(),
+          institucion: document.getElementById("institucion").value,
+          grupo: document.getElementById("grupo").value,
+          curso: document.getElementById("curso").value,
+          fecha: document.getElementById("fecha").value,
+          currentPage,
+          responses: obtenerRespuestasCrudas(),
+          startTime: __startTime || Date.now(),
+          completed: (typeof completedFlag === "boolean") ? completedFlag : !!prev.completed
+        };
+
+        localStorage.setItem(key, JSON.stringify(state));
+        syncAutosaveToServer(state);
+      } catch (e) {
+        console.warn("No se pudo guardar el progreso local:", e);
+      }
+    }
+
+    async function lookupCodigo() {
+      const codigo = codigoInput.value.trim().toUpperCase();
+      codigoInput.value = codigo;
+      CODIGO_ACTUAL = null;
+      btnIniciar.disabled = true;
+
+      if (codigoMsg) {
+        codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
+        codigoMsg.className = codigo ? 'muted' : 'err';
+      }
+      if (!codigo) {
+        instInput.value = grupoInput.value = cursoInput.value = '';
+        return;
+      }
+      try {
+        const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Código no válido');
+
+        const codigoUsado =
+          data.usado === true ||
+          data.usado === "true" ||
+          (typeof data.disponible === "boolean" && data.disponible === false) ||
+          (data.estado && String(data.estado).toLowerCase() !== "activo") ||
+          (typeof data.intentos_max === "number" &&
+           typeof data.intentos_usados === "number" &&
+           data.intentos_usados >= data.intentos_max);
+
+        if (codigoUsado) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "Este código ya fue utilizado o no está disponible.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
+
+        CODIGO_ACTUAL = data.codigo || codigo;
+
+        const localState = loadStateForCurrentCode();
+        if (isStateCompleted(localState)) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "Este código ya fue utilizado para completar una evaluación en este dispositivo.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
+
+        instInput.value  = data.institucion || '';
+        grupoInput.value = data.grupo || '';
+        cursoInput.value = data.curso || '';
+        btnIniciar.disabled = false;
+
+        if (codigoMsg) {
+          codigoMsg.textContent = 'Código válido.';
+          codigoMsg.className = 'ok';
+        }
+      } catch (e) {
+        instInput.value = grupoInput.value = cursoInput.value = '';
+        if (codigoMsg) {
+          codigoMsg.textContent = 'Código no encontrado.';
+          codigoMsg.className = 'err';
+        }
+      }
+    }
+
+    codigoInput.addEventListener('input', () => {
+      codigoInput.value = codigoInput.value.toUpperCase();
+    });
+    codigoInput.addEventListener('blur', lookupCodigo);
+    codigoInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); lookupCodigo(); }
+    });
+
+    const DATOS_FIJOS = {
+      institucion: "Institución por defecto",
+      grupo: "Grupo por defecto",
+      curso: "Curso por defecto"
+    };
+
+    const PAGE_SIZE = 10;
+    let currentPage = 0;
+
+    const PREGUNTAS_CSV = `
+1;Me gusta orientar a otros y decirles cómo hacen las cosas.;A;Contacto personal;0
+2;Disfruto hacer cosas que causan que otros se interesen en mi.;A;Contacto personal;0
+3;Lo que el grupo piensa es muy importante para mi.;A;Contacto personal;0
+4;Si hay un evento, quiero estar invitado.;A;Contacto personal;0
+5;Disfruto el prestigio que me da tener el control de una situación.;A;Contacto personal;0
+6;Me gusta estimular la curiosidad de otros.;A;Contacto personal;0
+7;Tiendo a ser juguetón o simpático para llamar la atención de los demás.;A;Contacto personal;0
+8;Prefiero hacer actividades con un grupo de personas que solo.;A;Contacto personal;0
+9;Disfruto hacer cosas alegres y divertidas.;A;Contacto personal;0
+10;Disfruto siendo responsable por otros.;A;Contacto personal;0
+11;Me gusta dar instrucciones a otros.;A;Contacto personal;0
+12;Me gusta ser quien tiene la autoridad.;A;Pertenencia;0
+13;Me siento cómodo trabajando en grupo y respetando sus reglas.;A;Pertenencia;0
+14;Disfruto que los demás se den cuenta de mi presencia en un grupo.;A;Pertenencia;0
+15;Prefiero comer con un grupo que comer solo.;A;Pertenencia;0
+16;Me gusta sentir el poder de decirles a otros lo que deben hacer.;A;Pertenencia;0
+17;Opino abiertamente cuando me preguntan.;A;Pertenencia;0
+18;Soy de los que habla más libremente cuando estoy con un grupo.;A;Pertenencia;0
+19;Tiendo a hablar mucho cuando estoy en un grupo.;A;Pertenencia;0
+20;Me gusta guiar la conducta de otros.;A;Pertenencia;0
+21;Me gusta conocer todos los aspectos sobre las situaciones en las que me involucro.;A;Pertenencia;0
+22;Tiendo a pensar de forma parecida, a los grupos a los que pertenezco.;A;Pertenencia;0
+23;Me gusta que me pongan mucha atención.;A;Asertividad;0
+24;Tiendo a involucrarme en el trabajo que deben hacer los demás.;A;Asertividad;0
+25;Disfruto siendo el centro de atención cuando estoy en grupo.;A;Asertividad;0
+26;Soy influenciable por la presión de mis pares en un grupo.;A;Asertividad;0
+27;Disfruto tomar decisiones que influencien a otros.;A;Asertividad;0
+28;Tengo la mente abierta cuando me uno a un nuevo grupo.;A;Asertividad;0
+29;Me gusta que las cosas se hagan exactamente a mi manera.;A;Asertividad;0
+30;Me gusta vestirme de tal forma que llame la atención.;A;Asertividad;0
+31;Si tengo problemas, me gusta apoyarme en personas o grupos para resolverlos.;A;Asertividad;0
+32;Para trabajar en proyectos, prefiero hacerlo con otras personas que solo.;A;Asertividad;0
+33;Disfruto cuando las personas notan mis logros personales.;A;Asertividad;0
+34;Me entusiasma avanzar hacia nuevos proyectos;B;Atención;0
+35;Parece como si siempre tuviera prisa.;B;Atención;0
+36;Soy una persona segura de si misma cuando dirijo un proyecto.;B;Atención;0
+37;Disfruto ser un apoyo para otros.;B;Atención;0
+38;Me gusta que las personas tengan confianza de acercarse a mí.;B;Atención;0
+39;Me siento confiado dirigiendo a otros.;B;Atención;0
+40;Soy de los primeros que termina de comer;B;Atención;0
+41;Tengo necesidad de desarrollar relaciones cercanas con otras personas.;B;Atención;0
+42;Puedo hacerme cargo de una situación cuando lo requiero.;B;Atención;0
+43;Prefiero dirigir que seguir.;B;Atención;0
+44;Parece que termino mi trabajo antes que los demás.;B;Atención;0
+45;Me gusta la interacción uno a uno.;B;Control;0
+46;Tengo amistades duraderas.;B;Control;0
+47;Disfruto estar con personas que establecen una relación de amistad.;B;Control;0
+48;Puedo lograr que un grupo esté de acuerdo conmigo cuando realmente estoy convencido de algo.;B;Control;0
+49;Cumplo con la fecha límite de mis compromisos;B;Control;0
+50;Soy capaz de hacer que otros trabajen mucho sin aprovecharme de ellos.;B;Control;0
+51;Me considero un buen líder.;B;Control;0
+52;Le doy importancia a la puntualidad.;B;Control;0
+53;Muchas personas me consideran un buen amigo.;B;Control;0
+54;Me gusta conocer sobre la vida de las personas que están en contacto conmigo.;B;Control;0
+55;Me gusta que las personas me conozcan a fondo.;B;Control;0
+56;Me gusta ser quien establece el ritmo al competir en algo.;B;Influencia;0
+57;Soy capaz de influir en otros solo con ser yo mismo.;B;Influencia;0
+58;Me siento sereno y tranquilo en el proceso de terminar mis trabajos y obligaciones.;B;Influencia;0
+59;Establezco relaciones cercanas (de amistad o de trabajo) con muchas personas.;B;Influencia;0
+60;La gente hace lo que yo le pido;B;Influencia;0
+61;Si un grupo al que pertenezco necesita un líder, tienden a elegirme a mí.;B;Influencia;0
+62;Me gusta adelantar la entrega de mis compromisos.;B;Influencia;0
+63;Me preocupa lo que le pasa a las personas a mi alrededor.;B;Influencia;0
+64;Disfruto siendo líder de grupo.;B;Influencia;0
+65;Procuro dedicar a cada tema de trabajo o estudio exactamente el tiempo que considero que requiere, ni más ni menos.;B;Influencia;0
+66;Llego a mis compromisos antes que los demás.;B;Influencia;0
+67;Tiendo a ser agradable con la gente.;C;Apertura;0
+68;Parezco tranquilo cuando algo me molesta.;C;Apertura;0
+69;Sustento mis opiniones con buenas bases.;C;Apertura;0
+70;Confío en las personas.;C;Apertura;0
+71;Puedo tomar una decisión fácilmente si lo requiero.;C;Apertura;0
+72;Cuando no estoy de acuerdo en algo, me gusta discutir el punto hasta llegar a un acuerdo.;C;Apertura;0
+73;Soy muy relajado cuando conozco gente nueva.;C;Apertura;0
+74;Soy franco expresando mis sentimientos y deseos.;C;Apertura;0
+75;Cuando algo me molesta defiendo mi punto de vista con tranquilidad.;C;Apertura;0
+76;Me reúno con gente que me conviene.;C;Apertura;0
+77;Tiendo a planificar.;C;Apertura;0
+78;Me gusta que los demás conozcan mi forma de ser.;C;Ritmo de trabajo;0
+79;Puedo expresar con calma mis deseos y necesidades.;C;Ritmo de trabajo;0
+80;Tiendo a dar la importancia adecuada a cada situación.;C;Ritmo de trabajo;0
+81;Disfruto iniciar proyectos y darles seguimiento.;C;Ritmo de trabajo;0
+82;Soy una persona apacible (tranquila).;C;Ritmo de trabajo;0
+83;Soy una persona de amplio criterio.;C;Ritmo de trabajo;0
+84;Me expreso en forma sincera y directa.;C;Ritmo de trabajo;0
+85;Me siento cómodo expresando lo que pienso.;C;Ritmo de trabajo;0
+86;Es importante para mí hacer las cosas bien.;C;Ritmo de trabajo;0
+87;Puedo contar a los demás cosas personales sobre mí mismo.;C;Ritmo de trabajo;0
+88;Tiendo a estar de buen humor.;C;Ritmo de trabajo;0
+89;Cuando estoy enojado puedo serenamente decir lo que pienso;C;Desempeño;0
+90;Disfruto supervisar tareas o trabajos.;C;Desempeño;0
+91;Puedo rechazar peticiones que me hacen mis amigos sin ofenderlos.;C;Desempeño;0
+92;Quiero terminar las cosas que empiezo.;C;Desempeño;0
+93;Si una actividad se complica, busco rutas alternativas para avanzar.;C;Desempeño;0
+94;Quiero que las personas me conozcan tal como soy.;C;Desempeño;0
+95;Conozco la forma de pedir lo que deseo.;C;Desempeño;0
+96;Me gusta describir a los demás cómo me siento.;C;Desempeño;0
+97;Puedo escuchar sin problema el punto de vista de otra persona.;C;Desempeño;0
+98;Soy eficaz armando situaciones ganar – ganar para mi y para otros.;C;Desempeño;0
+99;Las personas pueden confiar en mi para hacer el trabajo;C;Desempeño;0
+100;Siento que utilizo mis talentos en lo que hago.;D;Juicio;0
+101;Visualizo con facilidad el futuro.;D;Juicio;0
+102;Lo que hago tiene sentido en mi vida.;D;Juicio;0
+103;Puedo mantenerme enfocado en trabajar hacia los objetivos que me he propuesto.;D;Juicio;0
+104;Puedo explicar a los demás mi visión e ideales.;D;Juicio;0
+105;Me siento orgulloso del trabajo que realizo.;D;Juicio;0
+106;Puedo transformar una idea en un plan.;D;Juicio;0
+107;Conozco los objetivos del trabajo o actividades que realizo.;D;Juicio;0
+108;Soy bueno en lo que hago.;D;Juicio;0
+109;Lo que hago me parece importante para lograr las metas en equipo, grupo o familia;D;Juicio;0
+110;Puedo hacer que otros se comprometan con mi visión o ideales;D;Juicio;0
+111;Puedo aprender cosas nuevas fácil y rápidamente.;D;Visión;0
+112;Conozco claramente las metas y objetivos de las organizaciones en las que trabajo o estudio.;D;Visión;0
+113;Puedo ver el presente y planear el futuro.;D;Visión;0
+114;Cuando no sé algo, investigo o pregunto.;D;Visión;0
+115;Si no estoy presente, a mi equipo o grupo de trabajo le hacen falta mis aportaciones.;D;Visión;0
+116;Hago los ajustes necesarios para asegurar el éxito en lo que emprendo.;D;Visión;0
+117;Recibo reconocimiento por mis aptitudes y aportes.;D;Visión;0
+118;Me exijo aprender nuevos procedimientos y habilidades para lograr mis objetivos.;D;Visión;0
+119;Tengo una actitud positiva hacia mi mismo y mi futuro;D;Visión;0
+120;Estudio con detenimiento las tendencias del mundo moderno.;D;Visión;0
+121;Me doy cuenta cuando me desvío de mis objetivos.;D;Visión;0
+122;Me interesa investigar sobre las tendencias del futuro.;D;Enfoque estratégico;0
+123;Me gusta realizar mi trabajo diario.;D;Enfoque estratégico;0
+124;Las personas parecen interesarse en mi visión del futuro.;D;Enfoque estratégico;0
+125;Cuando compito, me propongo ganar.;D;Enfoque estratégico;0
+126;Aplico lo que aprendo.;D;Enfoque estratégico;0
+127;Me gusta comentar con los demás sobre las posibilidades que tienen los proyectos que compartimos.;D;Enfoque estratégico;0
+128;Estoy consciente de que tengo buenas aptitudes.;D;Enfoque estratégico;0
+129;Me rodeo de personas que tienen metas y objetivos claros en la vida;D;Enfoque estratégico;0
+130;Sé hacia donde voy en la vida.;D;Enfoque estratégico;0
+131;Me gusta orientar a otros y decirles cómo hacer las cosas.;D;Enfoque estratégico;0
+132;Tengo claras las cosas que me motivan.;D;Enfoque estratégico;0
+`;
+function norm(str) { return (str || "").trim(); }
+
+    let ITEMS = [];
+
+    function parsePreguntas(csv) {
+      const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const rows = [];
+      for (const line of lines) {
+        const parts = line.split(";").map(norm);
+        if (parts.length < 5) continue;
+        const id = Number(parts[0]);
+        const invertida = parts[parts.length - 1];
+        const subhab = parts[parts.length - 2];
+        const bloque = parts[parts.length - 3];
+        const pregunta = parts.slice(1, parts.length - 3).join(";");
+        if (!Number.isFinite(id) || !pregunta) continue;
+        rows.push({
+          id, pregunta, bloque,
+          subhabilidad: subhab,
+          invertida: /^s(i|í)$/i.test(invertida) ? "Sí" : "No",
+          value: null
+        });
+      }
+      rows.sort((a,b)=>a.id-b.id);
+      return rows;
+    }
+
+    function updateProgress() {
+      const total = ITEMS.length;
+      const ans = ITEMS.filter(q => q.value != null).length;
+      const pct = total ? Math.round((ans / total) * 100) : 0;
+
+      document.getElementById("bar").style.width = pct + "%";
+      document.getElementById("pillTotal").textContent = "Total: " + ans + " / " + total + " (" + pct + "%)";
+
+      const bloques = new Set(ITEMS.map(q => q.bloque));
+      const subs = new Set(ITEMS.map(q => q.subhabilidad));
+      document.getElementById("metaInfo").textContent = bloques.size + " bloques · " + subs.size + " sub-habilidades";
+
+      document.getElementById("notaContinuar").textContent =
+        "NOTA: Para continuar debes contestar todas las preguntas. Contestadas: " + ans + "/" + total + ".";
+    }
+
+    function construirPreguntas() {
+      ITEMS = parsePreguntas(PREGUNTAS_CSV);
+currentPage = 0;
+      renderPage();
+      updateProgress();
+    }
+
+    function markRowAnswered(rowEl, q) {
+      if (!rowEl) return;
+      if (q && q.value != null) rowEl.classList.add("answered");
+      else rowEl.classList.remove("answered");
+    }
+
+    
+
+    function getSeccionById(id){
+      // Integridad: 96 ítems. Asumimos 1–32 / 33–64 / 65–96
+      if (id <= 32) return 1;
+      if (id <= 64) return 2;
+      return 3;
+    }
+
+    function labelsPorSeccion(sec){
+      return ["Casi siempre","Algunas veces","Rara vez"];
+    }
+
+    function updateSectionBanner(startIdx){
+      const b = document.getElementById("sectionBanner");
+      if (b) b.textContent = "";
+    }`;
+    }
+
+function updateScaleBadgesForPage(startIdx){
+      const q = ITEMS[startIdx];
+      if (!q) return;
+      const sec = getSeccionById(q.id);
+      const labels = labelsPorSeccion(sec);
+      const l1 = document.getElementById("scaleLabel1");
+      const l2 = document.getElementById("scaleLabel2");
+      const l3 = document.getElementById("scaleLabel3");
+      if (l1) l1.textContent = labels[0].toUpperCase();
+      if (l2) l2.textContent = labels[1].toUpperCase();
+      if (l3) l3.textContent = labels[2].toUpperCase();
+    }
+
+function renderPage() {
+      const cont = document.getElementById("questions");
+      cont.innerHTML = "";
+
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+
+      
+
+      updateScaleBadgesForPage(start);
+      updateSectionBanner(start);
+for (let i = start; i < end; i++) {
+        const q = ITEMS[i];
+        const row = document.createElement("div");
+        row.className = "question";
+
+        const colNo = document.createElement("div");
+        colNo.className = "q-no";
+        colNo.textContent = String(q.id).padStart(3, "0");
+        row.appendChild(colNo);
+
+        const colText = document.createElement("div");
+        const txt = document.createElement("span");
+        txt.className = "q-text";
+        txt.textContent = q.pregunta;
+        colText.appendChild(txt);
+        row.appendChild(colText);
+
+        ["CS","AV","RV"].forEach(code=>{
+          const cell = document.createElement("div");
+          cell.className="q-cell";
+
+          const r = document.createElement("input");
+          r.type="radio";
+          r.name="q_"+q.id;
+          r.value=code;
+
+          const sec = getSeccionById(q.id);
+          const labels = labelsPorSeccion(sec);
+          r.title = (code==="CS")?labels[0]:(code==="AV")?labels[1]:labels[2];
+          r.setAttribute("aria-label", r.title);
+
+          if (q.value != null) {
+            const inv = q.invertida === "Sí";
+            let expectedScore;
+            if (!inv) expectedScore = (code==="CS")?3:(code==="AV")?2:1;
+            else expectedScore = (code==="CS")?1:(code==="AV")?2:3;
+            if (q.value === expectedScore) r.checked = true;
+          }
+
+          r.addEventListener("change", ()=>{
+            const inv = q.invertida === "Sí";
+            let score;
+            if (!inv) score = (code==="CS")?3:(code==="AV")?2:1;
+            else score = (code==="CS")?1:(code==="AV")?2:3;
+
+            q.value = score;
+            markRowAnswered(row, q);
+            updateProgress();
+          });
+
+          cell.appendChild(r);
+          row.appendChild(cell);
+        });
+
+        markRowAnswered(row, q);
+        cont.appendChild(row);
+      }
+
+      document.getElementById("pageIndicator").textContent =
+        "Preguntas " + (start + 1) + "–" + end + " de " + total;
+
+      document.getElementById("btnSiguiente").textContent = (end >= total) ? "FINALIZAR" : "SIGUIENTE";
+    }
+
+    function paginaCompleta() {
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+      for (let i = start; i < end; i++) if (ITEMS[i].value == null) return false;
+      return true;
+    }
+
+    function obtenerRespuestasCrudas() {
+      const map = {};
+      ITEMS.forEach(q => { if (q.value != null) map[String(q.id)] = q.value; });
+      return map;
+    }
+
+    function mostrarPantallaPreguntas() {
+      document.getElementById("pantalla-inicio").classList.add("hidden");
+      document.getElementById("datos-participante").classList.add("hidden");
+      document.getElementById("pantalla-final").style.display = "none";
+      document.getElementById("pantalla-preguntas").classList.remove("hidden");
+      renderPage();
+      updateProgress();
+window.scrollTo(0, 0);
+    }
+
+    function aplicarState(state) {
+      if (!state) return;
+
+      document.getElementById("nombre").value = state.nombre || "";
+      document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
+      document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
+      document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
+      if (state.fecha) document.getElementById("fecha").value = state.fecha;
+
+      CODIGO_ACTUAL = state.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+
+      const resp = state.responses || {};
+      ITEMS.forEach(q => {
+        const v = resp[String(q.id)];
+        q.value = (typeof v === "number") ? v : null;
+      });
+
+      currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
+      __startTime = state.startTime || Date.now();
+    }
+
+    function iniciarEvaluacionNueva() {
+      __startTime = Date.now();
+      ITEMS.forEach(q => { q.value = null; });
+      currentPage = 0;
+      saveState(false);
+      // NOTA: La pantalla de preguntas se muestra después de las pantallas intro/instrucciones.
+    }
+
+    function onSiguienteClick() {
+      if (!paginaCompleta()) {
+        alert("NOTA: Para continuar debes contestar todas las preguntas de esta página.");
+        return;
+      }
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+
+      if (end >= total) onFinalizarClick();
+      else {
+        currentPage++;
+        saveState(false);
+        renderPage();
+        updateProgress();
+        window.scrollTo(0, 0);      }
+    }
+
+    function normalizeBloqueName(name) {
+      if (!name) return "";
+      return name.replace(/\s+/g, " ").trim().toLowerCase();
+    }
+
+    function calcIV1_IV2_categories(items) {
+      const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
+      const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
+      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+      const stdev = arr => {
+        if (arr.length < 2) return 1;
+        const m = avg(arr);
+        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
+      };
+      const invNorm = invers.map(v => 4 - v);
+      const allNorm = direct.concat(invNorm);
+      if (!allNorm.length) return { iv1Cat: null, iv2Cat: null };
+      const s = stdev(allNorm);
+      const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
+      const diff = Math.abs(avg(direct) - avg(invNorm));
+      const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
+      return { iv1Cat, iv2Cat };
+    }
+
+    function calcularResultadosGlobales() {
+      if (!ITEMS.length) return null;
+
+      const subMap = new Map();
+      ITEMS.forEach(q => {
+        if (!subMap.has(q.subhabilidad))
+          subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
+        const s = subMap.get(q.subhabilidad);
+        s.items += 1;
+        s.pts += q.value ?? 0;
+      });
+
+      const subRows = Array.from(subMap.entries())
+        .map(([sub, v]) => {
+          const max = v.items * 3;
+          const pct = max ? Math.round((v.pts / max) * 100) : 0;
+          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct };
+        })
+        .sort(
+          (a, b) =>
+            (a.bloque || "").localeCompare(b.bloque || "") ||
+            (a.sub || "").localeCompare(b.sub || "")
+        );
+
+      const bloqMap = new Map();
+      subRows.forEach(r => {
+        if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0 });
+        const b = bloqMap.get(r.bloque);
+        b.sumPct += r.pct;
+        b.n += 1;
+      });
+
+      const bloqPercents = {};
+      Array.from(bloqMap.entries()).forEach(([bloque, a]) => {
+        const pct = a.n ? Math.round(a.sumPct / a.n) : 0;
+        bloqPercents[bloque] = pct;
+      });
+
+      function pctBloque(nombreEsperado) {
+        const key = Object.keys(bloqPercents).find(
+          k => normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado)
+        );
+        return key ? bloqPercents[key] : 0;
+      }
+
+      const bIntra = pctBloque("Habilidades intrapersonales");
+      const bInter = pctBloque("Habilidades interpersonales");
+      const bPV = pctBloque("Habilidades para la vida");
+      const iie =
+        [bIntra, bInter, bPV].filter(v => v > 0).length > 0
+          ? Math.round((bIntra + bInter + bPV) / 3)
+          : 0;
+
+      const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
+
+      const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
+      const iv3Cat =
+        mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
+
+      const bEstilos = pctBloque("Estilos de comunicación interpersonal");
+      const bCambio = pctBloque("Propensión al cambio");
+
+      return {
+        globales: { IIE: iie, IV1: iv1Cat, IV2: iv2Cat, IV3: iv3Cat },
+        bloques: {
+          intrapersonales: bIntra,
+          interpersonales: bInter,
+          para_la_vida: bPV,
+          estilos_comunicacion: bEstilos,
+          propension_cambio: bCambio
+        },
+        subhabilidades: subRows,
+        bloqPercents: bloqPercents
+      };
+    }
+
+    function onFinalizarClick() {
+      const nombre = document.getElementById("nombre").value.trim();
+      if (!nombre) { alert("Por favor ingresa el nombre."); return; }
+
+      const respuestas = obtenerRespuestasCrudas();
+      const total = ITEMS.length;
+      if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
+
+      const resultados = calcularResultadosGlobales();
+
+      const payload = {
+        codigo: CODIGO_ACTUAL,
+        snapshot: {
+          nombre,
+          institucion: document.getElementById("institucion").value,
+          grupo: document.getElementById("grupo").value,
+          curso: document.getElementById("curso").value,
+          version_banco: "IE-v1"
+        },
+        resultados,
+        responses: respuestas
+      };
+
+      saveState(true);
+
+      fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).catch(()=>{});
+
+      document.getElementById("datos-participante").classList.remove("hidden");
+      document.getElementById("nombre").readOnly = true;
+
+      document.getElementById("pantalla-preguntas").classList.add("hidden");
+      const pantallaFinal = document.getElementById("pantalla-final");
+      pantallaFinal.style.display = "block";
+       pantallaFinal.scrollIntoView({ block: "start" });
+    }
+
+    function inicializarDatosFijos() {
+      document.getElementById("institucion").value = DATOS_FIJOS.institucion;
+      document.getElementById("grupo").value = DATOS_FIJOS.grupo;
+      document.getElementById("curso").value = DATOS_FIJOS.curso;
+
+      const hoy = new Date();
+      try {
+        const fmt = new Intl.DateTimeFormat("es-EC", { year:"numeric", month:"2-digit", day:"2-digit" });
+        document.getElementById("fecha").value = fmt.format(hoy);
+      } catch {
+        const dd = String(hoy.getDate()).padStart(2, "0");
+        const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+        const yyyy = hoy.getFullYear();
+        document.getElementById("fecha").value = dd + "/" + mm + "/" + yyyy;
+      }
+    }
+
+    function validarAntesDeIniciar() {
+      const nombre = document.getElementById("nombre").value.trim();
+      if (!nombre) { alert("Por favor ingresa tu nombre antes de iniciar."); return false; }
+      return true;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      inicializarDatosFijos();
+      construirPreguntas();
+
+      btnIniciar.disabled = true;
+
+      
+// --- Integridad: runner de pantallas previas antes de mostrar preguntas ---
+function runPreintroAntesDePreguntas(onDone){
+  try {
+    const steps = [
+      PREINTRO.introHtml,
+      PREINTRO.instruccionesHtml];
+    let i = 0;
+
+    const renderStep = () => {
+      const isLast = i === steps.length - 1;
+      showPreintro(steps[i], { showBack: i > 0, nextText: isLast ? "Comenzar" : "Siguiente" });
+
+      const nextBtn = document.getElementById("preintroNextBtn");
+      const backBtn = document.getElementById("preintroBackBtn");
+
+      if (nextBtn){
+        nextBtn.onclick = () => {
+          if (i < steps.length - 1){
+            i += 1;
+            renderStep();
+          } else {
+            preintroSeenSection[1] = true;
+            hidePreintro();
+            if (typeof onDone === "function") onDone();
+          }
+        };
+      }
+      if (backBtn){
+        backBtn.onclick = () => {
+          if (i > 0){
+            i -= 1;
+            renderStep();
+          }
+        };
+      }
+    };
+
+    renderStep();
+  } catch (e){
+    console.warn("runPreintroAntesDePreguntas skipped:", e);
+    if (typeof onDone === "function") onDone();
+  }
+}
+
+
+btnIniciar.addEventListener("click", async () => {
+        if (!validarAntesDeIniciar()) return;
+
+        if (!CODIGO_ACTUAL) {
+          await lookupCodigo();
+        }
+        if (!CODIGO_ACTUAL) {
+          alert("Por favor valida el código antes de iniciar.");
+          return;
+        }
+
+        const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+
+        let serverState = null;
+        if (codigo) serverState = await cargarAutosaveServidor(codigo);
+
+        const localSaved = loadStateForCurrentCode();
+        const candidate = serverState || localSaved;
+
+        if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
+          const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
+          if (retomar) {
+            aplicarState(candidate);
+            mostrarPantallaPreguntas();
+            return;
+          } else {
+            clearState();
+          }
+        }
+        iniciarEvaluacionNueva();
+        runPreintroAntesDePreguntas(() => {
+          mostrarPantallaPreguntas();
+        });
+      });
+document.getElementById("btnSiguiente").addEventListener("click", onSiguienteClick);
+
+      document.getElementById("btnRegresarMenu").addEventListener("click", () => {
+        window.location.href = "index.html";
+      });
+    });
+  </script>
+
+<!-- Pantallas previas (sin logos) -->
+<div class="preintro-backdrop" id="preintroBackdrop" aria-hidden="true">
+  <div class="preintro-card" role="dialog" aria-modal="true" aria-labelledby="preintroTitle">
+    <div id="preintroContent"></div>
+    <div class="preintro-actions">
+      <button class="preintro-btn secondary" id="preintroBackBtn" type="button" style="display:none;">Atrás</button>
+      <button class="preintro-btn primary" id="preintroNextBtn" type="button">Siguiente</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
