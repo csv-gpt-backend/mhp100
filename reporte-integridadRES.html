@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>mar 20 27 Integridad -  Reporte (AFINADO)</title>
+  <title>mar 21 08  Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -662,7 +662,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   <div class="rep-box" id="repHeaderBox2"></div>
 </div>
 
-  <h2 style="margin-top:10px">Interpretación</h2>
+<h2 style="margin-top:10px">1.- Interpretación</h2>
   <p class="muted" style="margin-top:0">
     Esta sección describe tus resultados en  Integridad a partir de tus percentiles por subprueba y el IVI (promedio de las cuatro subpruebas).
   </p>
@@ -719,7 +719,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 
   <div class="iviBox" id="iviBox2" style="margin-top:14px">
     <div class="iviHead">
-      <div class="iviTitle">Lectura global (IVI)</div>
+<div class="iviTitle">2.- Lectura global (IVI)</div>
     </div>
     <div class="iviRow">
       <div class="iviScore" id="iviScore2">—</div>
@@ -843,9 +843,10 @@ function dispBloque(name){
   }
 
   function rangoBadge(p){
-    if (p<=40) return {txt:"1–40 Por desarrollar", cls:"b-red"};
-    if (p<=70) return {txt:"41–70 Por fortalecer", cls:"b-orange"};
-    return {txt:"71–100 Por enriquecer", cls:"b-green"};
+    // Integridad (manual): 0–39 / 40–60 / 61–100
+    if (p<=39) return {txt:"0–39 Requiere acompañamiento", cls:"b-red"};
+    if (p<=60) return {txt:"40–60 En formación", cls:"b-orange"};
+    return {txt:"61–100 Íntegro", cls:"b-green"};
   }
   function rangoBadgeRiesgo(p){
     if (p<=40) return {txt:"1–40 Bajo riesgo", cls:"b-green"};
@@ -1235,8 +1236,8 @@ function dispBloque(name){
 
   function nivelFromPct(p){
     if(p == null || Number.isNaN(p)) return "medio";
-    if(p <= 40) return "bajo";
-    if(p <= 70) return "medio";
+    if(p <= 39) return "bajo";
+    if(p <= 60) return "medio";
     return "alto";
   }
 
@@ -1673,9 +1674,9 @@ function dispBloque(name){
 
   function nivelLabel(p){
     const n = nivelFromPct(p);
-    if(n==="bajo") return {nivel:"bajo", label:"1–40 Por desarrollar"};
-    if(n==="medio") return {nivel:"medio", label:"41–70 Por fortalecer"};
-    return {nivel:"alto", label:"71–100 Por enriquecer"};
+    if(n==="bajo") return {nivel:"bajo", label:"0–39 Requiere acompañamiento"};
+    if(n==="medio") return {nivel:"medio", label:"40–60 En formación"};
+    return {nivel:"alto", label:"61–100 Íntegro"};
   }
 
   function setInterpCard(skill, pct){
@@ -1721,9 +1722,9 @@ function dispBloque(name){
     const rango = (v) => {
       const n = Number(v);
       if (!Number.isFinite(n)) return "—";
-      if (n <= 40) return "Por desarrollar";
-      if (n <= 70) return "Por fortalecer";
-      return "Por enriquecer";
+      if (n <= 39) return "Requiere acompañamiento";
+      if (n <= 60) return "En formación";
+      return "Íntegro";
     };
 
     const items = [
@@ -1750,11 +1751,11 @@ function dispBloque(name){
 
       const slot = document.createElement("div");
       slot.className = "bars-slot";
-      // fondo con rangos (0-40 rojo, 41-70 naranja, 71-100 verde)
-      slot.style.background = "linear-gradient(90deg, var(--red) 0%, var(--red) 40%, var(--orange) 40%, var(--orange) 70%, var(--green) 70%, var(--green) 100%)";
+      // fondo con rangos (0-39 rojo, 40-60 amarillo, 61-100 verde)
+      slot.style.background = "linear-gradient(90deg, var(--red) 0%, var(--red) 39%, var(--orange) 39%, var(--orange) 60%, var(--green) 60%, var(--green) 100%)";
 
-      // ticks 0,40,70,100
-      [0,40,70,100].forEach(vt => {
+      // ticks 0,39,60,100
+      [0,39,60,100].forEach(vt => {
         const tick = document.createElement("div");
         tick.className = "tick";
         tick.style.left = vt + "%";
@@ -2273,9 +2274,9 @@ function interpBandSkill(skillName, pct){
   const p = Number(pct);
   const v = Number.isFinite(p) ? p : 0;
 
-  if (v <= 40) return { key: "low",  label: "Por desarrollar" };
-  if (v <= 70) return { key: "mid",  label: "Por fortalecer" };
-  return { key: "high", label: "Por enriquecer" };
+  if (v <= 39) return { key: "low",  label: "Requiere acompañamiento" };
+  if (v <= 60) return { key: "mid",  label: "En formación" };
+  return { key: "high", label: "Íntegro" };
 }
 
 const INTERP_CONTENT = {
@@ -2465,7 +2466,7 @@ function setInterp(pct, badgeId, bodyId, skillName){
   badgeEl.innerHTML = `<span class="pill">${band.label}</span> <span class="pct">${v}%</span>`;
   bodyEl.innerHTML  = buildInterpHTML(skillName, band.key);
 
-  // abrir por defecto si está "Por desarrollar"
+  // abrir por defecto si está "Requiere acompañamiento"
   if (band.key === "low") {
     bodyEl.style.display = "block";
     const btn = document.querySelector(`.interpToggle[data-target="${bodyId}"]`);
