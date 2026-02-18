@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>mar 20 07 Integridad -  Reporte (AFINADO)</title>
+  <title>mar 20 27 Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1714,29 +1714,82 @@ function dispBloque(name){
 
     const p = document.createElement("div");
     p.className = "interp-bloque-desc";
-    p.textContent = `Del reporte individual se desprenden los siguientes índices:`;
+    p.textContent = "A continuación se muestran los puntajes (0–100) y su rango de lectura.";
     cont.appendChild(p);
 
-    const ul = document.createElement("ul");
-    ul.className = "recom-list";
-    const fmt = v => (v!=null && !Number.isNaN(v)) ? Math.round(v) : "—";
+    // helper: rango 0-100
+    const rango = (v) => {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return "—";
+      if (n <= 40) return "Por desarrollar";
+      if (n <= 70) return "Por fortalecer";
+      return "Por enriquecer";
+    };
 
-    [
-      `Honestidad: ${fmt(extras.honestidad)}/100`,
-      `Rectitud: ${fmt(extras.rectitud)}/100`,
-      `Justicia: ${fmt(extras.justicia)}/100`,
-      `Veracidad: ${fmt(extras.veracidad)}/100`,
-      `Índice de  Integridad (IVI): ${fmt(extras.ivi)}/100`
-    ].forEach(t=>{
-      const li=document.createElement("li"); li.textContent=t; ul.appendChild(li);
+    const items = [
+      { label: "Honestidad", value: extras.honestidad },
+      { label: "Rectitud",   value: extras.rectitud },
+      { label: "Justicia",   value: extras.justicia },
+      { label: "Veracidad",  value: extras.veracidad },
+      { label: "IVI",        value: extras.ivi }
+    ];
+
+    const wrap = document.createElement("div");
+    wrap.className = "bars-wrap";
+
+    items.forEach(it => {
+      const row = document.createElement("div");
+      row.className = "bars-row";
+
+      const v = (it.value!=null && !Number.isNaN(it.value)) ? Math.round(it.value) : null;
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = v==null ? `${it.label}` : `${it.label}: ${v}/100 — ${rango(v)}`;
+      row.appendChild(label);
+
+      const slot = document.createElement("div");
+      slot.className = "bars-slot";
+      // fondo con rangos (0-40 rojo, 41-70 naranja, 71-100 verde)
+      slot.style.background = "linear-gradient(90deg, var(--red) 0%, var(--red) 40%, var(--orange) 40%, var(--orange) 70%, var(--green) 70%, var(--green) 100%)";
+
+      // ticks 0,40,70,100
+      [0,40,70,100].forEach(vt => {
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        tick.style.left = vt + "%";
+        slot.appendChild(tick);
+
+        const tLabel = document.createElement("div");
+        tLabel.className = "tick-label";
+        tLabel.style.left = vt + "%";
+        tLabel.textContent = vt;
+        slot.appendChild(tLabel);
+      });
+
+      const marker = document.createElement("div");
+      marker.className = "marker";
+      if (v != null){
+        marker.style.left = Math.max(0, Math.min(100, v)) + "%";
+        marker.style.display = "block";
+      }
+      slot.appendChild(marker);
+
+      row.appendChild(slot);
+      wrap.appendChild(row);
     });
 
-    // Validación
-    const liV = document.createElement("li");
-    liV.textContent = `Validación: Incoherencia ${fmt(extras.incoh)}% · Contradicción ${fmt(extras.nc)} pts · Tiempo (PT): ${extras.ptLabel || "—"}`;
-    ul.appendChild(liV);
+    cont.appendChild(wrap);
 
-    cont.appendChild(ul);
+    // Nota de cautela (solo por incoherencia/contradicción; PT no cambia sellos)
+    const ivVal = Math.max(extras.incoh || 0, extras.nc || 0);
+    if (ivVal >= 1){
+      const note = document.createElement("div");
+      note.className = "muted";
+      note.style.marginTop = "8px";
+      note.textContent = "Nota: Se detectaron señales de inconsistencia en las respuestas. Interpreta estos puntajes con mayor cautela.";
+      cont.appendChild(note);
+    }
   }
 
   function renderRecomendacionesIntegridad(extras){
