@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Factores de Liderazgo – Reporte</title>
+  <style>
+    :root{
+      --ink:#0f172a; --muted:#64748b; --line:#e5e7eb;
+      --bg:#ffffff; --card:#ffffff;
+      --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757;
+      --soft:#f8fafc;
+    }
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+    .wrap{max-width:980px;margin:16px auto 48px;padding:0 14px;}
+    .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .mhp-logo{height:44px;width:auto;display:block}
+    .titleblock h1{font-size:22px;margin:0;letter-spacing:.2px}
+    .titleblock .sub{color:var(--muted);font-size:13px;margin-top:2px}
+    .search{display:flex;gap:8px;align-items:center}
+    .search input{width:190px;padding:9px 10px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px}
+    .search button{padding:9px 12px;border:0;border-radius:10px;background:#0f172a;color:white;font-weight:700;cursor:pointer}
+    .msg{margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--muted)}
+    .msg.err{border-color:#fecaca;background:#fff1f2;color:#991b1b}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:860px){.grid{grid-template-columns:1fr}}
+    .card{border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:0 1px 0 rgba(0,0,0,.02)}
+    .card .hd{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .card .hd b{font-size:14px}
+    .card .bd{padding:12px 14px}
+    .kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;font-size:13px}
+    .kv div{padding:6px 8px;border:1px dashed #e2e8f0;border-radius:10px;background:#fff}
+    .kv b{color:#0f172a}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-weight:800;font-size:12px;border:1px solid var(--line);background:#fff}
+    .pill.low{border-color:#fecaca;background:#fff1f2;color:#991b1b}
+    .pill.mid{border-color:#fed7aa;background:#fff7ed;color:#9a3412}
+    .pill.high{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
+    .bars{display:flex;flex-direction:column;gap:10px}
+    .barrow{display:grid;grid-template-columns:220px 1fr 70px;gap:10px;align-items:center}
+    @media (max-width:720px){.barrow{grid-template-columns:1fr}}
+    .barname{font-weight:800}
+    .track{height:12px;border-radius:999px;background:#eef2f7;position:relative;overflow:hidden}
+    .fill{height:100%;border-radius:999px;background:#2563eb;width:0%}
+    .ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px}
+    .small{font-size:12px;color:var(--muted)}
+    .twoCols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:860px){.twoCols{grid-template-columns:1fr}}
+    .note{font-size:12.5px;color:var(--muted);line-height:1.35}
+    @media print{
+      .search,.msg{display:none !important}
+      .wrap{max-width:none;margin:0;padding:0 10mm}
+      .card{box-shadow:none}
+      a{color:inherit;text-decoration:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <img src="assets/logo_adalam.png" alt="Logotipo" class="mhp-logo">
+        <div class="titleblock">
+          <h1>REPORTE — FACTORES DE LIDERAZGO</h1>
+          <div class="sub">Resultados basados en tus respuestas (132 ítems). Escala: Casi siempre (3), Algunas veces (2), Rara vez (1).</div>
+        </div>
+      </div>
+      <div class="search">
+        <input id="codigo" placeholder="Código (ej. LÍDER001)" />
+        <button id="btn">Generar</button>
+      </div>
+    </div>
+
+    <div id="msg" class="msg">Ingresa el código y presiona <b>Generar</b>.</div>
+
+    <div id="reporte" style="display:none">
+      <div class="card" style="margin-bottom:12px">
+        <div class="hd"><b>Datos del participante</b><span class="small" id="fechaGen"></span></div>
+        <div class="bd"><div class="kv" id="headerBox"></div></div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="hd"><b>Resumen global</b><span id="pillIFL" class="pill">—</span></div>
+          <div class="bd">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div>
+                <div class="small">Índice Factores de Liderazgo (IFL)</div>
+                <div style="font-size:44px;font-weight:900;line-height:1" id="iflNum">—</div>
+              </div>
+              <div style="min-width:320px;flex:1">
+                <svg id="curve" width="100%" height="110" viewBox="0 0 520 110" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Curva de referencia">
+                  <path d="M20,95 C120,95 140,25 260,25 C380,25 400,95 500,95" fill="none" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round"/>
+                  <line x1="20" y1="95" x2="500" y2="95" stroke="#e5e7eb" stroke-width="2"/>
+                  <g id="marker"></g>
+                  <text x="20" y="108" font-size="11" fill="#64748b">0</text>
+                  <text x="205" y="108" font-size="11" fill="#64748b">39</text>
+                  <text x="310" y="108" font-size="11" fill="#64748b">60</text>
+                  <text x="490" y="108" font-size="11" fill="#64748b" text-anchor="end">100</text>
+                </svg>
+              </div>
+            </div>
+            <div class="note" style="margin-top:8px">
+              Rangos de lectura: <b>0–39</b> por desarrollar, <b>40–60</b> por fortalecer, <b>61–100</b> por enriquecer.
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hd"><b>Índices por conjunto</b><span class="small">A / B / C / D</span></div>
+          <div class="bd"><div class="bars" id="setBars"></div></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="hd"><b>Perfil por factores (12 subpruebas)</b><span class="small">0–100</span></div>
+        <div class="bd">
+          <div class="twoCols">
+            <div>
+              <div class="small" style="font-weight:800;margin-bottom:8px">Conjunto A — Interpersonal</div>
+              <div class="bars" id="barsA"></div>
+              <div class="small" style="font-weight:800;margin:14px 0 8px">Conjunto B — Dominio de la situación</div>
+              <div class="bars" id="barsB"></div>
+            </div>
+            <div>
+              <div class="small" style="font-weight:800;margin-bottom:8px">Conjunto C — Rendimiento</div>
+              <div class="bars" id="barsC"></div>
+              <div class="small" style="font-weight:800;margin:14px 0 8px">Conjunto D — Juicio</div>
+              <div class="bars" id="barsD"></div>
+            </div>
+          </div>
+          <div class="note" style="margin-top:10px">
+            Nota: estos puntajes se normalizan a 0–100 a partir de tus respuestas (1–3). Los percentiles requerirían baremos por nivel.
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="hd"><b>Interpretación y recomendaciones</b><span class="small">según rangos</span></div>
+        <div class="bd">
+          <div id="interpretacion" style="font-size:13.5px;color:#0f172a;line-height:1.45"></div>
+          <div style="margin-top:10px">
+            <b>Plan de acción sugerido</b>
+            <ul id="plan" style="margin:8px 0 0 18px"></ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+const BANK_CSV = `id;pregunta;bloque;subhabilidad;invertida
+1;Me gusta orientar a otros y decirles cómo hacen las cosas.;A;Contacto personal;0
+2;Disfruto hacer cosas que causan que otros se interesen en mi.;A;Contacto personal;0
+3;Lo que el grupo piensa es muy importante para mi.;A;Contacto personal;0
+4;Si hay un evento, quiero estar invitado.;A;Contacto personal;0
+5;Disfruto el prestigio que me da tener el control de una situación.;A;Contacto personal;0
+6;Me gusta estimular la curiosidad de otros.;A;Contacto personal;0
+7;Tiendo a ser juguetón o simpático para llamar la atención de los demás.;A;Contacto personal;0
+8;Prefiero hacer actividades con un grupo de personas que solo.;A;Contacto personal;0
+9;Disfruto hacer cosas alegres y divertidas.;A;Contacto personal;0
+10;Disfruto siendo responsable por otros.;A;Contacto personal;0
+11;Me gusta dar instrucciones a otros.;A;Contacto personal;0
+12;Me gusta ser quien tiene la autoridad.;A;Pertenencia;0
+13;Me siento cómodo trabajando en grupo y respetando sus reglas.;A;Pertenencia;0
+14;Disfruto que los demás se den cuenta de mi presencia en un grupo.;A;Pertenencia;0
+15;Prefiero comer con un grupo que comer solo.;A;Pertenencia;0
+16;Me gusta sentir el poder de decirles a otros lo que deben hacer.;A;Pertenencia;0
+17;Opino abiertamente cuando me preguntan.;A;Pertenencia;0
+18;Soy de los que habla más libremente cuando estoy con un grupo.;A;Pertenencia;0
+19;Tiendo a hablar mucho cuando estoy en un grupo.;A;Pertenencia;0
+20;Me gusta guiar la conducta de otros.;A;Pertenencia;0
+21;Me gusta conocer todos los aspectos sobre las situaciones en las que me involucro.;A;Pertenencia;0
+22;Tiendo a pensar de forma parecida, a los grupos a los que pertenezco.;A;Pertenencia;0
+23;Me gusta que me pongan mucha atención.;A;Asertividad;0
+24;Tiendo a involucrarme en el trabajo que deben hacer los demás.;A;Asertividad;0
+25;Disfruto siendo el centro de atención cuando estoy en grupo.;A;Asertividad;0
+26;Soy influenciable por la presión de mis pares en un grupo.;A;Asertividad;1
+27;Disfruto tomar decisiones que influencien a otros.;A;Asertividad;0
+28;Tengo la mente abierta cuando me uno a un nuevo grupo.;A;Asertividad;0
+29;Me gusta que las cosas se hagan exactamente a mi manera.;A;Asertividad;0
+30;Me gusta vestirme de tal forma que llame la atención.;A;Asertividad;0
+31;Si tengo problemas, me gusta apoyarme en personas o grupos para resolverlos.;A;Asertividad;0
+32;Para trabajar en proyectos, prefiero hacerlo con otras personas que solo.;A;Asertividad;0
+33;Disfruto cuando las personas notan mis logros personales.;A;Asertividad;0
+34;Me entusiasma avanzar hacia nuevos proyectos;B;Atención;0
+35;Parece como si siempre tuviera prisa.;B;Atención;1
+36;Soy una persona segura de si misma cuando dirijo un proyecto.;B;Atención;0
+37;Disfruto ser un apoyo para otros.;B;Atención;0
+38;Me gusta que las personas tengan confianza de acercarse a mí.;B;Atención;0
+39;Me siento confiado dirigiendo a otros.;B;Atención;0
+40;Soy de los primeros que termina de comer;B;Atención;0
+41;Tengo necesidad de desarrollar relaciones cercanas con otras personas.;B;Atención;0
+42;Puedo hacerme cargo de una situación cuando lo requiero.;B;Atención;0
+43;Prefiero dirigir que seguir.;B;Atención;0
+44;Parece que termino mi trabajo antes que los demás.;B;Atención;0
+45;Me gusta la interacción uno a uno.;B;Control;0
+46;Tengo amistades duraderas.;B;Control;0
+47;Disfruto estar con personas que establecen una relación de amistad.;B;Control;0
+48;Puedo lograr que un grupo esté de acuerdo conmigo cuando realmente estoy convencido de algo.;B;Control;0
+49;Cumplo con la fecha límite de mis compromisos;B;Control;0
+50;Soy capaz de hacer que otros trabajen mucho sin aprovecharme de ellos.;B;Control;0
+51;Me considero un buen líder.;B;Control;0
+52;Le doy importancia a la puntualidad.;B;Control;0
+53;Muchas personas me consideran un buen amigo.;B;Control;0
+54;Me gusta conocer sobre la vida de las personas que están en contacto conmigo.;B;Control;0
+55;Me gusta que las personas me conozcan a fondo.;B;Control;0
+56;Me gusta ser quien establece el ritmo al competir en algo.;B;Influencia;0
+57;Soy capaz de influir en otros solo con ser yo mismo.;B;Influencia;0
+58;Me siento sereno y tranquilo en el proceso de terminar mis trabajos y obligaciones.;B;Influencia;0
+59;Establezco relaciones cercanas (de amistad o de trabajo) con muchas personas.;B;Influencia;0
+60;La gente hace lo que yo le pido;B;Influencia;0
+61;Si un grupo al que pertenezco necesita un líder, tienden a elegirme a mí.;B;Influencia;0
+62;Me gusta adelantar la entrega de mis compromisos.;B;Influencia;0
+63;Me preocupa lo que le pasa a las personas a mi alrededor.;B;Influencia;0
+64;Disfruto siendo líder de grupo.;B;Influencia;0
+65;Procuro dedicar a cada tema de trabajo o estudio exactamente el tiempo que considero que requiere, ni más ni menos.;B;Influencia;0
+66;Llego a mis compromisos antes que los demás.;B;Influencia;0
+67;Tiendo a ser agradable con la gente.;C;Apertura;0
+68;Parezco tranquilo cuando algo me molesta.;C;Apertura;0
+69;Sustento mis opiniones con buenas bases.;C;Apertura;0
+70;Confío en las personas.;C;Apertura;0
+71;Puedo tomar una decisión fácilmente si lo requiero.;C;Apertura;0
+72;Cuando no estoy de acuerdo en algo, me gusta discutir el punto hasta llegar a un acuerdo.;C;Apertura;0
+73;Soy muy relajado cuando conozco gente nueva.;C;Apertura;0
+74;Soy franco expresando mis sentimientos y deseos.;C;Apertura;0
+75;Cuando algo me molesta defiendo mi punto de vista con tranquilidad.;C;Apertura;0
+76;Me reúno con gente que me conviene.;C;Apertura;1
+77;Tiendo a planificar.;C;Apertura;0
+78;Me gusta que los demás conozcan mi forma de ser.;C;Ritmo de trabajo;0
+79;Puedo expresar con calma mis deseos y necesidades.;C;Ritmo de trabajo;0
+80;Tiendo a dar la importancia adecuada a cada situación.;C;Ritmo de trabajo;0
+81;Disfruto iniciar proyectos y darles seguimiento.;C;Ritmo de trabajo;0
+82;Soy una persona apacible (tranquila).;C;Ritmo de trabajo;0
+83;Soy una persona de amplio criterio.;C;Ritmo de trabajo;0
+84;Me expreso en forma sincera y directa.;C;Ritmo de trabajo;0
+85;Me siento cómodo expresando lo que pienso.;C;Ritmo de trabajo;0
+86;Es importante para mí hacer las cosas bien.;C;Ritmo de trabajo;0
+87;Puedo contar a los demás cosas personales sobre mí mismo.;C;Ritmo de trabajo;0
+88;Tiendo a estar de buen humor.;C;Ritmo de trabajo;0
+89;Cuando estoy enojado puedo serenamente decir lo que pienso;C;Desempeño;0
+90;Disfruto supervisar tareas o trabajos.;C;Desempeño;0
+91;Puedo rechazar peticiones que me hacen mis amigos sin ofenderlos.;C;Desempeño;0
+92;Quiero terminar las cosas que empiezo.;C;Desempeño;0
+93;Si una actividad se complica, busco rutas alternativas para avanzar.;C;Desempeño;0
+94;Quiero que las personas me conozcan tal como soy.;C;Desempeño;0
+95;Conozco la forma de pedir lo que deseo.;C;Desempeño;0
+96;Me gusta describir a los demás cómo me siento.;C;Desempeño;0
+97;Puedo escuchar sin problema el punto de vista de otra persona.;C;Desempeño;0
+98;Soy eficaz armando situaciones ganar – ganar para mi y para otros.;C;Desempeño;0
+99;Las personas pueden confiar en mi para hacer el trabajo;C;Desempeño;0
+100;Siento que utilizo mis talentos en lo que hago.;D;Juicio;0
+101;Visualizo con facilidad el futuro.;D;Juicio;0
+102;Lo que hago tiene sentido en mi vida.;D;Juicio;0
+103;Puedo mantenerme enfocado en trabajar hacia los objetivos que me he propuesto.;D;Juicio;0
+104;Puedo explicar a los demás mi visión e ideales.;D;Juicio;0
+105;Me siento orgulloso del trabajo que realizo.;D;Juicio;0
+106;Puedo transformar una idea en un plan.;D;Juicio;0
+107;Conozco los objetivos del trabajo o actividades que realizo.;D;Juicio;0
+108;Soy bueno en lo que hago.;D;Juicio;0
+109;Lo que hago me parece importante para lograr las metas en equipo, grupo o familia;D;Juicio;0
+110;Puedo hacer que otros se comprometan con mi visión o ideales;D;Juicio;0
+111;Puedo aprender cosas nuevas fácil y rápidamente.;D;Visión;0
+112;Conozco claramente las metas y objetivos de las organizaciones en las que trabajo o estudio.;D;Visión;0
+113;Puedo ver el presente y planear el futuro.;D;Visión;0
+114;Cuando no sé algo, investigo o pregunto.;D;Visión;0
+115;Si no estoy presente, a mi equipo o grupo de trabajo le hacen falta mis aportaciones.;D;Visión;0
+116;Hago los ajustes necesarios para asegurar el éxito en lo que emprendo.;D;Visión;0
+117;Recibo reconocimiento por mis aptitudes y aportes.;D;Visión;0
+118;Me exijo aprender nuevos procedimientos y habilidades para lograr mis objetivos.;D;Visión;0
+119;Tengo una actitud positiva hacia mi mismo y mi futuro;D;Visión;0
+120;Estudio con detenimiento las tendencias del mundo moderno.;D;Visión;0
+121;Me doy cuenta cuando me desvío de mis objetivos.;D;Visión;0
+122;Me interesa investigar sobre las tendencias del futuro.;D;Enfoque estratégico;0
+123;Me gusta realizar mi trabajo diario.;D;Enfoque estratégico;0
+124;Las personas parecen interesarse en mi visión del futuro.;D;Enfoque estratégico;0
+125;Cuando compito, me propongo ganar.;D;Enfoque estratégico;0
+126;Aplico lo que aprendo.;D;Enfoque estratégico;0
+127;Me gusta comentar con los demás sobre las posibilidades que tienen los proyectos que compartimos.;D;Enfoque estratégico;0
+128;Estoy consciente de que tengo buenas aptitudes.;D;Enfoque estratégico;0
+129;Me rodeo de personas que tienen metas y objetivos claros en la vida;D;Enfoque estratégico;0
+130;Sé hacia donde voy en la vida.;D;Enfoque estratégico;0
+131;Me gusta orientar a otros y decirles cómo hacer las cosas.;D;Enfoque estratégico;0
+132;Tengo claras las cosas que me motivan.;D;Enfoque estratégico;0
+`;
+
+// Helpers
+function parseBank(csvText){
+  const lines = csvText.trim().split(/\r?\n/);
+  const out = [];
+  for (const ln of lines){
+    const parts = ln.split(";");
+    if (parts.length < 5) continue;
+    const [id, pregunta, bloque, sub, inv] = parts;
+    out.push({ id: Number(id), pregunta, bloque, sub, inv: Number(inv)||0 });
+  }
+  return out;
+}
+const BANK = parseBank(BANK_CSV);
+const BANK_BY_ID = Object.fromEntries(BANK.map(x=>[x.id,x]));
+const SUBS = [
+  ["A","Contacto personal"],["A","Pertenencia"],["A","Asertividad"],
+  ["B","Atención"],["B","Control"],["B","Influencia"],
+  ["C","Apertura"],["C","Ritmo de trabajo"],["C","Desempeño"],
+  ["D","Juicio"],["D","Visión"],["D","Enfoque estratégico"],
+];
+function clamp(n,a,b){ return Math.max(a,Math.min(b,n)); }
+function pctFromAvg(avg){ return Math.round(((avg-1)/2)*100); } // avg 1..3 => 0..100
+function nivelFromPct(p){ if (p<=39) return "low"; if (p<=60) return "mid"; return "high"; }
+function pillText(niv){ return niv==="low" ? "Por desarrollar" : (niv==="mid" ? "Por fortalecer" : "Por enriquecer"); }
+
+function makeBar(container, label, val){
+  const row=document.createElement("div");
+  row.className="barrow";
+  const name=document.createElement("div");
+  name.className="barname";
+  name.textContent=label;
+
+  const mid=document.createElement("div");
+  const track=document.createElement("div");
+  track.className="track";
+  const fill=document.createElement("div");
+  fill.className="fill";
+  fill.style.width=clamp(val,0,100)+"%";
+  const niv=nivelFromPct(val);
+  fill.style.background = niv==="low" ? "var(--red)" : (niv==="mid" ? "var(--orange)" : "var(--green)");
+  track.appendChild(fill);
+  const ticks=document.createElement("div");
+  ticks.className="ticks";
+  ticks.innerHTML = "<span>0</span><span>39</span><span>60</span><span>100</span>";
+  mid.appendChild(track);
+  mid.appendChild(ticks);
+
+  const num=document.createElement("div");
+  num.style.textAlign="right";
+  num.innerHTML = `<span class="pill ${niv}">${val}/100 · ${pillText(niv)}</span>`;
+
+  row.appendChild(name);
+  row.appendChild(mid);
+  row.appendChild(num);
+  container.appendChild(row);
+}
+
+function setMarker(p){
+  const g=document.getElementById("marker");
+  g.innerHTML="";
+  const x = 20 + (480*(clamp(p,0,100)/100));
+  const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+  line.setAttribute("x1",x); line.setAttribute("x2",x);
+  line.setAttribute("y1","18"); line.setAttribute("y2","98");
+  line.setAttribute("stroke","#0f172a"); line.setAttribute("stroke-width","2");
+  line.setAttribute("opacity","0.55");
+  const circ = document.createElementNS("http://www.w3.org/2000/svg","circle");
+  circ.setAttribute("cx",x); circ.setAttribute("cy","95");
+  circ.setAttribute("r","6"); circ.setAttribute("fill","#0f172a");
+  g.appendChild(line); g.appendChild(circ);
+}
+
+function buildInterpretacion(ifl, subsSorted){
+  const niv=nivelFromPct(ifl);
+  const txtN = pillText(niv);
+  const intro = niv==="high"
+    ? "Tu perfil global sugiere una presencia consistente de conductas asociadas al liderazgo. Mantén prácticas que lo sostengan y busca retos donde puedas modelarlo y fortalecerlo aún más."
+    : (niv==="mid"
+      ? "Tu perfil global muestra bases presentes, pero con áreas claras por fortalecer. Enfócate en hábitos concretos y práctica deliberada para consolidar tu liderazgo."
+      : "Tu perfil global indica áreas importantes por desarrollar. La mejora es posible con acompañamiento, retroalimentación frecuente y práctica estructurada.");
+
+  const topDev = subsSorted.filter(x=>x.pct<=39).slice(0,4);
+  const topMid = subsSorted.filter(x=>x.pct>39 && x.pct<=60).slice(0,4);
+
+  const plan=[];
+  if (topDev.length){
+    plan.push("Prioriza: " + topDev.map(x=>x.name).join(", ") + " (por desarrollar).");
+  }
+  if (topMid.length){
+    plan.push("Refuerza: " + topMid.map(x=>x.name).join(", ") + " (por fortalecer).");
+  }
+  if (!topDev.length && !topMid.length){
+    plan.push("Sostén tu desempeño: elige 1–2 factores para seguir enriqueciendo con retos y feedback.");
+  }
+  plan.push("Define 1 hábito semanal medible por factor priorizado (ej.: pedir feedback, preparar reuniones, delegar con seguimiento, etc.).");
+  plan.push("Revisa avances cada 2 semanas y ajusta tu plan con evidencia (situaciones reales, resultados, percepción del equipo).");
+  return {
+    html: `<div><b>Nivel global:</b> ${txtN} (${ifl}/100)</div><div style="margin-top:6px">${intro}</div>`,
+    plan
+  };
+}
+
+async function cargar(codigo){
+  document.getElementById("msg").textContent="Buscando...";
+  document.getElementById("msg").className="msg";
+  document.getElementById("reporte").style.display="none";
+  try{
+    const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+    const data = await r.json();
+    if(!r.ok || data.error){
+      document.getElementById("msg").textContent = data.error || "No encontrado";
+      document.getElementById("msg").className = "msg err";
+      return;
+    }
+    const attempt = data.attempt;
+    const snap = data.snapshot || {};
+
+    // header
+    const nombre = attempt.nombre || snap.nombre || "—";
+    const curso = snap.curso || attempt.curso || "—";
+    const grupo = snap.grupo || attempt.grupo || "—";
+    const inst = snap.institucion || attempt.institucion || "—";
+    const edad = (attempt.edad_anios ?? snap.edad_anios ?? "—");
+    const fecha = attempt.created_at ? new Date(attempt.created_at) : new Date();
+    document.getElementById("fechaGen").textContent = fecha.toLocaleString("es-EC", {dateStyle:"short", timeStyle:"short"});
+    document.getElementById("headerBox").innerHTML = `
+      <div><b>Nombre:</b> ${nombre}</div>
+      <div><b>Edad:</b> ${edad}</div>
+      <div><b>Curso/Grado:</b> ${curso}</div>
+      <div><b>Grupo:</b> ${grupo}</div>
+      <div style="grid-column:1 / -1"><b>Institución:</b> ${inst}</div>
+      <div style="grid-column:1 / -1"><b>Código:</b> ${codigo}</div>
+    `;
+
+    // compute scores from responses
+    const resp = attempt.responses || {};
+    const subAgg = {};
+    for (const [idStr,valRaw] of Object.entries(resp)){
+      const id = Number(idStr);
+      const meta = BANK_BY_ID[id];
+      if(!meta) continue;
+      let v = Number(valRaw);
+      if(meta.inv===1) v = (v===3?1:(v===1?3:2));
+      const key = meta.sub;
+      if(!subAgg[key]) subAgg[key]={sum:0,n:0, bloque: meta.bloque};
+      subAgg[key].sum += v;
+      subAgg[key].n += 1;
+    }
+
+    const subScores = SUBS.map(([bloque,name])=>{
+      const a=subAgg[name];
+      const avg = a ? (a.sum/a.n) : 0;
+      const pct = a ? pctFromAvg(avg) : 0;
+      return {bloque,name,avg,pct};
+    });
+
+    const setMap={A:[],B:[],C:[],D:[]};
+    subScores.forEach(s=>setMap[s.bloque].push(s.pct));
+    const setScores = Object.entries(setMap).map(([k,arr])=>{
+      const avg = arr.length ? arr.reduce((x,y)=>x+y,0)/arr.length : 0;
+      return {k, pct: Math.round(avg)};
+    });
+    const ifl = Math.round(setScores.reduce((a,b)=>a+b.pct,0)/4);
+
+    // render summary
+    document.getElementById("iflNum").textContent = ifl;
+    const pill = document.getElementById("pillIFL");
+    const nivIFL = nivelFromPct(ifl);
+    pill.className = "pill " + nivIFL;
+    pill.textContent = pillText(nivIFL);
+    setMarker(ifl);
+
+    const setBars=document.getElementById("setBars");
+    setBars.innerHTML="";
+    const setLabels={A:"A — Interpersonal",B:"B — Dominio",C:"C — Rendimiento",D:"D — Juicio"};
+    setScores.forEach(s=>makeBar(setBars, setLabels[s.k], s.pct));
+
+    const byBloque={A:document.getElementById("barsA"),B:document.getElementById("barsB"),C:document.getElementById("barsC"),D:document.getElementById("barsD")};
+    Object.values(byBloque).forEach(el=>el.innerHTML="");
+    subScores.forEach(s=>makeBar(byBloque[s.bloque], s.name, s.pct));
+
+    const subsSorted=[...subScores].sort((a,b)=>a.pct-b.pct).map(x=>({name:x.name,pct:x.pct}));
+    const interp=buildInterpretacion(ifl, subsSorted);
+    document.getElementById("interpretacion").innerHTML = interp.html;
+    const ul=document.getElementById("plan"); ul.innerHTML="";
+    interp.plan.forEach(t=>{ const li=document.createElement("li"); li.textContent=t; ul.appendChild(li); });
+
+    document.getElementById("reporte").style.display="block";
+    document.getElementById("msg").textContent="Reporte generado.";
+    document.getElementById("msg").className="msg";
+  }catch(e){
+    document.getElementById("msg").textContent = "Error: " + (e?.message || e);
+    document.getElementById("msg").className = "msg err";
+  }
+}
+document.getElementById("btn").addEventListener("click", ()=>{
+  const c=document.getElementById("codigo").value.trim();
+  if(!c) return;
+  cargar(c);
+});
+document.getElementById("codigo").addEventListener("keydown",(e)=>{ if(e.key==="Enter") document.getElementById("btn").click(); });
+</script>
+</body>
+</html>
