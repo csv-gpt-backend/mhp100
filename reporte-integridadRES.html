@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>mar 18 55 Integridad -  Reporte (AFINADO)</title>
+  <title>mar 20 27 Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -460,6 +460,39 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   display: none !important;
 }
 
+
+/* ===== Parte 2: cuadro guía (sellos por etapa) ===== */
+#page2 h2{ font-size:22px; }
+
+.iviGuide{ margin-top:12px; padding-top:10px; border-top:1px dashed rgba(0,0,0,.12); }
+.iviGuideIntro{ margin:0 0 10px; font-size:13px; line-height:1.35; }
+.iviGuideTitle{ font-weight:800; font-size:13px; margin:8px 0 8px; text-transform:uppercase; letter-spacing:.4px; }
+
+.iviGuideTable{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,.12);
+  border-radius:12px;
+  font-size:13px;
+}
+.iviGuideTable th{
+  background:rgba(0,0,0,.04);
+  font-weight:800;
+  text-align:left;
+  padding:10px 12px;
+  border-bottom:1px solid rgba(0,0,0,.10);
+}
+.iviGuideTable td{
+  padding:10px 12px;
+  border-bottom:1px solid rgba(0,0,0,.08);
+  vertical-align:top;
+}
+.iviGuideTable tr:last-child td{ border-bottom:none; }
+.iviGuideTable tr.is-active td{
+  background:rgba(255, 231, 106, .35);
+}
 </style>
 </head>
 <body>
@@ -691,6 +724,34 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
     <div class="iviRow">
       <div class="iviScore" id="iviScore2">—</div>
       <div class="iviText" id="iviText2"></div>
+
+    <div class="iviGuide">
+      <p class="iviGuideIntro"><b>¿Qué significa este cuadro?</b><br>
+        Los <b>sellos</b> resumen el nivel general de integridad según el <b>IVI</b>. Además, los indicadores de <b>incoherencia</b> y <b>contradicción</b> muestran qué tan consistentes fueron las respuestas: si aparecen alertas, el resultado se puede interpretar, pero <b>con más cuidado</b>.
+      </p>
+
+      <div class="iviGuideTitle">Guía rápida por etapa (según sellos)</div>
+
+      <table class="iviGuideTable" aria-label="Guía de lectura por etapa según sellos">
+        <thead>
+          <tr>
+            <th>Sellos</th>
+            <th>Secundaria / Preparatoria</th>
+            <th>Adulto / Profesional</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="guideS1"><td><b>1 sello</b></td><td>Requiere acompañamiento</td><td>No recomendado</td></tr>
+          <tr id="guideS2"><td><b>2 sellos</b></td><td>En formación</td><td>Con reserva</td></tr>
+          <tr id="guideS3"><td><b>3 sellos</b></td><td>Íntegro <span class="muted">(leer con más cuidado)</span></td><td>Recomendable <span class="muted">(leer con más cuidado)</span></td></tr>
+          <tr id="guideS4"><td><b>4 sellos</b></td><td>Muy íntegro</td><td>Muy recomendable</td></tr>
+        </tbody>
+      </table>
+
+      <div class="muted" style="font-size:12px;margin-top:8px">
+        Nota: Los índices de validación (incoherencia y contradicción) indican cuánta confianza tener en la interpretación.
+      </div>
+    </div>
     </div>
     <div class="muted" style="font-size:12px;margin-top:10px">
       Nota: Si los índices de validación no están disponibles, el reporte calcula las estrellas solo con el IVI.
@@ -1653,29 +1714,82 @@ function dispBloque(name){
 
     const p = document.createElement("div");
     p.className = "interp-bloque-desc";
-    p.textContent = `Del reporte individual se desprenden los siguientes índices:`;
+    p.textContent = "A continuación se muestran los puntajes (0–100) y su rango de lectura.";
     cont.appendChild(p);
 
-    const ul = document.createElement("ul");
-    ul.className = "recom-list";
-    const fmt = v => (v!=null && !Number.isNaN(v)) ? Math.round(v) : "—";
+    // helper: rango 0-100
+    const rango = (v) => {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return "—";
+      if (n <= 40) return "Por desarrollar";
+      if (n <= 70) return "Por fortalecer";
+      return "Por enriquecer";
+    };
 
-    [
-      `Honestidad: ${fmt(extras.honestidad)}/100`,
-      `Rectitud: ${fmt(extras.rectitud)}/100`,
-      `Justicia: ${fmt(extras.justicia)}/100`,
-      `Veracidad: ${fmt(extras.veracidad)}/100`,
-      `Índice de  Integridad (IVI): ${fmt(extras.ivi)}/100`
-    ].forEach(t=>{
-      const li=document.createElement("li"); li.textContent=t; ul.appendChild(li);
+    const items = [
+      { label: "Honestidad", value: extras.honestidad },
+      { label: "Rectitud",   value: extras.rectitud },
+      { label: "Justicia",   value: extras.justicia },
+      { label: "Veracidad",  value: extras.veracidad },
+      { label: "IVI",        value: extras.ivi }
+    ];
+
+    const wrap = document.createElement("div");
+    wrap.className = "bars-wrap";
+
+    items.forEach(it => {
+      const row = document.createElement("div");
+      row.className = "bars-row";
+
+      const v = (it.value!=null && !Number.isNaN(it.value)) ? Math.round(it.value) : null;
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = v==null ? `${it.label}` : `${it.label}: ${v}/100 — ${rango(v)}`;
+      row.appendChild(label);
+
+      const slot = document.createElement("div");
+      slot.className = "bars-slot";
+      // fondo con rangos (0-40 rojo, 41-70 naranja, 71-100 verde)
+      slot.style.background = "linear-gradient(90deg, var(--red) 0%, var(--red) 40%, var(--orange) 40%, var(--orange) 70%, var(--green) 70%, var(--green) 100%)";
+
+      // ticks 0,40,70,100
+      [0,40,70,100].forEach(vt => {
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        tick.style.left = vt + "%";
+        slot.appendChild(tick);
+
+        const tLabel = document.createElement("div");
+        tLabel.className = "tick-label";
+        tLabel.style.left = vt + "%";
+        tLabel.textContent = vt;
+        slot.appendChild(tLabel);
+      });
+
+      const marker = document.createElement("div");
+      marker.className = "marker";
+      if (v != null){
+        marker.style.left = Math.max(0, Math.min(100, v)) + "%";
+        marker.style.display = "block";
+      }
+      slot.appendChild(marker);
+
+      row.appendChild(slot);
+      wrap.appendChild(row);
     });
 
-    // Validación
-    const liV = document.createElement("li");
-    liV.textContent = `Validación: Incoherencia ${fmt(extras.incoh)}% · Contradicción ${fmt(extras.nc)} pts · Tiempo (PT): ${extras.ptLabel || "—"}`;
-    ul.appendChild(liV);
+    cont.appendChild(wrap);
 
-    cont.appendChild(ul);
+    // Nota de cautela (solo por incoherencia/contradicción; PT no cambia sellos)
+    const ivVal = Math.max(extras.incoh || 0, extras.nc || 0);
+    if (ivVal >= 1){
+      const note = document.createElement("div");
+      note.className = "muted";
+      note.style.marginTop = "8px";
+      note.textContent = "Nota: Se detectaron señales de inconsistencia en las respuestas. Interpreta estos puntajes con mayor cautela.";
+      cont.appendChild(note);
+    }
   }
 
   function renderRecomendacionesIntegridad(extras){
@@ -1954,6 +2068,7 @@ if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} ${pt === 1 ? "pt" : "p
 
 const sellos = calcSellos(ivi, incohSafe, nc);
 paintSellos(sellos);
+updateGuideBySellos(sellos);
   
 
 const stars = sellos; // compatibilidad: el resto del reporte aún usa "stars"
@@ -2132,6 +2247,17 @@ function paintSellos(n){
     img.classList.toggle("on", idx < n);
   });
 }
+
+function updateGuideBySellos(n){
+  const ids = ["guideS1","guideS2","guideS3","guideS4"];
+  ids.forEach(id=>{
+    const tr = document.getElementById(id);
+    if (tr) tr.classList.remove("is-active");
+  });
+  const active = document.getElementById("guideS"+String(n));
+  if (active) active.classList.add("is-active");
+}
+
 
 
 
