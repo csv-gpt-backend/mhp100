@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>MIE 14 47 Evaluación Factores de Liderazgo</title>
+  <title>jue  11 41 Evaluación Factores de Liderazgo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -527,6 +527,15 @@ overflow-x: hidden !important;
     gap: 12px 18px;
   }
 }
+.scale-num { display: none !important; }
+    /* Ocultar los números 1 2 3 del encabezado (mantiene el ancho de columnas) */
+.questions-header > div:nth-child(3),
+.questions-header > div:nth-child(4),
+.questions-header > div:nth-child(5){
+  visibility: hidden;
+}
+
+.scale-head .col-num { display: none !important; }
 
 </style>
 </head>
@@ -595,16 +604,14 @@ overflow-x: hidden !important;
              <div id="sectionBanner" class="section-banner">Sección 1</div>
 
               <div class="scale-badge">
-                <span class="scale-num">1</span>
-                <span class="scale-label" id="scaleLabel1">SIEMPRE</span>
+                <span class="scale-label">SIEMPRE</span>
+
               </div>
               <div class="scale-badge">
-                <span class="scale-num">2</span>
-                <span class="scale-label" id="scaleLabel2">ALGUNAS VECES</span>
+                <span class="scale-label">ALGUNAS VECES</span>
               </div>
               <div class="scale-badge">
-                <span class="scale-num">3</span>
-                <span class="scale-label" id="scaleLabel3">RARA VEZ</span>
+                <span class="scale-label">RARA VEZ</span>
               </div>
             </div>
             
@@ -646,7 +653,7 @@ overflow-x: hidden !important;
       <section id="pantalla-final">
         <div class="check-icon">✔</div>
         <h2>Evaluación terminada</h2>
-        <p>Felicidades, has concluido tu evaluación de inteligencia emocional.</p>
+        <p>Felicidades, has concluido tu evaluación de factores de liderazgo.</p>
         <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
       </section>
     </main>
@@ -824,7 +831,7 @@ if (typeof PREINTRO === "undefined") {
 let __startTime = Date.now();
 
     let CODIGO_ACTUAL = null;
-    const STORAGE_PREFIX = "eval_ie_state_";
+const STORAGE_PREFIX = "eval_lid_state_";
 
     const codigoInput = document.getElementById('codigo');
     const instInput   = document.getElementById('institucion');
@@ -1188,7 +1195,7 @@ function norm(str) { return (str || "").trim(); }
         rows.push({
           id, pregunta, bloque,
           subhabilidad: subhab,
-          invertida: /^s(i|í)$/i.test(invertida) ? "Sí" : "No",
+invertida: (String(invertida).trim() === "1") ? "Sí" : "No",
           value: null
         });
       }
@@ -1510,7 +1517,7 @@ window.scrollTo(0, 0);
       const total = ITEMS.length;
       if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
 
-      const resultados = calcularResultadosGlobales();
+const resultados = null;
 
       const payload = {
         codigo: CODIGO_ACTUAL,
@@ -1519,7 +1526,8 @@ window.scrollTo(0, 0);
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
-          version_banco: "IE-v1"
+          version_banco: "LID-v1"
+
         },
         resultados,
         responses: respuestas
