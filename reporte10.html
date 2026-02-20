@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title> 8 48 Inteligencia Emocional – Reporte u</title>
+  <title> 9 18 Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -523,7 +523,6 @@ function dispBloque(name){
     const df = d + ` L${right} ${baseY} L${left} ${baseY} Z`;
     fill.setAttribute("d", df);
   }
-
 function setCurveMarker(iie){
   const score = clamp(Number(iie)||0, 1, 100);
 
@@ -536,9 +535,22 @@ function setCurveMarker(iie){
     const rW = wrap.getBoundingClientRect();
     const rI = img.getBoundingClientRect();
 
-    const leftInWrap = rI.left - rW.left;
-    const usableW = rI.width;
+    // Si todavía no hay tamaño usable, no intentes ubicar
+    if (rI.width <= 2 || rI.height <= 2) return;
 
+    // 1) calcular el "dibujo real" dentro del <img> por object-fit: contain
+    const nW = img.naturalWidth  || 1;
+    const nH = img.naturalHeight || 1;
+
+    const scale = Math.min(rI.width / nW, rI.height / nH);
+    const drawnW = nW * scale;               // ancho real visible de la imagen
+    const offsetXInsideImg = (rI.width - drawnW) / 2; // margen vacío a la izquierda dentro del <img>
+
+    // 2) trabajar sobre el ancho real visible (drawnW) y su left real dentro del wrap
+    const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+    const usableW = drawnW;
+
+    // 3) márgenes para calzar con la “regla” de tu imagen (ajustables)
     const padL = usableW * 0.18;
     const padR = usableW * 0.12;
 
@@ -550,6 +562,9 @@ function setCurveMarker(iie){
 
   if(img.complete) place();
   else img.addEventListener("load", place, { once:true });
+
+  // Extra: si cambia el layout (responsive/impresión), reubica
+  window.addEventListener("resize", place);
 }
 
   function addRow(container, name, pct){
