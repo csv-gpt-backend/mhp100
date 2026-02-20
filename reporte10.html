@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title> 8 17 Inteligencia Emocional – Reporte u</title>
+  <title> 8 30 Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -524,36 +524,33 @@ function dispBloque(name){
     fill.setAttribute("d", df);
   }
 
-  function setCurveMarker(iie){
-    const score = clamp(Number(iie)||0, 1, 100);
+function setCurveMarker(iie){
+  const score = clamp(Number(iie)||0, 1, 100);
 
-    const wrap = document.querySelector(".curve .curve-gauge");
-    const img  = document.getElementById("freqCurveImg");
-    const mk   = document.getElementById("curveMarker");
-    if(!wrap || !img || !mk) return;
+  const wrap = document.querySelector(".curve .curve-gauge");
+  const img  = document.getElementById("freqCurveImg");
+  const mk   = document.getElementById("curveMarker");
+  if(!wrap || !img || !mk) return;
 
-    // Espera a que la imagen tenga layout
-    const place = () => {
-      const rW = wrap.getBoundingClientRect();
-      const rI = img.getBoundingClientRect();
+  const place = () => {
+    const rW = wrap.getBoundingClientRect();
+    const rI = img.getBoundingClientRect();
 
-      // Trabajamos relativo al contenedor (wrap)
-      const leftInWrap = rI.left - rW.left;
-      const usableW = rI.width;
+    const leftInWrap = rI.left - rW.left;
+    const usableW = rI.width;
 
-      // Ajusta estos márgenes para alinear con la “regla” de la imagen
-      const padL = usableW * 0.18;
-      const padR = usableW * 0.12;
-      const minX = padL;
-      const maxX = usableW - padR;
-      let x = minX + (pct/100) * (maxX - minX);
-      x = Math.max(minX, Math.min(maxX, x));
-      marker.style.left = `${x}px`;
-    };
+    const padL = usableW * 0.18;
+    const padR = usableW * 0.12;
 
-    if(img.complete) place();
-    else img.addEventListener("load", place, { once:true });
-  }
+    const t = (score - 1) / 99; // 1..100 -> 0..1
+    const x = leftInWrap + padL + t * (usableW - padL - padR);
+
+    mk.style.left = `${x}px`;
+  };
+
+  if(img.complete) place();
+  else img.addEventListener("load", place, { once:true });
+}
 
   function addRow(container, name, pct){
     const row=document.createElement('div');
