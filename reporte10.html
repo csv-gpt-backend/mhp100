@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title> 10 08 Inteligencia Emocional – Reporte u</title>
+  <title> 10 26 Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1832,8 +1832,16 @@ if (extras.agresionVal != null){
     console.log("IIE base/final:", iieBase, iieFinal); // <-- AQUÍ
 
     document.getElementById("repIIE").textContent = iieFinal || "—";
-    setCurveMarker(iieFinal || 0);
+    const iieForCurve = iieFinal || 0;
 
+// 1) intento inmediato
+setCurveMarker(iieForCurve);
+
+// 2) reintento cuando ya hubo 1 frame de layout
+requestAnimationFrame(() => setCurveMarker(iieForCurve));
+
+// 3) reintento extra por si la imagen tarda un poco en cargar/renderizar
+setTimeout(() => setCurveMarker(iieForCurve), 120);
     const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1 ?? (resultados.globales && resultados.globales.IV1);
     const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2 ?? (resultados.globales && resultados.globales.IV2);
     const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3 ?? (resultados.globales && resultados.globales.IV3);
