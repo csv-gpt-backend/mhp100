@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title> JUEV 19 1759 
-    Inteligencia Emocional – Reporte u</title>
+  <title> 13 21 Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -209,42 +208,16 @@
         <div class="curve">
           <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
 
-          <svg id="freqCurve" viewBox="0 0 520 140" width="100%" height="140">
-            <defs>
-              <linearGradient id="gradAxis" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#ef4444"/>
-                <stop offset="25%" stop-color="#f59e0b"/>
-                <stop offset="50%" stop-color="#22c55e"/>
-                <stop offset="75%" stop-color="#22c55e"/>
-                <stop offset="100%" stop-color="#38bdf8"/>
-              </linearGradient>
-              <linearGradient id="gradStroke" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#0f172a"/>
-                <stop offset="100%" stop-color="#0f172a"/>
-              </linearGradient>
-              <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="0.6" dy="1.2" stdDeviation="1.2" flood-color="#000" flood-opacity="0.25"/>
-              </filter>
-            </defs>
-
-            <rect x="10" y="102" width="500" height="7" rx="3" fill="url(#gradAxis)" filter="url(#shadow)"/>
-
-            <line x1="10" y1="92" x2="10" y2="114" stroke="#111"/>
-            <text x="10" y="130" font-size="12">1</text>
-
-            <line x1="205" y1="92" x2="205" y2="114" stroke="#111"/>
-            <text x="205" y="130" font-size="12" text-anchor="middle">40</text>
-
-            <line x1="355" y1="92" x2="355" y2="114" stroke="#111"/>
-            <text x="355" y="130" font-size="12" text-anchor="middle">70</text>
-
-            <line x1="510" y1="92" x2="510" y2="114" stroke="#111"/>
-            <text x="510" y="130" font-size="12" text-anchor="end">100</text>
-
-            <path id="bellFill" d="" fill="#0f172a" opacity="0.08"/>
-            <path id="bellPath" d="" fill="none" stroke="url(#gradStroke)" stroke-width="2.4" filter="url(#shadow)"/>
-            <circle id="curveMarker" cx="260" cy="60" r="5" fill="#111" filter="url(#shadow)"/>
-          </svg>
+          <div class="curve-gauge" style="position:relative; width:100%; height:220px; margin-top:6px;">
+              <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución"
+                 style="width:100%; height:220px; object-fit:contain; display:block;"/>
+              <div id="curveMarker" aria-hidden="true"
+              style="position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
+              font-size:22px; line-height:1; color:#111;
+               text-shadow:0 1px 0 rgba(255,255,255,.35); z-index:3; pointer-events:none;">
+              ▼
+            </div>
+          </div>
         </div>
 
         <div class="rep-iv">
@@ -552,18 +525,53 @@ function dispBloque(name){
     const df = d + ` L${right} ${baseY} L${left} ${baseY} Z`;
     fill.setAttribute("d", df);
   }
+function setCurveMarker(iie){
+  const score = clamp(Number(iie) || 0, 1, 100);
 
-  function setCurveMarker(iie){
-    drawBellCurve();
-    const left=10, right=510, baseY=100, topY=18, mid=260, sigma=90;
-    const score = clamp(Number(iie)||0,1,100);
-    const x = left + (score-1)/99*(right-left);
-    const z=(x-mid)/sigma;
-    const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
-    const dot = document.getElementById("curveMarker");
-    if(dot){ dot.setAttribute("cx", x); dot.setAttribute("cy", y); }
+  const wrap = document.querySelector(".curve .curve-gauge");
+  const img  = document.getElementById("freqCurveImg");
+  const mk   = document.getElementById("curveMarker");
+  if(!wrap || !img || !mk) return;
+
+  const place = () => {
+    const rW = wrap.getBoundingClientRect();
+    const rI = img.getBoundingClientRect();
+
+    // Tamaño real dibujado dentro del <img> (por object-fit:contain)
+    const natW = img.naturalWidth  || 1;
+    const natH = img.naturalHeight || 1;
+
+    const scale = Math.min(rI.width / natW, rI.height / natH);
+    const drawnW = natW * scale;
+
+    // offset X dentro del <img> (centrado por contain)
+    const offsetXInsideImg = (rI.width - drawnW) / 2;
+
+    // X relativo al contenedor .curve-gauge
+    const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+
+    // Calibración (márgenes de la "regla" dentro de la imagen)
+    const padL = drawnW * 0.12;   // <- AJUSTE FINO
+    const padR = drawnW * 0.18;   // <- AJUSTE FINO (menos para que 70-100 no se vaya a la izq)
+
+    const minX = leftInWrap + padL;
+    const maxX = leftInWrap + drawnW - padR;
+
+   const t = (score - 1) / 99; // 1..100 -> 0..1 exacto
+    let x = minX + t * (maxX - minX);
+
+    x = Math.max(minX, Math.min(maxX, x));
+    console.log("CURVE", { score, rWw: rW.width, rIw: rI.width, natW: img.naturalWidth, natH: img.naturalHeight, drawnW, offsetXInsideImg, leftInWrap, padL, padR, x });
+    mk.style.left = `${x}px`;
+  };
+
+  // Asegura que se calcule cuando ya hay layout + imagen lista
+  if (img.complete) {
+    requestAnimationFrame(place);
+  } else {
+    img.addEventListener("load", () => requestAnimationFrame(place), { once:true });
   }
-
+}
   function addRow(container, name, pct){
     const row=document.createElement('div');
     row.style.display='grid';
@@ -1824,9 +1832,19 @@ if (extras.agresionVal != null){
     let iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie ?? (resultados.globales ? resultados.globales.IIE : undefined);
     const iieBase = (iie != null && !Number.isNaN(Number(iie))) ? Number(iie) : ((bIntra||bInter||bPV) ? Math.round((bIntra+bInter+bPV)/3) : 0);
     const iieFinal = adjScore(iieBase, {bloqueNorm:"", subNorm:""});
-    document.getElementById("repIIE").textContent = iieFinal || "—";
-    setCurveMarker(iieFinal || 0);
+    console.log("IIE base/final:", iieBase, iieFinal); // <-- AQUÍ
 
+    document.getElementById("repIIE").textContent = iieFinal || "—";
+    const iieForCurve = iieFinal || 0;
+
+// 1) intento inmediato
+setCurveMarker(iieForCurve);
+
+// 2) reintento cuando ya hubo 1 frame de layout
+requestAnimationFrame(() => setCurveMarker(iieForCurve));
+
+// 3) reintento extra por si la imagen tarda un poco en cargar/renderizar
+setTimeout(() => setCurveMarker(iieForCurve), 120);
     const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1 ?? (resultados.globales && resultados.globales.IV1);
     const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2 ?? (resultados.globales && resultados.globales.IV2);
     const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3 ?? (resultados.globales && resultados.globales.IV3);
