@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title> VIE 6 54 Inteligencia Emocional – Reporte u</title>
+  <title>  7 07 Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -172,24 +172,7 @@
   .plan-focus-meta{margin:4px 0;}
 
 
-  
-  /* Curva metálica (imagen + marcador) */
-  .metal-curve{ position:relative; width:100%; height:140px; margin-top:6px; }
-  .metal-curve img{ width:100%; height:100%; object-fit:contain; display:block; }
-  .metal-marker{
-    position:absolute;
-    width:0; height:0;
-    border-left:10px solid transparent;
-    border-right:10px solid transparent;
-    border-top:18px solid #111;
-    /* cae sobre la "regla" */
-    top:72%;
-    left:50%;
-    transform:translateX(-50%);
-    filter: drop-shadow(0 1px 1px rgba(0,0,0,.35));
-  }
-
-</style>
+  </style>
 </head>
 <body>
 <div class="wrap">
@@ -225,9 +208,13 @@
         <div class="curve">
           <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
 
-          <div class="metal-curve" aria-label="Curva de distribución (imagen)">
-            <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución" />
-            <div class="metal-marker" id="curveMarker" aria-hidden="true"></div>
+          <div class="curve-gauge" style="position:relative; width:100%; height:140px; margin-top:6px;">
+            <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución"
+                 style="width:100%; height:140px; object-fit:contain; display:block;"/>
+            <div id="curveMarker" aria-hidden="true"
+                 style="position:absolute; top:18px; left:50%; transform:translateX(-50%); font-size:22px; line-height:1; color:#111; text-shadow:0 1px 0 rgba(255,255,255,.35);">
+              ▼
+            </div>
           </div>
         </div>
 
@@ -518,23 +505,54 @@ function dispBloque(name){
     return 2;
   }
 
-  function drawBellCurve(){ /* no-op (curva es imagen) */ }
-
-  function setCurveMarker(iie){
-    // La curva ahora es una imagen fija. Movemos solo el marcador horizontalmente según el puntaje (1–100).
-    const score = clamp(Number(iie)||0, 1, 100);
-    const marker = document.getElementById("curveMarker");
-    if(!marker) return;
-
-    // Ajuste fino: la regla útil en la imagen no ocupa 100% del ancho visible.
-    // Estos límites (%) dejan margen a izquierda/derecha para que la flecha caiga sobre la escala.
-    const minP = 6;   // ~inicio útil de la regla
-    const maxP = 94;  // ~fin útil de la regla
-    const p = minP + (score - 1) / 99 * (maxP - minP);
-
-    marker.style.left = p.toFixed(2) + "%";
+  function drawBellCurve(){
+    const path = document.getElementById("bellPath");
+    const fill = document.getElementById("bellFill");
+    if(!path || !fill) return;
+    const left=10, right=510, baseY=100, topY=18;
+    const mid=(left+right)/2, sigma=90;
+    const pts=[];
+    for(let x=left; x<=right; x+=5){
+      const z=(x-mid)/sigma;
+      const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
+      pts.push([x,y]);
+    }
+    let d=`M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+    for(let i=1;i<pts.length;i++) d += ` L${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}`;
+    path.setAttribute("d", d);
+    const df = d + ` L${right} ${baseY} L${left} ${baseY} Z`;
+    fill.setAttribute("d", df);
   }
 
+  function setCurveMarker(iie){
+    const score = clamp(Number(iie)||0, 1, 100);
+
+    const wrap = document.querySelector(".curve .curve-gauge");
+    const img  = document.getElementById("freqCurveImg");
+    const mk   = document.getElementById("curveMarker");
+    if(!wrap || !img || !mk) return;
+
+    // Espera a que la imagen tenga layout
+    const place = () => {
+      const rW = wrap.getBoundingClientRect();
+      const rI = img.getBoundingClientRect();
+
+      // Trabajamos relativo al contenedor (wrap)
+      const leftInWrap = rI.left - rW.left;
+      const usableW = rI.width;
+
+      // Ajusta estos márgenes para alinear con la “regla” de la imagen
+      const padL = usableW * 0.06;
+      const padR = usableW * 0.06;
+
+      const t = (score-1)/99; // 1..100 → 0..1
+      const x = leftInWrap + padL + t * (usableW - padL - padR);
+
+      mk.style.left = `${x}px`;
+    };
+
+    if(img.complete) place();
+    else img.addEventListener("load", place, { once:true });
   }
 
   function addRow(container, name, pct){
