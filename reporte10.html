@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title> 9 18 Inteligencia Emocional – Reporte u</title>
+  <title> 9 58 Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -524,7 +524,7 @@ function dispBloque(name){
     fill.setAttribute("d", df);
   }
 function setCurveMarker(iie){
-  const score = clamp(Number(iie)||0, 1, 100);
+  const score = clamp(Number(iie) || 0, 1, 100);
 
   const wrap = document.querySelector(".curve .curve-gauge");
   const img  = document.getElementById("freqCurveImg");
@@ -535,38 +535,40 @@ function setCurveMarker(iie){
     const rW = wrap.getBoundingClientRect();
     const rI = img.getBoundingClientRect();
 
-    // Si todavía no hay tamaño usable, no intentes ubicar
-    if (rI.width <= 2 || rI.height <= 2) return;
+    // Tamaño real dibujado dentro del <img> (por object-fit:contain)
+    const natW = img.naturalWidth  || 1;
+    const natH = img.naturalHeight || 1;
 
-    // 1) calcular el "dibujo real" dentro del <img> por object-fit: contain
-    const nW = img.naturalWidth  || 1;
-    const nH = img.naturalHeight || 1;
+    const scale = Math.min(rI.width / natW, rI.height / natH);
+    const drawnW = natW * scale;
 
-    const scale = Math.min(rI.width / nW, rI.height / nH);
-    const drawnW = nW * scale;               // ancho real visible de la imagen
-    const offsetXInsideImg = (rI.width - drawnW) / 2; // margen vacío a la izquierda dentro del <img>
+    // offset X dentro del <img> (centrado por contain)
+    const offsetXInsideImg = (rI.width - drawnW) / 2;
 
-    // 2) trabajar sobre el ancho real visible (drawnW) y su left real dentro del wrap
+    // X relativo al contenedor .curve-gauge
     const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
-    const usableW = drawnW;
 
-    // 3) márgenes para calzar con la “regla” de tu imagen (ajustables)
-    const padL = usableW * 0.18;
-    const padR = usableW * 0.12;
+    // Calibración (márgenes de la "regla" dentro de la imagen)
+    const padL = drawnW * 0.18;   // <- AJUSTE FINO
+    const padR = drawnW * 0.08;   // <- AJUSTE FINO (menos para que 70-100 no se vaya a la izq)
 
-    const t = (score - 1) / 99; // 1..100 -> 0..1
-    const x = leftInWrap + padL + t * (usableW - padL - padR);
+    const minX = leftInWrap + padL;
+    const maxX = leftInWrap + drawnW - padR;
 
+    const t = score / 100;
+    let x = minX + t * (maxX - minX);
+
+    x = Math.max(minX, Math.min(maxX, x));
     mk.style.left = `${x}px`;
   };
 
-  if(img.complete) place();
-  else img.addEventListener("load", place, { once:true });
-
-  // Extra: si cambia el layout (responsive/impresión), reubica
-  window.addEventListener("resize", place);
+  // Asegura que se calcule cuando ya hay layout + imagen lista
+  if (img.complete) {
+    requestAnimationFrame(place);
+  } else {
+    img.addEventListener("load", () => requestAnimationFrame(place), { once:true });
+  }
 }
-
   function addRow(container, name, pct){
     const row=document.createElement('div');
     row.style.display='grid';
