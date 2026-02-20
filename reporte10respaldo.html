@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title> 13 21 Inteligencia Emocional – Reporte u</title>
+  <title> 16 42 Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -541,7 +541,7 @@ function setCurveMarker(iie){
     const natW = img.naturalWidth  || 1;
     const natH = img.naturalHeight || 1;
 
-    const scale = Math.min(rI.width / natW, rI.height / natH);
+    const scale  = Math.min(rI.width / natW, rI.height / natH);
     const drawnW = natW * scale;
 
     // offset X dentro del <img> (centrado por contain)
@@ -550,19 +550,28 @@ function setCurveMarker(iie){
     // X relativo al contenedor .curve-gauge
     const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
 
-    // Calibración (márgenes de la "regla" dentro de la imagen)
-    const padL = drawnW * 0.12;   // <- AJUSTE FINO
-    const padR = drawnW * 0.18;   // <- AJUSTE FINO (menos para que 70-100 no se vaya a la izq)
+    // Calibración horizontal (márgenes de la "regla" dentro de la imagen)
+    const padL = drawnW * 0.12;   // 0% (ajuste fino)
+    const padR = drawnW * 0.16;   // 100% (ajuste fino)
 
     const minX = leftInWrap + padL;
     const maxX = leftInWrap + drawnW - padR;
 
-   const t = (score - 1) / 99; // 1..100 -> 0..1 exacto
-    let x = minX + t * (maxX - minX);
+    const t = (score - 1) / 99; // 1..100 -> 0..1 exacto
 
+    // X (horizontal)
+    let x = minX + t * (maxX - minX);
     x = Math.max(minX, Math.min(maxX, x));
-    console.log("CURVE", { score, rWw: rW.width, rIw: rI.width, natW: img.naturalWidth, natH: img.naturalHeight, drawnW, offsetXInsideImg, leftInWrap, padL, padR, x });
     mk.style.left = `${x}px`;
+
+    // Y (vertical): regla inclinada (toque mágico)
+    // Ajusta estos dos valores UNA VEZ:
+    // - bottomAt0: dónde toca la regla cuando score≈1 (lado 0%)
+    // - bottomAt100: dónde toca la regla cuando score≈100 (lado 100%)
+    const bottomAt0 = 94;    // px
+    const bottomAt100 = 26;  // px
+    const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+    mk.style.bottom = `${y}px`;
   };
 
   // Asegura que se calcule cuando ya hay layout + imagen lista
@@ -572,6 +581,7 @@ function setCurveMarker(iie){
     img.addEventListener("load", () => requestAnimationFrame(place), { once:true });
   }
 }
+
   function addRow(container, name, pct){
     const row=document.createElement('div');
     row.style.display='grid';
