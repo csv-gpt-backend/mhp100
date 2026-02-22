@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title> 19 47 Inteligencia Emocional – Reporte u</title>
+  <title> 18 33 Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -170,8 +170,22 @@
   .plan-focus-head{margin-bottom:4px;}
   .plan-focus-obj{margin:4px 0 6px;}
   .plan-focus-meta{margin:4px 0;}
-
-
+.iv-title{
+  font-weight:700;
+  font-size:14px;
+  text-transform:uppercase;
+  text-align:center;
+  margin:0 0 10px 0;
+}
+    /* Realce SOLO para la línea del IIE en el Perfil cuantitativo global */
+.perfil-iie{
+  font-weight:900;
+  font-size:13.5px;
+  margin-top:8px;   /* “pequeño margen arriba” */
+}
+    .perfil-sep{
+  margin-top:18px; /* “bajar una línea” */
+}
   </style>
 </head>
 <body>
@@ -275,7 +289,8 @@
           </div>
             </div>
 
-        <div class="rep-iv">
+        <div class="rep-iv" style="margin-top:26px;">
+          <div class="iv-title">ÍNDICES DE VALIDACIÓN</div>
           <table class="iv-table" style="width:100%;border-collapse:collapse;font-size:12px">
             <tr id="iv1Row">
               <th class="iv-key" style="border:1px solid #111;padding:6px">NA</th>
@@ -318,7 +333,7 @@
 
       <div class="bloque-title">
         <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblVida">HABILIDADES PARA LA VIDA</span></div>
-        <div>ICV: <span class="ih-badge" id="ihPV">—</span></div>
+        <div>IHV: <span class="ih-badge" id="ihPV">—</span></div>
       </div>
       <div class="rep-bloque" id="bloquePV"></div>
 
@@ -1560,7 +1575,7 @@ if (extras.agresionVal != null){
 
     const sub=document.createElement("div");
     sub.className="recom-subtitle";
-    sub.textContent="Orientaciones generales para acompañar el desarrollo socioemocional. No reemplaza valoración clínica.";
+    sub.textContent="Orientaciones generales para acompañar el desarrollo socioemocional.";
     cont.appendChild(sub);
 // ===== Prioridades según puntaje (Top 3) =====
     const items = [
@@ -1706,15 +1721,21 @@ if (extras.agresionVal != null){
     const fmt = v => (v != null && !Number.isNaN(v)) ? Math.round(v) : "—";
 
     [
-      `Índice de Desarrollo Personal: ${fmt(extras.bIntra)}`,
-      `Índice de Vínculos Interpersonales: ${fmt(extras.bInter)}`,
-      `Índice de Habilidades para la Vida: ${fmt(extras.bPV)}`,
-      `Índice Global de Inteligencia Emocional (IIE): ${fmt(extras.iieFinal)}`
-    ].forEach(t=>{
-      const li = document.createElement("li");
-      li.textContent = t;
-      ul.appendChild(li);
-    });
+  `Índice de Desarrollo Personal: ${fmt(extras.bIntra)}`,
+  `Índice de Vínculos Interpersonales: ${fmt(extras.bInter)}`,
+  `Índice de Habilidades para la Vida: ${fmt(extras.bPV)}`,
+  `Índice Global de Inteligencia Emocional (IIE): ${fmt(extras.iieFinal)}`
+].forEach(t=>{
+  const li = document.createElement("li");
+  li.textContent = t;
+
+  // SOLO la línea del IIE se realza
+  if (t.includes("(IIE)")) li.classList.add("perfil-iie");
+  if (t.toLowerCase().startsWith("comunicación interpersonal")) li.classList.add("perfil-sep");
+  if (t.toLowerCase().startsWith("adaptación al cambio:")) li.classList.add("perfil-sep");
+
+  ul.appendChild(li);
+});
 
     cont.appendChild(ul);
 
