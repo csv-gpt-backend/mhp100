@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN 23 6 14  Integridad -  Reporte (AFINADO)</title>
+  <title>LUN 23 7 10  Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -913,34 +913,8 @@ function dispBloque(name){
     return 2;
   }
 
-  function drawBellCurve(){
-    const path = document.getElementById("bellPath");
-    const fill = document.getElementById("bellFill");
-    if(!path || !fill) return;
-    const left=10, right=510, baseY=100, topY=18;
-    const mid=(left+right)/2, sigma=90;
-    const pts=[];
-    for(let x=left; x<=right; x+=5){
-      const z=(x-mid)/sigma;
-      const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
-      pts.push([x,y]);
-    }
-    let d=`M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
-    for(let i=1;i<pts.length;i++) d += ` L${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}`;
-    path.setAttribute("d", d);
-    const df = d + ` L${right} ${baseY} L${left} ${baseY} Z`;
-    fill.setAttribute("d", df);
+  
   }
-
-  function setCurveMarker(iie){
-    drawBellCurve();
-    const left=10, right=510, baseY=100, topY=18, mid=260, sigma=90;
-    const score = clamp(Number(iie)||0,1,100);
-    const x = left + (score-1)/99*(right-left);
-    const z=(x-mid)/sigma;
-    const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
-    const dot = document.getElementById("curveMarker");
-    if(dot){ dot.setAttribute("cx", x); dot.setAttribute("cy", y); }
   }
 
   function addRow(container, name, pct){
@@ -2624,13 +2598,20 @@ function exportJSON(){
   (()=>{const __el=document.getElementById("btnJSON"); if(__el) __el.addEventListener("click", exportJSON);})();
 
   (function init(){
+    // Si viene ?codigo= en la URL, SOLO precargamos el input.
+    // El reporte se carga únicamente al presionar "Ver reporte".
     const qp = new URLSearchParams(location.search);
     const c = (qp.get("codigo")||"").trim().toUpperCase();
     if(c){
-      document.getElementById("codigoInput").value=c;
-      cargarReporte(c);
+      const inp = document.getElementById("codigoInput");
+      if(inp) inp.value = c;
+      const msg = document.getElementById("msg");
+      if(msg){ msg.textContent = "Código listo. Presiona Ver reporte."; msg.className="msg ok"; }
     }
-  })();
+    // Asegurar estado inicial
+    const rc = document.getElementById("reporteContainer");
+    if(rc) rc.style.display = "none";
+})();
   // === FIX PDF: Chrome a veces NO imprime SVG con filtros (feDropShadow) ===
 (function fixCurveForPrint(){
   const fill = document.getElementById("curveFill");
