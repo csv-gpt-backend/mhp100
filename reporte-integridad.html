@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN23 14 40  Integridad -  Reporte (AFINADO)</title>
+  <title>LUN23 15 25 Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1851,9 +1851,6 @@ function dispBloque(name){
       <ul>
         ${recs.slice(0,2).map(r=>`<li>${escapeHtml(r)}</li>`).join("")}
       </ul>
-      <div class="muted" style="margin-top:6px">Estas pautas ayudan a comprender el resultado. Las acciones detalladas se presentan en <b>Plan de acción sugerido</b>.</div>
-      <h4>Indicador de avance</h4>
-      <div class="muted">Evidencias simples: cumplimiento de acuerdos, coherencia en decisiones, y calidad de comunicación (precisa y completa).</div>
     `;
   }
 
@@ -2071,12 +2068,32 @@ function dispBloque(name){
     cont.appendChild(foot);
   }
 
+
+  function renderInterpSharedNote(){
+    const grid = document.querySelector(".interpGrid");
+    if (!grid) return;
+    let box = document.getElementById("interpSharedNoteBox");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "interpSharedNoteBox";
+      box.className = "interpSharedBox";
+      box.innerHTML = `
+        <p class="interpSharedLead">Estas pautas ayudan a comprender el resultado. Las acciones detalladas se presentan en <b>Plan de acción sugerido</b>.</p>
+        <h4>Indicador de avance</h4>
+        <div class="muted">Evidencias simples: cumplimiento de acuerdos, coherencia en decisiones y calidad de comunicación (precisa y completa).</div>
+      `;
+      grid.insertAdjacentElement("afterend", box);
+    }
+  }
+
   function renderParte2Integridad(extras){
     // tarjetas (acordeón)
     setInterpCard("Honestidad", extras.honestidad);
     setInterpCard("Rectitud",   extras.rectitud);
     setInterpCard("Justicia",   extras.justicia);
     setInterpCard("Veracidad",  extras.veracidad);
+
+    renderInterpSharedNote();
 
     // global IVI (parte superior de página 2)
     const s2 = document.getElementById("iviScore2");
