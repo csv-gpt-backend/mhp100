@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN23 12 53  Integridad -  Reporte (AFINADO)</title>
+  <title>LUN23 13 21  Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -412,7 +412,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 
 .starNote{margin-top:10px;font-size:12.5px;line-height:1.35;}
 /* Punto nuevo: lista de sellos más visible y desplazada a la derecha */
-.starNote .iviLevels{max-width:420px;margin:14px 0 0 110px;font-size:14.5px;line-height:1.5;}
+.starNote .iviLevels{max-width:420px;margin:14px 0 0 auto;font-size:14.5px;line-height:1.5;}
 
 
 /* (removido) override antiguo de curva */
@@ -470,7 +470,6 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 .iviLevels b{ color:#111827; }
 .iviLevelsNote{
   margin-top: 6px;
-  margin-left: -110px; /* regresa la nota al margen izquierdo total */
   font-size: 12px;
   color:#6b7280;
 }
@@ -686,6 +685,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
     
 <div class="iviSoft muted" id="iviSoftMsg">
   Este resultado es una referencia inicial. La interpretación completa depende del índice de validación y del contexto (etapa escolar o adulto/profesional).
+  Revisa la Parte 2 para ver el significado detallado y recomendaciones.
 </div>
 
 <div class="starNote muted" id="starNote">
@@ -699,7 +699,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   <div><b>3 sellos:</b> Nivel sólido</div>
   <div><b>4 sellos:</b> Nivel destacado</div>
   <div class="iviLevelsNote">
-    Nota: el significado detallado de cada nivel varía según la etapa (escolar o adulto/profesional).
+    Nota: el significado detallado de cada nivel varía según la etapa (escolar o adulto/profesional) y se explica en la Parte 2.
   </div>
 </div>
 
@@ -1757,14 +1757,16 @@ function dispBloque(name){
     const desc = INTEGRIDAD_DESC[skill] || "";
     const recs = (INTEGRIDAD_RECOM[skill] && INTEGRIDAD_RECOM[skill][lvl.nivel]) ? INTEGRIDAD_RECOM[skill][lvl.nivel] : [];
 
+    // INTERPRETACIÓN: significado + orientación breve (sin duplicar el plan de acción)
     bodyEl.innerHTML = `
-      <div class="muted" style="margin-bottom:8px">${escapeHtml(desc)}</div>
-      <h4>Enfoque práctico (2–3 semanas)</h4>
+      <div class="muted" style="margin-bottom:10px">${escapeHtml(desc)}</div>
+      <h4>Orientación inicial (2–3 semanas)</h4>
       <ul>
-        ${recs.map(r=>`<li>${escapeHtml(r)}</li>`).join("")}
+        ${recs.slice(0,2).map(r=>`<li>${escapeHtml(r)}</li>`).join("")}
       </ul>
       <h4>Indicador de avance</h4>
       <div class="muted">Evidencias simples: cumplimiento de acuerdos, coherencia en decisiones, y calidad de comunicación (precisa y completa).</div>
+      <div class="muted" style="margin-top:8px"><b>Nota:</b> El detalle operativo se desarrolla en el bloque <b>Plan de acción sugerido</b>.</div>
     `;
   }
 
@@ -1909,7 +1911,7 @@ function dispBloque(name){
 
     const sub=document.createElement("div");
     sub.className="recom-subtitle";
-    sub.textContent="Orientaciones generales y prioridades accionables. No reemplaza valoración clínica.";
+    sub.textContent="Qué hacer con los resultados: prioridades, acciones concretas e indicadores de seguimiento. No reemplaza valoración clínica.";
     cont.appendChild(sub);
 
     // ===== Prioridades según puntaje (Top 3) =====
@@ -1928,7 +1930,7 @@ function dispBloque(name){
 
     const box = document.createElement("div");
     box.className = "plan-focus-box";
-    box.innerHTML = `<div class="plan-section-title">Prioridades según puntaje (Top 3)</div>`;
+    box.innerHTML = `<div class="plan-section-title">Prioridades según puntaje (Top 3) · Acciones concretas</div>`;
 
     focos.forEach(f=>{
       const pack = PLAN_FOCO[f.key]?.[f.nivel];
@@ -1939,6 +1941,7 @@ function dispBloque(name){
       sec.innerHTML = `
         <div class="plan-focus-head"><b>${escapeHtml(f.key)}</b> — ${escapeHtml(f.nivel)} (${Math.round(Number(f.pct)||0)}/100)</div>
         <div class="plan-focus-obj"><b>Objetivo (2–3 semanas):</b> ${escapeHtml(pack.objetivo)}</div>
+        <div class="plan-focus-meta" style="margin-top:4px"><b>Acciones semanales sugeridas:</b></div>
         <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(a)}</li>`).join("")}</ul>
         <div class="plan-focus-meta"><b>Indicador:</b> ${escapeHtml(pack.indicador)}</div>
         <div class="plan-focus-meta"><b>Revisión:</b> ${escapeHtml(pack.revision)}</div>
