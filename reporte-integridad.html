@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN23 16 14 Integridad -  Reporte (AFINADO)</title>
+  <title>LUN23 16 28  Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -502,19 +502,6 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 }
 
 
-
-/* ===== Ajustes Nexa: bloque compartido + separación con Lectura global ===== */
-.interpSharedBox{
-  margin: 14px 0 22px 0;
-  padding-top: 14px;
-  border-top: 1px dashed #e5e7eb;
-}
-.interpSharedBox .interpSharedLead{ margin:0 0 10px 0; }
-#iviBox2{
-  margin-top: 22px;
-  padding-top: 6px;
-}
-
 /* ===== Parte 2: cuadro guía (sellos por etapa) ===== */
 #page2 h2{ font-size:22px; }
 
@@ -626,6 +613,44 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   width:100%;
   text-align:left !important;
   margin-top:8px;
+}
+
+
+/* ===== Afinación: separación entre tarjetas (punto 1) y Lectura global ===== */
+#interpSharedNoteBox{
+  margin: 18px 0 18px 0;
+}
+#iviBox2{
+  margin-top: 14px;
+}
+
+#planAccion.interp-bloque{
+  margin-top: 10px;
+  padding-top: 0;
+}
+
+
+/* ===== Bloque compartido entre 1.- Interpretación y 2.- Lectura global ===== */
+.interpSharedBox{
+  margin: 18px 0 24px;
+  padding: 14px 16px;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 12px;
+  background: #fff;
+}
+.interpSharedBox .interpSharedLead{
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #111827;
+}
+.interpSharedBox h4{
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+#iviBox2{
+  margin-top: 18px !important;
 }
 
 </style>
@@ -1480,7 +1505,12 @@ function dispBloque(name){
     const cont = document.getElementById("planAccion");
     if(!cont) return;
     cont.innerHTML = "";
-    // Sin título adicional aquí: ya existe "4.- Recomendaciones y plan de acción"
+
+    const header=document.createElement("div");
+    header.className="interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">Plan de acción sugerido</div>`;
+    cont.appendChild(header);
+
     const sub=document.createElement("div");
     sub.className="recom-subtitle";
     sub.textContent="Orientaciones generales para acompañar el desarrollo socioemocional. No reemplaza valoración clínica.";
@@ -1996,13 +2026,9 @@ function dispBloque(name){
     if(!cont) return;
     cont.innerHTML = "";
 
-    const header=document.createElement("div");
-    header.className="interp-bloque-header";
-    header.innerHTML = `<div class="interp-bloque-nombre">Plan de acción sugerido</div>`;
-    cont.appendChild(header);
-
     const sub=document.createElement("div");
     sub.className="recom-subtitle";
+    sub.style.marginTop = "8px";
     sub.textContent="Qué hacer a partir del resultado: prioridades accionables y seguimiento. No reemplaza valoración clínica.";
     cont.appendChild(sub);
 
@@ -2081,16 +2107,20 @@ function dispBloque(name){
     const grid = document.querySelector(".interpGrid");
     if (!grid) return;
     let box = document.getElementById("interpSharedNoteBox");
-    if (!box) {
-      box = document.createElement("div");
-      box.id = "interpSharedNoteBox";
-      box.className = "interpSharedBox";
-      box.innerHTML = `
+    const html = `
         <p class="interpSharedLead">Estas pautas ayudan a comprender el resultado. Las acciones detalladas se presentan en <b>Plan de acción sugerido</b>.</p>
         <h4>Indicador de avance</h4>
         <div class="muted">Evidencias simples: cumplimiento de acuerdos, coherencia en decisiones y calidad de comunicación (precisa y completa).</div>
       `;
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "interpSharedNoteBox";
+      box.className = "interpSharedBox";
+      box.innerHTML = html;
       grid.insertAdjacentElement("afterend", box);
+    } else {
+      box.className = "interpSharedBox";
+      box.innerHTML = html;
     }
   }
 
