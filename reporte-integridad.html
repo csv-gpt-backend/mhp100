@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN 23 7 48 Integridad -  Reporte (AFINADO)</title>
+  <title>LUN23 1133Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -538,16 +538,17 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
       <div class="row2">
         <div class="mini">
           <div class="mini-title">Curva de distribución</div>
-          <div class="curve">
-            <div class="curve-caption" id="curveCaption">Tu puntaje: —</div>
+          <div class="curveMetalWrap" style="position:relative;border-radius:16px;padding:36px 12px 12px;background:linear-gradient(180deg,#ffffff 0%, #f8fafc 100%);box-shadow:0 12px 28px rgba(0,0,0,.08);overflow:hidden">
+            <div class="curve-caption" id="curveCaption" style="position:absolute;top:10px;left:12px;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#334155;margin:0;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.86);box-shadow:0 10px 22px rgba(0,0,0,.10);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">Tu puntaje: —</div>
 
-            <div class="curve-gauge" style="position:relative; width:100%; height:220px; margin-top:6px;">
+            <div class="curve-gauge" style="position:relative;width:100%;height:220px;margin-top:6px;">
               <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución"
-                   style="width:100%; height:220px; object-fit:contain; display:block;"/>
+                   style="width:100%;height:220px;object-fit:contain;display:block;"/>
+
               <div id="curveMarker" aria-hidden="true"
-                   style="position:absolute; left:50%; bottom:26px; width:0; height:0; z-index:3; pointer-events:none;">
+                   style="position:absolute;left:50%;bottom:26px;width:0;height:0;z-index:3;pointer-events:none;">
                 <svg width="30" height="54" viewBox="0 0 18 30"
-                     style="position:absolute; left:0; bottom:0; transform:translateX(-50%); display:block; overflow:visible;">
+                     style="position:absolute;left:0;bottom:0;transform:translateX(-50%);display:block;overflow:visible;">
                   <defs>
                     <linearGradient id="blkMain" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%"   stop-color="#0b0b0b"/>
@@ -590,7 +591,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
               </div>
             </div>
           </div>
-          </div>
+</div>
         </div>
 
         <div class="mini">
@@ -913,34 +914,49 @@ function dispBloque(name){
     return 2;
   }
 
-  function drawBellCurve(){
-    const path = document.getElementById("bellPath");
-    const fill = document.getElementById("bellFill");
-    if(!path || !fill) return;
-    const left=10, right=510, baseY=100, topY=18;
-    const mid=(left+right)/2, sigma=90;
-    const pts=[];
-    for(let x=left; x<=right; x+=5){
-      const z=(x-mid)/sigma;
-      const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
-      pts.push([x,y]);
-    }
-    let d=`M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
-    for(let i=1;i<pts.length;i++) d += ` L${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}`;
-    path.setAttribute("d", d);
-    const df = d + ` L${right} ${baseY} L${left} ${baseY} Z`;
-    fill.setAttribute("d", df);
-  }
+  // Curva metálica (imagen fija) + marcador dinámico (igual a Emocional)
+  function setCurveMarker(score){
+    const val = clamp(Number(score)||0, 1, 100);
 
-  function setCurveMarkerOld(iie){
-    drawBellCurve();
-    const left=10, right=510, baseY=100, topY=18, mid=260, sigma=90;
-    const score = clamp(Number(iie)||0,1,100);
-    const x = left + (score-1)/99*(right-left);
-    const z=(x-mid)/sigma;
-    const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
-    const dot = document.getElementById("curveMarker");
-    if(dot){ dot.setAttribute("cx", x); dot.setAttribute("cy", y); }
+    const wrap = document.querySelector(".curve-gauge");
+    const img  = document.getElementById("freqCurveImg");
+    const mk   = document.getElementById("curveMarker");
+    if(!wrap || !img || !mk) return;
+
+    const place = () => {
+      const rW = wrap.getBoundingClientRect();
+      const rI = img.getBoundingClientRect();
+      if (rI.width <= 2 || rI.height <= 2) return;
+
+      const nW = img.naturalWidth  || 1;
+      const nH = img.naturalHeight || 1;
+      const scale = Math.min(rI.width / nW, rI.height / nH);
+      const drawnW = nW * scale;
+      const offsetXInsideImg = (rI.width - drawnW) / 2;
+
+      const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+      const usableW = drawnW;
+
+      // Calibración horizontal (misma que Emocional)
+      const padL = usableW * 0.12;
+      const padR = usableW * 0.16;
+
+      const t = (val - 1) / 99; // 1..100 -> 0..1 exacto
+      const minX = leftInWrap + padL;
+      const maxX = leftInWrap + usableW - padR;
+      let x = minX + t * (maxX - minX);
+      x = Math.max(minX, Math.min(maxX, x));
+      mk.style.left = `${x}px`;
+
+      // Calibración vertical (regla inclinada)
+      const bottomAt0 = 94;
+      const bottomAt100 = 26;
+      const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+      mk.style.bottom = `${y}px`;
+    };
+
+    if(img.complete) requestAnimationFrame(place);
+    else img.addEventListener("load", () => requestAnimationFrame(place), { once:true });
   }
 
   function addRow(container, name, pct){
@@ -2026,6 +2042,7 @@ if (h1 && h2) h2.innerHTML = h1.innerHTML;
   const vals = [pHon,pRec,pJus,pVer].filter(v => typeof v === "number" && v > 0);
   const ivi = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
   document.getElementById("repIVI").textContent = ivi || "—";
+  // buildCurveSvg() deshabilitado (usamos curva metálica)
   setCurveMarker(ivi || 0);
 
   
@@ -2140,7 +2157,7 @@ sellos: sellos,
 }
 
 
-function buildCurveSvg(){
+function buildCurveSvgOld(){
   const svg = document.getElementById("curveSvg");
   const line = document.getElementById("curveLine");
   const fill = document.getElementById("curveFill");
@@ -2163,54 +2180,12 @@ function buildCurveSvg(){
   fill.setAttribute("d", dFill);
 }
 
-function setCurveMarker(pct){
+function setCurveMarkerOld(pct){
+  const el = document.getElementById("curveMarker");
   const cap = document.getElementById("curveCaption");
-  const wrap = document.querySelector(".mini .curve .curve-gauge");
-  const img  = document.getElementById("freqCurveImg");
-  const mk   = document.getElementById("curveMarker");
-
-  const score = clamp(Number(pct)||0, 1, 100);
-  if (cap) cap.textContent = `Tu puntaje: ${score}`;
-
-  if(!wrap || !img || !mk) return;
-
-  const place = () => {
-    const rW = wrap.getBoundingClientRect();
-    const rI = img.getBoundingClientRect();
-    if (rI.width <= 2 || rI.height <= 2) return;
-
-    const natW = img.naturalWidth  || 1;
-    const natH = img.naturalHeight || 1;
-    const scale = Math.min(rI.width / natW, rI.height / natH);
-    const drawnW = natW * scale;
-    const offsetXInsideImg = (rI.width - drawnW) / 2;
-
-    const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
-
-    // Calibración horizontal (igual que Emocional)
-    const padL = drawnW * 0.12;
-    const padR = drawnW * 0.16;
-    const minX = leftInWrap + padL;
-    const maxX = leftInWrap + drawnW - padR;
-
-    const t = (score - 1) / 99; // 1..100 -> 0..1 exacto
-
-    let x = minX + t * (maxX - minX);
-    x = Math.max(minX, Math.min(maxX, x));
-    mk.style.left = `${x}px`;
-
-    // Toque mágico vertical (regla inclinada)
-    const bottomAt0 = 94;
-    const bottomAt100 = 26;
-    const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
-    mk.style.bottom = `${y}px`;
-  };
-
-  if (img.complete) {
-    requestAnimationFrame(place);
-  } else {
-    img.addEventListener("load", () => requestAnimationFrame(place), { once:true });
-  }
+  const p = Math.max(0, Math.min(100, Number(pct)||0));
+  if (el) el.style.left = p + "%";
+  if (cap) cap.textContent = "Tu puntaje: " + Math.round(p) + " / 100";
 }
 
 function extractAnswers(attempt){
@@ -2628,14 +2603,11 @@ function exportJSON(){
     const c = (qp.get("codigo")||"").trim().toUpperCase();
     if(c){
       document.getElementById("codigoInput").value=c;
-      
       const msg = document.getElementById("msg");
-      if(msg){ msg.textContent = "Código listo. Presiona Ver reporte."; msg.className="msg ok"; }
-      // NO cargar automáticamente; esperar click
-}
+      if(msg){ msg.textContent = "Código listo. Presiona Ver reporte."; msg.className = "msg ok"; }
+      // NO autoload: espera el click en "Ver reporte"
+    }
   })();
-  // Estado inicial
-  (function(){ const rc=document.getElementById('reporteContainer'); if(rc) rc.style.display='none';})();
   // === FIX PDF: Chrome a veces NO imprime SVG con filtros (feDropShadow) ===
 (function fixCurveForPrint(){
   const fill = document.getElementById("curveFill");
