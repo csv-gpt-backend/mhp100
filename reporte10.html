@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title> 19 22  Inteligencia Emocional – Reporte u</title>
+  <title> 19 36  Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1649,7 +1649,29 @@ cont.appendChild(lista);
     const mkList=(title, items)=>{
       const t=document.createElement("div"); t.className="plan-section-title"; t.textContent=title; cont.appendChild(t);
       const ul=document.createElement("ul"); ul.className="recom-list";
-      items.forEach(x=>{ const li=document.createElement("li"); li.textContent=x; ul.appendChild(li); });
+
+      // items: [{grp, txt}, ...]  -> render 1 title per grp + bullets
+      let lastGrp = null;
+      items.forEach((it, idx)=>{
+        const grp = it && typeof it === "object" ? it.grp : null;
+        const txt = it && typeof it === "object" ? it.txt : String(it ?? "");
+
+        if(grp && grp !== lastGrp){
+          const liHead=document.createElement("li");
+          liHead.textContent = grp + ":";
+          liHead.style.fontWeight = "800";
+          liHead.style.listStyle = "none";
+          liHead.style.marginTop = (lastGrp===null ? "0" : "10px");
+          ul.appendChild(liHead);
+          lastGrp = grp;
+        }
+
+        const li=document.createElement("li");
+        li.textContent = txt;
+        li.style.marginLeft = "18px"; // un poco más a la derecha
+        ul.appendChild(li);
+      });
+
       cont.appendChild(ul);
     };
         // ===== Plan por rol basado en los focos Top 3 =====
@@ -1664,9 +1686,9 @@ cont.appendChild(lista);
       const keyDisp = (f.key === "AGRESION") ? "AGRESIÓN" : (f.key === "VINCULOS INTERPERSONALES") ? "VÍNCULOS INTERPERSONALES" : f.key;
 
       // Agregamos 1–2 acciones por foco y rol (para que no sea infinito)
-      (pack.hogar || []).slice(0,2).forEach(x => hogar.push(`${keyDisp}: ${x}`));
-      (pack.aula  || []).slice(0,2).forEach(x => aula.push(`${keyDisp}: ${x}`));
-      (pack.apoyo || []).slice(0,2).forEach(x => apoyo.push(`${keyDisp}: ${x}`));
+      (pack.hogar || []).slice(0,2).forEach(x => hogar.push({ grp: keyDisp, txt: x }));
+      (pack.aula  || []).slice(0,2).forEach(x => aula.push({ grp: keyDisp, txt: x }));
+      (pack.apoyo || []).slice(0,2).forEach(x => apoyo.push({ grp: keyDisp, txt: x }));
     });
 
 
