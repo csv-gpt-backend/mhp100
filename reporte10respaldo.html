@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title> 18 33 Inteligencia Emocional – Reporte u</title>
+  <title> 19 22  Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1517,50 +1517,81 @@ const RECOM_ESTILOS = {
     const nInter = nivelFromPct(extras.bInter);
     const nPV    = nivelFromPct(extras.bPV);
 
-    (RECOM_BLOQUES.intra[nIntra] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "DESARROLLO PERSONAL: " + t; lista.appendChild(li); });
-    (RECOM_BLOQUES.inter[nInter] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "VÍNCULOS INTERPERSONALES: " + t; lista.appendChild(li); });
-    (RECOM_BLOQUES.vida[nPV] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "HABILIDADES PARA LA VIDA: " + t; lista.appendChild(li); });
+    // Helper: 1 título por bloque + sus viñetas
+    const addGroup = (title, items, opts={}) => {
+      if(!items || !items.length) return;
+      const liHead = document.createElement("li");
+      liHead.textContent = title + ":";
+      liHead.style.fontWeight = "800";
+      if(opts.marginTop) liHead.style.marginTop = opts.marginTop;
+      lista.appendChild(liHead);
 
-    // Encabezado único para Comunicación Interpersonal
+      items.forEach(txt=>{
+        const li=document.createElement("li");
+        li.textContent = txt;
+        lista.appendChild(li);
+      });
+    };
+
+    addGroup("DESARROLLO PERSONAL",      RECOM_BLOQUES.intra[nIntra] || []);
+    addGroup("VÍNCULOS INTERPERSONALES", RECOM_BLOQUES.inter[nInter] || []);
+    addGroup("HABILIDADES PARA LA VIDA", RECOM_BLOQUES.vida[nPV]   || []);
+
+    // Comunicación interpersonal (baja una línea y evita duplicar Timidez/Agresión)
     if (extras.timidezVal != null || extras.agresionVal != null){
       const liHead = document.createElement("li");
       liHead.textContent = "COMUNICACIÓN INTERPERSONAL:";
       liHead.style.fontWeight = "800";
+      liHead.style.marginTop = "10px"; // baja una línea
       lista.appendChild(liHead);
-    }
-// Timidez (invertida)
-if (extras.timidezVal != null){
-  const nivT = nivelFromPctInv(extras.timidezVal, true); // invertido
-  (RECOM_ESTILOS.timidez[nivT] || []).forEach(txt=>{
-    const li=document.createElement("li");
-    li.textContent = `Timidez: ${txt}`;
-    lista.appendChild(li);
-  });
-}
 
-// Agresión (invertida)
-if (extras.agresionVal != null){
-  const nivA = nivelFromPctInv(extras.agresionVal, true); // invertido
-  (RECOM_ESTILOS.agresion[nivA] || []).forEach(txt=>{
-    const li=document.createElement("li");
-    li.textContent = `Agresión: ${txt}`;
-    lista.appendChild(li);
-  });
-}
+      // Timidez (invertida)
+      if (extras.timidezVal != null){
+        const liSub = document.createElement("li");
+        liSub.textContent = "Timidez:";
+        liSub.style.fontWeight = "700";
+        lista.appendChild(liSub);
 
-    if(extras.propCambioVal != null){
-      if(extras.propCambioVal <= 40){
-        const li=document.createElement("li");
-        li.textContent = "ADAPTACIÓN AL CAMBIO: acompañar procesos de cambio con anticipación y tiempos de adaptación.";
-        lista.appendChild(li);
-      } else if(extras.propCambioVal >= 71){
-        const li=document.createElement("li");
-        li.textContent = "ADAPTACIÓN AL CAMBIO: aprovechar apertura para proyectos innovadores e iniciativas de mejora.";
-        lista.appendChild(li);
+        const nivT = nivelFromPctInv(extras.timidezVal, true);
+        (RECOM_ESTILOS.timidez[nivT] || []).forEach(txt=>{
+          const li=document.createElement("li");
+          li.textContent = txt;
+          lista.appendChild(li);
+        });
+      }
+
+      // Agresión
+      if (extras.agresionVal != null){
+        const liSub = document.createElement("li");
+        liSub.textContent = "Agresión:";
+        liSub.style.fontWeight = "700";
+        liSub.style.marginTop = "6px";
+        lista.appendChild(liSub);
+
+        const nivA = nivelFromPctInv(extras.agresionVal, true);
+        (RECOM_ESTILOS.agresion[nivA] || []).forEach(txt=>{
+          const li=document.createElement("li");
+          li.textContent = txt;
+          lista.appendChild(li);
+        });
       }
     }
 
-    cont.appendChild(lista);
+    // Adaptación al cambio (resaltado como Comunicación)
+    if(extras.propCambioVal != null){
+      let txt = null;
+      if(extras.propCambioVal <= 40){
+        txt = "Acompañar procesos de cambio con anticipación y tiempos de adaptación.";
+      } else if(extras.propCambioVal >= 71){
+        txt = "Aprovechar apertura para proyectos innovadores e iniciativas de mejora.";
+      } else {
+        txt = "Mantener flexibilidad y apertura gradual ante cambios cotidianos.";
+      }
+
+      addGroup("ADAPTACIÓN AL CAMBIO", [txt], { marginTop: "10px" });
+    }
+
+cont.appendChild(lista);
   }
 
   function renderPlanAccion(extras){
