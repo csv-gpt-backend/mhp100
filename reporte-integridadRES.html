@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN23 14 15  Integridad -  Reporte (AFINADO)</title>
+  <title>LUN23 14 32  Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -863,23 +863,42 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
         Los <b>sellos</b> resumen el nivel general de integridad según el <b>IVI</b>. Además, los indicadores de <b>incoherencia</b> y <b>contradicción</b> muestran qué tan consistentes fueron las respuestas: si aparecen alertas, el resultado se puede interpretar, pero <b>con más cuidado</b>.
       </p>
 
-      <div class="iviGuideTitle">Guía rápida por etapa (según sellos)</div>
+      
+      <div class="iviGuideTitle" id="iviGuideTitle">Guía rápida por etapa (según sellos)</div>
 
-      <table class="iviGuideTable" aria-label="Guía de lectura por etapa según sellos">
-        <thead>
-          <tr>
-            <th>Sellos</th>
-            <th>Secundaria / Preparatoria</th>
-            <th>Adulto / Profesional</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr id="guideS1"><td><b>1 sello</b></td><td>Requiere acompañamiento</td><td>No recomendado</td></tr>
-          <tr id="guideS2"><td><b>2 sellos</b></td><td>En formación</td><td>Con reserva</td></tr>
-          <tr id="guideS3"><td><b>3 sellos</b></td><td>Íntegro <span class="muted">(leer con más cuidado)</span></td><td>Recomendable <span class="muted">(leer con más cuidado)</span></td></tr>
-          <tr id="guideS4"><td><b>4 sellos</b></td><td>Muy íntegro</td><td>Muy recomendable</td></tr>
-        </tbody>
-      </table>
+      <div id="guideEscolarWrap">
+        <table class="iviGuideTable" aria-label="Guía de lectura escolar según sellos">
+          <thead>
+            <tr>
+              <th>Sellos</th>
+              <th>Secundaria / Preparatoria</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="guideEscS1"><td><b>1 sello</b></td><td>Requiere acompañamiento</td></tr>
+            <tr id="guideEscS2"><td><b>2 sellos</b></td><td>En formación</td></tr>
+            <tr id="guideEscS3"><td><b>3 sellos</b></td><td>Íntegro <span class="muted">(leer con más cuidado)</span></td></tr>
+            <tr id="guideEscS4"><td><b>4 sellos</b></td><td>Muy íntegro</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="guideAdultoWrap" style="display:none">
+        <table class="iviGuideTable" aria-label="Guía de lectura adulto/profesional según sellos">
+          <thead>
+            <tr>
+              <th>Sellos</th>
+              <th>Adulto / Profesional</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="guideProS1"><td><b>1 sello</b></td><td>No recomendado</td></tr>
+            <tr id="guideProS2"><td><b>2 sellos</b></td><td>Con reserva</td></tr>
+            <tr id="guideProS3"><td><b>3 sellos</b></td><td>Recomendable <span class="muted">(leer con más cuidado)</span></td></tr>
+            <tr id="guideProS4"><td><b>4 sellos</b></td><td>Muy recomendable</td></tr>
+          </tbody>
+        </table>
+      </div>
 
       <div class="muted" style="font-size:12px;margin-top:8px">
         Nota: Los índices de validación (incoherencia y contradicción) indican cuánta confianza tener en la interpretación.
@@ -2203,6 +2222,7 @@ if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} ${pt === 1 ? "pt" : "p
 
 const sellos = calcSellos(ivi, incohSafe, nc);
 paintSellos(sellos);
+  toggleGuideByCode(getCurrentReportCode(attempt));
 updateGuideBySellos(sellos);
   
 
@@ -2407,14 +2427,53 @@ function paintSellos(n){
   });
 }
 
+
+function isAdultCodeByPrefix(code){
+  const c = String(code || "").trim().toUpperCase();
+  return c.startsWith("PRO");
+}
+
+function getCurrentReportCode(attempt){
+  return (
+    attempt?.codigo ||
+    attempt?.code ||
+    attempt?.folio ||
+    attempt?.clave ||
+    attempt?.snapshot?.codigo ||
+    attempt?.snapshot?.code ||
+    document.getElementById("codigoInput")?.value ||
+    ""
+  );
+}
+
+function toggleGuideByCode(code){
+  const isAdult = isAdultCodeByPrefix(code);
+  const esc = document.getElementById("guideEscolarWrap");
+  const pro = document.getElementById("guideAdultoWrap");
+  const title = document.getElementById("iviGuideTitle");
+  if (esc) esc.style.display = isAdult ? "none" : "";
+  if (pro) pro.style.display = isAdult ? "" : "none";
+  if (title){
+    title.textContent = isAdult
+      ? "Guía rápida Adulto / Profesional (según sellos)"
+      : "Guía rápida Secundaria / Preparatoria (según sellos)";
+  }
+}
+
 function updateGuideBySellos(n){
-  const ids = ["guideS1","guideS2","guideS3","guideS4"];
-  ids.forEach(id=>{
-    const tr = document.getElementById(id);
-    if (tr) tr.classList.remove("is-active");
+  const groups = [
+    ["guideEscS1","guideEscS2","guideEscS3","guideEscS4"],
+    ["guideProS1","guideProS2","guideProS3","guideProS4"]
+  ];
+
+  groups.forEach(ids => {
+    ids.forEach(id => {
+      const tr = document.getElementById(id);
+      if (tr) tr.classList.remove("is-active");
+    });
+    const active = document.getElementById(ids[Math.max(1, Math.min(4, Number(n)||1)) - 1]);
+    if (active) active.classList.add("is-active");
   });
-  const active = document.getElementById("guideS"+String(n));
-  if (active) active.classList.add("is-active");
 }
 
 
