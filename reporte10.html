@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN 23 19 29  Inteligencia Emocional – Reporte u</title>
+  <title>LUN 23 18 47  Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1528,7 +1528,7 @@ const RECOM_ESTILOS = {
 
       items.forEach(txt=>{
         const li=document.createElement("li");
-        li.textContent = txt;
+        li.textContent = textoPlanClaro(txt);
         lista.appendChild(li);
       });
     };
@@ -1599,6 +1599,76 @@ cont.appendChild(lista);
     if(!cont) return;
     cont.innerHTML = "";
 
+    const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
+    const esProfesional = codigoActual.startsWith("PRO");
+
+    const textoPlanClaro = (s) => {
+      if (s == null) return "";
+      let t = String(s);
+
+      // Expandir abreviaturas para lenguaje más claro
+      t = t.replace(/\b(\d+)\s*min\b/gi, "$1 minutos");
+      t = t.replace(/\b(\d+)\s*veces\/sem\b/gi, "$1 veces por semana");
+      t = t.replace(/\b(\d+)\s*vez\/sem\b/gi, "$1 vez por semana");
+      t = t.replace(/\b(\d+)\s*conversaciones\/sem\b/gi, "$1 conversaciones por semana");
+      t = t.replace(/\b(\d+)\s*prácticas\/sem\b/gi, "$1 prácticas por semana");
+      t = t.replace(/\b(\d+)\s*bloques\/sem\b/gi, "$1 bloques por semana");
+      t = t.replace(/\b(\d+)\s*rol(?:es)?\/sem\b/gi, (m)=> m.replace("/sem", " por semana"));
+      t = t.replace(/\b(\d+)\s*días\/sem\b/gi, "$1 días por semana");
+      t = t.replace(/\bsem\.?\b/gi, "semana");
+      t = t.replace(/\bquincenal\b/gi, "cada dos semanas");
+      t = t.replace(/\bsemanal\b/gi, "cada semana");
+      t = t.replace(/\bmensual\b/gi, "cada mes");
+
+      // Quitar abreviaciones molestas o texto truncado
+      t = t.replace(/pr\.\.\./g, "primero con acciones para la persona evaluada y luego con apoyos");
+      t = t.replace(/\.\.\./g, " ");
+
+      // Aterrizar acciones ambiguas con ejemplos concretos
+      t = t.replace(
+        /Escucha activa \(2 conversaciones[^:]*:\s*/i,
+        "Escucha activa (2 conversaciones por semana con una persona de confianza, familiar, compañero o colega, sobre temas cotidianos como tareas, acuerdos o actividades del día): "
+      );
+      t = t.replace(
+        /resumir lo entendido y hacer 1 pregunta de aclaración antes de responder\.?/i,
+        "escuchar sin interrumpir, resumir con una frase lo entendido y hacer una pregunta de aclaración antes de responder."
+      );
+      t = t.replace(
+        /Reconocer conductas prosociales y cooperación: señalar conductas concretas \(ej\. /i,
+        "Reconocer conductas prosociales y cooperación: reforzar con ejemplos concretos (por ejemplo, "
+      );
+      t = t.replace(
+        /Participar en una actividad grupal con rol definido \(1 vez por semana\): /i,
+        "Participar en una actividad grupal con rol definido (1 vez por semana, por ejemplo en una dinámica de clase, tarea familiar, reunión de equipo o actividad de trabajo): "
+      );
+      t = t.replace(
+        /Bloques de trabajo 20–25 minutos \(2–3 veces por semana\): /i,
+        "Bloques de trabajo de 20 a 25 minutos (2 a 3 veces por semana): elegir una tarea concreta (estudiar, avanzar una tarea, ordenar materiales, responder pendientes o preparar una actividad), "
+      );
+      t = t.replace(
+        /Asignar un rol pequeño de iniciativa 1 vez por semana \(coordinar una parte, recordar una tarea, controlar tiempo o confirmar acuerdos\) con supervisión y cierre breve\.?/i,
+        "Asumir un rol pequeño de iniciativa 1 vez por semana (por ejemplo, coordinar una parte, recordar una tarea, controlar el tiempo o confirmar acuerdos) con supervisión y cierre breve."
+      );
+      t = t.replace(
+        /Checklist de 3 prioridades por día \(4 días por semana\)\.?/i,
+        "Al iniciar el día o la tarde, escribir 3 prioridades en una hoja (1 tarea importante, 1 tarea corta y 1 tarea de cierre) y marcar cada una al completarla, 4 días por semana."
+      );
+
+      // Hacer indicadores más observables (sin cambiar la lógica)
+      if (/^Indicador:/i.test(t)) return t;
+      if (/registro|checklist|anotar|anotada|evidencia/i.test(t) === false && /indicador/i.test(t)) {
+        t += " Registrar cumplimiento en una nota breve.";
+      }
+
+      return t.replace(/\s{2,}/g, " ").trim();
+    };
+
+    const tituloPorCodigo = {
+      hogar: esProfesional ? "En casa / entorno personal (acciones de apoyo sugeridas según puntajes):" : "En el hogar / familia (acciones sugeridas según puntajes):",
+      aula: esProfesional ? "En el trabajo / equipo (acciones sugeridas según puntajes):" : "En el aula / institución educativa (acciones sugeridas según puntajes):",
+      apoyo: esProfesional ? "Con apoyo de supervisión / mentor / Recursos Humanos (acciones sugeridas según puntajes):" : "Con apoyo del orientador / psicólogo / Recursos Humanos (acciones sugeridas según puntajes):"
+    };
+
     const header=document.createElement("div");
     header.className="interp-bloque-header";
     header.innerHTML = `<div class="interp-bloque-nombre">Plan de acción sugerido</div>`;
@@ -1636,10 +1706,10 @@ cont.appendChild(lista);
       sec.className = "plan-focus-item";
       sec.innerHTML = `
 <div class="plan-focus-head"><b>${(f.key==="AGRESION"?"AGRESIÓN":(f.key==="VINCULOS INTERPERSONALES"?"VÍNCULOS INTERPERSONALES":f.key))}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
-        <div class="plan-focus-obj"><b>Objetivo:</b> ${pack.objetivo}</div>
-        <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(a)}</li>`).join("")}</ul>
-        <div class="plan-focus-meta"><b>Indicador:</b> ${pack.indicador}</div>
-        <div class="plan-focus-meta"><b>Revisión:</b> ${pack.revision}</div>
+        <div class="plan-focus-obj"><b>Objetivo:</b> ${escapeHtml(textoPlanClaro(pack.objetivo))}</div>
+        <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(textoPlanClaro(a))}</li>`).join("")}</ul>
+        <div class="plan-focus-meta"><b>Indicador:</b> ${escapeHtml(textoPlanClaro(pack.indicador + " Registrar cumplimiento en una nota breve o checklist."))}</div>
+        <div class="plan-focus-meta"><b>Revisión:</b> ${escapeHtml(textoPlanClaro(pack.revision))}</div>
       `;
       box.appendChild(sec);
     });
@@ -1692,9 +1762,9 @@ cont.appendChild(lista);
     });
 
 
-    if(hogar.length) mkList("En el hogar / familia (acciones sugeridas según puntajes):", hogar);
-    if(aula.length)  mkList("En el aula / institución educativa (acciones sugeridas según puntajes):", aula);
-    if(apoyo.length) mkList("Con apoyo del orientador / psicólogo / HR (acciones sugeridas según puntajes):", apoyo);
+    if(hogar.length) mkList(tituloPorCodigo.hogar, hogar);
+    if(aula.length)  mkList(tituloPorCodigo.aula, aula);
+    if(apoyo.length) mkList(tituloPorCodigo.apoyo, apoyo);
     // ===== Fin plan por rol =====
 
     const mkLinks=(title, links)=>{
@@ -1737,7 +1807,7 @@ cont.appendChild(lista);
       { text: "NHS: ejercicios de respiración para estrés y ansiedad", href: "https://www.nhs.uk/mental-health/self-help/guides-tools-and-activities/breathing-exercises-for-stress/" }
     ]);
 
-    mkLinks("Recursos de apoyo (Laboral) — opcionales", [
+    mkLinks("Recursos de apoyo (Profesional) — opcionales", [
       { text: "OMS/WHO: salud mental en el trabajo (recomendaciones)", href: "https://www.who.int/news-room/fact-sheets/detail/mental-health-at-work" },
       { text: "APA: herramientas prácticas para manejo del estrés", href: "https://www.apa.org/topics/stress/manage-stress-tools" },
       { text: "CDC/NIOSH: estrés en el trabajo (prevención y estrategias)", href: "https://www.cdc.gov/niosh/stress/about/index.html" }
