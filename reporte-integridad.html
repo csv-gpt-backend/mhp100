@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>MART 24 12 25  Integridad -  Reporte (AFINADO)</title>
+  <title>MART 24 12 58  Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -2051,10 +2051,18 @@ function dispBloque(name){
     ];
     items.forEach(it => it.nivel = nivelFromPct(it.pct));
     const ord = { bajo: 0, medio: 1, alto: 2 };
-    items.sort((a,b)=> (ord[a.nivel]??9) - (ord[b.nivel]??9));
+    // Prioridad real: primero nivel (bajo→medio→alto) y, dentro del mismo nivel,
+    // menor puntaje primero (más necesidad de acompañamiento). Esto evita el "plan B"
+    // por orden fijo cuando todas las habilidades quedan en nivel alto.
+    items.sort((a,b)=>{
+      const byNivel = (ord[a.nivel]??9) - (ord[b.nivel]??9);
+      if (byNivel !== 0) return byNivel;
+      const pa = Number.isFinite(Number(a.pct)) ? Number(a.pct) : 999;
+      const pb = Number.isFinite(Number(b.pct)) ? Number(b.pct) : 999;
+      return pa - pb;
+    });
 
-    const candidatos = items.filter(x => x.nivel !== "alto");
-    const focos = (candidatos.length ? candidatos : items).slice(0,3);
+    const focos = items.slice(0,3);
 
     const box = document.createElement("div");
     box.className = "plan-focus-box";
