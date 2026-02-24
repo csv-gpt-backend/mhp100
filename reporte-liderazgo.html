@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>MART 24 17 03Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -24,7 +24,10 @@
   .r3{text-align:center;font-weight:800;font-size:17px}
   .box{border:1px solid #000;padding:6px;font-size:12px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .curveBox{height:220px;border:1px solid #dbe1ea;border-radius:8px;padding:8px;background:linear-gradient(180deg,#f8fafc,#fff)}
+  .curveBox{position:relative;height:220px;border:1px solid #dbe1ea;border-radius:8px;padding:8px;background:linear-gradient(180deg,#f8fafc,#fff)}
+.curveGauge{position:relative;width:100%;height:100%}
+.curveGauge img{width:100%;height:100%;object-fit:contain;display:block}
+.curveMarker{position:absolute;left:50%;bottom:26px;width:0;height:0;z-index:3;pointer-events:none}
   .iv th,.iv td{border:1px solid #111;padding:6px;font-size:12px}
   .iv{width:100%;border-collapse:collapse}
   .hl{background:var(--yellow)}
@@ -73,15 +76,20 @@
         <div>
           <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
           <div class="curveBox">
-            <svg id="curve" width="100%" height="100%" viewBox="0 0 520 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Curva de referencia">
-              <path d="M20,150 C120,150 140,40 260,40 C380,40 400,150 500,150" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round"/>
-              <line x1="20" y1="150" x2="500" y2="150" stroke="#e5e7eb" stroke-width="2"/>
-              <g id="marker"></g>
-              <text x="20" y="168" font-size="11" fill="#64748b">0</text>
-              <text x="207" y="168" font-size="11" fill="#64748b">39</text>
-              <text x="309" y="168" font-size="11" fill="#64748b">60</text>
-              <text x="500" y="168" font-size="11" fill="#64748b" text-anchor="end">100</text>
-            </svg>
+            <div class="curveGauge">
+              <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución"/>
+              <div id="curveMarker" class="curveMarker" aria-hidden="true">
+                <svg width="30" height="54" viewBox="0 0 18 30" style="position:absolute;left:0;bottom:0;transform:translateX(-50%);display:block;overflow:visible;">
+                  <defs>
+                    <linearGradient id="blkMain" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#1a1a1a"/><stop offset="28%" stop-color="#2b2b2b"/><stop offset="55%" stop-color="#111"/><stop offset="78%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="6" y="0" width="6" height="16" rx="1.2" fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+                  <path d="M9 30 L2 16 H16 Z" fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
         <div style="margin-top:24px">
@@ -197,17 +205,45 @@ function categoriaClass(p){
   return 'high';
 }
 function setMarker(p){
-  const g = $('#marker'); if (!g) return;
-  g.innerHTML = '';
-  const n = Math.max(0, Math.min(100, Number(p)||0));
-  const x = 20 + (480*(n/100));
-  const line = document.createElementNS("http://www.w3.org/2000/svg","line");
-  line.setAttribute("x1",x); line.setAttribute("x2",x);
-  line.setAttribute("y1","25"); line.setAttribute("y2","150");
-  line.setAttribute("stroke","#0f172a"); line.setAttribute("stroke-width","2"); line.setAttribute("opacity","0.55");
-  const circ = document.createElementNS("http://www.w3.org/2000/svg","circle");
-  circ.setAttribute("cx",x); circ.setAttribute("cy","150"); circ.setAttribute("r","6"); circ.setAttribute("fill","#0f172a");
-  g.appendChild(line); g.appendChild(circ);
+  const s = Math.max(0, Math.min(100, Number(p)||0));
+  const wrap = document.querySelector('.curveGauge');
+  const img  = document.getElementById('freqCurveImg');
+  const mk   = document.getElementById('curveMarker');
+  if(!wrap || !img || !mk) return;
+
+  const place = () => {
+    const rW = wrap.getBoundingClientRect();
+    const rI = img.getBoundingClientRect();
+    const natW = img.naturalWidth || 1;
+    const natH = img.naturalHeight || 1;
+
+    // object-fit: contain
+    const scale = Math.min(rI.width/natW, rI.height/natH);
+    const drawnW = natW * scale;
+    const offsetXInsideImg = (rI.width - drawnW)/2;
+
+    const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+
+    // Calibración acordada (reutilizable)
+    const padL = drawnW * 0.12;
+    const padR = drawnW * 0.16;
+    const minX = leftInWrap + padL;
+    const maxX = leftInWrap + drawnW - padR;
+
+    const t = s / 100;
+    mk.style.left = `${minX + t*(maxX-minX)}px`;
+
+    // Inclinación visual de la curva (base del marcador)
+    const bottomAt0 = 94;
+    const bottomAt100 = 26;
+    mk.style.bottom = `${bottomAt0 + t*(bottomAt100-bottomAt0)}px`;
+  };
+
+  if (img.complete) requestAnimationFrame(place);
+  else img.addEventListener('load', () => requestAnimationFrame(place), {once:true});
+
+  // Recolocar si cambia el viewport
+  window.addEventListener('resize', place, { passive:true });
 }
 function highlightIV(prefix, idx){
   for (let i=0;i<3;i++){
