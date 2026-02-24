@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title> 16 39 marte 24 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -96,17 +96,17 @@
         </div>
       </div>
 
-      <div class="blk-title"><span>RELACIONES / CONTACTO</span><span>IA: <span class="badgeY" id="idxA">—</span></span></div>
+      <div class="blk-title"><span>INTERPERSONAL</span><span>IA: <span class="badgeY" id="idxA">—</span></span></div>
       <div class="bar-head"><div></div><div style="text-align:center">POR DESARROLLAR</div><div style="text-align:center">POR FORTALECER</div><div style="text-align:center">POR ENRIQUECER</div></div>
       <div id="bloqueA"></div>
 
-      <div class="blk-title"><span>INFLUENCIA / EJECUCIÓN</span><span>IB: <span class="badgeY" id="idxB">—</span></span></div>
+      <div class="blk-title"><span>DOMINIO DE LA SITUACIÓN</span><span>IB: <span class="badgeY" id="idxB">—</span></span></div>
       <div id="bloqueB"></div>
 
       <div class="blk-title"><span>RENDIMIENTO</span><span>IC: <span class="badgeY" id="idxC">—</span></span></div>
       <div id="bloqueC"></div>
 
-      <div class="blk-title"><span>JUICIO / DIRECCIÓN ESTRATÉGICA</span><span>ID: <span class="badgeY" id="idxD">—</span></span></div>
+      <div class="blk-title"><span>JUICIO</span><span>ID: <span class="badgeY" id="idxD">—</span></span></div>
       <div id="bloqueD"></div>
 
       <div class="iie">ÍNDICE GLOBAL DE FACTORES DE LIDERAZGO IFL: <span class="badgeB" id="iflBadge">—</span></div>
@@ -243,13 +243,14 @@ function adaptData(data){
   const snap = data.snapshot || attempt.snapshot || autosave.snapshot || participant.snapshot || {};
 
   const resultados = data.resultados || data.results || attempt.resultados || snap.resultados || {};
-  let subRows = Array.isArray(resultados?.subhabilidades) ? resultados.subhabilidades : [];
+  let subRows =
+    (Array.isArray(data.subhabilidades) && data.subhabilidades) ||
+    (Array.isArray(resultados?.subhabilidades) && resultados.subhabilidades) ||
+    (Array.isArray(data.factores) && data.factores) ||
+    (Array.isArray(data.subpruebas) && data.subpruebas) ||
+    [];
   let bloques = Array.isArray(resultados?.bloques) ? resultados.bloques : [];
-  const globales = resultados?.globales || {};
-
-  // Soporte adicional si el backend trae "factores" o "subpruebas"
-  if (!subRows.length && Array.isArray(data.factores)) subRows = data.factores;
-  if (!subRows.length && Array.isArray(data.subpruebas)) subRows = data.subpruebas;
+  const globales = data.globales || resultados?.globales || {};
 
   const canonRows = subRows.map((r)=> {
     const rawName = r.sub || r.name || r.factor || r.nombre || '';
@@ -277,24 +278,66 @@ function adaptData(data){
     C: ordered.filter(r=>r.bloque==='C'),
     D: ordered.filter(r=>r.bloque==='D'),
   };
-  const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+(Number(b.pct)||0),0)/arr.length) : null;
-  const pick = (...vals) => vals.find(v => v!==null && v!==undefined && v!=='' && !Number.isNaN(Number(v)));
-  const idxA = Number(pick(data.idxA, resultados.idxA, (bloques.find?.(b=>['a','ia','indice a','índice a'].includes(norm(b?.nombre||b?.indice||b?.bloque||'')))||{}).pct, avg(bloqueRows.A))) || 0;
-  const idxB = Number(pick(data.idxB, resultados.idxB, (bloques.find?.(b=>['b','ib','indice b','índice b'].includes(norm(b?.nombre||b?.indice||b?.bloque||'')))||{}).pct, avg(bloqueRows.B))) || 0;
-  const idxC = Number(pick(data.idxC, resultados.idxC, (bloques.find?.(b=>['c','ic','indice c','índice c'].includes(norm(b?.nombre||b?.indice||b?.bloque||'')))||{}).pct, avg(bloqueRows.C))) || 0;
-  const idxD = Number(pick(data.idxD, resultados.idxD, (bloques.find?.(b=>['d','id','indice d','índice d'].includes(norm(b?.nombre||b?.indice||b?.bloque||'')))||{}).pct, avg(bloqueRows.D))) || 0;
+  // Índices por bloque: prioridad al JSON real de liderazgo (bloqPercents)
+  const bloqPercents = data.bloqPercents || resultados.bloqPercents || {};
 
-  // IFL: primero explícito; fallback promedio de A/B/C/D
+  const avg = arr => arr.length
+    ? Math.round(arr.reduce((a,b)=>a+(Number(b.pct)||0),0)/arr.length)
+    : null;
+
+  const idxA = Number(
+    bloqPercents.A ??
+    data.idxA ??
+    resultados.idxA ??
+    avg(bloqueRows.A) ??
+    0
+  ) || 0;
+
+  const idxB = Number(
+    bloqPercents.B ??
+    data.idxB ??
+    resultados.idxB ??
+    avg(bloqueRows.B) ??
+    0
+  ) || 0;
+
+  const idxC = Number(
+    bloqPercents.C ??
+    data.idxC ??
+    resultados.idxC ??
+    avg(bloqueRows.C) ??
+    0
+  ) || 0;
+
+  const idxD = Number(
+    bloqPercents.D ??
+    data.idxD ??
+    resultados.idxD ??
+    avg(bloqueRows.D) ??
+    0
+  ) || 0;
+
+  // IFL (NO usar IIE heredado)
   const iflCandidates = [
-    data.ifl, resultados.ifl, resultados.IFL, data.globales?.IFL, globales?.IFL,
-    data.b_ifl, attempt.ifl, snap.ifl
+    data.ifl,
+    data.IFL,
+    resultados.ifl,
+    resultados.IFL,
+    globales.IFL,
+    attempt.ifl,
+    snap.ifl
   ];
-  let ifl = Number(iflCandidates.find(v => v!==undefined && v!==null && v!=='')) || 0;
-  if (!ifl) ifl = Math.round((idxA + idxB + idxC + idxD)/4);
 
-  const iv1 = Number(globales.IV1 ?? data.iv1 ?? attempt.iv1 ?? 0);
-  const iv2 = Number(globales.IV2 ?? data.iv2 ?? attempt.iv2 ?? 0);
-  const iv3 = Number(globales.IV3 ?? data.iv3 ?? attempt.iv3 ?? 0);
+  let ifl = Number(iflCandidates.find(v => v !== undefined && v !== null && v !== '')) || 0;
+
+  // Fallback: promedio de índices A/B/C/D
+  if (!ifl) {
+    ifl = Math.round((idxA + idxB + idxC + idxD) / 4);
+  }
+
+  const iv1 = Number(globales.IV1 ?? data.iv1 ?? attempt.iv1 ?? 0); // NA
+  const iv2 = Number(globales.IV2 ?? data.iv2 ?? attempt.iv2 ?? 0); // NC
+  const iv3 = Number(globales.IV3 ?? data.iv3 ?? attempt.iv3 ?? 0); // PT
 
   const aSnap = autosave.snapshot || {};
   const fechaBase = attempt.created_at || attempt.fecha || snap.fecha || aSnap.fecha || null;
@@ -364,9 +407,9 @@ async function cargar(){
     renderHeader(m.header, m.fechaTop);
     $('#contestadasLine').textContent = 'Contestadas: ' + m.contestadas;
 
-    setBadge('idxA', m.idxA || '—'); setBadge('idxB', m.idxB || '—');
-    setBadge('idxC', m.idxC || '—'); setBadge('idxD', m.idxD || '—');
-    setBadge('iflBadge', m.ifl || '—'); $('#iflText').textContent = m.ifl || '—';
+    setBadge('idxA', m.idxA ?? '—'); setBadge('idxB', m.idxB ?? '—');
+    setBadge('idxC', m.idxC ?? '—'); setBadge('idxD', m.idxD ?? '—');
+    setBadge('iflBadge', m.ifl ?? '—'); $('#iflText').textContent = m.ifl ?? '—';
 
     highlightIV('na', m.iv1); highlightIV('nc', m.iv2); highlightIV('pt', m.iv3);
     setMarker(m.ifl || 0);
