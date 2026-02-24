@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>MART 24 10 52  Integridad -  Reporte (AFINADO)</title>
+  <title>MART 24 11 05  Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -508,6 +508,9 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 .iviGuide{ margin-top:12px; padding-top:10px; border-top:1px dashed rgba(0,0,0,.12); }
 .iviGuideIntro{ margin:0 0 10px; font-size:13px; line-height:1.35; }
 .iviGuideTitle{ font-weight:800; font-size:13px; margin:8px 0 8px; text-transform:uppercase; letter-spacing:.4px; }
+.iviGuideTitleRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.iviGuideMiniSeal{width:22px;height:auto;opacity:.95;vertical-align:middle;}
+.iviGuideMiniSealLabel{font-size:12px;color:#4b5563;font-weight:600;}
 
 .iviGuideTable{
   width:min(860px, 92%);
@@ -645,7 +648,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 }
 
 #planAccion.interp-bloque{
-  margin-top: 10px;
+  margin-top: 14px;
   padding-top: 0;
 }
 
@@ -898,7 +901,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
       </p>
 
       
-      <div class="iviGuideTitle" id="iviGuideTitle">Guía rápida por etapa (según sellos)</div>
+      <div class="iviGuideTitle iviGuideTitleRow"><span id="iviGuideTitle">Guía rápida por etapa (según sellos)</span><img class="iviGuideMiniSeal" src="/assets/adalam_mini.png" alt="Sello Adalam de referencia"><span class="iviGuideMiniSealLabel">Ejemplo de sello</span></div>
 
       <div id="guideEscolarWrap">
         <table class="iviGuideTable" aria-label="Guía de lectura escolar según sellos">
@@ -1989,11 +1992,8 @@ function dispBloque(name){
 
     const sub = document.createElement("div");
     sub.className = "recom-subtitle";
-    sub.textContent = "Las siguientes recomendaciones se generan a partir de los puntajes obtenidos y pueden usarse como guía inicial de acompañamiento.";
+    sub.textContent = "Estas recomendaciones resumen los focos principales observados en Honestidad, Rectitud, Justicia y Veracidad. Sirven como orientación inicial; las acciones prácticas detalladas se presentan en el bloque de Plan de acción sugerido.";
     cont.appendChild(sub);
-
-    const lista = document.createElement("ul");
-    lista.className = "recom-list";
 
     const items = [
       {k:"Honestidad", v: extras.honestidad},
@@ -2006,14 +2006,25 @@ function dispBloque(name){
       const p = (it.v==null || Number.isNaN(it.v)) ? null : Math.round(Number(it.v));
       const n = nivelFromPct(p);
       const recs = (INTEGRIDAD_RECOM[it.k] && INTEGRIDAD_RECOM[it.k][n]) ? INTEGRIDAD_RECOM[it.k][n] : [];
-      recs.slice(0,2).forEach(t=>{
-        const li=document.createElement("li");
-        li.textContent = `${it.k.toUpperCase()}: ${t}`;
-        lista.appendChild(li);
-      });
-    });
 
-    cont.appendChild(lista);
+      const sec = document.createElement("div");
+      sec.style.marginTop = "10px";
+
+      const ttl = document.createElement("div");
+      ttl.className = "plan-section-title";
+      ttl.textContent = `${it.k.toUpperCase()} — ${n} (${p==null?"—":p}/100)`;
+      sec.appendChild(ttl);
+
+      const ul = document.createElement("ul");
+      ul.className = "recom-list";
+      recs.slice(0,2).forEach(t=>{
+        const li = document.createElement("li");
+        li.textContent = t;
+        ul.appendChild(li);
+      });
+      sec.appendChild(ul);
+      cont.appendChild(sec);
+    });
   }
 
   function renderPlanAccionIntegridad(extras){
@@ -2024,7 +2035,7 @@ function dispBloque(name){
     const sub=document.createElement("div");
     sub.className="recom-subtitle";
     sub.style.marginTop = "8px";
-    sub.innerHTML="<b>Plan de acción sugerido.</b> Qué hacer a partir del resultado: prioridades accionables y seguimiento. No reemplaza valoración clínica.";
+    sub.innerHTML="Qué hacer a partir del resultado: prioridades accionables, actividades sugeridas y seguimiento. Esta guía no reemplaza valoración clínica.";
     cont.appendChild(sub);
 
     // ===== Prioridades según puntaje (Top 3) =====
