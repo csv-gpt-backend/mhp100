@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Reporte Factores de Liderazgo</title>
+  <title>MART 24 15 46 Reporte Factores de Liderazgo</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db;
@@ -147,8 +147,11 @@
       <div class="bloque-title"><div class="bloque-left"><span class="bloque-bullet"></span><span>INFLUENCIA / EJECUCIÓN</span></div><div>IB: <span class="ih-badge" id="idxB">—</span></div></div>
       <div id="bloqueB"></div>
 
-      <div class="bloque-title"><div class="bloque-left"><span class="bloque-bullet"></span><span>PENSAMIENTO / DIRECCIÓN</span></div><div>IC: <span class="ih-badge" id="idxC">—</span></div></div>
+      <div class="bloque-title"><div class="bloque-left"><span class="bloque-bullet"></span><span>RENDIMIENTO</span></div><div>IC: <span class="ih-badge" id="idxC">—</span></div></div>
       <div id="bloqueC"></div>
+
+      <div class="bloque-title"><div class="bloque-left"><span class="bloque-bullet"></span><span>JUICIO / DIRECCIÓN ESTRATÉGICA</span></div><div>ID: <span class="ih-badge" id="idxD">—</span></div></div>
+      <div id="bloqueD"></div>
 
       <div class="iie-row"><span>ÍNDICE GLOBAL DE FACTORES DE LIDERAZGO IFL:</span><span class="iie-badge" id="repIFL">—</span></div>
 
@@ -209,10 +212,10 @@
 
   // Ajusta estos nombres según el snapshot real que devuelva /api/report
   const BLOQUES_LIDERAZGO = [
-    { key:'A', titulo:'RELACIONES / CONTACTO', el:'bloqueA', idxEl:'idxA', idxLabel:'IA' },
-    { key:'B', titulo:'INFLUENCIA / EJECUCIÓN', el:'bloqueB', idxEl:'idxB', idxLabel:'IB' },
-    { key:'C', titulo:'PENSAMIENTO / DIRECCIÓN', el:'bloqueC', idxEl:'idxC', idxLabel:'IC' },
-    { key:'D', titulo:'VISIÓN / ESTRATEGIA', el:null, idxEl:null, idxLabel:'ID' }
+    { key:'A', titulo:'INTERPERSONAL', el:'bloqueA', idxEl:'idxA', idxLabel:'IA' },
+    { key:'B', titulo:'DOMINIO DE LA SITUACIÓN', el:'bloqueB', idxEl:'idxB', idxLabel:'IB' },
+    { key:'C', titulo:'RENDIMIENTO', el:'bloqueC', idxEl:'idxC', idxLabel:'IC' },
+    { key:'D', titulo:'JUICIO', el:'bloqueD', idxEl:'idxD', idxLabel:'ID' }
   ];
 
   function rangoBadge(p){
@@ -359,19 +362,60 @@
       puntos: x.puntos ?? x.points ?? x.score ?? '—'
     }));
 
-    const bloqueRows = {
-      A: subRows.filter(r => norm(r.bloque).includes('a') || norm(r.bloque).includes('rel') || norm(r.bloque).includes('contact')),
-      B: subRows.filter(r => norm(r.bloque).includes('b') || norm(r.bloque).includes('infl') || norm(r.bloque).includes('ejec')),
-      C: subRows.filter(r => norm(r.bloque).includes('c') || norm(r.bloque).includes('juicio') || norm(r.bloque).includes('desempe') || norm(r.bloque).includes('ritmo'))
+    const canonFactor = (s) => {
+      const t0 = (s||'').toString().toLowerCase();
+      const t = t0.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();
+      if (t.includes('contacto')) return 'contacto personal';
+      if (t.includes('pertenencia')) return 'pertenencia';
+      if (t.includes('asert')) return 'asertividad';
+      if (t.includes('atencion')) return 'atencion';
+      if (t.includes('control')) return 'control';
+      if (t.includes('influencia')) return 'influencia';
+      if (t.includes('apertura')) return 'apertura';
+      if (t.includes('ritmo')) return 'ritmo de trabajo';
+      if (t.includes('desempen')) return 'desempeno';
+      if (t.includes('juicio')) return 'juicio';
+      if (t.includes('vision')) return 'vision';
+      if (t.includes('enfoque')) return 'enfoque estrategico';
+      return t;
     };
 
-    const idxA = Number((bloques.find?.(b=>norm(b.bloque||b.nombre||'').includes('a')) || {}).pct ?? 0) || null;
-    const idxB = Number((bloques.find?.(b=>norm(b.bloque||b.nombre||'').includes('b')) || {}).pct ?? 0) || null;
-    const idxC = Number((bloques.find?.(b=>norm(b.bloque||b.nombre||'').includes('c')) || {}).pct ?? 0) || null;
+    const FACTOR_TO_BLOQUE = {
+      'contacto personal':'A','pertenencia':'A','asertividad':'A',
+      'atencion':'B','control':'B','influencia':'B',
+      'apertura':'C','ritmo de trabajo':'C','desempeno':'C',
+      'juicio':'D','vision':'D','enfoque estrategico':'D'
+    };
+
+    const subRowsCanon = subRows.map(r => {
+      const c = canonFactor(r.name);
+      const b = FACTOR_TO_BLOQUE[c] || r.bloque || '—';
+      return { ...r, bloque: b, bloqueLabel: b };
+    });
+
+    const bloqueRows = {
+      A: subRowsCanon.filter(r => r.bloque === 'A'),
+      B: subRowsCanon.filter(r => r.bloque === 'B'),
+      C: subRowsCanon.filter(r => r.bloque === 'C'),
+      D: subRowsCanon.filter(r => r.bloque === 'D')
+    };
+
+    const pickPct = (obj) => Number(obj?.pct ?? obj?.percent ?? obj?.porcentaje ?? obj?.valor ?? 0) || null;
+    const bList = Array.isArray(bloques) ? bloques : [];
+    const bName = (b) => norm(b?.bloque || b?.indice || b?.nombre || '');
+    const idxA = pickPct(bList.find(b => ['a','ia','indice a','índice a'].includes(bName(b))));
+    const idxB = pickPct(bList.find(b => ['b','ib','indice b','índice b'].includes(bName(b))));
+    const idxC = pickPct(bList.find(b => ['c','ic','indice c','índice c'].includes(bName(b))));
+    const idxD = pickPct(bList.find(b => ['d','id','indice d','índice d'].includes(bName(b))));
+    const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+(Number(b.pct)||0),0)/arr.length) : null;
+    const idxAFinal = idxA ?? avg(bloqueRows.A);
+    const idxBFinal = idxB ?? avg(bloqueRows.B);
+    const idxCFinal = idxC ?? avg(bloqueRows.C);
+    const idxDFinal = idxD ?? avg(bloqueRows.D);
 
     const ifl = Number(globales.IFL ?? globales.ifl ?? resultados.ifl ?? snap.ifl ?? 0) || Math.round(subRows.reduce((a,b)=>a+(Number(b.pct)||0),0) / Math.max(1,subRows.length));
 
-    return { attempt, snap, resultados, subRows, bloqueRows, idxA, idxB, idxC, ifl };
+    return { attempt, snap, resultados, subRows: subRowsCanon, bloqueRows, idxA: idxAFinal, idxB: idxBFinal, idxC: idxCFinal, idxD: idxDFinal, ifl };
   }
 
   function renderInterpretacionBase(model){
@@ -404,18 +448,20 @@
 
   function renderReporte(data, codigo){
     const model = adaptData(data);
-    const { attempt, snap, subRows, bloqueRows, idxA, idxB, idxC, ifl, resultados } = model;
+    const { attempt, snap, subRows, bloqueRows, idxA, idxB, idxC, idxD, ifl, resultados } = model;
 
     renderHeader(attempt, snap, codigo);
 
     $('#idxA').textContent = idxA ?? '—';
     $('#idxB').textContent = idxB ?? '—';
     $('#idxC').textContent = idxC ?? '—';
+    $('#idxD').textContent = idxD ?? '—';
     $('#repIFL').textContent = Math.round(ifl || 0) || '—';
 
     buildBloque('bloqueA', bloqueRows.A);
     buildBloque('bloqueB', bloqueRows.B);
     buildBloque('bloqueC', bloqueRows.C);
+    buildBloque('bloqueD', bloqueRows.D);
     renderPage2Table(subRows);
     renderInterpretacionBase(model);
     setCurveMarker(ifl);
