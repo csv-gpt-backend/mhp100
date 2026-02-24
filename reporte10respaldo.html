@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN 23 21 00  Inteligencia Emocional – Reporte u</title>
+  <title>MART 24 9 52  Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -220,7 +220,7 @@
 
       <div class="rep-mid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
         <div class="curve">
-          <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
+          <div id="tituloCurvaFrecuencias" style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
            <div class="curve-gauge" style="position:relative; width:100%; height:220px; margin-top:6px;">
                 <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución"
                style="width:100%; height:220px; object-fit:contain; display:block;"/>
@@ -1816,7 +1816,7 @@ cont.appendChild(lista);
 <div class="plan-focus-head"><b>${(f.key==="AGRESION"?"AGRESIÓN":(f.key==="VINCULOS INTERPERSONALES"?"VÍNCULOS INTERPERSONALES":f.key))}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
         <div class="plan-focus-obj"><b>Objetivo:</b> ${escapeHtml(textoPlanClaro(pack.objetivo))}</div>
         <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(textoPlanClaro(a))}</li>`).join("")}</ul>
-        <div class="plan-focus-meta"><b>Indicador:</b> ${escapeHtml(textoPlanClaro(pack.indicador + " Registrar cumplimiento en una nota breve o checklist."))}</div>
+        <div class="plan-focus-meta"><b>Indicador:</b> ${escapeHtml(textoPlanClaro((()=>{const ind=pack.indicador||""; const needs=!/registro|lista de verificación|nota breve|bitácora|anotar|marcar/i.test(ind); return ind + (needs ? " Registrar en una nota breve (fecha + actividad + marca de verificación)." : "");})()))}</div>
         <div class="plan-focus-meta"><b>Revisión:</b> ${escapeHtml(textoPlanClaro(pack.revision))}</div>
       `;
       box.appendChild(sec);
@@ -2152,6 +2152,11 @@ cont.appendChild(lista);
     console.log("IIE base/final:", iieBase, iieFinal); // <-- AQUÍ
 
     document.getElementById("repIIE").textContent = iieFinal || "—";
+    const tituloCurva = document.getElementById("tituloCurvaFrecuencias");
+    if (tituloCurva) {
+      const iieTitulo = Math.round(Number(iieFinal) || 0);
+      tituloCurva.textContent = `CURVA DE DISTRIBUCIÓN DE FRECUENCIAS (IIE = ${iieTitulo}).`;
+    }
     const iieForCurve = iieFinal || 0;
 
 // 1) intento inmediato
