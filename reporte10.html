@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN 23 19 52  Inteligencia Emocional – Reporte u</title>
+  <title>LUN 23 20 13  Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1002,6 +1002,36 @@ if (shouldAlert){
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#39;");
 }
+
+// Normaliza textos del plan para que estén en lenguaje completo (sin abreviaciones confusas)
+function textoPlanClaro(s){
+  let t = String(s ?? "");
+
+  // Normaliza separadores comunes
+  t = t.replace(/\s+/g, " ").trim();
+
+  // Expande abreviaciones frecuentes (solo cuando aparecen como palabra completa o en formatos típicos)
+  t = t
+    .replace(/\bsem\b/gi, "semana")
+    .replace(/\bsemanal\b/gi, "semanal")
+    .replace(/\bquincenal\b/gi, "quincenal")
+    .replace(/\bmensual\b/gi, "mensual")
+    .replace(/\bmin\b/gi, "minutos")
+    .replace(/\bmins\b/gi, "minutos")
+    .replace(/\bhr\b/gi, "recursos humanos")
+    .replace(/\bRRHH\b/gi, "recursos humanos");
+
+  // Formatos tipo "2 veces/sem" o "2/sem"
+  t = t
+    .replace(/\b(\d+)\s*veces\s*\/\s*sem\b/gi, "$1 veces por semana")
+    .replace(/\b(\d+)\s*\/\s*sem\b/gi, "$1 por semana")
+    .replace(/\b(\d+)\s*\/\s*min\b/gi, "$1 minutos");
+
+  // Evita dobles espacios (por reemplazos)
+  t = t.replace(/\s{2,}/g, " ").trim();
+  return t;
+}
+
 
 function nivelFromPctInv(p, invert=false){
   if(p == null || Number.isNaN(p)) return "medio";
