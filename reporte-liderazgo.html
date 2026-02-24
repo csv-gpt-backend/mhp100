@@ -1,168 +1,394 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>reporte-liderazgo-v2-base</title>
-  <style>
-    :root{
-      --ink:#111827; --muted:#6b7280; --line:#d1d5db;
-      --yellow:#ffe36a; --blue:#1d4ed8; --bg:#f8fafc;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#fff}
-    .wrap{max-width:920px;margin:16px auto;padding:0 12px}
-    .topbar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-    .topbar input{padding:8px 10px;border:1px solid #bbb;border-radius:8px;min-width:180px}
-    .btn{padding:8px 14px;border:0;border-radius:999px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
-    .btn.alt{background:#6b7280}
-    .page{margin-top:12px}
-    .header{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
-    .header .r1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px}
-    .header .center{text-align:center;font-weight:800}
-    .header .logo{text-align:right;color:#9ca3af;font-weight:700}
-    .header .r2{text-align:center;font-weight:900;font-size:24px;margin-top:4px}
-    .header .r3{text-align:center;font-weight:800;font-size:17px}
-    .box{border:1px solid #000;padding:6px;font-size:12px}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .curve{height:220px;border:1px dashed #cbd5e1;border-radius:8px;background:linear-gradient(180deg,#f8fafc,#fff);display:flex;align-items:center;justify-content:center;color:#64748b}
-    table{width:100%;border-collapse:collapse}
-    .iv th,.iv td{border:1px solid #111;padding:6px;font-size:12px}
-    .iv td.hl{background:var(--yellow)}
-    .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;margin-top:6px}
-    .blk-title{display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px;font-weight:800}
-    .badgeY{background:var(--yellow);padding:2px 10px;border-radius:2px;min-width:36px;display:inline-block;text-align:center}
-    .badgeB{background:var(--blue);color:#fff;padding:3px 12px;border-radius:2px;min-width:40px;display:inline-block;text-align:center}
-    .bar-head, .bar-row{display:grid;grid-template-columns:240px 1fr 1fr 1fr;gap:6px;align-items:center}
-    .bar-head{font-size:11px;color:#475569;margin-bottom:4px}
-    .bar-row{margin:3px 0}
-    .slot{height:14px;border:1px solid #aab;border-radius:4px;background:#f3f5f8}
-    .iie{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:10px;font-weight:800}
-    .card{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
-    .result th,.result td{border-bottom:1px solid #e5e7eb;padding:6px 8px;font-size:13px;text-align:left}
-    .hint{font-size:12px;color:var(--muted)}
-    @media print{
-      .topbar,.hint{display:none}
-      #page1{page-break-after:always}
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title> 16 39 marte 24 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<style>
+  :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#fff}
+  .wrap{max-width:980px;margin:14px auto;padding:0 12px}
+  .topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  input{padding:9px 10px;border:1px solid #bbb;border-radius:8px;min-width:220px}
+  .btn{padding:9px 14px;border:0;border-radius:999px;background:#2563eb;color:#fff;font-weight:800;cursor:pointer}
+  .btn.alt{background:#6b7280}
+  .msg{padding:8px 10px;border-radius:8px;background:#f3f4f6;color:#374151;font-size:13px}
+  .msg.err{background:#fee2e2;color:#991b1b}
+  .msg.ok{background:#ecfdf5;color:#065f46}
+  .header{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
+  .r1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px}
+  .center{text-align:center;font-weight:800}
+  .logo{text-align:right;color:#9ca3af;font-weight:700}
+  .r2{text-align:center;font-weight:900;font-size:24px;margin-top:4px}
+  .r3{text-align:center;font-weight:800;font-size:17px}
+  .box{border:1px solid #000;padding:6px;font-size:12px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .curveBox{height:220px;border:1px solid #dbe1ea;border-radius:8px;padding:8px;background:linear-gradient(180deg,#f8fafc,#fff)}
+  .iv th,.iv td{border:1px solid #111;padding:6px;font-size:12px}
+  .iv{width:100%;border-collapse:collapse}
+  .hl{background:var(--yellow)}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;margin-top:6px}
+  .blk-title{display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px;font-weight:800}
+  .badgeY{background:var(--yellow);padding:2px 10px;border-radius:2px;min-width:36px;display:inline-block;text-align:center}
+  .badgeB{background:var(--blue);color:#fff;padding:3px 12px;border-radius:2px;min-width:40px;display:inline-block;text-align:center}
+  .bar-head,.bar-row{display:grid;grid-template-columns:240px 1fr 1fr 1fr;gap:6px;align-items:center}
+  .bar-head{font-size:11px;color:#475569;margin-bottom:4px}
+  .bar-row{margin:4px 0}
+  .slot{height:16px;border:1px solid #aab;border-radius:4px;background:#f3f5f8;position:relative;overflow:hidden}
+  .fill{position:absolute;left:0;top:0;bottom:0;background:#94a3b8}
+  .slot.mid .fill{background:#f59e0b}
+  .slot.high .fill{background:#22c55e}
+  .pctTag{font-size:11px;color:#475569;text-align:right}
+  .iie{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:10px;font-weight:800}
+  .page{margin-top:12px}
+  .card{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
+  table{width:100%;border-collapse:collapse}
+  .result th,.result td{border-bottom:1px solid #e5e7eb;padding:6px 8px;font-size:13px;text-align:left}
+  .hidden{display:none}
+  .small{font-size:12px;color:var(--muted)}
+  @media print {.topbar,#msg,.small{display:none} #page1{page-break-after:always}}
+</style>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
-    <input value="LIDER001" placeholder="Código">
-    <button class="btn" type="button">Ver reporte</button>
+    <input id="codigo" placeholder="Código (ej. LIDER001)"/>
+    <button id="btn" class="btn" type="button">Ver reporte</button>
     <button class="btn alt" type="button" onclick="window.print()">Imprimir / PDF</button>
   </div>
-  <div class="hint">Base v2 (descargable). Sin edad en header. Parte 1 con A/B/C/D + IFL. Pendiente: mapeo final de datos reales y layout visual tipo modelo colorido.</div>
+  <div id="msg" class="msg">Paso 1 (datos reales): conecta /api/report y pinta factores, IA/IB/IC/ID + IFL.</div>
 
-  <section id="page1" class="page">
-    <div class="header">
-      <div class="r1">
-        <div>24/02/26, 16:19</div>
-        <div class="center">GRÁFICA INDIVIDUAL</div>
-        <div class="logo">LOGO ADALAM</div>
+  <div id="reporte" class="hidden">
+    <section id="page1" class="page">
+      <div class="header">
+        <div class="r1"><div id="fechaGenTop">—</div><div class="center">GRÁFICA INDIVIDUAL</div><div class="logo">LOGO ADALAM</div></div>
+        <div class="r2">REPORTE</div>
+        <div class="r3">FACTORES DE LIDERAZGO</div>
       </div>
-      <div class="r2">REPORTE</div>
-      <div class="r3">FACTORES DE LIDERAZGO</div>
-    </div>
 
-    <div class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px">
-      <div><b>Nombre:</b> LIDER001</div>
-      <div><b>Curso/Grado:</b> LIDER001</div>
-      <div><b>Grupo:</b> LIDER001</div>
-      <div><b>Institución:</b> LIDER001</div>
-      <div><b>Fecha:</b> 18 de febrero de 2026</div>
-      <div><b>Código:</b> LIDER001</div>
-    </div>
+      <div id="headerBox1" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
 
-    <div class="grid2" style="margin-top:8px">
-      <div>
-        <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
-        <div class="curve">Curva + marcador (pendiente conexión visual final)</div>
+      <div class="grid2" style="margin-top:8px">
+        <div>
+          <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
+          <div class="curveBox">
+            <svg id="curve" width="100%" height="100%" viewBox="0 0 520 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Curva de referencia">
+              <path d="M20,150 C120,150 140,40 260,40 C380,40 400,150 500,150" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round"/>
+              <line x1="20" y1="150" x2="500" y2="150" stroke="#e5e7eb" stroke-width="2"/>
+              <g id="marker"></g>
+              <text x="20" y="168" font-size="11" fill="#64748b">0</text>
+              <text x="207" y="168" font-size="11" fill="#64748b">39</text>
+              <text x="309" y="168" font-size="11" fill="#64748b">60</text>
+              <text x="500" y="168" font-size="11" fill="#64748b" text-anchor="end">100</text>
+            </svg>
+          </div>
+        </div>
+        <div style="margin-top:24px">
+          <div style="font-weight:700;text-align:center;margin-bottom:8px">ÍNDICES DE VALIDACIÓN</div>
+          <table class="iv">
+            <tr><th>NA</th><td id="na0">Alto nivel de autoconocimiento</td><td id="na1">Nivel medio de autoconocimiento</td><td id="na2">Bajo autoconocimiento · requiere apoyo</td></tr>
+            <tr><th>NC</th><td id="nc0">Sin contradicción</td><td id="nc1">Con algunas contradicciones</td><td id="nc2">Contradicción frecuente</td></tr>
+            <tr><th>PT</th><td id="pt0">Tiempo adecuado</td><td id="pt1">Demasiado breve</td><td id="pt2">Demasiado lento</td></tr>
+          </table>
+          <div class="legend"><span><b>NA</b> Nivel de Autoconocimiento</span><span><b>NC</b> Nivel de Contradicción</span><span><b>PT</b> Promedio del Tiempo</span></div>
+          <div class="small" id="contestadasLine" style="margin-top:8px">Contestadas: —</div>
+        </div>
       </div>
-      <div style="margin-top:24px">
-        <div style="font-weight:700;text-align:center;margin-bottom:8px">ÍNDICES DE VALIDACIÓN</div>
-        <table class="iv">
-          <tr><th>NA</th><td class="hl">Alto nivel de autoconocimiento</td><td>Nivel medio de autoconocimiento</td><td>Bajo autoconocimiento · requiere apoyo</td></tr>
-          <tr><th>NC</th><td>Sin contradicción</td><td class="hl">Con algunas contradicciones</td><td>Contradicción frecuente</td></tr>
-          <tr><th>PT</th><td class="hl">Tiempo adecuado</td><td>Demasiado breve</td><td>Demasiado lento</td></tr>
+
+      <div class="blk-title"><span>RELACIONES / CONTACTO</span><span>IA: <span class="badgeY" id="idxA">—</span></span></div>
+      <div class="bar-head"><div></div><div style="text-align:center">POR DESARROLLAR</div><div style="text-align:center">POR FORTALECER</div><div style="text-align:center">POR ENRIQUECER</div></div>
+      <div id="bloqueA"></div>
+
+      <div class="blk-title"><span>INFLUENCIA / EJECUCIÓN</span><span>IB: <span class="badgeY" id="idxB">—</span></span></div>
+      <div id="bloqueB"></div>
+
+      <div class="blk-title"><span>RENDIMIENTO</span><span>IC: <span class="badgeY" id="idxC">—</span></span></div>
+      <div id="bloqueC"></div>
+
+      <div class="blk-title"><span>JUICIO / DIRECCIÓN ESTRATÉGICA</span><span>ID: <span class="badgeY" id="idxD">—</span></span></div>
+      <div id="bloqueD"></div>
+
+      <div class="iie">ÍNDICE GLOBAL DE FACTORES DE LIDERAZGO IFL: <span class="badgeB" id="iflBadge">—</span></div>
+    </section>
+
+    <section class="page">
+      <div class="header">
+        <div class="r1"><div id="fechaGenTop2">—</div><div class="center">INFORME PSICOMÉTRICO</div><div class="logo">LOGO ADALAM</div></div>
+        <div class="r2" style="font-size:20px">INFORME PSICOMÉTRICO</div>
+        <div class="r3" style="font-size:15px">FACTORES DE LIDERAZGO – INTERPRETACIÓN</div>
+      </div>
+      <h3>1.- Datos personales.</h3>
+      <div id="headerBox2" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
+
+      <h3>2.- Interpretación por factores y perfil global</h3>
+      <div class="card">
+        <div><b>IFL:</b> <span id="iflText">—</span>/100</div>
+        <div id="nivelGlobal" style="margin-top:6px">Pendiente de textos finales (Paso visual e interpretación).</div>
+      </div>
+
+      <div class="card">
+        <div><b>Por factor</b></div>
+        <table class="result">
+          <thead><tr><th>Bloque</th><th>Factor</th><th>Ítems</th><th>Puntos</th><th>%</th><th>Rango</th></tr></thead>
+          <tbody id="tbodyFactores"></tbody>
         </table>
-        <div class="legend"><span><b>NA</b> Nivel de Autoconocimiento</span><span><b>NC</b> Nivel de Contradicción</span><span><b>PT</b> Promedio del Tiempo</span></div>
       </div>
-    </div>
-
-    <div class="blk-title"><span>RELACIONES / CONTACTO</span><span>IA: <span class="badgeY">—</span></span></div>
-    <div class="bar-head"><div></div><div style="text-align:center">POR DESARROLLAR</div><div style="text-align:center">POR FORTALECER</div><div style="text-align:center">POR ENRIQUECER</div></div>
-    <div class="bar-row"><div>Contacto personal</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-    <div class="bar-row"><div>Pertenencia</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-    <div class="bar-row"><div>Asertividad</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-
-    <div class="blk-title"><span>INFLUENCIA / EJECUCIÓN</span><span>IB: <span class="badgeY">—</span></span></div>
-    <div class="bar-row"><div>Atención</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-    <div class="bar-row"><div>Control</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-    <div class="bar-row"><div>Influencia</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-
-    <div class="blk-title"><span>RENDIMIENTO</span><span>IC: <span class="badgeY">—</span></span></div>
-    <div class="bar-row"><div>Apertura</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-    <div class="bar-row"><div>Ritmo de trabajo</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-    <div class="bar-row"><div>Desempeño</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-
-    <div class="blk-title"><span>JUICIO / DIRECCIÓN ESTRATÉGICA</span><span>ID: <span class="badgeY">—</span></span></div>
-    <div class="bar-row"><div>Juicio</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-    <div class="bar-row"><div>Visión</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-    <div class="bar-row"><div>Enfoque estratégico</div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-
-    <div class="iie">ÍNDICE GLOBAL DE FACTORES DE LIDERAZGO IFL: <span class="badgeB">—</span></div>
-  </section>
-
-  <section class="page">
-    <div class="header">
-      <div class="r1">
-        <div>24/02/26, 16:19</div>
-        <div class="center">INFORME PSICOMÉTRICO</div>
-        <div class="logo">LOGO ADALAM</div>
-      </div>
-      <div class="r2" style="font-size:20px">INFORME PSICOMÉTRICO</div>
-      <div class="r3" style="font-size:15px">FACTORES DE LIDERAZGO – INTERPRETACIÓN</div>
-    </div>
-    <h3>1.- Datos personales.</h3>
-    <div class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px">
-      <div><b>Nombre:</b> LIDER001</div>
-      <div><b>Curso/Grado:</b> LIDER001</div>
-      <div><b>Grupo:</b> LIDER001</div>
-      <div><b>Institución:</b> LIDER001</div>
-      <div><b>Fecha:</b> 18 de febrero de 2026</div>
-      <div><b>Código:</b> LIDER001</div>
-    </div>
-    <h3>2.- Interpretación por factores y perfil global</h3>
-    <div class="card">Base v2 de interpretación (pendiente: textos finales estilo emocional + reglas de liderazgo).</div>
-    <div class="card">Índice Global de Factores de Liderazgo (IFL): <b>—</b>/100</div>
-  </section>
-
-  <section class="page">
-    <div class="card">
-      <div><b>Contestadas:</b> 132 de 132</div>
-      <h3>Por factor</h3>
-      <table class="result">
-        <thead><tr><th>Bloque</th><th>Factor</th><th>Ítems</th><th>Puntos</th><th>%</th><th>Rango</th></tr></thead>
-        <tbody>
-          <tr><td>A</td><td>Contacto personal</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>A</td><td>Pertenencia</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>A</td><td>Asertividad</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>B</td><td>Atención</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>B</td><td>Control</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>B</td><td>Influencia</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>C</td><td>Apertura</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>C</td><td>Ritmo de trabajo</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>C</td><td>Desempeño</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>D</td><td>Juicio</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>D</td><td>Visión</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>D</td><td>Enfoque estratégico</td><td>11</td><td>—</td><td>—</td><td>—</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+    </section>
+  </div>
 </div>
+
+<script>
+const $ = (s)=>document.querySelector(s);
+const norm = (s='') => (s||'').toString().toLowerCase()
+  .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  .replace(/\s+/g,' ').trim();
+const esc = (s='') => (s??'').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+const FACTOR_ORDER = [
+  'Contacto personal','Pertenencia','Asertividad',
+  'Atención','Control','Influencia',
+  'Apertura','Ritmo de trabajo','Desempeño',
+  'Juicio','Visión','Enfoque estratégico'
+];
+
+const FACTOR_TO_BLOQUE = {
+  'contacto personal':'A','pertenencia':'A','asertividad':'A',
+  'atencion':'B','control':'B','influencia':'B',
+  'apertura':'C','ritmo de trabajo':'C','desempeno':'C',
+  'juicio':'D','vision':'D','enfoque estrategico':'D'
+};
+
+function canonFactor(s){
+  const t = norm(s).replace(/[^a-z0-9 ]+/g,' ');
+  if (t.includes('contacto')) return 'contacto personal';
+  if (t.includes('pertenencia')) return 'pertenencia';
+  if (t.includes('asert')) return 'asertividad';
+  if (t.includes('atencion')) return 'atencion';
+  if (t.includes('control')) return 'control';
+  if (t.includes('influencia')) return 'influencia';
+  if (t.includes('apertura')) return 'apertura';
+  if (t.includes('ritmo')) return 'ritmo de trabajo';
+  if (t.includes('desempen')) return 'desempeno';
+  if (t.includes('juicio')) return 'juicio';
+  if (t.includes('vision')) return 'vision';
+  if (t.includes('enfoque')) return 'enfoque estrategico';
+  return t;
+}
+function displayFactorFromCanon(c){
+  const map = {
+    'contacto personal':'Contacto personal','pertenencia':'Pertenencia','asertividad':'Asertividad',
+    'atencion':'Atención','control':'Control','influencia':'Influencia',
+    'apertura':'Apertura','ritmo de trabajo':'Ritmo de trabajo','desempeno':'Desempeño',
+    'juicio':'Juicio','vision':'Visión','enfoque estrategico':'Enfoque estratégico'
+  };
+  return map[c] || c;
+}
+function rangoFromPct(p){
+  const n = Number(p)||0;
+  if (n <= 39) return 'Por desarrollar';
+  if (n <= 70) return 'Por fortalecer';
+  return 'Por enriquecer';
+}
+function categoriaClass(p){
+  const n = Number(p)||0;
+  if (n <= 39) return '';
+  if (n <= 70) return 'mid';
+  return 'high';
+}
+function setMarker(p){
+  const g = $('#marker'); if (!g) return;
+  g.innerHTML = '';
+  const n = Math.max(0, Math.min(100, Number(p)||0));
+  const x = 20 + (480*(n/100));
+  const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+  line.setAttribute("x1",x); line.setAttribute("x2",x);
+  line.setAttribute("y1","25"); line.setAttribute("y2","150");
+  line.setAttribute("stroke","#0f172a"); line.setAttribute("stroke-width","2"); line.setAttribute("opacity","0.55");
+  const circ = document.createElementNS("http://www.w3.org/2000/svg","circle");
+  circ.setAttribute("cx",x); circ.setAttribute("cy","150"); circ.setAttribute("r","6"); circ.setAttribute("fill","#0f172a");
+  g.appendChild(line); g.appendChild(circ);
+}
+function highlightIV(prefix, idx){
+  for (let i=0;i<3;i++){
+    const el = document.getElementById(prefix + i);
+    if (!el) continue;
+    el.classList.toggle('hl', Number(idx) === i);
+  }
+}
+function parseFechaHuman(fechaBase){
+  const d = fechaBase ? new Date(fechaBase) : new Date();
+  try{
+    return {
+      top: d.toLocaleString('es-EC', { dateStyle:'short', timeStyle:'short' }),
+      box: d.toLocaleDateString('es-EC', { day:'numeric', month:'long', year:'numeric' })
+    };
+  }catch(e){
+    return { top: d.toISOString(), box: d.toISOString().slice(0,10) };
+  }
+}
+function buildHeaderHTML({nombre,curso,grupo,inst,fecha,codigo}){
+  return `
+    <div><b>Nombre:</b> ${esc(nombre||'—')}</div>
+    <div><b>Curso/Grado:</b> ${esc(curso||'—')}</div>
+    <div><b>Grupo:</b> ${esc(grupo||'—')}</div>
+    <div><b>Institución:</b> ${esc(inst||'—')}</div>
+    <div><b>Fecha:</b> ${esc(fecha||'—')}</div>
+    <div><b>Código:</b> ${esc(codigo||'—')}</div>`;
+}
+function adaptData(data){
+  const attempt = data.attempt || {};
+  const autosave = data.autosave || data.auto || {};
+  const participant = data.participant || data.participants || {};
+  const snap = data.snapshot || attempt.snapshot || autosave.snapshot || participant.snapshot || {};
+
+  const resultados = data.resultados || data.results || attempt.resultados || snap.resultados || {};
+  let subRows = Array.isArray(resultados?.subhabilidades) ? resultados.subhabilidades : [];
+  let bloques = Array.isArray(resultados?.bloques) ? resultados.bloques : [];
+  const globales = resultados?.globales || {};
+
+  // Soporte adicional si el backend trae "factores" o "subpruebas"
+  if (!subRows.length && Array.isArray(data.factores)) subRows = data.factores;
+  if (!subRows.length && Array.isArray(data.subpruebas)) subRows = data.subpruebas;
+
+  const canonRows = subRows.map((r)=> {
+    const rawName = r.sub || r.name || r.factor || r.nombre || '';
+    const c = canonFactor(rawName);
+    return {
+      name: displayFactorFromCanon(c),
+      canon: c,
+      bloque: FACTOR_TO_BLOQUE[c] || (r.bloque || r.conjunto || '—'),
+      items: Number(r.items ?? r.n_items ?? r.items_count ?? 11) || 11,
+      pts: Number(r.pts ?? r.puntos ?? r.score ?? r.suma ?? 0) || 0,
+      pct: Number(r.pct ?? r.percent ?? r.porcentaje ?? 0) || 0
+    };
+  });
+
+  // Orden canónico de 12 factores
+  const rowsByCanon = new Map(canonRows.map(r => [r.canon, r]));
+  const ordered = FACTOR_ORDER.map(name => {
+    const c = canonFactor(name);
+    return rowsByCanon.get(c) || { name, canon:c, bloque: FACTOR_TO_BLOQUE[c], items:11, pts:0, pct:0, missing:true };
+  });
+
+  const bloqueRows = {
+    A: ordered.filter(r=>r.bloque==='A'),
+    B: ordered.filter(r=>r.bloque==='B'),
+    C: ordered.filter(r=>r.bloque==='C'),
+    D: ordered.filter(r=>r.bloque==='D'),
+  };
+  const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+(Number(b.pct)||0),0)/arr.length) : null;
+  const pick = (...vals) => vals.find(v => v!==null && v!==undefined && v!=='' && !Number.isNaN(Number(v)));
+  const idxA = Number(pick(data.idxA, resultados.idxA, (bloques.find?.(b=>['a','ia','indice a','índice a'].includes(norm(b?.nombre||b?.indice||b?.bloque||'')))||{}).pct, avg(bloqueRows.A))) || 0;
+  const idxB = Number(pick(data.idxB, resultados.idxB, (bloques.find?.(b=>['b','ib','indice b','índice b'].includes(norm(b?.nombre||b?.indice||b?.bloque||'')))||{}).pct, avg(bloqueRows.B))) || 0;
+  const idxC = Number(pick(data.idxC, resultados.idxC, (bloques.find?.(b=>['c','ic','indice c','índice c'].includes(norm(b?.nombre||b?.indice||b?.bloque||'')))||{}).pct, avg(bloqueRows.C))) || 0;
+  const idxD = Number(pick(data.idxD, resultados.idxD, (bloques.find?.(b=>['d','id','indice d','índice d'].includes(norm(b?.nombre||b?.indice||b?.bloque||'')))||{}).pct, avg(bloqueRows.D))) || 0;
+
+  // IFL: primero explícito; fallback promedio de A/B/C/D
+  const iflCandidates = [
+    data.ifl, resultados.ifl, resultados.IFL, data.globales?.IFL, globales?.IFL,
+    data.b_ifl, attempt.ifl, snap.ifl
+  ];
+  let ifl = Number(iflCandidates.find(v => v!==undefined && v!==null && v!=='')) || 0;
+  if (!ifl) ifl = Math.round((idxA + idxB + idxC + idxD)/4);
+
+  const iv1 = Number(globales.IV1 ?? data.iv1 ?? attempt.iv1 ?? 0);
+  const iv2 = Number(globales.IV2 ?? data.iv2 ?? attempt.iv2 ?? 0);
+  const iv3 = Number(globales.IV3 ?? data.iv3 ?? attempt.iv3 ?? 0);
+
+  const aSnap = autosave.snapshot || {};
+  const fechaBase = attempt.created_at || attempt.fecha || snap.fecha || aSnap.fecha || null;
+  const f = parseFechaHuman(fechaBase);
+
+  const header = {
+    nombre: snap.nombre || attempt.nombre || aSnap.nombre || participant.nombre || participant.full_name || '—',
+    curso: snap.curso || attempt.curso || aSnap.curso || participant.curso || participant.grado || '—',
+    grupo: snap.grupo || attempt.grupo || aSnap.grupo || participant.grupo || '—',
+    inst: snap.institucion || attempt.institucion || aSnap.institucion || participant.institucion || '—',
+    fecha: f.box,
+    codigo: attempt.codigo || data.codigo || $('#codigo').value.trim().toUpperCase() || '—'
+  };
+
+  const contestadas = attempt.contestadas || attempt.n_respondidas || data.contestadas || snap.contestadas || (attempt.responses ? Object.keys(attempt.responses).length : null) || '132 de 132';
+  return {attempt, autosave, participant, snap, ordered, bloqueRows, idxA, idxB, idxC, idxD, ifl, iv1, iv2, iv3, header, fechaTop:f.top, contestadas};
+}
+function makeBarRow(r){
+  const p = Math.max(0, Math.min(100, Number(r.pct)||0));
+  const c = categoriaClass(p);
+  const slot = w => `<div class="slot ${c}"><div class="fill" style="width:${w}%"></div></div>`;
+  let a=0,b=0,d=0;
+  if (p<=39){ a = Math.round((p/39)*100); }
+  else if (p<=70){ a = 100; b = Math.round(((p-40)/30)*100); }
+  else { a = 100; b = 100; d = Math.round(((p-71)/29)*100); }
+  return `<div class="bar-row">
+    <div>${esc(r.name)}</div>
+    ${slot(a)} ${slot(b)} ${slot(d)}
+  </div>`;
+}
+function renderBloque(elId, rows){
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.innerHTML = rows.map(makeBarRow).join('') || '<div class="small">Sin datos</div>';
+}
+function renderTable(rows){
+  const tb = $('#tbodyFactores');
+  tb.innerHTML = rows.map(r => `<tr>
+    <td>${esc(r.bloque||'—')}</td>
+    <td>${esc(r.name)}</td>
+    <td>${r.items ?? '—'}</td>
+    <td>${r.pts ?? '—'}</td>
+    <td>${r.missing ? '—' : (Number(r.pct)||0)}</td>
+    <td>${r.missing ? '—' : rangoFromPct(r.pct)}</td>
+  </tr>`).join('');
+}
+function renderHeader(header, fechaTop){
+  $('#fechaGenTop').textContent = fechaTop;
+  $('#fechaGenTop2').textContent = fechaTop;
+  const html = buildHeaderHTML(header);
+  $('#headerBox1').innerHTML = html;
+  $('#headerBox2').innerHTML = html;
+}
+function setBadge(id, v){ const el = document.getElementById(id); if (el) el.textContent = (v ?? '—'); }
+
+async function cargar(){
+  const codigo = $('#codigo').value.trim().toUpperCase();
+  if (!codigo){ $('#msg').textContent = 'Ingresa un código.'; $('#msg').className='msg err'; return; }
+  $('#msg').textContent = 'Buscando...'; $('#msg').className='msg';
+  $('#reporte').classList.add('hidden');
+  try{
+    const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+    const data = await r.json();
+    if (!r.ok || data.error) throw new Error(data.error || 'No encontrado');
+    const m = adaptData(data);
+
+    renderHeader(m.header, m.fechaTop);
+    $('#contestadasLine').textContent = 'Contestadas: ' + m.contestadas;
+
+    setBadge('idxA', m.idxA || '—'); setBadge('idxB', m.idxB || '—');
+    setBadge('idxC', m.idxC || '—'); setBadge('idxD', m.idxD || '—');
+    setBadge('iflBadge', m.ifl || '—'); $('#iflText').textContent = m.ifl || '—';
+
+    highlightIV('na', m.iv1); highlightIV('nc', m.iv2); highlightIV('pt', m.iv3);
+    setMarker(m.ifl || 0);
+
+    renderBloque('bloqueA', m.bloqueRows.A);
+    renderBloque('bloqueB', m.bloqueRows.B);
+    renderBloque('bloqueC', m.bloqueRows.C);
+    renderBloque('bloqueD', m.bloqueRows.D);
+    renderTable(m.ordered);
+
+    const n = m.ifl || 0;
+    $('#nivelGlobal').textContent = n<=39 ? 'Perfil global con áreas importantes por desarrollar.' :
+      (n<=70 ? 'Perfil global con bases presentes y áreas por fortalecer.' : 'Perfil global con fortalezas consolidadas y oportunidades por enriquecer.');
+    $('#reporte').classList.remove('hidden');
+    $('#msg').textContent = 'OK: datos cargados (Paso 1).'; $('#msg').className='msg ok';
+  }catch(e){
+    $('#msg').textContent = 'Error: ' + (e.message || e);
+    $('#msg').className='msg err';
+  }
+}
+$('#btn').addEventListener('click', cargar);
+$('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
+</script>
 </body>
 </html>
