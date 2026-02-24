@@ -1,1 +1,470 @@
-d
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Reporte Factores de Liderazgo</title>
+  <style>
+    :root{
+      --ink:#111827; --muted:#6b7280; --line:#d1d5db;
+      --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757;
+      --blue:#1d4ed8;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:#fff;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+    .wrap{max-width:920px;margin:16px auto 42px;padding:0 12px}
+    .topbar{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+    .topbar input{flex:0 0 180px;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;text-transform:uppercase}
+    .btn{padding:9px 14px;border-radius:999px;border:0;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
+    .btn.alt{background:#6b7280}
+    .msg{font-weight:700}
+    .msg.ok{color:#0a8}.msg.err{color:#c00}
+    .hint{font-size:12px;color:var(--muted);margin-bottom:8px}
+
+    .page{margin-top:10px}
+    .page-break{height:0;border:0;margin:0}
+    .rep-top{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:6px}
+    .rep-top-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px;margin-bottom:6px}
+    .rep-top-center{text-align:center;font-weight:700;text-transform:uppercase}
+    .rep-top-logo{justify-self:end}
+    .mhp-logo{height:170px;object-fit:contain}
+    .rep-top-row2{display:flex;justify-content:center;font-size:24px;font-weight:800;text-transform:uppercase}
+    .rep-top-row3{text-align:center;font-size:17px;font-weight:800}
+
+    .box{border:1px solid #000;padding:6px;font-size:12px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .curve-gauge{position:relative;width:100%;height:220px;margin-top:6px}
+    .curve-gauge img{width:100%;height:220px;object-fit:contain;display:block}
+
+    .iv-title{font-weight:700;font-size:14px;text-transform:uppercase;text-align:center;margin:0 0 10px}
+    .iv-table td.hl{background:var(--yellow)}
+    .iv-key{font-weight:900;color:#000}
+    .iv-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;margin-top:6px}
+
+    .bloque-title{font-weight:800;margin:12px 0 6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .bloque-left{display:flex;align-items:center;gap:6px}
+    .bloque-bullet{width:10px;height:10px;border-radius:999px;background:#f4a338}
+    .ih-badge{background:var(--yellow);padding:2px 10px;border-radius:2px;min-width:36px;text-align:center;font-weight:800}
+    .iie-row{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:12px 0 6px;font-weight:800}
+    .iie-badge{background:var(--blue);color:#fff;padding:3px 12px;border-radius:2px;min-width:40px;text-align:center}
+
+    .bars-wrap{margin:8px 0}
+    .bars-row{display:grid;grid-template-columns:240px 1fr;align-items:center;gap:8px;margin:10px 0}
+    .bars-row .label{font-weight:700;font-size:12px}
+    .bars-slot{position:relative;height:22px;border:1px solid #9ca3af;border-radius:4px;background:#f3f4f6}
+    .bars-slot .tick{position:absolute;top:-6px;width:1px;height:24px;background:#9ca3af}
+    .bars-slot .tick-label{position:absolute;top:19px;font-size:10px;transform:translateX(-50%)}
+    .bars-slot .marker{position:absolute;top:-2px;width:10px;height:16px;background:#111;border-radius:2px;transform:translateX(-50%);display:none}
+    .scale-note-inline{font-size:11px;color:var(--muted);margin-top:4px;text-align:center}
+
+    .interp-title{margin-top:8px;font-size:18px;font-weight:800}
+    .interp-bloque{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;font-size:12px;background:#fff}
+    .skill-row{margin:6px 0 10px}
+    .skill-row-title{font-weight:700;font-size:12px;margin-bottom:2px}
+    .skill-row-desc{font-size:11px;color:var(--muted);margin-bottom:4px}
+    .skill-bar{display:flex;align-items:center;gap:6px}
+    .skill-bar-track{position:relative;flex:1;height:12px;border-radius:999px;overflow:hidden;background:linear-gradient(to right,var(--red) 0%, var(--red) 40%, var(--orange) 40%, var(--orange) 70%, var(--green) 70%, var(--green) 100%)}
+    .skill-bar-marker{position:absolute;top:0;bottom:0;width:2px;background:#111;transform:translateX(-50%)}
+    .skill-bar-value{font-size:11px;font-weight:700;min-width:48px;text-align:right}
+
+    .card{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
+    .result-table{width:100%;border-collapse:collapse}
+    .result-table th,.result-table td{border-bottom:1px solid #e5e7eb;padding:6px 8px;font-size:13px;text-align:left}
+    .result-table th{font-weight:800}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:800;font-size:12px;color:#fff}
+    .b-red{background:var(--red)} .b-orange{background:var(--orange)} .b-green{background:var(--green)}
+
+    @media print{
+      @page{size:A4;margin:8mm 8mm}
+      .topbar,.hint{display:none !important}
+      .wrap{max-width:none;margin:0 auto;padding:0 6px}
+      .page{margin-top:0}
+      #page1{page-break-after:always;break-after:page}
+      .page-break{page-break-before:always}
+      #page1 *{break-inside:avoid}
+      .mhp-logo{height:132px}
+      .rep-top-row2{font-size:22px}
+      .rep-top-row3{font-size:16px}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <input id="codigoInput" placeholder="LID001" maxlength="16"/>
+    <button class="btn" id="btnVer">Ver reporte</button>
+    <span id="msg" class="msg"></span>
+  </div>
+  <div class="hint">Base v2 (sin banco de preguntas en reporte). Consume datos ya calculados desde /api/report.</div>
+
+  <div id="reporteContainer" style="display:none">
+    <!-- PAGE 1 -->
+    <section id="page1" class="page">
+      <div class="rep-top">
+        <div class="rep-top-row1">
+          <div id="repDateLine"></div>
+          <div class="rep-top-center">GRÁFICA INDIVIDUAL</div>
+          <div class="rep-top-logo"><img src="assets/logo_adalam.png" alt="Logo" class="mhp-logo"></div>
+        </div>
+        <div class="rep-top-row2"><span>REPORTE</span></div>
+        <div class="rep-top-row3">FACTORES DE LIDERAZGO</div>
+      </div>
+
+      <div id="repHeaderBox" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
+
+      <div class="grid2" style="margin-top:8px">
+        <div>
+          <div style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
+          <div class="curve-gauge">
+            <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva"/>
+            <div id="curveMarker" aria-hidden="true" style="position:absolute;left:50%;bottom:26px;width:0;height:0;z-index:3;pointer-events:none;">
+              <svg width="30" height="54" viewBox="0 0 18 30" style="position:absolute;left:0;bottom:0;transform:translateX(-50%);display:block;overflow:visible;">
+                <defs>
+                  <linearGradient id="blkMain" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#1a1a1a"/><stop offset="28%" stop-color="#2b2b2b"/><stop offset="55%" stop-color="#111"/><stop offset="78%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/>
+                  </linearGradient>
+                </defs>
+                <rect x="6" y="0" width="6" height="16" rx="1.2" fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+                <path d="M9 30 L2 16 H16 Z" fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:26px">
+          <div class="iv-title">ÍNDICES DE VALIDACIÓN</div>
+          <table class="iv-table" style="width:100%;border-collapse:collapse;font-size:12px">
+            <tr id="iv1Row"><th class="iv-key" style="border:1px solid #111;padding:6px">NA</th><td style="border:1px solid #111;padding:6px">Alto nivel de autoconocimiento</td><td style="border:1px solid #111;padding:6px">Nivel medio de autoconocimiento</td><td style="border:1px solid #111;padding:6px">Bajo autoconocimiento · requiere apoyo</td></tr>
+            <tr id="iv2Row"><th class="iv-key" style="border:1px solid #111;padding:6px">NC</th><td style="border:1px solid #111;padding:6px">Sin contradicción</td><td style="border:1px solid #111;padding:6px">Con algunas contradicciones</td><td style="border:1px solid #111;padding:6px">Contradicción frecuente</td></tr>
+            <tr id="iv3Row"><th class="iv-key" style="border:1px solid #111;padding:6px">PT</th><td style="border:1px solid #111;padding:6px">Tiempo adecuado</td><td style="border:1px solid #111;padding:6px">Demasiado breve</td><td style="border:1px solid #111;padding:6px">Demasiado lento</td></tr>
+          </table>
+          <div class="iv-legend"><span><b>NA</b> Nivel de Autoconocimiento</span><span><b>NC</b> Nivel de Contradicción</span><span><b>PT</b> Promedio del Tiempo</span></div>
+        </div>
+      </div>
+
+      <div class="bloque-title"><div class="bloque-left"><span class="bloque-bullet"></span><span>RELACIONES / CONTACTO</span></div><div>IA: <span class="ih-badge" id="idxA">—</span></div></div>
+      <div id="bloqueA"></div>
+
+      <div class="bloque-title"><div class="bloque-left"><span class="bloque-bullet"></span><span>INFLUENCIA / EJECUCIÓN</span></div><div>IB: <span class="ih-badge" id="idxB">—</span></div></div>
+      <div id="bloqueB"></div>
+
+      <div class="bloque-title"><div class="bloque-left"><span class="bloque-bullet"></span><span>PENSAMIENTO / DIRECCIÓN</span></div><div>IC: <span class="ih-badge" id="idxC">—</span></div></div>
+      <div id="bloqueC"></div>
+
+      <div class="iie-row"><span>ÍNDICE GLOBAL DE FACTORES DE LIDERAZGO IFL:</span><span class="iie-badge" id="repIFL">—</span></div>
+
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btnImprimir" class="btn">Imprimir / PDF</button>
+        <button id="btnExportJSON" class="btn alt">Exportar JSON</button>
+      </div>
+    </section>
+
+    <!-- PAGE 2: Interpretación -->
+    <section id="pageInterpretacion" class="page">
+      <div class="rep-top">
+        <div class="rep-top-row1">
+          <div id="repDateLine2"></div>
+          <div class="rep-top-center">INFORME PSICOMÉTRICO</div>
+          <div class="rep-top-logo"><img src="assets/logo_adalam.png" alt="Logo" class="mhp-logo"></div>
+        </div>
+        <div class="rep-top-row2"><span>Informe psicométrico</span></div>
+        <div class="rep-top-row3">FACTORES DE LIDERAZGO – INTERPRETACIÓN</div>
+      </div>
+
+      <h2 class="interp-title">1.- Datos personales.</h2>
+      <div id="repHeaderBox2" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
+
+      <h2 class="interp-title">2.- Interpretación por factores y perfil global</h2>
+      <div id="interpBloques" class="interp-bloque"></div>
+      <div id="perfilGlobal" class="interp-bloque"></div>
+      <div id="recomendaciones" class="interp-bloque"></div>
+      <div id="planAccion" class="interp-bloque"></div>
+    </section>
+
+    <div class="page-break"></div>
+
+    <!-- PAGE 3: tabla -->
+    <section id="pageResultados" class="page">
+      <div class="card">
+        <div><b>Contestadas:</b> <span id="contestadasLine">—</span></div>
+        <h3 style="margin-top:8px">Por factor</h3>
+        <table class="result-table" id="subTable">
+          <thead><tr><th>Bloque</th><th>Factor</th><th>Ítems</th><th>Puntos</th><th>%</th><th>Rango</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  // =========================
+  // REPORTE v2 LIDERAZGO (BASE)
+  // Regla: este reporte NO calcula scoring por ítem y NO contiene banco de preguntas.
+  // Solo renderiza resultados ya procesados desde API.
+  // =========================
+
+  const $ = s => document.querySelector(s);
+  const clamp = (n,min,max)=>Math.max(min,Math.min(max,n));
+  const norm = s => (s||"").toString().trim().toLowerCase();
+
+  // Ajusta estos nombres según el snapshot real que devuelva /api/report
+  const BLOQUES_LIDERAZGO = [
+    { key:'A', titulo:'RELACIONES / CONTACTO', el:'bloqueA', idxEl:'idxA', idxLabel:'IA' },
+    { key:'B', titulo:'INFLUENCIA / EJECUCIÓN', el:'bloqueB', idxEl:'idxB', idxLabel:'IB' },
+    { key:'C', titulo:'PENSAMIENTO / DIRECCIÓN', el:'bloqueC', idxEl:'idxC', idxLabel:'IC' },
+    { key:'D', titulo:'VISIÓN / ESTRATEGIA', el:null, idxEl:null, idxLabel:'ID' }
+  ];
+
+  function rangoBadge(p){
+    if (p<=40) return {txt:'1–40 Por desarrollar', cls:'b-red'};
+    if (p<=70) return {txt:'41–70 Por fortalecer', cls:'b-orange'};
+    return {txt:'71–100 Por enriquecer', cls:'b-green'};
+  }
+
+  function ivToCol(v){
+    if (v === null || v === undefined) return 2;
+    const n = Number(v);
+    if (!Number.isNaN(n)){
+      if (n===0 || n===1 || n===2) return n+1;
+      if (Number.isInteger(n) && n>=1 && n<=3) return n;
+      if (n>=71) return 1; if (n>=41) return 2; if (n>=0) return 3;
+    }
+    return 2;
+  }
+  function highlightIV(rowId,colIndex){
+    const row=document.getElementById(rowId); if(!row) return;
+    [...row.children].forEach(td=>td.classList.remove('hl'));
+    const td = row.children[Math.max(1,Math.min(3,colIndex|0))]; if(td) td.classList.add('hl');
+  }
+
+  function setCurveMarker(score){
+    const s = clamp(Number(score)||0,1,100);
+    const wrap = document.querySelector('.curve-gauge');
+    const img  = document.getElementById('freqCurveImg');
+    const mk   = document.getElementById('curveMarker');
+    if(!wrap || !img || !mk) return;
+    const place = () => {
+      const rW = wrap.getBoundingClientRect();
+      const rI = img.getBoundingClientRect();
+      const natW = img.naturalWidth || 1;
+      const natH = img.naturalHeight || 1;
+      const scale = Math.min(rI.width/natW, rI.height/natH);
+      const drawnW = natW * scale;
+      const offsetXInsideImg = (rI.width - drawnW)/2;
+      const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+      const padL = drawnW * 0.12;
+      const padR = drawnW * 0.16;
+      const minX = leftInWrap + padL;
+      const maxX = leftInWrap + drawnW - padR;
+      const t = (s - 1) / 99;
+      mk.style.left = `${minX + t*(maxX-minX)}px`;
+      const bottomAt0 = 94, bottomAt100 = 26;
+      mk.style.bottom = `${bottomAt0 + t*(bottomAt100-bottomAt0)}px`;
+    };
+    if (img.complete) requestAnimationFrame(place);
+    else img.addEventListener('load', () => requestAnimationFrame(place), {once:true});
+  }
+
+  function barCell(pct){
+    const wrap = document.createElement('div');
+    wrap.style.display='grid';
+    wrap.style.gridTemplateColumns='220px 1fr 1fr 1fr';
+    wrap.style.gap='6px';
+    return wrap;
+  }
+
+  function add3RangeRow(container, label, pct){
+    const row = document.createElement('div');
+    row.style.display='grid'; row.style.gridTemplateColumns='240px 1fr 1fr 1fr'; row.style.gap='6px'; row.style.alignItems='center'; row.style.margin='2px 0';
+    const name = document.createElement('div'); name.textContent = label; name.style.fontWeight='700'; name.style.fontSize='12px'; row.appendChild(name);
+    for (let i=0;i<3;i++){
+      const track=document.createElement('div');
+      track.style.position='relative'; track.style.height='14px'; track.style.border='1px solid #aab'; track.style.borderRadius='4px'; track.style.background='#f3f5f8'; track.style.overflow='hidden';
+      const fill=document.createElement('div'); fill.style.position='absolute'; fill.style.left='0'; fill.style.top='0'; fill.style.bottom='0'; fill.style.background='#6b7280';
+      let w=0; if(i===0 && pct<=40) w=Math.max(2,Math.round((pct/40)*100)); if(i===1 && pct>40 && pct<=70) w=Math.max(2,Math.round(((pct-40)/30)*100)); if(i===2 && pct>70) w=Math.max(2,Math.round(((pct-70)/30)*100));
+      fill.style.width = w + '%'; track.appendChild(fill); row.appendChild(track);
+    }
+    container.appendChild(row);
+  }
+
+  function buildBloque(containerId, rows){
+    const cont = document.getElementById(containerId); if(!cont) return;
+    cont.innerHTML = '';
+    const head = document.createElement('div');
+    head.style.display='grid'; head.style.gridTemplateColumns='240px 1fr 1fr 1fr'; head.style.gap='6px'; head.style.marginBottom='6px';
+    head.innerHTML = '<div></div><div style="font-size:11px;text-align:center;color:#374151">POR DESARROLLAR</div><div style="font-size:11px;text-align:center;color:#374151">POR FORTALECER</div><div style="font-size:11px;text-align:center;color:#374151">POR ENRIQUECER</div>';
+    cont.appendChild(head);
+    (rows||[]).forEach(r => add3RangeRow(cont, r.name || r.factor || '—', Math.round(Number(r.pct)||0)));
+  }
+
+  function renderPage2Table(subRows){
+    const tbody = document.querySelector('#subTable tbody');
+    tbody.innerHTML='';
+    (subRows||[]).forEach(r=>{
+      const pct = Math.round(Number(r.pct ?? r.percent ?? 0));
+      const badge = rangoBadge(pct);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${r.bloqueLabel || r.bloque || r.block || '—'}</td>
+        <td>${r.name || r.factor || r.subhabilidad || '—'}</td>
+        <td>${r.items ?? r.n_items ?? '—'}</td>
+        <td>${r.puntos ?? r.points ?? '—'}</td>
+        <td><b>${pct}%</b></td>
+        <td><span class="badge ${badge.cls}">${badge.txt}</span></td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderHeader(attempt, snap, codigo){
+    const nombre = attempt.nombre || snap.nombre || '—';
+    const curso = snap.curso || attempt.curso || '—';
+    const grupo = snap.grupo || attempt.grupo || '—';
+    const inst = snap.institucion || attempt.institucion || '—';
+    const edad = attempt.edad_anios ?? snap.edad_anios ?? '—';
+    const fecha = attempt.created_at ? new Date(attempt.created_at) : new Date();
+    const fechaTxt = fecha.toLocaleDateString('es-EC', { day:'numeric', month:'long', year:'numeric' });
+    $('#repDateLine').textContent = new Date().toLocaleString('es-EC', { dateStyle:'short', timeStyle:'short' });
+    $('#repDateLine2').textContent = new Date().toLocaleString('es-EC', { dateStyle:'short', timeStyle:'short' });
+
+    const html = `
+      <div><b>Nombre:</b> ${nombre}</div>
+      <div><b>Edad:</b> ${edad}</div>
+      <div><b>Curso/Grado:</b> ${curso}</div>
+      <div><b>Grupo:</b> ${grupo}</div>
+      <div style="grid-column:1 / -1"><b>Institución:</b> ${inst}</div>
+      <div><b>Fecha:</b> ${fechaTxt}</div>
+      <div><b>Código:</b> ${codigo}</div>`;
+    $('#repHeaderBox').innerHTML = html;
+    $('#repHeaderBox2').innerHTML = html;
+  }
+
+  // Adaptador flexible: convierte la respuesta del API a una estructura usable por el reporte.
+  function adaptData(data){
+    const attempt = data.attempt || {};
+    const snap = data.snapshot || {};
+    const resultados = data.resultados || data.results || snap.resultados || {};
+
+    // PRIORIDAD: usar resultados ya calculados por backend/snapshot (NO recalcular por respuestas)
+    const factors = resultados.factores || resultados.subpruebas || resultados.subescalas || snap.factores || [];
+    const bloques = resultados.bloques || snap.bloques || [];
+    const globales = resultados.globales || snap.globales || {};
+
+    // Mapeo mínimo. Ajustaremos nombres reales en el siguiente paso.
+    const subRows = (Array.isArray(factors) ? factors : []).map(x => ({
+      bloque: x.bloque || x.block || x.grupo || x.dimension || '—',
+      bloqueLabel: x.bloqueLabel || x.bloque || x.block || x.grupo || x.dimension || '—',
+      name: x.factor || x.subprueba || x.subhabilidad || x.nombre || '—',
+      pct: Number(x.percent ?? x.pct ?? x.porcentaje ?? x.valor ?? 0),
+      items: x.items ?? x.n_items ?? x.n ?? '—',
+      puntos: x.puntos ?? x.points ?? x.score ?? '—'
+    }));
+
+    const bloqueRows = {
+      A: subRows.filter(r => norm(r.bloque).includes('a') || norm(r.bloque).includes('rel') || norm(r.bloque).includes('contact')),
+      B: subRows.filter(r => norm(r.bloque).includes('b') || norm(r.bloque).includes('infl') || norm(r.bloque).includes('ejec')),
+      C: subRows.filter(r => norm(r.bloque).includes('c') || norm(r.bloque).includes('juicio') || norm(r.bloque).includes('desempe') || norm(r.bloque).includes('ritmo'))
+    };
+
+    const idxA = Number((bloques.find?.(b=>norm(b.bloque||b.nombre||'').includes('a')) || {}).pct ?? 0) || null;
+    const idxB = Number((bloques.find?.(b=>norm(b.bloque||b.nombre||'').includes('b')) || {}).pct ?? 0) || null;
+    const idxC = Number((bloques.find?.(b=>norm(b.bloque||b.nombre||'').includes('c')) || {}).pct ?? 0) || null;
+
+    const ifl = Number(globales.IFL ?? globales.ifl ?? resultados.ifl ?? snap.ifl ?? 0) || Math.round(subRows.reduce((a,b)=>a+(Number(b.pct)||0),0) / Math.max(1,subRows.length));
+
+    return { attempt, snap, resultados, subRows, bloqueRows, idxA, idxB, idxC, ifl };
+  }
+
+  function renderInterpretacionBase(model){
+    const { subRows, ifl } = model;
+    const subsSorted = [...subRows].sort((a,b)=>(a.pct??0)-(b.pct??0));
+    const topDev = subsSorted.filter(x => (x.pct??0) <= 40).slice(0,4);
+    const topMid = subsSorted.filter(x => (x.pct??0) > 40 && (x.pct??0) <= 70).slice(0,4);
+
+    $('#interpBloques').innerHTML = `
+      <div style="font-weight:800;font-size:16px">Descripción general del perfil</div>
+      <div style="margin-top:6px;color:#4b5563">Base v2: aquí irá la interpretación por bloques/factores de liderazgo (12 factores), siguiendo el estilo robusto de la Parte 2 del reporte emocional.</div>`;
+
+    $('#perfilGlobal').innerHTML = `
+      <div style="font-weight:800;font-size:16px">Perfil cuantitativo global</div>
+      <div style="margin-top:6px">Índice Global de Factores de Liderazgo (IFL): <b>${Math.round(ifl||0)}</b>/100</div>`;
+
+    $('#recomendaciones').innerHTML = `
+      <div style="font-weight:800;font-size:16px">Recomendaciones</div>
+      <ul style="margin:6px 0 0 16px;padding:0">
+        ${topDev.length ? `<li>Priorizar factores por desarrollar: ${topDev.map(x=>x.name).join(', ')}.</li>` : ''}
+        ${topMid.length ? `<li>Fortalecer factores en rango medio: ${topMid.map(x=>x.name).join(', ')}.</li>` : ''}
+        <li>Definir 1 hábito semanal medible por factor priorizado.</li>
+        <li>Revisar avances cada 2 semanas con evidencia (situaciones reales / feedback).</li>
+      </ul>`;
+
+    $('#planAccion').innerHTML = `
+      <div style="font-weight:800;font-size:16px">Plan de acción</div>
+      <div style="margin-top:6px;color:#4b5563">Base v2 lista para insertar plan detallado por nivel y por factor (similar al esquema robusto del reporte emocional).</div>`;
+  }
+
+  function renderReporte(data, codigo){
+    const model = adaptData(data);
+    const { attempt, snap, subRows, bloqueRows, idxA, idxB, idxC, ifl, resultados } = model;
+
+    renderHeader(attempt, snap, codigo);
+
+    $('#idxA').textContent = idxA ?? '—';
+    $('#idxB').textContent = idxB ?? '—';
+    $('#idxC').textContent = idxC ?? '—';
+    $('#repIFL').textContent = Math.round(ifl || 0) || '—';
+
+    buildBloque('bloqueA', bloqueRows.A);
+    buildBloque('bloqueB', bloqueRows.B);
+    buildBloque('bloqueC', bloqueRows.C);
+    renderPage2Table(subRows);
+    renderInterpretacionBase(model);
+    setCurveMarker(ifl);
+
+    const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? resultados?.globales?.IV1;
+    const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? resultados?.globales?.IV2;
+    const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? resultados?.globales?.IV3;
+    highlightIV('iv1Row', ivToCol(iv1Val));
+    highlightIV('iv2Row', ivToCol(iv2Val));
+    highlightIV('iv3Row', ivToCol(iv3Val));
+
+    $('#contestadasLine').textContent = attempt.contestadas || attempt.n_respondidas || '132 de 132';
+    $('#reporteContainer').style.display = 'block';
+  }
+
+  async function cargarReporte(codigo){
+    $('#msg').textContent = 'Buscando...'; $('#msg').className='msg'; $('#reporteContainer').style.display='none';
+    try{
+      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const data = await r.json();
+      if(!r.ok || data.error) throw new Error(data.error || 'No encontrado');
+      renderReporte(data, codigo);
+      $('#msg').textContent = 'OK'; $('#msg').className='msg ok';
+      window.__reporteLiderazgoV2_last = data; // debug temporal
+    }catch(err){
+      $('#msg').textContent = err.message || 'Error'; $('#msg').className='msg err';
+      console.error(err);
+    }
+  }
+
+  $('#btnVer').addEventListener('click', ()=>{
+    const codigo = ($('#codigoInput').value || '').trim();
+    if(!codigo) return;
+    cargarReporte(codigo);
+  });
+  $('#btnImprimir').addEventListener('click', ()=>window.print());
+  $('#btnExportJSON').addEventListener('click', ()=>{
+    const data = window.__reporteLiderazgoV2_last;
+    if(!data) return;
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'reporte-liderazgo-v2-debug.json'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  });
+
+  // auto ?codigo=
+  const qp = new URLSearchParams(location.search);
+  const codigoQP = qp.get('codigo');
+  if(codigoQP){ $('#codigoInput').value = codigoQP; cargarReporte(codigoQP); }
+</script>
+</body>
+</html>
