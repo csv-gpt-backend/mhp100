@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN 23 20 13  Inteligencia Emocional – Reporte u</title>
+  <title>LUN 23 21 00  Inteligencia Emocional – Reporte u</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1585,7 +1585,7 @@ const RECOM_ESTILOS = {
         const nivT = nivelFromPctInv(extras.timidezVal, true);
         (RECOM_ESTILOS.timidez[nivT] || []).forEach(txt=>{
           const li=document.createElement("li");
-          li.textContent = txt;
+          li.textContent = textoPlanClaro(txt);
           lista.appendChild(li);
         });
       }
@@ -1601,7 +1601,7 @@ const RECOM_ESTILOS = {
         const nivA = nivelFromPctInv(extras.agresionVal, true);
         (RECOM_ESTILOS.agresion[nivA] || []).forEach(txt=>{
           const li=document.createElement("li");
-          li.textContent = txt;
+          li.textContent = textoPlanClaro(txt);
           lista.appendChild(li);
         });
       }
@@ -1634,61 +1634,139 @@ cont.appendChild(lista);
 
     const textoPlanClaro = (s) => {
       if (s == null) return "";
-      let t = String(s);
+      let t = String(s).replace(/\s+/g, " ").trim();
 
-      // Expandir abreviaturas para lenguaje más claro
+      // Expandir abreviaturas y expresiones cortas
       t = t.replace(/\b(\d+)\s*min\b/gi, "$1 minutos");
       t = t.replace(/\b(\d+)\s*veces\/sem\b/gi, "$1 veces por semana");
       t = t.replace(/\b(\d+)\s*vez\/sem\b/gi, "$1 vez por semana");
       t = t.replace(/\b(\d+)\s*conversaciones\/sem\b/gi, "$1 conversaciones por semana");
       t = t.replace(/\b(\d+)\s*prácticas\/sem\b/gi, "$1 prácticas por semana");
       t = t.replace(/\b(\d+)\s*bloques\/sem\b/gi, "$1 bloques por semana");
-      t = t.replace(/\b(\d+)\s*rol(?:es)?\/sem\b/gi, (m)=> m.replace("/sem", " por semana"));
+      t = t.replace(/\b(\d+)\s*roles\/sem\b/gi, "$1 roles por semana");
+      t = t.replace(/\b(\d+)\s*rol\/sem\b/gi, "$1 rol por semana");
       t = t.replace(/\b(\d+)\s*días\/sem\b/gi, "$1 días por semana");
       t = t.replace(/\bsem\.?\b/gi, "semana");
       t = t.replace(/\bquincenal\b/gi, "cada dos semanas");
       t = t.replace(/\bsemanal\b/gi, "cada semana");
       t = t.replace(/\bmensual\b/gi, "cada mes");
+      t = t.replace(/\bHR\b/g, "recursos humanos");
 
-      // Quitar abreviaciones molestas o texto truncado
-      t = t.replace(/pr\.\.\./g, "primero con acciones para la persona evaluada y luego con apoyos");
-      t = t.replace(/\.\.\./g, " ");
+      // Quitar puntos suspensivos o texto truncado
+      t = t.replace(/pr\.\.\./gi, "primero con acciones para la persona evaluada y luego con apoyos");
+      t = t.replace(/\.\.\./g, ".");
 
-      // Aterrizar acciones ambiguas con ejemplos concretos
+      // Aterrizar actividades (explicando qué hacer / con quién / sobre qué)
       t = t.replace(
-        /Escucha activa \(2 conversaciones[^:]*:\s*/i,
-        "Escucha activa (2 conversaciones por semana con una persona de confianza, familiar, compañero o colega, sobre temas cotidianos como tareas, acuerdos o actividades del día): "
+        /^Rutina breve diaria \(5 minutos\): identificar emoción \+ causa \+ acción útil\.?$/i,
+        "Una vez al día (cinco minutos), escribir en una hoja o en el teléfono: qué emoción sintió, qué situación la provocó y qué acción útil hará después (por ejemplo: respirar, pedir ayuda, hacer una pausa o hablar con calma)."
       );
+
+      t = t.replace(
+        /^Plan diario: 3 tareas máximas \+ checklist \(inicio y cierre del día\)\.?$/i,
+        "Al iniciar el día o la tarde, elegir y escribir tres tareas concretas (una importante, una corta y una de cierre) como estudiar un tema, terminar una tarea, ordenar materiales o responder un pendiente. Marcar con una señal cuando se complete cada una y revisar al final del día qué quedó pendiente."
+      );
+
+      t = t.replace(
+        /^Micro-meta semanal: definir, ejecutar y medir avance \(%\)\.?$/i,
+        "Definir una meta pequeña para la semana (por ejemplo: completar una tarea pendiente, practicar una habilidad o terminar una lectura), ejecutarla en pasos simples y anotar al final qué porcentaje se logró y qué faltó."
+      );
+
+      t = t.replace(
+        /^Decisión guiada: 2 opciones \+ consecuencias corto\/largo plazo \(1 caso\/sem\)\.?$/i,
+        "Una vez por semana, elegir una situación real para decidir (por ejemplo: organizar tiempo, resolver un pendiente o responder un conflicto), escribir dos opciones y anotar una consecuencia a corto plazo y otra a largo plazo de cada opción antes de elegir."
+      );
+
+      t = t.replace(
+        /^Escucha activa \(2 conversaciones\/sem\):/i,
+        "Escucha activa (2 conversaciones por semana): conversar durante cinco a diez minutos con un familiar, compañero, docente, colega o supervisor sobre una tarea, una situación del día o un acuerdo pendiente; "
+      );
+
+      t = t.replace(
+        /Escucha activa \(2 conversaciones por semana con[^:]*:\s*/i,
+        "Escucha activa (2 conversaciones por semana): conversar durante cinco a diez minutos con un familiar, compañero, docente, colega o supervisor sobre una tarea, una situación del día o un acuerdo pendiente; "
+      );
+
       t = t.replace(
         /resumir lo entendido y hacer 1 pregunta de aclaración antes de responder\.?/i,
-        "escuchar sin interrumpir, resumir con una frase lo entendido y hacer una pregunta de aclaración antes de responder."
-      );
-      t = t.replace(
-        /Reconocer conductas prosociales y cooperación: señalar conductas concretas \(ej\. /i,
-        "Reconocer conductas prosociales y cooperación: reforzar con ejemplos concretos (por ejemplo, "
-      );
-      t = t.replace(
-        /Participar en una actividad grupal con rol definido \(1 vez por semana\): /i,
-        "Participar en una actividad grupal con rol definido (1 vez por semana, por ejemplo en una dinámica de clase, tarea familiar, reunión de equipo o actividad de trabajo): "
-      );
-      t = t.replace(
-        /Bloques de trabajo 20–25 minutos \(2–3 veces por semana\): /i,
-        "Bloques de trabajo de 20 a 25 minutos (2 a 3 veces por semana): elegir una tarea concreta (estudiar, avanzar una tarea, ordenar materiales, responder pendientes o preparar una actividad), "
-      );
-      t = t.replace(
-        /Asignar un rol pequeño de iniciativa 1 vez por semana \(coordinar una parte, recordar una tarea, controlar tiempo o confirmar acuerdos\) con supervisión y cierre breve\.?/i,
-        "Asumir un rol pequeño de iniciativa 1 vez por semana (por ejemplo, coordinar una parte, recordar una tarea, controlar el tiempo o confirmar acuerdos) con supervisión y cierre breve."
-      );
-      t = t.replace(
-        /Checklist de 3 prioridades por día \(4 días por semana\)\.?/i,
-        "Al iniciar el día o la tarde, escribir 3 prioridades en una hoja (1 tarea importante, 1 tarea corta y 1 tarea de cierre) y marcar cada una al completarla, 4 días por semana."
+        "escuchar sin interrumpir, resumir con una frase lo que entendió y hacer una pregunta de aclaración antes de responder."
       );
 
-      // Hacer indicadores más observables (sin cambiar la lógica)
-      if (/^Indicador:/i.test(t)) return t;
-      if (/registro|checklist|anotar|anotada|evidencia/i.test(t) === false && /indicador/i.test(t)) {
-        t += " Registrar cumplimiento en una nota breve.";
+      t = t.replace(
+        /^Reconocer conductas prosociales y cooperación.*$/i,
+        "Reconocer conductas prosociales y cooperación: señalar con palabras claras una conducta útil observada (por ejemplo: esperar turno, ayudar a otra persona, escuchar sin interrumpir, cumplir un acuerdo o proponer una solución sin pelear) al menos dos veces por semana."
+      );
+
+      t = t.replace(
+        /^Participar en una actividad grupal con rol definido \(1 vez\/sem\):/i,
+        "Participar en una actividad grupal con rol definido (una vez por semana): elegir una actividad concreta (trabajo en grupo, tarea familiar, reunión de equipo, dinámica de clase o actividad de trabajo) y asumir un rol claro como tomar notas, controlar el tiempo, repartir materiales, leer instrucciones o presentar una parte; "
+      );
+
+      t = t.replace(
+        /^Bloques de trabajo 20–25 min \(2–3 veces\/sem\):/i,
+        "Bloques de trabajo de veinte a veinticinco minutos (dos a tres veces por semana): elegir una sola tarea concreta (estudiar un tema, hacer una tarea, ordenar materiales, responder pendientes o preparar una actividad), "
+      );
+
+      t = t.replace(
+        /^Bloques de trabajo 20–25 minutos \(2–3 veces por semana\):/i,
+        "Bloques de trabajo de veinte a veinticinco minutos (dos a tres veces por semana): elegir una sola tarea concreta (estudiar un tema, hacer una tarea, ordenar materiales, responder pendientes o preparar una actividad), "
+      );
+
+      t = t.replace(
+        /^Asignar un rol pequeño de iniciativa 1 vez\/sem/i,
+        "Asumir un rol pequeño de iniciativa una vez por semana"
+      );
+
+      t = t.replace(
+        /^Asignar un rol pequeño de iniciativa 1 vez por semana/i,
+        "Asumir un rol pequeño de iniciativa una vez por semana"
+      );
+
+      t = t.replace(
+        /^Revisión de tareas: qué quedó pendiente y plan de recuperación\.?$/i,
+        "Una vez por semana, revisar qué tareas quedaron pendientes, escribir por qué no se completaron y definir cuándo se retomarán (día y hora aproximada) con un plan de recuperación simple."
+      );
+
+      t = t.replace(
+        /^Registro semanal: 2 logros concretos \+ 1 ajuste para la semana siguiente\.?$/i,
+        "Una vez por semana, escribir dos logros concretos (qué hizo y qué resultado obtuvo) y un ajuste práctico para la siguiente semana."
+      );
+
+      t = t.replace(
+        /^Práctica 4 días\/sem: respiración 4–6 \(2 minutos\) antes de tareas demandantes\.?$/i,
+        "Cuatro días por semana, antes de una tarea demandante, practicar respiración lenta durante dos minutos (inhalar en cuatro tiempos y exhalar en seis) para iniciar con mayor calma."
+      );
+
+      t = t.replace(
+        /^2 veces\/sem: practicar mensajes en primera persona \(yo siento \/ yo necesito\)\.?$/i,
+        "Dos veces por semana, practicar mensajes en primera persona en una situación real o simulada: decir qué siente, qué necesita y qué pide, sin atacar a la otra persona."
+      );
+
+      t = t.replace(
+        /^Ejercicio guiado 1 vez\/sem: perspectiva del otro .*$/i,
+        "Una vez por semana, elegir una situación reciente y responder tres preguntas: qué pudo pensar la otra persona, qué pudo sentir y qué pudo necesitar; luego comentar una respuesta posible más respetuosa."
+      );
+
+      t = t.replace(
+        /^Resolución de conflicto: situación–emoción–pedido .*$/i,
+        "Una vez por semana, usar una guía breve en un caso real: describir la situación, decir qué emoción apareció y formular un pedido claro o un acuerdo posible sin insultar."
+      );
+
+      // Ajustes de contexto para versión profesional
+      if (esProfesional) {
+        t = t.replace(/\bdocente\b/gi, "supervisor");
+        t = t.replace(/\baula\b/gi, "equipo de trabajo");
+        t = t.replace(/\bclase\b/gi, "reunión");
+        t = t.replace(/\bcompañeros\b/gi, "colegas");
+        t = t.replace(/\bcompañero puente\b/gi, "colega de apoyo");
+        t = t.replace(/\borientador\b/gi, "mentor");
       }
+
+      // Indicadores y revisiones en lenguaje completo
+      if (/^Indicador:/i.test(t) && !/registro|checklist|lista|nota breve/i.test(t)) {
+        t = t + " Registrar cumplimiento en una nota breve o lista de verificación.";
+      }
+      t = t.replace(/\bchecklist\b/gi, "lista de verificación");
 
       return t.replace(/\s{2,}/g, " ").trim();
     };
@@ -1706,7 +1784,7 @@ cont.appendChild(lista);
 
     const sub=document.createElement("div");
     sub.className="recom-subtitle";
-    sub.textContent="Plan práctico priorizado según puntajes: primero incluye acciones para la persona evaluada (qué hacer), y después acciones de apoyo para hogar, aula e intervención profesional (cómo acompañar).";
+    sub.textContent = esProfesional ? "Plan práctico priorizado según puntajes: primero incluye acciones para la persona evaluada (qué hacer), y después acciones de apoyo para casa, trabajo y acompañamiento profesional (cómo acompañar)." : "Plan práctico priorizado según puntajes: primero incluye acciones para la persona evaluada (qué hacer), y después acciones de apoyo para hogar, aula e intervención profesional (cómo acompañar).";
     cont.appendChild(sub);
 // ===== Prioridades según puntaje (Top 3) =====
     const items = [
@@ -1767,7 +1845,7 @@ cont.appendChild(lista);
         }
 
         const li=document.createElement("li");
-        li.textContent = txt;
+        li.textContent = textoPlanClaro(txt);
         li.style.marginLeft = "18px"; // un poco más a la derecha
         ul.appendChild(li);
       });
