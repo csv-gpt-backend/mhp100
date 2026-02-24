@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>MART 24 15 46 Reporte Factores de Liderazgo</title>
+  <title>MART 24 16 19 Reporte Factores de Liderazgo</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db;
@@ -318,20 +318,23 @@
     });
   }
 
-  function renderHeader(attempt, snap, codigo){
-    const nombre = attempt.nombre || snap.nombre || '—';
-    const curso = snap.curso || attempt.curso || '—';
-    const grupo = snap.grupo || attempt.grupo || '—';
-    const inst = snap.institucion || attempt.institucion || '—';
-    const edad = attempt.edad_anios ?? snap.edad_anios ?? '—';
-    const fecha = attempt.created_at ? new Date(attempt.created_at) : new Date();
+  function renderHeader(attempt, snap, codigo, autosave, participant){
+    // Header exacto acordado (sin edad)
+    // Prioridad de campos visibles: snapshot > attempt > autosave.snapshot > participant
+    const aSnap = autosave?.snapshot || {};
+    const nombre = snap.nombre || attempt.nombre || aSnap.nombre || participant.nombre || participant.full_name || '—';
+    const curso = snap.curso || attempt.curso || aSnap.curso || participant.curso || participant.grado || '—';
+    const grupo = snap.grupo || attempt.grupo || aSnap.grupo || participant.grupo || '—';
+    const inst = snap.institucion || attempt.institucion || aSnap.institucion || participant.institucion || '—';
+
+    const fechaBase = attempt.created_at || attempt.fecha || snap.fecha || aSnap.fecha || null;
+    const fecha = fechaBase ? new Date(fechaBase) : new Date();
     const fechaTxt = fecha.toLocaleDateString('es-EC', { day:'numeric', month:'long', year:'numeric' });
     $('#repDateLine').textContent = new Date().toLocaleString('es-EC', { dateStyle:'short', timeStyle:'short' });
     $('#repDateLine2').textContent = new Date().toLocaleString('es-EC', { dateStyle:'short', timeStyle:'short' });
 
     const html = `
       <div><b>Nombre:</b> ${nombre}</div>
-      <div><b>Edad:</b> ${edad}</div>
       <div><b>Curso/Grado:</b> ${curso}</div>
       <div><b>Grupo:</b> ${grupo}</div>
       <div style="grid-column:1 / -1"><b>Institución:</b> ${inst}</div>
@@ -343,9 +346,16 @@
 
   // Adaptador flexible: convierte la respuesta del API a una estructura usable por el reporte.
   function adaptData(data){
+    // Fuente de datos (prioridad acordada): attempt final > autosave > snapshot/participant
     const attempt = data.attempt || {};
-    const snap = data.snapshot || {};
-    const resultados = data.resultados || data.results || snap.resultados || {};
+    const autosave = data.autosave || data.auto || {};
+    const participant = data.participant || data.participants || {};
+    const snap = data.snapshot || attempt.snapshot || autosave.snapshot || participant.snapshot || {};
+
+    // Respuestas crudas preferidas para futuros cálculos de reporte (sin reinversión):
+    // 1) attempt.responses  2) autosave.responses
+    const responses = attempt.responses || data.responses || autosave.responses || null;
+    const resultados = data.resultados || data.results || attempt.resultados || snap.resultados || {};
 
     // PRIORIDAD: usar resultados ya calculados por backend/snapshot (NO recalcular por respuestas)
     const factors = resultados.factores || resultados.subpruebas || resultados.subescalas || snap.factores || [];
@@ -415,7 +425,7 @@
 
     const ifl = Number(globales.IFL ?? globales.ifl ?? resultados.ifl ?? snap.ifl ?? 0) || Math.round(subRows.reduce((a,b)=>a+(Number(b.pct)||0),0) / Math.max(1,subRows.length));
 
-    return { attempt, snap, resultados, subRows: subRowsCanon, bloqueRows, idxA: idxAFinal, idxB: idxBFinal, idxC: idxCFinal, idxD: idxDFinal, ifl };
+    return { attempt, autosave, participant, snap, responses, resultados, subRows: subRowsCanon, bloqueRows, idxA: idxAFinal, idxB: idxBFinal, idxC: idxCFinal, idxD: idxDFinal, ifl };
   }
 
   function renderInterpretacionBase(model){
@@ -448,9 +458,9 @@
 
   function renderReporte(data, codigo){
     const model = adaptData(data);
-    const { attempt, snap, subRows, bloqueRows, idxA, idxB, idxC, idxD, ifl, resultados } = model;
+    const { attempt, autosave, participant, snap, subRows, bloqueRows, idxA, idxB, idxC, idxD, ifl, resultados } = model;
 
-    renderHeader(attempt, snap, codigo);
+    renderHeader(attempt, snap, codigo, autosave, participant);
 
     $('#idxA').textContent = idxA ?? '—';
     $('#idxB').textContent = idxB ?? '—';
@@ -473,7 +483,7 @@
     highlightIV('iv2Row', ivToCol(iv2Val));
     highlightIV('iv3Row', ivToCol(iv3Val));
 
-    $('#contestadasLine').textContent = attempt.contestadas || attempt.n_respondidas || '132 de 132';
+    $('#contestadasLine').textContent = attempt.contestadas || attempt.n_respondidas || autosave?.contestadas || snap?.contestadas || '132 de 132';
     $('#reporteContainer').style.display = 'block';
   }
 
