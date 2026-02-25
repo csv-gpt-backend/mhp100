@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>GGGjue 12 31 Evaluación de Hábitos</title>
+  <title>XXXjue 12 31 Evaluación de Hábitos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -539,19 +539,18 @@ overflow-x: hidden !important;
 
 
 /* Hábitos: limpieza visual segura */
-#sectionBanner{display:none !important;}
-#pillTotal, #metaInfo{display:none !important;}
 
 
-/* Hábitos v4: limpieza visual segura (sin romper lógica) */
-#nota-genero{display:none !important;}              /* quita mensaje repetitivo */
+
+/* Hábitos v5: fix franja repetitiva + alineación labels */
+#nota-genero{ display:none !important; }            /* quita mensaje repetitivo */
 #sectionBanner{
-  visibility:hidden !important;                     /* mantiene la columna para alinear SIEMPRE */
+  visibility:hidden !important;                     /* conserva columna para alinear */
   background:transparent !important;
   border-color:transparent !important;
   color:transparent !important;
 }
-#pillTotal, #metaInfo{display:none !important;}     /* oculta fila meta */
+#pillTotal, #metaInfo{ display:none !important; }   /* oculta textos meta */
 
 </style>
 </head>
@@ -822,14 +821,7 @@ if (typeof PREINTRO === "undefined") {
   Te tomará 20 minutos, aproximadamente.
 </p>
     `,
-    instruccionesHtml: `
-<div class="preintro-box" style="max-width:760px;margin:0 auto;">
-  <h4>Recordatorio</h4>
-  <div class="muted" style="line-height:1.7">
-    Responde con sinceridad. No hay respuestas buenas o malas. Marca una sola opción por pregunta y continúa hasta finalizar.
-  </div>
-</div>
-    `
+    instruccionesHtml: ``
   };
 }
 
@@ -1624,32 +1616,27 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
 </div>
 
 
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  try{
-    var sb = document.getElementById('sectionBanner');
-    if(sb) sb.style.display = 'none';
-    var pill = document.getElementById('pillTotal');
-    if(pill && pill.parentElement) pill.parentElement.style.display = 'none';
-  }catch(e){}
-});
-</script>
-
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   try{
-    // Ocultar la fila meta completa SIN eliminar nodos usados por JS
+    // Quitar franja vacía (fila del total/meta), sin romper el JS que la actualiza
     var pill = document.getElementById('pillTotal');
-    if (pill && pill.parentElement) {
-      pill.parentElement.style.display = 'none';
-    }
-    // Asegurar que el banner mantenga espacio (alineación de labels)
+    if (pill && pill.parentElement) pill.parentElement.style.display = 'none';
+
+    // Mantener el banner como placeholder para alinear "SIEMPRE / ALGUNAS VECES / RARA VEZ"
     var sb = document.getElementById('sectionBanner');
     if (sb) {
       sb.textContent = '';
       sb.style.visibility = 'hidden';
+      sb.style.background = 'transparent';
+      sb.style.borderColor = 'transparent';
+      sb.style.color = 'transparent';
     }
+
+    // Ocultar nota repetitiva si existiera inline
+    var ng = document.getElementById('nota-genero');
+    if (ng) ng.style.display = 'none';
   } catch(e) {}
 });
 </script>
