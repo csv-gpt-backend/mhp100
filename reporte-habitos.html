@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>fffreporte-habitos</title>
+<title>XXX Rreporte-habitos</title>
 <style>
 :root{--ink:#0f172a;--muted:#64748b;--line:#dbe2ea;--bg:#f8fafc}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -13,11 +13,12 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
 .header .center{text-align:center;font-weight:900;letter-spacing:.08em}.header .right{text-align:right}.logo{height:54px;object-fit:contain}
 .title{text-align:center;margin:8px 0 12px}.title h1{margin:0;font-size:28px}.title h2{margin:4px 0 0;font-size:15px;color:#334155;letter-spacing:.06em}
 .card{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}
-.grid-user{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 12px}.field{border:1px solid #e7edf4;border-radius:10px;background:#fcfdff;padding:8px 10px}
-.field b{display:block;font-size:11px;color:#475569;text-transform:uppercase;margin-bottom:2px}.field span{font-weight:700;font-size:14px}
+.grid-user{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 10px}
+.field{border:0;background:transparent;padding:0}
+.field b{display:inline-block;font-size:11px;color:#475569;text-transform:uppercase;margin:0 6px 0 0}.field span{font-weight:800;font-size:13px}
 .part1{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
 .row-top{display:grid;grid-template-columns:1.02fr .98fr;gap:12px}
-.curve-wrap{position:relative;height:220px;border:1px solid #e7edf4;border-radius:12px;background:linear-gradient(180deg,#fff,#f8fafc);padding:8px}
+.curve-wrap{position:relative;height:220px;border:1px solid #e7edf4;border-radius:12px;background:#fff;padding:8px}
 .curve-wrap img{width:100%;height:100%;object-fit:contain;display:block}
 .curve-marker{position:absolute;z-index:5;width:30px;height:30px;transform:translate(-50%,-100%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
 .h3{margin:0 0 8px 0;font-size:14px;font-weight:900}
@@ -43,7 +44,7 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
 .factor ul{margin:0;padding-left:18px;font-size:13px;line-height:1.35}
 .rec{border:1px dashed #cbd5e1;border-radius:12px;background:#fbfdff;padding:10px}
 @media (max-width:860px){.row-top{grid-template-columns:1fr}.grid-user{grid-template-columns:1fr}.quick{grid-template-columns:1fr}.micro{grid-template-columns:1fr}.factor .head{grid-template-columns:1fr}.factor .left{border-right:0;border-bottom:1px solid var(--line)}}
-@media print{body{background:#fff}.wrap{max-width:none;margin:0;padding:0}.topbar{display:none}.sheet{display:block !important;border:0;box-shadow:none;border-radius:0;margin:0;padding:10mm}.sheet + .sheet{page-break-before:always}}
+@media print{body{background:#fff}.wrap{max-width:none;margin:0;padding:0}.topbar{display:none}.sheet{display:block !important;border:0;box-shadow:none;border-radius:0;margin:0 auto;padding:10mm;max-width:190mm}.sheet + .sheet{page-break-before:always}}.topbar{display:none}.sheet{display:block !important;border:0;box-shadow:none;border-radius:0;margin:0;padding:10mm}.sheet + .sheet{page-break-before:always}}
 </style></head>
 <body><div class="wrap">
 <div class="topbar"><input id="codigo" placeholder="Código"><button class="primary" id="ver">Ver reporte</button><button class="ghost" id="pdf">Imprimir / PDF</button><span id="msg" class="msg"></span></div>
@@ -132,14 +133,47 @@ function userFields(persona){
   ].map(([k,v])=>`<div class="field"><b>${k}</b><span>${v}</span></div>`).join("");
 }
 function marker(score){
-  const img=$("curveImg"), mk=$("marker"), wrap=$("curveWrap"); if(!img||!mk||!wrap) return;
+  const img=$("curveImg"), mk=$("marker"), wrap=$("curveWrap");
+  if(!img||!mk||!wrap) return;
+
+  const padL=0.12, padR=0.16;
+  const bottomAt0=94, bottomAt100=26; // calibrado (emocional)
+
   const place=()=>{
-    const ir=img.getBoundingClientRect(), wr=wrap.getBoundingClientRect(); if(!ir.width||!ir.height) return;
-    const padL=.12, padR=.16; const x=ir.width*(padL+(clamp(score,0,100)/100)*(1-padL-padR));
-    const bottomAt0=94,bottomAt100=26; const bottomPx=ir.height*((bottomAt0+(bottomAt100-bottomAt0)*(clamp(score,0,100)/100))/100);
-    mk.style.left=(x+(ir.left-wr.left))+"px"; mk.style.top=(ir.height-bottomPx+(ir.top-wr.top))+"px";
+    const wr=wrap.getBoundingClientRect();
+    const ir=img.getBoundingClientRect();
+    if(!ir.width||!ir.height) return;
+
+    const natW=img.naturalWidth||1, natH=img.naturalHeight||1;
+
+    // object-fit: contain
+    const scale=Math.min(ir.width/natW, ir.height/natH);
+    const drawnW=natW*scale;
+    const drawnH=natH*scale;
+    const offX=(ir.width-drawnW)/2;
+    const offY=(ir.height-drawnH)/2;
+
+    const leftInWrap=(ir.left-wr.left)+offX;
+    const bottomYinWrap=(ir.top-wr.top)+offY+drawnH;
+
+    const t=clamp(score,0,100)/100;
+    const minX=leftInWrap + drawnW*padL;
+    const maxX=leftInWrap + drawnW - drawnW*padR;
+    const x=minX + t*(maxX-minX);
+
+    const bottomPx=drawnH*((bottomAt0+(bottomAt100-bottomAt0)*t)/100);
+    const y=bottomYinWrap - bottomPx;
+
+    mk.style.left = x + "px";
+    mk.style.top  = y + "px";
   };
-  place(); requestAnimationFrame(place); setTimeout(place,120); img.onload=place; window.addEventListener("resize",place,{once:true});
+
+  if(img.complete) requestAnimationFrame(place);
+  else img.addEventListener("load", ()=>requestAnimationFrame(place), {once:true});
+
+  place();
+  setTimeout(place, 120);
+  window.addEventListener("resize", place, {once:true});
 }
 function render(data){
   const {persona,factores,igh}=parsePayload(data);
