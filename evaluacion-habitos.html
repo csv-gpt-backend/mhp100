@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>MIERC Evaluación Hábitos</title>
+  <title>jue 12 31 Evaluación Hábitos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -538,16 +538,9 @@ overflow-x: hidden !important;
 .scale-head .col-num { display: none !important; }
 
 
-/* Hábitos cleanup */
-#introExtraStrip, .intro-extra-strip, .legacy-strip-empty{display:none !important;}
-/* hide empty bars/containers from plantilla if they render sin contenido */
-div:has(> .nav-actions):empty{display:none !important;}
-
-
-/* tiny orange leftover badge */
-.badge-bloque-actual, #badgeBloqueActual, #bloqueChipActual, .chip-bloque-actual{
-  display:none !important;
-}
+/* Hábitos limpieza visual final */
+#sectionBanner, .section-banner { display:none !important; }
+#metaInfo { display:none !important; }
 
 </style>
 </head>
@@ -613,9 +606,7 @@ div:has(> .nav-actions):empty{display:none !important;}
             </p>
             <div class="scale-banner" aria-label="Escala">
               <div class="scale-spacer"></div>
-             <div id="sectionBanner" class="section-banner">Sección 1</div>
-
-              <div class="scale-badge">
+<div class="scale-badge">
                 <span class="scale-label">SIEMPRE</span>
 
               </div>
@@ -630,13 +621,7 @@ div:has(> .nav-actions):empty{display:none !important;}
             <div class="progress" aria-label="Progreso">
               <div class="bar" id="bar"></div>
             </div>
-
-            <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
-              <small id="metaInfo" class="muted"></small>
-            </div>
-
-            <div class="questions-header">
+<div class="questions-header">
               <div>#</div>
               <div>Pregunta</div>
               <div>1</div>
@@ -818,6 +803,7 @@ if (typeof PREINTRO === "undefined") {
   Te tomará 20 minutos, aproximadamente.
 </p>
     `,
+    instruccionesHtml: `<div class="preintro-box"><h4>Instrucciones</h4><p class="muted">Continúa para comenzar la autoevaluación.</p></div>`,
     seccionHtml: (sec) => {
       const safeLabels = (typeof labelsPorSeccion === "function")
         ? labelsPorSeccion(sec)
@@ -1160,7 +1146,7 @@ invertida: (String(invertida).trim() === "1") ? "Sí" : "No",
 
       const bloques = new Set(ITEMS.map(q => q.bloque));
       const subs = new Set(ITEMS.map(q => q.subhabilidad));
-      document.getElementById("metaInfo").textContent = bloques.size + " bloques · " + subs.size + " sub-habilidades";
+      var _metaInfoEl = document.getElementById("metaInfo"); if(_metaInfoEl) _metaInfoEl.textContent = "";
 
       document.getElementById("notaContinuar").textContent =
         "NOTA: Para continuar debes contestar todas las preguntas. Contestadas: " + ans + "/" + total + ".";
