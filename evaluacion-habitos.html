@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>VVjue 12 31 Evaluación de Hábitos</title>
+  <title>VVQQQQQQ Evaluación de Hábitos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -553,21 +553,14 @@ overflow-x: hidden !important;
 #pillTotal, #metaInfo{ display:none !important; }   /* oculta textos meta */
 
 
-/* Hábitos v7: quitar franja blanca del paso "Comenzar" sin romper botones */
-.preintro-box:empty{display:none !important;}
-.preintro-box[style*="display:none"]{display:none !important;}
-/* si el contenedor del paso 2 queda vacío, reducimos su espacio visual */
-#preintroModal .preintro-content:has([style*="display:none"]){
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  min-height: 0 !important;
+/* Hábitos v8: dos franjas útiles y centradas */
+#preintroModal .preintro-content{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
-
-#preintroModal .preintro-content > div[style*="display:none"]{
-  margin:0 !important;
-  padding:0 !important;
-  border:0 !important;
-  height:0 !important;
+#preintroModal .preintro-box{
+  border-radius:16px;
 }
 
 </style>
@@ -818,28 +811,32 @@ if (typeof PREINTRO === "undefined") {
 <p class="muted">
   Esta evaluación identifica el grado en el que has instalado en tu personalidad cuatro hábitos importantes para el desempeño efectivo de cualquier actividad que emprendas.
 </p>
-<div class="preintro-box" style="max-width:760px;margin:12px auto 0;">
-  <h4>Instrucciones para llenar la autoevaluación</h4>
-  <ol class="preintro-ul" style="margin:0; padding-left:18px; line-height:1.6;">
+
+<div class="preintro-box" style="max-width:980px;margin:14px auto 0;text-align:left;">
+  <h4 style="text-align:left">Instrucciones para llenar la autoevaluación</h4>
+  <ol class="preintro-ul" style="margin:0; padding-left:28px; line-height:1.65;">
     <li>Lee con detenimiento cada enunciado.</li>
     <li>Reflexiona.</li>
     <li>Selecciona la casilla que corresponda a la respuesta deseada, de acuerdo a los siguientes criterios:</li>
   </ol>
 </div>
-<div class="preintro-box" style="max-width:520px;margin:12px auto 0;">
-  <h4>Opciones de respuesta</h4>
-  <ul class="preintro-ul" style="margin:0;">
-    <li>SIEMPRE</li>
-    <li>ALGUNAS VECES</li>
-    <li>RARA VEZ</li>
-  </ul>
-</div>
-<p class="muted" style="margin-top:12px">
-  Una vez que inicies la autoevaluación continúa hasta terminar. <br>
-  Te tomará 20 minutos, aproximadamente.
-</p>
     `,
-    instruccionesHtml: `<div style="display:none!important;height:0!important;overflow:hidden!important;"></div>`
+    instruccionesHtml: `
+<div style="max-width:980px;margin:0 auto;">
+  <div class="preintro-box" style="max-width:680px;margin:0 auto 12px auto; text-align:left;">
+    <h4 style="text-align:left">Opciones de respuesta</h4>
+    <ul class="preintro-ul" style="margin:0; padding-left:28px; line-height:1.6;">
+      <li><strong>SIEMPRE</strong></li>
+      <li><strong>ALGUNAS VECES</strong></li>
+      <li><strong>RARA VEZ</strong></li>
+    </ul>
+  </div>
+  <p class="muted" style="margin:8px 0 0 0; text-align:left; line-height:1.5;">
+    Una vez que inicies la autoevaluación continúa hasta terminar.<br>
+    Te tomará 20 minutos, aproximadamente.
+  </p>
+</div>
+    `
   };
 }
 
@@ -1634,35 +1631,6 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
 </div>
 
 
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  function collapsePreintroBlankArea(){
-    try{
-      var modal = document.getElementById('preintroModal');
-      if(!modal) return;
-      var content = modal.querySelector('.preintro-content');
-      if(!content) return;
-      var txt = (content.innerText || '').trim();
-      if(!txt){
-        content.style.minHeight = '0';
-        content.style.paddingTop = '0';
-        content.style.paddingBottom = '0';
-      }
-    }catch(e){}
-  }
-  document.addEventListener('click', function(ev){
-    var t = ev.target;
-    if(!t) return;
-    if ((t.id && (t.id.includes('Preintro') || t.id.includes('preintro'))) || /Siguiente|Atrás|Comenzar/i.test(t.textContent||'')) {
-      setTimeout(collapsePreintroBlankArea, 30);
-      setTimeout(collapsePreintroBlankArea, 120);
-    }
-  }, true);
-  setTimeout(collapsePreintroBlankArea, 120);
-});
-</script>
 
 </body>
 </html>
