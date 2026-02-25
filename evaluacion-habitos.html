@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>MIER25 11 17Evaluación de Hábitos</title>
+  <title>MIER25 11 126 Evaluación de Hábitos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1390,11 +1390,12 @@ window.scrollTo(0, 0);
 
       const subMap = new Map();
       ITEMS.forEach(q => {
-        if (!subMap.has(q.subhabilidad))
+        if (!subMap.has(q.subhabilidad)) {
           subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
+        }
         const s = subMap.get(q.subhabilidad);
         s.items += 1;
-        s.pts += q.value ?? 0;
+        s.pts += (q.value ?? 0);
       });
 
       const subRows = Array.from(subMap.entries())
@@ -1403,61 +1404,55 @@ window.scrollTo(0, 0);
           const pct = max ? Math.round((v.pts / max) * 100) : 0;
           return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct };
         })
-        .sort(
-          (a, b) =>
-            (a.bloque || "").localeCompare(b.bloque || "") ||
-            (a.sub || "").localeCompare(b.sub || "")
+        .sort((a, b) =>
+          (a.bloque || "").localeCompare(b.bloque || "") ||
+          (a.sub || "").localeCompare(b.sub || "")
         );
 
       const bloqMap = new Map();
       subRows.forEach(r => {
-        if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0 });
+        if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0, pts: 0, items: 0 });
         const b = bloqMap.get(r.bloque);
         b.sumPct += r.pct;
         b.n += 1;
+        b.pts += r.pts;
+        b.items += r.items;
       });
 
       const bloqPercents = {};
+      const bloques = {};
       Array.from(bloqMap.entries()).forEach(([bloque, a]) => {
         const pct = a.n ? Math.round(a.sumPct / a.n) : 0;
         bloqPercents[bloque] = pct;
+        bloques[bloque] = { pct, pts: a.pts, items: a.items, max: a.items * 3 };
       });
 
-      function pctBloque(nombreEsperado) {
-        const key = Object.keys(bloqPercents).find(
-          k => normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado)
-        );
-        return key ? bloqPercents[key] : 0;
-      }
+      const totalItems = ITEMS.length;
+      const totalPts = ITEMS.reduce((acc, q) => acc + (q.value ?? 0), 0);
+      const totalMax = totalItems * 3;
+      const totalPct = totalMax ? Math.round((totalPts / totalMax) * 100) : 0;
 
-      const bIntra = pctBloque("Habilidades intrapersonales");
-      const bInter = pctBloque("Habilidades interpersonales");
-      const bPV = pctBloque("Habilidades para la vida");
-      const iie =
-        [bIntra, bInter, bPV].filter(v => v > 0).length > 0
-          ? Math.round((bIntra + bInter + bPV) / 3)
-          : 0;
-
-      const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
-
-      const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
-      const iv3Cat =
-        mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
-
-      const bEstilos = pctBloque("Estilos de comunicación interpersonal");
-      const bCambio = pctBloque("Propensión al cambio");
+      const directCount = ITEMS.filter(q => q.invertida === "No").length;
+      const invertidasCount = ITEMS.filter(q => q.invertida === "Sí").length;
 
       return {
-        globales: { IIE: iie, IV1: iv1Cat, IV2: iv2Cat, IV3: iv3Cat },
-        bloques: {
-          intrapersonales: bIntra,
-          interpersonales: bInter,
-          para_la_vida: bPV,
-          estilos_comunicacion: bEstilos,
-          propension_cambio: bCambio
+        prueba: "Habitos",
+        resumen: {
+          total_items: totalItems,
+          total_puntos: totalPts,
+          total_max: totalMax,
+          total_pct: totalPct
         },
+        bloques,
+        bloqPercents,
         subhabilidades: subRows,
-        bloqPercents: bloqPercents
+        meta: {
+          page_size: PAGE_SIZE,
+          escala: { SIEMPRE: 3, "ALGUNAS VECES": 2, "RARA VEZ": 1 },
+          conteo_invertidas: invertidasCount,
+          conteo_directas: directCount,
+          minutos_aprox: Math.round((Date.now() - (__startTime || Date.now())) / 60000)
+        }
       };
     }
 
@@ -1478,7 +1473,7 @@ const resultados = calcularResultadosGlobales();
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
-          version_banco: "LID-v1"
+          version_banco: "HAB-v1"
 
         },
         resultados,
