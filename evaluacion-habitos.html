@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>ZZjue 12 31 Evaluación de Hábitos</title>
+  <title>VVjue 12 31 Evaluación de Hábitos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -552,6 +552,24 @@ overflow-x: hidden !important;
 }
 #pillTotal, #metaInfo{ display:none !important; }   /* oculta textos meta */
 
+
+/* Hábitos v7: quitar franja blanca del paso "Comenzar" sin romper botones */
+.preintro-box:empty{display:none !important;}
+.preintro-box[style*="display:none"]{display:none !important;}
+/* si el contenedor del paso 2 queda vacío, reducimos su espacio visual */
+#preintroModal .preintro-content:has([style*="display:none"]){
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  min-height: 0 !important;
+}
+
+#preintroModal .preintro-content > div[style*="display:none"]{
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  height:0 !important;
+}
+
 </style>
 </head>
 <body>
@@ -821,14 +839,7 @@ if (typeof PREINTRO === "undefined") {
   Te tomará 20 minutos, aproximadamente.
 </p>
     `,
-    instruccionesHtml: `
-<div class="preintro-box" style="max-width:760px;margin:0 auto;">
-  <h4>Antes de comenzar</h4>
-  <div class="muted" style="line-height:1.7">
-    Marca una sola opción por pregunta y continúa hasta finalizar.
-  </div>
-</div>
-`
+    instruccionesHtml: `<div style="display:none!important;height:0!important;overflow:hidden!important;"></div>`
   };
 }
 
@@ -1624,27 +1635,32 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
 
 
 
+
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-  try{
-    // Quitar franja vacía (fila del total/meta), sin romper el JS que la actualiza
-    var pill = document.getElementById('pillTotal');
-    if (pill && pill.parentElement) pill.parentElement.style.display = 'none';
-
-    // Mantener el banner como placeholder para alinear "SIEMPRE / ALGUNAS VECES / RARA VEZ"
-    var sb = document.getElementById('sectionBanner');
-    if (sb) {
-      sb.textContent = '';
-      sb.style.visibility = 'hidden';
-      sb.style.background = 'transparent';
-      sb.style.borderColor = 'transparent';
-      sb.style.color = 'transparent';
+  function collapsePreintroBlankArea(){
+    try{
+      var modal = document.getElementById('preintroModal');
+      if(!modal) return;
+      var content = modal.querySelector('.preintro-content');
+      if(!content) return;
+      var txt = (content.innerText || '').trim();
+      if(!txt){
+        content.style.minHeight = '0';
+        content.style.paddingTop = '0';
+        content.style.paddingBottom = '0';
+      }
+    }catch(e){}
+  }
+  document.addEventListener('click', function(ev){
+    var t = ev.target;
+    if(!t) return;
+    if ((t.id && (t.id.includes('Preintro') || t.id.includes('preintro'))) || /Siguiente|Atrás|Comenzar/i.test(t.textContent||'')) {
+      setTimeout(collapsePreintroBlankArea, 30);
+      setTimeout(collapsePreintroBlankArea, 120);
     }
-
-    // Ocultar nota repetitiva si existiera inline
-    var ng = document.getElementById('nota-genero');
-    if (ng) ng.style.display = 'none';
-  } catch(e) {}
+  }, true);
+  setTimeout(collapsePreintroBlankArea, 120);
 });
 </script>
 
