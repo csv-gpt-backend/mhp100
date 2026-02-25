@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>CEvaluación de Hábitos</title>
+  <title>GGGjue 12 31 Evaluación de Hábitos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -539,7 +539,19 @@ overflow-x: hidden !important;
 
 
 /* Hábitos: limpieza visual segura */
+#sectionBanner{display:none !important;}
+#pillTotal, #metaInfo{display:none !important;}
 
+
+/* Hábitos v4: limpieza visual segura (sin romper lógica) */
+#nota-genero{display:none !important;}              /* quita mensaje repetitivo */
+#sectionBanner{
+  visibility:hidden !important;                     /* mantiene la columna para alinear SIEMPRE */
+  background:transparent !important;
+  border-color:transparent !important;
+  color:transparent !important;
+}
+#pillTotal, #metaInfo{display:none !important;}     /* oculta fila meta */
 
 </style>
 </head>
@@ -600,9 +612,14 @@ overflow-x: hidden !important;
 
           <div class="sticky-wrap">
             <h2 style="margin:0 0 6px;">Responde las siguientes preguntas</h2>
-<div class="scale-banner" aria-label="Escala">
+            <p class="muted" id="nota-genero" style="margin:0 0 6px;">
+              Nota: Las siguientes declaraciones pueden estar redactadas en género masculino, pero se entiende que también se refieren al género femenino.
+            </p>
+            <div class="scale-banner" aria-label="Escala">
               <div class="scale-spacer"></div>
-<div class="scale-badge">
+             <div id="sectionBanner" class="section-banner">Sección 1</div>
+
+              <div class="scale-badge">
                 <span class="scale-label">SIEMPRE</span>
 
               </div>
@@ -617,7 +634,13 @@ overflow-x: hidden !important;
             <div class="progress" aria-label="Progreso">
               <div class="bar" id="bar"></div>
             </div>
-<div class="questions-header">
+
+            <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
+              <small id="metaInfo" class="muted"></small>
+            </div>
+
+            <div class="questions-header">
               <div>#</div>
               <div>Pregunta</div>
               <div>1</div>
@@ -1135,7 +1158,7 @@ invertida: (String(invertida).trim() === "1") ? "Sí" : "No",
 
       const bloques = new Set(ITEMS.map(q => q.bloque));
       const subs = new Set(ITEMS.map(q => q.subhabilidad));
-      var _mi=document.getElementById("metaInfo"); if(_mi){ _mi.textContent = bloques.size + " bloques · " + subs.size + " sub-habilidades"; }
+      document.getElementById("metaInfo").textContent = bloques.size + " bloques · " + subs.size + " sub-habilidades";
 
       document.getElementById("notaContinuar").textContent =
         "NOTA: Para continuar debes contestar todas las preguntas. Contestadas: " + ans + "/" + total + ".";
@@ -1609,6 +1632,25 @@ document.addEventListener('DOMContentLoaded', function(){
     var pill = document.getElementById('pillTotal');
     if(pill && pill.parentElement) pill.parentElement.style.display = 'none';
   }catch(e){}
+});
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    // Ocultar la fila meta completa SIN eliminar nodos usados por JS
+    var pill = document.getElementById('pillTotal');
+    if (pill && pill.parentElement) {
+      pill.parentElement.style.display = 'none';
+    }
+    // Asegurar que el banner mantenga espacio (alineación de labels)
+    var sb = document.getElementById('sectionBanner');
+    if (sb) {
+      sb.textContent = '';
+      sb.style.visibility = 'hidden';
+    }
+  } catch(e) {}
 });
 </script>
 
