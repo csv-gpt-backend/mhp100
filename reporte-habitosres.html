@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>wYReporte-habitos</title>
+<title>JUE26 11 40 Reporte-habitos</title>
 <style>
 :root{--ink:#0f172a;--muted:#64748b;--line:#dbe2ea;--bg:#f8fafc}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -168,6 +168,8 @@ const TEXTS={
  "Cooperación":{micro:"Tendencia a apoyar a otros para objetivos comunes.",def:"Tiende a apoyar a otros para el logro de objetivos comunes.",car:"Apoyo a otros, orientación al servicio, respeto por diferencias y trabajo compartido.",sug:"Acordar rol, aportes y un punto de coordinación en cada tarea grupal."}
 };
 const ORDER=["Consistencia","Persistencia","Prudencia","Cooperación"];
+const DISPLAY={"Consistencia":"Coherencia","Persistencia":"Perseverancia","Prudencia":"Juicio","Cooperación":"Cooperación"};
+const dn=(k)=>DISPLAY[k]||k;
 const $=id=>document.getElementById(id);
 const n=v=>Number.isFinite(+v)?+v:0;
 const txt=v=>v==null||v===""?"—":String(v);
@@ -241,16 +243,16 @@ function render(data){
   const [rl]=rango(igh); $("igh").textContent=igh; $("rango").textContent=rl; $("curveTitle").textContent=`Curva de distribución de frecuencias (IGH = ${igh})`;
   const sorted=[...factores].sort((a,b)=>b.pct-a.pct), alto=sorted[0], bajo=sorted[sorted.length-1], seg=sorted[1];
   $("r1").textContent=`Índice General de Hábitos (IGH): ${igh}% (${rl}).`;
-  $("r2").textContent=`Fortaleza principal observada: ${alto.name} (${alto.pct}%). ${seg?`También destaca ${seg.name} (${seg.pct}%).`:""}`;
-  $("r3").textContent=`Hábito a fortalecer prioritariamente: ${bajo.name} (${bajo.pct}%). La Parte 2 profundiza la interpretación y sugerencias de mejora.`;
-  $("qPerfil").textContent=`${rl} (${igh}%)`; $("qAlto").textContent=`${alto.name} (${alto.pct}%)`; $("qBajo").textContent=`${bajo.name} (${bajo.pct}%)`;
+  $("r2").textContent=`Fortaleza principal observada: ${dn(alto.name)} (${alto.pct}%). ${seg?`También destaca ${dn(seg.name)} (${seg.pct}%).`:""}`;
+  $("r3").textContent=`Hábito a fortalecer prioritariamente: ${dn(bajo.name)} (${bajo.pct}%). La Parte 2 profundiza la interpretación y sugerencias de mejora.`;
+  $("qPerfil").textContent=`${rl} (${igh}%)`; $("qAlto").textContent=`${dn(alto.name)} (${alto.pct}%)`; $("qBajo").textContent=`${dn(bajo.name)} (${bajo.pct}%)`;
 
   $("bars").innerHTML=factores.map(f=>{
     const [lab]=rango(f.pct);
-    return `<div class="bar"><div class="bh"><span>${f.name.toUpperCase()}</span><span>${f.pct}% · ${lab}</span></div><div class="track"><div class="fill" style="width:${f.pct}%"></div><div class="dot" style="left:${f.pct}%"></div></div><div class="scale"><span>BAJO</span><span>PROMEDIO</span><span>ALTO</span></div></div>`;
+    return `<div class="bar"><div class="bh"><span>${dn(f.name).toUpperCase()}</span><span>${f.pct}% · ${lab}</span></div><div class="track"><div class="fill" style="width:${f.pct}%"></div><div class="dot" style="left:${f.pct}%"></div></div><div class="scale"><span>BAJO</span><span>PROMEDIO</span><span>ALTO</span></div></div>`;
   }).join("");
 
-  $("micro").innerHTML=ORDER.map(name=>`<div class="m"><b>${name}</b><p>${TEXTS[name].micro}</p></div>`).join("");
+  $("micro").innerHTML=ORDER.map(name=>`<div class="m"><b>${dn(name)}</b><p>${TEXTS[name].micro}</p></div>`).join("");
 
   $("factores").innerHTML=factores.map(f=>{
     const [lab,cls]=rango(f.pct), t=TEXTS[f.name];
@@ -261,13 +263,13 @@ function render(data){
       `Conviene reforzar este hábito con prácticas concretas y seguimiento breve.`,
       `<b>Sugerencia práctica:</b> ${t.sug}`
     ];
-    return `<div class="factor"><div class="head"><div class="left"><h4>${f.name.toUpperCase()}</h4><p>${t.def}</p></div><div class="right"><div class="chips"><span class="chip ${cls}">Rango: ${lab}</span><span class="chip">Puntaje: ${f.pct}%</span>${f.pts!=null?`<span class="chip">Puntos: ${f.pts}${f.max?` / ${f.max}`:""}</span>`:""}${f.items!=null?`<span class="chip">Ítems: ${f.items}</span>`:""}</div><ul>${bullets.map(x=>`<li>${x}</li>`).join("")}</ul></div></div></div>`;
+    return `<div class="factor"><div class="head"><div class="left"><h4>${dn(f.name).toUpperCase()}</h4><p>${t.def}</p></div><div class="right"><div class="chips"><span class="chip ${cls}">Rango: ${lab}</span><span class="chip">Puntaje: ${f.pct}%</span>${f.pts!=null?`<span class="chip">Puntos: ${f.pts}${f.max?` / ${f.max}`:""}</span>`:""}${f.items!=null?`<span class="chip">Ítems: ${f.items}</span>`:""}</div><ul>${bullets.map(x=>`<li>${x}</li>`).join("")}</ul></div></div></div>`;
   }).join("");
 
   const disp = sorted[0].pct - sorted[sorted.length-1].pct;
   $("recs").innerHTML = [
     `El perfil global de hábitos se ubica en rango <b>${rl}</b> (IGH = ${igh}%).`,
-    `La fortaleza principal se observa en <b>${alto.name}</b> (${alto.pct}%), mientras que el foco de desarrollo más inmediato es <b>${bajo.name}</b> (${bajo.pct}%).`,
+    `La fortaleza principal se observa en <b>${dn(alto.name)}</b> (${alto.pct}%), mientras que el foco de desarrollo más inmediato es <b>${dn(bajo.name)}</b> (${bajo.pct}%).`,
     disp>=15 ? `Se observa una diferencia marcada entre hábitos (${disp} puntos), por lo que conviene priorizar un plan de mejora focalizado.` :
                `El perfil muestra una distribución relativamente equilibrada entre hábitos (${disp} puntos de diferencia), favoreciendo una mejora gradual.`,
     `Se recomienda definir una meta conductual semanal y verificar evidencia observable de avance.`
