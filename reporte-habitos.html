@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>reporte-habitos</title>
+<title>hhhreporte-habitos</title>
 <style>
 :root{--ink:#0f172a;--muted:#64748b;--line:#dbe2ea;--bg:#f8fafc}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -13,6 +13,13 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
 .header .center{text-align:center;font-weight:900;letter-spacing:.08em}.header .right{text-align:right}.logo{height:54px;object-fit:contain}
 .title{text-align:center;margin:8px 0 12px}.title h1{margin:0;font-size:28px}.title h2{margin:4px 0 0;font-size:15px;color:#334155;letter-spacing:.06em}
 .card{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}
+
+.userbox{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 12px}
+.userTbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.userTbl td{padding:6px 8px;border:1px solid #1f2937}
+.userTbl b{font-weight:900}
+@media (max-width:860px){.userTbl td{display:block;width:100%}}
+
 .grid-user{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 12px}.field{border:1px solid #e7edf4;border-radius:10px;background:#fcfdff;padding:8px 10px}
 .field b{display:block;font-size:11px;color:#475569;text-transform:uppercase;margin-bottom:2px}.field span{font-weight:700;font-size:14px}
 .part1{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
@@ -51,7 +58,7 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
 <section id="p1" class="sheet">
   <div class="header"><div id="fechaTop">—</div><div class="center">REPORTE</div><div class="right"><img class="logo" src="assets/logo_adalam.png" onerror="this.style.display='none'"></div></div>
   <div class="title"><h1>HÁBITOS</h1><h2>PARTE 1 · RESUMEN VISUAL</h2></div>
-  <div class="card"><div class="grid-user" id="user1"></div></div>
+  <div class="userbox"><div id="user1"></div></div>
   <div class="part1">
     <div class="row-top">
       <div class="card">
@@ -80,7 +87,7 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
 
 <section id="p2" class="sheet">
   <div class="part2top"><h3>PARTE 2 · Interpretación de Hábitos</h3><div class="pill">Prueba: HÁBITOS</div></div>
-  <div class="card" style="margin-bottom:12px"><div class="grid-user" id="user2"></div></div>
+  <div class="userbox" style="margin-bottom:12px"><div id="user2"></div></div>
   <div class="legend"><b>Cómo leer este reporte:</b> Los puntajes se expresan como porcentaje del puntaje máximo posible por hábito (0–100). En general, un puntaje más alto indica mayor presencia del hábito. Rangos: Bajo (0–39), Promedio (40–69) y Alto (70–100).</div>
   <div id="factores"></div>
   <div class="rec"><b>Síntesis general y foco de desarrollo</b><ul id="recs" style="margin:8px 0 0;padding-left:18px"></ul></div>
@@ -114,6 +121,14 @@ function parsePayload(data){
     institucion: txt(attempt.institucion||data?.participant?.institucion||snap.institucion),
     fecha: fmtDate(attempt.created_at||snap.fecha)
   };
+  // Si el backend repite el código en curso/grupo/institución, lo ocultamos para que no se vea como "formulario".
+  try{
+    const c = String(persona.codigo||"").trim();
+    ["curso","grupo","institucion"].forEach(k=>{
+      if(String(persona[k]||"").trim() === c) persona[k] = "—";
+    });
+  }catch(_e){}
+
   const bloqP=res.bloqPercents||{}, bloq=res.bloques||{}, sub=Array.isArray(res.subhabilidades)?res.subhabilidades:[];
   const factores=ORDER.map(name=>{
     let pct=(name in bloqP)?n(bloqP[name]):(typeof bloq[name]==="object"?n(bloq[name].pct):n(bloq[name]));
@@ -127,9 +142,22 @@ function parsePayload(data){
   return {persona,factores,igh};
 }
 function userFields(persona){
-  return [
-    ["Nombre",persona.nombre],["Código",persona.codigo],["Curso",persona.curso],["Grupo",persona.grupo],["Institución",persona.institucion],["Fecha",persona.fecha]
-  ].map(([k,v])=>`<div class="field"><b>${k}</b><span>${v}</span></div>`).join("");
+  const cell = (label, value)=>`<td><b>${label}:</b> ${value}</td>`;
+  // 2 rows x 3 columns (compact like reporte emocional)
+  return `
+    <table class="userTbl">
+      <tr>
+        ${cell("Nombre", persona.nombre)}
+        ${cell("Grupo", persona.grupo)}
+        ${cell("Curso", persona.curso)}
+      </tr>
+      <tr>
+        ${cell("Institución", persona.institucion)}
+        ${cell("Código", persona.codigo)}
+        ${cell("Fecha", persona.fecha)}
+      </tr>
+    </table>
+  `;
 }
 function marker(score){
   const img=$("curveImg"), mk=$("marker"), wrap=$("curveWrap"); if(!img||!mk||!wrap) return;
@@ -195,5 +223,5 @@ async function cargar(){
 }
 $("ver").onclick=cargar; $("pdf").onclick=()=>window.print();
 window.addEventListener("beforeprint", ()=> { const v=+$("igh").textContent||0; marker(v); });
-const qp = new URLSearchParams(location.search); if(qp.get("codigo")){$("codigo").value=qp.get("codigo").toUpperCase(); cargar();}
+const qp = new URLSearchParams(location.search); if(qp.get("codigo")){ $("codigo").value = qp.get("codigo").toUpperCase(); }
 </script></body></html>
