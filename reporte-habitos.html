@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>GGReporte – Hábitos</title>
+  <title>qqqReporte – Hábitos</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -2248,6 +2248,7 @@ const pickBestIGH = (obj) => {
       "resultados.igh","resultados.IGH",
       "resultados.global.igh","resultados.global.IGH",
       "resultados.globales.igh","resultados.globales.IGH",
+      "resultados.resumen.total_pct","resultados.resumen.totalPct","resultados.resumen.igh","resultados.resumen.IGH",
       "indices.igh","indices.IGH",
       "pt.igh","pt.IGH"
     ];
@@ -2272,30 +2273,17 @@ if(ighRaw == null){
   }
 }
 // Fallback final (solo si el backend aún no envía IGH): promedio de los 3 bloques si existen
-    const ighBase =
-      (ighRaw != null)
-        ? ighRaw
-        : ((bIntra || bInter || bPV) ? Math.round((bIntra + bInter + bPV) / 3) : 0);
+    
+const ighBase = (ighRaw != null) ? ighRaw : 0;
+const ighFinal = adjScore(ighBase, {bloqueNorm:"", subNorm:""});
 
-    const ighFinal = adjScore(ighBase, {bloqueNorm:"", subNorm:""});
-    console.log(">> IGH raw/base/final:", ighRaw, ighBase, ighFinal, deepHit ? `${deepHit.path} (${deepHit.key})` : "");
-    if(!ighRaw){
-      console.warn("No se encontró IGH en el payload. Top-level attempt keys:", attempt ? Object.keys(attempt) : []);
-      if(deepHits && deepHits.length){
-        console.table(deepHits.slice(0,50));
-      }
-    } else if(deepHits && deepHits.length){
-      // Útil para fijar el mapeo luego
-      console.table(deepHits.slice(0,25));
-    }
-
-    document.getElementById("repIGH").textContent = ighFinal || "—";
-    const tituloCurva = document.getElementById("tituloCurvaFrecuencias");
-    if (tituloCurva) {
-      const ighTitulo = Math.round(Number(ighFinal) || 0);
-      tituloCurva.textContent = `CURVA DE DISTRIBUCIÓN DE FRECUENCIAS: (IGH = ${ighTitulo}).`;
-    }
-    const ighForCurve = ighFinal || 0;
+document.getElementById("repIGH").textContent = (ighFinal != null ? ighFinal : "—");
+const tituloCurva = document.getElementById("tituloCurvaFrecuencias");
+if (tituloCurva) {
+  const ighTitulo = Math.round(Number(ighFinal) || 0);
+  tituloCurva.textContent = `CURVA DE DISTRIBUCIÓN DE FRECUENCIAS: (IGH = ${ighTitulo}).`;
+}
+const ighForCurve = Number(ighFinal) || 0;
 
 // 1) intento inmediato
 setCurveMarker(ighForCurve);
