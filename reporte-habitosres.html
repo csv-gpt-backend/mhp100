@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CCFFFhhhreporte-habitos</title>
+<title>YReporte-habitos</title>
 <style>
 :root{--ink:#0f172a;--muted:#64748b;--line:#dbe2ea;--bg:#f8fafc}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -24,9 +24,10 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
 .field b{display:block;font-size:11px;color:#475569;text-transform:uppercase;margin-bottom:2px}.field span{font-weight:700;font-size:14px}
 .part1{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
 .row-top{display:grid;grid-template-columns:1.02fr .98fr;gap:12px}
-.curve-wrap{position:relative;height:220px;border:1px solid #e7edf4;border-radius:12px;background:linear-gradient(180deg,#fff,#f8fafc);padding:8px}
+.curve-wrap{position:relative;height:240px;border:0;border-radius:0;background:transparent;padding:0}
 .curve-wrap img{width:100%;height:100%;object-fit:contain;display:block}
-.curve-marker{position:absolute;z-index:5;width:30px;height:30px;transform:translate(-50%,-100%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+/* --- Marcador curva (copiado de Emocional): anclado por la punta --- */
+.curve-marker#marker{position:absolute;z-index:5;width:34px;height:34px;transform:translate(-50%,60%);filter:drop-shadow(0 10px 18px rgba(0,0,0,.25));pointer-events:none}
 .h3{margin:0 0 8px 0;font-size:14px;font-weight:900}
 .pillrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.pill{padding:6px 12px;border-radius:999px;font-weight:900;font-size:13px;border:1px solid #cbd5e1;background:#fff}
 .pill.igh{background:#eef2ff;border-color:#c7d2fe;color:#3730a3}
@@ -51,6 +52,10 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
 .rec{border:1px dashed #cbd5e1;border-radius:12px;background:#fbfdff;padding:10px}
 @media (max-width:860px){.row-top{grid-template-columns:1fr}.grid-user{grid-template-columns:1fr}.quick{grid-template-columns:1fr}.micro{grid-template-columns:1fr}.factor .head{grid-template-columns:1fr}.factor .left{border-right:0;border-bottom:1px solid var(--line)}}
 @media print{body{background:#fff}.wrap{max-width:none;margin:0;padding:0}.topbar{display:none}.sheet{display:block !important;border:0;box-shadow:none;border-radius:0;margin:0;padding:10mm}.sheet + .sheet{page-break-before:always}}
+
+/* --- Curva limpia --- */
+#curveWrap{border:0!important;box-shadow:none!important;background:transparent!important}
+#curveImg{border:0!important;outline:0!important}
 </style></head>
 <body><div class="wrap">
 <div class="topbar"><input id="codigo" placeholder="Código"><button class="primary" id="ver">Ver reporte</button><button class="ghost" id="pdf">Imprimir / PDF</button><span id="msg" class="msg"></span></div>
@@ -65,7 +70,61 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
         <div class="h3" id="curveTitle">Curva de distribución de frecuencias (IGH)</div>
         <div class="curve-wrap" id="curveWrap">
           <img id="curveImg" src="assets/curva_metal.png" onerror="this.style.opacity=.15">
-          <svg class="curve-marker" id="marker" viewBox="0 0 100 100"><polygon points="50,2 86,36 68,36 68,95 32,95 32,36 14,36" fill="#111"/><circle cx="50" cy="52" r="10" fill="#fff"/></svg>
+          <div class="curve-marker" id="marker" aria-hidden="true"><svg width="30" height="54" viewBox="0 0 18 30" aria-hidden="true">
+  <defs>
+    <!-- Negro tipo "cristal" -->
+    <linearGradient id="blkMain" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0%"   stop-color="#1a1a1a"/>
+  <stop offset="28%"  stop-color="#2b2b2b"/>
+  <stop offset="55%"  stop-color="#111111"/>
+  <stop offset="78%"  stop-color="#3a3a3a"/>
+  <stop offset="100%" stop-color="#181818"/>
+</linearGradient>
+
+    <!-- Brillo de borde (fino) -->
+    <linearGradient id="blkEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Sombra suave (pequeña) -->
+    <filter id="blkShadow" x="-40%" y="-40%" width="180%" height="200%">
+      <feDropShadow dx="0" dy="1.1" stdDeviation="1.0" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <!-- CUERPO -->
+  <g filter="url(#blkShadow)">
+    <!-- base -->
+    <rect x="6" y="0" width="6" height="16" rx="1.2"
+          fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+    <!-- faceta clara (izquierda) -->
+    <path d="M6.2 0.6 L8.4 0.6 L8.4 15.4 L6.2 15.4 Z"
+          fill="#ffffff" opacity="0.10"/>
+    <!-- faceta oscura (derecha) -->
+    <path d="M9.8 0.6 L11.8 0.6 L11.8 15.4 L9.8 15.4 Z"
+          fill="#000000" opacity="0.22"/>
+    <!-- brillo de borde -->
+    <rect x="6.4" y="0.8" width="1.1" height="14.8" rx="0.8"
+          fill="url(#blkEdge)" opacity="0.85"/>
+  </g>
+
+  <!-- PUNTA -->
+  <g filter="url(#blkShadow)">
+    <!-- base -->
+    <path d="M9 30 L2 16 H16 Z"
+          fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+    <!-- faceta izquierda -->
+    <path d="M9 30 L2.7 16.3 L8.8 16.3 Z"
+          fill="#ffffff" opacity="0.10"/>
+    <!-- faceta derecha -->
+    <path d="M9 30 L9.2 16.3 L15.3 16.3 Z"
+          fill="#000000" opacity="0.22"/>
+    <!-- brillo central suave -->
+    <path d="M9 28.6 L4.3 16.7 H13.7 Z"
+          fill="url(#blkEdge)" opacity="0.55"/>
+  </g>
+</svg></div>
         </div>
       </div>
       <div class="card">
@@ -163,8 +222,8 @@ function marker(score){
   const img=$("curveImg"), mk=$("marker"), wrap=$("curveWrap"); if(!img||!mk||!wrap) return;
   const place=()=>{
     const ir=img.getBoundingClientRect(), wr=wrap.getBoundingClientRect(); if(!ir.width||!ir.height) return;
-    const padL=.12, padR=.16; const x=ir.width*(padL+(clamp(score,0,100)/100)*(1-padL-padR));
-    const bottomAt0=94,bottomAt100=26; const bottomPx=ir.height*((bottomAt0+(bottomAt100-bottomAt0)*(clamp(score,0,100)/100))/100);
+    const padL=.18, padR=.24; const x=ir.width*(padL+(clamp(score,0,100)/100)*(1-padL-padR));
+    const bottomAt0=76,bottomAt100=44; const bottomPx=ir.height*((bottomAt0+(bottomAt100-bottomAt0)*(clamp(score,0,100)/100))/100);
     mk.style.left=(x+(ir.left-wr.left))+"px"; mk.style.top=(ir.height-bottomPx+(ir.top-wr.top))+"px";
   };
   place(); requestAnimationFrame(place); setTimeout(place,120); img.onload=place; window.addEventListener("resize",place,{once:true});
@@ -218,10 +277,12 @@ async function cargar(){
     if(!r.ok || data?.error){ $("msg").textContent=data?.error||"No encontrado"; $("msg").className="msg err"; return; }
     const hasRes = (j(data?.attempt?.resultados)||data?.attempt?.resultados);
     if(!hasRes){ $("msg").textContent="Este código no tiene resultados guardados."; $("msg").className="msg err"; return; }
-    render(data); $("msg").textContent="Reporte cargado."; $("msg").className="msg ok";
+    render(data);
+$("msg").textContent="Reporte cargado."; $("msg").className="msg ok";
   }catch(e){ console.error(e); $("msg").textContent="Error de conexión"; $("msg").className="msg err"; }
 }
 $("ver").onclick=cargar; $("pdf").onclick=()=>window.print();
 window.addEventListener("beforeprint", ()=> { const v=+$("igh").textContent||0; marker(v); });
 const qp = new URLSearchParams(location.search); if(qp.get("codigo")){ $("codigo").value = qp.get("codigo").toUpperCase(); }
+
 </script></body></html>
