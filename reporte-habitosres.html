@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JUE26 14 06 Reporte-habitos</title>
+<title>JUE26 15 29 Reporte-habitos</title>
 <style>
 :root{--ink:#0f172a;--muted:#64748b;--line:#dbe2ea;--bg:#f8fafc}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -62,6 +62,20 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
 .header .logo{position:absolute; right:0; top:6px; margin-top:0 !important;}
 /* Reduce espacio entre encabezado y título principal */
 h1{margin-top:14px !important;}
+
+
+/* --- Parte 2 numerada (estilo reporte emocional) --- */
+.numsec{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;margin-bottom:12px}
+.numsec h3{margin:0 0 8px;font-size:16px;letter-spacing:.02em}
+.numsec h4{margin:10px 0 6px;font-size:14px}
+.numsec p{margin:0 0 8px;color:#334155;line-height:1.4}
+.numsec ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.35}
+.badgeRow{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 8px}
+.badge{padding:4px 10px;border-radius:999px;border:1px solid #dbe2ea;font-size:12px;font-weight:800;background:#fff}
+.badge.good{background:#ecfdf5;border-color:#bbf7d0;color:#166534}
+.badge.mid{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.badge.low{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.smallnote{font-size:12px;color:#475569}
 
 </style></head>
 <body><div class="wrap">
@@ -154,18 +168,16 @@ h1{margin-top:14px !important;}
 <section id="p2" class="sheet">
   <div class="part2top"><h3>PARTE 2 · Interpretación de Hábitos</h3><div class="pill">Prueba: HÁBITOS</div></div>
   <div class="userbox" style="margin-bottom:12px"><div id="user2"></div></div>
-  <div class="legend"><b>Cómo leer este reporte:</b> Los puntajes se expresan como porcentaje del puntaje máximo posible por hábito (0–100). En general, un puntaje más alto indica mayor presencia del hábito. Rangos: Bajo (0–39), Promedio (40–69) y Alto (70–100).</div>
-  <div id="factores"></div>
-  <div class="rec"><b>Síntesis general y foco de desarrollo</b><ul id="recs" style="margin:8px 0 0;padding-left:18px"></ul></div>
+  <div id="p2content"></div>
 </section>
 </div>
 
 <script>
 const TEXTS={
- "Consistencia":{p1:{bajo:"Puede variar sus rutinas y criterios según el contexto; cuesta sostener hábitos y dar seguimiento continuo. Le ayuda trabajar con recordatorios y compromisos concretos.",prom:"Suele mantener estabilidad en lo esencial; muestra coherencia general y capacidad de sostener rutinas, con variaciones puntuales.",alto:"Presenta alta consistencia: actúa con criterios claros y previsibles, sostiene rutinas y cumple acuerdos con regularidad. Cuidar no caer en rigidez."},micro:"Uniformidad y coherencia en la conducta que exhibe.",def:"Presenta uniformidad en el comportamiento que exhibe.",car:"Estabilidad, coherencia, previsibilidad en lo esencial y capacidad de sostener rutinas.",sug:"Definir 2–3 rutinas clave (inicio, seguimiento y cierre) y mantenerlas varias semanas."},
- "Persistencia":{p1:{bajo:"Puede abandonar tareas ante obstáculos o cuando baja la motivación; cuesta mantener el esfuerzo continuo. Beneficia dividir metas y reconocer avances.",prom:"Mantiene el empeño la mayor parte del tiempo; retoma cuando hay dificultades y completa objetivos habituales.",alto:"Sostiene el esfuerzo con constancia; afronta obstáculos y finaliza lo que inicia, incluso a mediano plazo. Vigilar sobrecarga o autoexigencia."},micro:"Perseverancia y empeño para el logro de objetivos y compromisos.",def:"Tiene perseverancia y empeño para el logro de objetivos y compromisos.",car:"Responsabilidad, esfuerzo sostenido, foco en metas, aprendizaje de errores y cierre de tareas.",sug:"Usar metas semanales pequeñas y verificables; revisar avance y cierre."},
- "Prudencia":{p1:{bajo:"Tiende a actuar con rapidez o sin evaluar consecuencias; puede asumir riesgos innecesarios. Conviene pausar, revisar datos y considerar alternativas antes de decidir.",prom:"Suele evaluar opciones y consecuencias; toma decisiones razonables con equilibrio entre rapidez y cautela.",alto:"Muestra alto criterio: analiza escenarios, anticipa riesgos y decide con cuidado. Evitar paralizarse por exceso de análisis."},micro:"Cuidado y criterio en el manejo de información y decisiones.",def:"Cuida el manejo de la información.",car:"Cautela, buen juicio, moderación, respeto y decisiones basadas en hechos.",sug:"Aplicar una pausa breve para verificar hechos antes de decidir o comunicar."},
- "Cooperación":{p1:{bajo:"Prefiere trabajar de forma independiente; puede costar pedir u ofrecer ayuda y coordinarse. Ayuda clarificar roles, acuerdos y canales de comunicación.",prom:"Colabora cuando es necesario; apoya y se coordina, manteniendo autonomía y foco en resultados.",alto:"Colabora activamente: escucha, apoya, comparte recursos y facilita el trabajo en equipo. Cuidar no asumir cargas ajenas."},micro:"Tendencia a apoyar a otros para objetivos comunes.",def:"Tiende a apoyar a otros para el logro de objetivos comunes.",car:"Apoyo a otros, orientación al servicio, respeto por diferencias y trabajo compartido.",sug:"Acordar rol, aportes y un punto de coordinación en cada tarea grupal."}
+ "Consistencia":{p2:{bajo:{perfil:"En este rango, la coherencia puede presentarse de forma variable; es más probable que la persona requiera estructura externa para sostener rutinas.",mani:["Puede cambiar rutinas o criterios con facilidad según el contexto.","Le cuesta mantener seguimiento constante (recordatorios externos ayudan).","Puede postergar tareas repetitivas o de mantenimiento."],fort:["Flexibilidad para adaptarse a cambios.","Apertura a ajustar rutinas cuando el contexto lo exige."],ries:["Riesgo de inconsistencia en compromisos y tiempos.","Dificultad para sostener hábitos a mediano plazo."],rec:["Definir 2 rutinas clave (inicio y cierre) por 2 semanas.","Usar recordatorios simples (agenda/alarma) y una verificación diaria de 2 minutos.","Registrar evidencia observable: “¿qué hice hoy para sostener la rutina?”"]},prom:{perfil:"En este rango, la coherencia suele estar presente en lo esencial; puede variar en periodos de carga o cambios de contexto.",mani:["Mantiene estabilidad en lo importante, con variaciones puntuales.","Cumple rutinas cuando hay prioridades claras.","Puede “aflojar” bajo presión, pero retoma con guía."],fort:["Capacidad de sostener hábitos funcionales.","Equilibrio entre adaptación y consistencia."],ries:["Variaciones en picos de estrés o múltiples tareas.","Riesgo de postergar cierres si no hay planificación."],rec:["Plan semanal breve (3 prioridades y 2 rutinas fijas).","Revisión de mitad de semana: ajustar sin abandonar.","Cerrar el día con checklist corto (máx. 5 ítems)."]},alto:{perfil:"En este rango, la coherencia se observa con alta regularidad; la persona tiende a sostener rutinas y acuerdos con consistencia.",mani:["Conducta predecible y alineada a criterios claros.","Seguimiento constante y cierre de tareas con disciplina.","Alta estabilidad en horarios y compromisos."],fort:["Confiabilidad y orden en ejecución.","Alta capacidad para sostener hábitos a mediano plazo."],ries:["Riesgo de rigidez o frustración ante cambios.","Posible autoexigencia elevada."],rec:["Mantener rutinas clave y agregar flexibilidad planificada (un “espacio” de ajuste).","Definir criterios para priorizar cuando haya cambios.","Cuidar equilibrio: descanso y pausas programadas."]}},p1:{bajo:"Puede variar sus rutinas y criterios según el contexto; cuesta sostener hábitos y dar seguimiento continuo. Le ayuda trabajar con recordatorios y compromisos concretos.",prom:"Suele mantener estabilidad en lo esencial; muestra coherencia general y capacidad de sostener rutinas, con variaciones puntuales.",alto:"Presenta alta consistencia: actúa con criterios claros y previsibles, sostiene rutinas y cumple acuerdos con regularidad. Cuidar no caer en rigidez."},micro:"Uniformidad y coherencia en la conducta que exhibe.",def:"Presenta uniformidad en el comportamiento que exhibe.",car:"Estabilidad, coherencia, previsibilidad en lo esencial y capacidad de sostener rutinas.",sug:"Definir 2–3 rutinas clave (inicio, seguimiento y cierre) y mantenerlas varias semanas."},
+ "Persistencia":{p2:{bajo:{perfil:"En este rango, la perseverancia puede disminuir ante obstáculos; es más probable que la persona requiera metas cortas y refuerzo de avance.",mani:["Puede abandonar tareas cuando aparecen dificultades.","Le cuesta sostener esfuerzo continuo si baja la motivación.","Evita actividades largas o con resultados diferidos."],fort:["Rapidez para cambiar de estrategia cuando algo no funciona.","Capacidad de detectar temprano tareas poco realistas."],ries:["Riesgo de dejar procesos sin cierre.","Menor tolerancia a la frustración en tareas complejas."],rec:["Dividir objetivos en micro-metas (24–72 horas).","Medir avance por evidencia: tareas cerradas, no solo intención.","Celebrar progreso y ajustar metas sin abandonar."]},prom:{perfil:"En este rango, la perseverancia suele ser adecuada: la persona mantiene el empeño y retoma tras dificultades con apoyo de método.",mani:["Mantiene el esfuerzo la mayor parte del tiempo.","Retoma después de errores o contratiempos.","Completa objetivos habituales con constancia razonable."],fort:["Resiliencia funcional y continuidad en metas.","Capacidad de finalizar tareas frecuentes."],ries:["Puede requerir apoyo en proyectos largos.","Riesgo de postergar cuando la carga aumenta."],rec:["Plan por etapas con fechas cortas.","Revisión semanal: qué se completó y qué se ajusta.","Buscar apoyo/retroalimentación en puntos críticos."]},alto:{perfil:"En este rango, la perseverancia se observa con fuerza: la persona sostiene el esfuerzo incluso con obstáculos y presión.",mani:["Alta tolerancia a la frustración.","Finaliza lo que inicia y mantiene constancia a mediano plazo.","Persistencia ante dificultades sin perder el objetivo."],fort:["Determinación y alto compromiso.","Capacidad para sostener proyectos exigentes."],ries:["Riesgo de sobrecarga o autoexigencia.","Insistir demasiado sin recalibrar estrategia."],rec:["Mantener constancia con pausas planificadas.","Definir señales de recalibración (cuándo cambiar enfoque).","Cuidar balance: descanso, límites y apoyo."]}},p1:{bajo:"Puede abandonar tareas ante obstáculos o cuando baja la motivación; cuesta mantener el esfuerzo continuo. Beneficia dividir metas y reconocer avances.",prom:"Mantiene el empeño la mayor parte del tiempo; retoma cuando hay dificultades y completa objetivos habituales.",alto:"Sostiene el esfuerzo con constancia; afronta obstáculos y finaliza lo que inicia, incluso a mediano plazo. Vigilar sobrecarga o autoexigencia."},micro:"Perseverancia y empeño para el logro de objetivos y compromisos.",def:"Tiene perseverancia y empeño para el logro de objetivos y compromisos.",car:"Responsabilidad, esfuerzo sostenido, foco en metas, aprendizaje de errores y cierre de tareas.",sug:"Usar metas semanales pequeñas y verificables; revisar avance y cierre."},
+ "Prudencia":{p2:{bajo:{perfil:"En este rango, el juicio puede expresarse con decisiones rápidas; conviene fortalecer pausas breves y verificación de información.",mani:["Puede decidir sin evaluar todas las consecuencias.","Mayor probabilidad de riesgos innecesarios por impulso o urgencia.","Puede subestimar tiempos, costos o impactos."],fort:["Agilidad para actuar y resolver con rapidez.","Capacidad de tomar decisiones en escenarios simples."],ries:["Errores por falta de verificación.","Conflictos por comunicación apresurada."],rec:["Pausa de 30–60 segundos antes de decidir/comunicar.","Checklist: datos, alternativas, consecuencia principal.","Pedir una segunda mirada en decisiones importantes."]},prom:{perfil:"En este rango, el juicio suele ser funcional: la persona evalúa opciones y consecuencias con equilibrio entre rapidez y cautela.",mani:["Considera consecuencias básicas antes de actuar.","Ajusta decisiones con retroalimentación.","Criterio razonable bajo condiciones habituales."],fort:["Balance entre análisis y acción.","Decisiones generalmente sostenibles."],ries:["En decisiones complejas puede verse afectado por presión.","Riesgo de omitir detalles en alta carga."],rec:["Definir criterios de decisión (2–3 variables clave).","Registrar decisiones importantes y revisar resultados.","Reducir ruido: priorizar información relevante."]},alto:{perfil:"En este rango, el juicio se observa con claridad: la persona analiza escenarios, anticipa riesgos y decide con cuidado.",mani:["Revisa datos y consecuencias antes de actuar.","Anticipa riesgos y prepara alternativas.","Comunicación más cuidadosa y consistente."],fort:["Menor impulsividad; decisiones más seguras.","Alta calidad de evaluación y planificación."],ries:["Riesgo de sobre-análisis o demora.","Perfeccionismo en decisiones menores."],rec:["Establecer tiempo límite para decidir según importancia.","Distinguir decisiones reversibles vs. no reversibles.","Usar criterios simples para decisiones rutinarias."]}},p1:{bajo:"Tiende a actuar con rapidez o sin evaluar consecuencias; puede asumir riesgos innecesarios. Conviene pausar, revisar datos y considerar alternativas antes de decidir.",prom:"Suele evaluar opciones y consecuencias; toma decisiones razonables con equilibrio entre rapidez y cautela.",alto:"Muestra alto criterio: analiza escenarios, anticipa riesgos y decide con cuidado. Evitar paralizarse por exceso de análisis."},micro:"Cuidado y criterio en el manejo de información y decisiones.",def:"Cuida el manejo de la información.",car:"Cautela, buen juicio, moderación, respeto y decisiones basadas en hechos.",sug:"Aplicar una pausa breve para verificar hechos antes de decidir o comunicar."},
+ "Cooperación":{p2:{bajo:{perfil:"En este rango, la cooperación puede ser baja; es útil clarificar roles, acuerdos y canales de coordinación.",mani:["Prefiere trabajar de forma independiente.","Puede costar pedir u ofrecer ayuda.","Menor coordinación y alineación en equipo."],fort:["Autonomía y foco individual.","Capacidad de avanzar sin depender de otros."],ries:["Riesgo de aislamiento o duplicación de esfuerzos.","Menor integración de perspectivas."],rec:["Definir rol y expectativas por tarea (quién hace qué y cuándo).","Acordar un punto de coordinación (10 minutos) por semana.","Practicar pedir/entregar apoyo concreto (1 acción por proyecto)."]},prom:{perfil:"En este rango, la cooperación suele ser funcional: la persona colabora cuando se requiere y se coordina manteniendo autonomía.",mani:["Apoya y se coordina en tareas compartidas.","Comunicación suficiente para cumplir objetivos.","Colaboración estable, aunque puede evitar conflictos."],fort:["Equilibrio entre autonomía y trabajo en equipo.","Capacidad de coordinar sin perder foco."],ries:["Riesgo de coordinación superficial en proyectos complejos.","Puede evitar conversaciones difíciles."],rec:["Acordar objetivos comunes y criterios de éxito.","Usar canales claros (responsables, fechas, entregables).","Practicar feedback breve y respetuoso en equipo."]},alto:{perfil:"En este rango, la cooperación se observa con fuerza: la persona facilita coordinación, escucha y apoyo para objetivos comunes.",mani:["Comparte recursos y apoya activamente.","Promueve acuerdos y soluciones compartidas.","Integra perspectivas y cuida el clima de trabajo."],fort:["Alto aporte a equipos y convivencia.","Facilita colaboración y aprendizaje conjunto."],ries:["Riesgo de asumir cargas ajenas.","Dificultad para poner límites."],rec:["Definir límites de apoyo (qué sí/qué no).","Promover autonomía del equipo sin sobrecargarse.","Cuidar balance entre ayudar y priorizar tareas propias."]}},p1:{bajo:"Prefiere trabajar de forma independiente; puede costar pedir u ofrecer ayuda y coordinarse. Ayuda clarificar roles, acuerdos y canales de comunicación.",prom:"Colabora cuando es necesario; apoya y se coordina, manteniendo autonomía y foco en resultados.",alto:"Colabora activamente: escucha, apoya, comparte recursos y facilita el trabajo en equipo. Cuidar no asumir cargas ajenas."},micro:"Tendencia a apoyar a otros para objetivos comunes.",def:"Tiende a apoyar a otros para el logro de objetivos comunes.",car:"Apoyo a otros, orientación al servicio, respeto por diferencias y trabajo compartido.",sug:"Acordar rol, aportes y un punto de coordinación en cada tarea grupal."}
 };
 const ORDER=["Consistencia","Persistencia","Prudencia","Cooperación"];
 const DISPLAY={"Consistencia":"Coherencia","Persistencia":"Perseverancia","Prudencia":"Juicio","Cooperación":"Cooperación"};
@@ -237,6 +249,122 @@ function marker(score){
   };
   place(); requestAnimationFrame(place); setTimeout(place,120); img.onload=place; window.addEventListener("resize",place,{once:true});
 }
+
+  // --- Parte 2 (numerada) ---
+  function p2HabitBlock(idx, f, globalLowName){
+    const [lab, cls] = rango(f.pct);
+    const t = TEXTS[f.name];
+    const r = (lab==="BAJO" ? t.p2.bajo : (lab==="ALTO" ? t.p2.alto : t.p2.prom));
+    const title = dn(f.name);
+    const chips = `
+      <div class="badgeRow">
+        <span class="badge ${cls}">Rango: ${lab}</span>
+        <span class="badge">Puntaje: ${f.pct}%</span>
+        ${f.pts!=null?`<span class="badge">Puntos: ${f.pts}${f.max?` / ${f.max}`:""}</span>`:""}
+        ${f.items!=null?`<span class="badge">Ítems: ${f.items}</span>`:""}
+      </div>
+    `;
+    const mani = (r.mani||[]).map(x=>`<li>${x}</li>`).join("");
+    const fort = (r.fort||[]).map(x=>`<li>${x}</li>`).join("");
+    const ries = (r.ries||[]).map(x=>`<li>${x}</li>`).join("");
+    const rec = (r.rec||[]).map(x=>`<li>${x}</li>`).join("");
+
+    const includePlan = (f.name === globalLowName);
+    const plan = includePlan ? `
+      <h4>3.${idx}.7 Micro‑plan de 7 días (sugerido)</h4>
+      <ul>
+        <li><b>Día 1–2:</b> Definir una meta pequeña y observable relacionada con ${title}.</li>
+        <li><b>Día 3–5:</b> Practicar la meta diariamente (2–5 minutos) y registrar evidencia concreta.</li>
+        <li><b>Día 6–7:</b> Revisar resultados, ajustar una barrera y repetir la práctica una semana más.</li>
+      </ul>
+      <p class="smallnote">Este plan es orientativo y puede adaptarse al contexto escolar o laboral.</p>
+    ` : "";
+
+    return `
+      <div class="numsec">
+        <h3>3.${idx} ${title}</h3>
+        ${chips}
+        <h4>3.${idx}.1 Definición interpretativa</h4>
+        <p>${t.def}</p>
+
+        <h4>3.${idx}.2 Lectura del puntaje y rango</h4>
+        <p>${r.perfil}</p>
+
+        <h4>3.${idx}.3 Manifestaciones típicas</h4>
+        <ul>${mani}</ul>
+
+        <h4>3.${idx}.4 Fortalezas asociadas</h4>
+        <ul>${fort}</ul>
+
+        <h4>3.${idx}.5 Riesgos o puntos ciegos</h4>
+        <ul>${ries}</ul>
+
+        <h4>3.${idx}.6 Recomendaciones prácticas</h4>
+        <ul>${rec}</ul>
+
+        ${plan}
+      </div>
+    `;
+  }
+
+  function buildParte2(persona, factores, igh){
+    const [rl] = rango(igh);
+    const sorted = [...factores].sort((a,b)=>b.pct-a.pct);
+    const alto = sorted[0], bajo = sorted[sorted.length-1], seg = sorted[1];
+    const disp = alto.pct - bajo.pct;
+
+    const sec1 = `
+      <div class="numsec">
+        <h3>1. Datos personales</h3>
+        <div class="userbox"><div>${userFields(persona)}</div></div>
+      </div>
+    `;
+    const sec2 = `
+      <div class="numsec">
+        <h3>2. Resumen de resultados</h3>
+        <p>El Índice General de Hábitos (IGH) es <b>${igh}%</b> y se ubica en rango <b>${rl}</b>.</p>
+        <p class="smallnote">Esta lectura es orientativa y describe tendencias con base en autoevaluación y referencia a un grupo normativo.</p>
+      </div>
+    `;
+
+    const sec3head = `
+      <div class="numsec">
+        <h3>3. Interpretación por hábito</h3>
+        <p class="smallnote">A continuación se presenta la interpretación por hábito según rango (Bajo / Promedio / Alto).</p>
+      </div>
+    `;
+
+    const habits = [
+      factores.find(x=>x.name==="Consistencia"),
+      factores.find(x=>x.name==="Persistencia"),
+      factores.find(x=>x.name==="Prudencia"),
+      factores.find(x=>x.name==="Cooperación")
+    ].map((f,i)=>p2HabitBlock(i+1, f, bajo.name)).join("");
+
+    const sec4 = `
+      <div class="numsec">
+        <h3>4. Síntesis general y foco de desarrollo</h3>
+        <ul>
+          <li>Perfil global: <b>${rl}</b> (IGH = ${igh}%).</li>
+          <li>Fortaleza principal: <b>${dn(alto.name)}</b> (${alto.pct}%). ${seg?`También destaca <b>${dn(seg.name)}</b> (${seg.pct}%).`:""}</li>
+          <li>Foco prioritario: <b>${dn(bajo.name)}</b> (${bajo.pct}%).</li>
+          <li>${disp>=15 ? `Se observa una diferencia marcada entre hábitos (${disp} puntos), por lo que conviene un plan focalizado.` :
+                            `El perfil es relativamente equilibrado (${disp} puntos de diferencia), favoreciendo una mejora gradual.`}</li>
+          <li>Recomendación: definir una meta conductual semanal y verificar evidencia observable de avance.</li>
+        </ul>
+      </div>
+    `;
+
+    const sec5 = `
+      <div class="numsec">
+        <h3>5. Nota interpretativa</h3>
+        <p class="smallnote">Los resultados se interpretan de forma referencial (percentiles y rangos) y describen tendencias probables. Es recomendable complementar con observación, entrevistas o evidencias del contexto escolar o laboral.</p>
+      </div>
+    `;
+
+    return sec1 + sec2 + sec3head + habits + sec4 + sec5;
+  }
+
 function render(data){
   const {persona,factores,igh}=parsePayload(data);
   $("user1").innerHTML=userFields(persona); $("user2").innerHTML=userFields(persona); $("fechaTop").textContent="Fecha: "+persona.fecha;
@@ -261,26 +389,10 @@ function render(data){
     return `<div class="m"><b>${dn(name)}</b><p>${txt}</p></div>`;
   }).join("");
 
-  $("factores").innerHTML=factores.map(f=>{
-    const [lab,cls]=rango(f.pct), t=TEXTS[f.name];
-    const bullets = [
-      `<b>Características probables:</b> ${t.car}`,
-      lab==="ALTO" ? `La presencia de este hábito se observa con mayor consistencia en distintos contextos.` :
-      lab==="PROMEDIO" ? `La presencia de este hábito puede variar según la tarea, presión o contexto.` :
-      `Conviene reforzar este hábito con prácticas concretas y seguimiento breve.`,
-      `<b>Sugerencia práctica:</b> ${t.sug}`
-    ];
-    return `<div class="factor"><div class="head"><div class="left"><h4>${dn(f.name).toUpperCase()}</h4><p>${t.def}</p></div><div class="right"><div class="chips"><span class="chip ${cls}">Rango: ${lab}</span><span class="chip">Puntaje: ${f.pct}%</span>${f.pts!=null?`<span class="chip">Puntos: ${f.pts}${f.max?` / ${f.max}`:""}</span>`:""}${f.items!=null?`<span class="chip">Ítems: ${f.items}</span>`:""}</div><ul>${bullets.map(x=>`<li>${x}</li>`).join("")}</ul></div></div></div>`;
-  }).join("");
-
+  
   const disp = sorted[0].pct - sorted[sorted.length-1].pct;
-  $("recs").innerHTML = [
-    `El perfil global de hábitos se ubica en rango <b>${rl}</b> (IGH = ${igh}%).`,
-    `La fortaleza principal se observa en <b>${dn(alto.name)}</b> (${alto.pct}%), mientras que el foco de desarrollo más inmediato es <b>${dn(bajo.name)}</b> (${bajo.pct}%).`,
-    disp>=15 ? `Se observa una diferencia marcada entre hábitos (${disp} puntos), por lo que conviene priorizar un plan de mejora focalizado.` :
-               `El perfil muestra una distribución relativamente equilibrada entre hábitos (${disp} puntos de diferencia), favoreciendo una mejora gradual.`,
-    `Se recomienda definir una meta conductual semanal y verificar evidencia observable de avance.`
-  ].map(x=>`<li>${x}</li>`).join("");
+  
+  $("p2content").innerHTML = buildParte2(persona, factores, igh);
 
   marker(igh);
   $("p1").style.display="block"; $("p2").style.display="block";
