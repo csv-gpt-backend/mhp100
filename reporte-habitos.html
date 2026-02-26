@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>FFFFFFFFFReporte – Hábitos</title>
+  <title>XXXXXReporte – Hábitos</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -1957,7 +1957,7 @@ cont.appendChild(lista);
   `Índice de Desarrollo Personal: ${fmt(extras.bIntra)}`,
   `Índice de Vínculos Interpersonales: ${fmt(extras.bInter)}`,
   `Índice de Habilidades para la Vida: ${fmt(extras.bPV)}`,
-  `Índice Global de Inteligencia Emocional (IGH): ${fmt(extras.iieFinal)}`
+  `Índice Global de Inteligencia Emocional (IGH): ${fmt(extras.ighFinal)}`
 ].forEach(t=>{
   const li = document.createElement("li");
   li.textContent = t;
@@ -2216,7 +2216,7 @@ setTimeout(() => setCurveMarker(ighForCurve), 120);
       bIntra, bInter, bPV,
       agresionVal, timidezVal,
       propCambioVal,
-      iieFinal,
+      ighFinal,
       nombre
     });
 
@@ -2229,33 +2229,11 @@ setTimeout(() => setCurveMarker(ighForCurve), 120);
     document.getElementById("reporteContainer").style.display = "none";
     try{
       const codigoQ = encodeURIComponent(codigo);
-      const endpoints = [
-        `/api/report-habitos?codigo=${codigoQ}`,
-        `/api/report?tipo=habitos&codigo=${codigoQ}`,
-        `/api/report?codigo=${codigoQ}` // fallback
-      ];
-
-      let r = null;
-      let data = null;
-
-      for (const url of endpoints) {
-        try{
-          const resp = await fetch(url);
-          const j = await resp.json().catch(()=>null);
-          if(resp.ok && j && !j.error){
-            r = resp;
-            data = j;
-            break;
-          }
-          // guarda el último intento para mostrar error si ninguno funciona
-          r = resp;
-          data = j;
-        }catch(e){
-          // intenta el siguiente endpoint
-        }
-      }
-      if(!r.ok || data.error){
-        document.getElementById("msg").textContent = data.error || "No encontrado";
+      const url = `/api/report?codigo=${codigoQ}`;
+      const r = await fetch(url);
+      const data = await r.json().catch(()=>null);
+      if(!r.ok || !data || data.error){
+        document.getElementById("msg").textContent = (data && data.error) ? data.error : "No encontrado";
         document.getElementById("msg").className = "msg err";
         return;
       }
