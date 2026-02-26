@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>XXXXXReporte – Hábitos</title>
+  <title>VVVVReporte – Hábitos</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -2140,7 +2140,7 @@ cont.appendChild(lista);
       return adjScore(raw, {bloqueNorm: keyNorm, subNorm: ""});
     }
 
-    const bIntra = pctBloque("Desarrollo Personal");
+        const bIntra = pctBloque("Desarrollo Personal");
     const bInter = pctBloque("Vínculos Interpersonales");
     const bPV    = pctBloque("Competencias Para la Vida");
 
@@ -2148,22 +2148,87 @@ cont.appendChild(lista);
     document.getElementById("ihInter").textContent = bInter || "—";
     document.getElementById("ihPV").textContent = bPV || "—";
 
-    let igh =
-      attempt.igh ??
-      attempt.IGH ??
-      attempt.indice_gh ??
-      attempt.indice_habitos ??
-      attempt.indice_general_habitos ??
-      (resultados.globales ? (resultados.globales.IGH ?? resultados.globales.igh) : undefined);
+    // --- IGH (Hábitos) ---
+    // Tu API devuelve { valid, puede_ver_resultado, participant, attempt }.
+    // El IGH no siempre viene con un nombre fijo; lo buscamos por:
+    // 1) paths conocidos, 2) búsqueda profunda de una clave que contenga "igh".
+    const safeGet = (obj, path) => {
+      try{
+        return path.split(".").reduce((acc,k)=> (acc==null? acc : acc[k]), obj);
+      }catch(_){ return undefined; }
+    };
 
-    // Fallback: si no viene IGH, intenta promediar bloques presentes (si aplica)
+    const toNum01 = (v) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : undefined;
+    };
+
+    const findIghDeep = (obj) => {
+      if(!obj || typeof obj !== "object") return undefined;
+      const hits = [];
+      const walk = (o, prefix="") => {
+        if(!o || typeof o !== "object") return;
+        for(const [k,v] of Object.entries(o)){
+          const keyPath = prefix ? `${prefix}.${k}` : k;
+          if(v && typeof v === "object"){
+            walk(v, keyPath);
+          } else {
+            const n = toNum01(v);
+            if(n == null) continue;
+            // aceptamos rango 0..100 (tu IGH es porcentaje)
+            if(n < 0 || n > 100) continue;
+            const kLow = String(k).toLowerCase();
+            if(kLow === "igh" || kLow.includes("igh") || kLow.includes("hab") && kLow.includes("indice")){
+              hits.push({path:keyPath, key:kLow, val:n});
+            }
+          }
+        }
+      };
+      walk(obj);
+      if(!hits.length) return undefined;
+      // prioridad: clave exactamente "igh"
+      hits.sort((a,b)=>{
+        const aExact = a.key === "igh" ? 0 : 1;
+        const bExact = b.key === "igh" ? 0 : 1;
+        if(aExact !== bExact) return aExact - bExact;
+        // luego paths más cortos (más directos)
+        return a.path.length - b.path.length;
+      });
+      return hits[0];
+    };
+
+    const knownPaths = [
+      "igh","IGH",
+      "indice_gh","indice_habitos","indice_general_habitos","indice_general",
+      "puntaje_gh","puntaje_habitos","puntaje_general","puntaje_total","score_total",
+      "scores.igh","scores.IGH",
+      "resultados.igh","resultados.IGH",
+      "resultados.global.igh","resultados.global.IGH",
+      "resultados.globales.igh","resultados.globales.IGH",
+      "indices.igh","indices.IGH",
+      "pt.igh","pt.IGH"
+    ];
+
+    let ighRaw;
+    for(const pth of knownPaths){
+      const v = safeGet(attempt, pth) ?? safeGet(data, pth);
+      const n = toNum01(v);
+      if(n != null){ ighRaw = n; break; }
+    }
+    let deepHit;
+    if(ighRaw == null){
+      deepHit = findIghDeep(attempt) || findIghDeep(data);
+      if(deepHit) ighRaw = deepHit.val;
+    }
+
+    // Fallback final (solo si el backend aún no envía IGH): promedio de los 3 bloques si existen
     const ighBase =
-      (igh != null && !Number.isNaN(Number(igh)))
-        ? Number(igh)
+      (ighRaw != null)
+        ? ighRaw
         : ((bIntra || bInter || bPV) ? Math.round((bIntra + bInter + bPV) / 3) : 0);
 
     const ighFinal = adjScore(ighBase, {bloqueNorm:"", subNorm:""});
-    console.log(">> IGH base/final:", ighBase, ighFinal); // <-- AQUÍ
+    console.log(">> IGH raw/base/final:", ighRaw, ighBase, ighFinal, deepHit ? deepHit.path : "");
 
     document.getElementById("repIGH").textContent = ighFinal || "—";
     const tituloCurva = document.getElementById("tituloCurvaFrecuencias");
