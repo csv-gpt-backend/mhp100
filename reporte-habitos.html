@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JUE26 15 59 Reporte-habitos</title>
+<title>JUE26 16 34 Reporte-habitos</title>
 <style>
 :root{--ink:#0f172a;--muted:#64748b;--line:#dbe2ea;--bg:#f8fafc}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -393,6 +393,8 @@ function render(data){
   const disp = sorted[0].pct - sorted[sorted.length-1].pct;
   
   $("p2content").innerHTML = buildParte2(persona, factores, igh);
+  // Evitar duplicado: ocultar el bloque de datos personales del encabezado de Parte 2 (se mantiene el punto 1)
+  try{ if($("user2")){$("user2").innerHTML="";} }catch(_e){}
 
   marker(igh);
   $("p1").style.display="block"; $("p2").style.display="block";
@@ -400,13 +402,16 @@ function render(data){
 async function cargar(){
   const c=($("codigo").value||"").trim().toUpperCase(); if(!c) return;
   $("msg").textContent="Buscando...";
+  try{$("ver").disabled=true; $("ver").style.opacity="0.6"; $("ver").style.cursor="not-allowed";}catch(_e){}
   try{
     const r=await fetch(`/api/report?codigo=${encodeURIComponent(c)}`); const data=await r.json();
-    if(!r.ok || data?.error){ $("msg").textContent=data?.error||"No encontrado"; $("msg").className="msg err"; return; }
+    if(!r.ok || data?.error){ $("msg").textContent=data?.error||"No encontrado"; $("msg").className="msg err";
+  try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){} return; }
     const hasRes = (j(data?.attempt?.resultados)||data?.attempt?.resultados);
     if(!hasRes){ $("msg").textContent="Este código no tiene resultados guardados."; $("msg").className="msg err"; return; }
     render(data);
 $("msg").textContent="Reporte cargado."; $("msg").className="msg ok";
+  try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){}
   }catch(e){ console.error(e); $("msg").textContent="Error de conexión"; $("msg").className="msg err"; }
 }
 $("ver").onclick=cargar; $("pdf").onclick=()=>window.print();
