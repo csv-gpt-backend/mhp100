@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JUE26 11 40 Reporte-habitos</title>
+<title>JUE26 15 27 Reporte-habitos</title>
 <style>
 :root{--ink:#0f172a;--muted:#64748b;--line:#dbe2ea;--bg:#f8fafc}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -162,10 +162,10 @@ h1{margin-top:14px !important;}
 
 <script>
 const TEXTS={
- "Consistencia":{micro:"Uniformidad y coherencia en la conducta que exhibe.",def:"Presenta uniformidad en el comportamiento que exhibe.",car:"Estabilidad, coherencia, previsibilidad en lo esencial y capacidad de sostener rutinas.",sug:"Definir 2–3 rutinas clave (inicio, seguimiento y cierre) y mantenerlas varias semanas."},
- "Persistencia":{micro:"Perseverancia y empeño para el logro de objetivos y compromisos.",def:"Tiene perseverancia y empeño para el logro de objetivos y compromisos.",car:"Responsabilidad, esfuerzo sostenido, foco en metas, aprendizaje de errores y cierre de tareas.",sug:"Usar metas semanales pequeñas y verificables; revisar avance y cierre."},
- "Prudencia":{micro:"Cuidado y criterio en el manejo de información y decisiones.",def:"Cuida el manejo de la información.",car:"Cautela, buen juicio, moderación, respeto y decisiones basadas en hechos.",sug:"Aplicar una pausa breve para verificar hechos antes de decidir o comunicar."},
- "Cooperación":{micro:"Tendencia a apoyar a otros para objetivos comunes.",def:"Tiende a apoyar a otros para el logro de objetivos comunes.",car:"Apoyo a otros, orientación al servicio, respeto por diferencias y trabajo compartido.",sug:"Acordar rol, aportes y un punto de coordinación en cada tarea grupal."}
+ "Consistencia":{p1:{bajo:"Puede variar sus rutinas y criterios según el contexto; cuesta sostener hábitos y dar seguimiento continuo. Le ayuda trabajar con recordatorios y compromisos concretos.",prom:"Suele mantener estabilidad en lo esencial; muestra coherencia general y capacidad de sostener rutinas, con variaciones puntuales.",alto:"Presenta alta consistencia: actúa con criterios claros y previsibles, sostiene rutinas y cumple acuerdos con regularidad. Cuidar no caer en rigidez."},micro:"Uniformidad y coherencia en la conducta que exhibe.",def:"Presenta uniformidad en el comportamiento que exhibe.",car:"Estabilidad, coherencia, previsibilidad en lo esencial y capacidad de sostener rutinas.",sug:"Definir 2–3 rutinas clave (inicio, seguimiento y cierre) y mantenerlas varias semanas."},
+ "Persistencia":{p1:{bajo:"Puede abandonar tareas ante obstáculos o cuando baja la motivación; cuesta mantener el esfuerzo continuo. Beneficia dividir metas y reconocer avances.",prom:"Mantiene el empeño la mayor parte del tiempo; retoma cuando hay dificultades y completa objetivos habituales.",alto:"Sostiene el esfuerzo con constancia; afronta obstáculos y finaliza lo que inicia, incluso a mediano plazo. Vigilar sobrecarga o autoexigencia."},micro:"Perseverancia y empeño para el logro de objetivos y compromisos.",def:"Tiene perseverancia y empeño para el logro de objetivos y compromisos.",car:"Responsabilidad, esfuerzo sostenido, foco en metas, aprendizaje de errores y cierre de tareas.",sug:"Usar metas semanales pequeñas y verificables; revisar avance y cierre."},
+ "Prudencia":{p1:{bajo:"Tiende a actuar con rapidez o sin evaluar consecuencias; puede asumir riesgos innecesarios. Conviene pausar, revisar datos y considerar alternativas antes de decidir.",prom:"Suele evaluar opciones y consecuencias; toma decisiones razonables con equilibrio entre rapidez y cautela.",alto:"Muestra alto criterio: analiza escenarios, anticipa riesgos y decide con cuidado. Evitar paralizarse por exceso de análisis."},micro:"Cuidado y criterio en el manejo de información y decisiones.",def:"Cuida el manejo de la información.",car:"Cautela, buen juicio, moderación, respeto y decisiones basadas en hechos.",sug:"Aplicar una pausa breve para verificar hechos antes de decidir o comunicar."},
+ "Cooperación":{p1:{bajo:"Prefiere trabajar de forma independiente; puede costar pedir u ofrecer ayuda y coordinarse. Ayuda clarificar roles, acuerdos y canales de comunicación.",prom:"Colabora cuando es necesario; apoya y se coordina, manteniendo autonomía y foco en resultados.",alto:"Colabora activamente: escucha, apoya, comparte recursos y facilita el trabajo en equipo. Cuidar no asumir cargas ajenas."},micro:"Tendencia a apoyar a otros para objetivos comunes.",def:"Tiende a apoyar a otros para el logro de objetivos comunes.",car:"Apoyo a otros, orientación al servicio, respeto por diferencias y trabajo compartido.",sug:"Acordar rol, aportes y un punto de coordinación en cada tarea grupal."}
 };
 const ORDER=["Consistencia","Persistencia","Prudencia","Cooperación"];
 const DISPLAY={"Consistencia":"Coherencia","Persistencia":"Perseverancia","Prudencia":"Juicio","Cooperación":"Cooperación"};
@@ -252,7 +252,14 @@ function render(data){
     return `<div class="bar"><div class="bh"><span>${dn(f.name).toUpperCase()}</span><span>${f.pct}% · ${lab}</span></div><div class="track"><div class="fill" style="width:${f.pct}%"></div><div class="dot" style="left:${f.pct}%"></div></div><div class="scale"><span>BAJO</span><span>PROMEDIO</span><span>ALTO</span></div></div>`;
   }).join("");
 
-  $("micro").innerHTML=ORDER.map(name=>`<div class="m"><b>${dn(name)}</b><p>${TEXTS[name].micro}</p></div>`).join("");
+  $("micro").innerHTML=ORDER.map(name=>{
+    const f = factores.find(x=>x.name===name);
+    const pct = f ? f.pct : 0;
+    const [lab] = rango(pct);
+    const t = TEXTS[name];
+    const txt = (lab==="BAJO" ? t.p1.bajo : (lab==="ALTO" ? t.p1.alto : t.p1.prom));
+    return `<div class="m"><b>${dn(name)}</b><p>${txt}</p></div>`;
+  }).join("");
 
   $("factores").innerHTML=factores.map(f=>{
     const [lab,cls]=rango(f.pct), t=TEXTS[f.name];
