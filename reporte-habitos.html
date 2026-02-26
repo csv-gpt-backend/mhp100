@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>VVVVReporte – Hábitos</title>
+  <title>GGReporte – Hábitos</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -2163,39 +2163,82 @@ cont.appendChild(lista);
       return Number.isFinite(n) ? n : undefined;
     };
 
-    const findIghDeep = (obj) => {
-      if(!obj || typeof obj !== "object") return undefined;
-      const hits = [];
-      const walk = (o, prefix="") => {
-        if(!o || typeof o !== "object") return;
-        for(const [k,v] of Object.entries(o)){
-          const keyPath = prefix ? `${prefix}.${k}` : k;
-          if(v && typeof v === "object"){
-            walk(v, keyPath);
-          } else {
-            const n = toNum01(v);
-            if(n == null) continue;
-            // aceptamos rango 0..100 (tu IGH es porcentaje)
-            if(n < 0 || n > 100) continue;
-            const kLow = String(k).toLowerCase();
-            if(kLow === "igh" || kLow.includes("igh") || kLow.includes("hab") && kLow.includes("indice")){
-              hits.push({path:keyPath, key:kLow, val:n});
-            }
-          }
+    // Búsqueda profunda: detecta posibles campos de IGH aunque no se llamen "igh".
+// Reglas:
+// - valores numéricos 0..100
+// - prioriza claves que contengan: igh/indice/hab/punt/score/total/global/porc/pct
+// - además intenta parsear strings JSON embebidos
+const SCORE_KEY_RE = /(igh|ígh|indice|índice|hab|h[aá]bito|punt|score|total|global|porc|pct)/i;
+
+const tryParseJsonString = (s) => {
+  if(typeof s !== "string") return undefined;
+  const t = s.trim();
+  if(!(t.startsWith("{") || t.startsWith("["))) return undefined;
+  try { return JSON.parse(t); } catch { return undefined; }
+};
+
+const collectScoreCandidates = (obj) => {
+  const hits = [];
+  const seen = new Set();
+
+  const walk = (o, prefix="") => {
+    if(!o || typeof o !== "object") return;
+    for(const [k,v] of Object.entries(o)){
+      const keyPath = prefix ? `${prefix}.${k}` : k;
+
+      // Evita ciclos raros
+      if(v && typeof v === "object"){
+        if(seen.has(v)) continue;
+        seen.add(v);
+        walk(v, keyPath);
+        continue;
+      }
+
+      // Si hay JSON embebido en string, lo exploramos
+      const parsed = tryParseJsonString(v);
+      if(parsed && typeof parsed === "object"){
+        if(!seen.has(parsed)){
+          seen.add(parsed);
+          walk(parsed, keyPath + "::<json>");
         }
-      };
-      walk(obj);
-      if(!hits.length) return undefined;
-      // prioridad: clave exactamente "igh"
-      hits.sort((a,b)=>{
-        const aExact = a.key === "igh" ? 0 : 1;
-        const bExact = b.key === "igh" ? 0 : 1;
-        if(aExact !== bExact) return aExact - bExact;
-        // luego paths más cortos (más directos)
-        return a.path.length - b.path.length;
-      });
-      return hits[0];
-    };
+        continue;
+      }
+
+      const n = toNum01(v);
+      if(n == null) continue;
+      if(n < 0 || n > 100) continue;
+
+      const kStr = String(k);
+      const keyNorm = kStr.toLowerCase();
+      const score = (keyNorm === "igh") ? 100
+                   : (SCORE_KEY_RE.test(kStr) ? 50 : 0);
+      hits.push({ path: keyPath, key: kStr, keyNorm, val: n, score });
+    }
+  };
+
+  if(obj && typeof obj === "object"){
+    seen.add(obj);
+    walk(obj, "");
+  }
+
+  return hits;
+};
+
+const pickBestIGH = (obj) => {
+  const hits = collectScoreCandidates(obj);
+  if(!hits.length) return undefined;
+
+  // Preferimos claves con "igh" explícito; si no, lo más "score-like" y con path corto
+  hits.sort((a,b)=>{
+    const aHas = a.keyNorm.includes("igh") ? 0 : 1;
+    const bHas = b.keyNorm.includes("igh") ? 0 : 1;
+    if(aHas !== bHas) return aHas - bHas;
+    if(b.score !== a.score) return b.score - a.score;
+    return a.path.length - b.path.length;
+  });
+
+  return { best: hits[0], hits };
+};
 
     const knownPaths = [
       "igh","IGH",
@@ -2216,19 +2259,35 @@ cont.appendChild(lista);
       if(n != null){ ighRaw = n; break; }
     }
     let deepHit;
-    if(ighRaw == null){
-      deepHit = findIghDeep(attempt) || findIghDeep(data);
-      if(deepHit) ighRaw = deepHit.val;
-    }
-
-    // Fallback final (solo si el backend aún no envía IGH): promedio de los 3 bloques si existen
+let deepHits;
+if(ighRaw == null){
+  const picked = pickBestIGH(attempt) || pickBestIGH(data);
+  if(picked){
+    deepHit = picked.best;
+    deepHits = picked.hits;
+    ighRaw = picked.best.val;
+  } else {
+    deepHit = undefined;
+    deepHits = [];
+  }
+}
+// Fallback final (solo si el backend aún no envía IGH): promedio de los 3 bloques si existen
     const ighBase =
       (ighRaw != null)
         ? ighRaw
         : ((bIntra || bInter || bPV) ? Math.round((bIntra + bInter + bPV) / 3) : 0);
 
     const ighFinal = adjScore(ighBase, {bloqueNorm:"", subNorm:""});
-    console.log(">> IGH raw/base/final:", ighRaw, ighBase, ighFinal, deepHit ? deepHit.path : "");
+    console.log(">> IGH raw/base/final:", ighRaw, ighBase, ighFinal, deepHit ? `${deepHit.path} (${deepHit.key})` : "");
+    if(!ighRaw){
+      console.warn("No se encontró IGH en el payload. Top-level attempt keys:", attempt ? Object.keys(attempt) : []);
+      if(deepHits && deepHits.length){
+        console.table(deepHits.slice(0,50));
+      }
+    } else if(deepHits && deepHits.length){
+      // Útil para fijar el mapeo luego
+      console.table(deepHits.slice(0,25));
+    }
 
     document.getElementById("repIGH").textContent = ighFinal || "—";
     const tituloCurva = document.getElementById("tituloCurvaFrecuencias");
