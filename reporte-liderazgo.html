@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>18 01 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>18 06 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -52,6 +52,20 @@
   .hidden{display:none}
   .small{font-size:12px;color:var(--muted)}
   @media print {.topbar,#msg,.small{display:none} #page1{page-break-after:always}}
+
+/* --- Parte 2 robusta (numerada) --- */
+.p2sec{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;margin:12px 0}
+.p2sec h4{margin:0 0 8px;font-size:15px}
+.p2sec h5{margin:10px 0 6px;font-size:13.5px}
+.p2sec p{margin:0 0 8px;color:#334155;line-height:1.45}
+.p2sec ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.35;color:#334155}
+.p2chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 8px}
+.p2chip{padding:4px 10px;border-radius:999px;border:1px solid #dbe2ea;font-size:12px;font-weight:800;background:#fff}
+.p2chip.low{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.p2chip.mid{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.p2chip.high{background:#ecfdf5;border-color:#bbf7d0;color:#166534}
+.p2note{font-size:12px;color:#475569}
+
 </style>
 </head>
 <body>
@@ -143,6 +157,8 @@
           <tbody id="tbodyFactores"></tbody>
         </table>
       </div>
+
+      <div id="p2detail"></div>
     </section>
   </div>
 </div>
@@ -193,6 +209,183 @@ function displayFactorFromCanon(c){
   };
   return map[c] || c;
 }
+
+/* --- Parte 2 (numerada, escolar/profesional) --- */
+const FACTOR_DEF = {
+  "Contacto personal":"Capacidad para vincularse, generar cercanía y comunicación efectiva con otras personas.",
+  "Pertenencia":"Tendencia a integrarse, colaborar y comprometerse con el grupo o institución.",
+  "Asertividad":"Habilidad para expresar ideas y límites con respeto, seguridad y claridad.",
+  "Atención":"Capacidad de concentración, seguimiento y cuidado de detalles en tareas o responsabilidades.",
+  "Control":"Manejo de impulsos, autorregulación y consistencia para sostener normas y acuerdos.",
+  "Influencia":"Capacidad para persuadir, movilizar y guiar a otros de forma ética y efectiva.",
+  "Apertura":"Disposición a aprender, escuchar perspectivas y adaptarse a cambios.",
+  "Ritmo de trabajo":"Nivel de constancia y velocidad sostenida para ejecutar tareas y avanzar en objetivos.",
+  "Desempeño":"Efectividad para lograr resultados, cumplir metas y mantener calidad en lo realizado.",
+  "Juicio":"Criterio para tomar decisiones, anticipar consecuencias y evaluar alternativas.",
+  "Visión":"Capacidad para proyectar metas, comprender el propósito y orientar acciones a futuro.",
+  "Enfoque estratégico":"Habilidad para priorizar, planificar y coordinar acciones alineadas a objetivos."
+};
+
+function p2Rango(p){
+  const n = Number(p)||0;
+  if(n <= 39) return {lab:"Por desarrollar", cls:"low"};
+  if(n <= 70) return {lab:"Por fortalecer", cls:"mid"};
+  return {lab:"Por enriquecer", cls:"high"};
+}
+
+function p2BulletsForRange(lab){
+  if(lab==="Por desarrollar"){
+    return {
+      mani:[
+        "Puede requerir apoyo y estructura para sostener conductas asociadas a este factor.",
+        "En situaciones de presión, es más probable que disminuya la consistencia o claridad en la conducta.",
+        "El progreso suele ser mayor cuando hay metas pequeñas y seguimiento frecuente."
+      ],
+      fort:[
+        "Oportunidad para aprender estrategias concretas y hábitos de mejora.",
+        "Apertura a recibir guía y ajustar conductas con retroalimentación."
+      ],
+      ries:[
+        "Riesgo de resultados variables o de depender demasiado del contexto.",
+        "Posibles dificultades en coordinación, cumplimiento o toma de decisiones según el factor."
+      ],
+      rec:[
+        "Definir una conducta observable para practicar durante 2 semanas.",
+        "Usar un registro simple (checklist) y una revisión breve cada 3 días.",
+        "Solicitar retroalimentación específica (1 ejemplo de mejora por semana)."
+      ]
+    };
+  }
+  if(lab==="Por fortalecer"){
+    return {
+      mani:[
+        "Suele mostrar conductas funcionales asociadas al factor en contextos habituales.",
+        "Puede presentar variaciones en periodos de alta carga, estrés o cambios de rutina.",
+        "Mejora al usar planificación breve y recordatorios simples."
+      ],
+      fort:[
+        "Base estable para sostener desempeño y convivencia escolar/laboral.",
+        "Capacidad de ajustar con retroalimentación sin perder el objetivo."
+      ],
+      ries:[
+        "Riesgo de fluctuación cuando hay múltiples tareas o poca claridad de prioridades.",
+        "Puede requerir método para proyectos de mayor complejidad."
+      ],
+      rec:[
+        "Plan semanal con 3 prioridades y 2 acciones concretas del factor.",
+        "Revisión de mitad de semana: ajustar sin abandonar.",
+        "Practicar una rutina corta (2–5 min) diaria relacionada al factor."
+      ]
+    };
+  }
+  return {
+    mani:[
+      "Tiende a mostrar conductas sólidas y consistentes asociadas a este factor.",
+      "Mantiene buen desempeño incluso con cambios o presión moderada.",
+      "Puede servir como apoyo para el trabajo en equipo o liderazgo en su contexto."
+    ],
+    fort:[
+      "Fortaleza clara que favorece resultados y convivencia.",
+      "Posibilidad de modelar buenas prácticas en el grupo/equipo."
+    ],
+    ries:[
+      "Riesgo de sobrecarga por asumir demasiadas responsabilidades.",
+      "Posible rigidez o autoexigencia elevada si no se cuida el equilibrio."
+    ],
+    rec:[
+      "Mantener la fortaleza con pausas y límites saludables.",
+      "Definir criterios de prioridad para no sobrecargarse.",
+      "Compartir buenas prácticas: mentoría o apoyo puntual a compañeros."
+    ]
+  };
+}
+
+function factorDetail(idx, f){
+  const r = p2Rango(f.pct);
+  const base = p2BulletsForRange(r.lab);
+  const def = FACTOR_DEF[f.name] || "Descripción del factor.";
+  return `
+    <div class="p2sec">
+      <h4>3.${idx} ${esc(f.name)}</h4>
+      <div class="p2chips">
+        <span class="p2chip ${r.cls}">Rango: ${r.lab}</span>
+        <span class="p2chip">Puntaje: ${Math.round(f.pct)}%</span>
+        <span class="p2chip">Ítems: ${f.items}</span>
+      </div>
+
+      <h5>3.${idx}.1 Definición interpretativa</h5>
+      <p>${esc(def)}</p>
+
+      <h5>3.${idx}.2 Lectura del puntaje</h5>
+      <p>En este rango, es más probable que las conductas asociadas a <b>${esc(f.name)}</b> se observen como se describe a continuación.</p>
+
+      <h5>3.${idx}.3 Manifestaciones típicas</h5>
+      <ul>${base.mani.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+
+      <h5>3.${idx}.4 Fortalezas asociadas</h5>
+      <ul>${base.fort.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+
+      <h5>3.${idx}.5 Riesgos o puntos ciegos</h5>
+      <ul>${base.ries.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+
+      <h5>3.${idx}.6 Recomendaciones prácticas</h5>
+      <ul>${base.rec.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+      <p class="p2note">Sugerencias aplicables en contextos escolares o laborales; pueden ajustarse según el rol y responsabilidades.</p>
+    </div>
+  `;
+}
+
+function buildParte2Detalle({header, ifl, ordered}){
+  const r = p2Rango(ifl);
+  const top = [...ordered].filter(x=>!x.missing).sort((a,b)=>b.pct-a.pct);
+  const alto = top[0], bajo = top[top.length-1], seg = top[1];
+  const disp = alto && bajo ? Math.round(alto.pct - bajo.pct) : 0;
+
+  const sec2 = `
+    <div class="p2sec">
+      <h4>2.- Resumen de resultados</h4>
+      <div class="p2chips">
+        <span class="p2chip ${r.cls}">IFL: ${Math.round(ifl)}% — ${r.lab}</span>
+        <span class="p2chip">Perfil: ${disp>=15 ? "Diferenciado" : "Equilibrado"}</span>
+      </div>
+      <p>Este informe describe tendencias probables en liderazgo a partir de una autoevaluación y se interpreta de forma referencial.</p>
+    </div>
+  `;
+
+  const sec3head = `
+    <div class="p2sec">
+      <h4>3.- Interpretación por factores</h4>
+      <p class="p2note">La interpretación se presenta por factor y rango (Por desarrollar / fortalecer / enriquecer). Se recomienda complementar con observación y evidencias del contexto.</p>
+    </div>
+  `;
+
+  const details = ordered.map((f,i)=>factorDetail(i+1, f)).join("");
+
+  const sec4 = alto && bajo ? `
+    <div class="p2sec">
+      <h4>4.- Síntesis general y foco de desarrollo</h4>
+      <ul>
+        <li>Perfil global: <b>${Math.round(ifl)}%</b> (${r.lab}).</li>
+        <li>Fortaleza principal: <b>${esc(alto.name)}</b> (${Math.round(alto.pct)}%). ${seg?`También destaca <b>${esc(seg.name)}</b> (${Math.round(seg.pct)}%).`:""}</li>
+        <li>Foco prioritario: <b>${esc(bajo.name)}</b> (${Math.round(bajo.pct)}%).</li>
+        <li>${disp>=15 ? `Se observa una diferencia marcada entre factores (${disp} puntos), por lo que conviene un plan focalizado.` :
+                          `El perfil es relativamente equilibrado (${disp} puntos de diferencia), favoreciendo una mejora gradual.`}</li>
+        <li>Estrategia sugerida: elegir 1 conducta observable del foco y practicarla 10 minutos al día por 2 semanas.</li>
+      </ul>
+    </div>
+  ` : "";
+
+  const sec5 = `
+    <div class="p2sec">
+      <h4>5.- Nota interpretativa</h4>
+      <p class="p2note">Los resultados describen tendencias y se interpretan con referencia a un grupo normativo. Se recomienda complementar con entrevistas, observación y evidencias del contexto escolar o laboral.</p>
+    </div>
+  `;
+
+  return sec2 + sec3head + details + sec4 + sec5;
+}
+
+
 function rangoFromPct(p){
   const n = Number(p)||0;
   if (n <= 39) return 'Por desarrollar';
@@ -456,6 +649,12 @@ async function cargar(){
     renderBloque('bloqueC', m.bloqueRows.C);
     renderBloque('bloqueD', m.bloqueRows.D);
     renderTable(m.ordered);
+
+    // Parte 2 robusta (numerada)
+    try{
+      const det = document.getElementById('p2detail');
+      if(det){ det.innerHTML = buildParte2Detalle({header:m.header, ifl:(m.ifl||0), ordered:m.ordered}); }
+    }catch(e){ console.error(e); }
 
     const n = m.ifl || 0;
     $('#nivelGlobal').textContent = n<=39 ? 'Perfil global con áreas importantes por desarrollar.' :
