@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>XXX18 59 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>10 08 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -73,15 +73,11 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
 .rangoPill.low{background:#ffe7e7;color:#8a1f1f;border:1px solid #f3b1b1}
 .rangoPill.mid{background:#fff3d6;color:#7a4a00;border:1px solid #f1d18a}
 .rangoPill.high{background:#e6f7ea;color:#145a25;border:1px solid #a9dfb4}
+/* Fila completa por rango */
+.result tbody tr.row-low > td{background:#fff0f0}
+.result tbody tr.row-mid > td{background:#fff8e6}
+.result tbody tr.row-high > td{background:#eefaf0}
 
-
-/* Row coloring (Por factor) */
-.result tbody tr.row-low td{ background: rgba(255, 77, 77, 0.10); }
-.result tbody tr.row-mid td{ background: rgba(255, 193, 7, 0.14); }
-.result tbody tr.row-high td{ background: rgba(46, 204, 113, 0.12); }
-.result tbody tr.row-low td:first-child{ border-left: 3px solid rgba(255, 77, 77, 0.45); }
-.result tbody tr.row-mid td:first-child{ border-left: 3px solid rgba(255, 193, 7, 0.50); }
-.result tbody tr.row-high td:first-child{ border-left: 3px solid rgba(46, 204, 113, 0.45); }
 
 </style>
 </head>
@@ -136,7 +132,18 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
         </div>
       </div>
 
-      <!-- bloques IA/IB/IC/ID ocultos por decisión de producto -->
+      <div class="blk-title"><span>VÍNCULOS INTERPERSONALES</span><span>IA: <span class="badgeY" id="idxA">—</span></span></div>
+      <div class="bar-head"><div></div><div style="text-align:center">POR DESARROLLAR</div><div style="text-align:center">POR FORTALECER</div><div style="text-align:center">POR ENRIQUECER</div></div>
+      <div id="bloqueA"></div>
+
+      <div class="blk-title"><span>ENTORNO SITUACIONAL</span><span>IB: <span class="badgeY" id="idxB">—</span></span></div>
+      <div id="bloqueB"></div>
+
+      <div class="blk-title"><span>PERFORMANCE</span><span>IC: <span class="badgeY" id="idxC">—</span></span></div>
+      <div id="bloqueC"></div>
+
+      <div class="blk-title"><span>JUICIO</span><span>ID: <span class="badgeY" id="idxD">—</span></span></div>
+      <div id="bloqueD"></div>
 
       <div class="iie">ÍNDICE GLOBAL DE FACTORES DE LIDERAZGO IFL: <span class="badgeB" id="iflBadge">—</span></div>
     </section>
@@ -189,7 +196,6 @@ const FACTOR_TO_BLOQUE = {
   'apertura':'C','ritmo de trabajo':'C','desempeno':'C',
   'juicio':'D','vision':'D','enfoque estrategico':'D'
 };
-
 
 function canonFactor(s){
   const t = norm(s).replace(/[^a-z0-9 ]+/g,' ');
@@ -827,15 +833,13 @@ function renderBloque(elId, rows){
 function renderTable(rows){
   const tb = $('#tbodyFactores');
   tb.innerHTML = rows.map(r => {
-    const rr = r.missing ? {lab:'—', cls:'na'} : p2Rango(r.pct);
-    const trCls = r.missing ? '' : ('row-' + rr.cls);
-    const rangoHtml = r.missing ? '—' : ('<span class="rangoPill ' + rr.cls + '">' + rr.lab + '</span>');
-    return `<tr class="${trCls}">
+    const cls = r.missing ? '' : ('row-' + p2Rango(r.pct).cls);
+    return `<tr class="${cls}">
       <td>${esc(r.name)}</td>
       <td>${r.items ?? '—'}</td>
       <td>${r.pts ?? '—'}</td>
       <td>${r.missing ? '—' : (Number(r.pct)||0)}</td>
-      <td>${rangoHtml}</td>
+      <td>${r.missing ? '—' : ('<span class="rangoPill ' + p2Rango(r.pct).cls + '">' + rangoFromPct(r.pct) + '</span>')}</td>
     </tr>`;
   }).join('');
 }
@@ -861,12 +865,20 @@ async function cargar(){
 
     renderHeader(m.header, m.fechaTop);
     $('#contestadasLine').textContent = 'Contestadas: ' + m.contestadas;
+
+    setBadge('idxA', m.idxA ?? '—'); setBadge('idxB', m.idxB ?? '—');
+    setBadge('idxC', m.idxC ?? '—'); setBadge('idxD', m.idxD ?? '—');
     setBadge('iflBadge', m.ifl ?? '—'); $('#iflText').textContent = m.ifl ?? '—';
     try{ const el=document.getElementById('iflCurveInline'); if(el) el.textContent = (m.ifl ?? '—'); }catch(_e){}
 
     highlightIV('na', m.iv1); highlightIV('nc', m.iv2); highlightIV('pt', m.iv3);
     setMarker(m.ifl || 0);
-renderTable(m.ordered);
+
+    renderBloque('bloqueA', m.bloqueRows.A);
+    renderBloque('bloqueB', m.bloqueRows.B);
+    renderBloque('bloqueC', m.bloqueRows.C);
+    renderBloque('bloqueD', m.bloqueRows.D);
+    renderTable(m.ordered);
 
     // Parte 2 robusta (numerada)
     try{
