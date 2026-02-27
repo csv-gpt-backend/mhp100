@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>10 40 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>VUER 27 15 22 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -102,7 +102,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
 
       <div class="grid2" style="margin-top:8px">
         <div>
-          <div style="font-weight:700"><span>CURVA DE DISTRIBUCIÓN DE FRECUENCIAS : (IFL)= <span id="iflCurveInline">—</span></span></div>
+          <div style="font-weight:700;display:flex;justify-content:space-between;gap:10px"><span>CURVA DE DISTRIBUCIÓN DE FRECUENCIAS : </span><span> (IFL)= <span id="iflCurveInline">—</span></span></div>
           <div class="curveBox">
             <div class="curveGauge">
               <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución"/>
@@ -794,7 +794,29 @@ function adaptData(data){
 
   const iv1 = Number(globales.IV1 ?? data.iv1 ?? attempt.iv1 ?? 0); // NA
   const iv2 = Number(globales.IV2 ?? data.iv2 ?? attempt.iv2 ?? 0); // NC
-  const iv3 = Number(globales.IV3 ?? data.iv3 ?? attempt.iv3 ?? 0); // PT
+
+  /***********************************************************************
+   * NOTA (TEMPORAL) — PT (Promedio del Tiempo) NO está basado en duración real.
+   * Falta guardar/recibir timestamps (inicio/fin o duración) para calcularlo bien.
+   *
+   * Lógica provisional acordada:
+   * - Si la prueba fue CORTADA / interrumpida / incompleta → marcar "Demasiado lento".
+   * - Si NO hay evidencia de corte (hay continuidad) → marcar "Tiempo adecuado".
+   * - Por ahora NO marcar "Demasiado breve".
+   ***********************************************************************/
+  const _ptAnswered = Number(attempt.contestadas ?? attempt.n_respondidas ?? data.contestadas ?? snap.contestadas ?? 0) || 0;
+  const _ptTotal    = Number(attempt.total ?? data.total ?? snap.total ?? 132) || 132;
+
+  const _ptWasCut = Boolean(
+    data.corte || data.cut || data.wasCut || data.aborted || data.incomplete ||
+    attempt.corte || attempt.cut || attempt.wasCut || attempt.aborted || attempt.incomplete ||
+    (attempt.completed === false) || (attempt.finalizado === false) || (attempt.terminado === false) ||
+    (typeof attempt.status === 'string' && /cort|aband|incomp|timeout|interrump/i.test(attempt.status)) ||
+    (_ptAnswered > 0 && _ptTotal > 0 && _ptAnswered < _ptTotal)
+  );
+
+  // PT: 0 = Tiempo adecuado, 2 = Demasiado lento (nunca marcamos "Demasiado breve" por ahora)
+  const iv3 = _ptWasCut ? 2 : 0; // PT
 
   const aSnap = autosave.snapshot || {};
   const fechaBase = attempt.created_at || attempt.fecha || snap.fecha || aSnap.fecha || null;
