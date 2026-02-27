@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>18 59 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>VIER 27 9 11 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -210,7 +210,7 @@ function displayFactorFromCanon(c){
   return map[c] || c;
 }
 
-/* --- Parte 2 (numerada, escolar/profesional) --- */
+/* --- Parte 2 (accionable, escolar/profesional) --- */
 const FACTOR_DEF = {
   "Contacto personal":"Capacidad para vincularse, generar cercanía y comunicación efectiva con otras personas.",
   "Pertenencia":"Tendencia a integrarse, colaborar y comprometerse con el grupo o institución.",
@@ -232,160 +232,374 @@ function p2Rango(p){
   if(n <= 70) return {lab:"Por fortalecer", cls:"mid"};
   return {lab:"Por enriquecer", cls:"high"};
 }
-
-function p2BulletsForRange(lab){
-  if(lab==="Por desarrollar"){
-    return {
-      mani:[
-        "Puede requerir apoyo y estructura para sostener conductas asociadas a este factor.",
-        "En situaciones de presión, es más probable que disminuya la consistencia o claridad en la conducta.",
-        "El progreso suele ser mayor cuando hay metas pequeñas y seguimiento frecuente."
-      ],
-      fort:[
-        "Oportunidad para aprender estrategias concretas y hábitos de mejora.",
-        "Apertura a recibir guía y ajustar conductas con retroalimentación."
-      ],
-      ries:[
-        "Riesgo de resultados variables o de depender demasiado del contexto.",
-        "Posibles dificultades en coordinación, cumplimiento o toma de decisiones según el factor."
-      ],
-      rec:[
-        "Definir una conducta observable para practicar durante 2 semanas.",
-        "Usar un registro simple (checklist) y una revisión breve cada 3 días.",
-        "Solicitar retroalimentación específica (1 ejemplo de mejora por semana)."
-      ]
-    };
-  }
-  if(lab==="Por fortalecer"){
-    return {
-      mani:[
-        "Suele mostrar conductas funcionales asociadas al factor en contextos habituales.",
-        "Puede presentar variaciones en periodos de alta carga, estrés o cambios de rutina.",
-        "Mejora al usar planificación breve y recordatorios simples."
-      ],
-      fort:[
-        "Base estable para sostener desempeño y convivencia escolar/laboral.",
-        "Capacidad de ajustar con retroalimentación sin perder el objetivo."
-      ],
-      ries:[
-        "Riesgo de fluctuación cuando hay múltiples tareas o poca claridad de prioridades.",
-        "Puede requerir método para proyectos de mayor complejidad."
-      ],
-      rec:[
-        "Plan semanal con 3 prioridades y 2 acciones concretas del factor.",
-        "Revisión de mitad de semana: ajustar sin abandonar.",
-        "Practicar una rutina corta (2–5 min) diaria relacionada al factor."
-      ]
-    };
-  }
-  return {
-    mani:[
-      "Tiende a mostrar conductas sólidas y consistentes asociadas a este factor.",
-      "Mantiene buen desempeño incluso con cambios o presión moderada.",
-      "Puede servir como apoyo para el trabajo en equipo o liderazgo en su contexto."
-    ],
-    fort:[
-      "Fortaleza clara que favorece resultados y convivencia.",
-      "Posibilidad de modelar buenas prácticas en el grupo/equipo."
-    ],
-    ries:[
-      "Riesgo de sobrecarga por asumir demasiadas responsabilidades.",
-      "Posible rigidez o autoexigencia elevada si no se cuida el equilibrio."
-    ],
-    rec:[
-      "Mantener la fortaleza con pausas y límites saludables.",
-      "Definir criterios de prioridad para no sobrecargarse.",
-      "Compartir buenas prácticas: mentoría o apoyo puntual a compañeros."
-    ]
-  };
+function isProfesional(codigo){
+  const c = String(codigo||"").trim().toUpperCase();
+  return c.startsWith("PRO");
 }
 
-function factorDetail(idx, f){
+/* Plantillas por factor (acciones puntuales + contexto) */
+const P2 = {
+  "Contacto personal": {
+    seePRO: [
+      "En reuniones, te cuesta iniciar conversación o generar cercanía.",
+      "Sueles ir directo al tema y pierdes oportunidades de conexión.",
+      "Te cuesta leer el ánimo del equipo si no te lo dicen."
+    ],
+    doPRO: [
+      {a:"Inicia con 1 pregunta corta (¿cómo vas?) y escucha 30 segundos.", w:"Al empezar una reunión o llamada", t:"1 min"},
+      {a:"Nombra a la persona y valida una idea antes de proponer la tuya.", w:"Cuando alguien expone", t:"1–2 min"},
+      {a:"Cierra con un acuerdo humano: ‘¿algo que necesites de mí?’", w:"Al final de la interacción", t:"1 min"}
+    ],
+    indPRO:"Esta semana lo logré si abrí y cerré así al menos 4 interacciones.",
+    avoidPRO:"Evita forzar ‘amabilidad’ falsa; solo sé breve y genuino.",
+    seeSCH: [
+      "Te cuesta integrarte en trabajos en grupo o acercarte a compañeros.",
+      "Prefieres trabajar solo y hablas poco si no te preguntan.",
+      "A veces no notas cuándo alguien se queda fuera."
+    ],
+    doSCH: [
+      {a:"Saluda, di el nombre y haz 1 pregunta simple.", w:"Al llegar a clase o grupo", t:"1 min"},
+      {a:"En grupo, repite una idea de un compañero y suma 1 detalle.", w:"Durante el trabajo", t:"1–2 min"},
+      {a:"Antes de salir, confirma: ‘¿qué hacemos primero mañana?’", w:"Al final", t:"1 min"}
+    ],
+    indSCH:"Esta semana lo logré si participé así en 3 actividades/grupos.",
+    avoidSCH:"Evita quedarte callado todo el tiempo; di al menos 1 frase útil."
+  },
+
+  "Pertenencia": {
+    seePRO:["Te cuesta sumarte a normas del equipo (horarios, acuerdos).","Participas poco en actividades del equipo.","A veces trabajas ‘por tu lado’ y no avisas cambios."],
+    doPRO:[
+      {a:"Elige 1 acuerdo del equipo y cúmplelo sin excepción.", w:"Todos los días", t:"—"},
+      {a:"Informa avances en 3 líneas (hecho / en proceso / bloqueos).", w:"Fin del día o standup", t:"2 min"},
+      {a:"Ofrece ayuda puntual en 1 tarea pequeña.", w:"1 vez por semana", t:"10 min"}
+    ],
+    indPRO:"Lo logré si cumplí 1 acuerdo + envié 3 reportes cortos en la semana.",
+    avoidPRO:"Evita desaparecer sin avisar cuando algo se retrasa.",
+    seeSCH:["Te cuesta seguir reglas del curso/grupo.","Te desconectas en actividades de equipo.","No siempre cumples tu parte en trabajos grupales."],
+    doSCH:[
+      {a:"Elige 1 regla del curso y cúmplela siempre.", w:"Todos los días", t:"—"},
+      {a:"En trabajos, escribe tu parte y fecha de entrega.", w:"Al inicio del trabajo", t:"3 min"},
+      {a:"Pregunta: ‘¿qué falta?’ y toma 1 tarea pequeña.", w:"En cada grupo", t:"5 min"}
+    ],
+    indSCH:"Lo logré si cumplí 1 regla + terminé mi parte a tiempo en 1 trabajo.",
+    avoidSCH:"Evita dejar tu parte para el último día."
+  },
+
+  "Asertividad": {
+    seePRO:["Te cuesta decir ‘no’ y terminas sobrecargado.","Evitas conversaciones difíciles y el problema crece.","Tu mensaje sale ambiguo y luego hay confusiones."],
+    doPRO:[
+      {a:"Usa esta frase: ‘Puedo X, no puedo Y. Propongo Z.’", w:"Cuando te pidan algo", t:"30 seg"},
+      {a:"Pide claridad: ‘¿qué es lo más importante aquí?’", w:"Si hay confusión", t:"1 min"},
+      {a:"Cierra por escrito 1 acuerdo clave.", w:"Después de la conversación", t:"2 min"}
+    ],
+    indPRO:"Lo logré si puse límites claros 2 veces y dejé 2 acuerdos por escrito.",
+    avoidPRO:"Evita justificarte demasiado; sé corto y respetuoso.",
+    seeSCH:["Te cuesta pedir ayuda o decir que no entiendes.","A veces respondes con enojo o te quedas callado.","Te cuesta defender tu idea con respeto."],
+    doSCH:[
+      {a:"Di: ‘No entendí X, ¿me lo repites?’", w:"Cuando no entiendas", t:"10 seg"},
+      {a:"Di: ‘Yo propongo… porque…’", w:"En trabajos o debates", t:"20 seg"},
+      {a:"Pon un límite: ‘Puedo hacer esta parte, la otra no me alcanza.’", w:"En grupos", t:"20 seg"}
+    ],
+    indSCH:"Lo logré si hice 2 preguntas claras y defendí 1 idea sin pelear.",
+    avoidSCH:"Evita gritar o callarte; usa frases cortas."
+  },
+
+  "Atención": {
+    seePRO:["Te distraes y se te pasan detalles (fechas, nombres, requisitos).","Dejas tareas a medias y vuelves tarde.","Cometes errores por no revisar."],
+    doPRO:[
+      {a:"Trabaja en bloques: 25 min foco + 5 min pausa.", w:"Al iniciar una tarea", t:"30 min"},
+      {a:"Antes de enviar, revisa 3 cosas: fecha, nombre, pedido.", w:"Antes de entregar", t:"2 min"},
+      {a:"Cierra el día con lista de 3 pendientes con hora.", w:"Fin del día", t:"3 min"}
+    ],
+    indPRO:"Lo logré si hice 4 bloques de foco en la semana y revisé 5 entregas.",
+    avoidPRO:"Evita multitarea; una cosa por vez.",
+    seeSCH:["Te distraes en clase y pierdes instrucciones.","Olvidas tareas o materiales.","Te cuesta terminar a tiempo."],
+    doSCH:[
+      {a:"Escribe 3 palabras clave de la clase cada 10 min.", w:"Durante la clase", t:"10 seg"},
+      {a:"Antes de salir, anota tarea + fecha en 1 línea.", w:"Fin de clase", t:"30 seg"},
+      {a:"Estudia 20 min sin celular (en otra habitación).", w:"En casa", t:"20 min"}
+    ],
+    indSCH:"Lo logré si anoté tareas 4 días y estudié 3 veces 20 min sin celular.",
+    avoidSCH:"Evita estudiar con el celular al lado."
+  },
+
+  "Control": {
+    seePRO:["Reaccionas rápido (tono, mensajes) y luego te arrepientes.","Te cuesta sostener hábitos (puntualidad, orden).","Rompes acuerdos por impulso o apuro."],
+    doPRO:[
+      {a:"Pausa 10 segundos antes de responder en tensión.", w:"Cuando te moleste algo", t:"10 seg"},
+      {a:"Define 1 regla personal (horario, respuesta, orden) y cúmplela.", w:"Todos los días", t:"—"},
+      {a:"Si fallas, corrige en 1 paso: ‘Me equivoqué, hago X ahora.’", w:"Al detectar el error", t:"30 seg"}
+    ],
+    indPRO:"Lo logré si hice 5 pausas conscientes y mantuve 1 regla 5 días.",
+    avoidPRO:"Evita responder en caliente por chat.",
+    seeSCH:["Te enojas fácil o interrumpes.","Te cuesta seguir reglas o rutinas.","Actúas sin pensar y te metes en problemas."],
+    doSCH:[
+      {a:"Respira 3 veces y cuenta hasta 5 antes de hablar.", w:"Cuando te enojes", t:"15 seg"},
+      {a:"Elige 1 regla (llegar, cuaderno, silencio) y cúmplela.", w:"Todos los días", t:"—"},
+      {a:"Si te equivocas, repara: ‘Perdón, ahora hago…’", w:"Después del error", t:"20 seg"}
+    ],
+    indSCH:"Lo logré si evité 3 reacciones impulsivas y cumplí 1 regla 5 días.",
+    avoidSCH:"Evita discutir para ‘ganar’; repara rápido."
+  },
+
+  "Influencia": {
+    seePRO:["Te cuesta convencer sin imponer.","Tus ideas no se entienden porque no aterrizas beneficios.","No logras que otros se sumen a un plan."],
+    doPRO:[
+      {a:"Explica en 1 frase el beneficio: ‘Esto ayuda a…’", w:"Al proponer una idea", t:"20 seg"},
+      {a:"Pide un compromiso pequeño: ‘¿puedes hacer X hoy?’", w:"Cuando necesites apoyo", t:"30 seg"},
+      {a:"Reconoce un avance de otro en público.", w:"1 vez por semana", t:"30 seg"}
+    ],
+    indPRO:"Lo logré si conseguí 2 compromisos pequeños y reconocí 1 avance.",
+    avoidPRO:"Evita dar órdenes sin explicar el porqué.",
+    seeSCH:["Te cuesta liderar un grupo o pedir colaboración.","Tus compañeros no siguen tu idea.","A veces impones o te rindes."],
+    doSCH:[
+      {a:"Di el objetivo en 1 frase: ‘Tenemos que…’", w:"Al iniciar el grupo", t:"20 seg"},
+      {a:"Reparte tareas con nombre + tiempo.", w:"Al organizar", t:"2 min"},
+      {a:"Agradece a quien cumplió y repite la meta.", w:"Al final", t:"30 seg"}
+    ],
+    indSCH:"Lo logré si organicé 1 grupo con tareas claras y se cumplió al menos 70%.",
+    avoidSCH:"Evita mandar; guía con objetivos y tiempos."
+  },
+
+  "Apertura": {
+    seePRO:["Te cuesta cambiar de plan aunque haya nueva info.","Te molesta la crítica y te cierras.","Te cuesta aprender algo nuevo por falta de método."],
+    doPRO:[
+      {a:"Pregunta: ‘¿qué dato me falta para decidir mejor?’", w:"Antes de cerrar una decisión", t:"1 min"},
+      {a:"Pide 1 feedback específico (solo 1 cosa).", w:"1 vez por semana", t:"5 min"},
+      {a:"Aprende 1 micro-habilidad (video/nota) y aplícala.", w:"2 veces por semana", t:"15 min"}
+    ],
+    indPRO:"Lo logré si pedí 1 feedback y apliqué 1 mejora concreta.",
+    avoidPRO:"Evita defenderte; primero escucha y resume.",
+    seeSCH:["Te cuesta probar otra forma de estudiar.","Te frustras con correcciones.","Te quedas con un método aunque no funcione."],
+    doSCH:[
+      {a:"Prueba 1 método distinto (resumen, mapa, preguntas).", w:"Al estudiar", t:"20 min"},
+      {a:"Pide al profesor: ‘¿qué debo mejorar primero?’", w:"Después de una nota", t:"2 min"},
+      {a:"Corrige 1 error y repite el ejercicio.", w:"Ese mismo día", t:"10 min"}
+    ],
+    indSCH:"Lo logré si probé 1 método nuevo y corregí 1 error concreto.",
+    avoidSCH:"Evita decir ‘no puedo’; cambia el método."
+  },
+
+  "Ritmo de trabajo": {
+    seePRO:["Te cuesta mantener constancia; empiezas fuerte y luego bajas.","Procrastinas y después corres.","No cierras tareas pequeñas."],
+    doPRO:[
+      {a:"Define 3 tareas pequeñas y termina 1 antes de abrir otra.", w:"Al iniciar el día", t:"5 min"},
+      {a:"Regla 2 minutos: si toma menos, hazlo ahora.", w:"Durante el día", t:"2 min"},
+      {a:"Cierra con ‘tarea terminada’ y marca checklist.", w:"Al finalizar cada tarea", t:"10 seg"}
+    ],
+    indPRO:"Lo logré si cerré 8 tareas pequeñas en la semana (checklist).",
+    avoidPRO:"Evita abrir 5 cosas y cerrar 0.",
+    seeSCH:["Dejas tareas para último momento.","Te cuesta seguir un ritmo de estudio.","Empiezas y abandonas."],
+    doSCH:[
+      {a:"Divide tarea en 3 pasos y haz el paso 1 hoy.", w:"Al llegar a casa", t:"15 min"},
+      {a:"Cronómetro: 20 min estudio + 5 min descanso.", w:"Al estudiar", t:"25 min"},
+      {a:"Antes de dormir, prepara cuaderno/material.", w:"Noche", t:"3 min"}
+    ],
+    indSCH:"Lo logré si estudié 3 días 20 min y avancé el paso 1 en 2 tareas.",
+    avoidSCH:"Evita esperar ‘ganas’; usa el cronómetro."
+  },
+
+  "Desempeño": {
+    seePRO:["Te cuesta cumplir metas o calidad constante.","Se te acumulan retrabajos.","Falta claridad de ‘qué es éxito’."],
+    doPRO:[
+      {a:"Define ‘listo’ con 3 criterios (calidad, fecha, formato).", w:"Antes de iniciar", t:"3 min"},
+      {a:"Entrega un borrador temprano para corrección.", w:"Mitad del trabajo", t:"10 min"},
+      {a:"Revisión final: 3 errores típicos y corrige.", w:"Antes de entregar", t:"4 min"}
+    ],
+    indPRO:"Lo logré si definí ‘listo’ en 3 tareas y reduje retrabajo (0 devoluciones).",
+    avoidPRO:"Evita trabajar sin criterios de ‘listo’.",
+    seeSCH:["Te cuesta entregar a tiempo o con calidad.","Olvidas partes de la tarea.","Te devuelven trabajos por errores simples."],
+    doSCH:[
+      {a:"Lee la consigna y subraya 3 requisitos.", w:"Antes de empezar", t:"3 min"},
+      {a:"Haz un borrador y revisa con checklist.", w:"Antes de entregar", t:"10 min"},
+      {a:"Pide a alguien revisar 1 cosa (ortografía o orden).", w:"Si puedes", t:"5 min"}
+    ],
+    indSCH:"Lo logré si usé checklist en 2 tareas y tuve menos devoluciones.",
+    avoidSCH:"Evita entregar sin revisar."
+  },
+
+  "Juicio": {
+    seePRO:["Decides rápido sin ver consecuencias.","Cambias de decisión varias veces.","Te cuesta elegir entre opciones."],
+    doPRO:[
+      {a:"Antes de decidir, lista 2 opciones y 1 riesgo por opción.", w:"Decisión importante", t:"3 min"},
+      {a:"Pregunta a 1 persona: ‘¿qué no estoy viendo?’", w:"Antes de cerrar", t:"2 min"},
+      {a:"Define un ‘si pasa X, hago Y’ (plan B).", w:"Al decidir", t:"2 min"}
+    ],
+    indPRO:"Lo logré si usé esta mini-matriz en 2 decisiones esta semana.",
+    avoidPRO:"Evita decidir por impulso cuando estás cansado.",
+    seeSCH:["Te cuesta elegir bien y luego te arrepientes.","Actúas sin pensar en consecuencias.","Te dejas llevar por amigos o impulso."],
+    doSCH:[
+      {a:"Antes de actuar, piensa: ‘¿qué pasa si…?’", w:"Antes de decidir", t:"10 seg"},
+      {a:"Elige entre 2 opciones y escribe por qué.", w:"Tarea/decisión", t:"1 min"},
+      {a:"Pide consejo a un adulto/profe en 1 caso.", w:"Si dudas", t:"2 min"}
+    ],
+    indSCH:"Lo logré si pensé consecuencias 3 veces y pedí consejo 1 vez.",
+    avoidSCH:"Evita decidir para quedar bien; decide por resultado."
+  },
+
+  "Visión": {
+    seePRO:["Te enfocas solo en lo urgente y pierdes el propósito.","Te cuesta plantear metas claras.","No conectas tareas con un resultado."],
+    doPRO:[
+      {a:"Define una meta de 2 semanas en 1 frase.", w:"Inicio de semana", t:"3 min"},
+      {a:"Cada día elige 1 acción que acerque a la meta.", w:"Inicio del día", t:"2 min"},
+      {a:"Al viernes, escribe qué avanzó y qué sigue.", w:"Fin de semana laboral", t:"5 min"}
+    ],
+    indPRO:"Lo logré si tuve 1 meta escrita y 5 acciones diarias conectadas a ella.",
+    avoidPRO:"Evita metas gigantes; usa 2 semanas.",
+    seeSCH:["Te cuesta ver para qué estudias y te desmotivas.","No tienes metas de corto plazo.","Haces tareas sin sentido claro."],
+    doSCH:[
+      {a:"Escribe una meta de 2 semanas (nota, entrega, hábito).", w:"Domingo o lunes", t:"3 min"},
+      {a:"Cada día elige 1 acción pequeña para esa meta.", w:"Antes de estudiar", t:"2 min"},
+      {a:"Revisa: ¿qué mejoró? ¿qué falta?", w:"Viernes", t:"5 min"}
+    ],
+    indSCH:"Lo logré si escribí 1 meta y la trabajé 4 días con acciones pequeñas.",
+    avoidSCH:"Evita pensar ‘todo el año’; piensa 2 semanas."
+  },
+
+  "Enfoque estratégico": {
+    seePRO:["Tienes muchas tareas y no priorizas.","Empiezas por lo fácil y dejas lo importante.","No planificas y te apuras al final."],
+    doPRO:[
+      {a:"Elige 3 prioridades y bloquea tiempo para la #1.", w:"Inicio del día", t:"5 min"},
+      {a:"Define siguiente paso exacto (no ‘avanzar’, sino ‘hacer X’).", w:"Antes de trabajar", t:"1 min"},
+      {a:"Revisión rápida: ¿sigo en lo importante?", w:"Mitad del día", t:"1 min"}
+    ],
+    indPRO:"Lo logré si bloqueé tiempo para la prioridad #1 al menos 4 días.",
+    avoidPRO:"Evita llenar el día de urgencias ajenas.",
+    seeSCH:["No organizas tareas y se te acumulan.","No sabes por dónde empezar.","Te quedas en lo fácil y atrasas lo importante."],
+    doSCH:[
+      {a:"Elige 3 tareas y empieza por la más importante.", w:"Al llegar a casa", t:"5 min"},
+      {a:"Divide en pasos y haz el paso 1 ahora.", w:"Inicio de estudio", t:"10 min"},
+      {a:"Revisa mitad de tiempo: ¿voy bien?", w:"A mitad del estudio", t:"1 min"}
+    ],
+    indSCH:"Lo logré si empecé 3 días por la tarea más importante.",
+    avoidSCH:"Evita ‘mañana empiezo’; haz el paso 1 hoy."
+  }
+};
+
+function actionListHTML(actions){
+  return actions.map(x => `
+    <li><b>Acción:</b> ${esc(x.a)}<br>
+        <b>Cuándo:</b> ${esc(x.w)} · <b>Duración:</b> ${esc(x.t)}</li>
+  `).join("");
+}
+
+function plan14HTML(factorName, isPRO){
+  const lab = isPRO ? "PROFESIONAL" : "ESCOLAR";
+  // Plan base: 2 semanas, simple, medible
+  const wk1 = isPRO ? [
+    "Día 1: Elige 1 acción del factor y escríbela en tu agenda.",
+    "Días 2–6: Haz la acción todos los días (5–10 min).",
+    "Día 7: Revisa 3 preguntas: ¿lo hice? ¿qué lo impidió? ¿qué ajusto?"
+  ] : [
+    "Día 1: Elige 1 acción del factor y escríbela en tu cuaderno.",
+    "Días 2–6: Haz la acción todos los días (5–10 min).",
+    "Día 7: Revisa 3 preguntas: ¿lo hice? ¿qué me distrajo? ¿qué ajusto?"
+  ];
+  const wk2 = isPRO ? [
+    "Días 8–13: Repite la acción y sube un nivel (hazla en una situación más difícil).",
+    "Día 14: Pide 1 feedback (¿qué mejoró?) y define el siguiente paso de 2 semanas."
+  ] : [
+    "Días 8–13: Repite la acción y sube un nivel (hazla en un trabajo/actividad más difícil).",
+    "Día 14: Pide 1 feedback (profe/familia/compañero) y define el siguiente paso de 2 semanas."
+  ];
+  return `
+    <h5>Plan de 14 días (foco principal)</h5>
+    <p class="p2note">Escenario: <b>${lab}</b>. Haz 1 cosa por vez. Si un día fallas, retomas al siguiente.</p>
+    <ul>
+      <li><b>Semana 1:</b><ul>${wk1.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></li>
+      <li><b>Semana 2:</b><ul>${wk2.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></li>
+    </ul>
+  `;
+}
+
+function factorDetail(idx, f, isPRO, isMain){
   const r = p2Rango(f.pct);
-  const base = p2BulletsForRange(r.lab);
+  const pack = P2[f.name] || {};
+  const see = isPRO ? (pack.seePRO||[]) : (pack.seeSCH||[]);
+  const actions = isPRO ? (pack.doPRO||[]) : (pack.doSCH||[]);
+  const ind = isPRO ? (pack.indPRO||"") : (pack.indSCH||"");
+  const avoid = isPRO ? (pack.avoidPRO||"") : (pack.avoidSCH||"");
   const def = FACTOR_DEF[f.name] || "Descripción del factor.";
+
+  // Ajuste por rango: cantidad/expectativa (mismo lenguaje, distintas exigencias)
+  const rangoNota = (r.lab==="Por desarrollar")
+    ? "Empieza con lo mínimo. No busques perfección: busca repetir."
+    : (r.lab==="Por fortalecer")
+      ? "Ya hay base. Ahora toca hacerlo más constante."
+      : "Ya es fortaleza. Mantén y úsalo para ayudar a otros.";
+
   return `
     <div class="p2sec">
-      <h4>3.${idx} ${esc(f.name)}</h4>
+      <h4>3.${idx} ${esc(f.name)} ${isMain ? "— PRIORIDAD PRINCIPAL" : ""}</h4>
       <div class="p2chips">
         <span class="p2chip ${r.cls}">Rango: ${r.lab}</span>
         <span class="p2chip">Puntaje: ${Math.round(f.pct)}%</span>
-        <span class="p2chip">Ítems: ${f.items}</span>
       </div>
 
-      <h5>3.${idx}.1 Definición interpretativa</h5>
-      <p>${esc(def)}</p>
+      <p><b>Qué significa:</b> ${esc(def)}</p>
+      <p class="p2note">${esc(rangoNota)}</p>
 
-      <h5>3.${idx}.2 Lectura del puntaje</h5>
-      <p>En este rango, es más probable que las conductas asociadas a <b>${esc(f.name)}</b> se observen como se describe a continuación.</p>
+      <h5>Cómo se ve en tu día a día</h5>
+      <ul>${see.slice(0,3).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
 
-      <h5>3.${idx}.3 Manifestaciones típicas</h5>
-      <ul>${base.mani.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+      <h5>Tareas puntuales (qué hacer y cuándo)</h5>
+      <ul>${actionListHTML(actions.slice(0,3))}</ul>
 
-      <h5>3.${idx}.4 Fortalezas asociadas</h5>
-      <ul>${base.fort.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+      <h5>Indicador de avance</h5>
+      <p>${esc(ind)}</p>
 
-      <h5>3.${idx}.5 Riesgos o puntos ciegos</h5>
-      <ul>${base.ries.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+      <h5>Error típico a evitar</h5>
+      <ul><li>${esc(avoid)}</li></ul>
 
-      <h5>3.${idx}.6 Recomendaciones prácticas</h5>
-      <ul>${base.rec.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
-      <p class="p2note">Sugerencias aplicables en contextos escolares o laborales; pueden ajustarse según el rol y responsabilidades.</p>
+      ${isMain ? plan14HTML(f.name, isPRO) : ""}
     </div>
   `;
 }
 
 function buildParte2Detalle({header, ifl, ordered}){
   const r = p2Rango(ifl);
-  const top = [...ordered].filter(x=>!x.missing).sort((a,b)=>b.pct-a.pct);
-  const alto = top[0], bajo = top[top.length-1], seg = top[1];
-  const disp = alto && bajo ? Math.round(alto.pct - bajo.pct) : 0;
+  const pro = isProfesional(header?.codigo);
+
+  const valid = [...ordered].filter(x=>!x.missing).sort((a,b)=>a.pct-b.pct);
+  const foco = valid[0];
+  const apoyo1 = valid[1];
+  const apoyo2 = valid[2];
 
   const sec2 = `
     <div class="p2sec">
       <h4>2.- Resumen de resultados</h4>
       <div class="p2chips">
         <span class="p2chip ${r.cls}">IFL: ${Math.round(ifl)}% — ${r.lab}</span>
-        <span class="p2chip">Perfil: ${disp>=15 ? "Diferenciado" : "Equilibrado"}</span>
+        <span class="p2chip">Escenario: ${pro ? "Profesional/Adulto" : "Escolar"}</span>
       </div>
-      <p>Este informe describe tendencias probables en liderazgo a partir de una autoevaluación y se interpreta de forma referencial.</p>
+      <p>Lee primero el <b>foco principal</b>. Ahí está el plan más importante para las próximas 2 semanas.</p>
     </div>
   `;
 
   const sec3head = `
     <div class="p2sec">
-      <h4>3.- Interpretación por factores</h4>
-      <p class="p2note">La interpretación se presenta por factor y rango (Por desarrollar / fortalecer / enriquecer). Se recomienda complementar con observación y evidencias del contexto.</p>
+      <h4>3.- Interpretación práctica (con tareas)</h4>
+      <p class="p2note">Aquí tienes acciones claras para aplicar en tu rutina. El objetivo es avanzar con pasos pequeños y medibles.</p>
     </div>
   `;
 
-  const details = ordered.map((f,i)=>factorDetail(i+1, f)).join("");
+  const picked = [foco, apoyo1, apoyo2].filter(Boolean);
+  const details = picked.map((f,i)=>factorDetail(i+1, f, pro, i===0)).join("");
 
-  const sec4 = alto && bajo ? `
+  const sec4 = foco ? `
     <div class="p2sec">
-      <h4>4.- Síntesis general y foco de desarrollo</h4>
+      <h4>4.- Cierre rápido</h4>
       <ul>
-        <li>Perfil global: <b>${Math.round(ifl)}%</b> (${r.lab}).</li>
-        <li>Fortaleza principal: <b>${esc(alto.name)}</b> (${Math.round(alto.pct)}%). ${seg?`También destaca <b>${esc(seg.name)}</b> (${Math.round(seg.pct)}%).`:""}</li>
-        <li>Foco prioritario: <b>${esc(bajo.name)}</b> (${Math.round(bajo.pct)}%).</li>
-        <li>${disp>=15 ? `Se observa una diferencia marcada entre factores (${disp} puntos), por lo que conviene un plan focalizado.` :
-                          `El perfil es relativamente equilibrado (${disp} puntos de diferencia), favoreciendo una mejora gradual.`}</li>
-        <li>Estrategia sugerida: elegir 1 conducta observable del foco y practicarla 10 minutos al día por 2 semanas.</li>
+        <li><b>Prioridad 14 días:</b> ${esc(foco.name)} (${Math.round(foco.pct)}%).</li>
+        ${apoyo1 ? `<li><b>Apoyo 1:</b> ${esc(apoyo1.name)} (${Math.round(apoyo1.pct)}%).</li>` : ""}
+        ${apoyo2 ? `<li><b>Apoyo 2:</b> ${esc(apoyo2.name)} (${Math.round(apoyo2.pct)}%).</li>` : ""}
+        <li><b>Regla:</b> si un día fallas, retomas al siguiente. Lo que importa es repetir.</li>
       </ul>
     </div>
   ` : "";
 
-  const sec5 = `
-    <div class="p2sec">
-      <h4>5.- Nota interpretativa</h4>
-      <p class="p2note">Los resultados describen tendencias y se interpretan con referencia a un grupo normativo. Se recomienda complementar con entrevistas, observación y evidencias del contexto escolar o laboral.</p>
-    </div>
-  `;
-
-  return sec2 + sec3head + details + sec4 + sec5;
+  return sec2 + sec3head + details + sec4;
 }
-
-
 function rangoFromPct(p){
   const n = Number(p)||0;
   if (n <= 39) return 'Por desarrollar';
