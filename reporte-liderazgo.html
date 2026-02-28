@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>VVVVV10 24 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>XXXXVVVVV10 24 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -794,31 +794,41 @@ function adaptData(data){
 
     const iv1 = Number(globales.IV1 ?? data.iv1 ?? attempt.iv1 ?? 0); // NA
   const iv2 = Number(globales.IV2 ?? data.iv2 ?? attempt.iv2 ?? 0); // NC
+
   // =============================================================
-  // NOTA (TEMPORAL) — PT (Promedio del Tiempo)
-  // Aún NO guardamos duración real (inicio/fin) en base de datos.
-  // Mientras tanto, PT se determina así:
-  //  - Si el intento quedó INCOMPLETO / CORTADO (respondidas < total) => 'Demasiado lento' (idx=2)
-  //  - Si NO hay evidencia de corte => 'Tiempo adecuado' (idx=0)
-  //  - Por ahora NO usamos 'Demasiado breve' (idx=1)
-  // TODO: Reemplazar por cálculo real con timestamps (expected 20–25 min).
+  // PT (Promedio del Tiempo)
+  // Usar IV3 real desde base de datos / backend cuando exista:
+  //   iv3 = 0 -> Tiempo adecuado
+  //   iv3 = 1 -> Demasiado breve
+  //   iv3 = 2 -> Demasiado lento
+  // Si IV3 NO viene, aplicar fallback temporal (corte vs no corte).
   // =============================================================
-  const TOTAL_LID_ITEMS = 132;
-  const inferAnswered = () => {
-    const c = attempt.contestadas || attempt.n_respondidas || data.contestadas || snap.contestadas || null;
-    if (typeof c === 'number') return c;
-    if (typeof c === 'string') {
-      const mm = c.match(/(\d+)\s*de\s*(\d+)/i);
-      if (mm) return Number(mm[1]);
-      const m1 = c.match(/\d+/);
-      if (m1) return Number(m1[0]);
-    }
-    if (attempt.responses && typeof attempt.responses === 'object') return Object.keys(attempt.responses).length;
-    return null;
-  };
-  const answered = inferAnswered();
-  const isCut = (answered !== null && answered < TOTAL_LID_ITEMS) || Boolean(attempt.incompleto || attempt.incomplete || attempt.aborted || attempt.cancelled || attempt.cortado);
-  const iv3 = isCut ? 2 : 0; // PT
+  const iv3Raw = (globales.IV3 ?? data.iv3 ?? attempt.iv3 ?? null);
+  let iv3 = null;
+  const iv3Num = Number(iv3Raw);
+  if (iv3Raw !== null && iv3Raw !== undefined && iv3Raw !== '' && !Number.isNaN(iv3Num)) {
+    iv3 = iv3Num;
+  } else {
+    // =============================================================
+    // NOTA (TEMPORAL) — fallback por corte
+    // =============================================================
+    const TOTAL_LID_ITEMS = 132;
+    const inferAnswered = () => {
+      const c = attempt.contestadas || attempt.n_respondidas || data.contestadas || snap.contestadas || null;
+      if (typeof c === 'number') return c;
+      if (typeof c === 'string') {
+        const mm = c.match(/(\d+)\s*de\s*(\d+)/i);
+        if (mm) return Number(mm[1]);
+        const m1 = c.match(/\d+/);
+        if (m1) return Number(m1[0]);
+      }
+      if (attempt.responses && typeof attempt.responses === 'object') return Object.keys(attempt.responses).length;
+      return null;
+    };
+    const answered = inferAnswered();
+    const isCut = (answered !== null && answered < TOTAL_LID_ITEMS) || Boolean(attempt.incompleto || attempt.incomplete || attempt.aborted || attempt.cancelled || attempt.cortado);
+    iv3 = isCut ? 2 : 0;
+  }
   const aSnap = autosave.snapshot || {};
   const fechaBase = attempt.created_at || attempt.fecha || snap.fecha || aSnap.fecha || null;
   const f = parseFechaHuman(fechaBase);
