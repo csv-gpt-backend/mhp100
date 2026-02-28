@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>jue 12 31 Evaluación Factores de Liderazgo</title>
+  <title>VIEjue 12 31 Evaluación Factores de Liderazgo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1490,7 +1490,7 @@ window.scrollTo(0, 0);
 
       const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
       const iv3Cat =
-        mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
+        mins >= 18 && mins <= 30 ? 0 : mins < 18 ? 1 : 2;
 
       const bEstilos = pctBloque("Estilos de comunicación interpersonal");
       const bCambio = pctBloque("Propensión al cambio");
@@ -1517,7 +1517,14 @@ window.scrollTo(0, 0);
       const total = ITEMS.length;
       if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
 
-const resultados = null;
+const resultados = calcularResultadosGlobales();
+
+      // === TIEMPO (temporal): se registra inicio/fin/duración para PT ===
+      // NOTA: ajustar criterios PT cuando se definan umbrales oficiales.
+      const __finishTime = Date.now();
+      const __start = (__startTime || __finishTime);
+      const __durationMs = Math.max(0, (__finishTime - __start));
+
 
       const payload = {
         codigo: CODIGO_ACTUAL,
@@ -1528,6 +1535,13 @@ const resultados = null;
           curso: document.getElementById("curso").value,
           version_banco: "LID-v1"
 
+        },
+        meta: {
+          started_at: new Date(__start).toISOString(),
+          finished_at: new Date(__finishTime).toISOString(),
+          duration_ms: __durationMs,
+          duration_sec: Math.round(__durationMs / 1000),
+          duration_min: Math.round(__durationMs / 60000)
         },
         resultados,
         responses: respuestas
