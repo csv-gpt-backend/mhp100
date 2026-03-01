@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>10 24 Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>SAB 28 22 55Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -94,7 +94,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
     <section id="page1" class="page">
       <div class="header">
         <div class="r1"><div id="fechaGenTop">—</div><div class="center">GRÁFICA INDIVIDUAL</div><div class="logo"><img src="assets/logo_adalam.png" alt="Logo Adalam"></div></div>
-        <div class="r2">REPORTE</div>
+        <div class="r2">SCORE REPORT</div>
         <div class="r3">FACTORES DE LIDERAZGO</div>
       </div>
 
@@ -102,7 +102,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
 
       <div class="grid2" style="margin-top:8px">
         <div>
-          <div style="font-weight:700;display:flex;justify-content:space-between;gap:10px"><span>CURVA DE DISTRIBUCIÓN DE FRECUENCIAS : </span><span> (IFL)= <span id="iflCurveInline">—</span></span></div>
+          <div style="font-weight:700"><span>CURVA DE DISTRIBUCIÓN DE FRECUENCIAS :  (IFL)= <span id="iflCurveInline">—</span></span></div>
           <div class="curveBox">
             <div class="curveGauge">
               <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución"/>
@@ -580,7 +580,7 @@ function buildParte2Detalle({header, ifl, ordered}){
 
   const sec2 = `
     <div class="p2sec">
-      <h4>2.- Resumen de resultados</h4>
+      <h4>2.1.- Resumen de perfil</h4>
       <div class="p2chips">
         <span class="p2chip ${r.cls}">IFL: ${Math.round(ifl)}% — ${r.lab}</span>
         <span class="p2chip">Escenario: ${pro ? "Profesional/Adulto" : "Escolar"}</span>
@@ -792,10 +792,43 @@ function adaptData(data){
     ifl = Math.round((idxA + idxB + idxC + idxD) / 4);
   }
 
-  const iv1 = Number(globales.IV1 ?? data.iv1 ?? attempt.iv1 ?? 0); // NA
+    const iv1 = Number(globales.IV1 ?? data.iv1 ?? attempt.iv1 ?? 0); // NA
   const iv2 = Number(globales.IV2 ?? data.iv2 ?? attempt.iv2 ?? 0); // NC
-  const iv3 = Number(globales.IV3 ?? data.iv3 ?? attempt.iv3 ?? 0); // PT
 
+  // =============================================================
+  // PT (Promedio del Tiempo)
+  // Usar IV3 real desde base de datos / backend cuando exista:
+  //   iv3 = 0 -> Tiempo adecuado
+  //   iv3 = 1 -> Demasiado breve
+  //   iv3 = 2 -> Demasiado lento
+  // Si IV3 NO viene, aplicar fallback temporal (corte vs no corte).
+  // =============================================================
+  const iv3Raw = (globales.IV3 ?? data.iv3 ?? attempt.iv3 ?? null);
+  let iv3 = null;
+  const iv3Num = Number(iv3Raw);
+  if (iv3Raw !== null && iv3Raw !== undefined && iv3Raw !== '' && !Number.isNaN(iv3Num)) {
+    iv3 = iv3Num;
+  } else {
+    // =============================================================
+    // NOTA (TEMPORAL) — fallback por corte
+    // =============================================================
+    const TOTAL_LID_ITEMS = 132;
+    const inferAnswered = () => {
+      const c = attempt.contestadas || attempt.n_respondidas || data.contestadas || snap.contestadas || null;
+      if (typeof c === 'number') return c;
+      if (typeof c === 'string') {
+        const mm = c.match(/(\d+)\s*de\s*(\d+)/i);
+        if (mm) return Number(mm[1]);
+        const m1 = c.match(/\d+/);
+        if (m1) return Number(m1[0]);
+      }
+      if (attempt.responses && typeof attempt.responses === 'object') return Object.keys(attempt.responses).length;
+      return null;
+    };
+    const answered = inferAnswered();
+    const isCut = (answered !== null && answered < TOTAL_LID_ITEMS) || Boolean(attempt.incompleto || attempt.incomplete || attempt.aborted || attempt.cancelled || attempt.cortado);
+    iv3 = isCut ? 2 : 0;
+  }
   const aSnap = autosave.snapshot || {};
   const fechaBase = attempt.created_at || attempt.fecha || snap.fecha || aSnap.fecha || null;
   const f = parseFechaHuman(fechaBase);
