@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>MART 24 12 25  Integridad -  Reporte (AFINADO)</title>
+  <title>SAB 28 20 42 Integridad -  Reporte (AFINADO)</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -2040,7 +2040,7 @@ function dispBloque(name){
     const sub=document.createElement("div");
     sub.className="recom-subtitle";
     sub.style.marginTop = "8px";
-    sub.innerHTML="Qué hacer a partir del resultado: prioridades accionables, actividades sugeridas y seguimiento. Esta guía no reemplaza valoración clínica.";
+    sub.innerHTML="Qué hacer a partir del resultado: prioridades accionables, actividades sugeridas y seguimiento.";
     cont.appendChild(sub);
 
     const items = [
@@ -2051,10 +2051,18 @@ function dispBloque(name){
     ];
     items.forEach(it => it.nivel = nivelFromPct(it.pct));
     const ord = { bajo: 0, medio: 1, alto: 2 };
-    items.sort((a,b)=> (ord[a.nivel]??9) - (ord[b.nivel]??9));
+    // Prioridad real: primero nivel (bajo→medio→alto) y, dentro del mismo nivel,
+    // menor puntaje primero (más necesidad de acompañamiento). Esto evita el "plan B"
+    // por orden fijo cuando todas las habilidades quedan en nivel alto.
+    items.sort((a,b)=>{
+      const byNivel = (ord[a.nivel]??9) - (ord[b.nivel]??9);
+      if (byNivel !== 0) return byNivel;
+      const pa = Number.isFinite(Number(a.pct)) ? Number(a.pct) : 999;
+      const pb = Number.isFinite(Number(b.pct)) ? Number(b.pct) : 999;
+      return pa - pb;
+    });
 
-    const candidatos = items.filter(x => x.nivel !== "alto");
-    const focos = (candidatos.length ? candidatos : items).slice(0,3);
+    const focos = items.slice(0,3);
 
     const box = document.createElement("div");
     box.className = "plan-focus-box";
@@ -2281,8 +2289,7 @@ if (h1 && h2) h2.innerHTML = h1.innerHTML;
 
   // No dejamos N/D: si no hay datos suficientes, mostramos 0% como estimación conservadora.
 const incohFromBackend =
-  attempt?.iv1 ??
-  attempt?.resultados?.globales?.IV1 ??
+  resultados?.globales?.IV1 ??
   null;
 
 let incohSafe = 0;
@@ -2290,13 +2297,12 @@ let incohSafe = 0;
 if (Number.isFinite(Number(incohFromBackend))) {
   incohSafe = Number(incohFromBackend);
 } else {
-  const est = estimateValidation(attempt) || { incohPct: 0 };
-  incohSafe = Number(est.incohPct) || 0;
+  incohSafe = null;
 }
 const iv1Val = (incohSafe == null ? null : Number(incohSafe));
 const iv1Txt = (iv1Val == null || Number.isNaN(iv1Val))
   ? "—"
-  : `${iv1Val} ${iv1Val === 1 ? "pt" : "pts"}${iv1Val >= 1 ? " — Alerta" : ""}`;
+  : `${iv1Val} ${iv1Val === 1 ? "pt" : "pts"}${iv1Val >= 1 ? " — Alerta" : " - Normal"}`;
 
 document.getElementById("repIncoh").textContent = iv1Txt;
 
@@ -2306,7 +2312,7 @@ const nc = (g.IV2 == null ? null : Math.round(Number(g.IV2) || 0));
 const iv2Val = (nc == null ? null : Number(nc));
 const iv2Txt = (iv2Val == null || Number.isNaN(iv2Val))
   ? "—"
-  : `${iv2Val} ${iv2Val === 1 ? "pt" : "pts"}${iv2Val >= 1 ? " — Alerta" : ""}`;
+  : `${iv2Val} ${iv2Val === 1 ? "pt" : "pts"}${iv2Val >= 1 ? " — Alerta" : "  - Normal"}`;
 
 document.getElementById("repContra").textContent = iv2Txt;
 
@@ -2319,11 +2325,10 @@ const ptPrefix = (ptVal == null || Number.isNaN(ptVal))
   : `${ptVal} ${ptVal === 1 ? "pt" : "pts"}`;
 
 const PT_LABEL = {
-  2: "Tiempo adecuado (20–30 min)",
+  0: "Tiempo adecuado (20–30 min)",
   1: "Demasiado breve (<20 min)",
-  0: "Demasiado lento (>30 min)"
+  2: "Demasiado lento (>30 min)"
 };
-
 const elPT = document.getElementById("repTiempo");
 if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} ${pt === 1 ? "pt" : "pts"} — ${PT_LABEL[pt] || ""}`);
 
