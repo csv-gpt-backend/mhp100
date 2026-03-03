@@ -2245,11 +2245,11 @@ if (h1 && h2) h2.innerHTML = h1.innerHTML;
     let raw = null;
     if(Array.isArray(subRows)){
       const f = subRows.find(r => normalizeName(r.sub || r.subhabilidad || r.nombre || "") === target);
-      if (f) raw = (f.pct ?? f.percent ?? f.porcentaje ?? null);
+      if (f) raw = (f.pctLex ?? f.pct ?? f.percent ?? f.porcentaje ?? null);
     }
     if (raw == null && resultados && resultados.subhabilidades && Array.isArray(resultados.subhabilidades)){
       const f = resultados.subhabilidades.find(r => normalizeName(r.sub || r.subhabilidad || r.nombre || "") === target);
-      if (f) raw = (f.pct ?? f.percent ?? f.porcentaje ?? null);
+      if (f) raw = (f.pctLex ?? f.pct ?? f.percent ?? f.porcentaje ?? null);
     }
     if (raw == null) return 0;
     return Math.round(Number(raw) || 0);
@@ -2265,8 +2265,9 @@ if (h1 && h2) h2.innerHTML = h1.innerHTML;
   document.getElementById("pctJusticia").textContent = pJus || "—";
   document.getElementById("pctVeracidad").textContent = pVer || "—";
 
-  const vals = [pHon,pRec,pJus,pVer].filter(v => typeof v === "number" && v > 0);
-  const ivi = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+  const vals = [pHon,pRec,pJus,pVer].filter(v => typeof v === "number" && v >= 0);
+  const iviFromData = resultados && resultados.globales && (resultados.globales.IVI ?? resultados.globales.ivi ?? null);
+  const ivi = (iviFromData != null) ? Math.round(Number(iviFromData)||0) : (vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0);
   document.getElementById("repIVI").textContent = ivi || "—";
   buildCurveSvg();
   setCurveMarker(ivi || 0);
