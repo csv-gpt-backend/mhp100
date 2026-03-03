@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title> MART 3  13 58 Evaluación de Integridad</title>
+  <title> MART  Evaluación de Integridad</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1400,11 +1400,25 @@ window.scrollTo(0, 0);
       return { iv1Cat, iv2Cat };
     }
 
-    function mapPctToLexium(pct){
-  // Aproximación estilo Lexium: escala de 9 niveles (valores típicos observados)
-  // Basada en cortes tipo stanine (percentiles). Si pct representa un % bruto, esto es una aproximación.
-  const cuts = [4, 11, 23, 40, 60, 77, 89, 96];
+    function mapPctToLexium(pct, sub){
+  // Conversión "Lexium-like" por subescala (heurística calibrable).
+  // Mantiene los valores típicos observados: 11,22,33,44,56,67,78,89,100
   const vals = [11, 22, 33, 44, 56, 67, 78, 89, 100];
+
+  // Cortes por subescala (en % bruto) para acercar la forma de Lexium.
+  // Ajustables por nivel/grupo cuando tengas más evidencia.
+  const CUTS_BY_SUB = {
+    // Rectitud: tendencia a subir un nivel antes (ej. 76% -> 78)
+    "Rectitud":   [10, 25, 45, 60, 70, 75, 80, 90],
+    // Honestidad: moderado (ej. 71% -> 67)
+    "Honestidad": [10, 25, 45, 60, 70, 75, 85, 92],
+    // Justicia: más estricto para bajar puntuaciones medias (ej. 65% -> 33)
+    "Justicia":   [20, 40, 65, 72, 78, 84, 90, 95],
+    // Veracidad: estricto (ej. 72% -> 44)
+    "Veracidad":  [20, 40, 60, 72, 78, 84, 90, 95],
+  };
+
+  const cuts = CUTS_BY_SUB[sub] || [4, 11, 23, 40, 60, 77, 89, 96];
   for(let i=0;i<cuts.length;i++){
     if(pct <= cuts[i]) return vals[i];
   }
@@ -1428,7 +1442,7 @@ function calcularResultadosGlobales() {
     .map(([sub, v]) => {
       const max = v.items * 3;
       const pct = max ? Math.round((v.pts / max) * 100) : 0; // % bruto
-      const pctLex = mapPctToLexium(pct);                    // escala Lexium-like
+      const pctLex = mapPctToLexium(pct, sub);                    // escala Lexium-like
       return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pctLex };
     })
     .sort((a,b)=>(a.sub||"").localeCompare(b.sub||""));
