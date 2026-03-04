@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>mierceporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>BARRAS VERDES CORREGIDAS Liderazgo v2 — Paso 1 (datos reales)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -192,6 +192,16 @@ const norm = (s='') => (s||'').toString().toLowerCase()
   .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
   .replace(/\s+/g,' ').trim();
 const esc = (s='') => (s??'').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+// Regla visual: si existe pct10 usarlo; si no, usar pct (sin depender de truthy/falsy)
+function pickPct(r){
+  const v10 = (r && Object.prototype.hasOwnProperty.call(r,'pct10')) ? r.pct10 : undefined;
+  const use10 = v10 !== undefined && v10 !== null && v10 !== '' && !Number.isNaN(Number(v10));
+  const v = use10 ? v10 : (r ? r.pct : undefined);
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 0;
+}
+
 
 const FACTOR_ORDER = [
   'Contacto personal','Pertenencia','Asertividad',
@@ -763,7 +773,7 @@ function adaptData(data){
   const bloqPercents = data.bloqPercents || resultados.bloqPercents || {};
 
   const avg = arr => arr.length
-    ? Math.round(arr.reduce((a,b)=>a+(Number(b.pct10)||Number(b.pct)||0),0)/arr.length)
+    ? Math.round(arr.reduce((a,b)=>a+pickPct(b),0)/arr.length)
     : null;
 
   const idxA = Number(
@@ -871,7 +881,8 @@ function adaptData(data){
 }
 function makeBarRow(r){
   const pRaw = Math.max(0, Math.min(100, Number(r.pct)||0));
-  const p = r.pct10 ? Math.max(0, Math.min(100, Number(r.pct10)||0)) : pRaw;
+  const p = pickPct(r);
+
   const c = categoriaClass(p);
   const slot = w => `<div class="slot ${c}"><div class="fill" style="width:${w}%"></div></div>`;
   let a=0,b=0,d=0;
@@ -891,13 +902,13 @@ function renderBloque(elId, rows){
 function renderTable(rows){
   const tb = $('#tbodyFactores');
   tb.innerHTML = rows.map(r => {
-    const cls = r.missing ? '' : ('row-' + p2Rango(r.pct10 || r.pct).cls);
+    const cls = r.missing ? '' : ('row-' + p2Rango(pickPct(r)).cls);
     return `<tr class="${cls}">
       <td>${esc(r.name)}</td>
       <td>${r.items ?? '—'}</td>
       <td>${r.pts ?? '—'}</td>
-      <td>${r.missing ? '—' : (Number(r.pct)||0)}</td>
-      <td>${r.missing ? '—' : ('<span class="rangoPill ' + p2Rango(r.pct10 || r.pct).cls + '">' + rangoFromPct(r.pct) + '</span>')}</td>
+      <td>${r.missing ? '—' : pickPct(r)}</td>
+      <td>${r.missing ? '—' : ('<span class="rangoPill ' + p2Rango(pickPct(r)).cls + '">' + rangoFromPct(pickPct(r)) + '</span>')}</td>
     </tr>`;
   }).join('');
 }
