@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>VIEjue 12 31 Evaluación Factores de Liderazgo</title>
+  <title>MIERC 4 16 25 Evaluación Factores de Liderazgo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1449,7 +1449,9 @@ window.scrollTo(0, 0);
         .map(([sub, v]) => {
           const max = v.items * 3;
           const pct = max ? Math.round((v.pts / max) * 100) : 0;
-          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct };
+          // Puntaje normado por factor (pasos de 10) para asemejar reporte antiguo
+          const pct10 = Math.max(10, Math.min(100, Math.round(pct / 10) * 10));
+          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct10 };
         })
         .sort(
           (a, b) =>
@@ -1465,9 +1467,24 @@ window.scrollTo(0, 0);
         b.n += 1;
       });
 
-      const bloqPercents = {};
+      // Promedio por bloque (raw)
+      const bloqPercentsRaw = {};
       Array.from(bloqMap.entries()).forEach(([bloque, a]) => {
         const pct = a.n ? Math.round(a.sumPct / a.n) : 0;
+        bloqPercentsRaw[bloque] = pct;
+      });
+
+      // Promedio por bloque (normado): promedio de pct10 por factor
+      const bloqMap10 = new Map();
+      subRows.forEach(r => {
+        if (!bloqMap10.has(r.bloque)) bloqMap10.set(r.bloque, { sum: 0, n: 0 });
+        const b = bloqMap10.get(r.bloque);
+        b.sum += Number(r.pct10) || 0;
+        b.n += 1;
+      });
+      const bloqPercents = {};
+      Array.from(bloqMap10.entries()).forEach(([bloque, a]) => {
+        const pct = a.n ? Math.round(a.sum / a.n) : 0;
         bloqPercents[bloque] = pct;
       });
 
@@ -1505,7 +1522,8 @@ window.scrollTo(0, 0);
           propension_cambio: bCambio
         },
         subhabilidades: subRows,
-        bloqPercents: bloqPercents
+        bloqPercents: bloqPercents,
+        bloqPercentsRaw: (typeof bloqPercentsRaw !== "undefined" ? bloqPercentsRaw : null)
       };
     }
 
