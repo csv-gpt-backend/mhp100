@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>MIERC 4 16 25 Evaluación Factores de Liderazgo</title>
+  <title>Evaluación Factores de Liderazgo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1445,12 +1445,30 @@ window.scrollTo(0, 0);
         s.pts += q.value ?? 0;
       });
 
-      const subRows = Array.from(subMap.entries())
+      
+// Conversión "modelo antiguo" (decenas). Mantiene monotonicidad y techo 100.
+// Nota: NO altera el puntaje bruto (pct); solo define el valor mostrado (pct10).
+function pctToOldDecile(pct){
+  const x = Number(pct);
+  if (!isFinite(x)) return 10;
+  if (x < 35) return 10;
+  if (x < 45) return 20;
+  if (x < 55) return 30;
+  if (x < 65) return 40;
+  if (x < 75) return 50;
+  if (x < 82) return 60;
+  if (x < 88) return 70;
+  if (x < 93) return 80;
+  if (x < 97) return 90;
+  return 100;
+}
+
+const subRows = Array.from(subMap.entries())
         .map(([sub, v]) => {
           const max = v.items * 3;
           const pct = max ? Math.round((v.pts / max) * 100) : 0;
           // Puntaje normado por factor (pasos de 10) para asemejar reporte antiguo
-          const pct10 = Math.max(10, Math.min(100, Math.round(pct / 10) * 10));
+          const pct10 = pctToOldDecile(pct);
           return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct10 };
         })
         .sort(
@@ -1710,5 +1728,6 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
   </div>
 </div>
 
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO pct10→barras y Parte 2+3 (v5)</div>
 </body>
 </html>
