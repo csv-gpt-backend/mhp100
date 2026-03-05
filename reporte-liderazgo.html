@@ -5,7 +5,7 @@
 
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Reporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>mierceporte Liderazgo v2 — Paso 1 (datos reales)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -899,13 +899,16 @@ function renderBloque(elId, rows){
 function renderTable(rows){
   const tb = $('#tbodyFactores');
   tb.innerHTML = rows.map(r => {
-    const cls = r.missing ? '' : ('row-' + p2Rango(r.pct10 || r.pct).cls);
+    // Regla visual del reporte normado: si existe pct10 usarlo (aunque sea 0), si no usar pct
+    const p = pctSel(r);
+    const rg = p2Rango(p);
+    const cls = r.missing ? '' : ('row-' + rg.cls);
     return `<tr class="${cls}">
       <td>${esc(r.name)}</td>
       <td>${r.items ?? '—'}</td>
       <td>${r.pts ?? '—'}</td>
-      <td>${r.missing ? '—' : (Number(r.pct)||0)}</td>
-      <td>${r.missing ? '—' : ('<span class="rangoPill ' + p2Rango(r.pct10 || r.pct).cls + '">' + rangoFromPct(r.pct) + '</span>')}</td>
+      <td>${r.missing ? '—' : p}</td>
+      <td>${r.missing ? '—' : ('<span class="rangoPill ' + rg.cls + '\">' + rg.lab + '</span>')}</td>
     </tr>`;
   }).join('');
 }
@@ -965,6 +968,6 @@ async function cargar(){
 $('#btn').addEventListener('click', cargar);
 $('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
 </script>
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO pct10→barras y Parte 3 (v3)</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO pct10→barras y Parte 2+3 (v4)</div>
 </body>
 </html>
