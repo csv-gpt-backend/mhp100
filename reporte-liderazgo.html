@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>MIERCOmierceporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>MIERCOLES Liderazgo v2 — Paso 1 (datos reales)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -192,6 +192,7 @@ const norm = (s='') => (s||'').toString().toLowerCase()
   .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
   .replace(/\s+/g,' ').trim();
 const esc = (s='') => (s??'').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const pctSel = (f) => (f && f.pct10 !== undefined && f.pct10 !== null) ? Number(f.pct10) : (Number(f?.pct)||0);
 
 const FACTOR_ORDER = [
   'Contacto personal','Pertenencia','Asertividad',
@@ -536,7 +537,8 @@ function plan14HTML(factorName, isPRO){
 }
 
 function factorDetail(idx, f, isPRO, isMain){
-  const r = p2Rango(f.pct);
+  const psel = pctSel(f);
+  const r = p2Rango(psel);
   const pack = P2[f.name] || {};
   const see = isPRO ? (pack.seePRO||[]) : (pack.seeSCH||[]);
   const actions = isPRO ? (pack.doPRO||[]) : (pack.doSCH||[]);
@@ -556,7 +558,7 @@ function factorDetail(idx, f, isPRO, isMain){
       <h4>3.${idx} ${esc(f.name)} ${isMain ? "— PRIORIDAD PRINCIPAL" : ""}</h4>
       <div class="p2chips">
         <span class="p2chip ${r.cls}">Rango: ${r.lab}</span>
-        <span class="p2chip">Puntaje: ${Math.round(f.pct)}%</span>
+        <span class="p2chip">Puntaje: ${Math.round(psel)}%</span>
       </div>
 
       <p><b>Qué significa:</b> ${esc(def)}</p>
@@ -583,7 +585,7 @@ function buildParte2Detalle({header, ifl, ordered}){
   const r = p2Rango(ifl);
   const pro = isProfesional(header?.codigo);
 
-  const valid = [...ordered].filter(x=>!x.missing).sort((a,b)=>a.pct-b.pct);
+  const valid = [...ordered].filter(x=>!x.missing).sort((a,b)=>pctSel(a)-pctSel(b));
   const foco = valid[0];
   const apoyo1 = valid[1];
   const apoyo2 = valid[2];
@@ -735,15 +737,19 @@ function adaptData(data){
   const canonRows = subRows.map((r)=> {
     const rawName = r.sub || r.name || r.factor || r.nombre || '';
     const c = canonFactor(rawName);
-    return {
-      name: displayFactorFromCanon(c),
-      canon: c,
-      bloque: FACTOR_TO_BLOQUE[c] || (r.bloque || r.conjunto || '—'),
-      items: Number(r.items ?? r.n_items ?? r.items_count ?? 11) || 11,
-      pts: Number(r.pts ?? r.puntos ?? r.score ?? r.suma ?? 0) || 0,
-      pct: Number(r.pct ?? r.percent ?? r.porcentaje ?? 0) || 0,
-      pct10: Number(r.pct10 ?? r.pct_10 ?? r.pctNorm ?? r.pct_norm ?? r.pct10Norm ?? r.pctLex10 ?? 0) || 0
-    };
+    return (() => {
+      const p10raw = (r.pct10 ?? r.pct_10 ?? r.pctNorm ?? r.pct_norm ?? r.pct10Norm ?? r.pctLex10);
+      const pct10 = (p10raw === undefined || p10raw === null || p10raw === "") ? null : Number(p10raw);
+      return {
+        name: displayFactorFromCanon(c),
+        canon: c,
+        bloque: FACTOR_TO_BLOQUE[c] || (r.bloque || r.conjunto || '—'),
+        items: Number(r.items ?? r.n_items ?? r.items_count ?? 11) || 11,
+        pts: Number(r.pts ?? r.puntos ?? r.score ?? r.suma ?? 0) || 0,
+        pct: Number(r.pct ?? r.percent ?? r.porcentaje ?? 0) || 0,
+        pct10: Number.isFinite(pct10) ? pct10 : null
+      };
+    })();
   });
 
   // Orden canónico de 12 factores
@@ -869,19 +875,9 @@ function adaptData(data){
   const contestadas = attempt.contestadas || attempt.n_respondidas || data.contestadas || snap.contestadas || (attempt.responses ? Object.keys(attempt.responses).length : null) || '132 de 132';
   return {attempt, autosave, participant, snap, ordered, bloqueRows, idxA, idxB, idxC, idxD, ifl, iv1, iv2, iv3, header, fechaTop:f.top, contestadas};
 }
-// Regla visual: si existe pct10 usarlo; si no, usar pct (sin depender de truthy/falsy)
-function pickPct(r){
-  if (!r) return 0;
-  if (Object.prototype.hasOwnProperty.call(r,'pct10')) {
-    const v10 = Number(r.pct10);
-    if (!Number.isNaN(v10)) return Math.max(0, Math.min(100, v10));
-  }
-  const v = Number(r.pct ?? r.percent ?? r.porcentaje ?? 0);
-  if (Number.isNaN(v)) return 0;
-  return Math.max(0, Math.min(100, v));
-}
 function makeBarRow(r){
-  const p = pickPct(r);
+  const pRaw = Math.max(0, Math.min(100, Number(r.pct)||0));
+  const p = (r.pct10 !== undefined && r.pct10 !== null) ? Math.max(0, Math.min(100, Number(r.pct10)||0)) : pRaw;
   const c = categoriaClass(p);
   const slot = w => `<div class="slot ${c}"><div class="fill" style="width:${w}%"></div></div>`;
   let a=0,b=0,d=0;
@@ -901,13 +897,13 @@ function renderBloque(elId, rows){
 function renderTable(rows){
   const tb = $('#tbodyFactores');
   tb.innerHTML = rows.map(r => {
-    const cls = r.missing ? '' : ('row-' + p2Rango(pickPct(r)).cls);
+    const cls = r.missing ? '' : ('row-' + p2Rango(r.pct10 || r.pct).cls);
     return `<tr class="${cls}">
       <td>${esc(r.name)}</td>
       <td>${r.items ?? '—'}</td>
       <td>${r.pts ?? '—'}</td>
-      <td>${r.missing ? '—' : pickPct(r)}</td>
-      <td>${r.missing ? '—' : ('<span class="rangoPill ' + p2Rango(pickPct(r)).cls + '">' + rangoFromPct(pickPct(r)) + '</span>')}</td>
+      <td>${r.missing ? '—' : (Number(r.pct)||0)}</td>
+      <td>${r.missing ? '—' : ('<span class="rangoPill ' + p2Rango(r.pct10 || r.pct).cls + '">' + rangoFromPct(r.pct) + '</span>')}</td>
     </tr>`;
   }).join('');
 }
