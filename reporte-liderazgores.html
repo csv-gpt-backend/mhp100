@@ -1,9 +1,12 @@
+
 <!doctype html>
 <html lang="es">
 <head>
+<!-- BUILD: CORREGIDO_V5 pct10 visual+parte2+3+avg0safe 2026-03-04 -->
+
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>LUNReporte Liderazgo v2 — Paso 1 (datos reales)</title>
+<title>Reporte Liderazgo)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -105,7 +108,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
       <div class="header">
         <div class="r1"><div id="fechaGenTop">—</div><div class="center">GRÁFICA INDIVIDUAL</div><div class="logo"><img src="assets/logo_adalam.png" alt="Logo Adalam"></div></div>
         <div class="r2">SCORE REPORT</div>
-        <div class="r3">FACTORES DE LIDERAZGO</div>
+        <div class="r3">LIDERAZGO - (LEADERSHIP)</div>
       </div>
 
       <div id="headerBox1" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
@@ -192,6 +195,7 @@ const norm = (s='') => (s||'').toString().toLowerCase()
   .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
   .replace(/\s+/g,' ').trim();
 const esc = (s='') => (s??'').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const pctSel = (f) => (f && f.pct10 !== undefined && f.pct10 !== null) ? Number(f.pct10) : (Number(f?.pct)||0);
 
 const FACTOR_ORDER = [
   'Contacto personal','Pertenencia','Asertividad',
@@ -269,7 +273,7 @@ const P2 = {
       "Te cuesta leer el ánimo del equipo si no te lo dicen."
     ],
     doPRO: [
-      {a:"Inicia con 1 pregunta corta (¿cómo vas?) y escucha 30 segundos.", w:"Al empezar una reunión o llamada", t:"1 min"},
+      {a:"Inicia diciendo exactamente: ‘Hola, ¿cómo vas hoy?’ y escucha 30 segundos.", w:"Al empezar una reunión o llamada", t:"1 min"},
       {a:"Nombra a la persona y valida una idea antes de proponer la tuya.", w:"Cuando alguien expone", t:"1–2 min"},
       {a:"Cierra con un acuerdo humano: ‘¿algo que necesites de mí?’", w:"Al final de la interacción", t:"1 min"}
     ],
@@ -281,8 +285,8 @@ const P2 = {
       "A veces no notas cuándo alguien se queda fuera."
     ],
     doSCH: [
-      {a:"Saluda, di el nombre y haz 1 pregunta simple.", w:"Al llegar a clase o grupo", t:"1 min"},
-      {a:"En grupo, repite una idea de un compañero y suma 1 detalle.", w:"Durante el trabajo", t:"1–2 min"},
+      {a:"Saluda, di el nombre y pregunta exactamente: “¿Qué toca hoy?”.", w:"Al llegar a clase o grupo", t:"1 min"},
+      {a:"En grupo, repite 1 idea de un compañero y añade exactamente: “Propongo agregar un ejemplo.”", w:"Durante el trabajo", t:"1–2 min"},
       {a:"Antes de salir, confirma: ‘¿qué hacemos primero mañana?’", w:"Al final", t:"1 min"}
     ],
     indSCH:"Esta semana lo logré si participé así en 3 actividades/grupos.",
@@ -292,7 +296,7 @@ const P2 = {
   "Pertenencia": {
     seePRO:["Te cuesta sumarte a normas del equipo (horarios, acuerdos).","Participas poco en actividades del equipo.","A veces trabajas ‘por tu lado’ y no avisas cambios."],
     doPRO:[
-      {a:"Elige 1 acuerdo del equipo y cúmplelo sin excepción.", w:"Todos los días", t:"—"},
+      {a:"Elige 1 acuerdo del equipo y cúmplelo sin excepción.", w:"Todos los días", t:"1 min"},
       {a:"Informa avances en 3 líneas (hecho / en proceso / bloqueos).", w:"Fin del día o standup", t:"2 min"},
       {a:"Ofrece ayuda puntual en 1 tarea pequeña.", w:"1 vez por semana", t:"10 min"}
     ],
@@ -300,7 +304,7 @@ const P2 = {
     avoidPRO:"Evita desaparecer sin avisar cuando algo se retrasa.",
     seeSCH:["Te cuesta seguir reglas del curso/grupo.","Te desconectas en actividades de equipo.","No siempre cumples tu parte en trabajos grupales."],
     doSCH:[
-      {a:"Elige 1 regla del curso y cúmplela siempre.", w:"Todos los días", t:"—"},
+      {a:"Elige 1 regla del curso y cúmplela siempre.", w:"Todos los días", t:"1 min"},
       {a:"En trabajos, escribe tu parte y fecha de entrega.", w:"Al inicio del trabajo", t:"3 min"},
       {a:"Pregunta: ‘¿qué falta?’ y toma 1 tarea pequeña.", w:"En cada grupo", t:"5 min"}
     ],
@@ -350,15 +354,15 @@ const P2 = {
     seePRO:["Reaccionas rápido (tono, mensajes) y luego te arrepientes.","Te cuesta sostener hábitos (puntualidad, orden).","Rompes acuerdos por impulso o apuro."],
     doPRO:[
       {a:"Pausa 10 segundos antes de responder en tensión.", w:"Cuando te moleste algo", t:"10 seg"},
-      {a:"Define 1 regla personal (horario, respuesta, orden) y cúmplela.", w:"Todos los días", t:"—"},
-      {a:"Si fallas, corrige en 1 paso: ‘Me equivoqué, hago X ahora.’", w:"Al detectar el error", t:"30 seg"}
+      {a:"Define 1 regla personal (horario, respuesta, orden) y cúmplela.", w:"Todos los días", t:"1 min"},
+      {a:"Si fallas, corrige en 1 paso: ‘Me equivoqué, hago el paso correcto ahora.’", w:"Al detectar el error", t:"30 seg"}
     ],
     indPRO:"Lo logré si hice 5 pausas conscientes y mantuve 1 regla 5 días.",
     avoidPRO:"Evita responder en caliente por chat.",
     seeSCH:["Te enojas fácil o interrumpes.","Te cuesta seguir reglas o rutinas.","Actúas sin pensar y te metes en problemas."],
     doSCH:[
       {a:"Respira 3 veces y cuenta hasta 5 antes de hablar.", w:"Cuando te enojes", t:"15 seg"},
-      {a:"Elige 1 regla (llegar, cuaderno, silencio) y cúmplela.", w:"Todos los días", t:"—"},
+      {a:"Elige 1 regla (llegar, cuaderno, silencio) y cúmplela.", w:"Todos los días", t:"1 min"},
       {a:"Si te equivocas, repara: ‘Perdón, ahora hago…’", w:"Después del error", t:"20 seg"}
     ],
     indSCH:"Lo logré si evité 3 reacciones impulsivas y cumplí 1 regla 5 días.",
@@ -368,8 +372,8 @@ const P2 = {
   "Influencia": {
     seePRO:["Te cuesta convencer sin imponer.","Tus ideas no se entienden porque no aterrizas beneficios.","No logras que otros se sumen a un plan."],
     doPRO:[
-      {a:"Explica en 1 frase el beneficio: ‘Esto ayuda a…’", w:"Al proponer una idea", t:"20 seg"},
-      {a:"Pide un compromiso pequeño: ‘¿puedes hacer X hoy?’", w:"Cuando necesites apoyo", t:"30 seg"},
+      {a:"Explica en 1 frase el beneficio diciendo exactamente: ‘Esto ayuda a terminar hoy y no dejarlo para mañana.’", w:"Al proponer una idea", t:"20 seg"},
+      {a:"Pide un compromiso pequeño diciendo exactamente: ‘¿Puedes enviarme hoy antes de las 17:00 un mensaje con 3 bullets: avance, bloqueo y siguiente paso?’", w:"Cuando necesites apoyo", t:"30 seg"},
       {a:"Reconoce un avance de otro en público.", w:"1 vez por semana", t:"30 seg"}
     ],
     indPRO:"Lo logré si conseguí 2 compromisos pequeños y reconocí 1 avance.",
@@ -388,7 +392,7 @@ const P2 = {
     seePRO:["Te cuesta cambiar de plan aunque haya nueva info.","Te molesta la crítica y te cierras.","Te cuesta aprender algo nuevo por falta de método."],
     doPRO:[
       {a:"Pregunta: ‘¿qué dato me falta para decidir mejor?’", w:"Antes de cerrar una decisión", t:"1 min"},
-      {a:"Pide 1 feedback específico (solo 1 cosa).", w:"1 vez por semana", t:"5 min"},
+      {a:"Haz una auto-revisión en 3 líneas: (1) qué hice, (2) qué mejoró, (3) qué ajusto.", w:"1 vez por semana", t:"5 min"},
       {a:"Aprende 1 micro-habilidad (video/nota) y aplícala.", w:"2 veces por semana", t:"15 min"}
     ],
     indPRO:"Lo logré si pedí 1 feedback y apliqué 1 mejora concreta.",
@@ -483,7 +487,7 @@ const P2 = {
     seePRO:["Tienes muchas tareas y no priorizas.","Empiezas por lo fácil y dejas lo importante.","No planificas y te apuras al final."],
     doPRO:[
       {a:"Elige 3 prioridades y bloquea tiempo para la #1.", w:"Inicio del día", t:"5 min"},
-      {a:"Escribe 1 siguiente paso exacto (ej.: ‘hacer X’).", w:"Antes de trabajar", t:"1 min"},
+      {a:"Escribe 1 siguiente paso exacto (ej.: ‘hacer el siguiente paso’).", w:"Antes de trabajar", t:"1 min"},
       {a:"Revisa 1 vez: ¿sigo en lo importante?", w:"Mitad del día", t:"1 min"}
     ],
     indPRO:"Lo logré si bloqueé tiempo para la prioridad #1 al menos 4 días.",
@@ -520,10 +524,10 @@ function plan14HTML(factorName, isPRO){
   ];
   const wk2 = isPRO ? [
     "Días 8–13: Repite la acción y sube un nivel (hazla en una situación más difícil).",
-    "Día 14: Pide 1 feedback (¿qué mejoró?) y define el siguiente paso de 2 semanas."
+    "Día 14: Haz auto-revisión en 3 líneas: qué hice, qué mejoró y qué ajusto; define el siguiente paso de 2 semanas."
   ] : [
     "Días 8–13: Repite la acción y sube un nivel (hazla en un trabajo/actividad más difícil).",
-    "Día 14: Pide 1 feedback (profe/familia/compañero) y define el siguiente paso de 2 semanas."
+    "Día 14: Haz auto-revisión en 3 líneas: qué hice, qué mejoró y qué ajusto; define el siguiente paso de 2 semanas."
   ];
   return `
     <h5>Plan de 14 días (Prioridad principal)</h5>
@@ -536,7 +540,8 @@ function plan14HTML(factorName, isPRO){
 }
 
 function factorDetail(idx, f, isPRO, isMain){
-  const r = p2Rango(f.pct);
+  const psel = pctSel(f);
+  const r = p2Rango(psel);
   const pack = P2[f.name] || {};
   const see = isPRO ? (pack.seePRO||[]) : (pack.seeSCH||[]);
   const actions = isPRO ? (pack.doPRO||[]) : (pack.doSCH||[]);
@@ -556,7 +561,7 @@ function factorDetail(idx, f, isPRO, isMain){
       <h4>3.${idx} ${esc(f.name)} ${isMain ? "— PRIORIDAD PRINCIPAL" : ""}</h4>
       <div class="p2chips">
         <span class="p2chip ${r.cls}">Rango: ${r.lab}</span>
-        <span class="p2chip">Puntaje: ${Math.round(f.pct)}%</span>
+        <span class="p2chip">Puntaje: ${Math.round(psel)}%</span>
       </div>
 
       <p><b>Qué significa:</b> ${esc(def)}</p>
@@ -583,7 +588,7 @@ function buildParte2Detalle({header, ifl, ordered}){
   const r = p2Rango(ifl);
   const pro = isProfesional(header?.codigo);
 
-  const valid = [...ordered].filter(x=>!x.missing).sort((a,b)=>a.pct-b.pct);
+  const valid = [...ordered].filter(x=>!x.missing).sort((a,b)=>pctSel(a)-pctSel(b));
   const foco = valid[0];
   const apoyo1 = valid[1];
   const apoyo2 = valid[2];
@@ -735,14 +740,19 @@ function adaptData(data){
   const canonRows = subRows.map((r)=> {
     const rawName = r.sub || r.name || r.factor || r.nombre || '';
     const c = canonFactor(rawName);
-    return {
-      name: displayFactorFromCanon(c),
-      canon: c,
-      bloque: FACTOR_TO_BLOQUE[c] || (r.bloque || r.conjunto || '—'),
-      items: Number(r.items ?? r.n_items ?? r.items_count ?? 11) || 11,
-      pts: Number(r.pts ?? r.puntos ?? r.score ?? r.suma ?? 0) || 0,
-      pct: Number(r.pct ?? r.percent ?? r.porcentaje ?? 0) || 0
-    };
+    return (() => {
+      const p10raw = (r.pct10 ?? r.pct_10 ?? r.pctNorm ?? r.pct_norm ?? r.pct10Norm ?? r.pctLex10);
+      const pct10 = (p10raw === undefined || p10raw === null || p10raw === "") ? null : Number(p10raw);
+      return {
+        name: displayFactorFromCanon(c),
+        canon: c,
+        bloque: FACTOR_TO_BLOQUE[c] || (r.bloque || r.conjunto || '—'),
+        items: Number(r.items ?? r.n_items ?? r.items_count ?? 11) || 11,
+        pts: Number(r.pts ?? r.puntos ?? r.score ?? r.suma ?? 0) || 0,
+        pct: Number(r.pct ?? r.percent ?? r.porcentaje ?? 0) || 0,
+        pct10: Number.isFinite(pct10) ? pct10 : null
+      };
+    })();
   });
 
   // Orden canónico de 12 factores
@@ -762,7 +772,7 @@ function adaptData(data){
   const bloqPercents = data.bloqPercents || resultados.bloqPercents || {};
 
   const avg = arr => arr.length
-    ? Math.round(arr.reduce((a,b)=>a+(Number(b.pct)||0),0)/arr.length)
+    ? Math.round(arr.reduce((a,b)=>a+(((b.pct10!==undefined && b.pct10!==null)?Number(b.pct10):(Number(b.pct)||0))||0),0)/arr.length)
     : null;
 
   const idxA = Number(
@@ -869,7 +879,8 @@ function adaptData(data){
   return {attempt, autosave, participant, snap, ordered, bloqueRows, idxA, idxB, idxC, idxD, ifl, iv1, iv2, iv3, header, fechaTop:f.top, contestadas};
 }
 function makeBarRow(r){
-  const p = Math.max(0, Math.min(100, Number(r.pct)||0));
+  const pRaw = Math.max(0, Math.min(100, Number(r.pct)||0));
+  const p = (r.pct10 !== undefined && r.pct10 !== null) ? Math.max(0, Math.min(100, Number(r.pct10)||0)) : pRaw;
   const c = categoriaClass(p);
   const slot = w => `<div class="slot ${c}"><div class="fill" style="width:${w}%"></div></div>`;
   let a=0,b=0,d=0;
@@ -889,13 +900,16 @@ function renderBloque(elId, rows){
 function renderTable(rows){
   const tb = $('#tbodyFactores');
   tb.innerHTML = rows.map(r => {
-    const cls = r.missing ? '' : ('row-' + p2Rango(r.pct).cls);
+    // Regla visual del reporte normado: si existe pct10 usarlo (aunque sea 0), si no usar pct
+    const p = pctSel(r);
+    const rg = p2Rango(p);
+    const cls = r.missing ? '' : ('row-' + rg.cls);
     return `<tr class="${cls}">
       <td>${esc(r.name)}</td>
       <td>${r.items ?? '—'}</td>
       <td>${r.pts ?? '—'}</td>
-      <td>${r.missing ? '—' : (Number(r.pct)||0)}</td>
-      <td>${r.missing ? '—' : ('<span class="rangoPill ' + p2Rango(r.pct).cls + '">' + rangoFromPct(r.pct) + '</span>')}</td>
+      <td>${r.missing ? '—' : p}</td>
+      <td>${r.missing ? '—' : ('<span class="rangoPill ' + rg.cls + '\">' + rg.lab + '</span>')}</td>
     </tr>`;
   }).join('');
 }
@@ -955,5 +969,6 @@ async function cargar(){
 $('#btn').addEventListener('click', cargar);
 $('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
 </script>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO pct10→barras y Parte 2+3 (v5)</div>
 </body>
 </html>
