@@ -1463,6 +1463,23 @@ function pctToOldDecile(pct){
   return 100;
 }
 
+function pctToOldFine(pct){
+  const x = Number(pct);
+  if (!isFinite(x)) return 0;
+  // knots: [raw, norm]
+  const K = [
+    [0,0],[35,10],[45,20],[55,30],[65,40],[75,50],[82,60],[88,70],[93,80],[97,90],[100,100]
+  ];
+  for(let i=1;i<K.length;i++){
+    const [x0,y0]=K[i-1], [x1,y1]=K[i];
+    if(x<=x1){
+      const t = (x1===x0)?0: (x-x0)/(x1-x0);
+      return y0 + t*(y1-y0);
+    }
+  }
+  return 100;
+}
+
 
 function pctToOldDecileByBloque(pct, bloque){
   const b = String(bloque || "").toUpperCase().trim();
@@ -1478,6 +1495,26 @@ function pctToOldDecileByBloque(pct, bloque){
     if (x < 97) return 50;
     return 100;
   }
+
+function pctToOldFineByBloque(pct, bloque){
+  const b = String(bloque || "").toUpperCase().trim();
+  const x = Number(pct);
+  if (!isFinite(x)) return 0;
+  // Norma más exigente para conjunto B (Entorno situacional)
+  if (b === "B") {
+    const K = [[0,0],[60,10],[70,20],[80,30],[90,40],[97,50],[100,100]];
+    for(let i=1;i<K.length;i++){
+      const [x0,y0]=K[i-1], [x1,y1]=K[i];
+      if(x<=x1){
+        const t=(x1===x0)?0:(x-x0)/(x1-x0);
+        return y0 + t*(y1-y0);
+      }
+    }
+    return 100;
+  }
+  return pctToOldFine(x);
+}
+
   return pctToOldDecile(x);
 }
 
@@ -1487,8 +1524,9 @@ const subRows = Array.from(subMap.entries())
           const max = v.items * 3;
           const pct = max ? Math.round((v.pts / max) * 100) : 0;
           // Puntaje normado por factor (pasos de 10) para asemejar reporte antiguo
-          const pct10 = pctToOldDecileByBloque(pct, v.bloque);
-          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct10 };
+          const pct10_decile = pctToOldDecileByBloque(pct, v.bloque);
+          const pct10 = Math.round(pctToOldFineByBloque(pct, v.bloque));
+          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct10, pct10_decile };
         })
         .sort(
           (a, b) =>
@@ -1748,5 +1786,6 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
 </div>
 
 <div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO pct10 normado por bloque B (v7)</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO normado fino (pct10) + pct10_decile (vF1)</div>
 </body>
 </html>
