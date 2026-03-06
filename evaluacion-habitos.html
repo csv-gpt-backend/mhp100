@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluación de Hábitos</title>
+  <title>MIER25 11 126 Evaluación de Hábitos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1061,11 +1061,22 @@ const STORAGE_PREFIX = "eval_lid_state_";
       "Cooperacion": [62, 40, 100, 75, 62, 100, 40, 80, 40, 100, 75, 62, 100, 40, 75, 62, 50, 75, 75, 100, 40, 40, 40, 30, 60, 80, 60, 30, 40, 40, 60, 40, 70, 60, 40, 90, 80, 30, 50, 50],
       "IndiceGeneral": [68, 55, 84, 85, 68, 100, 55, 74, 58, 84, 85, 68, 100, 55, 85, 68, 53, 85, 85, 100, 40, 45, 48, 38, 45, 53, 58, 43, 30, 58, 50, 45, 53, 55, 45, 83, 74, 25, 63, 55],
     };
-    function pctToOldPercentile(sub, pct){
-      const arr = REF_NORM[sub];
-      if(!arr||!arr.length) return pct;
-      let c=0; for(const v of arr){ if(v<=pct) c++; }
-      return Math.round(100*c/arr.length);
+    function pctToOldNorm(pctRaw){
+      // Conversión monotónica anclada para aproximar el modelo antiguo
+      // Ancla: 84 -> 63, 100 -> 100, 0 -> 0
+      const anchorRaw = 84;
+      const anchorOut = 63;
+      let out;
+      if(pctRaw <= anchorRaw){
+        out = Math.round((pctRaw/anchorRaw) * anchorOut);
+      } else {
+        out = Math.round(anchorOut + ((pctRaw-anchorRaw)/(100-anchorRaw)) * (100-anchorOut));
+      }
+      if(out < 0) out = 0;
+      if(out > 100) out = 100;
+      return out;
+    }
+return Math.round(100*c/arr.length);
     }
 const PREGUNTAS_CSV = `
 1;Tengo paciencia para hablar con la persona adecuada sobre el asunto adecuado.;Prudencia;Prudencia;0
@@ -1415,7 +1426,7 @@ window.scrollTo(0, 0);
         .map(([sub, v]) => {
           const max = v.items * 3;
           const pct_raw = max ? Math.round((v.pts / max) * 100) : 0;
-          const pct = pctToOldPercentile(sub, pct_raw);
+          const pct = pctToOldNorm(pct_raw);
           return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct_raw };
         })
         .sort((a, b) =>
@@ -1445,7 +1456,7 @@ window.scrollTo(0, 0);
       const totalPts = ITEMS.reduce((acc, q) => acc + (q.value ?? 0), 0);
       const totalMax = totalItems * 3;
       const totalPct_raw = totalMax ? Math.round((totalPts / totalMax) * 100) : 0;
-      const totalPct = pctToOldPercentile("IndiceGeneral", totalPct_raw);
+      const totalPct = pctToOldNorm(totalPct_raw);
 
       const directCount = ITEMS.filter(q => q.invertida === "No").length;
       const invertidasCount = ITEMS.filter(q => q.invertida === "Sí").length;
@@ -1481,6 +1492,10 @@ window.scrollTo(0, 0);
       if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
 
 const resultados = calcularResultadosGlobales();
+  // PERFIL (para baremación / recomendaciones): PRO vs ESCOLAR
+  const perfil = String(CODIGO_ACTUAL || '').toUpperCase().startsWith('PRO') ? 'PRO' : 'ESCOLAR';
+  resultados.meta = resultados.meta || {};
+  resultados.meta.perfil = perfil;
 
       const payload = {
         codigo: CODIGO_ACTUAL,
@@ -1643,6 +1658,6 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
 
 
 
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO normado percentil (Octavo A/B) en pct + mantiene pct_raw (v1)</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO Habitos perfil meta.perfil + norma ancla (v3)</div>
 </body>
 </html>
