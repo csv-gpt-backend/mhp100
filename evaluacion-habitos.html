@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluación de Hábitos</title>
+  <title>MIER25 11 126 Evaluación de Hábitos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1062,7 +1062,7 @@ const STORAGE_PREFIX = "eval_lid_state_";
       "IndiceGeneral": [68, 55, 84, 85, 68, 100, 55, 74, 58, 84, 85, 68, 100, 55, 85, 68, 53, 85, 85, 100, 40, 45, 48, 38, 45, 53, 58, 43, 30, 58, 50, 45, 53, 55, 45, 83, 74, 25, 63, 55],
     };
     function pctToOldNorm(pctRaw){
-      // Conversión monotónica anclada para aproximar el modelo antiguo
+      // Conversión monotónica anclada para aproximar el modelo antiguo (ESCOLAR)
       // Ancla: 84 -> 63, 100 -> 100, 0 -> 0
       const anchorRaw = 84;
       const anchorOut = 63;
@@ -1076,6 +1076,16 @@ const STORAGE_PREFIX = "eval_lid_state_";
       if(out > 100) out = 100;
       return out;
     }
+
+    function normPct(pctRaw, perfil){
+      // Norma por perfil: PRO (decenas) vs ESCOLAR (ancla 84->63)
+      if(String(perfil || '').toUpperCase().startsWith('PRO')){
+        let out = Math.round(pctRaw / 10) * 10;
+        if(out < 0) out = 0;
+        if(out > 100) out = 100;
+        return out;
+      }
+      return pctToOldNorm(pctRaw);
     }
 const PREGUNTAS_CSV = `
 1;Tengo paciencia para hablar con la persona adecuada sobre el asunto adecuado.;Prudencia;Prudencia;0
@@ -1411,6 +1421,8 @@ window.scrollTo(0, 0);
     function calcularResultadosGlobales() {
       if (!ITEMS.length) return null;
 
+      const perfil = String(CODIGO_ACTUAL || '').toUpperCase().startsWith('PRO') ? 'PRO' : 'ESCOLAR';
+
       const subMap = new Map();
       ITEMS.forEach(q => {
         if (!subMap.has(q.subhabilidad)) {
@@ -1425,7 +1437,7 @@ window.scrollTo(0, 0);
         .map(([sub, v]) => {
           const max = v.items * 3;
           const pct_raw = max ? Math.round((v.pts / max) * 100) : 0;
-          const pct = pctToOldNorm(pct_raw);
+          const pct = normPct(pct_raw, perfil);
           return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct_raw };
         })
         .sort((a, b) =>
@@ -1455,7 +1467,7 @@ window.scrollTo(0, 0);
       const totalPts = ITEMS.reduce((acc, q) => acc + (q.value ?? 0), 0);
       const totalMax = totalItems * 3;
       const totalPct_raw = totalMax ? Math.round((totalPts / totalMax) * 100) : 0;
-      const totalPct = pctToOldNorm(totalPct_raw);
+      const totalPct = normPct(totalPct_raw, perfil);
 
       const directCount = ITEMS.filter(q => q.invertida === "No").length;
       const invertidasCount = ITEMS.filter(q => q.invertida === "Sí").length;
@@ -1657,6 +1669,6 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
 
 
 
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO Habitos norma ancla 84→63 + meta.perfil (v4)</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO Habitos norma PRO vs ESCOLAR + sin error (v6)</div>
 </body>
 </html>
