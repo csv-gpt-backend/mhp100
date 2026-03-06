@@ -194,7 +194,7 @@ const norm = (s='') => (s||'').toString().toLowerCase()
   .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
   .replace(/\s+/g,' ').trim();
 const esc = (s='') => (s??'').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const pctSel = (f) => (Number(f?.pct)||0);
+const pctSel = (f) => (f && f.pct10 !== undefined && f.pct10 !== null) ? Number(f.pct10) : (Number(f?.pct)||0);
 
 const FACTOR_ORDER = [
   'Contacto personal','Pertenencia','Asertividad',
@@ -879,8 +879,8 @@ function adaptData(data){
   return {attempt, autosave, participant, snap, ordered, bloqueRows, idxA, idxB, idxC, idxD, ifl, iv1, iv2, iv3, header, fechaTop:f.top, contestadas};
 }
 function makeBarRow(r){
-  const pRaw = Math.max(0, Math.min(100, pctSel(r)));
-  const p = pRaw;
+  const pRaw = Math.max(0, Math.min(100, Number(r.pct)||0));
+  const p = (r.pct10 !== undefined && r.pct10 !== null) ? Math.max(0, Math.min(100, Number(r.pct10)||0)) : pRaw;
   const c = categoriaClass(p);
   const slot = w => `<div class="slot ${c}"><div class="fill" style="width:${w}%"></div></div>`;
   let a=0,b=0,d=0;
@@ -970,6 +970,6 @@ async function cargar(){
 $('#btn').addEventListener('click', cargar);
 $('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
 </script>
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO barras/tabla con pct exacto (v7)</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO rangos 0–40/41–69/70–100 (v6)</div>
 </body>
 </html>
