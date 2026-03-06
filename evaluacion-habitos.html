@@ -1076,7 +1076,16 @@ const STORAGE_PREFIX = "eval_lid_state_";
       if(out > 100) out = 100;
       return out;
     }
-return Math.round(100*c/arr.length);
+
+    // Para perfil profesional (códigos PRO...), el modelo antiguo reporta en decenas (10,20,...,100)
+    function pctToDecile(pctRaw){
+      let d = Math.round(pctRaw/10)*10;
+      if(d < 0) d = 0;
+      if(d > 100) d = 100;
+      // evita 0 cuando hay puntaje positivo
+      if(d === 0 && pctRaw > 0) d = 10;
+      return d;
+    }
     }
 const PREGUNTAS_CSV = `
 1;Tengo paciencia para hablar con la persona adecuada sobre el asunto adecuado.;Prudencia;Prudencia;0
@@ -1426,7 +1435,8 @@ window.scrollTo(0, 0);
         .map(([sub, v]) => {
           const max = v.items * 3;
           const pct_raw = max ? Math.round((v.pts / max) * 100) : 0;
-          const pct = pctToOldNorm(pct_raw);
+          const perfil = (String(CODIGO_ACTUAL||'').toUpperCase().startsWith('PRO')) ? 'PRO' : 'ESCOLAR';
+          const pct = (perfil === 'PRO') ? pctToDecile(pct_raw) : pctToOldNorm(pct_raw);
           return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct_raw };
         })
         .sort((a, b) =>
@@ -1658,6 +1668,6 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
 
 
 
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO Habitos perfil meta.perfil + norma ancla (v3)</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO Habitos norma PRO(decenas) vs ESCOLAR(ancla84→63) + meta.perfil (v5)</div>
 </body>
 </html>
