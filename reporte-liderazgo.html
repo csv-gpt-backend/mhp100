@@ -5,7 +5,7 @@
 
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>FFReporte Liderazgo)</title>
+<title>Reporte Liderazgo)</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -649,10 +649,11 @@ function rangoFromPct(p){
 }
 function categoriaClass(p){
   const n = Number(p)||0;
-  if (n <= 40) return '';
-  if (n <= 69) return 'mid';
+  if(n <= 39) return 'low';
+  if(n <= 60) return 'mid';
   return 'high';
 }
+
 function setMarker(p){
   const s = Math.max(0, Math.min(100, Number(p)||0));
   const wrap = document.querySelector('.curveGauge');
@@ -884,10 +885,10 @@ function makeBarRow(r){
   const c = categoriaClass(p);
   const slot = w => `<div class="slot ${c}"><div class="fill" style="width:${w}%"></div></div>`;
   let a=0,b=0,d=0;
-  // Rangos alineados a la tabla/rótulos: 0–40 (desarrollar), 41–69 (fortalecer), 70–100 (enriquecer)
-  if (p<=40){ a = Math.round((p/40)*100); }
-  else if (p<=69){ a = 100; b = Math.round(((p-41)/28)*100); }
-  else { a = 100; b = 100; d = Math.round(((p-70)/30)*100); }
+  // Rangos oficiales: 0–39 (desarrollar), 40–60 (fortalecer), 61–100 (enriquecer)
+  if (p<=39){ a = Math.round((p/39)*100); }
+  else if (p<=60){ a = 100; b = Math.round(((p-40)/21)*100); }
+  else { a = 100; b = 100; d = Math.round(((p-61)/39)*100); }
   return `<div class="bar-row">
     <div>${esc(r.name)}</div>
     ${slot(a)} ${slot(b)} ${slot(d)}
@@ -971,5 +972,6 @@ $('#btn').addEventListener('click', cargar);
 $('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
 </script>
 <div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO rangos 0–40/41–69/70–100 (v6)</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO rangos oficiales 0-39/40-60/61-100 + barras con pct10 fino (vF1)</div>
 </body>
 </html>
