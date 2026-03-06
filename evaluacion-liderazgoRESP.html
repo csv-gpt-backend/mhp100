@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>NORMADO 1 Evaluación Factores de Liderazgo</title>
+  <title>Normado 2 Evaluación Factores de Liderazgo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1463,12 +1463,31 @@ function pctToOldDecile(pct){
   return 100;
 }
 
+
+function pctToOldDecileByBloque(pct, bloque){
+  const b = String(bloque || "").toUpperCase().trim();
+  const x = Number(pct);
+  if (!isFinite(x)) return 10;
+  // Para conjunto B (Entorno situacional), aplicamos una norma más exigente
+  // para aproximar la distribución observada en la plataforma antigua.
+  if (b === "B") {
+    if (x < 60) return 10;
+    if (x < 70) return 20;
+    if (x < 80) return 30;
+    if (x < 90) return 40;
+    if (x < 97) return 50;
+    return 100;
+  }
+  return pctToOldDecile(x);
+}
+
+
 const subRows = Array.from(subMap.entries())
         .map(([sub, v]) => {
           const max = v.items * 3;
           const pct = max ? Math.round((v.pts / max) * 100) : 0;
           // Puntaje normado por factor (pasos de 10) para asemejar reporte antiguo
-          const pct10 = pctToOldDecile(pct);
+          const pct10 = pctToOldDecileByBloque(pct, v.bloque);
           return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct10 };
         })
         .sort(
@@ -1728,6 +1747,6 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
   </div>
 </div>
 
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO pct10→barras y Parte 2+3 (v5)</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO pct10 normado por bloque B (v7)</div>
 </body>
 </html>
