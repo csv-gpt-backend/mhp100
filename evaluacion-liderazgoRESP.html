@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Normado 2 Evaluación Factores de Liderazgo</title>
+  <title>Evaluación Factores de Liderazgo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1043,7 +1043,7 @@ const STORAGE_PREFIX = "eval_lid_state_";
     let currentPage = 0;
 
     const PREGUNTAS_CSV = `
-1;Me gusta orientar a otros y decirles cómo hacen las cosas.;A;Contacto personal;0
+1;Me gusta orientar a otros y decirles cómo hacer las cosas.;A;Contacto personal;0
 2;Disfruto hacer cosas que causan que otros se interesen en mi.;A;Contacto personal;0
 3;Lo que el grupo piensa es muy importante para mi.;A;Contacto personal;0
 4;Si hay un evento, quiero estar invitado.;A;Contacto personal;0
@@ -1446,8 +1446,10 @@ window.scrollTo(0, 0);
       });
 
       
-// Conversión "modelo antiguo" (decenas). Mantiene monotonicidad y techo 100.
-// Nota: NO altera el puntaje bruto (pct); solo define el valor mostrado (pct10).
+// Conversión "modelo antiguo".
+// - pct10_decile: versión en decenas (10 en 10) por compatibilidad/histórico.
+// - pct10: versión "fina" (no redondeada) para que el reporte pueda mostrar 73/64/78, etc.
+// Nota: NO altera el puntaje bruto (pct); solo define el valor mostrado.
 function pctToOldDecile(pct){
   const x = Number(pct);
   if (!isFinite(x)) return 10;
@@ -1463,13 +1465,13 @@ function pctToOldDecile(pct){
   return 100;
 }
 
-
 function pctToOldDecileByBloque(pct, bloque){
   const b = String(bloque || "").toUpperCase().trim();
   const x = Number(pct);
   if (!isFinite(x)) return 10;
+
   // Para conjunto B (Entorno situacional), aplicamos una norma más exigente
-  // para aproximar la distribución observada en la plataforma antigua.
+  // (misma idea que venimos usando para aproximar distribución del reporte antiguo).
   if (b === "B") {
     if (x < 60) return 10;
     if (x < 70) return 20;
@@ -1481,14 +1483,72 @@ function pctToOldDecileByBloque(pct, bloque){
   return pctToOldDecile(x);
 }
 
+// Interpolación lineal por "nudos" (knots) para obtener un normado fino.
+// knots: [{raw: number, out: number}, ...] ordenados por raw asc.
+function interpKnots(raw, knots){
+  const x = Number(raw);
+  if (!isFinite(x)) return 0;
+  if (!Array.isArray(knots) || knots.length < 2) return Math.max(0, Math.min(100, Math.round(x)));
+  if (x <= knots[0].raw) return knots[0].out;
+  for (let i = 0; i < knots.length - 1; i++){
+    const a = knots[i], b = knots[i+1];
+    if (x <= b.raw){
+      const t = (x - a.raw) / (b.raw - a.raw || 1);
+      const y = a.out + t * (b.out - a.out);
+      return Math.max(0, Math.min(100, Math.round(y)));
+    }
+  }
+  return knots[knots.length-1].out;
+}
+
+// Norma fina por bloque (no redondeada a decenas).
+// Devuelve un valor 0..100 (entero) que puede ser 73/64/78, etc.
+function pctOldFineByBloque(pctRaw, bloque){
+  const b = String(bloque || "").toUpperCase().trim();
+  const x = Number(pctRaw);
+  if (!isFinite(x)) return 0;
+
+  // Base (A/C/D): nudos derivados de los cortes de decenas para mantener forma similar al reporte antiguo,
+  // pero permitiendo valores finos entre cortes.
+  const baseKnots = [
+    {raw: 0,  out: 10},
+    {raw: 35, out: 10},
+    {raw: 45, out: 20},
+    {raw: 55, out: 30},
+    {raw: 65, out: 40},
+    {raw: 75, out: 50},
+    {raw: 82, out: 60},
+    {raw: 88, out: 70},
+    {raw: 93, out: 80},
+    {raw: 97, out: 90},
+    {raw: 100,out: 100},
+  ];
+
+  // Bloque B (más exigente): nudos derivados de la versión estricta que ya usábamos,
+  // también en forma fina (permite 33/35/42...).
+  const bKnots = [
+    {raw: 0,  out: 10},
+    {raw: 60, out: 10},
+    {raw: 70, out: 20},
+    {raw: 80, out: 30},
+    {raw: 90, out: 40},
+    {raw: 97, out: 50},
+    {raw: 100,out: 100},
+  ];
+
+  const y = (b === "B") ? interpKnots(x, bKnots) : interpKnots(x, baseKnots);
+  return y;
+}
+
 
 const subRows = Array.from(subMap.entries())
         .map(([sub, v]) => {
           const max = v.items * 3;
           const pct = max ? Math.round((v.pts / max) * 100) : 0;
           // Puntaje normado por factor (pasos de 10) para asemejar reporte antiguo
-          const pct10 = pctToOldDecileByBloque(pct, v.bloque);
-          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct10 };
+          const pct10_decile = pctToOldDecileByBloque(pct, v.bloque);
+          const pct10 = pctOldFineByBloque(pct, v.bloque);
+          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct10, pct10_decile };
         })
         .sort(
           (a, b) =>
@@ -1747,6 +1807,6 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
   </div>
 </div>
 
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO pct10 normado por bloque B (v7)</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO : VOLVEMOS AL BANCO 1</div>
 </body>
 </html>
