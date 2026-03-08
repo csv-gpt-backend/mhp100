@@ -1453,34 +1453,12 @@ window.scrollTo(0, 0);
 function pctToOldDecile(pct){
   const x = Number(pct);
   if (!isFinite(x)) return 10;
-  if (x < 35) return 10;
-  if (x < 45) return 20;
-  if (x < 55) return 30;
-  if (x < 65) return 40;
-  if (x < 75) return 50;
-  if (x < 82) return 60;
-  if (x < 88) return 70;
-  if (x < 93) return 80;
-  if (x < 97) return 90;
-  return 100;
+  if (x <= 0) return 10;
+  return Math.max(10, Math.min(100, Math.round(x / 10) * 10));
 }
 
 function pctToOldDecileByBloque(pct, bloque){
-  const b = String(bloque || "").toUpperCase().trim();
-  const x = Number(pct);
-  if (!isFinite(x)) return 10;
-
-  // Para conjunto B (Entorno situacional), aplicamos una norma más exigente
-  // (misma idea que venimos usando para aproximar distribución del reporte antiguo).
-  if (b === "B") {
-    if (x < 60) return 10;
-    if (x < 70) return 20;
-    if (x < 80) return 30;
-    if (x < 90) return 40;
-    if (x < 97) return 50;
-    return 100;
-  }
-  return pctToOldDecile(x);
+  return pctToOldDecile(pctOldFineByBloque(pct, bloque));
 }
 
 // Interpolación lineal por "nudos" (knots) para obtener un normado fino.
@@ -1508,8 +1486,7 @@ function pctOldFineByBloque(pctRaw, bloque){
   const x = Number(pctRaw);
   if (!isFinite(x)) return 0;
 
-  // Base (A/C/D): nudos derivados de los cortes de decenas para mantener forma similar al reporte antiguo,
-  // pero permitiendo valores finos entre cortes.
+  // Curva base heredada (la dejamos como punto de partida y luego compactamos por bloque).
   const baseKnots = [
     {raw: 0,  out: 10},
     {raw: 35, out: 10},
@@ -1524,20 +1501,31 @@ function pctOldFineByBloque(pctRaw, bloque){
     {raw: 100,out: 100},
   ];
 
-  // Bloque B (más exigente): nudos derivados de la versión estricta que ya usábamos,
-  // también en forma fina (permite 33/35/42...).
+  // B sigue siendo más exigente, pero menos castigado que antes para no abrir tanto el perfil.
   const bKnots = [
     {raw: 0,  out: 10},
-    {raw: 60, out: 10},
-    {raw: 70, out: 20},
-    {raw: 80, out: 30},
-    {raw: 90, out: 40},
-    {raw: 97, out: 50},
+    {raw: 55, out: 10},
+    {raw: 65, out: 20},
+    {raw: 75, out: 30},
+    {raw: 85, out: 40},
+    {raw: 93, out: 50},
+    {raw: 97, out: 60},
     {raw: 100,out: 100},
   ];
 
-  const y = (b === "B") ? interpKnots(x, bKnots) : interpKnots(x, baseKnots);
-  return y;
+  let y = (b === "B") ? interpKnots(x, bKnots) : interpKnots(x, baseKnots);
+
+  // Compactación suave para que A/B suban un poco y C/D no se disparen tanto.
+  const ajustes = { A: 5, B: 10, C: 4, D: 6 };
+  const pivotes = { A: 52, B: 48, C: 54, D: 54 };
+  const compresion = { A: 0.96, B: 0.92, C: 0.90, D: 0.90 };
+
+  const pivot = pivotes[b] ?? 52;
+  const scale = compresion[b] ?? 0.94;
+  const shift = ajustes[b] ?? 0;
+
+  y = pivot + ((y - pivot) * scale) + shift;
+  return Math.max(0, Math.min(100, Math.round(y)));
 }
 
 
@@ -1807,6 +1795,6 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
   </div>
 </div>
 
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO : VOLVEMOS AL BANCO 1</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">MARKER LID-AFINADO-3INV-20260308</div>
 </body>
 </html>
