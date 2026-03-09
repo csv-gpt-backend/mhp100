@@ -1054,7 +1054,40 @@ const STORAGE_PREFIX = "eval_lid_state_";
     const PAGE_SIZE = 10;
     let currentPage = 0;
 
-    const PREGUNTAS_CSV = `
+    const REF_NORM = {
+      "Consistencia": [71, 50, 100, 96, 71, 100, 50, 80, 70, 100, 96, 71, 100, 50, 96, 71, 60, 96, 96, 100, 30, 30, 50, 40, 40, 40, 70, 60, 30, 70, 50, 60, 40, 50, 40, 80, 80, 20, 60, 40],
+      "Persistencia": [80, 60, 35, 100, 80, 100, 60, 62, 70, 35, 100, 80, 100, 60, 100, 80, 50, 100, 100, 100, 70, 50, 60, 40, 60, 50, 60, 50, 10, 70, 50, 40, 70, 70, 50, 60, 62, 30, 70, 70],
+      "Prudencia": [58, 70, 100, 67, 58, 100, 70, 75, 50, 100, 67, 58, 100, 70, 67, 58, 50, 67, 67, 100, 20, 60, 40, 40, 20, 40, 40, 30, 40, 50, 40, 40, 30, 40, 50, 100, 75, 20, 70, 60],
+      "Cooperacion": [62, 40, 100, 75, 62, 100, 40, 80, 40, 100, 75, 62, 100, 40, 75, 62, 50, 75, 75, 100, 40, 40, 40, 30, 60, 80, 60, 30, 40, 40, 60, 40, 70, 60, 40, 90, 80, 30, 50, 50],
+      "IndiceGeneral": [68, 55, 84, 85, 68, 100, 55, 74, 58, 84, 85, 68, 100, 55, 85, 68, 53, 85, 85, 100, 40, 45, 48, 38, 45, 53, 58, 43, 30, 58, 50, 45, 53, 55, 45, 83, 74, 25, 63, 55],
+    };
+    function pctToOldNorm(pctRaw){
+      // Conversión monotónica anclada para aproximar el modelo antiguo (ESCOLAR)
+      // Ancla: 84 -> 63, 100 -> 100, 0 -> 0
+      const anchorRaw = 84;
+      const anchorOut = 63;
+      let out;
+      if(pctRaw <= anchorRaw){
+        out = Math.round((pctRaw/anchorRaw) * anchorOut);
+      } else {
+        out = Math.round(anchorOut + ((pctRaw-anchorRaw)/(100-anchorRaw)) * (100-anchorOut));
+      }
+      if(out < 0) out = 0;
+      if(out > 100) out = 100;
+      return out;
+    }
+
+    function normPct(pctRaw, perfil){
+      // Norma por perfil: PRO (decenas) vs ESCOLAR (ancla 84->63)
+      if(String(perfil || '').toUpperCase().startsWith('PRO')){
+        let out = Math.round(pctRaw / 10) * 10;
+        if(out < 0) out = 0;
+        if(out > 100) out = 100;
+        return out;
+      }
+      return pctToOldNorm(pctRaw);
+    }
+const PREGUNTAS_CSV = `
 1;Tengo paciencia para hablar con la persona adecuada sobre el asunto adecuado.;Prudencia;Prudencia;0
 2;Termino lo que empiezo, aun cuando las cosas se ponen difíciles.;Persistencia;Persistencia;0
 3;Cumplir lo que digo no me es posible.;Consistencia;Consistencia;1
@@ -1388,6 +1421,8 @@ window.scrollTo(0, 0);
     function calcularResultadosGlobales() {
       if (!ITEMS.length) return null;
 
+      const perfil = String(CODIGO_ACTUAL || '').toUpperCase().startsWith('PRO') ? 'PRO' : 'ESCOLAR';
+
       const subMap = new Map();
       ITEMS.forEach(q => {
         if (!subMap.has(q.subhabilidad)) {
@@ -1401,8 +1436,9 @@ window.scrollTo(0, 0);
       const subRows = Array.from(subMap.entries())
         .map(([sub, v]) => {
           const max = v.items * 3;
-          const pct = max ? Math.round((v.pts / max) * 100) : 0;
-          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct };
+          const pct_raw = max ? Math.round((v.pts / max) * 100) : 0;
+          const pct = normPct(pct_raw, perfil);
+          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct_raw };
         })
         .sort((a, b) =>
           (a.bloque || "").localeCompare(b.bloque || "") ||
@@ -1430,7 +1466,8 @@ window.scrollTo(0, 0);
       const totalItems = ITEMS.length;
       const totalPts = ITEMS.reduce((acc, q) => acc + (q.value ?? 0), 0);
       const totalMax = totalItems * 3;
-      const totalPct = totalMax ? Math.round((totalPts / totalMax) * 100) : 0;
+      const totalPct_raw = totalMax ? Math.round((totalPts / totalMax) * 100) : 0;
+      const totalPct = normPct(totalPct_raw, perfil);
 
       const directCount = ITEMS.filter(q => q.invertida === "No").length;
       const invertidasCount = ITEMS.filter(q => q.invertida === "Sí").length;
@@ -1441,7 +1478,8 @@ window.scrollTo(0, 0);
           total_items: totalItems,
           total_puntos: totalPts,
           total_max: totalMax,
-          total_pct: totalPct
+          total_pct: totalPct,
+          total_pct_raw: totalPct_raw
         },
         bloques,
         bloqPercents,
@@ -1465,6 +1503,10 @@ window.scrollTo(0, 0);
       if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
 
 const resultados = calcularResultadosGlobales();
+  // PERFIL (para baremación / recomendaciones): PRO vs ESCOLAR
+  const perfil = String(CODIGO_ACTUAL || '').toUpperCase().startsWith('PRO') ? 'PRO' : 'ESCOLAR';
+  resultados.meta = resultados.meta || {};
+  resultados.meta.perfil = perfil;
 
       const payload = {
         codigo: CODIGO_ACTUAL,
@@ -1627,5 +1669,6 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
 
 
 
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO Habitos norma PRO vs ESCOLAR + sin error (v6)</div>
 </body>
 </html>
