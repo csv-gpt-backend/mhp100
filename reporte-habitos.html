@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FReporte-habitos</title>
+<title>Reporte-habitos</title>
 <style>
 :root{--ink:#0f172a;--muted:#64748b;--line:#dbe2ea;--bg:#f8fafc}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -503,7 +503,7 @@ function marker(score){
 
 function render(data){
   const {persona,factores,igh}=parsePayload(data);
-  $("user1").innerHTML=userFields(persona); $("user2").innerHTML=userFields(persona); $("fechaTop").textContent="Fecha: "+persona.fecha;
+  if($("user1")) $("user1").innerHTML=userFields(persona); if($("user2")) $("user2").innerHTML=userFields(persona); if($("fechaTop")) $("fechaTop").textContent="Fecha: "+persona.fecha;
   const [rl]=rango(igh); $("igh").textContent=igh; $("rango").textContent=rl; $("curveTitle").textContent=`Curva de distribución de frecuencias (IGH = ${igh})`;
   const sorted=[...factores].sort((a,b)=>b.pct-a.pct), alto=sorted[0], bajo=sorted[sorted.length-1], seg=sorted[1];
   $("r1").textContent=`Índice General de Hábitos (IGH): ${igh} (${rl}).`;
@@ -530,7 +530,6 @@ function render(data){
   
   $("p2content").innerHTML = buildParte2(persona, factores, igh);
   // Evitar duplicado: ocultar el bloque de datos personales del encabezado de Parte 2 (se mantiene el punto 1)
-  try{ if($("user2")){$("user2").innerHTML="";} }catch(_e){}
 
   marker(igh);
   $("p1").style.display="block"; $("p2").style.display="block";
@@ -554,5 +553,9 @@ $("ver").onclick=cargar; $("pdf").onclick=()=>window.print();
 window.addEventListener("beforeprint", ()=> { const v=+$("igh").textContent||0; marker(v); });
 const qp = new URLSearchParams(location.search); if(qp.get("codigo")){ $("codigo").value = qp.get("codigo").toUpperCase(); }
 
-</script><div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">MARKER REP-HABITOS-PROESC-PLAN-LINKS-20260310</div>
-<div class="marker-fixed">MARKER REP-HABITOS-FINAL-20260310</div></body></html>
+</script>
+  
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">MARKER REP-HABITOS-FINAL-20260310-FIX</div>
+</body>
+</html>
+</body></html>
