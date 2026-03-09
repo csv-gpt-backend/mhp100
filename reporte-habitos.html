@@ -187,6 +187,132 @@ const n=v=>Number.isFinite(+v)?+v:0;
 const txt=v=>v==null||v===""?"—":String(v);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function rango(p){p=n(p); return p>=80?["ALTO","good"]:p>=50?["PROMEDIO","mid"]:["BAJO","low"];}
+
+function isProfesional(codigo){
+  return String(codigo||'').toUpperCase().startsWith('PRO');
+}
+function contextoEtiqueta(isPRO){
+  return isPRO ? 'PROFESIONAL' : 'ESCOLAR';
+}
+function habitoAcciones(name, lab, isPRO){
+  const ctx = isPRO ? {
+    lugar:'trabajo', grupo:'equipo', reunion:'reunión', guia:'supervisor o mentor', registro:'agenda o nota del celular'
+  } : {
+    lugar:'clase', grupo:'grupo', reunion:'clase o actividad grupal', guia:'docente u orientador', registro:'cuaderno o nota'
+  };
+  const banco = {
+    'Consistencia': {
+      'BAJO': [
+        `Durante 7 días, anotar cada mañana 1 acuerdo u obligación del día en una ${ctx.registro} y marcar con ✓ si lo cumplió antes de terminar el día.`,
+        `Dos veces por semana, avisar con una frase clara si no alcanzará a cumplir algo; decir qué parte sí hará y para cuándo la terminará.`,
+        `Una vez por semana, revisar con ${ctx.guia} una situación en la que dijo que haría algo y no lo cerró, y escribir qué paso concreto repetirá la próxima vez.`
+      ],
+      'PROMEDIO': [
+        `Durante 7 días, escribir 2 tareas concretas del día y marcar con ✓ las que sí cerró en el tiempo previsto.`,
+        `Una vez por semana, elegir una tarea pendiente pequeña y cerrarla el mismo día sin dejarla para después.`,
+        `Al final de la semana, revisar en la ${ctx.registro} qué acuerdo sí cumplió y cuál necesita ajustar.`
+      ],
+      'ALTO': [
+        `Mantener una lista corta de 2 compromisos diarios y marcar con ✓ cuando queden terminados.`,
+        `Una vez por semana, apoyar a otra persona de ${ctx.grupo} recordando un acuerdo o fecha sin hacerle la tarea.`,
+        `Revisar al final de la semana si asumió más compromisos de los que podía cumplir y tachar uno si fue exceso.`
+      ]
+    },
+    'Persistencia': {
+      'BAJO': [
+        `Elegir una tarea difícil y trabajarla 5 minutos al día durante 5 días seguidos, aunque no la termine completa.`,
+        `Dividir una tarea larga en 3 pasos y marcar con ✓ solo el primer paso el día 1, el segundo el día 2 y el tercero el día 3.`,
+        `Al final de la semana, escribir una línea con la barrera principal y otra línea con la forma en que la va a enfrentar la siguiente semana.`
+      ],
+      'PROMEDIO': [
+        `Durante 7 días, seguir una tarea hasta dejarla en un punto claro de cierre o pausa, sin cambiarla por otra a mitad del tiempo.`,
+        `Dos veces por semana, retomar una actividad difícil en el mismo punto donde la dejó y avanzar al menos 5 minutos más.`,
+        `Al cierre de la semana, contar cuántas tareas empezó y cuántas terminó; escribir el número en la ${ctx.registro}.`
+      ],
+      'ALTO': [
+        `Mantener una meta semanal concreta y revisar a mitad de semana si sigue siendo realista o necesita ajuste.`,
+        `Incluir una pausa de 5 minutos después de 25 minutos de esfuerzo para no agotarse.`,
+        `Una vez por semana, cambiar una estrategia si ve que insistir igual ya no está dando resultado.`
+      ]
+    },
+    'Prudencia': {
+      'BAJO': [
+        `Antes de responder un mensaje importante o tomar una decisión, esperar 30 segundos y revisar si entendió bien el dato principal.`,
+        `Dos veces por semana, usar esta lista corta antes de decidir: qué pasó, qué opciones tengo y qué puede salir mal.`,
+        `Cuando dude, preguntar a ${ctx.guia} una sola cosa concreta antes de actuar.`
+      ],
+      'PROMEDIO': [
+        `Una vez al día, revisar un dato importante antes de hablar o enviar una respuesta.`,
+        `Dos veces por semana, escribir en una línea la consecuencia principal de una decisión antes de tomarla.`,
+        `Al final de la semana, anotar una decisión que salió bien por haber revisado la información primero.`
+      ],
+      'ALTO': [
+        `Mantener la costumbre de revisar datos antes de decidir, pero poner un límite de tiempo de 2 minutos en decisiones simples.`,
+        `Una vez por semana, distinguir una decisión pequeña de una importante para no gastar el mismo tiempo en ambas.`,
+        `Explicar en una frase a otra persona de ${ctx.grupo} por qué eligió una opción y qué riesgo evitó.`
+      ]
+    },
+    'Cooperación': {
+      'BAJO': [
+        `Una vez por semana, pedir ayuda en una sola cosa concreta a una persona de ${ctx.grupo} y agradecer al final.`,
+        `En una ${ctx.reunion}, decir en voz alta qué parte hará usted y cuál hará la otra persona.`,
+        `Dedicar 10 minutos por semana a revisar con ${ctx.grupo} si cada quien entendió su tarea y fecha.`
+      ],
+      'PROMEDIO': [
+        `Una vez por semana, confirmar con otra persona quién hace qué y para cuándo, y dejarlo escrito en la ${ctx.registro}.`,
+        `En una actividad compartida, ofrecer una ayuda concreta de menos de 10 minutos sin asumir la tarea completa del otro.`,
+        `Al final de una ${ctx.reunion}, repetir en una frase el acuerdo principal para comprobar que todos entendieron lo mismo.`
+      ],
+      'ALTO': [
+        `Mantener un apoyo concreto al ${ctx.grupo}, pero elegir una sola ayuda por tarea para no sobrecargarse.`,
+        `Una vez por semana, preguntar a otra persona qué necesita exactamente y responder solo a esa necesidad concreta.`,
+        `Cerrar una ${ctx.reunion} con una frase simple de acuerdo: qué sigue, quién lo hará y cuándo.`
+      ]
+    }
+  };
+  return (banco[name] && banco[name][lab]) || [];
+}
+function habitoPlan(name, isPRO){
+  const ctx = isPRO ? {
+    diario:'agenda o nota del celular', espacio:'puesto de trabajo', reunion:'reunión', guia:'supervisor o mentor', contexto:'laboral'
+  } : {
+    diario:'cuaderno o nota', espacio:'mochila o escritorio', reunion:'clase o actividad grupal', guia:'docente u orientador', contexto:'escolar'
+  };
+  const banco = {
+    'Consistencia': [
+      `Día 1–2: escribir en la ${ctx.diario} una obligación pequeña que sí pueda cumplir ese día y marcar con ✓ al terminarla.`,
+      `Día 3–5: repetir la misma práctica con 2 tareas cortas por día y revisar cuál suele dejar sin cerrar.`,
+      `Día 6–7: conversar con ${ctx.guia} sobre un acuerdo que sí cumplió y otro que necesita ordenar mejor la próxima semana.`
+    ],
+    'Persistencia': [
+      `Día 1–2: elegir una tarea difícil y trabajarla 5 minutos sin cambiar a otra actividad.`,
+      `Día 3–5: dividir esa tarea en 3 pasos y cerrar solo un paso por día.`,
+      `Día 6–7: revisar qué obstáculo apareció más veces y escribir una forma concreta de enfrentarlo la semana siguiente.`
+    ],
+    'Prudencia': [
+      `Día 1–2: practicar una pausa de 30 segundos antes de responder una situación importante.`,
+      `Día 3–5: usar una lista corta antes de decidir: qué pasó, qué opciones tengo y qué consecuencia principal puede venir.`,
+      `Día 6–7: comentar con ${ctx.guia} una decisión bien tomada y otra que debió revisar mejor.`
+    ],
+    'Cooperación': [
+      `Día 1–2: decir en una ${ctx.reunion} qué parte hará usted y qué parte hará otra persona.`,
+      `Día 3–5: dedicar 10 minutos a confirmar un acuerdo compartido y dejarlo escrito.`,
+      `Día 6–7: revisar si ayudó sin sobrecargarse y ajustar una sola forma de apoyo para la siguiente semana.`
+    ]
+  };
+  return banco[name] || [];
+}
+function habitoLinks(isPRO){
+  return isPRO ? [
+    ['OMS/WHO: bienestar y salud mental en el trabajo','https://www.who.int/es/news-room/fact-sheets/detail/mental-health-at-work'],
+    ['OIT: recursos sobre bienestar laboral','https://www.ilo.org/es/topic/safety-and-health-work'],
+    ['Mind Tools: organización personal y trabajo en equipo','https://www.mindtools.com/']
+  ] : [
+    ['UNICEF: habilidades para la vida y bienestar','https://www.unicef.org/lac/habilidades-para-la-vida'],
+    ['UNESCO: recursos para aprendizaje y convivencia','https://www.unesco.org/es'],
+    ['Common Sense Education: rutinas y organización escolar','https://www.commonsense.org/education']
+  ];
+}
 function j(v){if(!v)return null; if(typeof v==="object") return v; try{return JSON.parse(v)}catch{return null}}
 function fmtDate(raw){if(!raw) return "—"; const d=new Date(raw); return isNaN(d)?String(raw):d.toLocaleDateString("es-EC");}
 function parsePayload(data){
@@ -253,7 +379,7 @@ function marker(score){
 }
 
   // --- Parte 2 (numerada) ---
-  function p2HabitBlock(idx, f, globalLowName){
+  function p2HabitBlock(idx, f, globalLowName, isPRO){
     const [lab, cls] = rango(f.pct);
     const t = TEXTS[f.name];
     const r = (lab==="BAJO" ? t.p2.bajo : (lab==="ALTO" ? t.p2.alto : t.p2.prom));
@@ -269,17 +395,14 @@ function marker(score){
     const mani = (r.mani||[]).map(x=>`<li>${x}</li>`).join("");
     const fort = (r.fort||[]).map(x=>`<li>${x}</li>`).join("");
     const ries = (r.ries||[]).map(x=>`<li>${x}</li>`).join("");
-    const rec = (r.rec||[]).map(x=>`<li>${x}</li>`).join("");
+    const rec = habitoAcciones(f.name, lab, isPRO).map(x=>`<li>${x}</li>`).join("");
 
     const includePlan = (f.name === globalLowName);
+    const planItems = includePlan ? habitoPlan(f.name, isPRO).map(x=>`<li>${x}</li>`).join("") : "";
     const plan = includePlan ? `
       <h4>3.${idx}.7 Micro‑plan de 7 días (sugerido)</h4>
-      <ul>
-        <li><b>Día 1–2:</b> Definir una meta pequeña y observable relacionada con ${title}.</li>
-        <li><b>Día 3–5:</b> Practicar la meta diariamente (2–5 minutos) y registrar evidencia concreta.</li>
-        <li><b>Día 6–7:</b> Revisar resultados, ajustar una barrera y repetir la práctica una semana más.</li>
-      </ul>
-      <p class="smallnote">Este plan es orientativo y puede adaptarse al contexto escolar o laboral.</p>
+      <ul>${planItems}</ul>
+      <p class="smallnote">Este plan está escrito para contexto ${contextoEtiqueta(isPRO).toLowerCase()} y puede ajustarse sin cambiar la meta principal.</p>
     ` : "";
 
     return `
@@ -310,6 +433,7 @@ function marker(score){
   }
 
   function buildParte2(persona, factores, igh){
+    const isPRO = isProfesional(persona.codigo);
     const [rl] = rango(igh);
     const sorted = [...factores].sort((a,b)=>b.pct-a.pct);
     const alto = sorted[0], bajo = sorted[sorted.length-1], seg = sorted[1];
@@ -326,6 +450,7 @@ function marker(score){
         <h3>2. Resumen de resultados</h3>
         <p>El Índice General de Hábitos (IGH) es <b>${igh}%</b> y se ubica en rango <b>${rl}</b>.</p>
         <p class="smallnote">Esta lectura es orientativa y describe tendencias con base en autoevaluación y referencia a un grupo normativo.</p>
+        <p class="smallnote">Contexto de acompañamiento: <b>${contextoEtiqueta(isPRO)}</b>.</p>
       </div>
     `;
 
@@ -341,7 +466,7 @@ function marker(score){
       factores.find(x=>x.name==="Persistencia"),
       factores.find(x=>x.name==="Prudencia"),
       factores.find(x=>x.name==="Cooperación")
-    ].map((f,i)=>p2HabitBlock(i+1, f, bajo.name)).join("");
+    ].map((f,i)=>p2HabitBlock(i+1, f, bajo.name, isPRO)).join("");
 
     const sec4 = `
       <div class="numsec">
@@ -352,19 +477,27 @@ function marker(score){
           <li>prioridad principal: <b>${dn(bajo.name)}</b> (${bajo.pct}%).</li>
           <li>${disp>=15 ? `Se observa una diferencia marcada entre hábitos (${disp} puntos), por lo que conviene un plan focalizado.` :
                             `El perfil es relativamente equilibrado (${disp} puntos de diferencia), favoreciendo una mejora gradual.`}</li>
-          <li>Recomendación: definir una meta conductual semanal y verificar evidencia observable de avance.</li>
+          <li>Recomendación: elegir una acción pequeña por semana, dejarla escrita y marcar con ✓ si sí la cumplió.</li>
         </ul>
       </div>
     `;
 
+    const links = habitoLinks(isPRO).map(([label,url])=>`<li><a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a></li>`).join("");
     const sec5 = `
       <div class="numsec">
         <h3>5. Nota interpretativa</h3>
-        <p class="smallnote">Los resultados se interpretan de forma de percentiles y rangos,  y describen tendencias del evaluado.</p>
+        <p class="smallnote">Los resultados se interpretan de forma de percentiles y rangos, y describen tendencias del evaluado.</p>
+      </div>
+    `;
+    const sec6 = `
+      <div class="numsec">
+        <h3>6. Vínculos de apoyo</h3>
+        <p class="smallnote">Recursos breves de consulta para reforzar hábitos en contexto ${contextoEtiqueta(isPRO).toLowerCase()}.</p>
+        <ul>${links}</ul>
       </div>
     `;
 
-    return sec1 + sec2 + sec3head + habits + sec4 + sec5;
+    return sec1 + sec2 + sec3head + habits + sec4 + sec5 + sec6;
   }
 
 function render(data){
@@ -420,5 +553,5 @@ $("ver").onclick=cargar; $("pdf").onclick=()=>window.print();
 window.addEventListener("beforeprint", ()=> { const v=+$("igh").textContent||0; marker(v); });
 const qp = new URLSearchParams(location.search); if(qp.get("codigo")){ $("codigo").value = qp.get("codigo").toUpperCase(); }
 
-</script><div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO rangos 0–49/50–79/80–100 + barras 50/80 + IGH promedio (v2)</div>
+</script><div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">MARKER REP-HABITOS-PROESC-PLAN-LINKS-20260310</div>
 </body></html>
