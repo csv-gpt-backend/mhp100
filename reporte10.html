@@ -121,7 +121,7 @@
     .skill-bar-track{position:relative;flex:1;height:12px;border-radius:999px;overflow:hidden;background:linear-gradient(to right,var(--red) 0%, var(--red) 40%,var(--orange) 40%, var(--orange) 70%,var(--green) 70%, var(--green) 100%);}
     .skill-bar-marker{position:absolute;top:-4px;bottom:-4px;width:5px;background:#000;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.78),0 1px 4px rgba(0,0,0,.35);transform:translateX(-50%);z-index:4;}
     .skill-bar-value{font-size:11px;font-weight:700;min-width:48px;text-align:right;}
-    /* MARKER CAMBIO 2026-03-09: barras reforzadas + textos puntuales en recomendaciones y plan de acción */
+    /* MARKER CAMBIO 2026-03-10: diferenciación explícita PRO vs escolar en recomendaciones y plan de acción */
 
     .recom-subtitle{font-size:12px;color:var(--muted);margin-bottom:4px;}
     .recom-list{margin:4px 0 0 14px;padding:0;font-size:12px;color:#374151;}
@@ -1531,10 +1531,47 @@ const RECOM_ESTILOS = {
   }
 };
 
+
+
+  function contextualizaTextoCodigo(s, esProfesional){
+    let t = String(s ?? "").replace(/\s+/g, " ").trim();
+    if(esProfesional){
+      t = t
+        .replace(/hogar\/aula\/orientador/gi, "casa, trabajo y acompañamiento profesional")
+        .replace(/\bclase\/reuni[oó]n\b/gi, "reunión")
+        .replace(/\bclase, casa o reuni[oó]n\b/gi, "casa, trabajo o reunión")
+        .replace(/\bdin[aá]mica de clase\b/gi, "actividad de equipo")
+        .replace(/\bjornada\/clase\b/gi, "jornada laboral")
+        .replace(/\bdocente\b/gi, "supervisor")
+        .replace(/\bcompa[ñn]ero puente\b/gi, "colega de apoyo")
+        .replace(/\bcompa[ñn]eros\b/gi, "colegas")
+        .replace(/\bcompa[ñn]ero\b/gi, "colega")
+        .replace(/\baula\b/gi, "equipo de trabajo")
+        .replace(/\bclase\b/gi, "reunión")
+        .replace(/\borientador\b/gi, "mentor")
+        .replace(/familia\/docente u otro adulto/gi, "mentor, supervisor u otra persona de apoyo")
+        .replace(/familiar, colega o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/familiar, compa[ñn]ero o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/familiar, compa[ñn]ero, supervisor, colega o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/familiar, compa[ñn]ero, docente, colega o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/tarea familiar/gi, "actividad de coordinación")
+        .replace(/casa o reuni[oó]n/gi, "casa o trabajo")
+        .replace(/en clase o reuniones/gi, "en reuniones")
+        .replace(/por clase/gi, "por reunión")
+        .replace(/clase, reuni[oó]n o conversaci[oó]n grupal/gi, "reunión o conversación grupal");
+    }else{
+      t = t.replace(/casa, trabajo y acompañamiento profesional/gi, "hogar, aula y acompañamiento profesional");
+    }
+    return t.replace(/\s{2,}/g, ' ').trim();
+  }
+
   function renderRecomendaciones(extras){
     const cont = document.getElementById("recomendaciones");
     if(!cont) return;
     cont.innerHTML = "";
+
+    const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
+    const esProfesional = codigoActual.startsWith("PRO");
 
     const header = document.createElement("div");
     header.className = "interp-bloque-header";
@@ -1543,7 +1580,9 @@ const RECOM_ESTILOS = {
 
     const sub = document.createElement("div");
     sub.className = "recom-subtitle";
-    sub.textContent = "Las siguientes acciones se priorizan según los puntajes obtenidos. El primer bloque es para la persona evaluada (qué hacer de forma práctica) y los apartados de hogar/aula/orientador indican cómo acompañar ese plan.";
+    sub.textContent = esProfesional
+      ? "Las siguientes acciones se priorizan según los puntajes obtenidos. El primer bloque es para la persona evaluada (qué hacer de forma práctica) y los apartados de casa, trabajo y acompañamiento profesional indican cómo acompañar ese plan."
+      : "Las siguientes acciones se priorizan según los puntajes obtenidos. El primer bloque es para la persona evaluada (qué hacer de forma práctica) y los apartados de hogar, aula y acompañamiento profesional indican cómo acompañar ese plan.";
     cont.appendChild(sub);
     
     const lista = document.createElement("ul");
@@ -1564,7 +1603,7 @@ const RECOM_ESTILOS = {
 
       items.forEach(txt=>{
         const li=document.createElement("li");
-        li.textContent = textoPlanClaro(txt);
+        li.textContent = contextualizaTextoCodigo(textoPlanClaro(txt), esProfesional);
         lista.appendChild(li);
       });
     };
@@ -1591,7 +1630,7 @@ const RECOM_ESTILOS = {
         const nivT = nivelFromPctInv(extras.timidezVal, true);
         (RECOM_ESTILOS.timidez[nivT] || []).forEach(txt=>{
           const li=document.createElement("li");
-          li.textContent = textoPlanClaro(txt);
+          li.textContent = contextualizaTextoCodigo(textoPlanClaro(txt), esProfesional);
           lista.appendChild(li);
         });
       }
@@ -1607,7 +1646,7 @@ const RECOM_ESTILOS = {
         const nivA = nivelFromPctInv(extras.agresionVal, true);
         (RECOM_ESTILOS.agresion[nivA] || []).forEach(txt=>{
           const li=document.createElement("li");
-          li.textContent = textoPlanClaro(txt);
+          li.textContent = contextualizaTextoCodigo(textoPlanClaro(txt), esProfesional);
           lista.appendChild(li);
         });
       }
@@ -1774,6 +1813,7 @@ cont.appendChild(lista);
       }
       t = t.replace(/\bchecklist\b/gi, "lista de verificación");
 
+      t = contextualizaTextoCodigo(t, esProfesional);
       return t.replace(/\s{2,}/g, " ").trim();
     };
 
@@ -2280,6 +2320,6 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
   })();
 </script>
 
-<div class="nexa-change-marker">MARKER REP-EMO-BARRAS-PLAN-20260309 ULT</div>
+<div class="nexa-change-marker">MARKER REP-EMO-PROESC-20260310 ULT</div>
 </body>
 </html>
