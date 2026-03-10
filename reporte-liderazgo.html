@@ -178,7 +178,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
       <div class="card">
         <div><b>Por factor</b></div>
         <table class="result">
-          <thead><tr><th>Factor</th><th>Ítems</th><th>Puntos</th><th>%</th><th>Rango</th></tr></thead>
+          <thead><tr><th>Factor</th><th>Ítems</th><th>Puntos<br><span style="font-weight:400;font-size:11px">(sobre 33)</span></th><th>%</th><th>Rango</th></tr></thead>
           <tbody id="tbodyFactores"></tbody>
         </table>
       </div>
@@ -254,9 +254,9 @@ const FACTOR_DEF = {
 
 function p2Rango(p){
   const n = Number(p)||0;
-  // Rangos alineados a la gráfica: 0–40 / 41–69 / 70–100
-  if(n <= 40) return {lab:"Por desarrollar", cls:"low"};
-  if(n <= 69) return {lab:"Por fortalecer", cls:"mid"};
+  // Rangos oficiales: 0–39 / 40–60 / 61–100
+  if(n <= 39) return {lab:"Por desarrollar", cls:"low"};
+  if(n <= 60) return {lab:"Por fortalecer", cls:"mid"};
   return {lab:"Por enriquecer", cls:"high"};
 }
 function isProfesional(codigo){
@@ -903,10 +903,10 @@ function makeBarRow(r){
   const c = categoriaClass(p);
   const slot = w => `<div class="slot ${c}"><div class="fill" style="width:${w}%"></div></div>`;
   let a=0,b=0,d=0;
-  // Rangos alineados a la tabla/rótulos: 0–40 (desarrollar), 41–69 (fortalecer), 70–100 (enriquecer)
-  if (p<=40){ a = Math.round((p/40)*100); }
-  else if (p<=69){ a = 100; b = Math.round(((p-41)/28)*100); }
-  else { a = 100; b = 100; d = Math.round(((p-70)/30)*100); }
+  // Rangos oficiales: 0–39 (desarrollar), 40–60 (fortalecer), 61–100 (enriquecer)
+  if (p<=39){ a = Math.round((p/39)*100); }
+  else if (p<=60){ a = 100; b = Math.round(((p-40)/20)*100); }
+  else { a = 100; b = 100; d = Math.round(((p-61)/39)*100); }
   return `<div class="bar-row">
     <div>${esc(r.name)}</div>
     ${slot(a)} ${slot(b)} ${slot(d)}
@@ -989,6 +989,6 @@ async function cargar(){
 $('#btn').addEventListener('click', cargar);
 $('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
 </script>
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.7;z-index:9999;">MARKER REP-LID-TEXTOS-VINCULOS-FIX-20260310</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.7;z-index:9999;">MARKER REP-LID-RANGOS-20260310</div>
 </body>
 </html>
