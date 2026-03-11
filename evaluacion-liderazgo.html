@@ -537,6 +537,8 @@ overflow-x: hidden !important;
 
 .scale-head .col-num { display: none !important; }
 
+
+.marker-fixed{position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999}
 </style>
 </head>
 <body>
@@ -571,6 +573,10 @@ overflow-x: hidden !important;
           <div class="field">
             <label for="institucion">Institución</label>
             <input id="institucion" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="pais">País</label>
+            <input id="pais" type="text" autocomplete="country-name" />
           </div>
           <div class="field">
             <label for="grupo">Grupo</label>
@@ -885,6 +891,7 @@ const STORAGE_PREFIX = "eval_lid_state_";
             institucion: state.institucion || "",
             grupo: state.grupo || "",
             curso: state.curso || "",
+            pais: state.pais || "",
             fecha: state.fecha || "",
             startTime: state.startTime || null
           }
@@ -915,6 +922,7 @@ const STORAGE_PREFIX = "eval_lid_state_";
           institucion: snap.institucion || DATOS_FIJOS.institucion,
           grupo: snap.grupo || DATOS_FIJOS.grupo,
           curso: snap.curso || DATOS_FIJOS.curso,
+          pais: snap.pais || document.getElementById("pais").value.trim(),
           fecha: snap.fecha || document.getElementById("fecha").value,
           currentPage: typeof row.current_page === "number" ? row.current_page : 0,
           responses: row.responses || {},
@@ -940,6 +948,7 @@ const STORAGE_PREFIX = "eval_lid_state_";
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
+          pais: document.getElementById("pais").value.trim(),
           fecha: document.getElementById("fecha").value,
           currentPage,
           responses: obtenerRespuestasCrudas(),
@@ -1369,6 +1378,7 @@ window.scrollTo(0, 0);
       document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
       document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
       document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
+      document.getElementById("pais").value = state.pais || "";
       if (state.fecha) document.getElementById("fecha").value = state.fecha;
 
       CODIGO_ACTUAL = state.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
@@ -1636,6 +1646,7 @@ const resultados = calcularResultadosGlobales();
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
+          pais: document.getElementById("pais").value.trim(),
           version_banco: "LID-v1"
 
         },
@@ -1796,5 +1807,5 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
 </div>
 
 <div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">MARKER LID-AFINADO-3INV-COMPACTO2-20260308</div>
-</body>
+<div class="marker-fixed">MARKER EVAL-LID-PAIS-20260311</div></body>
 </html>
