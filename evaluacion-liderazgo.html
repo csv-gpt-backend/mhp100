@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Efvaluación Factores de Liderazgo</title>
+  <title>Evaluación Factores de Liderazgo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -565,7 +565,8 @@ overflow-x: hidden !important;
           </div>
 
           <div class="field">
-            <label for="curso">Curso</label>
+            
+            <label for="curso" id="cursoLabel">Grado/Curso</label>
             <input id="curso" type="text" readonly />
           </div>
           <div class="field">
@@ -953,7 +954,12 @@ const STORAGE_PREFIX = "eval_lid_state_";
         console.warn("No se pudo guardar el progreso local:", e);
       }
     }
-
+function updateCursoLabel(){
+  const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+  const lbl = document.getElementById("cursoLabel");
+  if (!lbl) return;
+  lbl.textContent = codigo.startsWith("PRO") ? "Nivel" : "Grado/Curso";
+}
     async function lookupCodigo() {
       const codigo = codigoInput.value.trim().toUpperCase();
       codigoInput.value = codigo;
@@ -994,7 +1000,7 @@ const STORAGE_PREFIX = "eval_lid_state_";
         }
 
         CODIGO_ACTUAL = data.codigo || codigo;
-
+updateCursoLabel();
         const localState = loadStateForCurrentCode();
         if (isStateCompleted(localState)) {
           instInput.value = grupoInput.value = cursoInput.value = '';
