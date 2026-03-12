@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DReporte-habitosdl</title>
-  
+<title>RReporte-habitosdl</title>
 <style>
 :root{--ink:#0f172a;--muted:#64748b;--line:#dbe2ea;--bg:#f8fafc}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -352,8 +351,6 @@ function parsePayload(data){
   return {persona,factores,igh};
 }
 function userFields(persona){
-  const isPRO = isProfesional(persona.codigo);
-  const labelCurso = isPRO ? "Nivel" : "Grado/Curso";
   const cell = (label, value)=>`<td><b>${label}:</b> ${value}</td>`;
   // 2 rows x 3 columns (compact like reporte emocional)
   return `
@@ -361,7 +358,7 @@ function userFields(persona){
       <tr>
         ${cell("Nombre", persona.nombre)}
         ${cell("País", persona.grupo)}
-        ${cell(labelCurso, persona.curso)}
+        ${cell("Curso", persona.curso)}
       </tr>
       <tr>
         ${cell("Institución", persona.institucion)}
@@ -399,113 +396,15 @@ function marker(score){
     const mani = (r.mani||[]).map(x=>`<li>${x}</li>`).join("");
     const fort = (r.fort||[]).map(x=>`<li>${x}</li>`).join("");
     const ries = (r.ries||[]).map(x=>`<li>${x}</li>`).join("");
- const rec = habitoAcciones(f.name, lab, isPRO).map(x=>`<li>${x}</li>`).join("");
-const planItems = habitoPlan(f.name, isPRO).map(x=>`<li>${x}</li>`).join("");
+    const rec = habitoAcciones(f.name, lab, isPRO).map(x=>`<li>${x}</li>`).join("");
 
-let accionBlock = `
-  <h4>3.${idx}.6 Recomendaciones prácticas</h4>
-  <ul>${rec}</ul>
+    const planItems = habitoPlan(f.name, isPRO).map(x=>`<li>${x}</li>`).join("");
+    const plan = `
+      <h4>3.${idx}.7 Micro‑plan de 7 días (sugerido)</h4>
+      <ul>${planItems}</ul>
+      <p class="smallnote">Este plan está escrito para contexto ${contextoEtiqueta(isPRO).toLowerCase()} y puede ajustarse sin cambiar la meta principal.</p>
+    `;
 
-  <h4>3.${idx}.7 Plan práctico de 7 días</h4>
-  <ul>${planItems}</ul>
-  <p class="smallnote">Este plan está escrito para contexto ${contextoEtiqueta(isPRO).toLowerCase()} y puede ajustarse sin cambiar la meta principal.</p>
-`;
-
-if (f.name === "Consistencia") {
-  accionBlock = isPRO ? `
-    <h4>3.${idx}.6 Recomendaciones prácticas</h4>
-    <p>En Coherencia conviene trabajar acciones pequeñas, visibles y fáciles de sostener en el trabajo. La meta no es hacer muchas cosas al mismo tiempo, sino cumplir mejor lo que ya se decidió hacer y sostenerlo con constancia.</p>
-
-    <h4>3.${idx}.7 Plan práctico de 7 días</h4>
-    <p><b>Qué suele pasar:</b> A veces inicias la jornada con varias tareas, pero alguna importante queda a medias o se desplaza por pendientes más fáciles o más urgentes.</p>
-    <p><b>Qué hacer esta semana:</b> Al iniciar el día, escribe solo 2 tareas: una rápida y una importante. Antes del mediodía, revisa si ya cerraste al menos una. Al final del día, marca con ✓ lo que sí terminaste y deja escrita una sola tarea pendiente para el día siguiente.</p>
-    <p><b>Cómo notar avance:</b> Lo lograste si durante la semana cerraste al menos una tarea importante por día y dejaste menos actividades empezadas sin terminar.</p>
-    <p><b>Qué evitar:</b> Evita empezar varias tareas al mismo tiempo o dejar lo importante para “después” mientras resuelves solo lo más fácil.</p>
-    <p class="smallnote">Este plan está escrito para contexto profesional y puede ajustarse sin cambiar la meta principal.</p>
-  ` : `
-    <h4>3.${idx}.6 Recomendaciones prácticas</h4>
-    <p>En Coherencia conviene trabajar acciones pequeñas, visibles y fáciles de sostener en el estudio. La meta no es hacer muchas cosas al mismo tiempo, sino cumplir mejor lo que ya se decidió hacer y sostenerlo con constancia.</p>
-
-    <h4>3.${idx}.7 Plan práctico de 7 días</h4>
-    <p><b>Qué suele pasar:</b> A veces empiezas el día con intención de cumplir varias actividades, pero dejas una tarea a medias o cambias el orden y al final no cierras lo más importante.</p>
-    <p><b>Qué hacer esta semana:</b> Al comenzar el día, escribe solo 2 tareas: una rápida y una importante. Antes del recreo o de la mitad de la jornada, revisa si ya terminaste al menos una. Al final del día, marca con ✓ lo que sí completaste y deja escrita una sola tarea pendiente para el día siguiente.</p>
-    <p><b>Cómo notar avance:</b> Lo lograste si durante la semana terminaste al menos una tarea importante por día y dejaste menos actividades empezadas sin cerrar.</p>
-    <p><b>Qué evitar:</b> Evita empezar varias tareas al mismo tiempo o dejar lo más importante para el final mientras haces solo lo más fácil.</p>
-    <p class="smallnote">Este plan está escrito para contexto escolar y puede ajustarse sin cambiar la meta principal.</p>
-  `;
-}
-
-if (f.name === "Persistencia") {
-  accionBlock = isPRO ? `
-    <h4>3.${idx}.6 Recomendaciones prácticas</h4>
-    <p>En Perseverancia conviene trabajar la continuidad en tareas que ya fueron iniciadas. La meta no es avanzar rápido por momentos, sino sostener mejor el esfuerzo hasta cerrar lo que realmente importa en el trabajo.</p>
-
-    <h4>3.${idx}.7 Plan práctico de 7 días</h4>
-    <p><b>Qué suele pasar:</b> A veces inicias una tarea con buena intención, pero si se complica, aparece cansancio o surge otra urgencia, te cuesta retomarla y terminarla.</p>
-    <p><b>Qué hacer esta semana:</b> Elige cada día una sola tarea importante y trabaja en ella durante 10 minutos sin cambiar a otra. Si te trabas, no la dejes: escribe cuál es el siguiente paso más pequeño y avanza solo en eso. Dos veces en la semana, retoma una tarea que había quedado empezada y dedícale al menos 5 minutos.</p>
-    <p><b>Cómo notar avance:</b> Lo lograste si durante la semana retomaste tareas que habías dejado a medias y terminaste más actividades sin cambiarte rápido a otra cosa.</p>
-    <p><b>Qué evitar:</b> Evita abandonar una tarea apenas se vuelve difícil o cambiar de actividad sin dejar claro cuál era el siguiente paso.</p>
-    <p class="smallnote">Este plan está escrito para contexto profesional y puede ajustarse sin cambiar la meta principal.</p>
-  ` : `
-    <h4>3.${idx}.6 Recomendaciones prácticas</h4>
-    <p>En Perseverancia conviene trabajar la continuidad en tareas y estudios que ya fueron iniciados. La meta no es avanzar rápido por momentos, sino sostener mejor el esfuerzo hasta terminar lo importante.</p>
-
-    <h4>3.${idx}.7 Plan práctico de 7 días</h4>
-    <p><b>Qué suele pasar:</b> A veces empiezas una tarea o estudio con buena intención, pero si se complica o aparece otra cosa, te cuesta retomarlo y terminarlo.</p>
-    <p><b>Qué hacer esta semana:</b> Elige cada día una sola tarea importante y trabaja en ella durante 10 minutos sin cambiar a otra. Si te atoras, no la dejes: escribe cuál es el siguiente paso más pequeño y avanza solo en eso. Dos veces en la semana, retoma una tarea que había quedado empezada y dedícale al menos 5 minutos.</p>
-    <p><b>Cómo notar avance:</b> Lo lograste si durante la semana retomaste tareas que habías dejado a medias y terminaste más actividades sin cambiarte rápido a otra cosa.</p>
-    <p><b>Qué evitar:</b> Evita dejar una tarea apenas se pone difícil o cambiar de actividad sin dejar claro qué seguía.</p>
-    <p class="smallnote">Este plan está escrito para contexto escolar y puede ajustarse sin cambiar la meta principal.</p>
-  `;
-}
-
-if (f.name === "Prudencia") {
-  accionBlock = isPRO ? `
-    <h4>3.${idx}.6 Recomendaciones prácticas</h4>
-    <p>En Juicio conviene trabajar decisiones más claras, simples y sostenidas. La meta no es pensar demasiado cada paso, sino detenerte un poco antes de actuar para elegir mejor qué conviene hacer primero y qué resultado buscas.</p>
-
-    <h4>3.${idx}.7 Plan práctico de 7 días</h4>
-    <p><b>Qué suele pasar:</b> A veces decides rápido para salir del momento, pero luego notas que faltó revisar mejor qué era lo más importante o cuál era la mejor forma de hacerlo.</p>
-    <p><b>Qué hacer esta semana:</b> Antes de empezar una tarea importante, detente 1 minuto y responde estas 2 preguntas: “¿Qué debo resolver primero?” y “¿Cómo sabré que quedó bien?”. Una vez al día, antes de hacer algo por impulso o apuro, revisa si eso ayuda de verdad a cerrar la tarea o solo a salir del momento.</p>
-    <p><b>Cómo notar avance:</b> Lo lograste si durante la semana tomaste decisiones más claras, corregiste menos sobre la marcha y tuviste más seguridad sobre qué hacer primero.</p>
-    <p><b>Qué evitar:</b> Evita decidir apurado solo para terminar rápido o cambiar de dirección sin revisar si eso realmente mejora el resultado.</p>
-    <p class="smallnote">Este plan está escrito para contexto profesional y puede ajustarse sin cambiar la meta principal.</p>
-  ` : `
-    <h4>3.${idx}.6 Recomendaciones prácticas</h4>
-    <p>En Juicio conviene trabajar decisiones más claras, simples y sostenidas. La meta no es pensar demasiado cada paso, sino detenerte un poco antes de actuar para elegir mejor qué conviene hacer primero y cómo resolverlo.</p>
-
-    <h4>3.${idx}.7 Plan práctico de 7 días</h4>
-    <p><b>Qué suele pasar:</b> A veces actúas rápido para salir del momento, pero luego notas que faltó revisar mejor qué era lo más importante o cuál era la mejor forma de hacerlo.</p>
-    <p><b>Qué hacer esta semana:</b> Antes de empezar una tarea importante, detente 1 minuto y responde estas 2 preguntas: “¿Qué debo resolver primero?” y “¿Cómo sabré que quedó bien?”. Una vez al día, antes de hacer algo por apuro, revisa si eso ayuda a terminar mejor la tarea o solo a salir del momento.</p>
-    <p><b>Cómo notar avance:</b> Lo lograste si durante la semana tomaste decisiones más claras, corregiste menos sobre la marcha y tuviste más seguridad sobre qué hacer primero.</p>
-    <p><b>Qué evitar:</b> Evita hacer las cosas apurado solo para salir rápido o cambiar de dirección sin revisar si eso realmente mejora el resultado.</p>
-    <p class="smallnote">Este plan está escrito para contexto escolar y puede ajustarse sin cambiar la meta principal.</p>
-  `;
-}
-
-if (f.name === "Cooperación") {
-  accionBlock = isPRO ? `
-    <h4>3.${idx}.6 Recomendaciones prácticas</h4>
-    <p>En Cooperación conviene trabajar una participación más clara, disponible y constante con otras personas. La meta no es decir que sí a todo, sino aportar mejor, pedir apoyo cuando haga falta y sostener acuerdos simples de trabajo.</p>
-
-    <h4>3.${idx}.7 Plan práctico de 7 días</h4>
-    <p><b>Qué suele pasar:</b> A veces intentas resolver solo lo que podrías coordinar mejor con otros, o participas de forma irregular y eso dificulta que los acuerdos se sostengan con claridad.</p>
-    <p><b>Qué hacer esta semana:</b> Una vez al día, di con claridad qué vas a hacer, qué necesitas o qué parte ya terminaste. En una tarea compartida, confirma un acuerdo simple en una frase, por ejemplo: “yo hago esta parte hoy y te aviso cuando la termine”. Al menos dos veces en la semana, pide o brinda apoyo en algo concreto y pequeño.</p>
-    <p><b>Cómo notar avance:</b> Lo lograste si durante la semana participaste con más claridad, sostuviste mejor un acuerdo sencillo y pediste o brindaste apoyo sin esperar hasta el último momento.</p>
-    <p><b>Qué evitar:</b> Evita quedarte callado cuando necesitas aclarar algo o asumir que los demás ya entendieron sin haberlo dicho de forma simple.</p>
-    <p class="smallnote">Este plan está escrito para contexto profesional y puede ajustarse sin cambiar la meta principal.</p>
-  ` : `
-    <h4>3.${idx}.6 Recomendaciones prácticas</h4>
-    <p>En Cooperación conviene trabajar una participación más clara, disponible y constante con otras personas. La meta no es depender de todos ni decir que sí a todo, sino aportar mejor, pedir apoyo cuando haga falta y sostener acuerdos simples en clase o en trabajos compartidos.</p>
-
-    <h4>3.${idx}.7 Plan práctico de 7 días</h4>
-    <p><b>Qué suele pasar:</b> A veces intentas resolver solo lo que podrías coordinar mejor con otros, o participas de forma irregular y eso dificulta que los acuerdos se sostengan con claridad.</p>
-    <p><b>Qué hacer esta semana:</b> Una vez al día, di con claridad qué vas a hacer, qué necesitas o qué parte ya terminaste. En una tarea compartida, confirma un acuerdo simple en una frase, por ejemplo: “yo hago esta parte hoy y te aviso cuando la termine”. Al menos dos veces en la semana, pide o brinda apoyo en algo concreto y pequeño.</p>
-    <p><b>Cómo notar avance:</b> Lo lograste si durante la semana participaste con más claridad, sostuviste mejor un acuerdo sencillo y pediste o brindaste apoyo sin esperar hasta el último momento.</p>
-    <p><b>Qué evitar:</b> Evita quedarte callado cuando necesitas aclarar algo o asumir que los demás ya entendieron sin haberlo dicho de forma simple.</p>
-    <p class="smallnote">Este plan está escrito para contexto escolar y puede ajustarse sin cambiar la meta principal.</p>
-  `;
-}
     return `
       <div class="numsec">
         <h3>3.${idx} ${title}</h3>
@@ -525,9 +424,11 @@ if (f.name === "Cooperación") {
         <h4>3.${idx}.5 Riesgos o puntos ciegos</h4>
         <ul>${ries}</ul>
 
-      
-${accionBlock}
-</div>
+        <h4>3.${idx}.6 Recomendaciones prácticas</h4>
+        <ul>${rec}</ul>
+
+        ${plan}
+      </div>
     `;
   }
 
