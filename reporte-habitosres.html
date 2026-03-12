@@ -162,12 +162,11 @@ h1{margin-top:14px !important;}
     <div class="card bars"><div class="h3">Índices por hábito</div><div id="bars"></div></div>
     <div class="card"><div class="h3">Referencia breve de habilidades</div><div class="micro" id="micro"></div></div>
   </div>
-  <div class="note">Parte 1 presenta una síntesis visual del Índice General de Hábitos (IGH) y de los cuatro hábitos evaluados.</div>
+  <div class="note">Síntesis visual del Índice General de Hábitos (IGH) y de los cuatro hábitos evaluados.</div>
 </section>
 
 <section id="p2" class="sheet">
   <div class="part2top"><h3>Interpretación de Resultados</h3><div class="pill">Prueba: HÁBITOS</div></div>
-  <div class="userbox" style="margin-bottom:12px"><div id="user2"></div></div>
   <div id="p2content"></div>
 </section>
 </div>
@@ -187,6 +186,134 @@ const n=v=>Number.isFinite(+v)?+v:0;
 const txt=v=>v==null||v===""?"—":String(v);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function rango(p){p=n(p); return p>=80?["ALTO","good"]:p>=50?["PROMEDIO","mid"]:["BAJO","low"];}
+
+function isProfesional(codigo){
+  return String(codigo||'').toUpperCase().startsWith('PRO');
+}
+function contextoEtiqueta(isPRO){
+  return isPRO ? 'PROFESIONAL' : 'ESCOLAR';
+}
+function habitoAcciones(name, lab, isPRO){
+  const ctx = isPRO ? {
+    lugar:'trabajo', grupo:'equipo', reunion:'reunión', guia:'supervisor o mentor', registro:'la agenda o una nota del celular'
+  } : {
+    lugar:'clase', grupo:'grupo', reunion:'clase o actividad grupal', guia:'docente u orientador', registro:'el cuaderno o una nota'
+  };
+  const banco = {
+    'Consistencia': {
+      'BAJO': [
+        `Durante 7 días, al iniciar el día, escribir en ${ctx.registro} una sola obligación concreta, por ejemplo: responder un mensaje, entregar una tarea o ordenar materiales. Marcar con ✓ si la terminó antes de dormir.`,
+        `Dos veces por semana, cuando vea que no alcanzará a cumplir algo, avisar con esta frase: “Hoy terminaré esta parte y mañana cerraré lo que falta”. Luego escribir la nueva fecha en ${ctx.registro}.`,
+        `Una vez por semana, revisar con ${ctx.guia} una situación en la que prometió algo y no lo cerró. Escribir una sola acción para no repetirlo la semana siguiente.`
+      ],
+      'PROMEDIO': [
+        `Durante 7 días, al iniciar la mañana, escribir en ${ctx.registro} 2 tareas del día: una corta y una importante. Marcar con ✓ cada una cuando la termine.`,
+        `Una vez por semana, elegir una tarea pendiente pequeña, por ejemplo: ordenar materiales, responder un mensaje o terminar una actividad empezada, y cerrarla ese mismo día.`,
+        `Al final de la semana, revisar en ${ctx.registro} cuál tarea sí cumplió completa y cuál dejó a medias. Escribir una frase breve explicando qué ajustará la siguiente semana.`
+      ],
+      'ALTO': [
+        `Mantener una lista corta de 2 compromisos diarios en ${ctx.registro} y marcar con ✓ cuando los termine el mismo día.`,
+        `Una vez por semana, recordar a una persona de ${ctx.grupo} una fecha o acuerdo específico, por ejemplo: entrega, reunión o paso pendiente, sin hacerle la tarea.`,
+        `Al final de la semana, revisar si aceptó más compromisos de los que podía cumplir y tachar uno para dejar la carga realista la semana siguiente.`
+      ]
+    },
+    'Persistencia': {
+      'BAJO': [
+        `Elegir una tarea difícil y trabajarla 5 minutos al día durante 5 días seguidos sin cambiar a otra actividad antes de que suene la alarma.`,
+        `Dividir una tarea larga en 3 pasos. Hacer solo un paso por día y marcar con ✓ al terminar cada paso.`,
+        `Al final de la semana, escribir 2 líneas: en la primera, qué obstáculo apareció más veces; en la segunda, qué hará la próxima vez para seguir aunque cueste.`
+      ],
+      'PROMEDIO': [
+        `Durante 7 días, elegir una sola tarea por vez, trabajar en ella 10 minutos sin pasar a otra y anotar si la terminó o en qué parte quedó.`,
+        `Dos veces por semana, volver a una tarea difícil que dejó empezada, continuarla al menos 5 minutos y escribir qué parte logró avanzar.`,
+        `Al cierre de la semana, contar cuántas tareas empezó y cuántas terminó. Escribir esos dos números en ${ctx.registro}.`
+      ],
+      'ALTO': [
+        `Mantener una meta semanal concreta, por ejemplo: cerrar un pendiente, terminar una actividad o completar una entrega, y revisarla a mitad de semana para confirmar si sigue siendo realista.`,
+        `Después de 25 minutos de esfuerzo seguido, hacer una pausa de 5 minutos, tomar agua o ponerse de pie, y luego volver a la misma tarea.`,
+        `Una vez por semana, si una forma de trabajo no está funcionando, cambiar una sola cosa: el orden, el tiempo o el lugar, y anotar cuál ajuste ayudó más.`
+      ]
+    },
+    'Prudencia': {
+      'BAJO': [
+        `Antes de responder un mensaje importante o tomar una decisión, esperar 30 segundos y revisar una vez el dato principal: nombre, fecha, hora o instrucción.`,
+        `Dos veces por semana, antes de decidir, escribir en una línea estas 3 preguntas: qué pasó, qué opciones tengo y qué puede salir mal si me apresuro.`,
+        `Cuando no esté seguro, hacer una sola pregunta concreta a ${ctx.guia}, por ejemplo: “¿La fecha correcta es esta?” o “¿Debo hacerlo así?”.`
+      ],
+      'PROMEDIO': [
+        `Una vez al día, antes de hablar, enviar un mensaje o dar una respuesta, revisar una vez el dato principal para confirmar que está correcto.`,
+        `Dos veces por semana, antes de decidir algo importante, escribir una línea con esta pregunta: “Si hago esto, ¿qué puede pasar hoy o mañana?”.`,
+        `Al final de la semana, anotar una decisión que salió bien porque primero revisó la información o esperó unos segundos antes de actuar.`
+      ],
+      'ALTO': [
+        `Mantener la costumbre de revisar datos antes de decidir, pero poner un límite de 2 minutos cuando la decisión sea simple para no demorarse de más.`,
+        `Una vez por semana, separar una decisión pequeña de una importante y anotar cuál sí necesita más revisión y cuál puede resolverse rápido.`,
+        `Explicar en una frase a una persona de ${ctx.grupo} por qué eligió una opción y qué problema evitó al revisar bien los datos.`
+      ]
+    },
+    'Cooperación': {
+      'BAJO': [
+        `Una vez por semana, pedir ayuda en una sola cosa concreta a una persona de ${ctx.grupo}, por ejemplo: revisar una instrucción, ordenar materiales o confirmar una fecha, y agradecer al final.`,
+        `En una ${ctx.reunion}, decir en voz alta: “Yo haré esta parte y usted hará esta otra”. Dejarlo escrito en ${ctx.registro}.`,
+        `Dedicar 10 minutos por semana a revisar con ${ctx.grupo} si cada persona entendió qué debe hacer y para cuándo.`
+      ],
+      'PROMEDIO': [
+        `Una vez por semana, antes de empezar una actividad compartida, preguntar: “¿Quién hará esta parte y para cuándo?” y escribir la respuesta en ${ctx.registro}.`,
+        `En una actividad compartida, ayudar durante menos de 10 minutos en algo específico, por ejemplo: leer una instrucción, ordenar materiales, anotar un acuerdo o recordar el siguiente paso.`,
+        `Al final de una ${ctx.reunion}, repetir en una sola frase el acuerdo principal para comprobar que todos entendieron lo mismo.`
+      ],
+      'ALTO': [
+        `Mantener un apoyo concreto al ${ctx.grupo}, pero elegir una sola ayuda por tarea para no terminar haciendo todo usted.`,
+        `Una vez por semana, preguntar a otra persona qué necesita exactamente y responder solo a esa necesidad concreta, por ejemplo: explicar un paso, revisar una fecha o anotar un acuerdo.`,
+        `Cerrar una ${ctx.reunion} con una frase simple: qué sigue, quién lo hará y para cuándo. Dejarlo escrito si hace falta.`
+      ]
+    }
+  };
+  return (banco[name] && banco[name][lab]) || [];
+}
+
+function habitoPlan(name, isPRO){
+  const ctx = isPRO ? {
+    diario:'agenda o nota del celular', espacio:'puesto de trabajo', reunion:'reunión', guia:'supervisor o mentor', contexto:'laboral'
+  } : {
+    diario:'el cuaderno o una nota', espacio:'mochila o escritorio', reunion:'clase o actividad grupal', guia:'docente u orientador', contexto:'escolar'
+  };
+  const banco = {
+    'Consistencia': [
+      `Día 1–2: escribir en ${ctx.diario} una obligación pequeña que sí pueda cumplir ese día, por ejemplo: ordenar ${ctx.espacio}, responder un mensaje o terminar una tarea corta. Marcar con ✓ al terminarla.`,
+      `Día 3–5: repetir la misma práctica con 2 tareas cortas por día: una rápida y una importante. Marcar con ✓ cada una y encerrar en un círculo la que dejó sin cerrar.`,
+      `Día 6–7: conversar con ${ctx.guia} sobre un acuerdo que sí cumplió y otro que dejó a medias. Escribir una acción concreta para ordenarlo mejor la próxima semana.`
+    ],
+    'Persistencia': [
+      `Día 1–2: elegir una tarea difícil y trabajarla 5 minutos seguidos sin mirar otra actividad, otra pestaña o el celular. Si se distrae, volver a la misma tarea y contar desde 1 otra vez.`,
+      `Día 3–5: dividir esa tarea en 3 pasos y cerrar solo un paso por día. Escribir los 3 pasos en ${ctx.diario} y marcar con ✓ el paso terminado cada día.`,
+      `Día 6–7: revisar qué obstáculo apareció más veces, por ejemplo: cansancio, celular o cambio de tarea. Escribir una frase con la acción concreta que usará la próxima semana, como “pondré alarma 5 minutos y dejaré el celular boca abajo”.`
+    ],
+    'Prudencia': [
+      `Día 1–2: antes de responder un mensaje, tomar una decisión o dar una indicación, hacer una pausa de 30 segundos y revisar un dato principal: nombre, fecha, hora o instrucción.`,
+      `Día 3–5: usar una lista corta antes de decidir. Escribir en ${ctx.diario}: “qué pasó”, “qué opciones tengo” y “qué puede salir mal si me apresuro”. Completar esas 3 líneas en 2 decisiones de la semana.`,
+      `Día 6–7: comentar con ${ctx.guia} una decisión que salió bien por revisar antes y otra que debió pensar mejor. Escribir una sola mejora para repetir la próxima semana.`
+    ],
+    'Cooperación': [
+      `Día 1–2: en una ${ctx.reunion}, decir una frase concreta: “Yo haré esta parte y usted hará esta otra”. Si es necesario, escribir el acuerdo en ${ctx.diario}.`,
+      `Día 3–5: dedicar 10 minutos a confirmar un acuerdo compartido. Preguntar quién hará qué, para cuándo y dejarlo escrito en ${ctx.diario} con nombre y fecha.`,
+      `Día 6–7: revisar si ayudó sin cargar con todo. Escribir una ayuda concreta que sí mantendrá la próxima semana, por ejemplo: leer una instrucción, anotar un acuerdo o recordar una fecha.`
+    ]
+  };
+  return banco[name] || [];
+}
+
+function habitoLinks(isPRO){
+  return isPRO ? [
+    ['OMS/WHO: bienestar y salud mental en el trabajo','https://www.who.int/es/news-room/fact-sheets/detail/mental-health-at-work'],
+    ['OIT: recursos sobre bienestar laboral','https://www.ilo.org/es/topic/safety-and-health-work'],
+    ['Mind Tools: organización personal y trabajo en equipo','https://www.mindtools.com/']
+  ] : [
+    ['UNICEF: habilidades para la vida y bienestar','https://www.unicef.org/lac/habilidades-para-la-vida'],
+    ['UNESCO: recursos para aprendizaje y convivencia','https://www.unesco.org/es'],
+    ['Common Sense Education: rutinas y organización escolar','https://www.commonsense.org/education']
+  ];
+}
 function j(v){if(!v)return null; if(typeof v==="object") return v; try{return JSON.parse(v)}catch{return null}}
 function fmtDate(raw){if(!raw) return "—"; const d=new Date(raw); return isNaN(d)?String(raw):d.toLocaleDateString("es-EC");}
 function parsePayload(data){
@@ -224,14 +351,15 @@ function parsePayload(data){
   return {persona,factores,igh};
 }
 function userFields(persona){
+  const isPRO = isProfesional(persona.codigo);
+  const labelCurso = isPRO ? "Nivel" : "Grado/Curso";
   const cell = (label, value)=>`<td><b>${label}:</b> ${value}</td>`;
-  // 2 rows x 3 columns (compact like reporte emocional)
   return `
     <table class="userTbl">
       <tr>
         ${cell("Nombre", persona.nombre)}
-        ${cell("Grupo", persona.grupo)}
-        ${cell("Curso", persona.curso)}
+        ${cell("País", persona.grupo)}
+        ${cell(labelCurso, persona.curso)}
       </tr>
       <tr>
         ${cell("Institución", persona.institucion)}
@@ -241,11 +369,11 @@ function userFields(persona){
     </table>
   `;
 }
-function marker(score){
+  function marker(score){
   const img=$("curveImg"), mk=$("marker"), wrap=$("curveWrap"); if(!img||!mk||!wrap) return;
   const place=()=>{
     const ir=img.getBoundingClientRect(), wr=wrap.getBoundingClientRect(); if(!ir.width||!ir.height) return;
-    const padL=.18, padR=.24; const x=ir.width*(padL+(clamp(score,0,100)/100)*(1-padL-padR));
+    const padL=.16, padR=.28; const x=ir.width*(padL+(clamp(score,0,100)/100)*(1-padL-padR));
     const bottomAt0=76,bottomAt100=44; const bottomPx=ir.height*((bottomAt0+(bottomAt100-bottomAt0)*(clamp(score,0,100)/100))/100);
     mk.style.left=(x+(ir.left-wr.left))+"px"; mk.style.top=(ir.height-bottomPx+(ir.top-wr.top))+"px";
   };
@@ -253,7 +381,7 @@ function marker(score){
 }
 
   // --- Parte 2 (numerada) ---
-  function p2HabitBlock(idx, f, globalLowName){
+  function p2HabitBlock(idx, f, globalLowName, isPRO){
     const [lab, cls] = rango(f.pct);
     const t = TEXTS[f.name];
     const r = (lab==="BAJO" ? t.p2.bajo : (lab==="ALTO" ? t.p2.alto : t.p2.prom));
@@ -261,7 +389,7 @@ function marker(score){
     const chips = `
       <div class="badgeRow">
         <span class="badge ${cls}">Rango: ${lab}</span>
-        <span class="badge">Puntaje: ${f.pct}%</span>
+        <span class="badge">Puntaje: ${f.pct}</span>
         ${f.pts!=null?`<span class="badge">Puntos: ${f.pts}${f.max?` / ${f.max}`:""}</span>`:""}
         ${f.items!=null?`<span class="badge">Ítems: ${f.items}</span>`:""}
       </div>
@@ -269,18 +397,14 @@ function marker(score){
     const mani = (r.mani||[]).map(x=>`<li>${x}</li>`).join("");
     const fort = (r.fort||[]).map(x=>`<li>${x}</li>`).join("");
     const ries = (r.ries||[]).map(x=>`<li>${x}</li>`).join("");
-    const rec = (r.rec||[]).map(x=>`<li>${x}</li>`).join("");
+    const rec = habitoAcciones(f.name, lab, isPRO).map(x=>`<li>${x}</li>`).join("");
 
-    const includePlan = (f.name === globalLowName);
-    const plan = includePlan ? `
+    const planItems = habitoPlan(f.name, isPRO).map(x=>`<li>${x}</li>`).join("");
+    const plan = `
       <h4>3.${idx}.7 Micro‑plan de 7 días (sugerido)</h4>
-      <ul>
-        <li><b>Día 1–2:</b> Definir una meta pequeña y observable relacionada con ${title}.</li>
-        <li><b>Día 3–5:</b> Practicar la meta diariamente (2–5 minutos) y registrar evidencia concreta.</li>
-        <li><b>Día 6–7:</b> Revisar resultados, ajustar una barrera y repetir la práctica una semana más.</li>
-      </ul>
-      <p class="smallnote">Este plan es orientativo y puede adaptarse al contexto escolar o laboral.</p>
-    ` : "";
+      <ul>${planItems}</ul>
+      <p class="smallnote">Este plan está escrito para contexto ${contextoEtiqueta(isPRO).toLowerCase()} y puede ajustarse sin cambiar la meta principal.</p>
+    `;
 
     return `
       <div class="numsec">
@@ -310,6 +434,7 @@ function marker(score){
   }
 
   function buildParte2(persona, factores, igh){
+    const isPRO = isProfesional(persona.codigo);
     const [rl] = rango(igh);
     const sorted = [...factores].sort((a,b)=>b.pct-a.pct);
     const alto = sorted[0], bajo = sorted[sorted.length-1], seg = sorted[1];
@@ -324,8 +449,9 @@ function marker(score){
     const sec2 = `
       <div class="numsec">
         <h3>2. Resumen de resultados</h3>
-        <p>El Índice General de Hábitos (IGH) es <b>${igh}%</b> y se ubica en rango <b>${rl}</b>.</p>
+        <p>El Índice General de Hábitos (IGH) es <b>${igh}</b> y se ubica en rango <b>${rl}</b>.</p>
         <p class="smallnote">Esta lectura es orientativa y describe tendencias con base en autoevaluación y referencia a un grupo normativo.</p>
+        <p class="smallnote">Contexto de acompañamiento: <b>${contextoEtiqueta(isPRO)}</b>.</p>
       </div>
     `;
 
@@ -341,45 +467,53 @@ function marker(score){
       factores.find(x=>x.name==="Persistencia"),
       factores.find(x=>x.name==="Prudencia"),
       factores.find(x=>x.name==="Cooperación")
-    ].map((f,i)=>p2HabitBlock(i+1, f, bajo.name)).join("");
+    ].map((f,i)=>p2HabitBlock(i+1, f, bajo.name, isPRO)).join("");
 
     const sec4 = `
       <div class="numsec">
         <h3>4. Síntesis general y área prioritaria de desarrollo</h3>
         <ul>
-          <li>Perfil global: <b>${rl}</b> (IGH = ${igh}%).</li>
-          <li>Fortaleza principal: <b>${dn(alto.name)}</b> (${alto.pct}%). ${seg?`También destaca <b>${dn(seg.name)}</b> (${seg.pct}%).`:""}</li>
-          <li>prioridad principal: <b>${dn(bajo.name)}</b> (${bajo.pct}%).</li>
+          <li>Perfil global: <b>${rl}</b> (IGH = ${igh}).</li>
+          <li>Fortaleza principal: <b>${dn(alto.name)}</b> (${alto.pct}). ${seg?`También destaca <b>${dn(seg.name)}</b> (${seg.pct}).`:""}</li>
+          <li>prioridad principal: <b>${dn(bajo.name)}</b> (${bajo.pct}).</li>
           <li>${disp>=15 ? `Se observa una diferencia marcada entre hábitos (${disp} puntos), por lo que conviene un plan focalizado.` :
                             `El perfil es relativamente equilibrado (${disp} puntos de diferencia), favoreciendo una mejora gradual.`}</li>
-          <li>Recomendación: definir una meta conductual semanal y verificar evidencia observable de avance.</li>
+          <li>Recomendación: elegir una acción pequeña por semana, dejarla escrita y marcar con ✓ si sí la cumplió.</li>
         </ul>
       </div>
     `;
 
+    const links = habitoLinks(isPRO).map(([label,url])=>`<li><a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a></li>`).join("");
     const sec5 = `
       <div class="numsec">
         <h3>5. Nota interpretativa</h3>
-        <p class="smallnote">Los resultados se interpretan de forma de percentiles y rangos,  y describen tendencias del evaluado.</p>
+        <p class="smallnote">Los resultados se interpretan de forma de percentiles y rangos, y describen tendencias del evaluado.</p>
+      </div>
+    `;
+    const sec6 = `
+      <div class="numsec">
+        <h3>6. Vínculos de apoyo</h3>
+        <p class="smallnote">Recursos breves de consulta para reforzar hábitos en contexto ${contextoEtiqueta(isPRO).toLowerCase()}.</p>
+        <ul>${links}</ul>
       </div>
     `;
 
-    return sec1 + sec2 + sec3head + habits + sec4 + sec5;
+    return sec1 + sec2 + sec3head + habits + sec4 + sec5 + sec6;
   }
 
 function render(data){
   const {persona,factores,igh}=parsePayload(data);
-  $("user1").innerHTML=userFields(persona); $("user2").innerHTML=userFields(persona); $("fechaTop").textContent="Fecha: "+persona.fecha;
+  if($("user1")) $("user1").innerHTML=userFields(persona); if($("user2")) $("user2").innerHTML=userFields(persona); if($("fechaTop")) $("fechaTop").textContent="Fecha: "+persona.fecha;
   const [rl]=rango(igh); $("igh").textContent=igh; $("rango").textContent=rl; $("curveTitle").textContent=`Curva de distribución de frecuencias (IGH = ${igh})`;
   const sorted=[...factores].sort((a,b)=>b.pct-a.pct), alto=sorted[0], bajo=sorted[sorted.length-1], seg=sorted[1];
-  $("r1").textContent=`Índice General de Hábitos (IGH): ${igh}% (${rl}).`;
-  $("r2").textContent=`Fortaleza principal observada: ${dn(alto.name)} (${alto.pct}%). ${seg?`También destaca ${dn(seg.name)} (${seg.pct}%).`:""}`;
-  $("r3").textContent=`Hábito a fortalecer prioritariamente: ${dn(bajo.name)} (${bajo.pct}%). La Parte 2 profundiza la interpretación y sugerencias de mejora.`;
-  $("qPerfil").textContent=`${rl} (${igh}%)`; $("qAlto").textContent=`${dn(alto.name)} (${alto.pct}%)`; $("qBajo").textContent=`${dn(bajo.name)} (${bajo.pct}%)`;
+  $("r1").textContent=`Índice General de Hábitos (IGH): ${igh} (${rl}).`;
+  $("r2").textContent=`Fortaleza principal observada: ${dn(alto.name)} (${alto.pct}). ${seg?`También destaca ${dn(seg.name)} (${seg.pct}).`:""}`;
+  $("r3").textContent=`Hábito a fortalecer prioritariamente: ${dn(bajo.name)} (${bajo.pct}). La Parte 2 profundiza la interpretación y sugerencias de mejora.`;
+  $("qPerfil").textContent=`${rl} (${igh})`; $("qAlto").textContent=`${dn(alto.name)} (${alto.pct})`; $("qBajo").textContent=`${dn(bajo.name)} (${bajo.pct})`;
 
   $("bars").innerHTML=factores.map(f=>{
     const [lab]=rango(f.pct);
-    return `<div class="bar"><div class="bh"><span>${dn(f.name).toUpperCase()}</span><span>${f.pct}% · ${lab}</span></div><div class="track"><div class="fill" style="width:${f.pct}%"></div><div class="dot" style="left:${f.pct}%"></div></div><div class="scale"><span>BAJO</span><span>PROMEDIO</span><span>ALTO</span></div></div>`;
+    return `<div class="bar"><div class="bh"><span>${dn(f.name).toUpperCase()}</span><span>${f.pct} · ${lab}</span></div><div class="track"><div class="fill" style="width:${f.pct}%"></div><div class="dot" style="left:${f.pct}%"></div></div><div class="scale"><span>BAJO</span><span>PROMEDIO</span><span>ALTO</span></div></div>`;
   }).join("");
 
   $("micro").innerHTML=ORDER.map(name=>{
@@ -396,7 +530,6 @@ function render(data){
   
   $("p2content").innerHTML = buildParte2(persona, factores, igh);
   // Evitar duplicado: ocultar el bloque de datos personales del encabezado de Parte 2 (se mantiene el punto 1)
-  try{ if($("user2")){$("user2").innerHTML="";} }catch(_e){}
 
   marker(igh);
   $("p1").style.display="block"; $("p2").style.display="block";
@@ -420,5 +553,4 @@ $("ver").onclick=cargar; $("pdf").onclick=()=>window.print();
 window.addEventListener("beforeprint", ()=> { const v=+$("igh").textContent||0; marker(v); });
 const qp = new URLSearchParams(location.search); if(qp.get("codigo")){ $("codigo").value = qp.get("codigo").toUpperCase(); }
 
-</script><div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO rangos 0–49/50–79/80–100 + barras 50/80 + IGH promedio (v2)</div>
-</body></html>
+</script>
