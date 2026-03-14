@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title> LUN 3 MAR 17 26 Evaluación de Integridad</title>
+  <title>ESTA FUNCIONANDO PERFECTO VIERNES 6 MARZO 23 HEvaluación de Integridad</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1451,7 +1451,12 @@ function calcularResultadosGlobales() {
   const ivLex = subRows.length ? Math.round(subRows.reduce((s,r)=>s+r.pctLex,0)/subRows.length) : 0;
 
   return {
-    globales: { IVI: ivLex, IVI_BRUTO: ivBruto },
+    globales: (()=>{
+      const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
+      const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
+      const iv3Cat = (mins >= 20 && mins <= 30) ? 0 : (mins < 20 ? 1 : 2);
+      return { IVI: ivLex, IVI_BRUTO: ivBruto, IV1: (iv1Cat ?? 0), IV2: (iv2Cat ?? 0), IV3: iv3Cat, TIEMPO_MIN: mins };
+    })(),
     subhabilidades: subRows
   };
 }
