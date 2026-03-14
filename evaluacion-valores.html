@@ -563,7 +563,7 @@ overflow-x: hidden !important;
           </div>
 
           <div class="field">
-            <label for="curso">Curso</label>
+<label for="curso" id="labelCurso">Grado/Curso</label>
             <input id="curso" type="text" readonly />
           </div>
           <div class="field">
@@ -830,12 +830,17 @@ let __startTime = Date.now();
     const STORAGE_PREFIX = "eval_ie_state_";
 
     const codigoInput = document.getElementById('codigo');
-    const instInput   = document.getElementById('institucion');
-    const grupoInput  = document.getElementById('grupo');
-    const cursoInput  = document.getElementById('curso');
-    const btnIniciar  = document.getElementById('btnIniciar');
-    const codigoMsg   = document.getElementById('codigoMsg');
-
+const instInput   = document.getElementById('institucion');
+const grupoInput  = document.getElementById('grupo');
+const cursoInput  = document.getElementById('curso');
+const labelCurso  = document.getElementById('labelCurso');
+const btnIniciar  = document.getElementById('btnIniciar');
+const codigoMsg   = document.getElementById('codigoMsg');
+    function actualizarLabelCurso(codigo = '') {
+  const limpio = String(codigo || '').trim().toUpperCase();
+  if (!labelCurso) return;
+  labelCurso.textContent = limpio.startsWith('PRO') ? 'Nivel' : 'Grado/Curso';
+}
     function getStorageKey() {
       const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
       return codigo ? STORAGE_PREFIX + codigo : null;
@@ -1021,9 +1026,10 @@ let __startTime = Date.now();
       }
     }
 
-    codigoInput.addEventListener('input', () => {
-      codigoInput.value = codigoInput.value.toUpperCase();
-    });
+   codigoInput.addEventListener('input', () => {
+  codigoInput.value = codigoInput.value.toUpperCase();
+  actualizarLabelCurso(codigoInput.value);
+});
     codigoInput.addEventListener('blur', lookupCodigo);
     codigoInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); lookupCodigo(); }
