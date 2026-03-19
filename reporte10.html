@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>FInteligencia Emocional – Reporte</title>
+  <title>Inteligencia Emocional – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -2350,14 +2350,15 @@ const pack = PLAN_ACCION_NIVEL[f.key]?.[f.nivel]?.[perfilPlan];
     const apoyo = [];
 
     focos.forEach(f=>{
-      const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel];
+const perfilRol = esProfesional ? "pro" : "esc";
+const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
       if(!pack) return;
 
       const keyDisp = (f.key === "AGRESION") ? "AGRESIÓN" : (f.key === "VINCULOS INTERPERSONALES") ? "VÍNCULOS INTERPERSONALES" : f.key;
 
       // Agregamos 1–2 acciones por foco y rol (para que no sea infinito)
       (pack.hogar || []).slice(0,2).forEach(x => hogar.push({ grp: keyDisp, txt: x }));
-      (pack.aula  || []).slice(0,2).forEach(x => aula.push({ grp: keyDisp, txt: x }));
+(pack[esProfesional ? "trabajo" : "aula"] || []).slice(0,2).forEach(x => aula.push({ grp: keyDisp, txt: x }));
       (pack.apoyo || []).slice(0,2).forEach(x => apoyo.push({ grp: keyDisp, txt: x }));
     });
 
