@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>FEvaluación Mapa de Preferencias de Aprendizaje</title>
+  <title>FFEvaluación Mapa de Preferencias de Aprendizaje</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1194,30 +1194,6 @@ function updateScaleBadgesForPage(startIdx){
       if (l3) l3.textContent = labels[2].toUpperCase();
     }
 
-function updateProgress() {
-      const total = ITEMS.length || 0;
-      const answered = ITEMS.filter(q => q.value != null).length;
-      const pct = total ? Math.round((answered / total) * 100) : 0;
-
-      const bar = document.getElementById("bar");
-      if (bar) bar.style.width = pct + "%";
-
-      const pillTotal = document.getElementById("pillTotal");
-      if (pillTotal) pillTotal.textContent = `Total: ${answered} / ${total} (${pct}%)`;
-
-      const notaContinuar = document.getElementById("notaContinuar");
-      if (notaContinuar) {
-        const start = currentPage * PAGE_SIZE;
-        const end = Math.min(start + PAGE_SIZE, total);
-        let answeredPage = 0;
-        for (let i = start; i < end; i++) if (ITEMS[i] && ITEMS[i].value != null) answeredPage++;
-        notaContinuar.textContent = `NOTA: Para continuar debes contestar todas las preguntas. Contestadas: ${answeredPage}/${end - start}.`;
-      }
-
-      const metaInfo = document.getElementById("metaInfo");
-      if (metaInfo) metaInfo.textContent = `Página ${currentPage + 1} de ${Math.max(1, Math.ceil(total / PAGE_SIZE))}`;
-    }
-
 function renderPage() {
       const cont = document.getElementById("questions");
       cont.innerHTML = "";
@@ -1399,16 +1375,14 @@ function calcularResultadosGlobales() {
 
   const componentes = {};
   Object.entries(MPA_MATRIX.componentes).forEach(([key, comp]) => {
-    const raws = comp.items.map(itemNum => {
-      const q = ITEMS.find(x => x.id === itemNum);
-      return Number(q?.value || 0);
-    });
+    const preguntasComp = ITEMS.filter(q => q.componente === key);
+    const raws = preguntasComp.map(q => Number(q?.value || 0));
     const raw = raws.reduce((acc, v) => acc + v, 0);
     const pct = rawToPctMPA(raw);
     componentes[key] = {
       area: comp.area,
       label: comp.label,
-      items: comp.items.slice(),
+      items: preguntasComp.map(q => q.id),
       raw,
       pct,
       rango: rangoMPA(pct)
