@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>FEvaluación Mapa de Preferencias de Aprendizaje</title>
+  <title>DDEvaluación Mapa de Preferencias de Aprendizaje</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1146,9 +1146,24 @@ function construirPreguntas() {
 }
 
 function rawToPctMPA(raw) {
-  const min = 5, max = 15;
   if (raw == null || Number.isNaN(raw)) return 0;
-  return Math.round(((raw - min) / (max - min)) * 100);
+  const RAW_TO_PCT_5_ITEMS = {
+    5: 0,
+    6: 3,
+    7: 9,
+    8: 21,
+    9: 40,
+    10: 61,
+    11: 79,
+    12: 91,
+    13: 97,
+    14: 99,
+    15: 100
+  };
+  const key = Math.round(Number(raw));
+  if (RAW_TO_PCT_5_ITEMS[key] != null) return RAW_TO_PCT_5_ITEMS[key];
+  const min = 5, max = 15;
+  return Math.round(((Number(raw) - min) / (max - min)) * 100);
 }
 
 function rangoMPA(pct) {
