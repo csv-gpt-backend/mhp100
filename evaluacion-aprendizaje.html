@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>FFEvaluación Mapa de Preferencias de Aprendizaje</title>
+  <title>GGGEvaluación Mapa de Preferencias de Aprendizaje</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1194,6 +1194,21 @@ function updateScaleBadgesForPage(startIdx){
       if (l3) l3.textContent = labels[2].toUpperCase();
     }
 
+
+function updateProgress() {
+  const total = ITEMS.length || 0;
+  let answered = 0;
+  for (const q of ITEMS) {
+    const v = responses[String(q.item)] ?? responses[q.item];
+    if (v !== undefined && v !== null && v !== "") answered++;
+  }
+  const pct = total ? Math.round((answered / total) * 100) : 0;
+  const bar = document.getElementById("bar");
+  const pill = document.getElementById("pillTotal");
+  if (bar) bar.style.width = pct + "%";
+  if (pill) pill.textContent = `Total: ${answered} / ${total} (${pct}%)`;
+}
+
 function renderPage() {
       const cont = document.getElementById("questions");
       cont.innerHTML = "";
@@ -1375,14 +1390,16 @@ function calcularResultadosGlobales() {
 
   const componentes = {};
   Object.entries(MPA_MATRIX.componentes).forEach(([key, comp]) => {
-    const preguntasComp = ITEMS.filter(q => q.componente === key);
-    const raws = preguntasComp.map(q => Number(q?.value || 0));
+    const raws = comp.items.map(itemNum => {
+      const q = ITEMS.find(x => x.id === itemNum);
+      return Number(q?.value || 0);
+    });
     const raw = raws.reduce((acc, v) => acc + v, 0);
     const pct = rawToPctMPA(raw);
     componentes[key] = {
       area: comp.area,
       label: comp.label,
-      items: preguntasComp.map(q => q.id),
+      items: comp.items.slice(),
       raw,
       pct,
       rango: rangoMPA(pct)
