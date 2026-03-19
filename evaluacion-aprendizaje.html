@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>SEvaluación Mapa de Preferencias de Aprendizaje</title>
+  <title>FEvaluación Mapa de Preferencias de Aprendizaje</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1196,19 +1196,32 @@ function updateScaleBadgesForPage(startIdx){
 
 
 function updateProgress() {
-  const total = ITEMS.length || 0;
-  const responses = obtenerRespuestasCrudas();
-  let answered = 0;
+  const totalAll = ITEMS.length || 0;
+  const respuestas = obtenerRespuestasCrudas();
+  let answeredAll = 0;
   for (const q of ITEMS) {
     const key = String(q.id ?? q.item);
-    const v = responses[key];
-    if (v !== undefined && v !== null && v !== "") answered++;
+    const v = respuestas[key];
+    if (v !== undefined && v !== null && v !== "") answeredAll++;
   }
-  const pct = total ? Math.round((answered / total) * 100) : 0;
+
+  const start = currentPage * PAGE_SIZE;
+  const end = Math.min(start + PAGE_SIZE, totalAll);
+  const totalPage = Math.max(0, end - start);
+  let answeredPage = 0;
+  for (let i = start; i < end; i++) {
+    if (ITEMS[i] && ITEMS[i].value != null) answeredPage++;
+  }
+
+  const pct = totalAll ? Math.round((answeredAll / totalAll) * 100) : 0;
   const bar = document.getElementById("bar");
   const pill = document.getElementById("pillTotal");
+  const nota = document.getElementById("notaContinuar");
+  const meta = document.getElementById("metaInfo");
   if (bar) bar.style.width = pct + "%";
-  if (pill) pill.textContent = `Total: ${answered} / ${total} (${pct}%)`;
+  if (pill) pill.textContent = `Total: ${answeredAll} / ${totalAll} (${pct}%)`;
+  if (nota) nota.textContent = `NOTA: Para continuar debes contestar todas las preguntas. Contestadas: ${answeredPage}/${totalPage}.`;
+  if (meta) meta.textContent = `Página ${currentPage + 1} · ${answeredPage}/${totalPage}`;
 }
 
 function renderPage() {
@@ -1392,33 +1405,30 @@ function calcularResultadosGlobales() {
 
   const componentes = {};
   Object.entries(MPA_MATRIX.componentes).forEach(([key, comp]) => {
-    const raws = comp.items.map(itemNum => {
-      const q = ITEMS.find(x => x.id === itemNum);
-      return Number(q?.value || 0);
-    });
-    const raw = raws.reduce((acc, v) => acc + v, 0);
+    const qs = ITEMS.filter(q => q.componente === key);
+    const raw = qs.reduce((acc, q) => acc + Number(q.value || 0), 0);
     const pct = rawToPctMPA(raw);
     componentes[key] = {
       area: comp.area,
       label: comp.label,
-      items: comp.items.slice(),
       raw,
       pct,
-      rango: rangoMPA(pct)
+      rango: rangoMPA(pct),
+      total_items: qs.length
     };
   });
 
   const areas = {};
   Object.entries(MPA_MATRIX.areas).forEach(([areaKey, areaObj]) => {
-    const comps = areaObj.componentes.map(k => componentes[k]);
+    const comps = Object.entries(componentes).filter(([_, c]) => c.area === areaKey).map(([_, c]) => c);
     const raw = comps.length ? Number((comps.reduce((acc, c) => acc + c.raw, 0) / comps.length).toFixed(2)) : 0;
     const pct = comps.length ? Math.round(comps.reduce((acc, c) => acc + c.pct, 0) / comps.length) : 0;
     areas[areaKey] = {
       label: areaObj.label,
-      componentes: areaObj.componentes.slice(),
       raw,
       pct,
-      rango: rangoMPA(pct)
+      rango: rangoMPA(pct),
+      total_componentes: comps.length
     };
   });
 
