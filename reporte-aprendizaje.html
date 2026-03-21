@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Mapa de Preferencias de Aprendizaje – Reporte</title>
+  <title>YMapa de Preferencias de Aprendizaje – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
       --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757; --blue:#2563eb;
+      --silver-1:#eef2f5; --silver-2:#d9e0e7; --silver-3:#bfc8d2; --silver-4:#8c97a6; --silver-5:#667285;
     }
     html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#fff;color:var(--ink);min-height:100vh}
     .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
@@ -39,11 +40,17 @@
     .area-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .area-card{border:1px solid var(--line);border-radius:14px;background:var(--soft);padding:10px}
     .area-card h3{font-size:15px;margin:0 0 6px 0}
-    .badge{display:inline-block;background:var(--yellow);padding:2px 10px;border-radius:999px;font-weight:800}
+    .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:800;border:1px solid var(--silver-3)}
+    .badge.pref-low{background:var(--silver-1);color:#4b5563;border-color:#d7dde5}
+    .badge.pref-med{background:var(--silver-2);color:#334155;border-color:#c4ccd6}
+    .badge.pref-high{background:linear-gradient(90deg,#d7dde4,#b8c2ce);color:#111827;border-color:#adb8c5}
     .bar{margin:10px 0}
     .bar .head{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;margin-bottom:4px}
     .track{height:14px;border-radius:999px;background:#eef2f7;position:relative;overflow:hidden}
     .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#cbd5e1,#64748b)}
+    .fill.pref-low{background:linear-gradient(90deg,#e4e9ee,#b7c0cb)}
+    .fill.pref-med{background:linear-gradient(90deg,#d5dce4,#8996a7)}
+    .fill.pref-high{background:linear-gradient(90deg,#c5ced8,#5f6d82)}
     .comp-group{border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:10px;background:#fff}
     .comp-group h3{margin:0 0 8px 0;font-size:16px}
     .interp-box,.recom-box,.ctx-box{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;margin-top:10px}
@@ -95,8 +102,9 @@
             <div class="curve-gauge">
               <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución" style="width:100%;height:220px;object-fit:contain;display:block;"/>
               <div id="curveMarker" aria-hidden="true" style="position:absolute; left:50%; bottom:26px; width:0; height:0; z-index:3; pointer-events:none;">
-                <svg width="30" height="54" viewBox="0 0 18 32" xmlns="http://www.w3.org/2000/svg" style="display:block; transform:translate(-15px,0);">
-                  <polygon points="9,1 17,9 17,23 9,31 1,23 1,9" fill="#111" stroke="#111" stroke-width="1.2"/>
+                <svg width="28" height="60" viewBox="0 0 28 60" xmlns="http://www.w3.org/2000/svg" style="display:block; transform:translate(-14px,0);">
+                  <line x1="14" y1="2" x2="14" y2="24" stroke="#111" stroke-width="2.4" stroke-linecap="round"/>
+                  <polygon points="14,24 23,33 19,47 9,47 5,33" fill="#111" stroke="#111" stroke-width="1.2"/>
                 </svg>
               </div>
             </div>
@@ -239,6 +247,7 @@
   function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
   function pct(n){return Math.round(Number(n)||0);}
   function prefLabel(v){ const p=pct(v); if(p<=40) return 'Preferencia menos marcada'; if(p<=70) return 'Preferencia moderada'; return 'Preferencia más marcada'; }
+  function prefClass(v){ const p=pct(v); if(p<=40) return 'pref-low'; if(p<=70) return 'pref-med'; return 'pref-high'; }
   function fmtDate(iso){ if(!iso) return '—'; try { return new Date(iso).toLocaleDateString('es-EC',{year:'numeric',month:'long',day:'2-digit'});} catch{return '—';}}
   function parseMaybeJSON(v){ if(!v) return null; if(typeof v==='object') return v; try{return JSON.parse(v);}catch{return null;} }
   function scoreOf(obj, key){ return obj && obj[key] ? Number(obj[key].pct ?? obj[key].raw ?? 0) : 0; }
@@ -311,7 +320,8 @@
     AREA_ORDER.forEach(k=>{
       const a=areaData(res,k);
       const card=document.createElement('div'); card.className='area-card';
-      card.innerHTML=`<h3>${escapeHtml(a.label)}</h3><div class="badge">${prefLabel(a.pct)}</div><div class="bar"><div class="head"><span>Índice</span><span>${pct(a.pct)}</span></div><div class="track"><div class="fill" style="width:${clamp(pct(a.pct),0,100)}%"></div></div></div><div class="muted" style="font-size:12px">Promedio del área: ${Number(a.raw||0).toFixed(1)}</div>`;
+      const cls=prefClass(a.pct);
+      card.innerHTML=`<h3>${escapeHtml(a.label)}</h3><div class="badge ${cls}">${prefLabel(a.pct)}</div><div class="bar"><div class="head"><span>Índice</span><span>${pct(a.pct)}</span></div><div class="track"><div class="fill ${cls}" style="width:${clamp(pct(a.pct),0,100)}%"></div></div></div><div class="muted" style="font-size:12px">Promedio del área: ${Number(a.raw||0).toFixed(1)}</div>`;
       grid.appendChild(card);
     });
   }
@@ -324,7 +334,8 @@
       AREA_COMPONENTS[areaKey].forEach(compKey=>{
         const c=compData(res,compKey);
         const div=document.createElement('div'); div.className='bar';
-        div.innerHTML=`<div class="head"><span>${escapeHtml(c.label)}</span><span>${pct(c.pct)} · ${escapeHtml(prefLabel(c.pct))}</span></div><div class="track"><div class="fill" style="width:${clamp(pct(c.pct),0,100)}%"></div></div>`;
+        const cls=prefClass(c.pct);
+        div.innerHTML=`<div class="head"><span>${escapeHtml(c.label)}</span><span>${pct(c.pct)} · ${escapeHtml(prefLabel(c.pct))}</span></div><div class="track"><div class="fill ${cls}" style="width:${clamp(pct(c.pct),0,100)}%"></div></div>`;
         wrap.appendChild(div);
       });
       box.appendChild(wrap);
