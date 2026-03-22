@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>NMapa de Preferencias de Aprendizaje – Reporte</title>
+  <title>LLLMapa de Preferencias de Aprendizaje – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -101,23 +101,54 @@
             <div id="tituloCurvaFrecuencias" style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
             <div class="curve-gauge">
               <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución" style="width:100%;height:220px;object-fit:contain;display:block;"/>
-              <div id="curveMarker" aria-hidden="true" style="position:absolute; left:50%; bottom:24px; width:0; height:0; z-index:3; pointer-events:none;">
-                <svg width="42" height="86" viewBox="0 0 42 86" xmlns="http://www.w3.org/2000/svg" style="display:block; transform:translate(-21px,0); filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));">
-                  <defs>
-                    <linearGradient id="shaftSilver" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stop-color="#f6f7f9"/>
-                      <stop offset="55%" stop-color="#c7cdd5"/>
-                      <stop offset="100%" stop-color="#8b949f"/>
-                    </linearGradient>
-                    <linearGradient id="arrowSilver" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stop-color="#d8dde3"/>
-                      <stop offset="100%" stop-color="#6f7782"/>
-                    </linearGradient>
-                  </defs>
-                  <rect x="18.5" y="2" width="5" height="48" rx="2.5" fill="url(#shaftSilver)" stroke="#5f6771" stroke-width="1"/>
-                  <polygon points="21,50 33,66 27,83 15,83 9,66" fill="url(#arrowSilver)" stroke="#3f4650" stroke-width="1.2"/>
-                </svg>
-              </div>
+              <div id="curveMarker" aria-hidden="true"
+                   style="position:absolute; left:50%; bottom:26px; width:0; height:0;
+                    z-index:3; pointer-events:none;">
+   <svg width="30" height="54" viewBox="0 0 18 30"
+     style="position:absolute; left:0; bottom:0; transform:translateX(-50%);
+            display:block; overflow:visible;">
+  <defs>
+    <linearGradient id="blkMainLearn" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0%"   stop-color="#1a1a1a"/>
+  <stop offset="28%"  stop-color="#2b2b2b"/>
+  <stop offset="55%"  stop-color="#111111"/>
+  <stop offset="78%"  stop-color="#3a3a3a"/>
+  <stop offset="100%" stop-color="#181818"/>
+</linearGradient>
+
+    <linearGradient id="blkEdgeLearn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="blkShadowLearn" x="-40%" y="-40%" width="180%" height="200%">
+      <feDropShadow dx="0" dy="1.1" stdDeviation="1.0" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#blkShadowLearn)">
+    <rect x="6" y="0" width="6" height="16" rx="1.2"
+          fill="url(#blkMainLearn)" stroke="#050505" stroke-width="0.55"/>
+    <path d="M6.2 0.6 L8.4 0.6 L8.4 15.4 L6.2 15.4 Z"
+          fill="#ffffff" opacity="0.10"/>
+    <path d="M9.8 0.6 L11.8 0.6 L11.8 15.4 L9.8 15.4 Z"
+          fill="#000000" opacity="0.22"/>
+    <rect x="6.4" y="0.8" width="1.1" height="14.8" rx="0.8"
+          fill="url(#blkEdgeLearn)" opacity="0.85"/>
+  </g>
+
+  <g filter="url(#blkShadowLearn)">
+    <path d="M9 30 L2 16 H16 Z"
+          fill="url(#blkMainLearn)" stroke="#050505" stroke-width="0.55"/>
+    <path d="M9 30 L2.7 16.3 L8.8 16.3 Z"
+          fill="#ffffff" opacity="0.10"/>
+    <path d="M9 30 L9.2 16.3 L15.3 16.3 Z"
+          fill="#000000" opacity="0.22"/>
+    <path d="M9 28.6 L4.3 16.7 H13.7 Z"
+          fill="url(#blkEdgeLearn)" opacity="0.55"/>
+  </g>
+</svg>
+                </div>
             </div>
             <div class="muted" style="font-size:12px;margin-top:4px">Referencia visual global del perfil de preferencias.</div>
           </div>
@@ -268,22 +299,31 @@
   function avgAreaScore(res){ const vals = AREA_ORDER.map(k=>scoreOf(res.areas,k)); return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0; }
 
   function setCurveMarker(score){
-    const wrap=document.querySelector('.curve .curve-gauge'); const img=document.getElementById('freqCurveImg'); const mk=document.getElementById('curveMarker');
+    const value = clamp(Number(score) || 0, 1, 100);
+    const wrap=document.querySelector('.curve .curve-gauge');
+    const img=document.getElementById('freqCurveImg');
+    const mk=document.getElementById('curveMarker');
     if(!wrap||!img||!mk) return;
-    score = clamp(Number(score)||0,0,100);
     const place = ()=>{
       const rW=wrap.getBoundingClientRect(), rI=img.getBoundingClientRect();
       if(!rW.width||!rI.width) return;
-      const naturalW=img.naturalWidth||1000, naturalH=img.naturalHeight||220;
-      const scale=Math.min(rI.width/naturalW, rI.height/naturalH);
-      const drawnW=naturalW*scale, drawnH=naturalH*scale;
-      const offsetX=(rI.width-drawnW)/2;
-      const leftInWrap=(rI.left-rW.left)+offsetX;
-      const padL=drawnW*0.12, padR=drawnW*0.16;
-      const usable=Math.max(10,drawnW-padL-padR);
-      const x = leftInWrap + padL + usable*(score/100);
-      const bottom0=drawnH*0.43, bottom100=drawnH*0.12;
-      const y = bottom0 + (bottom100-bottom0)*(score/100);
+      const natW = img.naturalWidth  || 1;
+      const natH = img.naturalHeight || 1;
+      const scale  = Math.min(rI.width / natW, rI.height / natH);
+      const drawnW = natW * scale;
+      const drawnH = natH * scale;
+      const offsetXInsideImg = (rI.width - drawnW) / 2;
+      const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+      const padL = drawnW * 0.12;
+      const padR = drawnW * 0.22;
+      const minX = leftInWrap + padL;
+      const maxX = leftInWrap + drawnW - padR;
+      const t = (value - 1) / 99;
+      let x = minX + t * (maxX - minX);
+      x = Math.max(minX, Math.min(maxX, x));
+      const bottomAt0 = 94;
+      const bottomAt100 = 26;
+      const y = bottomAt0 + (bottomAt100 - bottomAt0) * t;
       mk.style.left = `${x}px`;
       mk.style.bottom = `${y}px`;
     };
