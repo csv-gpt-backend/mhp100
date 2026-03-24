@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>XXMapa de Preferencias de Aprendizaje – Reporte</title>
+  <title>ZZZXXMapa de Preferencias de Aprendizaje – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -445,28 +445,34 @@ div.innerHTML=`<h4>${escapeHtml(COMPONENT_LABELS[k] || c.label)} — ${escapeHtm
     });
   }
 
-  function contextSuggestions(res, esPro){
-    const sorted = [...COMPONENT_ORDER].sort((a,b)=>scoreOf(res.componentes,b)-scoreOf(res.componentes,a));
-    const top = sorted.slice(0,2);
-    const names = top.map(k=>COMPONENT_LABELS[k]);
-    const hogar = [
-      `En casa, conviene favorecer actividades que conecten con ${names[0]||'la preferencia dominante'} y ${names[1]||'la secundaria'}, evitando exigir una sola forma de aprender.`,
-      `Es útil acordar momentos breves para repasar cómo le resultó más cómodo comprender, practicar o expresar lo aprendido.`
-    ];
-    const aulaTrabajo = esPro ? [
-      `En el trabajo, conviene presentar instrucciones y tareas combinando la modalidad preferida con ejemplos claros y pasos visibles.`,
-      `Cuando sea posible, resulta útil permitir que la persona organice primero la información en su vía más cómoda y luego la comparta con el equipo.`
-    ] : [
-      `En el aula, conviene ofrecer explicaciones y actividades que incluyan la modalidad preferida, sin depender siempre de un único formato.`,
-      `Cuando sea posible, resulta útil permitir que el estudiante organice primero la información en su vía más cómoda y luego participe con el grupo.`
-    ];
-    const apoyo = [
-      `En acompañamiento, conviene revisar qué estrategias le ayudaron más a comprender, retener y comunicar lo aprendido durante la semana.`,
-      `También es útil combinar una modalidad dominante con otra menos marcada para ampliar gradualmente su repertorio de aprendizaje sin forzar el proceso.`
-    ];
-    return {hogar, aulaTrabajo, apoyo};
-  }
+function contextSuggestions(res, esPro){
+  const sorted = [...COMPONENT_ORDER].sort((a,b)=>scoreOf(res.componentes,b)-scoreOf(res.componentes,a));
+  const top = sorted.slice(0,2);
+  const n1 = COMPONENT_LABELS[top[0]] || 'la preferencia principal';
+  const n2 = COMPONENT_LABELS[top[1]] || 'la segunda preferencia';
 
+  const hogar = [
+    `En casa, conviene apoyar el aprendizaje usando recursos acordes con ${n1} y ${n2}. Por ejemplo, si necesita estudiar o recordar algo, puede revisar una lista breve, escuchar una explicación, practicar con ejemplos o escribir ideas clave, según la vía que le resulte más cómoda.`,
+    `Es útil preguntarle al final de una actividad: “¿Qué te ayudó más a entender esto?” y “¿Cómo te resultó más fácil recordarlo?”. Esa conversación ayuda a identificar qué modalidad le funciona mejor sin imponer una sola forma de aprender.`
+  ];
+
+  const aula = [
+    `En el aula, conviene presentar instrucciones y actividades combinando explicaciones claras con apoyos acordes a sus preferencias. Por ejemplo, dar pasos visibles, permitir comentar en voz alta, trabajar con ejemplos o incluir momentos breves de práctica.`,
+    `También es útil permitir que primero organice la información en la modalidad que le resulte más cómoda y luego la comparta. Por ejemplo: leer y subrayar antes de explicar, escuchar primero y luego escribir, o practicar antes de responder.`
+  ];
+
+  const trabajo = [
+    `En el trabajo, conviene presentar tareas e indicaciones en un formato que conecte con ${n1} y ${n2}. Por ejemplo, usar pasos visibles, comentar verbalmente el procedimiento, revisar ejemplos concretos o permitir que primero organice la información en su vía más cómoda.`,
+    `También resulta útil acordar una forma clara de seguimiento. Por ejemplo: resumir por escrito, comentar avances en voz alta, revisar un ejemplo práctico o dividir la tarea en pasos breves antes de ejecutarla.`
+  ];
+
+  const apoyo = [
+    `En acompañamiento, conviene observar no solo qué tanto aprende, sino cómo aprende mejor. Es útil revisar con ejemplos concretos qué modalidad le ayudó más: ver, escuchar, practicar, trabajar solo, trabajar con otros, hablar o escribir.`,
+    `También se recomienda fortalecer la modalidad más marcada sin dejar de ampliar otras. Por ejemplo, partir de la vía que le resulta más cómoda y luego añadir una segunda estrategia complementaria para darle mayor flexibilidad al aprender.`
+  ];
+
+  return { hogar, aulaTrabajo: esPro ? trabajo : aula, apoyo };
+}
   function buildContexts(res, esPro){
     const box=document.getElementById('contextosBox'); box.innerHTML='';
     const ctx=contextSuggestions(res, esPro);
