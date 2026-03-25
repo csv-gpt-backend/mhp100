@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Mapa de Preferencias de Aprendizaje – Reporte</title>
+  <title>XXZZZZuuMapa de Preferencias de Aprendizaje – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
       --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757; --blue:#2563eb;
+      --silver-1:#f4f5f7; --silver-2:#dfe3e8; --silver-3:#c6ccd3; --silver-4:#949ba6; --silver-5:#666d78;
     }
     html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#fff;color:var(--ink);min-height:100vh}
     .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
@@ -39,11 +40,17 @@
     .area-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .area-card{border:1px solid var(--line);border-radius:14px;background:var(--soft);padding:10px}
     .area-card h3{font-size:15px;margin:0 0 6px 0}
-    .badge{display:inline-block;background:var(--yellow);padding:2px 10px;border-radius:999px;font-weight:800}
+    .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:800;border:1px solid var(--silver-3)}
+    .badge.pref-low{background:linear-gradient(180deg,#fafbfc,#eceff2);color:#4b5563;border-color:#d9dde2;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+    .badge.pref-med{background:linear-gradient(180deg,#edf0f3,#d8dde3);color:#374151;border-color:#c6ccd3;box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+    .badge.pref-high{background:linear-gradient(180deg,#e5e8ed,#bcc4ce);color:#111827;border-color:#aab3be;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
     .bar{margin:10px 0}
     .bar .head{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;margin-bottom:4px}
-    .track{height:14px;border-radius:999px;background:#eef2f7;position:relative;overflow:hidden}
-    .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#cbd5e1,#64748b)}
+    .track{height:14px;border-radius:999px;background:#edf1f4;position:relative;overflow:hidden;border:1px solid #d9dee4}
+    .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#d6dbe1,#7a8593)}
+    .fill.pref-low{background:linear-gradient(90deg,#edf0f3,#c4cbd4)}
+    .fill.pref-med{background:linear-gradient(90deg,#e2e6eb,#9aa3af)}
+    .fill.pref-high{background:linear-gradient(90deg,#d7dce3,#737d8b)}
     .comp-group{border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:10px;background:#fff}
     .comp-group h3{margin:0 0 8px 0;font-size:16px}
     .interp-box,.recom-box,.ctx-box{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;margin-top:10px}
@@ -94,11 +101,54 @@
             <div id="tituloCurvaFrecuencias" style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
             <div class="curve-gauge">
               <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución" style="width:100%;height:220px;object-fit:contain;display:block;"/>
-              <div id="curveMarker" aria-hidden="true" style="position:absolute; left:50%; bottom:26px; width:0; height:0; z-index:3; pointer-events:none;">
-                <svg width="30" height="54" viewBox="0 0 18 32" xmlns="http://www.w3.org/2000/svg" style="display:block; transform:translate(-15px,0);">
-                  <polygon points="9,1 17,9 17,23 9,31 1,23 1,9" fill="#111" stroke="#111" stroke-width="1.2"/>
-                </svg>
-              </div>
+              <div id="curveMarker" aria-hidden="true"
+                   style="position:absolute; left:50%; bottom:26px; width:0; height:0;
+                    z-index:3; pointer-events:none;">
+   <svg width="30" height="54" viewBox="0 0 18 30"
+     style="position:absolute; left:0; bottom:0; transform:translateX(-50%);
+            display:block; overflow:visible;">
+  <defs>
+    <linearGradient id="blkMainLearn" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0%"   stop-color="#1a1a1a"/>
+  <stop offset="28%"  stop-color="#2b2b2b"/>
+  <stop offset="55%"  stop-color="#111111"/>
+  <stop offset="78%"  stop-color="#3a3a3a"/>
+  <stop offset="100%" stop-color="#181818"/>
+</linearGradient>
+
+    <linearGradient id="blkEdgeLearn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="blkShadowLearn" x="-40%" y="-40%" width="180%" height="200%">
+      <feDropShadow dx="0" dy="1.1" stdDeviation="1.0" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#blkShadowLearn)">
+    <rect x="6" y="0" width="6" height="16" rx="1.2"
+          fill="url(#blkMainLearn)" stroke="#050505" stroke-width="0.55"/>
+    <path d="M6.2 0.6 L8.4 0.6 L8.4 15.4 L6.2 15.4 Z"
+          fill="#ffffff" opacity="0.10"/>
+    <path d="M9.8 0.6 L11.8 0.6 L11.8 15.4 L9.8 15.4 Z"
+          fill="#000000" opacity="0.22"/>
+    <rect x="6.4" y="0.8" width="1.1" height="14.8" rx="0.8"
+          fill="url(#blkEdgeLearn)" opacity="0.85"/>
+  </g>
+
+  <g filter="url(#blkShadowLearn)">
+    <path d="M9 30 L2 16 H16 Z"
+          fill="url(#blkMainLearn)" stroke="#050505" stroke-width="0.55"/>
+    <path d="M9 30 L2.7 16.3 L8.8 16.3 Z"
+          fill="#ffffff" opacity="0.10"/>
+    <path d="M9 30 L9.2 16.3 L15.3 16.3 Z"
+          fill="#000000" opacity="0.22"/>
+    <path d="M9 28.6 L4.3 16.7 H13.7 Z"
+          fill="url(#blkEdgeLearn)" opacity="0.55"/>
+  </g>
+</svg>
+                </div>
             </div>
             <div class="muted" style="font-size:12px;margin-top:4px">Referencia visual global del perfil de preferencias.</div>
           </div>
@@ -197,26 +247,26 @@
     "individual","equipo","oral","escrito"
   ];
   const COMPONENT_LABELS = {
-    lenguaje_visual: "Lenguaje visual",
-    numerico_visual: "Numérico visual",
-    lenguaje_auditivo: "Lenguaje auditivo",
-    numerico_auditivo: "Numérico auditivo",
-    kinestesico: "Kinestésico",
-    individual: "Individual",
-    equipo: "En equipo",
-    oral: "Oral",
-    escrito: "Escrito"
-  };
+  lenguaje_visual: "Percepción Visual",
+  numerico_visual: "Aptitud Numérico Visual",
+  lenguaje_auditivo: "Percepción Auditiva",
+  numerico_auditivo: "Aptitud Numérico Auditiva",
+  kinestesico: "Kinestésico",
+  individual: "Individual",
+  equipo: "En equipo",
+  oral: "Oral",
+  escrito: "Escrito"
+};
   const AREA_COMPONENTS = {
     perceptuales:["lenguaje_visual","numerico_visual","lenguaje_auditivo","numerico_auditivo","kinestesico"],
     interaccion:["individual","equipo"],
     comunicacion:["oral","escrito"]
   };
   const DEFINICIONES = {
-    lenguaje_visual:"Preferencia por comprender mejor la información cuando está escrita, organizada o apoyada en palabras clave, listas, esquemas o instrucciones visibles.",
-    numerico_visual:"Preferencia por analizar cantidades, datos y relaciones numéricas cuando están presentados de forma escrita, gráfica o estructurada visualmente.",
-    lenguaje_auditivo:"Preferencia por comprender ideas y contenidos cuando se presentan a través de explicaciones verbales, conversaciones o escucha activa.",
-    numerico_auditivo:"Preferencia por comprender relaciones numéricas o procedimientos cuando alguien los explica oralmente paso a paso.",
+lenguaje_visual: "Preferencia por comprender mejor la información cuando se presenta de forma escrita, visible, organizada o apoyada en palabras clave, indicaciones y referencias que pueden observarse directamente.",
+numerico_visual: "Preferencia por comprender mejor datos, cantidades o relaciones numéricas cuando aparecen escritas, organizadas visualmente o presentadas en cuadros, cifras, registros o ejemplos visibles.",
+lenguaje_auditivo: "Preferencia por comprender mejor la información cuando se escucha, se comenta, se explica verbalmente o se procesa a través de conversaciones, indicaciones orales y repeticiones en voz alta.",
+numerico_auditivo: "Preferencia por comprender mejor la información numérica cuando se escucha, se explica verbalmente o se recuerda a través de repeticiones orales, secuencias dichas en voz alta y ejemplos comentados.",
     kinestesico:"Preferencia por aprender mejor cuando puede practicar, experimentar, manipular materiales o participar activamente en la tarea.",
     individual:"Preferencia por aprender o resolver actividades de forma autónoma, a su propio ritmo y con mayor concentración personal.",
     equipo:"Preferencia por aprender en interacción con otras personas, compartiendo ideas, comparando respuestas y construyendo acuerdos en conjunto.",
@@ -224,21 +274,56 @@
     escrito:"Preferencia por expresar, organizar o reforzar ideas por escrito, usando apuntes, resúmenes, respuestas redactadas o esquemas personales."
   };
   const ESTRATEGIAS = {
-    lenguaje_visual:["Usar esquemas, resúmenes visibles, mapas conceptuales y palabras clave.","Leer instrucciones completas y subrayar lo importante antes de empezar."],
-    numerico_visual:["Trabajar con tablas, ejemplos escritos, cuadros comparativos y ejercicios paso a paso.","Anotar operaciones, fórmulas o datos en una hoja antes de resolver."],
-    lenguaje_auditivo:["Escuchar explicaciones, leer en voz alta o comentar el contenido con otra persona.","Repetir verbalmente los pasos importantes antes de ejecutar una tarea."],
-    numerico_auditivo:["Pedir que expliquen los pasos oralmente y comprobar en voz alta cada parte del procedimiento.","Resolver ejercicios comentando qué se hace primero, qué sigue y por qué."],
-    kinestesico:["Aprender haciendo: practicar, ensayar, manipular materiales o probar ejemplos reales.","Dividir la actividad en pasos concretos y ejecutar cada uno de inmediato."],
-    individual:["Trabajar primero a solas para ordenar ideas y luego compartir el resultado.","Usar tiempos de concentración sin interrupciones antes de pasar al intercambio grupal."],
-    equipo:["Estudiar o resolver tareas con otra persona, comparando respuestas y construyendo acuerdos.","Asignar roles claros en grupo para participar de forma activa y ordenada."],
-    oral:["Explicar en voz alta lo que entendió, participar con preguntas o dialogar sobre el contenido.","Preparar ideas clave para decirlas con claridad antes de intervenir."],
-    escrito:["Tomar apuntes, escribir resúmenes, redactar respuestas breves y organizar ideas en papel.","Convertir la información en listas, párrafos cortos o cuadros escritos antes de repasarla."]
+ lenguaje_visual: [
+  "Usar esquemas, resúmenes visibles, mapas conceptuales, listas y palabras clave para organizar la información.",
+  "Leer instrucciones completas, subrayar lo importante y apoyarse en referencias visuales antes de iniciar una tarea."
+],
+
+numerico_visual: [
+  "Trabajar con tablas, registros, cifras escritas, cuadros comparativos y ejemplos numéricos visibles paso a paso.",
+  "Anotar operaciones, datos o relaciones numéricas en una hoja antes de resolver para observar mejor el procedimiento."
+],
+
+lenguaje_auditivo: [
+  "Escuchar explicaciones, comentar el contenido con otra persona o repetir en voz alta las ideas principales para comprenderlas mejor.",
+  "Apoyarse en instrucciones orales, lectura en voz alta o conversación guiada para reforzar lo que necesita aprender."
+],
+
+numerico_auditivo: [
+  "Pedir que expliquen verbalmente los pasos de un procedimiento numérico y repetir en voz alta qué se hace primero, qué sigue y por qué.",
+  "Resolver ejercicios comentando el proceso oralmente, verificando cada paso a medida que avanza."
+],
+    kinestesico: [
+  "Aprender haciendo: usar materiales, practicar pasos, ensayar procedimientos o participar activamente en la tarea en lugar de quedarse solo en la explicación.",
+  "Dividir la actividad en acciones concretas. Por ejemplo: probar, armar, mover, señalar, ordenar o ejecutar un paso breve antes de pasar al siguiente."
+],
+
+individual: [
+  "Dar primero un tiempo breve de trabajo personal para que pueda organizar ideas, leer, pensar o resolver a su ritmo antes de compartir con otros.",
+  "Permitir que empiece solo y luego muestre el resultado. Por ejemplo: resolver una parte por su cuenta, hacer un esquema breve o preparar una respuesta antes de conversar."
+],
+
+equipo: [
+  "Favorecer actividades donde pueda contrastar ideas, comentar con otros, repartir roles o construir una respuesta en conjunto con una consigna clara.",
+  "Usar trabajo colaborativo con estructura simple. Por ejemplo: leer, comentar, acordar una idea principal y luego presentar una respuesta entre dos o tres personas."
+],
+
+oral: [
+  "Permitir que explique en voz alta, haga preguntas, converse sobre el tema o repita con sus propias palabras lo que entendió para reforzar el aprendizaje.",
+  "Usar intercambios breves antes de responder por escrito. Por ejemplo: comentar la idea principal, explicar un paso o decir la respuesta antes de redactarla."
+],
+
+escrito: [
+  "Apoyarse en apuntes, listas, resúmenes, palabras clave o respuestas breves por escrito para organizar mejor la información.",
+  "Pedir que primero escriba una idea principal, un ejemplo o una secuencia corta antes de explicarla, para darle más orden y claridad a lo que quiere comunicar."
+],
   };
 
   function escapeHtml(s){return String(s??"").replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
   function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
   function pct(n){return Math.round(Number(n)||0);}
   function prefLabel(v){ const p=pct(v); if(p<=40) return 'Preferencia menos marcada'; if(p<=70) return 'Preferencia moderada'; return 'Preferencia más marcada'; }
+  function prefClass(v){ const p=pct(v); if(p<=40) return 'pref-low'; if(p<=70) return 'pref-med'; return 'pref-high'; }
   function fmtDate(iso){ if(!iso) return '—'; try { return new Date(iso).toLocaleDateString('es-EC',{year:'numeric',month:'long',day:'2-digit'});} catch{return '—';}}
   function parseMaybeJSON(v){ if(!v) return null; if(typeof v==='object') return v; try{return JSON.parse(v);}catch{return null;} }
   function scoreOf(obj, key){ return obj && obj[key] ? Number(obj[key].pct ?? obj[key].raw ?? 0) : 0; }
@@ -248,22 +333,31 @@
   function avgAreaScore(res){ const vals = AREA_ORDER.map(k=>scoreOf(res.areas,k)); return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0; }
 
   function setCurveMarker(score){
-    const wrap=document.querySelector('.curve .curve-gauge'); const img=document.getElementById('freqCurveImg'); const mk=document.getElementById('curveMarker');
+    const value = clamp(Number(score) || 0, 1, 100);
+    const wrap=document.querySelector('.curve .curve-gauge');
+    const img=document.getElementById('freqCurveImg');
+    const mk=document.getElementById('curveMarker');
     if(!wrap||!img||!mk) return;
-    score = clamp(Number(score)||0,0,100);
     const place = ()=>{
       const rW=wrap.getBoundingClientRect(), rI=img.getBoundingClientRect();
       if(!rW.width||!rI.width) return;
-      const naturalW=img.naturalWidth||1000, naturalH=img.naturalHeight||220;
-      const scale=Math.min(rI.width/naturalW, rI.height/naturalH);
-      const drawnW=naturalW*scale, drawnH=naturalH*scale;
-      const offsetX=(rI.width-drawnW)/2;
-      const leftInWrap=(rI.left-rW.left)+offsetX;
-      const padL=drawnW*0.12, padR=drawnW*0.16;
-      const usable=Math.max(10,drawnW-padL-padR);
-      const x = leftInWrap + padL + usable*(score/100);
-      const bottom0=drawnH*0.43, bottom100=drawnH*0.12;
-      const y = bottom0 + (bottom100-bottom0)*(score/100);
+      const natW = img.naturalWidth  || 1;
+      const natH = img.naturalHeight || 1;
+      const scale  = Math.min(rI.width / natW, rI.height / natH);
+      const drawnW = natW * scale;
+      const drawnH = natH * scale;
+      const offsetXInsideImg = (rI.width - drawnW) / 2;
+      const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+      const padL = drawnW * 0.10;
+      const padR = drawnW * 0.24;
+      const minX = leftInWrap + padL;
+      const maxX = leftInWrap + drawnW - padR;
+      const t = (value - 1) / 99;
+      let x = minX + t * (maxX - minX);
+      x = Math.max(minX, Math.min(maxX, x));
+      const bottomAt0 = 98;
+      const bottomAt100 = 28;
+      const y = bottomAt0 + (bottomAt100 - bottomAt0) * t;
       mk.style.left = `${x}px`;
       mk.style.bottom = `${y}px`;
     };
@@ -292,26 +386,118 @@
   function timeLevel(mins){ const m=Number(mins)||0; if(m>0 && m<4) return 2; if(m>25) return 3; return 1; }
   function highlightRow(rowId,col){ const row=document.getElementById(rowId); if(!row) return; [...row.children].forEach((td,i)=>{if(i===col) td.classList.add('hl'); else td.classList.remove('hl');}); }
 
-  function areaInterpretation(key,p){
-    const label = AREA_LABELS[key] || key;
-    if(p<=40) return `En ${label.toLowerCase()}, esta modalidad aparece como una preferencia menos marcada dentro del perfil. Esto no implica dificultad o incapacidad, sino que probablemente no sea la vía que la persona elige con mayor naturalidad para aprender.`;
-    if(p<=70) return `En ${label.toLowerCase()}, se observa una preferencia moderada. La persona puede utilizar esta vía con relativa comodidad en distintas situaciones, aunque no necesariamente como su forma principal de aprender.`;
-    return `En ${label.toLowerCase()}, se observa una preferencia más marcada. Es probable que la persona aprenda con mayor comodidad, interés o seguridad cuando puede apoyarse en este tipo de recursos, interacciones o formas de expresión.`;
-  }
-  function componentInterpretation(key,p){
-    const def = DEFINICIONES[key] || '';
-    const name = COMPONENT_LABELS[key] || key;
-    const base = p<=40 ? 'aparece como una preferencia menos marcada' : p<=70 ? 'aparece como una preferencia moderada' : 'aparece como una preferencia más marcada';
-    const extra = p<=40 ? 'Esto sugiere que puede usar esta vía, pero no suele ser la más cómoda o dominante dentro de su perfil.' : p<=70 ? 'Esto sugiere una afinidad funcional con esta modalidad, aunque sin aparecer necesariamente como la más dominante.' : 'Esto sugiere que esta puede ser una de las vías más cómodas o naturales para comprender, organizar o expresar información.';
-    return `<p class="muted" style="color:#111">${escapeHtml(def)}</p><p><b>${escapeHtml(name)}:</b> ${base}. ${extra}</p>`;
+  
+ function componentInterpretation(key,p){
+  const def = DEFINICIONES[key] || '';
+  const name = COMPONENT_LABELS[key] || key;
+  const esPro = !!window.__ESPRO__;
+  const amb = esPro ? "en el trabajo o en actividades profesionales" : "en clase, tareas o actividades de aprendizaje";
+  const par = esPro ? "supervisor, compañero o equipo" : "docente, compañero o familia";
+
+  const textos = {
+    lenguaje_visual: {
+      bajo: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia menos marcada. La persona puede usar apoyos visuales, pero probablemente no los elige como primera vía para comprender. ${amb} puede ayudarle más si primero escucha, comenta o practica y luego revisa por escrito.`,
+      medio: `Esto sugiere una preferencia moderada por ${name.toLowerCase()}. La persona puede beneficiarse de instrucciones escritas, palabras clave y organización visual, aunque no siempre como su principal apoyo.`,
+      alto: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia más marcada. Es probable que comprenda mejor cuando puede ver la información, leer indicaciones, subrayar ideas o apoyarse en esquemas y referencias visibles.`
+    },
+    numerico_visual: {
+      bajo: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia menos marcada. La persona puede trabajar con cifras y datos escritos, pero quizá necesite apoyo adicional para organizar esa información visualmente.`,
+      medio: `Esto sugiere una preferencia moderada por ${name.toLowerCase()}. Puede apoyarse en tablas, registros y ejemplos visibles cuando necesita comprender mejor relaciones numéricas.`,
+      alto: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia más marcada. Es probable que la persona comprenda mejor cantidades, cifras y relaciones numéricas cuando puede verlas escritas, ordenadas y compararlas paso a paso.`
+    },
+    lenguaje_auditivo: {
+      bajo: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia menos marcada. La persona puede escuchar explicaciones, pero probablemente no sea la vía que más le ayuda a retener o comprender por sí sola.`,
+      medio: `Esto sugiere una preferencia moderada por ${name.toLowerCase()}. Puede aprender con relativa comodidad cuando escucha explicaciones o conversa sobre el contenido, sobre todo si luego lo complementa con otra estrategia.`,
+      alto: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia más marcada. Es probable que la persona responda mejor cuando puede escuchar, comentar, repetir en voz alta o procesar la información a través del diálogo.`
+    },
+    numerico_auditivo: {
+      bajo: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia menos marcada. La persona puede seguir explicaciones numéricas orales, pero probablemente le resulte más útil apoyarse además en algo visible o escrito.`,
+      medio: `Esto sugiere una preferencia moderada por ${name.toLowerCase()}. Puede comprender mejor cierta información numérica cuando escucha el procedimiento explicado paso a paso.`,
+      alto: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia más marcada. Es probable que la persona procese mejor datos o procedimientos numéricos cuando se explican verbalmente, se comentan o se repiten en voz alta.`
+    },
+    kinestesico: {
+      bajo: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia menos marcada. La persona puede aprender haciendo, pero no necesariamente necesita la práctica como vía principal para comprender.`,
+      medio: `Esto sugiere una preferencia moderada por ${name.toLowerCase()}. La práctica, los ejemplos y la ejecución concreta pueden ayudarle, especialmente cuando se combinan con otras formas de apoyo.`,
+      alto: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia más marcada. Es probable que comprenda mejor cuando puede practicar, manipular materiales, ensayar pasos o participar activamente en la actividad.`
+    },
+    individual: {
+      bajo: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia menos marcada. La persona probablemente no se siente tan cómoda trabajando sola como primera opción y puede beneficiarse del intercambio con otros.`,
+      medio: `Esto sugiere una preferencia moderada por ${name.toLowerCase()}. La persona puede trabajar por su cuenta cuando la tarea está clara, aunque no siempre lo elija como única vía.`,
+      alto: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia más marcada. Es probable que la persona comprenda mejor cuando puede ordenar ideas a su ritmo, concentrarse sola y avanzar sin interrupciones al inicio.`
+    },
+    equipo: {
+      bajo: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia menos marcada. La persona puede participar con otros, pero probablemente no elige el trabajo grupal como su forma más cómoda de aprender.`,
+      medio: `Esto sugiere una preferencia moderada por ${name.toLowerCase()}. La persona puede aprender con otros en tareas compartidas, especialmente si hay roles claros y una consigna definida.`,
+      alto: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia más marcada. Es probable que la persona responda mejor cuando puede contrastar ideas, cooperar, resolver con otros o construir acuerdos en conjunto.`
+    },
+    oral: {
+      bajo: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia menos marcada. La persona puede expresarse verbalmente, pero quizá no elige esa vía como la más cómoda para organizar o comunicar lo que piensa.`,
+      medio: `Esto sugiere una preferencia moderada por ${name.toLowerCase()}. Puede usar la expresión oral con relativa comodidad, sobre todo si antes organiza sus ideas o cuenta con una guía clara.`,
+      alto: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia más marcada. Es probable que la persona comprenda, refuerce o exprese mejor sus ideas cuando puede hablar, explicar, comentar o responder en voz alta.`
+    },
+    escrito: {
+      bajo: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia menos marcada. La persona puede escribir, pero probablemente no elige el recurso escrito como su vía más natural para organizar o expresar ideas.`,
+      medio: `Esto sugiere una preferencia moderada por ${name.toLowerCase()}. Puede apoyarse en apuntes, listas o respuestas breves cuando necesita ordenar lo que está aprendiendo.`,
+      alto: `Esto sugiere que ${name.toLowerCase()} aparece como una preferencia más marcada. Es probable que la persona comprenda, recuerde y organice mejor la información cuando puede escribir, resumir, registrar o redactar sus ideas.`
+    }
+  };
+
+  const rango = p <= 40 ? "bajo" : p <= 70 ? "medio" : "alto";
+  const extra = (textos[key] && textos[key][rango]) || `Este resultado describe cómo aparece ${name.toLowerCase()} dentro del perfil de aprendizaje.`;
+  const cierre = p <= 40
+    ? ` ${amb} conviene no forzar esta vía como única forma de trabajo, sino combinarla con apoyos que le resulten más cómodos.`
+    : p <= 70
+      ? ` ${amb} puede beneficiarse de combinar esta modalidad con otra estrategia complementaria.`
+      : ` ${amb} conviene favorecer actividades donde esta modalidad tenga un papel importante y visible.`;
+
+  return `<p class="muted" style="color:#111">${escapeHtml(def)}</p><p><b>${escapeHtml(name)}:</b> ${escapeHtml(extra + cierre)}</p>`;
+}
+ 
+    function areaInterpretation(key,p){
+  const label = AREA_LABELS[key] || key;
+  const esPro = !!window.__ESPRO__;
+
+  if(key === "perceptuales"){
+    if(p <= 40){
+      return `En ${label.toLowerCase()}, esta área aparece como una preferencia menos marcada. Esto no significa dificultad, sino que probablemente la persona no elige de forma espontánea esta vía como la más cómoda para comprender información. En la práctica, puede necesitar más tiempo, apoyos visibles o ejemplos concretos para apropiarse mejor de ciertos contenidos.`;
+    }
+    if(p <= 70){
+      return `En ${label.toLowerCase()}, se observa una preferencia moderada. Esto indica que la persona puede utilizar recursos visuales, auditivos o prácticos con relativa comodidad, aunque no siempre como su primera elección. En situaciones cotidianas, puede beneficiarse de combinar dos vías de apoyo para entender mejor una tarea o consigna.`;
+    }
+    return `En ${label.toLowerCase()}, se observa una preferencia más marcada. Esto sugiere que la persona suele responder mejor cuando puede apoyarse en modalidades claras de percepción, como ver, escuchar o practicar, según el componente que destaque dentro de esta área.`;
   }
 
-  function buildAreaGrid(res){
+  if(key === "interaccion"){
+    if(p <= 40){
+      return `En ${label.toLowerCase()}, esta área aparece como una preferencia menos marcada. Esto sugiere que la persona no siempre se siente cómoda aprendiendo desde esta forma de relación con otros o consigo misma, y puede requerir condiciones más definidas para participar o concentrarse mejor.`;
+    }
+    if(p <= 70){
+      return `En ${label.toLowerCase()}, se observa una preferencia moderada. La persona puede alternar entre trabajo individual y participación con otros, según la tarea, el ambiente y el nivel de claridad de la actividad.`;
+    }
+    return `En ${label.toLowerCase()}, se observa una preferencia más marcada. Esto indica que la forma en que se relaciona con otros o consigo misma para aprender tiene un peso importante dentro de su perfil, y conviene respetarla al organizar actividades, tiempos y apoyos.`;
+  }
+
+  if(key === "comunicacion"){
+    if(p <= 40){
+      return `En ${label.toLowerCase()}, esta área aparece como una preferencia menos marcada. Esto no implica que la persona no pueda comunicarse bien, sino que probablemente no elige de forma natural esta vía como la más cómoda para expresar o reforzar lo aprendido.`;
+    }
+    if(p <= 70){
+      return `En ${label.toLowerCase()}, se observa una preferencia moderada. La persona puede usar esta vía con relativa comodidad para organizar ideas, explicar o responder, aunque no siempre como su forma principal de comunicación.`;
+    }
+    return `En ${label.toLowerCase()}, se observa una preferencia más marcada. Esto sugiere que la persona tiende a comprender, organizar o expresar mejor sus ideas cuando puede apoyarse en esta modalidad de comunicación.`;
+  }
+
+  if(p <= 40) return `En ${label.toLowerCase()}, esta modalidad aparece como una preferencia menos marcada dentro del perfil.`;
+  if(p <= 70) return `En ${label.toLowerCase()}, se observa una preferencia moderada.`;
+  return `En ${label.toLowerCase()}, se observa una preferencia más marcada.`;
+}
+   function buildAreaGrid(res){
     const grid=document.getElementById('areaGrid'); grid.innerHTML='';
     AREA_ORDER.forEach(k=>{
       const a=areaData(res,k);
       const card=document.createElement('div'); card.className='area-card';
-      card.innerHTML=`<h3>${escapeHtml(a.label)}</h3><div class="badge">${prefLabel(a.pct)}</div><div class="bar"><div class="head"><span>Índice</span><span>${pct(a.pct)}</span></div><div class="track"><div class="fill" style="width:${clamp(pct(a.pct),0,100)}%"></div></div></div><div class="muted" style="font-size:12px">Promedio del área: ${Number(a.raw||0).toFixed(1)}</div>`;
+      const cls=prefClass(a.pct);
+      card.innerHTML=`<h3>${escapeHtml(a.label)}</h3><div class="badge ${cls}">${prefLabel(a.pct)}</div><div class="bar"><div class="head"><span>Índice</span><span>${pct(a.pct)}</span></div><div class="track"><div class="fill ${cls}" style="width:${clamp(pct(a.pct),0,100)}%"></div></div></div><div class="muted" style="font-size:12px">Promedio del área: ${Number(a.raw||0).toFixed(1)}</div>`;
       grid.appendChild(card);
     });
   }
@@ -324,7 +510,8 @@
       AREA_COMPONENTS[areaKey].forEach(compKey=>{
         const c=compData(res,compKey);
         const div=document.createElement('div'); div.className='bar';
-        div.innerHTML=`<div class="head"><span>${escapeHtml(c.label)}</span><span>${pct(c.pct)} · ${escapeHtml(prefLabel(c.pct))}</span></div><div class="track"><div class="fill" style="width:${clamp(pct(c.pct),0,100)}%"></div></div>`;
+        const cls=prefClass(c.pct);
+div.innerHTML=`<div class="head"><span>${escapeHtml(COMPONENT_LABELS[compKey] || c.label)}</span><span>${pct(c.pct)} · ${escapeHtml(prefLabel(c.pct))}</span></div><div class="track"><div class="fill ${cls}" style="width:${clamp(pct(c.pct),0,100)}%"></div></div>`;
         wrap.appendChild(div);
       });
       box.appendChild(wrap);
@@ -356,7 +543,7 @@
     COMPONENT_ORDER.forEach(k=>{
       const c=compData(res,k);
       const div=document.createElement('div'); div.className='subblock';
-      div.innerHTML=`<h4>${escapeHtml(c.label)} — ${escapeHtml(prefLabel(c.pct))} (${pct(c.pct)})</h4>${componentInterpretation(k,pct(c.pct))}`;
+div.innerHTML=`<h4>${escapeHtml(COMPONENT_LABELS[k] || c.label)} — ${escapeHtml(prefLabel(c.pct))} (${pct(c.pct)})</h4>${componentInterpretation(k,pct(c.pct))}`;
       box.appendChild(div);
     });
   }
@@ -368,33 +555,39 @@
     top.forEach(k=>{
       const c=compData(res,k); const ul=(ESTRATEGIAS[k]||[]).map(t=>`<li>${escapeHtml(t)}</li>`).join('');
       const div=document.createElement('div'); div.className='subblock';
-      div.innerHTML=`<h4>${escapeHtml(c.label)} — estrategia sugerida</h4><p>Como esta preferencia aparece más marcada dentro del perfil, conviene favorecer recursos y actividades que le permitan aprender apoyándose en esta vía.</p><ul class="clean">${ul}</ul>`;
-      box.appendChild(div);
+div.innerHTML=`<h4>${escapeHtml(COMPONENT_LABELS[k] || c.label)} — estrategia sugerida</h4><p>Como esta preferencia aparece más marcada dentro del perfil, conviene favorecer recursos y actividades que le permitan aprender apoyándose en esta vía.</p><ul class="clean">${ul}</ul>`;
+            box.appendChild(div);
     });
   }
 
-  function contextSuggestions(res, esPro){
-    const sorted = [...COMPONENT_ORDER].sort((a,b)=>scoreOf(res.componentes,b)-scoreOf(res.componentes,a));
-    const top = sorted.slice(0,2);
-    const names = top.map(k=>COMPONENT_LABELS[k]);
-    const hogar = [
-      `En casa, conviene favorecer actividades que conecten con ${names[0]||'la preferencia dominante'} y ${names[1]||'la secundaria'}, evitando exigir una sola forma de aprender.`,
-      `Es útil acordar momentos breves para repasar cómo le resultó más cómodo comprender, practicar o expresar lo aprendido.`
-    ];
-    const aulaTrabajo = esPro ? [
-      `En el trabajo, conviene presentar instrucciones y tareas combinando la modalidad preferida con ejemplos claros y pasos visibles.`,
-      `Cuando sea posible, resulta útil permitir que la persona organice primero la información en su vía más cómoda y luego la comparta con el equipo.`
-    ] : [
-      `En el aula, conviene ofrecer explicaciones y actividades que incluyan la modalidad preferida, sin depender siempre de un único formato.`,
-      `Cuando sea posible, resulta útil permitir que el estudiante organice primero la información en su vía más cómoda y luego participe con el grupo.`
-    ];
-    const apoyo = [
-      `En acompañamiento, conviene revisar qué estrategias le ayudaron más a comprender, retener y comunicar lo aprendido durante la semana.`,
-      `También es útil combinar una modalidad dominante con otra menos marcada para ampliar gradualmente su repertorio de aprendizaje sin forzar el proceso.`
-    ];
-    return {hogar, aulaTrabajo, apoyo};
-  }
+function contextSuggestions(res, esPro){
+  const sorted = [...COMPONENT_ORDER].sort((a,b)=>scoreOf(res.componentes,b)-scoreOf(res.componentes,a));
+  const top = sorted.slice(0,2);
+  const n1 = COMPONENT_LABELS[top[0]] || 'la preferencia principal';
+  const n2 = COMPONENT_LABELS[top[1]] || 'la segunda preferencia';
 
+  const hogar = [
+    `En casa, conviene apoyar el aprendizaje usando recursos acordes con ${n1} y ${n2}. Por ejemplo, si necesita estudiar o recordar algo, puede revisar una lista breve, escuchar una explicación, practicar con ejemplos o escribir ideas clave, según la vía que le resulte más cómoda.`,
+    `Es útil preguntarle al final de una actividad: “¿Qué te ayudó más a entender esto?” y “¿Cómo te resultó más fácil recordarlo?”. Esa conversación ayuda a identificar qué modalidad le funciona mejor sin imponer una sola forma de aprender.`
+  ];
+
+  const aula = [
+    `En el aula, conviene presentar instrucciones y actividades combinando explicaciones claras con apoyos acordes a sus preferencias. Por ejemplo, dar pasos visibles, permitir comentar en voz alta, trabajar con ejemplos o incluir momentos breves de práctica.`,
+    `También es útil permitir que primero organice la información en la modalidad que le resulte más cómoda y luego la comparta. Por ejemplo: leer y subrayar antes de explicar, escuchar primero y luego escribir, o practicar antes de responder.`
+  ];
+
+  const trabajo = [
+    `En el trabajo, conviene presentar tareas e indicaciones en un formato que conecte con ${n1} y ${n2}. Por ejemplo, usar pasos visibles, comentar verbalmente el procedimiento, revisar ejemplos concretos o permitir que primero organice la información en su vía más cómoda.`,
+    `También resulta útil acordar una forma clara de seguimiento. Por ejemplo: resumir por escrito, comentar avances en voz alta, revisar un ejemplo práctico o dividir la tarea en pasos breves antes de ejecutarla.`
+  ];
+
+  const apoyo = [
+    `En acompañamiento, conviene observar no solo qué tanto aprende, sino cómo aprende mejor. Es útil revisar con ejemplos concretos qué modalidad le ayudó más: ver, escuchar, practicar, trabajar solo, trabajar con otros, hablar o escribir.`,
+    `También se recomienda fortalecer la modalidad más marcada sin dejar de ampliar otras. Por ejemplo, partir de la vía que le resulta más cómoda y luego añadir una segunda estrategia complementaria para darle mayor flexibilidad al aprender.`
+  ];
+
+  return { hogar, aulaTrabajo: esPro ? trabajo : aula, apoyo };
+}
   function buildContexts(res, esPro){
     const box=document.getElementById('contextosBox'); box.innerHTML='';
     const ctx=contextSuggestions(res, esPro);
@@ -422,6 +615,7 @@
     const resultados = parseMaybeJSON(attempt.resultados) || {};
     const codigoActual = String(document.getElementById('codigoInput')?.value || attempt.codigo || '').trim().toUpperCase();
     const esProfesional = codigoActual.startsWith('PRO');
+    window.__ESPRO__ = esProfesional;
     const labelCurso = esProfesional ? 'Nivel' : 'Grado/Curso';
     const nombre = attempt.nombre || '—';
     const fechaTexto = fmtDate(attempt.created_at || new Date().toISOString());
