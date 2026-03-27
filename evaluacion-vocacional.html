@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>JEvaluación Evaluación de Orientación Vocacional</title>
+  <title>CEvaluación de Orientación Vocacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -589,12 +589,12 @@ overflow-x: hidden !important;
 <body>
   <div class="layout">
     <aside class="side-strip">
-      <span>APRENDIZAJE</span>
+      <span>VOCACIONAL</span>
     </aside>
 
     <main class="page">
       <header>
-<h1 style="text-align:center;">EVALUACIÓN MAPA DE PREFERENCIAS DE APRENDIZAJE</h1>
+<h1 style="text-align:center;">EVALUACIÓN DE ORIENTACIÓN VOCACIONAL</h1>
       </header>
 
       <!-- Datos del participante -->
@@ -700,7 +700,7 @@ overflow-x: hidden !important;
       <section id="pantalla-final">
         <div class="check-icon">✔</div>
         <h2>Evaluación terminada</h2>
-        <p>Felicidades, has concluido tu autoevaluación del Evaluación de Orientación Vocacional.</p>
+        <p>Felicidades, has concluido tu Evaluación de Orientación Vocacional.</p>
         <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
       </section>
     </main>
@@ -1183,7 +1183,25 @@ function topKeys(obj,n=3){ return Object.entries(obj).sort((a,b)=>b[1]-a[1]).sli
 function calcularResultadosGlobales(){ if(!ITEMS.length) return null; const respuestas=obtenerRespuestasCrudas(); const ejes={R:0,I:0,A:0,S:0,E:0,C:0}; RIASEC_QUESTIONS.forEach(q=>{ ejes[q.eje]+=Number(respuestas[String(q.id)]||0); }); const riasecPct=Object.fromEntries(Object.entries(ejes).map(([k,v])=>[k,pctFromRaw(v,18)])); const sec2=SECTION2_ITEMS.reduce((a,q)=>a+((respuestas[String(q.id)]===q.correcta)?1:0),0); const sec3=SECTION3_ITEMS.reduce((a,q)=>a+((respuestas[String(q.id)]===q.correcta)?1:0),0); const sec4=SECTION4_ITEMS.reduce((a,q)=>a+((respuestas[String(q.id)]===q.correcta)?1:0),0); const preferencias={}; SECTION5_ITEMS.forEach(q=>{ const chosen=respuestas[String(q.id)]; const cat=q.mapeo?.[chosen]; if(cat) preferencias[cat]=(preferencias[cat]||0)+1; }); const top=topKeys(ejes,3).join(''); return { prueba:'VOCACIONAL', meta:{ page_size:PAGE_SIZE, version_banco:'VOC-v1', minutos_aprox:Math.round((Date.now() - (__startTime || Date.now()))/60000)}, resumen:{ riasec_raw:ejes, riasec_pct:riasecPct, codigo_riasec:top, visual_s2_correctas:sec2, visual_s3_correctas:sec3, visual_s4_correctas:sec4, visual_total:SECTION2_ITEMS.length+SECTION3_ITEMS.length+SECTION4_ITEMS.length, visual_correctas:sec2+sec3+sec4, visual_pct:pctFromRaw(sec2+sec3+sec4, SECTION2_ITEMS.length+SECTION3_ITEMS.length+SECTION4_ITEMS.length), total_items:ITEMS.length }, prioridades:preferencias, afinidades:{ principal:topKeys(ejes,1)[0]||'', complementarias:topKeys(ejes,3).slice(1), categorias_prioritarias:topKeys(preferencias,3) } }; }
 
 
-    document.addEventListener("DOMContentLoaded", () => {
+    
+function inicializarDatosFijos() {
+  document.getElementById("institucion").value = DATOS_FIJOS.institucion;
+  document.getElementById("grupo").value = DATOS_FIJOS.grupo;
+  document.getElementById("curso").value = DATOS_FIJOS.curso;
+
+  const hoy = new Date();
+  try {
+    const fmt = new Intl.DateTimeFormat("es-EC", { year:"numeric", month:"2-digit", day:"2-digit" });
+    document.getElementById("fecha").value = fmt.format(hoy);
+  } catch {
+    const dd = String(hoy.getDate()).padStart(2, "0");
+    const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+    const yyyy = hoy.getFullYear();
+    document.getElementById("fecha").value = dd + "/" + mm + "/" + yyyy;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
       inicializarDatosFijos();
       construirPreguntas();
 
