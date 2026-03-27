@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>vEvaluación de Orientación Vocacional</title>
+  <title>XEvaluación de Orientación Vocacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -699,7 +699,7 @@ overflow-x: hidden !important;
         <div class="check-icon">✔</div>
         <h2>Evaluación terminada</h2>
         <p>Felicidades, has concluido tu evaluación de Orientación Vocacional.</p>
-        <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
+        
       </section>
     </main>
   </div>
@@ -1659,6 +1659,199 @@ const resultados = calcularResultadosGlobales();
       return true;
     }
 
+
+
+// --- VOCACIONAL: overrides finales para mantener Sección 2 visual y sin botón extra al final ---
+function getSeccionById(id){
+  return Number(id) >= 200 ? 2 : 1;
+}
+
+function getSeccionByIndex(idx){
+  const q = ITEMS[idx];
+  return q ? getSeccionById(q.id) : 1;
+}
+
+function labelsPorSeccion(sec){
+  return sec === 1 ? ["Casi siempre","Algunas veces","Rara vez"] : ["","",""];
+}
+
+function updateSectionBanner(startIdx){
+  const sec = getSeccionByIndex(startIdx);
+  const b = document.getElementById("sectionBanner");
+  if (b) b.textContent = sec === 1 ? "Sección 1 · Intereses vocacionales" : "Sección 2 · Ejercicios visuales";
+  const banner = document.getElementById("scaleBanner");
+  const header = document.getElementById("questionsHeader");
+  if (sec === 1) {
+    if (banner) banner.style.display = "grid";
+    if (header) header.style.display = "grid";
+  } else {
+    if (banner) banner.style.display = "none";
+    if (header) header.style.display = "none";
+  }
+}
+
+function updateScaleBadgesForPage(startIdx){
+  const q = ITEMS[startIdx];
+  if (!q) return;
+  const sec = getSeccionById(q.id);
+  const labels = labelsPorSeccion(sec);
+  const l1 = document.getElementById("scaleLabel1");
+  const l2 = document.getElementById("scaleLabel2");
+  const l3 = document.getElementById("scaleLabel3");
+  if (l1) l1.textContent = (labels[0] || '').toUpperCase();
+  if (l2) l2.textContent = (labels[1] || '').toUpperCase();
+  if (l3) l3.textContent = (labels[2] || '').toUpperCase();
+}
+
+function updateProgress() {
+  const totalAll = ITEMS.length || 0;
+  const respuestas = obtenerRespuestasCrudas();
+  let answeredAll = 0;
+  for (const q of ITEMS) {
+    const key = String(q.id ?? q.item);
+    const v = respuestas[key];
+    if (v !== undefined && v !== null && v !== "") answeredAll++;
+  }
+  const start = currentPage * PAGE_SIZE;
+  const end = Math.min(start + PAGE_SIZE, totalAll);
+  const totalPage = Math.max(0, end - start);
+  let answeredPage = 0;
+  for (let i = start; i < end; i++) {
+    if (ITEMS[i] && ITEMS[i].value != null && ITEMS[i].value !== "") answeredPage++;
+  }
+  const pct = totalAll ? Math.round((answeredAll / totalAll) * 100) : 0;
+  const bar = document.getElementById("bar");
+  const pill = document.getElementById("pillTotal");
+  const nota = document.getElementById("notaContinuar");
+  const meta = document.getElementById("metaInfo");
+  if (bar) bar.style.width = pct + "%";
+  if (pill) pill.textContent = `Total: ${answeredAll} / ${totalAll} (${pct}%)`;
+  const sec = getSeccionByIndex(start);
+  if (nota) nota.textContent = sec === 1
+    ? `NOTA: Para continuar debes contestar todas las preguntas. Contestadas: ${answeredPage}/${totalPage}.`
+    : `NOTA: Para finalizar debes resolver los ejercicios visuales. Contestados: ${answeredPage}/${totalPage}.`;
+  if (meta) meta.textContent = `Página ${currentPage + 1} · ${answeredPage}/${totalPage}`;
+}
+
+function renderPage() {
+  const cont = document.getElementById("questions");
+  cont.innerHTML = "";
+  const total = ITEMS.length;
+  const start = currentPage * PAGE_SIZE;
+  const end = Math.min(start + PAGE_SIZE, total);
+  updateScaleBadgesForPage(start);
+  updateSectionBanner(start);
+
+  for (let i = start; i < end; i++) {
+    const q = ITEMS[i];
+    if (q.tipo === "visual") {
+      const wrap = document.createElement("div");
+      wrap.className = "visual-wrap";
+      const card = document.createElement("div");
+      card.className = "visual-card";
+      card.dataset.id = q.id;
+      card.innerHTML = `
+        <div class="visual-title">${String(q.id).padStart(3, "0")}. ${q.titulo}</div>
+        <div class="visual-subtitle">${q.ayuda || ""}</div>
+        ${q.renderStimulus ? q.renderStimulus() : ""}
+        <div class="visual-row">
+          ${q.opciones.map(op => `
+            <div class="option-card ${q.value === op.key ? "active" : ""}" data-qid="${q.id}" data-value="${op.key}">
+              <div class="option-letter">${op.key}</div>
+              ${op.html}
+            </div>`).join("")}
+        </div>`;
+      wrap.appendChild(card);
+      cont.appendChild(wrap);
+      continue;
+    }
+
+    const row = document.createElement("div");
+    row.className = "question";
+    const colNo = document.createElement("div");
+    colNo.className = "q-no";
+    colNo.textContent = String(q.id).padStart(3, "0");
+    row.appendChild(colNo);
+
+    const colText = document.createElement("div");
+    const txt = document.createElement("span");
+    txt.className = "q-text";
+    txt.textContent = q.pregunta;
+    colText.appendChild(txt);
+    row.appendChild(colText);
+
+    ["CS","AV","RV"].forEach(code=>{
+      const cell = document.createElement("div");
+      cell.className="q-cell";
+      const r = document.createElement("input");
+      r.type = "radio";
+      r.name = "q_" + q.id;
+      r.value = code;
+      const numValue = code === "CS" ? 3 : code === "AV" ? 2 : 1;
+      r.checked = q.value === numValue;
+      r.addEventListener("change", ()=>{
+        q.value = numValue;
+        markRowAnswered(row, q);
+        updateProgress();
+        saveState(false);
+      });
+      cell.appendChild(r);
+      row.appendChild(cell);
+    });
+
+    markRowAnswered(row, q);
+    cont.appendChild(row);
+  }
+
+  cont.querySelectorAll(".option-card").forEach(card => {
+    card.addEventListener("click", () => {
+      const qid = Number(card.dataset.qid);
+      const value = card.dataset.value;
+      const q = ITEMS.find(x => Number(x.id) === qid);
+      if (!q) return;
+      q.value = value;
+      const root = card.closest('.visual-card');
+      if (root) root.querySelectorAll('.option-card').forEach(el => el.classList.remove('active'));
+      card.classList.add('active');
+      updateProgress();
+      saveState(false);
+    });
+  });
+
+  document.getElementById("pageIndicator").textContent =
+    "Preguntas " + (start + 1) + "–" + end + " de " + total;
+  document.getElementById("btnSiguiente").textContent = (end >= total) ? "FINALIZAR" : "SIGUIENTE";
+}
+
+function calcularResultadosGlobales() {
+  if (!ITEMS.length) return null;
+  const respuestas = obtenerRespuestasCrudas();
+  const riasecRaw = { R:0, I:0, A:0, S:0, E:0, C:0 };
+  RIASEC_QUESTIONS.forEach(q => { riasecRaw[q.eje] += Number(respuestas[String(q.id)] || 0); });
+  const riasecPct = Object.fromEntries(Object.entries(riasecRaw).map(([k,v]) => [k, rawToPctVoc(v)]));
+  const orden = Object.entries(riasecRaw).sort((a,b)=> b[1]-a[1] || a[0].localeCompare(b[0])).map(([k])=>k);
+  const visualCorrectas = VOC_VISUAL_ITEMS.reduce((acc, q) => acc + ((respuestas[String(q.id)] === q.correcta) ? 1 : 0), 0);
+  const visualPct = VOC_VISUAL_ITEMS.length ? Math.round((visualCorrectas / VOC_VISUAL_ITEMS.length) * 100) : 0;
+  return {
+    prueba: "VOCACIONAL",
+    resumen: {
+      riasec_raw: riasecRaw,
+      riasec_pct: riasecPct,
+      codigo_riasec: orden.slice(0,3).join(''),
+      visual_correctas: visualCorrectas,
+      visual_total: VOC_VISUAL_ITEMS.length,
+      visual_pct: visualPct,
+      total_items: ITEMS.length,
+      minutos_aprox: Math.round((Date.now() - (__startTime || Date.now())) / 60000)
+    },
+    meta: {
+      page_size: PAGE_SIZE,
+      perfil: String(CODIGO_ACTUAL || '').toUpperCase().startsWith('PRO') ? 'PRO' : 'ESCOLAR',
+      version_banco: 'VOC-v1'
+    }
+  };
+}
+
     document.addEventListener("DOMContentLoaded", () => {
       inicializarDatosFijos();
       construirPreguntas();
@@ -1747,9 +1940,6 @@ btnIniciar.addEventListener("click", async () => {
       });
 document.getElementById("btnSiguiente").addEventListener("click", onSiguienteClick);
 
-      document.getElementById("btnRegresarMenu").addEventListener("click", () => {
-        window.location.href = "index.html";
-      });
     });
   </script>
 
