@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>bEvaluación de Orientación Vocacional Adalam</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #111827;
+      background: #ffffff;
+      --sbw: 0px;
+    }
+    html{ overflow-y: scroll; scrollbar-gutter: stable; padding-right: var(--sbw); }
+    body { overflow-y: scroll; margin: 0; padding: 0; background: #fff; font-size: 16px; overflow-x: hidden; }
+    .layout { display: grid; grid-template-columns: 80px minmax(0, 1fr); min-height: 100vh; }
+    .side-strip { background: #e5e7eb; border-right: 1px solid #cbd5e1; display:flex; align-items:center; justify-content:center; }
+    .side-strip span { writing-mode: vertical-rl; transform: rotate(180deg); font-weight:800; letter-spacing:.18em; font-size:24px; text-align:center; color:#6b7280; text-shadow: 0 1px 0 rgba(255,255,255,.8), 0 -1px 0 rgba(0,0,0,.18); }
+    .page { max-width: 1200px; margin: 0 auto; padding: 16px; width:100%; box-sizing:border-box; }
+    h1 { font-size: 22px; margin: 0 0 4px; text-align:center; }
+    h2 { font-size: 16px; margin: 16px 0 8px; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .ok { color:#16a34a; font-size:13px; font-weight:700; }
+    .err { color:#dc2626; font-size:13px; font-weight:700; }
+    .card { border:1px solid #e5e7eb; border-radius:8px; padding:12px 14px; margin-bottom:16px; background:#fff; width:100%; box-sizing:border-box; }
+    .grid-2 { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:8px 16px; }
+    .field { display:flex; flex-direction:column; gap:2px; font-size:13px; }
+    .field label { font-weight:600; }
+    .field input { padding:10px 12px; border-radius:10px; border:1px solid #d1d5db; font-size:16px; }
+    .field input[readonly] { background:#f9fafb; color:#4b5563; }
+    .hidden { display:none; }
+    .sticky-wrap{ position: sticky; top: 0; z-index: 999; background: #ffffff; padding-top: 8px; margin-top: 0; border-bottom: 1px solid #e5e7eb; }
+    .progress { width:100%; height:8px; border-radius:999px; background:#e5e7eb; overflow:hidden; margin-top:4px; }
+    .progress .bar { height:100%; width:0%; background:#2563eb; transition: width .2s ease-out; }
+    .pill { display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; border:1px solid #d1d5db; font-size:12px; background:#f9fafb; }
+    .panel-note { font-size:12px; color:#6b7280; text-align:right; margin-top:4px; }
+    .questions-header { display:grid; grid-template-columns:40px minmax(0, 1fr) repeat(3, 80px); gap:4px; align-items:center; font-size:13px; margin-top:8px; padding:4px 0; border-bottom:1px solid #e5e7eb; width:100%; box-sizing:border-box; }
+    .questions-header div { text-align:center; }
+    .questions-header div:first-child, .questions-header div:nth-child(2){ text-align:left; }
+    .questions-header > div:nth-child(2), .question > div:nth-child(2){ min-width: 0; }
+    #questions { margin-top:4px; width:100%; }
+    .question { display:grid; grid-template-columns:40px minmax(0, 1fr) repeat(3, 80px); gap:4px; align-items:center; padding:6px 0; border-bottom:1px solid #f3f4f6; font-size:15px; width:100%; box-sizing:border-box; }
+    .question:nth-child(even){ background:#f8fafc; }
+    .question.answered{ background:#ecfdf5 !important; outline:1px solid #bbf7d0; outline-offset:-1px; border-bottom-color:#bbf7d0; }
+    .q-no { font-variant-numeric: tabular-nums; text-align:center; color:#6b7280; }
+    .q-text { display:block; overflow-wrap:anywhere; word-break:break-word; }
+    .q-cell { text-align:center; }
+    .q-cell input[type="radio"] { width:18px; height:18px; cursor:pointer; }
+    .footer-actions { display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:8px; flex-wrap:wrap; }
+    button { border-radius:999px; border:none; padding:8px 18px; font-size:14px; font-weight:600; cursor:pointer; background:#16a34a; color:#fff; }
+    button.secondary{ background:#fff; color:#111827; border:1px solid #d1d5db; }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+    .scale-banner { margin-top:6px; margin-bottom:2px; display:grid; grid-template-columns:40px minmax(0, 1fr) repeat(3, 80px); gap:10px; align-items:end; width:100%; box-sizing:border-box; }
+    .scale-spacer{ height:1px; }
+    .scale-badge { background:#f97316; color:#fff; padding:2px 8px 4px; border-radius:4px 4px 0 0; font-size:10px; font-weight:700; text-align:center; position:relative; min-width:72px; justify-self:center; width:72px; }
+    .scale-badge::after { content:""; position:absolute; left:50%; transform:translateX(-50%); bottom:-4px; width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:4px solid #f97316; }
+    .section-banner { display:block; width:auto; min-width:0; margin:0; padding:6px 12px; border-radius:4px 4px 0 0; font-weight:800; font-size:14px; letter-spacing:.35px; text-transform:uppercase; background:#fef3c7; border:1px solid #f59e0b; color:#92400e; justify-self:center; align-self:end; white-space:nowrap; }
+    .intro-list { margin:0; padding-left:18px; }
+    .intro-list li { margin: 4px 0; }
+    .visual-wrap{ display:flex; flex-direction:column; gap:14px; }
+    .visual-card{ border:1px solid #e5e7eb; border-radius:14px; padding:14px; background:#fff; }
+    .visual-title{ font-size:18px; font-weight:800; margin:0 0 6px; }
+    .visual-subtitle{ font-size:14px; color:#6b7280; margin:0 0 12px; }
+    .visual-row{ display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px; }
+    .option-card{ border:2px solid #d1d5db; border-radius:14px; background:#fff; padding:12px; cursor:pointer; transition:.18s ease; min-height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; user-select:none; }
+    .option-card:hover{ border-color:#2563eb; box-shadow:0 6px 18px rgba(37,99,235,.10); transform:translateY(-1px); }
+    .option-card.active{ border-color:#16a34a; background:#ecfdf5; box-shadow:0 0 0 3px rgba(22,163,74,.10); }
+    .option-letter{ width:28px; height:28px; border-radius:999px; background:#f3f4f6; color:#111827; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; margin-bottom:8px; }
+    .option-card.active .option-letter{ background:#16a34a; color:#fff; }
+    .visual-stimulus{ border:1px dashed #cbd5e1; border-radius:12px; padding:12px; background:#f8fafc; margin-bottom:12px; }
+    .shape-row, .number-seq{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
+    .shape-box{ width:54px; height:54px; border-radius:12px; border:2px solid #94a3b8; display:flex; align-items:center; justify-content:center; font-size:28px; background:#fff; }
+    .shape-arrow{ font-weight:900; color:#6b7280; font-size:20px; }
+    .num-chip{ min-width:54px; height:54px; border-radius:12px; border:2px solid #94a3b8; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; }
+    #pantalla-final { margin-top:32px; padding:24px 18px; border-radius:8px; border:1px solid #e5e7eb; background:#fefce8; text-align:center; display:none; }
+    .check-icon { width:40px; height:40px; border-radius:999px; border:2px solid #16a34a; display:inline-flex; align-items:center; justify-content:center; color:#16a34a; font-size:24px; margin-bottom:8px; }
+    .download-row{ margin-top:16px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+    @media (max-width:840px){ .layout{ grid-template-columns:56px minmax(0,1fr);} .side-strip span{ font-size:18px; } }
+    @media (max-width:720px){ .grid-2{ grid-template-columns:1fr; } .questions-header,.question,.scale-banner{ grid-template-columns:32px 1fr repeat(3, 64px); } .scale-badge{ min-width:56px; width:56px; } .visual-row{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="side-strip"><span>VOCACIONAL</span></aside>
+    <main class="page">
+      <header>
+        <h1>EVALUACIÓN DE ORIENTACIÓN VOCACIONAL</h1>
+      </header>
+
+      <section id="datos-participante" class="card" style="margin-top: 50px;">
+        <div class="grid-2">
+          <div class="field"><label for="codigo">Código</label><input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" /><small id="codigoMsg" class="muted">Ingresa un código.</small></div>
+          <div class="field"><label for="nombre">Nombre</label><input id="nombre" type="text" autocomplete="name" /></div>
+          <div class="field"><label for="curso" id="lblCurso">Grado/Curso/Nivel</label><input id="curso" type="text" readonly /></div>
+          <div class="field"><label for="institucion">Institución</label><input id="institucion" type="text" readonly /></div>
+          <div class="field"><label for="grupo">País</label><input id="grupo" type="text" readonly /></div>
+          <div class="field"><label for="fecha">Fecha</label><input id="fecha" type="text" readonly /></div>
+        </div>
+      </section>
+
+      <section id="pantalla-inicio" class="card">
+        <h2>Antes de comenzar</h2>
+        <p class="muted">Esta primera versión vocacional usa la base robusta de validación, autosave y envío. La Sección 1 trabaja intereses RIASEC y la Sección 2 introduce ejercicios visuales de razonamiento.</p>
+        <ul class="intro-list muted">
+          <li>La evaluación guarda el avance por código.</li>
+          <li>Si tu código empieza con <strong>PRO</strong>, se mostrará <strong>Nivel</strong>.</li>
+          <li>Debes responder todas las actividades de cada página para continuar.</li>
+        </ul>
+        <div style="margin-top: 12px; text-align: right;"><button id="btnIniciar" class="primary">Siguiente</button></div>
+      </section>
+
+      <section id="pantalla-preguntas" class="hidden">
+        <div class="card">
+          <div class="sticky-wrap">
+            <h2 style="margin:0 0 6px;">Responde las siguientes actividades</h2>
+            <div class="scale-banner" aria-label="Escala" id="scaleBanner">
+              <div class="scale-spacer"></div>
+              <div id="sectionBanner" class="section-banner">Sección 1</div>
+              <div class="scale-badge"><span id="scaleLabel1">CASI SIEMPRE</span></div>
+              <div class="scale-badge"><span id="scaleLabel2">ALGUNAS VECES</span></div>
+              <div class="scale-badge"><span id="scaleLabel3">RARA VEZ</span></div>
+            </div>
+            <div class="progress" aria-label="Progreso"><div class="bar" id="bar"></div></div>
+            <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
+              <small id="metaInfo" class="muted"></small>
+            </div>
+            <div class="questions-header" id="questionsHeader">
+              <div>#</div><div>Actividad</div><div>CS</div><div>AV</div><div>RV</div>
+            </div>
+          </div>
+          <div id="questions"></div>
+          <div class="footer-actions">
+            <div><small id="pageIndicator" class="muted"></small></div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+              <small id="notaContinuar" class="panel-note">NOTA: Para continuar debes contestar todas las actividades de esta página.</small>
+              <button id="btnSiguiente" class="primary">SIGUIENTE</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pantalla-final">
+        <div class="check-icon">✔</div>
+        <h2>Evaluación terminada</h2>
+        <p>Felicidades, has concluido tu evaluación de orientación vocacional.</p>
+        <p class="muted" style="margin-top:6px;">Los datos validados al inicio se muestran nuevamente arriba para verificación final.</p>
+        <div class="download-row">
+          <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
+          <button id="btnDescargarJson" class="secondary">DESCARGAR JSON</button>
+          <button id="btnReiniciar" class="secondary">REINICIAR</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function lockScrollbarWidth(){
+      function setSBW(){
+        const sbw = window.innerWidth - document.documentElement.clientWidth;
+        document.documentElement.style.setProperty("--sbw", (sbw > 0 ? sbw : 0) + "px");
+      }
+      setSBW(); window.addEventListener("resize", setSBW);
+    })();
+
+    const STORAGE_PREFIX = "eval_vocacional_adalam_v1_";
+    const PAGE_SIZE = 10;
+    let currentPage = 0;
+    let __startTime = Date.now();
+    let CODIGO_ACTUAL = null;
+    let RESUME_STATE = null;
+    let ITEMS = [];
+
+    const codigoInput = document.getElementById('codigo');
+    const codigoMsg = document.getElementById('codigoMsg');
+    const btnIniciar = document.getElementById('btnIniciar');
+    const instInput = document.getElementById('institucion');
+    const grupoInput = document.getElementById('grupo');
+    const cursoInput = document.getElementById('curso');
+    const nombreInput = document.getElementById('nombre');
+
+    const DATOS_FIJOS = { institucion: "", grupo: "", curso: "" };
+
+    const RIASEC_QUESTIONS = [
+      { id: 1, pregunta: "Me gusta trabajar con herramientas, equipos o maquinaria.", seccion: 1, tipo: "pregunta", eje: "R" },
+      { id: 2, pregunta: "Prefiero realizar actividades prácticas en lugar de solo leer o escuchar.", seccion: 1, tipo: "pregunta", eje: "R" },
+      { id: 3, pregunta: "Disfruto armar, reparar o construir cosas.", seccion: 1, tipo: "pregunta", eje: "R" },
+      { id: 4, pregunta: "Me siento cómodo realizando tareas manuales o técnicas.", seccion: 1, tipo: "pregunta", eje: "R" },
+      { id: 5, pregunta: "Prefiero aprender haciendo que solo observando.", seccion: 1, tipo: "pregunta", eje: "R" },
+      { id: 6, pregunta: "Me interesa entender cómo funcionan los objetos o sistemas físicos.", seccion: 1, tipo: "pregunta", eje: "R" },
+      { id: 7, pregunta: "Me gusta analizar problemas para encontrar cómo resolverlos.", seccion: 1, tipo: "pregunta", eje: "I" },
+      { id: 8, pregunta: "Disfruto investigar temas que me generan curiosidad.", seccion: 1, tipo: "pregunta", eje: "I" },
+      { id: 9, pregunta: "Me interesa entender por qué ocurren las cosas.", seccion: 1, tipo: "pregunta", eje: "I" },
+      { id: 10, pregunta: "Prefiero actividades que requieren pensar y reflexionar.", seccion: 1, tipo: "pregunta", eje: "I" },
+      { id: 11, pregunta: "Disfruto trabajar con ideas, teorías o conceptos.", seccion: 1, tipo: "pregunta", eje: "I" },
+      { id: 12, pregunta: "Me gusta observar detalles para llegar a conclusiones.", seccion: 1, tipo: "pregunta", eje: "I" },
+      { id: 13, pregunta: "Me gusta expresar ideas de forma creativa.", seccion: 1, tipo: "pregunta", eje: "A" },
+      { id: 14, pregunta: "Disfruto crear cosas originales.", seccion: 1, tipo: "pregunta", eje: "A" },
+      { id: 15, pregunta: "Prefiero actividades donde puedo usar la imaginación.", seccion: 1, tipo: "pregunta", eje: "A" },
+      { id: 16, pregunta: "Me gusta hacer las cosas de forma diferente a los demás.", seccion: 1, tipo: "pregunta", eje: "A" },
+      { id: 17, pregunta: "Disfruto ambientes donde hay libertad para crear.", seccion: 1, tipo: "pregunta", eje: "A" },
+      { id: 18, pregunta: "Me interesa el diseño, el arte o la expresión personal.", seccion: 1, tipo: "pregunta", eje: "A" },
+      { id: 19, pregunta: "Me gusta ayudar a otras personas.", seccion: 1, tipo: "pregunta", eje: "S" },
+      { id: 20, pregunta: "Disfruto enseñar o explicar cosas a otros.", seccion: 1, tipo: "pregunta", eje: "S" },
+      { id: 21, pregunta: "Me siento cómodo trabajando con personas.", seccion: 1, tipo: "pregunta", eje: "S" },
+      { id: 22, pregunta: "Me interesa apoyar a otros en sus problemas o necesidades.", seccion: 1, tipo: "pregunta", eje: "S" },
+      { id: 23, pregunta: "Prefiero actividades donde pueda colaborar o acompañar.", seccion: 1, tipo: "pregunta", eje: "S" },
+      { id: 24, pregunta: "Me gusta escuchar y orientar a otras personas.", seccion: 1, tipo: "pregunta", eje: "S" },
+      { id: 25, pregunta: "Me gusta liderar o tomar decisiones importantes.", seccion: 1, tipo: "pregunta", eje: "E" },
+      { id: 26, pregunta: "Disfruto convencer o influir en otras personas.", seccion: 1, tipo: "pregunta", eje: "E" },
+      { id: 27, pregunta: "Me siento cómodo organizando actividades o proyectos.", seccion: 1, tipo: "pregunta", eje: "E" },
+      { id: 28, pregunta: "Me interesa alcanzar metas y resultados.", seccion: 1, tipo: "pregunta", eje: "E" },
+      { id: 29, pregunta: "Me gusta asumir retos donde debo tomar iniciativa.", seccion: 1, tipo: "pregunta", eje: "E" },
+      { id: 30, pregunta: "Disfruto situaciones donde debo negociar o proponer ideas.", seccion: 1, tipo: "pregunta", eje: "E" },
+      { id: 31, pregunta: "Me gusta organizar información o datos.", seccion: 1, tipo: "pregunta", eje: "C" },
+      { id: 32, pregunta: "Prefiero seguir instrucciones claras y ordenadas.", seccion: 1, tipo: "pregunta", eje: "C" },
+      { id: 33, pregunta: "Disfruto trabajar con listas, registros o detalles.", seccion: 1, tipo: "pregunta", eje: "C" },
+      { id: 34, pregunta: "Me siento cómodo realizando tareas estructuradas.", seccion: 1, tipo: "pregunta", eje: "C" },
+      { id: 35, pregunta: "Prefiero ambientes donde todo está bien organizado.", seccion: 1, tipo: "pregunta", eje: "C" },
+      { id: 36, pregunta: "Me gusta mantener orden en mis actividades o espacios.", seccion: 1, tipo: "pregunta", eje: "C" }
+    ].map(q => ({...q, value: null}));
+
+    const VOC_VISUAL_ITEMS = [
+      {
+        id: 201, seccion: 2, tipo: "visual", subtipo: "figuras",
+        titulo: "Observa la secuencia y elige la opción que la completa mejor.", ayuda: "Selecciona una sola opción.", correcta: "B", value: null,
+        renderStimulus: () => `<div class="visual-stimulus"><div class="shape-row"><div class="shape-box">●</div><div class="shape-arrow">→</div><div class="shape-box">▲</div><div class="shape-arrow">→</div><div class="shape-box">■</div><div class="shape-arrow">→</div><div class="shape-box">?</div></div></div>`,
+        opciones: [
+          { key:"A", html:`<div class="shape-box">▲</div>` },
+          { key:"B", html:`<div class="shape-box">●</div>` },
+          { key:"C", html:`<div class="shape-box">■</div>` }
+        ]
+      },
+      {
+        id: 202, seccion: 2, tipo: "visual", subtipo: "numerico",
+        titulo: "Observa la secuencia y elige la opción correcta.", ayuda: "Selecciona una sola opción.", correcta: "C", value: null,
+        renderStimulus: () => `<div class="visual-stimulus"><div class="number-seq"><div class="num-chip">2</div><div class="shape-arrow">→</div><div class="num-chip">4</div><div class="shape-arrow">→</div><div class="num-chip">8</div><div class="shape-arrow">→</div><div class="num-chip">16</div><div class="shape-arrow">→</div><div class="num-chip">?</div></div></div>`,
+        opciones: [
+          { key:"A", html:`<div class="num-chip">18</div>` },
+          { key:"B", html:`<div class="num-chip">24</div>` },
+          { key:"C", html:`<div class="num-chip">32</div>` }
+        ]
+      }
+    ];
+
+    function construirPreguntasVocacional() {
+      ITEMS = [...RIASEC_QUESTIONS, ...VOC_VISUAL_ITEMS];
+      currentPage = 0;
+      renderPage();
+      updateProgress();
+    }
+
+    function getStorageKey() {
+      const code = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase() || '').trim();
+      return code ? STORAGE_PREFIX + code : null;
+    }
+
+    function loadStateForCurrentCode() {
+      const key = getStorageKey();
+      if (!key) return null;
+      try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
+    }
+
+    function isStateCompleted(state) {
+      return !!(state && state.completed);
+    }
+
+    async function syncAutosaveToServer(state) {
+      try {
+        if (!CODIGO_ACTUAL) return;
+        const payload = {
+          codigo: CODIGO_ACTUAL,
+          current_page: state.currentPage || 0,
+          responses: state.responses || {},
+          snapshot: {
+            nombre: state.nombre || '',
+            institucion: state.institucion || '',
+            grupo: state.grupo || '',
+            curso: state.curso || '',
+            fecha: state.fecha || '',
+            startTime: state.startTime || null
+          }
+        };
+        await fetch('/api/autosave', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {
+        console.warn('No se pudo sincronizar autosave servidor:', e);
+      }
+    }
+
+    async function cargarAutosaveServidor(codigo) {
+      if (!codigo) return null;
+      try {
+        const r = await fetch(`/api/autosave?codigo=${encodeURIComponent(codigo)}`);
+        const data = await r.json();
+        if (!r.ok || !data.ok || !data.autosave) return null;
+        const row = data.autosave;
+        const snap = row.snapshot || {};
+        return {
+          codigo: row.codigo || codigo,
+          nombre: snap.nombre || '',
+          institucion: snap.institucion || '',
+          grupo: snap.grupo || '',
+          curso: snap.curso || '',
+          fecha: snap.fecha || '',
+          currentPage: typeof row.current_page === 'number' ? row.current_page : 0,
+          responses: row.responses || {},
+          startTime: snap.startTime || Date.now(),
+          completed: false
+        };
+      } catch (e) {
+        console.warn('No se pudo cargar autosave servidor:', e);
+        return null;
+      }
+    }
+
+    function saveState(completedFlag) {
+      const key = getStorageKey();
+      if (!key) return;
+      const prev = loadStateForCurrentCode() || {};
+      const state = {
+        ...prev,
+        codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
+        nombre: nombreInput.value.trim(),
+        institucion: instInput.value.trim(),
+        grupo: grupoInput.value.trim(),
+        curso: cursoInput.value.trim(),
+        fecha: document.getElementById('fecha').value,
+        currentPage,
+        responses: obtenerRespuestasCrudas(),
+        startTime: __startTime || Date.now(),
+        completed: (typeof completedFlag === 'boolean') ? completedFlag : !!prev.completed
+      };
+      localStorage.setItem(key, JSON.stringify(state));
+      syncAutosaveToServer(state);
+    }
+
+    async function lookupCodigo() {
+      const codigo = codigoInput.value.trim().toUpperCase();
+      codigoInput.value = codigo;
+      CODIGO_ACTUAL = null;
+      RESUME_STATE = null;
+      btnIniciar.disabled = true;
+      if (!codigo) {
+        instInput.value = grupoInput.value = cursoInput.value = '';
+        document.getElementById('lblCurso').textContent = 'Grado/Curso/Nivel';
+        codigoMsg.textContent = 'Ingresa un código.';
+        codigoMsg.className = 'err';
+        return;
+      }
+      codigoMsg.textContent = 'Buscando...';
+      codigoMsg.className = 'muted';
+      try {
+        const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Código no válido');
+        const codigoUsado = data.usado === true || data.usado === 'true' || (typeof data.disponible === 'boolean' && data.disponible === false) || (data.estado && String(data.estado).toLowerCase() !== 'activo') || (typeof data.intentos_max === 'number' && typeof data.intentos_usados === 'number' && data.intentos_usados >= data.intentos_max);
+        if (codigoUsado) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          document.getElementById('lblCurso').textContent = 'Grado/Curso/Nivel';
+          codigoMsg.textContent = 'Este código ya fue utilizado o no está disponible.';
+          codigoMsg.className = 'err';
+          return;
+        }
+        CODIGO_ACTUAL = data.codigo || codigo;
+        instInput.value = data.institucion || '';
+        grupoInput.value = data.grupo || '';
+        cursoInput.value = data.curso || '';
+        document.getElementById('lblCurso').textContent = /^PRO/i.test(CODIGO_ACTUAL) ? 'Nivel' : 'Grado/Curso';
+        btnIniciar.disabled = false;
+        codigoMsg.textContent = 'Código válido.';
+        codigoMsg.className = 'ok';
+
+        const localState = loadStateForCurrentCode();
+        if (isStateCompleted(localState)) {
+          btnIniciar.disabled = true;
+          CODIGO_ACTUAL = null;
+          codigoMsg.textContent = 'Este código ya fue utilizado para completar una evaluación en este dispositivo.';
+          codigoMsg.className = 'err';
+          return;
+        }
+        const serverState = await cargarAutosaveServidor(CODIGO_ACTUAL);
+        const resume = (localState && localState.responses && Object.keys(localState.responses).length) ? localState : serverState;
+        if (resume && resume.responses && Object.keys(resume.responses).length) {
+          if (confirm('Se encontró un avance guardado. ¿Deseas continuar donde lo dejaste?')) {
+            RESUME_STATE = resume;
+          }
+        }
+      } catch (e) {
+        instInput.value = grupoInput.value = cursoInput.value = '';
+        document.getElementById('lblCurso').textContent = 'Grado/Curso/Nivel';
+        codigoMsg.textContent = 'Código no encontrado.';
+        codigoMsg.className = 'err';
+      }
+    }
+
+    function markRowAnswered(rowEl, q) {
+      if (!rowEl) return;
+      if (q && q.value != null && q.value !== '') rowEl.classList.add('answered');
+      else rowEl.classList.remove('answered');
+    }
+
+    function getSeccionByIndex(startIdx){
+      const q = ITEMS[startIdx]; return q ? (q.seccion || 1) : 1;
+    }
+
+    function updateSectionBanner(startIdx){
+      const sec = getSeccionByIndex(startIdx);
+      const b = document.getElementById('sectionBanner');
+      if (b) b.textContent = sec === 1 ? 'Sección 1 · Intereses' : 'Sección 2 · Visual';
+      const banner = document.getElementById('scaleBanner');
+      const header = document.getElementById('questionsHeader');
+      if (sec === 1) {
+        banner.style.display = 'grid';
+        header.style.display = 'grid';
+      } else {
+        banner.style.display = 'none';
+        header.style.display = 'none';
+      }
+    }
+
+    function renderPage() {
+      const cont = document.getElementById('questions');
+      cont.innerHTML = '';
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+      updateSectionBanner(start);
+
+      for (let i = start; i < end; i++) {
+        const q = ITEMS[i];
+        if (q.tipo === 'visual') {
+          const wrap = document.createElement('div'); wrap.className = 'visual-wrap';
+          const card = document.createElement('div'); card.className = 'visual-card'; card.dataset.id = q.id;
+          card.innerHTML = `<div class="visual-title">${String(q.id).padStart(3, '0')}. ${q.titulo}</div><div class="visual-subtitle">${q.ayuda || ''}</div>${q.renderStimulus ? q.renderStimulus() : ''}<div class="visual-row">${q.opciones.map(op => `<div class="option-card ${q.value === op.key ? 'active' : ''}" data-qid="${q.id}" data-value="${op.key}"><div class="option-letter">${op.key}</div>${op.html}</div>`).join('')}</div>`;
+          wrap.appendChild(card); cont.appendChild(wrap); continue;
+        }
+        const row = document.createElement('div'); row.className = 'question';
+        const colNo = document.createElement('div'); colNo.className = 'q-no'; colNo.textContent = String(q.id).padStart(3, '0'); row.appendChild(colNo);
+        const colText = document.createElement('div'); const txt = document.createElement('span'); txt.className = 'q-text'; txt.textContent = q.pregunta; colText.appendChild(txt); row.appendChild(colText);
+        [['CS',3],['AV',2],['RV',1]].forEach(([code,score]) => {
+          const cell = document.createElement('div'); cell.className = 'q-cell';
+          const r = document.createElement('input'); r.type = 'radio'; r.name = 'q_' + q.id; r.value = code;
+          if (q.value === score) r.checked = true;
+          r.addEventListener('change', ()=>{ q.value = score; markRowAnswered(row, q); updateProgress(); saveState(false); });
+          cell.appendChild(r); row.appendChild(cell);
+        });
+        markRowAnswered(row, q); cont.appendChild(row);
+      }
+
+      cont.querySelectorAll('.option-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const qid = Number(card.dataset.qid);
+          const value = card.dataset.value;
+          const item = ITEMS.find(x => x.id === qid);
+          if (!item) return;
+          item.value = value;
+          cont.querySelectorAll(`.option-card[data-qid="${qid}"]`).forEach(el => el.classList.remove('active'));
+          card.classList.add('active');
+          updateProgress(); saveState(false);
+        });
+      });
+
+      document.getElementById('pageIndicator').textContent = `Actividades ${start + 1}–${end} de ${total}`;
+      document.getElementById('btnSiguiente').textContent = (end >= total) ? 'FINALIZAR' : 'SIGUIENTE';
+    }
+
+    function paginaCompleta() {
+      const total = ITEMS.length; const start = currentPage * PAGE_SIZE; const end = Math.min(start + PAGE_SIZE, total);
+      for (let i = start; i < end; i++) { const v = ITEMS[i].value; if (v === null || v === undefined || v === '') return false; }
+      return true;
+    }
+
+    function obtenerRespuestasCrudas() {
+      const map = {};
+      ITEMS.forEach(q => { if (q.value !== null && q.value !== undefined && q.value !== '') map[String(q.id)] = q.value; });
+      return map;
+    }
+
+    function updateProgress() {
+      const totalAll = ITEMS.length || 0;
+      const respuestas = obtenerRespuestasCrudas();
+      let answeredAll = 0;
+      for (const q of ITEMS) { const v = respuestas[String(q.id)]; if (v !== undefined && v !== null && v !== '') answeredAll++; }
+      const start = currentPage * PAGE_SIZE; const end = Math.min(start + PAGE_SIZE, totalAll); const totalPage = Math.max(0, end - start);
+      let answeredPage = 0; for (let i = start; i < end; i++) { if (ITEMS[i] && ITEMS[i].value != null && ITEMS[i].value !== '') answeredPage++; }
+      const pct = totalAll ? Math.round((answeredAll / totalAll) * 100) : 0;
+      document.getElementById('bar').style.width = pct + '%';
+      document.getElementById('pillTotal').textContent = `Total: ${answeredAll} / ${totalAll} (${pct}%)`;
+      document.getElementById('notaContinuar').textContent = `NOTA: Para continuar debes contestar todas las actividades de esta página. Contestadas: ${answeredPage}/${totalPage}.`;
+      document.getElementById('metaInfo').textContent = `Página ${currentPage + 1} · ${answeredPage}/${totalPage}`;
+    }
+
+    function aplicarState(state) {
+      if (!state) return;
+      nombreInput.value = state.nombre || '';
+      codigoInput.value = state.codigo || codigoInput.value || '';
+      cursoInput.value = state.curso || '';
+      instInput.value = state.institucion || '';
+      grupoInput.value = state.grupo || '';
+      if (state.fecha) document.getElementById('fecha').value = state.fecha;
+      const resp = state.responses || {};
+      ITEMS.forEach(q => { const v = resp[String(q.id)]; q.value = (v !== undefined ? v : null); });
+      currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
+      __startTime = state.startTime || Date.now();
+    }
+
+    function inicializarDatosFijos() {
+      const hoy = new Date();
+      try {
+        const fmt = new Intl.DateTimeFormat('es-EC', { year:'numeric', month:'2-digit', day:'2-digit' });
+        document.getElementById('fecha').value = fmt.format(hoy);
+      } catch {
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+        const yyyy = hoy.getFullYear();
+        document.getElementById('fecha').value = dd + '/' + mm + '/' + yyyy;
+      }
+    }
+
+    function setReadOnlyHeader(on) {
+      const codigoEl = document.getElementById('codigo');
+      const nombreEl = document.getElementById('nombre');
+      const cursoEl = document.getElementById('curso');
+      const instEl = document.getElementById('institucion');
+      const grupoEl = document.getElementById('grupo');
+      if (codigoEl) codigoEl.readOnly = !!on;
+      if (nombreEl) nombreEl.readOnly = !!on;
+      if (cursoEl) cursoEl.readOnly = true;
+      if (instEl) instEl.readOnly = true;
+      if (grupoEl) grupoEl.readOnly = true;
+    }
+
+    function mostrarPantallaPreguntas() {
+      document.getElementById('pantalla-inicio').classList.add('hidden');
+      document.getElementById('datos-participante').classList.add('hidden');
+      document.getElementById('pantalla-final').style.display = 'none';
+      document.getElementById('pantalla-preguntas').classList.remove('hidden');
+      renderPage(); updateProgress(); window.scrollTo(0, 0);
+    }
+
+    function pct0a100(valor, max) {
+      if (!max) return 0;
+      return Math.round((Number(valor || 0) / max) * 100);
+    }
+
+    function calcularResultados() {
+      const respuestas = obtenerRespuestasCrudas();
+      const ejes = { R:0, I:0, A:0, S:0, E:0, C:0 };
+      RIASEC_QUESTIONS.forEach(q => { ejes[q.eje] += Number(respuestas[String(q.id)] || 0); });
+      const ejesPct = Object.fromEntries(Object.entries(ejes).map(([k,v]) => [k, pct0a100(v, 18)]));
+      const top3 = Object.entries(ejes).sort((a,b) => b[1] - a[1]).slice(0,3).map(([k]) => k);
+      const visualCorrectas = VOC_VISUAL_ITEMS.reduce((acc, q) => acc + ((respuestas[String(q.id)] === q.correcta) ? 1 : 0), 0);
+      const perfil = String(CODIGO_ACTUAL || '').toUpperCase().startsWith('PRO') ? 'PRO' : 'ESCOLAR';
+      return {
+        prueba: 'VOCACIONAL',
+        nombre: nombreInput.value.trim(),
+        codigo: (CODIGO_ACTUAL || codigoInput.value.trim()).toUpperCase(),
+        curso: cursoInput.value.trim(),
+        institucion: instInput.value.trim(),
+        grupo: grupoInput.value.trim(),
+        fecha: document.getElementById('fecha').value,
+        respuestas,
+        resumen: {
+          riasec_raw: ejes,
+          riasec_pct: ejesPct,
+          codigo_riasec: top3.join(''),
+          visual_correctas: visualCorrectas,
+          visual_total: VOC_VISUAL_ITEMS.length,
+          visual_pct: pct0a100(visualCorrectas, VOC_VISUAL_ITEMS.length),
+          total_items: ITEMS.length,
+          minutos_aprox: Math.round((Date.now() - (__startTime || Date.now())) / 60000)
+        },
+        meta: { perfil, version_banco: 'VOC-v1' }
+      };
+    }
+
+    function finalizar() {
+      const payloadResultados = calcularResultados();
+      const payload = {
+        codigo: CODIGO_ACTUAL,
+        snapshot: {
+          nombre: nombreInput.value.trim(),
+          institucion: instInput.value.trim(),
+          grupo: grupoInput.value.trim(),
+          curso: cursoInput.value.trim(),
+          version_banco: 'VOC-v1'
+        },
+        resultados: payloadResultados,
+        responses: obtenerRespuestasCrudas()
+      };
+      saveState(true);
+      fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(() => {});
+      setReadOnlyHeader(true);
+      document.getElementById('datos-participante').classList.remove('hidden');
+      document.getElementById('pantalla-preguntas').classList.add('hidden');
+      document.getElementById('pantalla-final').style.display = 'block';
+      document.getElementById('pantalla-final').scrollIntoView({ block: 'start' });
+    }
+
+    codigoInput.addEventListener('input', () => { codigoInput.value = codigoInput.value.toUpperCase(); });
+    codigoInput.addEventListener('blur', lookupCodigo);
+    codigoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); lookupCodigo(); } });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      inicializarDatosFijos();
+      construirPreguntasVocacional();
+      btnIniciar.disabled = true;
+
+      document.getElementById('btnIniciar').addEventListener('click', () => {
+        if (!CODIGO_ACTUAL) { alert('Primero valida el código.'); return; }
+        if (!nombreInput.value.trim()) { alert('Por favor ingresa tu nombre antes de iniciar.'); return; }
+        if (RESUME_STATE) aplicarState(RESUME_STATE);
+        __startTime = __startTime || Date.now();
+        saveState(false);
+        mostrarPantallaPreguntas();
+      });
+
+      document.getElementById('btnSiguiente').addEventListener('click', () => {
+        if (!paginaCompleta()) { alert('NOTA: Para continuar debes contestar todas las actividades de esta página.'); return; }
+        const total = ITEMS.length; const start = currentPage * PAGE_SIZE; const end = Math.min(start + PAGE_SIZE, total);
+        if (end >= total) finalizar();
+        else { currentPage++; saveState(false); renderPage(); updateProgress(); window.scrollTo(0,0); }
+      });
+
+      document.getElementById('btnDescargarJson').addEventListener('click', () => {
+        const data = calcularResultados();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'resultados_vocacional_v1.json';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      document.getElementById('btnReiniciar').addEventListener('click', () => {
+        if (!confirm('¿Deseas reiniciar esta evaluación?')) return;
+        const key = getStorageKey();
+        if (key) localStorage.removeItem(key);
+        location.reload();
+      });
+    });
+  </script>
+</body>
+</html>
