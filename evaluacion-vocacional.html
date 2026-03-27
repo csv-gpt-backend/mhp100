@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>CEvaluación de Orientación Vocacional Adalam</title>
+  <title>VEvaluación de Orientación Vocacional Adalam</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -91,9 +91,9 @@
         <div class="grid-2">
           <div class="field"><label for="codigo">Código</label><input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" /><small id="codigoMsg" class="muted">Ingresa un código.</small></div>
           <div class="field"><label for="nombre">Nombre</label><input id="nombre" type="text" autocomplete="name" /></div>
-          <div class="field"><label for="curso" id="lblCurso">Grado/Curso/Nivel</label><input id="curso" type="text" /></div>
-          <div class="field"><label for="institucion">Institución</label><input id="institucion" type="text" /></div>
-          <div class="field"><label for="grupo">País</label><input id="grupo" type="text" /></div>
+          <div class="field"><label for="curso" id="lblCurso">Grado/Curso/Nivel</label><input id="curso" type="text" readonly /></div>
+          <div class="field"><label for="institucion">Institución</label><input id="institucion" type="text" readonly /></div>
+          <div class="field"><label for="grupo">País</label><input id="grupo" type="text" readonly /></div>
           <div class="field"><label for="fecha">Fecha</label><input id="fecha" type="text" readonly /></div>
         </div>
       </section>
@@ -143,8 +143,10 @@
       <section id="pantalla-final">
         <div class="check-icon">✔</div>
         <h2>Evaluación terminada</h2>
-        <p>Ya concluiste esta primera versión integrada de la evaluación vocacional.</p>
+        <p>Felicidades, has concluido tu evaluación de orientación vocacional.</p>
+        <p class="muted" style="margin-top:6px;">Los datos validados al inicio se muestran nuevamente arriba para verificación final.</p>
         <div class="download-row">
+          <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
           <button id="btnDescargarJson" class="secondary">DESCARGAR JSON</button>
           <button id="btnReiniciar" class="secondary">REINICIAR</button>
         </div>
@@ -520,10 +522,16 @@
     }
 
     function setReadOnlyHeader(on) {
-      ['codigo','nombre','curso','institucion','grupo'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.readOnly = !!on;
-      });
+      const codigoEl = document.getElementById('codigo');
+      const nombreEl = document.getElementById('nombre');
+      const cursoEl = document.getElementById('curso');
+      const instEl = document.getElementById('institucion');
+      const grupoEl = document.getElementById('grupo');
+      if (codigoEl) codigoEl.readOnly = !!on;
+      if (nombreEl) nombreEl.readOnly = !!on;
+      if (cursoEl) cursoEl.readOnly = true;
+      if (instEl) instEl.readOnly = true;
+      if (grupoEl) grupoEl.readOnly = true;
     }
 
     function mostrarPantallaPreguntas() {
@@ -591,6 +599,7 @@
         body: JSON.stringify(payload)
       }).catch(() => {});
       setReadOnlyHeader(true);
+      document.getElementById('datos-participante').classList.remove('hidden');
       document.getElementById('pantalla-preguntas').classList.add('hidden');
       document.getElementById('pantalla-final').style.display = 'block';
       document.getElementById('pantalla-final').scrollIntoView({ block: 'start' });
