@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>fOrientación Vocacional – Reporte</title>
+  <title>jOrientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -251,6 +251,24 @@
   function escapeHtml(s){return String(s??"").replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
   function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
   function pct(n){return Math.round(Number(n)||0);}
+  function compValue(resultados,key){
+    const r = resultados?.resumen || {};
+    const direct = Number(r?.[key]);
+    const baseMap = {
+      visual_pct:['visual_correctas','visual_total'],
+      secuencia_pct:['secuencia_correctas','secuencia_total'],
+      relacion_pct:['relacion_correctas','relacion_total']
+    };
+    const pair = baseMap[key];
+    if (pair){
+      const ok = Number(r?.[pair[0]]);
+      const total = Number(r?.[pair[1]]);
+      if (Number.isFinite(ok) && Number.isFinite(total) && total > 0){
+        return Math.round((ok/total)*100);
+      }
+    }
+    return Number.isFinite(direct) ? Math.round(direct) : 0;
+  }
   function prefLabel(v){ const p=pct(v); if(p<=40) return 'Nivel menos marcado'; if(p<=70) return 'Nivel moderado'; return 'Nivel más marcado'; }
   function prefClass(v){ const p=pct(v); if(p<=40) return 'pref-low'; if(p<=70) return 'pref-med'; return 'pref-high'; }
   function fmtDate(iso){ if(!iso) return '—'; try { return new Date(iso).toLocaleDateString('es-EC',{year:'numeric',month:'long',day:'2-digit'});} catch{return '—';}}
