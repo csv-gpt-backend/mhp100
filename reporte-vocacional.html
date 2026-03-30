@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>dOrientación Vocacional – Reporte</title>
+  <title>fOrientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -320,7 +320,7 @@
     const r = resultados?.resumen?.riasec_pct || {};
     const top = topKeys(r,3);
     const topAvg = top.length ? Math.round(top.reduce((acc,k)=>acc+pct(r[k]),0)/top.length) : 0;
-    const comp = [pct(resultados?.resumen?.visual_pct), pct(resultados?.resumen?.secuencia_pct), pct(resultados?.resumen?.relacion_pct)].filter(v=>v>=0);
+    const comp = [compValue(resultados,'visual_pct'), compValue(resultados,'secuencia_pct'), compValue(resultados,'relacion_pct')].filter(v=>v>=0);
     const compAvg = comp.length ? Math.round(comp.reduce((a,b)=>a+b,0)/comp.length) : 0;
     return Math.round((topAvg*0.75)+(compAvg*0.25));
   }
@@ -358,7 +358,7 @@
     const cards = [
       {title:'Código vocacional predominante', body:`<div class="chips"><span class="chip">${escapeHtml(riCode || '—')}</span></div><p style="margin-top:8px">${escapeHtml(topText || 'Sin datos')}</p>`},
       {title:'Escenarios de afinidad', body:`<div class="chips">${escTop.map(k=>`<span class="chip">${escapeHtml(RIASEC_LABELS[k])}</span>`).join('') || '<span class="chip">Sin datos</span>'}</div><p style="margin-top:8px">Los escenarios elegidos refuerzan afinidades actuales de exploración.</p>`},
-      {title:'Indicadores complementarios', body:`<p><b>Visual:</b> ${pct(resultados?.resumen?.visual_pct)} · <b>Secuencia:</b> ${pct(resultados?.resumen?.secuencia_pct)} · <b>Relación:</b> ${pct(resultados?.resumen?.relacion_pct)}</p>`},
+      {title:'Indicadores complementarios', body:`<p><b>Visual:</b> ${compValue(resultados,'visual_pct')} · <b>Secuencia:</b> ${compValue(resultados,'secuencia_pct')} · <b>Relación:</b> ${compValue(resultados,'relacion_pct')}</p>`},
       {title:'Síntesis general', body:`<p>El perfil integra intereses RIASEC, escenarios de afinidad e indicadores complementarios para orientar la exploración académica o profesional.</p>`}
     ];
     grid.innerHTML = cards.map(c=>`<div class="summary-card"><h3>${escapeHtml(c.title)}</h3>${c.body}</div>`).join('');
@@ -376,9 +376,9 @@
   function buildIndicatorBars(resultados){
     const box = document.getElementById('indicadoresBox');
     const items = [
-      {key:'visual_pct', value:pct(resultados?.resumen?.visual_pct), note:`${pct(resultados?.resumen?.visual_correctas)} de ${pct(resultados?.resumen?.visual_total)} aciertos`},
-      {key:'secuencia_pct', value:pct(resultados?.resumen?.secuencia_pct), note:`${pct(resultados?.resumen?.secuencia_correctas)} de ${pct(resultados?.resumen?.secuencia_total)} aciertos`},
-      {key:'relacion_pct', value:pct(resultados?.resumen?.relacion_pct), note:`${pct(resultados?.resumen?.relacion_correctas)} de ${pct(resultados?.resumen?.relacion_total)} aciertos`}
+      {key:'visual_pct', value:compValue(resultados,'visual_pct'), note:`${pct(resultados?.resumen?.visual_correctas)} de ${pct(resultados?.resumen?.visual_total)} aciertos`},
+      {key:'secuencia_pct', value:compValue(resultados,'secuencia_pct'), note:`${pct(resultados?.resumen?.secuencia_correctas)} de ${pct(resultados?.resumen?.secuencia_total)} aciertos`},
+      {key:'relacion_pct', value:compValue(resultados,'relacion_pct'), note:`${pct(resultados?.resumen?.relacion_correctas)} de ${pct(resultados?.resumen?.relacion_total)} aciertos`}
     ];
     box.innerHTML = items.map(it=>`<div class="bar"><div class="head"><span>${escapeHtml(INDICATOR_LABELS[it.key])}</span><span class="badge ${prefClass(it.value)}">${it.value}</span></div><div class="track"><div class="fill ${prefClass(it.value)}" style="width:${clamp(it.value,0,100)}%"></div></div><div class="muted" style="font-size:12px;margin-top:4px">${escapeHtml(it.note)}</div></div>`).join('');
   }
@@ -409,9 +409,9 @@
   function buildIndicatorInterpretation(resultados){
     const box = document.getElementById('indicadoresInterpretacion');
     const items = [
-      {name:'Razonamiento visual', value:pct(resultados?.resumen?.visual_pct), text:'aporta una referencia sobre identificación de patrones y lectura de estímulos visuales.'},
-      {name:'Seguimiento secuencial', value:pct(resultados?.resumen?.secuencia_pct), text:'aporta una referencia sobre seguimiento de consignas, secuencias y desplazamientos ordenados.'},
-      {name:'Relación visual', value:pct(resultados?.resumen?.relacion_pct), text:'aporta una referencia sobre comparación perceptiva y reconocimiento de semejanzas.'}
+      {name:'Razonamiento visual', value:compValue(resultados,'visual_pct'), text:'aporta una referencia sobre identificación de patrones y lectura de estímulos visuales.'},
+      {name:'Seguimiento secuencial', value:compValue(resultados,'secuencia_pct'), text:'aporta una referencia sobre seguimiento de consignas, secuencias y desplazamientos ordenados.'},
+      {name:'Relación visual', value:compValue(resultados,'relacion_pct'), text:'aporta una referencia sobre comparación perceptiva y reconocimiento de semejanzas.'}
     ];
     box.innerHTML = items.map(it=>`<div class="subblock"><h4>${escapeHtml(it.name)}</h4><p><b>Nivel observado:</b> ${escapeHtml(prefLabel(it.value))} (${it.value}).</p><p>${escapeHtml(it.name)} ${escapeHtml(it.text)}</p></div>`).join('');
   }
