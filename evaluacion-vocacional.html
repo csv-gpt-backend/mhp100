@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluación Orientación Vocacional</title>
+  <title>XEvaluación Orientación Vocacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1421,13 +1421,18 @@ function updateScaleBadgesForPage(startIdx){
   const q = ITEMS[startIdx];
   if (!q) return;
   const sec = getSeccionById(q.id);
-  const labels = labelsPorSeccion(sec);
-  const l1 = document.getElementById('scaleLabel1');
-  const l2 = document.getElementById('scaleLabel2');
-  const l3 = document.getElementById('scaleLabel3');
-  if (l1) l1.textContent = labels[0].toUpperCase();
-  if (l2) l2.textContent = labels[1].toUpperCase();
-  if (l3) l3.textContent = labels[2].toUpperCase();
+
+  const badges = document.querySelectorAll('.scale-badge');
+  const header = document.querySelector('.questions-header');
+
+  // Solo para SECCIÓN 2: ocultar badges naranjas y cabecera "# / Pregunta / M A N"
+  if (sec === 2) {
+    badges.forEach(el => el.style.display = 'none');
+    if (header) header.style.display = 'none';
+  } else {
+    badges.forEach(el => el.style.display = 'flex');
+    if (header) header.style.display = 'grid';
+  }
 }
 
 function updateProgress() {
@@ -1488,7 +1493,12 @@ function renderVisualRow(q){
   wrap.className = 'visual-wrap';
   const card = document.createElement('div');
   card.className = 'visual-card';
-  card.innerHTML = `<div class="visual-title">${String(q.id).padStart(3,'0')}. ${q.titulo}</div><div class="visual-subtitle">${q.ayuda || ''}</div>${q.renderStimulus ? q.renderStimulus() : ''}<div class="visual-row">${q.opciones.map(op => `<div class="option-card ${q.value===op.key?'active':''}" data-qid="${q.id}" data-value="${op.key}"><div class="option-letter">${op.key}</div><div>${op.html}</div></div>`).join('')}</div>`;
+  const sec = getSeccionById(q.id);
+  const visibleNumber = sec === 2 ? (q.id - 200) : q.id;
+  const subtitleStyle = sec === 2
+    ? 'style="font-size:16px;font-weight:500;color:#475569;margin-bottom:12px"'
+    : '';
+  card.innerHTML = `<div class="visual-title">${visibleNumber}. ${q.titulo}</div><div class="visual-subtitle" ${subtitleStyle}>${q.ayuda || ''}</div>${q.renderStimulus ? q.renderStimulus() : ''}<div class="visual-row">${q.opciones.map(op => `<div class="option-card ${q.value===op.key?'active':''}" data-qid="${q.id}" data-value="${op.key}"><div class="option-letter">${op.key}</div><div>${op.html}</div></div>`).join('')}</div>`;
   wrap.appendChild(card);
   return wrap;
 }
