@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>XjJEvaluación Orientación Vocacional</title>
+  <title>GXjJEvaluación Orientación Vocacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -938,10 +938,22 @@ if (typeof PREINTRO === "undefined") {
   </p>
 
   <div class="preintro-box" style="max-width:760px;margin:0 auto 12px auto; text-align:left;">
-    <h4 style="text-align:left">Ejemplo</h4>
-    <p class="muted" style="margin:0 0 8px 0;">Empieza en G y sigue la secuencia indicada.</p>
-    <p style="font-weight:800; text-align:center; margin:8px 0 10px 0;">G &nbsp;&nbsp; +1 &nbsp;&nbsp; +2 &nbsp;&nbsp; -1</p>
-    <p class="muted" style="margin:0;">Selecciona la letra o posición final correcta.</p>
+    <h4 style="text-align:left">Ejemplo de práctica</h4>
+    <p class="muted" style="margin:0 0 8px 0;">Empieza en la letra <strong>G</strong> y sigue esta secuencia:</p>
+    <p style="font-weight:800; font-size:20px; text-align:center; margin:8px 0 12px 0;">G &nbsp;&nbsp; +1 &nbsp;&nbsp; +2 &nbsp;&nbsp; -1</p>
+
+    <div id="s3PracticeOptions" style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin:0 0 12px 0;">
+      <button type="button" class="s3-practice-opt" data-val="A" style="border:1px solid #d1d5db; border-radius:12px; background:#fff; padding:12px 10px; font-weight:800; cursor:pointer; color:#111827;">A) H</button>
+      <button type="button" class="s3-practice-opt" data-val="B" style="border:1px solid #d1d5db; border-radius:12px; background:#fff; padding:12px 10px; font-weight:800; cursor:pointer; color:#111827;">B) I</button>
+      <button type="button" class="s3-practice-opt" data-val="C" style="border:1px solid #d1d5db; border-radius:12px; background:#fff; padding:12px 10px; font-weight:800; cursor:pointer; color:#111827;">C) J</button>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <button type="button" id="s3PracticeCheckBtn" style="border:0; border-radius:999px; padding:10px 16px; font-weight:800; cursor:pointer; background:#ea580c; color:#fff;">Comprobar</button>
+      <span id="s3PracticeFeedback" class="muted" style="line-height:1.5;"></span>
+    </div>
+
+    <p class="muted" style="margin:12px 0 0 0;">Debes comprobar este ejemplo antes de comenzar la sección.</p>
   </div>
 </div>
     `,
@@ -959,9 +971,22 @@ if (typeof PREINTRO === "undefined") {
   </p>
 
   <div class="preintro-box" style="max-width:760px;margin:0 auto 12px auto; text-align:left;">
-    <h4 style="text-align:left">Ejemplo</h4>
-    <p class="muted" style="margin:0 0 8px 0;">Observa la figura modelo y elige la opción con más características en común.</p>
-    <p class="muted" style="margin:0;">Selecciona solo una opción por actividad.</p>
+    <h4 style="text-align:left">Ejemplo de práctica</h4>
+    <p class="muted" style="margin:0 0 8px 0;">Observa la figura modelo y selecciona la opción con más características en común.</p>
+    <p style="font-weight:800; font-size:22px; text-align:center; margin:8px 0 12px 0;">Modelo: ○▲</p>
+
+    <div id="s4PracticeOptions" style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin:0 0 12px 0;">
+      <button type="button" class="s4-practice-opt" data-val="A" style="border:1px solid #d1d5db; border-radius:12px; background:#fff; padding:12px 10px; font-weight:800; cursor:pointer; color:#111827;">A) ○▲</button>
+      <button type="button" class="s4-practice-opt" data-val="B" style="border:1px solid #d1d5db; border-radius:12px; background:#fff; padding:12px 10px; font-weight:800; cursor:pointer; color:#111827;">B) □■</button>
+      <button type="button" class="s4-practice-opt" data-val="C" style="border:1px solid #d1d5db; border-radius:12px; background:#fff; padding:12px 10px; font-weight:800; cursor:pointer; color:#111827;">C) ▲○○</button>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <button type="button" id="s4PracticeCheckBtn" style="border:0; border-radius:999px; padding:10px 16px; font-weight:800; cursor:pointer; background:#ea580c; color:#fff;">Comprobar</button>
+      <span id="s4PracticeFeedback" class="muted" style="line-height:1.5;"></span>
+    </div>
+
+    <p class="muted" style="margin:12px 0 0 0;">Debes comprobar este ejemplo antes de comenzar la sección.</p>
   </div>
 </div>
     `,
@@ -1595,6 +1620,116 @@ function setupSection2Practice(nextBtn){
   });
 }
 
+function setupSection3Practice(nextBtn){
+  const options = Array.from(document.querySelectorAll('.s3-practice-opt'));
+  const checkBtn = document.getElementById('s3PracticeCheckBtn');
+  const feedback = document.getElementById('s3PracticeFeedback');
+  if (!nextBtn || !options.length || !checkBtn) return;
+
+  let selected = null;
+  nextBtn.disabled = true;
+  nextBtn.style.opacity = '0.6';
+  nextBtn.style.cursor = 'not-allowed';
+
+  options.forEach(btn => {
+    btn.addEventListener('click', () => {
+      selected = btn.dataset.val;
+      options.forEach(x => {
+        x.style.background = '#fff';
+        x.style.color = '#111827';
+        x.style.borderColor = '#d1d5db';
+      });
+      btn.style.background = '#fff7ed';
+      btn.style.color = '#9a3412';
+      btn.style.borderColor = '#fb923c';
+      if (feedback) {
+        feedback.textContent = '';
+        feedback.className = 'muted';
+      }
+    });
+  });
+
+  checkBtn.addEventListener('click', () => {
+    if (!selected) {
+      if (feedback) {
+        feedback.textContent = 'Selecciona una opción para comprobar el ejemplo.';
+        feedback.className = 'err';
+      }
+      return;
+    }
+
+    if (selected === 'C') {
+      if (feedback) {
+        feedback.textContent = 'Correcto. Ya puedes comenzar la sección.';
+        feedback.className = 'ok';
+      }
+    } else {
+      if (feedback) {
+        feedback.textContent = 'Incorrecto. La respuesta correcta es C) J. Ya puedes comenzar la sección.';
+        feedback.className = 'err';
+      }
+    }
+    nextBtn.disabled = false;
+    nextBtn.style.opacity = '1';
+    nextBtn.style.cursor = 'pointer';
+  });
+}
+
+function setupSection4Practice(nextBtn){
+  const options = Array.from(document.querySelectorAll('.s4-practice-opt'));
+  const checkBtn = document.getElementById('s4PracticeCheckBtn');
+  const feedback = document.getElementById('s4PracticeFeedback');
+  if (!nextBtn || !options.length || !checkBtn) return;
+
+  let selected = null;
+  nextBtn.disabled = true;
+  nextBtn.style.opacity = '0.6';
+  nextBtn.style.cursor = 'not-allowed';
+
+  options.forEach(btn => {
+    btn.addEventListener('click', () => {
+      selected = btn.dataset.val;
+      options.forEach(x => {
+        x.style.background = '#fff';
+        x.style.color = '#111827';
+        x.style.borderColor = '#d1d5db';
+      });
+      btn.style.background = '#fff7ed';
+      btn.style.color = '#9a3412';
+      btn.style.borderColor = '#fb923c';
+      if (feedback) {
+        feedback.textContent = '';
+        feedback.className = 'muted';
+      }
+    });
+  });
+
+  checkBtn.addEventListener('click', () => {
+    if (!selected) {
+      if (feedback) {
+        feedback.textContent = 'Selecciona una opción para comprobar el ejemplo.';
+        feedback.className = 'err';
+      }
+      return;
+    }
+
+    if (selected === 'A') {
+      if (feedback) {
+        feedback.textContent = 'Correcto. Ya puedes comenzar la sección.';
+        feedback.className = 'ok';
+      }
+    } else {
+      if (feedback) {
+        feedback.textContent = 'Incorrecto. La respuesta correcta es A) ○▲. Ya puedes comenzar la sección.';
+        feedback.className = 'err';
+      }
+    }
+    nextBtn.disabled = false;
+    nextBtn.style.opacity = '1';
+    nextBtn.style.cursor = 'pointer';
+  });
+}
+
 function maybeRunSectionIntro(sectionNum, onDone){
   const html = getSectionIntroHtml(sectionNum);
   if (!html || preintroSeenSection[sectionNum]) {
@@ -1606,9 +1741,11 @@ function maybeRunSectionIntro(sectionNum, onDone){
   const backBtn = document.getElementById('preintroBackBtn');
   if (backBtn) backBtn.style.display = 'none';
   if (sectionNum === 2 && nextBtn) setupSection2Practice(nextBtn);
+  if (sectionNum === 3 && nextBtn) setupSection3Practice(nextBtn);
+  if (sectionNum === 4 && nextBtn) setupSection4Practice(nextBtn);
   if (nextBtn){
     nextBtn.onclick = () => {
-      if (sectionNum === 2 && nextBtn.disabled) return;
+      if ((sectionNum === 2 || sectionNum === 3 || sectionNum === 4) && nextBtn.disabled) return;
       preintroSeenSection[sectionNum] = true;
       hidePreintro();
       if (typeof onDone === 'function') onDone();
