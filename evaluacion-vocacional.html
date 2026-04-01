@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluación Orientación VocacionalKL</title>
+  <title>HEvaluación Orientación Vocacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -646,7 +646,7 @@ overflow-x: hidden !important;
         <div class="card">
 
           <div class="sticky-wrap">
-            <h2 style="margin:0 0 6px;">En los enunciados, marca una de las opciones en función de afinidad o la que determines que es la correcta.</h2>
+            <h2 style="margin:0 0 6px;">En los enunciados, marca una de las opciones de afinidad o que consideras correctas.</h2>
             <p class="muted" id="nota-genero" style="margin:0 0 6px;">
               Nota: Las siguientes declaraciones están expresadas únicamente en género masculino, pero se entiende que también se refieren al género femenino.
             </p>
@@ -812,7 +812,41 @@ function showPreintro(htmlStr, {showBack=false, nextText="Siguiente"} = {}){
     bd.setAttribute("aria-hidden", "false");
   }
   if (backBtn) backBtn.style.display = showBack ? "inline-flex" : "none";
-  if (nextBtn) nextBtn.textContent = nextText;
+  if (nextBtn){
+    nextBtn.textContent = nextText;
+    nextBtn.disabled = false;
+    nextBtn.style.opacity = "1";
+    nextBtn.style.pointerEvents = "auto";
+  }
+
+  const btnCheckSec2 = document.getElementById("btnEjemploSec2Comprobar");
+  const feedbackSec2 = document.getElementById("feedbackEjemploSec2");
+  if (btnCheckSec2 && nextBtn){
+    nextBtn.disabled = true;
+    nextBtn.style.opacity = ".55";
+    nextBtn.style.pointerEvents = "none";
+
+    btnCheckSec2.onclick = function(){
+      const sel = document.querySelector('input[name="ejemploSec2"]:checked');
+      if (!feedbackSec2) return;
+      if (!sel){
+        feedbackSec2.textContent = "Selecciona una opción para comprobar tu respuesta.";
+        feedbackSec2.style.color = "#92400e";
+        return;
+      }
+      if (sel.value === "A"){
+        feedbackSec2.textContent = "Correcto. La opción A completa adecuadamente la secuencia.";
+        feedbackSec2.style.color = "#166534";
+      } else {
+        feedbackSec2.textContent = "Incorrecto. La respuesta correcta es A) ▲.";
+        feedbackSec2.style.color = "#b91c1c";
+      }
+      nextBtn.disabled = false;
+      nextBtn.style.opacity = "1";
+      nextBtn.style.pointerEvents = "auto";
+    };
+  }
+
   setTimeout(() => { try { nextBtn && nextBtn.focus(); } catch(e){} }, 0);
 }
 
@@ -923,7 +957,7 @@ if (typeof PREINTRO === "undefined") {
       </label>
     </div>
     <div style="display:flex; justify-content:center; margin:10px 0 8px 0;">
-      <button type="button" class="btn" onclick="(function(){ const sel=document.querySelector('input[name=\'ejemploSec2\']:checked'); const out=document.getElementById('feedbackEjemploSec2'); if(!out) return; if(!sel){ out.textContent='Selecciona una opción para comprobar tu respuesta.'; out.style.color='#92400e'; return; } if(sel.value==='A'){ out.textContent='Correcto. La opción A completa adecuadamente la secuencia.'; out.style.color='#166534'; } else { out.textContent='Incorrecto. La respuesta correcta es A) ▲.'; out.style.color='#b91c1c'; } })();">Comprobar</button>
+      <button type="button" class="btn" id="btnEjemploSec2Comprobar">Comprobar</button>
     </div>
     <p id="feedbackEjemploSec2" class="muted" style="margin:8px 0 0 0; text-align:center; min-height:24px;"></p>
     <p class="muted" style="margin:10px 0 0 0;">Este ejemplo es solo de práctica y no se guarda ni afecta tus resultados.</p>
@@ -1434,18 +1468,13 @@ function updateScaleBadgesForPage(startIdx){
   const q = ITEMS[startIdx];
   if (!q) return;
   const sec = getSeccionById(q.id);
-
-  const badges = document.querySelectorAll('.scale-badge');
-  const header = document.querySelector('.questions-header');
-
-  // Solo para SECCIÓN 2: ocultar badges naranjas y cabecera "# / Pregunta / M A N"
-  if (sec === 2) {
-    badges.forEach(el => el.style.display = 'none');
-    if (header) header.style.display = 'none';
-  } else {
-    badges.forEach(el => el.style.display = 'flex');
-    if (header) header.style.display = 'grid';
-  }
+  const labels = labelsPorSeccion(sec);
+  const l1 = document.getElementById('scaleLabel1');
+  const l2 = document.getElementById('scaleLabel2');
+  const l3 = document.getElementById('scaleLabel3');
+  if (l1) l1.textContent = labels[0].toUpperCase();
+  if (l2) l2.textContent = labels[1].toUpperCase();
+  if (l3) l3.textContent = labels[2].toUpperCase();
 }
 
 function updateProgress() {
@@ -1506,12 +1535,7 @@ function renderVisualRow(q){
   wrap.className = 'visual-wrap';
   const card = document.createElement('div');
   card.className = 'visual-card';
-  const sec = getSeccionById(q.id);
-  const visibleNumber = sec === 2 ? (q.id - 200) : q.id;
-  const subtitleStyle = sec === 2
-    ? 'style="font-size:16px;font-weight:500;color:#475569;margin-bottom:12px"'
-    : '';
-  card.innerHTML = `<div class="visual-title">${visibleNumber}. ${q.titulo}</div><div class="visual-subtitle" ${subtitleStyle}>${q.ayuda || ''}</div>${q.renderStimulus ? q.renderStimulus() : ''}<div class="visual-row">${q.opciones.map(op => `<div class="option-card ${q.value===op.key?'active':''}" data-qid="${q.id}" data-value="${op.key}"><div class="option-letter">${op.key}</div><div>${op.html}</div></div>`).join('')}</div>`;
+  card.innerHTML = `<div class="visual-title">${String(q.id).padStart(3,'0')}. ${q.titulo}</div><div class="visual-subtitle">${q.ayuda || ''}</div>${q.renderStimulus ? q.renderStimulus() : ''}<div class="visual-row">${q.opciones.map(op => `<div class="option-card ${q.value===op.key?'active':''}" data-qid="${q.id}" data-value="${op.key}"><div class="option-letter">${op.key}</div><div>${op.html}</div></div>`).join('')}</div>`;
   wrap.appendChild(card);
   return wrap;
 }
