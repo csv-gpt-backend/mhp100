@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>18 36 Evaluación Orientación Vocacional</title>
+  <title>Evaluación Orientación Vocacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -663,29 +663,55 @@ overflow-x: hidden !important;
   font-weight:800;
 }
 
+
+/* === Tema profesional: sobrescribe la paleta escolar colorida === */
+body.tema-pro .visual-stimulus .seq-line > span:not(.seq-arrow){
+  color:#0f172a !important;
+  background:#ffffff !important;
+  border-color:#cbd5e1 !important;
+  box-shadow:0 8px 16px rgba(15,23,42,.06) !important;
+}
+body.tema-pro .visual-stimulus .seq-line > span.seq-arrow{
+  color:#64748b !important;
+}
+body.tema-pro .stairs .stair{
+  background:linear-gradient(180deg,#f8fafc,#e5e7eb) !important;
+  border-color:#cbd5e1 !important;
+  color:#334155 !important;
+}
+body.tema-pro .step-badge{
+  background:#f8fafc !important;
+  color:#334155 !important;
+  border-color:#cbd5e1 !important;
+}
+body.tema-pro .visual-stimulus .rel-grid .rel-cell,
+body.tema-pro .option-card .rel-grid .rel-cell{
+  color:#0f172a !important;
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%) !important;
+  border-color:#dbe3ee !important;
+}
+body.tema-pro .option-card{
+  border-color:#dbe3ee !important;
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%) !important;
+}
+body.tema-pro .option-card:hover{
+  border-color:#94a3b8 !important;
+  box-shadow:0 14px 26px rgba(15,23,42,.10) !important;
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%) !important;
+}
+body.tema-pro .option-card.active{
+  border-color:#64748b !important;
+  box-shadow:0 0 0 3px rgba(100,116,139,.14),0 14px 28px rgba(15,23,42,.10) !important;
+  background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%) !important;
+}
+body.tema-pro .option-letter{
+  color:#334155 !important;
+  background:#f1f5f9 !important;
+  border-color:#cbd5e1 !important;
+}
+
 @media (max-width:700px){.visual-row{grid-template-columns:1fr}.seq-line{font-size:24px}.stair{width:36px}}
 
-
-
-/* === Tema PRO / Escolar === */
-body.tema-esc{}
-body.tema-pro .visual-stimulus{background:linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%);border:1px solid #cbd5e1;box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
-body.tema-pro .option-card{background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);border-color:#cbd5e1;color:#0f172a}
-body.tema-pro .option-card:hover{border-color:#94a3b8;box-shadow:0 14px 26px rgba(148,163,184,.14);background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)}
-body.tema-pro .option-card.active{border-color:#64748b;box-shadow:0 0 0 3px rgba(100,116,139,.14),0 14px 28px rgba(100,116,139,.14);background:linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%)}
-body.tema-pro .option-letter{color:#334155;background:#f1f5f9;border-color:#cbd5e1}
-body.tema-pro .seq-arrow{color:#64748b}
-body.tema-pro .step-badge{background:#f1f5f9;color:#334155;border-color:#cbd5e1}
-body.tema-pro .stair{background:linear-gradient(180deg,#e2e8f0,#cbd5e1);border-color:#94a3b8}
-body.tema-pro .stair-label{color:#334155}
-body.tema-pro .rel-grid .rel-cell,
-body.tema-pro .rel-pair,
-body.tema-pro .symbol-box{background:#f8fafc;border-color:#cbd5e1;color:#0f172a}
-body.tema-pro #s2PracticeCheckBtn,
-body.tema-pro #s3PracticeCheckBtn,
-body.tema-pro #s4PracticeCheckBtn{background:#334155;color:#fff}
-body.tema-pro .practice-ok{color:#166534}
-body.tema-pro .practice-bad{color:#b91c1c}
 </style>
 </head>
 <body>
@@ -1130,6 +1156,20 @@ if (typeof PREINTRO === "undefined") {
 
 let __startTime = Date.now();
 
+
+function aplicarTemaPorCodigo(codigo){
+  const limpio = String(codigo || '').trim().toUpperCase();
+  document.body.classList.remove('tema-pro','tema-esc');
+  if (!limpio) return;
+  if (limpio.startsWith('PRO')) {
+    document.body.classList.add('tema-pro');
+  } else {
+    document.body.classList.add('tema-esc');
+  }
+}
+
+
+
     let CODIGO_ACTUAL = null;
 const STORAGE_PREFIX = "eval_mpa_state_";
 
@@ -1254,20 +1294,11 @@ const STORAGE_PREFIX = "eval_mpa_state_";
       }
     }
 
-
-    function aplicarTemaPorCodigo(codigoValor) {
-      const codigo = String(codigoValor || '').trim().toUpperCase();
-      document.body.classList.remove('tema-pro','tema-esc');
-      if (!codigo) return;
-      document.body.classList.add(codigo.startsWith('PRO') ? 'tema-pro' : 'tema-esc');
-    }
-
     async function lookupCodigo() {
       const codigo = codigoInput.value.trim().toUpperCase();
       codigoInput.value = codigo;
       CODIGO_ACTUAL = null;
       btnIniciar.disabled = true;
-      aplicarTemaPorCodigo(codigoInput.value);
 
       if (codigoMsg) {
         codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
@@ -1297,7 +1328,6 @@ const STORAGE_PREFIX = "eval_mpa_state_";
           instInput.value = grupoInput.value = cursoInput.value = '';
           CODIGO_ACTUAL = null;
           btnIniciar.disabled = true;
-          aplicarTemaPorCodigo('');
           if (codigoMsg) {
             codigoMsg.textContent = "Este código ya fue utilizado o no está disponible.";
             codigoMsg.className = "err";
@@ -1312,7 +1342,6 @@ const STORAGE_PREFIX = "eval_mpa_state_";
           instInput.value = grupoInput.value = cursoInput.value = '';
           CODIGO_ACTUAL = null;
           btnIniciar.disabled = true;
-          aplicarTemaPorCodigo('');
           if (codigoMsg) {
             codigoMsg.textContent = "Este código ya fue utilizado para completar una evaluación en este dispositivo.";
             codigoMsg.className = "err";
