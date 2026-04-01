@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>HEvaluación Orientación Vocacional</title>
+  <title>JEvaluación Orientación Vocacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -812,41 +812,7 @@ function showPreintro(htmlStr, {showBack=false, nextText="Siguiente"} = {}){
     bd.setAttribute("aria-hidden", "false");
   }
   if (backBtn) backBtn.style.display = showBack ? "inline-flex" : "none";
-  if (nextBtn){
-    nextBtn.textContent = nextText;
-    nextBtn.disabled = false;
-    nextBtn.style.opacity = "1";
-    nextBtn.style.pointerEvents = "auto";
-  }
-
-  const btnCheckSec2 = document.getElementById("btnEjemploSec2Comprobar");
-  const feedbackSec2 = document.getElementById("feedbackEjemploSec2");
-  if (btnCheckSec2 && nextBtn){
-    nextBtn.disabled = true;
-    nextBtn.style.opacity = ".55";
-    nextBtn.style.pointerEvents = "none";
-
-    btnCheckSec2.onclick = function(){
-      const sel = document.querySelector('input[name="ejemploSec2"]:checked');
-      if (!feedbackSec2) return;
-      if (!sel){
-        feedbackSec2.textContent = "Selecciona una opción para comprobar tu respuesta.";
-        feedbackSec2.style.color = "#92400e";
-        return;
-      }
-      if (sel.value === "A"){
-        feedbackSec2.textContent = "Correcto. La opción A completa adecuadamente la secuencia.";
-        feedbackSec2.style.color = "#166534";
-      } else {
-        feedbackSec2.textContent = "Incorrecto. La respuesta correcta es A) ▲.";
-        feedbackSec2.style.color = "#b91c1c";
-      }
-      nextBtn.disabled = false;
-      nextBtn.style.opacity = "1";
-      nextBtn.style.pointerEvents = "auto";
-    };
-  }
-
+  if (nextBtn) nextBtn.textContent = nextText;
   setTimeout(() => { try { nextBtn && nextBtn.focus(); } catch(e){} }, 0);
 }
 
@@ -934,33 +900,27 @@ if (typeof PREINTRO === "undefined") {
     En esta sección encontrarás ejercicios visuales y de secuencia. Observa con atención cada actividad y selecciona la opción que consideres correcta.
   </p>
 
-  <p class="muted" style="margin:0 0 14px 0; text-align:left; line-height:1.55; font-size:15px;">
+  <p class="muted" style="margin:0 0 14px 0; text-align:left; line-height:1.55;">
     A diferencia de la sección anterior, aquí sí existe una respuesta correcta en cada ejercicio.
   </p>
 
   <div class="preintro-box" style="max-width:760px;margin:0 auto 12px auto; text-align:left;">
-    <h4 style="text-align:left">Ejemplo práctico</h4>
+    <h4 style="text-align:left">Ejemplo de práctica</h4>
     <p class="muted" style="margin:0 0 8px 0;">Observa la secuencia y selecciona la opción que la completa:</p>
     <p style="font-weight:800; font-size:22px; letter-spacing:4px; text-align:center; margin:8px 0 12px 0;">▲ → ● → ▲ → ● → ?</p>
-    <div style="display:grid; grid-template-columns:1fr; gap:8px; max-width:340px; margin:0 auto 12px auto;">
-      <label style="display:flex; align-items:center; gap:8px; border:1px solid #d6d6d6; border-radius:10px; padding:10px 12px; cursor:pointer; background:#fff;">
-        <input type="radio" name="ejemploSec2" value="A">
-        <span><strong>A)</strong> ▲</span>
-      </label>
-      <label style="display:flex; align-items:center; gap:8px; border:1px solid #d6d6d6; border-radius:10px; padding:10px 12px; cursor:pointer; background:#fff;">
-        <input type="radio" name="ejemploSec2" value="B">
-        <span><strong>B)</strong> ■</span>
-      </label>
-      <label style="display:flex; align-items:center; gap:8px; border:1px solid #d6d6d6; border-radius:10px; padding:10px 12px; cursor:pointer; background:#fff;">
-        <input type="radio" name="ejemploSec2" value="C">
-        <span><strong>C)</strong> ●</span>
-      </label>
+
+    <div id="s2PracticeOptions" style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin:0 0 12px 0;">
+      <button type="button" class="s2-practice-opt" data-val="A" style="border:1px solid #d1d5db; border-radius:12px; background:#fff; padding:12px 10px; font-weight:800; cursor:pointer;">A) ▲</button>
+      <button type="button" class="s2-practice-opt" data-val="B" style="border:1px solid #d1d5db; border-radius:12px; background:#fff; padding:12px 10px; font-weight:800; cursor:pointer;">B) ■</button>
+      <button type="button" class="s2-practice-opt" data-val="C" style="border:1px solid #d1d5db; border-radius:12px; background:#fff; padding:12px 10px; font-weight:800; cursor:pointer;">C) ●</button>
     </div>
-    <div style="display:flex; justify-content:center; margin:10px 0 8px 0;">
-      <button type="button" class="btn" id="btnEjemploSec2Comprobar">Comprobar</button>
+
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <button type="button" id="s2PracticeCheckBtn" style="border:0; border-radius:999px; padding:10px 16px; font-weight:800; cursor:pointer; background:#ea580c; color:#fff;">Comprobar</button>
+      <span id="s2PracticeFeedback" class="muted" style="line-height:1.5;"></span>
     </div>
-    <p id="feedbackEjemploSec2" class="muted" style="margin:8px 0 0 0; text-align:center; min-height:24px;"></p>
-    <p class="muted" style="margin:10px 0 0 0;">Este ejemplo es solo de práctica y no se guarda ni afecta tus resultados.</p>
+
+    <p class="muted" style="margin:12px 0 0 0;">Debes comprobar este ejemplo antes de comenzar la sección.</p>
   </div>
 </div>
     `,
@@ -1468,13 +1428,18 @@ function updateScaleBadgesForPage(startIdx){
   const q = ITEMS[startIdx];
   if (!q) return;
   const sec = getSeccionById(q.id);
-  const labels = labelsPorSeccion(sec);
-  const l1 = document.getElementById('scaleLabel1');
-  const l2 = document.getElementById('scaleLabel2');
-  const l3 = document.getElementById('scaleLabel3');
-  if (l1) l1.textContent = labels[0].toUpperCase();
-  if (l2) l2.textContent = labels[1].toUpperCase();
-  if (l3) l3.textContent = labels[2].toUpperCase();
+
+  const badges = document.querySelectorAll('.scale-badge');
+  const header = document.querySelector('.questions-header');
+
+  // Solo para SECCIÓN 2: ocultar badges naranjas y cabecera "# / Pregunta / M A N"
+  if (sec === 2) {
+    badges.forEach(el => el.style.display = 'none');
+    if (header) header.style.display = 'none';
+  } else {
+    badges.forEach(el => el.style.display = 'flex');
+    if (header) header.style.display = 'grid';
+  }
 }
 
 function updateProgress() {
@@ -1535,7 +1500,12 @@ function renderVisualRow(q){
   wrap.className = 'visual-wrap';
   const card = document.createElement('div');
   card.className = 'visual-card';
-  card.innerHTML = `<div class="visual-title">${String(q.id).padStart(3,'0')}. ${q.titulo}</div><div class="visual-subtitle">${q.ayuda || ''}</div>${q.renderStimulus ? q.renderStimulus() : ''}<div class="visual-row">${q.opciones.map(op => `<div class="option-card ${q.value===op.key?'active':''}" data-qid="${q.id}" data-value="${op.key}"><div class="option-letter">${op.key}</div><div>${op.html}</div></div>`).join('')}</div>`;
+  const sec = getSeccionById(q.id);
+  const visibleNumber = sec === 2 ? (q.id - 200) : q.id;
+  const subtitleStyle = sec === 2
+    ? 'style="font-size:16px;font-weight:500;color:#475569;margin-bottom:12px"'
+    : '';
+  card.innerHTML = `<div class="visual-title">${visibleNumber}. ${q.titulo}</div><div class="visual-subtitle" ${subtitleStyle}>${q.ayuda || ''}</div>${q.renderStimulus ? q.renderStimulus() : ''}<div class="visual-row">${q.opciones.map(op => `<div class="option-card ${q.value===op.key?'active':''}" data-qid="${q.id}" data-value="${op.key}"><div class="option-letter">${op.key}</div><div>${op.html}</div></div>`).join('')}</div>`;
   wrap.appendChild(card);
   return wrap;
 }
@@ -1570,6 +1540,61 @@ function getSectionIntroHtml(sectionNum){
   return '';
 }
 
+function setupSection2Practice(nextBtn){
+  const opts = Array.from(document.querySelectorAll('.s2-practice-opt'));
+  const checkBtn = document.getElementById('s2PracticeCheckBtn');
+  const feedback = document.getElementById('s2PracticeFeedback');
+  if (!opts.length || !checkBtn || !nextBtn) return;
+
+  let selected = '';
+  nextBtn.disabled = true;
+  nextBtn.style.opacity = '.55';
+  nextBtn.style.cursor = 'not-allowed';
+
+  opts.forEach(btn => {
+    btn.addEventListener('click', () => {
+      selected = btn.dataset.val || '';
+      opts.forEach(x => {
+        x.style.background = '#fff';
+        x.style.color = '#111827';
+        x.style.borderColor = '#d1d5db';
+      });
+      btn.style.background = '#fff7ed';
+      btn.style.color = '#9a3412';
+      btn.style.borderColor = '#fb923c';
+      if (feedback) {
+        feedback.textContent = '';
+        feedback.className = 'muted';
+      }
+    });
+  });
+
+  checkBtn.addEventListener('click', () => {
+    if (!selected) {
+      if (feedback) {
+        feedback.textContent = 'Selecciona una opción para comprobar el ejemplo.';
+        feedback.className = 'err';
+      }
+      return;
+    }
+
+    if (selected === 'A') {
+      if (feedback) {
+        feedback.textContent = 'Correcto. Ya puedes comenzar la sección.';
+        feedback.className = 'ok';
+      }
+    } else {
+      if (feedback) {
+        feedback.textContent = 'Incorrecto. La respuesta correcta es A) ▲. Ya puedes comenzar la sección.';
+        feedback.className = 'err';
+      }
+    }
+    nextBtn.disabled = false;
+    nextBtn.style.opacity = '1';
+    nextBtn.style.cursor = 'pointer';
+  });
+}
+
 function maybeRunSectionIntro(sectionNum, onDone){
   const html = getSectionIntroHtml(sectionNum);
   if (!html || preintroSeenSection[sectionNum]) {
@@ -1580,8 +1605,10 @@ function maybeRunSectionIntro(sectionNum, onDone){
   const nextBtn = document.getElementById('preintroNextBtn');
   const backBtn = document.getElementById('preintroBackBtn');
   if (backBtn) backBtn.style.display = 'none';
+  if (sectionNum === 2 && nextBtn) setupSection2Practice(nextBtn);
   if (nextBtn){
     nextBtn.onclick = () => {
+      if (sectionNum === 2 && nextBtn.disabled) return;
       preintroSeenSection[sectionNum] = true;
       hidePreintro();
       if (typeof onDone === 'function') onDone();
