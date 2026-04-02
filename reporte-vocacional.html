@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>16 35 Orientación Vocacional – Reporte</title>
+  <title>17 09 Orientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -396,7 +396,8 @@
   function buildSummary(resultados){
     const r = resultados?.resumen?.riasec_pct || {};
     const top = topKeys(r,3);
-    const topText = top.map(k=>`${k} · ${RIASEC_LABELS[k]}`).join(' — ');
+ //----   const topText = top.map(k=>`${k} · ${RIASEC_LABELS[k]}`).join(' — ');
+    const topText = top.map(k=>`${k}. ${RIASEC_LABELS[k]}`).join('  |  ');
     const escTop = topKeys(resultados?.escenarios || {},3);
     const escText = escTop.length ? escTop.map(k=>RIASEC_LABELS[k]).join(' — ') : 'Sin datos';
     const overall = overallVocScore(resultados);
@@ -408,7 +409,8 @@
     const cards = [
       {title:'Código vocacional predominante', body:`<div class="chips"><span class="chip">${escapeHtml(riCode || '—')}</span></div><p style="margin-top:8px">${escapeHtml(topText || 'Sin datos')}</p>`},
       {title:'Escenarios de afinidad', body:`<div class="chips">${escTop.map(k=>`<span class="chip">${escapeHtml(RIASEC_LABELS[k])}</span>`).join('') || '<span class="chip">Sin datos</span>'}</div><p style="margin-top:8px">Los escenarios elegidos refuerzan afinidades actuales de exploración.</p>`},
-      {title:'Indicadores complementarios', body:`<p><b>Visual:</b> ${compValue(resultados,'visual_pct')} · <b>Secuencia:</b> ${compValue(resultados,'secuencia_pct')} · <b>Relación:</b> ${compValue(resultados,'relacion_pct')}</p>`},
+//--      {title:'Indicadores complementarios', body:`<p><b>Visual:</b> ${compValue(resultados,'visual_pct')} · <b>Secuencia:</b> ${compValue(resultados,'secuencia_pct')} · <b>Relación:</b> ${compValue(resultados,'relacion_pct')}</p>`},
+{title:'Indicadores complementarios', body:`<p><b>1. Visual:</b> ${compValue(resultados,'visual_pct')} &nbsp;&nbsp; <b>2. Secuencia:</b> ${compValue(resultados,'secuencia_pct')} &nbsp;&nbsp; <b>3. Relación:</b> ${compValue(resultados,'relacion_pct')}</p>`},
       {title:'Síntesis general', body:`<p>El perfil integra intereses RIASEC, escenarios de afinidad e indicadores complementarios para orientar la exploración académica o profesional.</p>`}
     ];
     grid.innerHTML = cards.map(c=>`<div class="summary-card"><h3>${escapeHtml(c.title)}</h3>${c.body}</div>`).join('');
