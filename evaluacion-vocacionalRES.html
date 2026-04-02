@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluación Orientación Vocacional</title>
+  <title>JJEvaluación Orientación Vocacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -770,7 +770,7 @@ body.tema-pro .option-letter{
         <div class="card">
 
           <div class="sticky-wrap">
-            <h2 style="margin:0 0 6px;">En los enunciados, marca una de las opciones en función de afinidad o la que determines que es la correcta.</h2>
+            <h2 id="sectionInstruction" style="margin:0 0 6px;">En las siguientes preguntas, marca una sola opción en función de tu afinidad o interés personal.</h2>
             <p class="muted" id="nota-genero" style="margin:0 0 6px;">
               Nota: Las siguientes declaraciones están expresadas únicamente en género masculino, pero se entiende que también se refieren al género femenino.
             </p>
@@ -1608,6 +1608,21 @@ function updateSectionBanner(startIdx){
   b.textContent = SECTION_META[sec].title;
 }
 
+function updateQuestionInstruction(startIdx){
+  const h = document.getElementById('sectionInstruction');
+  if (!h) return;
+  const q = ITEMS[startIdx];
+  const sec = q ? getSeccionById(q.id) : 1;
+  const map = {
+    1: 'En las siguientes preguntas, marca una sola opción en función de tu afinidad o interés personal.',
+    2: 'En los siguientes ejercicios, observa con atención y selecciona la opción que consideres correcta.',
+    3: 'En los siguientes ejercicios, sigue la secuencia indicada y selecciona la opción correcta.',
+    4: 'En los siguientes ejercicios, observa la relación entre los elementos y selecciona la opción correcta.',
+    5: 'En los siguientes escenarios, selecciona la opción que más se relacione con tu afinidad o interés personal.'
+  };
+  h.textContent = map[sec] || map[1];
+}
+
 function updateScaleBadgesForPage(startIdx){
   const q = ITEMS[startIdx];
   if (!q) return;
@@ -1921,10 +1936,11 @@ function renderPage() {
   const end = bounds.end;
   updateScaleBadgesForPage(start);
   updateSectionBanner(start);
+  updateQuestionInstruction(start);
 
   const qHeader = document.querySelector('.questions-header');
   const scaleBanner = document.querySelector('.scale-banner');
-  const hideHeaderForSection = bounds.section === 4 || bounds.section === 5;
+  const hideHeaderForSection = bounds.section === 2 || bounds.section === 3 || bounds.section === 4 || bounds.section === 5;
   if (qHeader) qHeader.style.display = hideHeaderForSection ? 'none' : 'grid';
   if (scaleBanner) scaleBanner.style.display = hideHeaderForSection ? 'none' : 'grid';
 
