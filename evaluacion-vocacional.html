@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>JJEvaluación Orientación Vocacional</title>
+  <title>XXEvaluación Orientación Vocacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -1510,6 +1510,16 @@ function stairsHtml(start, letters, steps){
   const heights = [40,56,72,88,104];
   return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div class="stairs">${letters.map((l,i)=>`<div class="stair" style="height:${heights[i]||88}px">${l}</div>`).join('')}</div></div></div>`;
 }
+function pathHtml(start, nodes, steps){
+  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px;">${nodes.map((n,i)=>`<div style="display:flex;align-items:center;gap:8px;"><div style="width:42px;height:42px;border-radius:999px;border:2px solid ${n===start?'#2563eb':'#cbd5e1'};background:${n===start?'#dbeafe':'#fff'};color:#111827;font-weight:800;display:flex;align-items:center;justify-content:center;">${n}</div>${i<nodes.length-1?'<span style="font-size:20px;color:#94a3b8;">→</span>':''}</div>`).join('')}</div></div></div>`;
+}
+function gridPosHtml(start, cells, steps){
+  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(3,54px);gap:8px;justify-content:center;margin-top:12px;">${cells.map(c=>`<div style="width:54px;height:54px;border-radius:12px;border:2px solid ${c===start?'#16a34a':'#cbd5e1'};background:${c===start?'#dcfce7':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;color:#111827;">${c}</div>`).join('')}</div></div></div>`;
+}
+function axisMoveHtml(start, labels, steps, orient){
+  const dir = orient === 'vertical' ? 'column' : 'row';
+  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:flex;flex-direction:${dir};align-items:center;justify-content:center;gap:10px;margin-top:12px;">${labels.map((l,i)=>`<div style="display:flex;${orient === 'vertical' ? 'flex-direction:column;' : 'align-items:center;'}gap:10px;">${orient === 'vertical' && i>0 ? '<span style="font-size:18px;color:#94a3b8;">↓</span>' : ''}${orient !== 'vertical' && i>0 ? '<span style="font-size:18px;color:#94a3b8;">→</span>' : ''}<div style="width:48px;height:48px;border-radius:12px;border:2px solid ${l===start?'#7c3aed':'#cbd5e1'};background:${l===start?'#ede9fe':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;color:#111827;">${l}</div></div>`).join('')}</div></div></div>`;
+}
 function relHtml(model, opts){
   return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Modelo</strong></div><div class="rel-grid">${model.map(x=>`<div class="rel-cell">${x}</div>`).join('')}</div></div></div>`;
 }
@@ -1531,12 +1541,12 @@ const VOC_VISUAL_ITEMS = [
 const VOC_STAIRS_ITEMS = [
   { id:301, seccion:3, tipo:'visual', titulo:'Sigue la secuencia de escalones', ayuda:'Empieza en G y sigue los movimientos.', correcta:'B', renderStimulus:()=>stairsHtml('G',['G','H','I','J','K'],['+1','+2','-1']), opciones:[{key:'A', html:'H'},{key:'B', html:'I'},{key:'C', html:'J'}] },
   { id:302, seccion:3, tipo:'visual', titulo:'Ubicación final', ayuda:'Empieza en M y sigue la secuencia.', correcta:'C', renderStimulus:()=>stairsHtml('M',['L','M','N','O','P'],['+1','+1','+1']), opciones:[{key:'A', html:'N'},{key:'B', html:'O'},{key:'C', html:'P'}] },
-  { id:303, seccion:3, tipo:'visual', titulo:'Sube y baja', ayuda:'Empieza en D y resuelve la secuencia.', correcta:'A', renderStimulus:()=>stairsHtml('D',['C','D','E','F','G'],['+2','-1']), opciones:[{key:'A', html:'E'},{key:'B', html:'F'},{key:'C', html:'G'}] },
-  { id:304, seccion:3, tipo:'visual', titulo:'Desplazamiento combinado', ayuda:'Empieza en J y sigue la secuencia.', correcta:'B', renderStimulus:()=>stairsHtml('J',['H','I','J','K','L'],['-1','+2']), opciones:[{key:'A', html:'J'},{key:'B', html:'K'},{key:'C', html:'L'}] },
-  { id:305, seccion:3, tipo:'visual', titulo:'Movimiento final', ayuda:'Empieza en B y sigue la secuencia.', correcta:'A', renderStimulus:()=>stairsHtml('B',['A','B','C','D','E'],['+1','+1','-1']), opciones:[{key:'A', html:'C'},{key:'B', html:'D'},{key:'C', html:'B'}] },
-  { id:306, seccion:3, tipo:'visual', titulo:'Secuencia corta', ayuda:'Empieza en R y sigue la secuencia.', correcta:'C', renderStimulus:()=>stairsHtml('R',['P','Q','R','S','T'],['-1','+2']), opciones:[{key:'A', html:'R'},{key:'B', html:'S'},{key:'C', html:'T'}] },
-  { id:307, seccion:3, tipo:'visual', titulo:'Razonamiento secuencial', ayuda:'Empieza en H y sigue la secuencia.', correcta:'B', renderStimulus:()=>stairsHtml('H',['F','G','H','I','J'],['+1','-1','+2']), opciones:[{key:'A', html:'H'},{key:'B', html:'J'},{key:'C', html:'I'}] },
-  { id:308, seccion:3, tipo:'visual', titulo:'Último escalón', ayuda:'Empieza en C y sigue la secuencia.', correcta:'A', renderStimulus:()=>stairsHtml('C',['A','B','C','D','E'],['+2','-1']), opciones:[{key:'A', html:'D'},{key:'B', html:'E'},{key:'C', html:'C'}] }
+  { id:303, seccion:3, tipo:'visual', titulo:'Trayecto lineal', ayuda:'Empieza en D y sigue el recorrido.', correcta:'B', renderStimulus:()=>pathHtml('D',['B','C','D','E','F'],['+1','+1']), opciones:[{key:'A', html:'E'},{key:'B', html:'F'},{key:'C', html:'D'}] },
+  { id:304, seccion:3, tipo:'visual', titulo:'Recorrido dirigido', ayuda:'Empieza en J y sigue la secuencia.', correcta:'B', renderStimulus:()=>pathHtml('J',['H','I','J','K','L'],['-1','+2']), opciones:[{key:'A', html:'J'},{key:'B', html:'K'},{key:'C', html:'L'}] },
+  { id:305, seccion:3, tipo:'visual', titulo:'Secuencia de posición', ayuda:'Empieza en E y sigue los movimientos.', correcta:'A', renderStimulus:()=>gridPosHtml('E',['A','B','C','D','E','F','G','H','I'],['↑','→']), opciones:[{key:'A', html:'C'},{key:'B', html:'F'},{key:'C', html:'B'}] },
+  { id:306, seccion:3, tipo:'visual', titulo:'Cambio de ubicación', ayuda:'Empieza en H y sigue los movimientos.', correcta:'C', renderStimulus:()=>gridPosHtml('H',['A','B','C','D','E','F','G','H','I'],['←','↑']), opciones:[{key:'A', html:'E'},{key:'B', html:'F'},{key:'C', html:'D'}] },
+  { id:307, seccion:3, tipo:'visual', titulo:'Avance horizontal', ayuda:'Empieza en R y sigue la secuencia.', correcta:'B', renderStimulus:()=>axisMoveHtml('R',['P','Q','R','S','T'],['←','→','→'],'horizontal'), opciones:[{key:'A', html:'R'},{key:'B', html:'T'},{key:'C', html:'S'}] },
+  { id:308, seccion:3, tipo:'visual', titulo:'Avance vertical', ayuda:'Empieza en X y sigue la secuencia.', correcta:'A', renderStimulus:()=>axisMoveHtml('X',['V','W','X','Y','Z'],['↑','↓','↓'],'vertical'), opciones:[{key:'A', html:'Y'},{key:'B', html:'Z'},{key:'C', html:'X'}] }
 ];
 
 const VOC_REL_ITEMS = [
