@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN 11 10  Orientación Vocacional – Reporte</title>
+  <title>LUN 12 27  Orientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -448,19 +448,39 @@ if (subtituloResumen){
 
   function buildAreaGrid(resultados){
     const areaGrid = document.getElementById('areaGrid');
-    const top = topKeys(resultados?.resumen?.riasec_pct || {},3);
-    const groups = [
-      { title:'Áreas principales', axis:top[0], note:'Surgen del eje con mayor peso dentro del perfil actual.' },
-      { title:'Áreas complementarias', axis:top[1], note:'Aportan una segunda línea de afinidad y pueden enriquecer la elección principal.' },
-      { title:'Áreas asociadas', axis:top[2], note:'Funcionan como intereses vinculados o de apoyo al perfil predominante.' }
+    const riasec = resultados?.resumen?.riasec_pct || {};
+    const top = topKeys(riasec,3);
+
+    const principalAxis = top[0];
+    const compAxis = top[1];
+    const assocAxis = top[2];
+
+    const weights = [50,30,20];
+
+    const principalHtml = principalAxis ? `
+      <div style="margin-bottom:16px;">
+        <div style="font-weight:800;font-size:14px;color:#0f172a;margin:0 0 4px 0;">Áreas principales</div>
+        <div class="muted" style="font-size:12px;margin:0 0 8px 0;">Surgen del eje con mayor peso dentro del perfil actual. Eje base: ${escapeHtml(principalAxis)} · ${escapeHtml(RIASEC_LABELS[principalAxis])} (${clamp(riasec[principalAxis] || 0,0,100)}%). Distribución interna del eje principal: 50% / 30% / 20%.</div>
+        <div class="area-grid">${(FAMILY_MAP[principalAxis] || []).slice(0,3).map((name, idx)=>`<div class="area-card"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><h3 style="margin:0;">${escapeHtml(name)}</h3><span style="display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:28px;padding:0 10px;border-radius:999px;background:#e8eefc;border:1px solid #c7d2fe;color:#0f172a;font-weight:800;font-size:12px;">${weights[idx] || 0}%</span></div><div class="muted" style="font-size:12px;margin-top:8px">Área principal sugerida a partir del eje ${escapeHtml(principalAxis)} · ${escapeHtml(RIASEC_LABELS[principalAxis])}</div></div>`).join('')}</div>
+      </div>` : '';
+
+    const secondaryGroups = [
+      { title:'Áreas complementarias', axis:compAxis, note:'Aportan una segunda línea de afinidad y pueden enriquecer la elección principal.' },
+      { title:'Áreas asociadas', axis:assocAxis, note:'Funcionan como intereses vinculados o de apoyo al perfil predominante.' }
     ].filter(g => g.axis);
-    areaGrid.innerHTML = groups.map(g=>`
-      <div style="margin-bottom:14px;">
-        <div style="font-weight:800;font-size:14px;color:#0f172a;margin:0 0 4px 0;">${escapeHtml(g.title)}</div>
-        <div class="muted" style="font-size:12px;margin:0 0 8px 0;">${escapeHtml(g.note)} Eje base: ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}.</div>
-        <div class="area-grid">${(FAMILY_MAP[g.axis] || []).map(name=>`<div class="area-card"><h3>${escapeHtml(name)}</h3><div class="muted" style="font-size:12px">Área sugerida a partir del eje ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}</div></div>`).join('')}</div>
-      </div>
-    `).join('');
+
+    const secondaryHtml = secondaryGroups.length ? `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;">
+        ${secondaryGroups.map(g=>`
+          <div>
+            <div style="font-weight:800;font-size:14px;color:#0f172a;margin:0 0 4px 0;">${escapeHtml(g.title)}</div>
+            <div class="muted" style="font-size:12px;margin:0 0 8px 0;">${escapeHtml(g.note)} Eje base: ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}.</div>
+            <div class="area-grid">${(FAMILY_MAP[g.axis] || []).map(name=>`<div class="area-card"><h3>${escapeHtml(name)}</h3><div class="muted" style="font-size:12px">Área sugerida a partir del eje ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}</div></div>`).join('')}</div>
+          </div>
+        `).join('')}
+      </div>` : '';
+
+    areaGrid.innerHTML = principalHtml + secondaryHtml;
   }
 
   function buildGeneralProfile(resultados){
