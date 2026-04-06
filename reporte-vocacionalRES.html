@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>18 10 Orientación Vocacional – Reporte</title>
+  <title>LUN 16 19CC  Orientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -95,7 +95,7 @@
             <div class="rep-top-logo"><img src="assets/logo_adalam.png" alt="Logotipo" class="mhp-logo"></div>
           </div>
           <div class="rep-top-row2"><span>Orientación vocacional</span></div>
-          <div class="rep-top-row3">Resumen general</div>
+    <div class="rep-top-row3" id="subtituloResumen"></div>
         </div>
 
         <div class="rep-ids" id="repHeaderBox"></div>
@@ -138,9 +138,9 @@
             <table class="iv-table">
               <tr id="iv1Row">
                 <th class="iv-key">CO</th>
-                <td>Perfil consistente</td>
-                <td>Consistencia intermedia</td>
-                <td>Consistencia baja</td>
+                <td>Perfil coherente</td>
+                <td>Coherencia intermedia</td>
+                <td>Coherencia baja</td>
               </tr>
               <tr id="iv2Row">
                 <th class="iv-key">NC</th>
@@ -166,15 +166,14 @@
         <div class="section-title"><span class="section-dot"></span><span>Síntesis del perfil</span></div>
         <div class="summary-grid" id="summaryGrid"></div>
 
-        <div class="section-title"><span class="section-dot"></span><span>Perfil por ejes RIASEC</span></div>
+        <div class="section-title"><span class="section-dot"></span><span>Perfil por Ejes</span></div>
         <div id="riasecBox"></div>
 
         <div class="section-title"><span class="section-dot"></span><span>Indicadores complementarios</span></div>
         <div id="indicadoresBox"></div>
 
         <div class="section-title"><span class="section-dot"></span><span>Áreas de afinidad sugeridas</span></div>
-        <div class="area-grid" id="areaGrid"></div>
-
+<div id="areaGrid"></div>
         <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
           <button id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
           <button id="btnExportJSON" class="btn" style="background:#6b7280">Exportar JSON</button>
@@ -242,11 +241,61 @@
     E:["Administración y dirección","Emprendimiento y ventas","Gestión comercial"],
     C:["Administración y finanzas","Procesos y control","Datos y soporte operativo"]
   };
+  const SUBJECT_MAP = {
+    "Ingenierías aplicadas":["Matemáticas aplicadas","Física","Tecnología","Procesos industriales","Mecánica","Electrónica"],
+    "Operaciones y logística":["Matemática funcional","Inventarios","Distribución","Procesos","Seguridad operativa","Planificación"],
+    "Mantenimiento, industria y construcción":["Dibujo técnico","Mecánica","Electricidad","Materiales","Procesos industriales","Mantenimiento"],
+    "Ciencia e investigación":["Biología","Química","Método científico","Estadística","Laboratorio","Investigación"],
+    "Análisis de datos y tecnología":["Matemáticas","Estadística","Informática","Programación","Bases de datos","Análisis de información"],
+    "Salud y laboratorio":["Biología","Química","Anatomía","Bioseguridad","Laboratorio","Primeros auxilios"],
+    "Arte y diseño":["Dibujo","Diseño","Color","Composición","Expresión artística","Creatividad"],
+    "Comunicación creativa":["Lengua y literatura","Comunicación","Redacción","Narrativa","Guion","Expresión oral"],
+    "Producción de contenidos":["Comunicación","Diseño digital","Edición","Multimedia","Creatividad","Herramientas digitales"],
+    "Educación y formación":["Lengua y literatura","Pedagogía","Didáctica","Comunicación","Planificación","Orientación"],
+    "Salud y acompañamiento":["Biología","Psicología","Orientación","Primeros auxilios","Desarrollo humano","Cuidado de personas"],
+    "Trabajo social y servicio":["Estudios sociales","Psicología","Orientación","Ciudadanía","Intervención comunitaria","Desarrollo humano"],
+    "Administración y dirección":["Administración","Planificación","Liderazgo","Gestión","Economía","Organización"],
+    "Emprendimiento y ventas":["Emprendimiento","Marketing","Negociación","Ventas","Comunicación","Gestión comercial"],
+    "Gestión comercial":["Administración","Marketing","Servicio al cliente","Negociación","Ventas","Comunicación"],
+    "Administración y finanzas":["Contabilidad","Matemática financiera","Administración","Presupuestos","Organización","Control"],
+    "Procesos y control":["Procesos","Calidad","Registros","Control","Normativas","Seguimiento"],
+    "Datos y soporte operativo":["Ofimática","Bases de datos","Registro","Análisis básico","Soporte administrativo","Organización"]
+  };
   const INDICATOR_LABELS = {
     visual_pct:'Razonamiento visual',
     secuencia_pct:'Seguimiento secuencial',
     relacion_pct:'Relación visual'
   };
+  const AREA_SUPPORT_MAP = {
+    R:[['I','E'],['E','C'],['C','S']],
+    I:[['I','R'],['I','C'],['S','R']],
+    A:[['A','S'],['E','S'],['A','E']],
+    S:[['S','C'],['S','I'],['S','E']],
+    E:[['E','C'],['E','R'],['E','S']],
+    C:[['C','E'],['C','R'],['C','I']]
+  };
+  function distributePrincipalAreas(mainAxis, mainPct, secondAxis, thirdAxis, scenarioTop){
+    const base = [0.46, 0.33, 0.21];
+    const supports = AREA_SUPPORT_MAP[mainAxis] || [[],[],[]];
+    const scen = Array.isArray(scenarioTop) ? scenarioTop : [];
+    const scores = base.map((b, i) => {
+      let s = b;
+      if (supports[i].includes(secondAxis)) s += 0.08;
+      if (supports[i].includes(thirdAxis)) s += 0.04;
+      scen.forEach(ax => { if (supports[i].includes(ax)) s += 0.03; });
+      return s;
+    });
+    const total = scores.reduce((a,b)=>a+b,0) || 1;
+    let values = scores.map(s => Math.round((mainPct * s / total) * 10) / 10);
+    const rounded = values.map(v => Math.floor(v));
+    let diff = Math.round(mainPct - rounded.reduce((a,b)=>a+b,0));
+    const order = values.map((v,i)=>({i, frac:v-rounded[i]})).sort((a,b)=>b.frac-a.frac);
+    for(let k=0; k<Math.abs(diff); k++){
+      const idx = order[k % order.length].i;
+      rounded[idx] += diff > 0 ? 1 : -1;
+    }
+    return rounded;
+  }
 
   function escapeHtml(s){return String(s??"").replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
   function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
@@ -275,7 +324,7 @@
   function riasecLevelText(v){
     const p=pct(v);
     if(p<=59) return 'Este eje aparece presente, pero todavía no domina el perfil. Conviene explorarlo mediante experiencias concretas antes de tomarlo como dirección principal.';
-    if(p<=74) return 'Este eje muestra una presencia clara y sostenida. Merece ser considerado como una línea real de exploración académica o profesional.';
+    if(p<=74) return 'Este eje muestra una presencia clara y bien marcada. Merece ser considerado como una línea real de exploración académica o profesional.';
     return 'Este eje aparece como una tendencia fuerte del perfil. Conviene tomarlo como referencia prioritaria para explorar áreas, roles y contextos compatibles.';
   }
   function indicatorLevelText(name,v){
@@ -397,10 +446,16 @@
     const r = resultados?.resumen?.riasec_pct || {};
     const top = topKeys(r,3);
  //----   const topText = top.map(k=>`${k} · ${RIASEC_LABELS[k]}`).join(' — ');
-    const topText = top.map(k=>`${k}. ${RIASEC_LABELS[k]}`).join('  |  ');
+    //--const topText = top.map(k=>`${k}. ${RIASEC_LABELS[k]}`).join('  |  ');
+    const topText = (resultados?.resumen?.codigo_riasec || top.join('')).split('').map(k=>`${k}. ${RIASEC_LABELS[k]}`).join('  |  ');
     const escTop = topKeys(resultados?.escenarios || {},3);
     const escText = escTop.length ? escTop.map(k=>RIASEC_LABELS[k]).join(' — ') : 'Sin datos';
     const overall = overallVocScore(resultados);
+    const pro = !!window.__ESPRO__;
+const subtituloResumen = document.getElementById('subtituloResumen');
+if (subtituloResumen){
+  subtituloResumen.textContent = pro ? 'Resumen corporativo' : 'Resumen escolar';
+}
     document.getElementById('tituloCurvaFrecuencias').textContent = `CURVA DE DISTRIBUCIÓN DE FRECUENCIAS: (IGV = ${overall}).`;
     setCurveMarker(overall);
 
@@ -409,10 +464,14 @@
     const riCode = (resultados?.resumen?.codigo_riasec || top.join('')).split('').join('.');
     const cards = [
       {title:'Código vocacional predominante', body:`<div class="chips"><span class="chip">${escapeHtml(riCode || '—')}</span></div><p style="margin-top:8px">${escapeHtml(topText || 'Sin datos')}</p>`},
-      {title:'Escenarios de afinidad', body:`<div class="chips">${escTop.map(k=>`<span class="chip">${escapeHtml(RIASEC_LABELS[k])}</span>`).join('') || '<span class="chip">Sin datos</span>'}</div><p style="margin-top:8px">Los escenarios elegidos refuerzan afinidades actuales de exploración.</p>`},
+      {title:'Escenarios de afinidad', body:`<div class="chips">${escTop.map(k=>`<span class="chip">${escapeHtml(RIASEC_LABELS[k])}</span>`).join('') || '<span class="chip">Sin datos</span>'}</div><p style="margin-top:8px">${pro ? 'Los escenarios seleccionados refuerzan afinidades actuales vinculadas con funciones, roles y contextos laborales de interés.' : 'Los escenarios seleccionados refuerzan afinidades actuales vinculadas con materias, actividades y áreas formativas de interés.'}</p>`},
 //--      {title:'Indicadores complementarios', body:`<p><b>Visual:</b> ${compValue(resultados,'visual_pct')} · <b>Secuencia:</b> ${compValue(resultados,'secuencia_pct')} · <b>Relación:</b> ${compValue(resultados,'relacion_pct')}</p>`},
 {title:'Indicadores complementarios', body:`<p><b>1. Visual:</b> ${compValue(resultados,'visual_pct')} &nbsp;&nbsp; <b>2. Secuencia:</b> ${compValue(resultados,'secuencia_pct')} &nbsp;&nbsp; <b>3. Relación:</b> ${compValue(resultados,'relacion_pct')}</p>`},
-      {title:'Síntesis general', body:`<p>El perfil integra intereses RIASEC, escenarios de afinidad e indicadores complementarios para orientar la exploración académica o profesional.</p>`}
+     //--- {title:'Síntesis general', body:`<p>El perfil integra intereses RIASEC, escenarios de afinidad e indicadores complementarios para orientar la exploración académica o profesional.</p>`}
+{title:'Síntesis general', body:`<p>${pro
+  ? 'Este resumen integra el perfil vocacional predominante, los escenarios de afinidad y los indicadores complementarios para orientar la exploración de funciones, roles y áreas laborales compatibles.'
+  : 'Este resumen integra el perfil vocacional predominante, los escenarios de afinidad y los indicadores complementarios para orientar la exploración de materias, actividades, proyectos y áreas formativas compatibles.'
+}</p>`}
     ];
     grid.innerHTML = cards.map(c=>`<div class="summary-card"><h3>${escapeHtml(c.title)}</h3>${c.body}</div>`).join('');
   }
@@ -438,19 +497,47 @@
 
   function buildAreaGrid(resultados){
     const areaGrid = document.getElementById('areaGrid');
-    const top = topKeys(resultados?.resumen?.riasec_pct || {},3);
+    const ri = resultados?.resumen?.riasec_pct || {};
+    const top = topKeys(ri,3);
+    const escTop = topKeys(resultados?.escenarios || {},3);
     const groups = [
       { title:'Áreas principales', axis:top[0], note:'Surgen del eje con mayor peso dentro del perfil actual.' },
       { title:'Áreas complementarias', axis:top[1], note:'Aportan una segunda línea de afinidad y pueden enriquecer la elección principal.' },
       { title:'Áreas asociadas', axis:top[2], note:'Funcionan como intereses vinculados o de apoyo al perfil predominante.' }
     ].filter(g => g.axis);
-    areaGrid.innerHTML = groups.map(g=>`
+
+    areaGrid.innerHTML = groups.map(g=>{
+      const names = FAMILY_MAP[g.axis] || [];
+      const axisPct = pct(ri[g.axis]);
+      const isMain = g.title === 'Áreas principales';
+      const weights = isMain ? distributePrincipalAreas(g.axis, axisPct, top[1], top[2], escTop) : [];
+      const noteExtra = isMain
+        ? ` Eje base: ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])} (${axisPct}%).`
+        : ` Eje base: ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}.`;
+
+      return `
       <div style="margin-bottom:14px;">
         <div style="font-weight:800;font-size:14px;color:#0f172a;margin:0 0 4px 0;">${escapeHtml(g.title)}</div>
-        <div class="muted" style="font-size:12px;margin:0 0 8px 0;">${escapeHtml(g.note)} Eje base: ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}.</div>
-        <div class="area-grid">${(FAMILY_MAP[g.axis] || []).map(name=>`<div class="area-card"><h3>${escapeHtml(name)}</h3><div class="muted" style="font-size:12px">Área sugerida a partir del eje ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}</div></div>`).join('')}</div>
-      </div>
-    `).join('');
+        <div class="muted" style="font-size:12px;margin:0 0 8px 0;">${escapeHtml(g.note)}${noteExtra}</div>
+        <div class="area-grid">${names.map((name, idx)=>{
+          const subjects = SUBJECT_MAP[name] || [];
+          return `
+          <div class="area-card">
+            <h3 style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+              <span>${escapeHtml(name)}</span>
+              ${isMain ? `<span class="badge pref-high">${weights[idx] || 0}%</span>` : ``}
+            </h3>
+            <div class="muted" style="font-size:12px;margin-bottom:6px">
+              ${isMain
+                ? `Proporción estimada dentro del eje ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}.`
+                : `Área sugerida a partir del eje ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}.`}
+            </div>
+            <div class="muted" style="font-size:12px;line-height:1.45">
+              <b>Materias / campos afines:</b><br>${subjects.map(s=>escapeHtml(s)).join(' · ')}
+            </div>
+          </div>`}).join('')}</div>
+      </div>`;
+    }).join('');
   }
 
   function buildGeneralProfile(resultados){
@@ -507,7 +594,7 @@
     ] : [
       'Contrasta el resultado con materias, clubes, talleres, ferias, proyectos y actividades extracurriculares.',
       'Usa el perfil como guía para explorar con más intención, no como una decisión cerrada.',
-      'Observa qué actividades te mantienen motivado de manera sostenida y cuáles solo generan curiosidad pasajera.'
+      'Observa qué actividades te mantienen motivado de manera puntual y cuáles solo generan curiosidad pasajera.'
     ];
     const byAxis = {
       R: pro ? 'Prioriza experiencias donde puedas operar, implementar, construir, reparar o resolver situaciones concretas.' : 'Busca experiencias prácticas donde puedas construir, probar, manipular herramientas o resolver tareas concretas.',
