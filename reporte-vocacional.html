@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Orientación Vocacional – Reporte</title>
+  <title>LUN 18 50 Orientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -464,13 +464,13 @@ if (subtituloResumen){
     const riCode = (resultados?.resumen?.codigo_riasec || top.join('')).split('').join('.');
     const cards = [
       {title:'Código vocacional predominante', body:`<div class="chips"><span class="chip">${escapeHtml(riCode || '—')}</span></div><p style="margin-top:8px">${escapeHtml(topText || 'Sin datos')}</p>`},
-      {title:'Escenarios de afinidad', body:`<div class="chips">${escTop.map(k=>`<span class="chip">${escapeHtml(RIASEC_LABELS[k])}</span>`).join('') || '<span class="chip">Sin datos</span>'}</div><p style="margin-top:8px">${pro ? 'Los escenarios seleccionados confirman afinidades que hoy se relacionan con funciones, roles y contextos laborales que conviene explorar con mayor atención.' : 'Los escenarios seleccionados confirman afinidades que hoy se relacionan con materias, actividades y áreas formativas que conviene explorar con mayor atención.'}</p>`},
+      {title:'Escenarios de afinidad', body:`<div class="chips">${escTop.map(k=>`<span class="chip">${escapeHtml(RIASEC_LABELS[k])}</span>`).join('') || '<span class="chip">Sin datos</span>'}</div><p style="margin-top:8px">${pro ? 'Los escenarios seleccionados refuerzan afinidades actuales vinculadas con funciones, roles y contextos laborales de interés.' : 'Los escenarios seleccionados refuerzan afinidades actuales vinculadas con materias, actividades y áreas formativas de interés.'}</p>`},
 //--      {title:'Indicadores complementarios', body:`<p><b>Visual:</b> ${compValue(resultados,'visual_pct')} · <b>Secuencia:</b> ${compValue(resultados,'secuencia_pct')} · <b>Relación:</b> ${compValue(resultados,'relacion_pct')}</p>`},
 {title:'Indicadores complementarios', body:`<p><b>1. Visual:</b> ${compValue(resultados,'visual_pct')} &nbsp;&nbsp; <b>2. Secuencia:</b> ${compValue(resultados,'secuencia_pct')} &nbsp;&nbsp; <b>3. Relación:</b> ${compValue(resultados,'relacion_pct')}</p>`},
      //--- {title:'Síntesis general', body:`<p>El perfil integra intereses RIASEC, escenarios de afinidad e indicadores complementarios para orientar la exploración académica o profesional.</p>`}
 {title:'Síntesis general', body:`<p>${pro
-  ? 'Este resumen integra el eje vocacional predominante, las afinidades observadas en escenarios y los indicadores complementarios para señalar funciones, roles y áreas laborales con mayor compatibilidad para la exploración actual.'
-  : 'Este resumen integra el eje vocacional predominante, las afinidades observadas en escenarios y los indicadores complementarios para señalar materias, actividades, proyectos y áreas formativas con mayor compatibilidad para la exploración actual.'
+  ? 'Este resumen integra el perfil vocacional predominante, los escenarios de afinidad y los indicadores complementarios para orientar la exploración de funciones, roles y áreas laborales compatibles.'
+  : 'Este resumen integra el perfil vocacional predominante, los escenarios de afinidad y los indicadores complementarios para orientar la exploración de materias, actividades, proyectos y áreas formativas compatibles.'
 }</p>`}
     ];
     grid.innerHTML = cards.map(c=>`<div class="summary-card"><h3>${escapeHtml(c.title)}</h3>${c.body}</div>`).join('');
@@ -501,9 +501,9 @@ if (subtituloResumen){
     const top = topKeys(ri,3);
     const escTop = topKeys(resultados?.escenarios || {},3);
     const groups = [
-      { title:'Áreas principales', axis:top[0], note:'Concentran la afinidad más fuerte del perfil y representan el punto de partida principal para la exploración vocacional.' },
-      { title:'Áreas complementarias', axis:top[1], note:'Funcionan como una segunda línea de interés y amplían las opciones que combinan bien con el eje principal.' },
-      { title:'Áreas asociadas', axis:top[2], note:'Aportan intereses relacionados que complementan el perfil y ayudan a ampliar la exploración de alternativas compatibles.' }
+      { title:'Áreas principales', axis:top[0], note:'Surgen del eje con mayor peso dentro del perfil actual.' },
+      { title:'Áreas complementarias', axis:top[1], note:'Aportan una segunda línea de afinidad y pueden enriquecer la elección principal.' },
+      { title:'Áreas asociadas', axis:top[2], note:'Funcionan como intereses vinculados o de apoyo al perfil predominante.' }
     ].filter(g => g.axis);
 
     areaGrid.innerHTML = groups.map(g=>{
@@ -554,37 +554,7 @@ if (subtituloResumen){
     txt.textContent = `El perfil vocacional observado muestra como eje principal ${top1}${top2 ? `, acompañado de ${top2}` : ''}${top3 ? ` y ${top3}` : ''}. Esto sugiere una combinación de intereses que conviene leer en conjunto: un área principal de afinidad, una línea complementaria y una tercera línea asociada que ayuda a matizar la elección. Los indicadores complementarios apoyan la lectura del perfil, pero no reemplazan el núcleo vocacional. ${cierre}`;
   }
 
-  
-  function axisGuidanceText(axis, rank, pro){
-    const rankIntro = rank === 0
-      ? 'Se ubica como el eje de mayor peso dentro del perfil actual.'
-      : rank === 1
-        ? 'Aparece como una línea complementaria de afinidad dentro del perfil actual.'
-        : 'Funciona como una línea asociada que complementa la lectura del perfil.';
-    const map = {
-      R: pro
-        ? `${rankIntro} Sugiere afinidad con entornos de ejecución, operación, implementación y solución práctica de tareas o procesos.`
-        : `${rankIntro} Sugiere afinidad con actividades concretas, prácticas y de aplicación directa, especialmente en proyectos donde se construye, prueba o resuelve algo.`,
-      I: pro
-        ? `${rankIntro} Sugiere afinidad con análisis, investigación, comprensión de problemas y trabajo con información, datos o explicación de fenómenos.`
-        : `${rankIntro} Sugiere afinidad con materias, proyectos y actividades donde se investiga, se analiza información y se busca comprender por qué ocurren las cosas.`,
-      A: pro
-        ? `${rankIntro} Sugiere afinidad con contextos donde se requiere crear, diseñar, comunicar o proponer ideas originales con valor expresivo.`
-        : `${rankIntro} Sugiere afinidad con actividades donde se puede crear, diseñar, expresar ideas y desarrollar propuestas originales o visuales.`,
-      S: pro
-        ? `${rankIntro} Sugiere afinidad con funciones de apoyo, orientación, acompañamiento, formación y trabajo directo con personas.`
-        : `${rankIntro} Sugiere afinidad con actividades donde se ayuda, orienta, enseña o acompaña a otras personas en contextos formativos o de servicio.`,
-      E: pro
-        ? `${rankIntro} Sugiere afinidad con funciones de liderazgo, impulso, negociación, coordinación de proyectos y toma de decisiones.`
-        : `${rankIntro} Sugiere afinidad con actividades donde se organiza, impulsa, dirige o moviliza a otros hacia metas, proyectos o iniciativas.`,
-      C: pro
-        ? `${rankIntro} Sugiere afinidad con tareas de orden, registro, control, seguimiento y organización estructurada de procesos o información.`
-        : `${rankIntro} Sugiere afinidad con actividades donde se ordena información, se siguen procedimientos y se trabaja con estructura, precisión y control.`
-    };
-    return map[axis] || rankIntro;
-  }
-
-function buildAxisInterpretation(resultados){
+  function buildAxisInterpretation(resultados){
     const box = document.getElementById('ejesInterpretacion');
     const pro = !!window.__ESPRO__;
     const ri = resultados?.resumen?.riasec_pct || {};
