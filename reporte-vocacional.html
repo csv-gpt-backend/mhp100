@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>LUN 15v15  Orientación Vocacional – Reporte</title>
+  <title>LUN 16 19  Orientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -241,6 +241,26 @@
     E:["Administración y dirección","Emprendimiento y ventas","Gestión comercial"],
     C:["Administración y finanzas","Procesos y control","Datos y soporte operativo"]
   };
+  const SUBJECT_MAP = {
+    "Ingenierías aplicadas":["Matemáticas aplicadas","Física","Tecnología","Procesos industriales","Mecánica","Electrónica"],
+    "Operaciones y logística":["Matemática funcional","Inventarios","Distribución","Procesos","Seguridad operativa","Planificación"],
+    "Mantenimiento, industria y construcción":["Dibujo técnico","Mecánica","Electricidad","Materiales","Procesos industriales","Mantenimiento"],
+    "Ciencia e investigación":["Biología","Química","Método científico","Estadística","Laboratorio","Investigación"],
+    "Análisis de datos y tecnología":["Matemáticas","Estadística","Informática","Programación","Bases de datos","Análisis de información"],
+    "Salud y laboratorio":["Biología","Química","Anatomía","Bioseguridad","Laboratorio","Primeros auxilios"],
+    "Arte y diseño":["Dibujo","Diseño","Color","Composición","Expresión artística","Creatividad"],
+    "Comunicación creativa":["Lengua y literatura","Comunicación","Redacción","Narrativa","Guion","Expresión oral"],
+    "Producción de contenidos":["Comunicación","Diseño digital","Edición","Multimedia","Creatividad","Herramientas digitales"],
+    "Educación y formación":["Lengua y literatura","Pedagogía","Didáctica","Comunicación","Planificación","Orientación"],
+    "Salud y acompañamiento":["Biología","Psicología","Orientación","Primeros auxilios","Desarrollo humano","Cuidado de personas"],
+    "Trabajo social y servicio":["Estudios sociales","Psicología","Orientación","Ciudadanía","Intervención comunitaria","Desarrollo humano"],
+    "Administración y dirección":["Administración","Planificación","Liderazgo","Gestión","Economía","Organización"],
+    "Emprendimiento y ventas":["Emprendimiento","Marketing","Negociación","Ventas","Comunicación","Gestión comercial"],
+    "Gestión comercial":["Administración","Marketing","Servicio al cliente","Negociación","Ventas","Comunicación"],
+    "Administración y finanzas":["Contabilidad","Matemática financiera","Administración","Presupuestos","Organización","Control"],
+    "Procesos y control":["Procesos","Calidad","Registros","Control","Normativas","Seguimiento"],
+    "Datos y soporte operativo":["Ofimática","Bases de datos","Registro","Análisis básico","Soporte administrativo","Organización"]
+  };
   const INDICATOR_LABELS = {
     visual_pct:'Razonamiento visual',
     secuencia_pct:'Seguimiento secuencial',
@@ -444,7 +464,7 @@ if (subtituloResumen){
     const riCode = (resultados?.resumen?.codigo_riasec || top.join('')).split('').join('.');
     const cards = [
       {title:'Código vocacional predominante', body:`<div class="chips"><span class="chip">${escapeHtml(riCode || '—')}</span></div><p style="margin-top:8px">${escapeHtml(topText || 'Sin datos')}</p>`},
-      {title:'Escenarios de afinidad', body:`<div class="chips">${escTop.map(k=>`<span class="chip">${escapeHtml(RIASEC_LABELS[k])}</span>`).join('') || '<span class="chip">Sin datos</span>'}</div><p style="margin-top:8px">Los escenarios elegidos refuerzan afinidades actuales de exploración.</p>`},
+      {title:'Escenarios de afinidad', body:`<div class="chips">${escTop.map(k=>`<span class="chip">${escapeHtml(RIASEC_LABELS[k])}</span>`).join('') || '<span class="chip">Sin datos</span>'}</div><p style="margin-top:8px">${pro ? 'Los escenarios seleccionados refuerzan afinidades actuales vinculadas con funciones, roles y contextos laborales de interés.' : 'Los escenarios seleccionados refuerzan afinidades actuales vinculadas con materias, actividades y áreas formativas de interés.'}</p>`},
 //--      {title:'Indicadores complementarios', body:`<p><b>Visual:</b> ${compValue(resultados,'visual_pct')} · <b>Secuencia:</b> ${compValue(resultados,'secuencia_pct')} · <b>Relación:</b> ${compValue(resultados,'relacion_pct')}</p>`},
 {title:'Indicadores complementarios', body:`<p><b>1. Visual:</b> ${compValue(resultados,'visual_pct')} &nbsp;&nbsp; <b>2. Secuencia:</b> ${compValue(resultados,'secuencia_pct')} &nbsp;&nbsp; <b>3. Relación:</b> ${compValue(resultados,'relacion_pct')}</p>`},
      //--- {title:'Síntesis general', body:`<p>El perfil integra intereses RIASEC, escenarios de afinidad e indicadores complementarios para orientar la exploración académica o profesional.</p>`}
@@ -499,18 +519,23 @@ if (subtituloResumen){
       <div style="margin-bottom:14px;">
         <div style="font-weight:800;font-size:14px;color:#0f172a;margin:0 0 4px 0;">${escapeHtml(g.title)}</div>
         <div class="muted" style="font-size:12px;margin:0 0 8px 0;">${escapeHtml(g.note)}${noteExtra}</div>
-        <div class="area-grid">${names.map((name, idx)=>`
+        <div class="area-grid">${names.map((name, idx)=>{
+          const subjects = SUBJECT_MAP[name] || [];
+          return `
           <div class="area-card">
             <h3 style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
               <span>${escapeHtml(name)}</span>
               ${isMain ? `<span class="badge pref-high">${weights[idx] || 0}%</span>` : ``}
             </h3>
-            <div class="muted" style="font-size:12px">
+            <div class="muted" style="font-size:12px;margin-bottom:6px">
               ${isMain
                 ? `Proporción estimada dentro del eje ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}.`
                 : `Área sugerida a partir del eje ${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}.`}
             </div>
-          </div>`).join('')}</div>
+            <div class="muted" style="font-size:12px;line-height:1.45">
+              <b>Materias / campos afines:</b><br>${subjects.map(s=>escapeHtml(s)).join(' · ')}
+            </div>
+          </div>`}).join('')}</div>
       </div>`;
     }).join('');
   }
