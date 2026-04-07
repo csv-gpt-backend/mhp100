@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>22 48 Orientación Vocacional – Reporte</title>
+  <title>22 56 Orientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -554,24 +554,42 @@ if (subtituloResumen){
     txt.textContent = `El perfil vocacional observado muestra como eje principal ${top1}${top2 ? `, acompañado de ${top2}` : ''}${top3 ? ` y ${top3}` : ''}. Esto sugiere una combinación de intereses que conviene leer en conjunto: un área principal de afinidad, una línea complementaria y una tercera línea asociada que ayuda a matizar la elección. Los indicadores complementarios apoyan la lectura del perfil, pero no reemplazan el núcleo vocacional. ${cierre}`;
   }
 
-  function buildAxisInterpretation(resultados){
-    const box = document.getElementById('ejesInterpretacion');
-    const pro = !!window.__ESPRO__;
-    const ri = resultados?.resumen?.riasec_pct || {};
-    const top = topKeys(ri,3);
-    const rankLabel = ['Área principal de afinidad','Área complementaria de afinidad','Área asociada al perfil'];
-    box.innerHTML = top.map((k,i)=>{
-      const val = pct(ri[k]);
-      return `<div class="subblock">
-        <h4>${i+1}. ${escapeHtml(RIASEC_LABELS[k])} (${escapeHtml(k)})</h4>
-        <p><b>${rankLabel[i] || 'Área de afinidad'}:</b> ${escapeHtml(riasecLevel(val))} (${val}).</p>
-        <p>${escapeHtml(RIASEC_DESC[k])}</p>
-        <p class="muted" style="color:#111">${escapeHtml(riasecLevelText(val))}</p>
-        <p class="muted" style="color:#111">${escapeHtml(axisContextText(k, pro))}</p>
-      </div>`;
-    }).join('');
-  }
+function buildAxisInterpretation(resultados){
+  const box = document.getElementById('ejesInterpretacion');
+  const pro = !!window.__ESPRO__;
+  const ri = resultados?.resumen?.riasec_pct || {};
+  const top = topKeys(ri,3);
 
+  const rankLabel = [
+    'Área principal de afinidad',
+    'Área complementaria de afinidad',
+    'Área asociada al perfil'
+  ];
+
+  const rankIntro = [
+    pro
+      ? 'Este eje aparece como el más representativo dentro del perfil actual. Conviene leerlo como la línea de mayor afinidad para contrastar funciones, responsabilidades, proyectos y entornos laborales compatibles.'
+      : 'Este eje aparece como el más representativo dentro del perfil actual. Conviene leerlo como la línea de mayor afinidad para explorar materias, actividades, experiencias y áreas formativas compatibles.',
+    pro
+      ? 'Este eje funciona como un apoyo relevante del perfil. Complementa la tendencia principal y amplía los tipos de funciones, tareas y contextos laborales que podrían resultar afines.'
+      : 'Este eje funciona como un apoyo relevante del perfil. Complementa la tendencia principal y amplía los tipos de actividades, materias y experiencias escolares que podrían resultar afines.',
+    pro
+      ? 'Este eje aparece como una línea asociada que no define por sí sola el perfil, pero sí aporta matices importantes para entender mejor intereses, estilos de participación y posibles combinaciones ocupacionales.'
+      : 'Este eje aparece como una línea asociada que no define por sí sola el perfil, pero sí aporta matices importantes para entender mejor intereses, formas de participación y posibles combinaciones de exploración.'
+  ];
+
+  box.innerHTML = top.map((k,i)=>{
+    const val = pct(ri[k]);
+    return `<div class="subblock">
+      <h4>${i+1}. ${escapeHtml(RIASEC_LABELS[k])} (${escapeHtml(k)})</h4>
+      <p><b>${rankLabel[i] || 'Área de afinidad'}:</b> ${escapeHtml(riasecLevel(val))} (${val}).</p>
+      <p class="muted" style="color:#111">${escapeHtml(rankIntro[i] || '')}</p>
+      <p>${escapeHtml(RIASEC_DESC[k])}</p>
+      <p class="muted" style="color:#111">${escapeHtml(riasecLevelText(val))}</p>
+      <p class="muted" style="color:#111">${escapeHtml(axisContextText(k, pro))}</p>
+    </div>`;
+  }).join('');
+}
   function buildIndicatorInterpretation(resultados){
     const box = document.getElementById('indicadoresInterpretacion');
     const items = [
