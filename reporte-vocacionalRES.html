@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>gggLUN 18 50 Orientación Vocacional – Reporte</title>
+  <title>23 21 Orientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -540,99 +540,215 @@ if (subtituloResumen){
     }).join('');
   }
 
-  function buildGeneralProfile(resultados){
-    const top = topKeys(resultados?.resumen?.riasec_pct || {},3);
-    const txt = document.getElementById('perfilGeneralTxt');
-    const pro = !!window.__ESPRO__;
-    const labels = top.map(k=>RIASEC_LABELS[k]);
-    const top1 = top[0] ? `${RIASEC_LABELS[top[0]]} (${top[0]})` : 'sin eje dominante';
-    const top2 = top[1] ? `${RIASEC_LABELS[top[1]]} (${top[1]})` : '';
-    const top3 = top[2] ? `${RIASEC_LABELS[top[2]]} (${top[2]})` : '';
-    const cierre = pro
-      ? 'En clave profesional, este resultado funciona como una guía para contrastar funciones, proyectos, roles y áreas laborales compatibles.'
-      : 'En clave escolar, este resultado funciona como una guía para explorar materias, proyectos, actividades y áreas formativas compatibles.';
-    txt.textContent = `El perfil vocacional observado muestra como eje principal ${top1}${top2 ? `, acompañado de ${top2}` : ''}${top3 ? ` y ${top3}` : ''}. Esto sugiere una combinación de intereses que conviene leer en conjunto: un área principal de afinidad, una línea complementaria y una tercera línea asociada que ayuda a matizar la elección. Los indicadores complementarios apoyan la lectura del perfil, pero no reemplazan el núcleo vocacional. ${cierre}`;
+function buildGeneralProfile(resultados){
+  const top = topKeys(resultados?.resumen?.riasec_pct || {},3);
+  const txt = document.getElementById('perfilGeneralTxt');
+  const pro = !!window.__ESPRO__;
+
+  const top1 = top[0] ? `${RIASEC_LABELS[top[0]]} (${top[0]})` : 'sin eje dominante';
+  const top2 = top[1] ? `${RIASEC_LABELS[top[1]]} (${top[1]})` : '';
+  const top3 = top[2] ? `${RIASEC_LABELS[top[2]]} (${top[2]})` : '';
+
+  const apertura = pro
+    ? `El perfil vocacional observado muestra como línea principal ${top1}${top2 ? `, acompañado de ${top2}` : ''}${top3 ? ` y ${top3}` : ''}. En conjunto, esta combinación sugiere una preferencia por entornos, funciones y proyectos donde puedan integrarse intereses dominantes, apoyos complementarios y una tercera línea asociada que amplía el campo de afinidad.`
+    : `El perfil vocacional observado muestra como línea principal ${top1}${top2 ? `, acompañado de ${top2}` : ''}${top3 ? ` y ${top3}` : ''}. En conjunto, esta combinación sugiere una preferencia por actividades, materias y experiencias donde puedan integrarse intereses dominantes, apoyos complementarios y una tercera línea asociada que amplía el campo de afinidad.`;
+
+  const lectura = pro
+    ? 'La lectura del resultado conviene hacerse en conjunto y no de forma aislada: el eje principal orienta la afinidad más marcada, el eje complementario amplía opciones compatibles y el eje asociado ayuda a matizar mejor el tipo de participación, rol o entorno laboral que podría resultar más congruente.'
+    : 'La lectura del resultado conviene hacerse en conjunto y no de forma aislada: el eje principal orienta la afinidad más marcada, el eje complementario amplía opciones compatibles y el eje asociado ayuda a matizar mejor el tipo de actividad, experiencia o entorno formativo que podría resultar más congruente.';
+
+  const cierre = pro
+    ? 'Los indicadores complementarios enriquecen la interpretación, pero no sustituyen el núcleo vocacional. En clave profesional, este resultado debe tomarse como una guía para contrastar áreas, funciones, proyectos y posibilidades reales de desarrollo.'
+    : 'Los indicadores complementarios enriquecen la interpretación, pero no sustituyen el núcleo vocacional. En clave escolar, este resultado debe tomarse como una guía para explorar materias, proyectos, actividades y posibles trayectorias formativas con mayor intención y claridad.';
+
+  txt.textContent = `${apertura} ${lectura} ${cierre}`;
+}
+function buildAxisInterpretation(resultados){
+  const box = document.getElementById('ejesInterpretacion');
+  const pro = !!window.__ESPRO__;
+  const ri = resultados?.resumen?.riasec_pct || {};
+  const top = topKeys(ri,3);
+
+  const rankLabel = [
+    'Área principal de afinidad',
+    'Área complementaria de afinidad',
+    'Área asociada al perfil'
+  ];
+
+  const rankIntro = [
+    pro
+      ? 'Este eje aparece como el más representativo dentro del perfil actual. Conviene leerlo como la línea de mayor afinidad para contrastar funciones, responsabilidades, proyectos y entornos laborales compatibles.'
+      : 'Este eje aparece como el más representativo dentro del perfil actual. Conviene leerlo como la línea de mayor afinidad para explorar materias, actividades, experiencias y áreas formativas compatibles.',
+    pro
+      ? 'Este eje funciona como un apoyo relevante del perfil. Complementa la tendencia principal y amplía los tipos de funciones, tareas y contextos laborales que podrían resultar afines.'
+      : 'Este eje funciona como un apoyo relevante del perfil. Complementa la tendencia principal y amplía los tipos de actividades, materias y experiencias escolares que podrían resultar afines.',
+    pro
+      ? 'Este eje aparece como una línea asociada que no define por sí sola el perfil, pero sí aporta matices importantes para entender mejor intereses, estilos de participación y posibles combinaciones ocupacionales.'
+      : 'Este eje aparece como una línea asociada que no define por sí sola el perfil, pero sí aporta matices importantes para entender mejor intereses, formas de participación y posibles combinaciones de exploración.'
+  ];
+
+  box.innerHTML = top.map((k,i)=>{
+    const val = pct(ri[k]);
+    return `<div class="subblock">
+      <h4>${i+1}. ${escapeHtml(RIASEC_LABELS[k])} (${escapeHtml(k)})</h4>
+      <p><b>${i===0 ? 'Área principal del perfil' : i===1 ? 'Área complementaria del perfil' : 'Área asociada del perfil'}:</b> ${escapeHtml(riasecLevel(val).replace(/^afinidad\s+/i,''))} (${val}).</p>
+   
+      <p class="muted" style="color:#111">${escapeHtml(rankIntro[i] || '')}</p>
+<p>${escapeHtml(RIASEC_DESC[k])}</p>
+<p class="muted" style="color:#111">${escapeHtml(axisContextText(k, pro))}</p>
+    </div>`;
+  }).join('');
+}
+function buildIndicatorInterpretation(resultados){
+  const box = document.getElementById('indicadoresInterpretacion');
+  const pro = !!window.__ESPRO__;
+
+  const items = [
+    {
+      name:'Razonamiento visual',
+      value:compValue(resultados,'visual_pct'),
+      desc: pro
+        ? {
+            low:'Conviene trabajar con esquemas, planos, diagramas, distribuciones y ejercicios de observación comparativa para fortalecer la lectura visual de información.',
+            mid:'Puede seguir consolidándose mediante tareas que impliquen observar detalles, comparar estructuras e interpretar información presentada de forma gráfica.',
+            high:'Puede aprovecharse en tareas que exigen reconocer patrones, comparar configuraciones y comprender información presentada de forma visual o espacial.'
+          }
+        : {
+            low:'Conviene trabajarlo con figuras, patrones, ubicaciones, rompecabezas visuales y ejercicios guiados de observación y comparación.',
+            mid:'Puede seguir consolidándose con actividades que impliquen observar detalles, comparar formas e interpretar esquemas o ejercicios visuales.',
+            high:'Puede aprovecharse bien en actividades donde haya que reconocer patrones, comparar figuras y comprender relaciones espaciales con mayor seguridad.'
+          }
+    },
+    {
+      name:'Seguimiento secuencial',
+      value:compValue(resultados,'secuencia_pct'),
+      desc: pro
+        ? {
+            low:'Conviene reforzarlo con tareas paso a paso, procedimientos guiados, instrucciones encadenadas y actividades que exijan continuidad y orden.',
+            mid:'Puede seguir fortaleciéndose con procesos que impliquen secuencias, seguimiento de instrucciones y organización progresiva del trabajo.',
+            high:'Puede aprovecharse bien en tareas que requieran mantener el orden de pasos, seguir procedimientos y sostener continuidad en procesos secuenciales.'
+          }
+        : {
+            low:'Conviene reforzarlo con ejercicios de series, pasos ordenados, instrucciones guiadas y actividades donde sea importante mantener la secuencia.',
+            mid:'Puede seguir fortaleciéndose con actividades que impliquen ordenar pasos, seguir instrucciones y resolver tareas de lógica progresiva.',
+            high:'Puede aprovecharse bien en ejercicios donde haya que seguir secuencias, mantener el orden de una tarea y comprender procesos paso a paso.'
+          }
+    },
+    {
+      name:'Relación visual',
+      value:compValue(resultados,'relacion_pct'),
+      desc: pro
+        ? {
+            low:'Conviene fortalecerlo con ejercicios de equivalencias, comparación de elementos, vínculos entre partes y análisis de relaciones visuales.',
+            mid:'Puede seguir consolidándose con tareas donde sea necesario relacionar figuras, comparar elementos y reconocer correspondencias visuales.',
+            high:'Puede aprovecharse bien en actividades que exijan detectar relaciones, reconocer equivalencias y establecer conexiones visuales con rapidez.'
+          }
+        : {
+            low:'Conviene fortalecerlo con ejercicios de semejanzas y diferencias, correspondencias, parejas visuales y relaciones entre figuras.',
+            mid:'Puede seguir consolidándose con actividades donde haya que comparar figuras, encontrar relaciones y reconocer correspondencias visuales.',
+            high:'Puede aprovecharse bien en ejercicios donde sea importante detectar relaciones, reconocer equivalencias y vincular información visual con agilidad.'
+          }
+    }
+  ];
+
+  function pickText(levelSet, value){
+    const p = pct(value);
+    if (p <= 40) return levelSet.low;
+    if (p <= 70) return levelSet.mid;
+    return levelSet.high;
   }
 
-  function buildAxisInterpretation(resultados){
-    const box = document.getElementById('ejesInterpretacion');
-    const pro = !!window.__ESPRO__;
-    const ri = resultados?.resumen?.riasec_pct || {};
-    const top = topKeys(ri,3);
-    const rankLabel = ['Área principal de afinidad','Área complementaria de afinidad','Área asociada al perfil'];
-    box.innerHTML = top.map((k,i)=>{
-      const val = pct(ri[k]);
-      return `<div class="subblock">
-        <h4>${i+1}. ${escapeHtml(RIASEC_LABELS[k])} (${escapeHtml(k)})</h4>
-        <p><b>${rankLabel[i] || 'Área de afinidad'}:</b> ${escapeHtml(riasecLevel(val))} (${val}).</p>
-        <p>${escapeHtml(RIASEC_DESC[k])}</p>
-        <p class="muted" style="color:#111">${escapeHtml(riasecLevelText(val))}</p>
-        <p class="muted" style="color:#111">${escapeHtml(axisContextText(k, pro))}</p>
-      </div>`;
-    }).join('');
-  }
+  box.innerHTML = items.map(it=>`
+    <div class="subblock">
+      <h4>${escapeHtml(it.name)}</h4>
+      <p><b>Nivel observado:</b> ${escapeHtml(prefLabel(it.value))} (${it.value}).</p>
+      <p>${escapeHtml(indicatorLevelText(it.name,it.value))}</p>
+      <p class="muted" style="color:#111">${escapeHtml(pickText(it.desc, it.value))}</p>
+    </div>
+  `).join('');
+}
 
-  function buildIndicatorInterpretation(resultados){
-    const box = document.getElementById('indicadoresInterpretacion');
-    const items = [
-      {name:'Razonamiento visual', value:compValue(resultados,'visual_pct')},
-      {name:'Seguimiento secuencial', value:compValue(resultados,'secuencia_pct')},
-      {name:'Relación visual', value:compValue(resultados,'relacion_pct')}
-    ];
-    box.innerHTML = items.map(it=>`<div class="subblock"><h4>${escapeHtml(it.name)}</h4><p><b>Nivel observado:</b> ${escapeHtml(prefLabel(it.value))} (${it.value}).</p><p>${escapeHtml(indicatorLevelText(it.name,it.value))}</p></div>`).join('');
-  }
+function buildRecommendations(resultados){
+  const box = document.getElementById('recomendacionesBox');
+  const top = topKeys(resultados?.resumen?.riasec_pct || {},3);
+  const pro = !!window.__ESPRO__;
 
-  function buildRecommendations(resultados){
-    const box = document.getElementById('recomendacionesBox');
-    const top = topKeys(resultados?.resumen?.riasec_pct || {},3);
-    const pro = !!window.__ESPRO__;
-    const main = top[0] || 'R';
-    const generic = pro ? [
-      'Contrasta el resultado con funciones reales, tareas cortas, proyectos transversales o experiencias de rotación interna.',
-      'Usa el perfil como guía para priorizar exploración, no como una etiqueta cerrada o definitiva.',
-      'Observa qué tareas sostienen tu interés en el tiempo y cuáles solo despiertan curiosidad momentánea.'
-    ] : [
-      'Contrasta el resultado con materias, clubes, talleres, ferias, proyectos y actividades extracurriculares.',
-      'Usa el perfil como guía para explorar con más intención, no como una decisión cerrada.',
-      'Observa qué actividades te mantienen motivado de manera puntual y cuáles solo generan curiosidad pasajera.'
-    ];
-    const byAxis = {
-      R: pro ? 'Prioriza experiencias donde puedas operar, implementar, construir, reparar o resolver situaciones concretas.' : 'Busca experiencias prácticas donde puedas construir, probar, manipular herramientas o resolver tareas concretas.',
-      I: pro ? 'Prioriza tareas de análisis, investigación aplicada, diagnóstico, datos o mejora de procesos.' : 'Busca experiencias donde puedas investigar, analizar información, resolver problemas y explicar causas.',
-      A: pro ? 'Prioriza espacios donde puedas diseñar, comunicar, innovar o producir propuestas originales.' : 'Busca experiencias donde puedas crear, diseñar, escribir, comunicar o proponer ideas nuevas.',
-      S: pro ? 'Prioriza roles donde puedas acompañar, capacitar, atender personas o facilitar procesos humanos.' : 'Busca actividades de apoyo, enseñanza, servicio, acompañamiento y trabajo con personas.',
-      E: pro ? 'Prioriza funciones donde puedas coordinar, negociar, impulsar iniciativas o mover proyectos.' : 'Busca experiencias de liderazgo, organización, emprendimiento y toma de iniciativa.',
-      C: pro ? 'Prioriza tareas donde puedas ordenar, controlar, registrar y dar seguimiento a procesos.' : 'Busca actividades de organización, control, registro, detalle y seguimiento estructurado.'
-    };
-    const rankText = top.slice(0,3).map((k,i)=>`<li><b>${i===0 ? 'Área principal' : i===1 ? 'Área complementaria' : 'Área asociada'}:</b> ${escapeHtml(byAxis[k])}</li>`).join('');
-    box.innerHTML = `<ul class="clean">${generic.map(t=>`<li>${escapeHtml(t)}</li>`).join('')}${rankText}</ul>`;
-  }
+  const generic = pro ? [
+    'Contrasta el resultado con funciones reales, tareas específicas, proyectos breves o participaciones puntuales antes de tomar una decisión de cambio, especialización o proyección profesional.',
+    'Usa este perfil como una guía para enfocar tu exploración y reconocer entornos de mayor afinidad, no como una etiqueta cerrada ni como una conclusión definitiva.',
+    'Observa qué actividades sostienen tu interés, tu energía y tu nivel de involucramiento en el tiempo, y distingue esas señales de una curiosidad pasajera o momentánea.'
+  ] : [
+    'Contrasta el resultado con materias, talleres, clubes, proyectos, ferias, actividades extracurriculares o experiencias guiadas que te permitan probar intereses de manera real.',
+    'Usa este perfil como una guía para explorar con más intención y claridad, no como una decisión cerrada ni como una respuesta definitiva sobre tu futuro.',
+    'Observa qué actividades te mantienen motivado, concentrado y con deseo de seguir aprendiendo, y diferencia eso de intereses pasajeros o solo llamativos al inicio.'
+  ];
 
-  function buildContexts(resultados){
-    const box = document.getElementById('contextosBox');
-    const pro = !!window.__ESPRO__;
-    const top = topKeys(resultados?.resumen?.riasec_pct || {},3);
-    const escolar = {
-      R:'Explorar talleres prácticos, laboratorios, ferias tecnológicas o proyectos de construcción y prototipado.',
-      I:'Explorar semilleros de investigación, clubes de ciencias, análisis de datos o resolución de problemas.',
-      A:'Explorar arte, diseño, medios, literatura, producción audiovisual o proyectos creativos.',
-      S:'Explorar tutorías, apoyo entre pares, brigadas, salud, educación y servicio comunitario.',
-      E:'Explorar representación estudiantil, emprendimientos, liderazgo de equipos o proyectos de venta/organización.',
-      C:'Explorar gestión de eventos, finanzas escolares, bases de datos, registro y organización documental.'
-    };
-    const profesional = {
-      R:'Explorar áreas operativas, técnicas, de campo, soporte o implementación.',
-      I:'Explorar analítica, investigación aplicada, mejora de procesos, tecnología o diagnóstico.',
-      A:'Explorar comunicación, marca, diseño, contenidos, innovación o propuestas de mejora creativa.',
-      S:'Explorar capacitación, servicio, acompañamiento, atención a personas o desarrollo de talento.',
-      E:'Explorar coordinación, jefatura, ventas, expansión, negociación o nuevas iniciativas.',
-      C:'Explorar administración, planeación, control, seguimiento, calidad o soporte documental.'
-    };
-    const map = pro ? profesional : escolar;
-    const blocks = top.slice(0,3).map((k,i)=>`<div class="subblock"><h4>${i===0 ? 'Línea principal de exploración' : i===1 ? 'Línea complementaria de exploración' : 'Línea asociada de exploración'}</h4><p>${escapeHtml(map[k])}</p></div>`).join('');
-    box.innerHTML = blocks;
-  }
+  const byAxis = {
+  R: pro
+    ? 'operar, implementar, construir, reparar, supervisar procesos concretos o resolver situaciones prácticas con resultados visibles.'
+    : 'construir, probar, manipular herramientas, participar en laboratorios, prototipos o resolver tareas concretas paso a paso.',
+  I: pro
+    ? 'analizar, investigar de forma aplicada, interpretar datos, diagnosticar situaciones o mejorar procesos con base lógica.'
+    : 'investigar, analizar información, hacer preguntas, resolver problemas, comparar opciones y explicar causas o resultados.',
+  A: pro
+    ? 'diseñar, comunicar, innovar, producir propuestas originales o transformar ideas en piezas, mensajes o soluciones con identidad propia.'
+    : 'crear, diseñar, escribir, comunicar, imaginar, producir contenido o proponer ideas nuevas con libertad y expresión.',
+  S: pro
+    ? 'acompañar, orientar, capacitar, atender personas, facilitar procesos humanos o generar bienestar a través del servicio.'
+    : 'participar en actividades de apoyo, enseñanza, servicio, tutoría, acompañamiento, salud o trabajo colaborativo con otras personas.',
+  E: pro
+    ? 'coordinar, negociar, liderar, impulsar iniciativas, movilizar equipos o asumir retos que exijan decisión y proyección.'
+    : 'participar en experiencias de liderazgo, emprendimiento, organización, representación, coordinación de grupos o actividades donde debas tomar iniciativa.',
+  C: pro
+    ? 'ordenar, registrar, controlar, dar seguimiento, organizar información, sostener procesos y cuidar la precisión en la ejecución.'
+    : 'participar en actividades de organización, control, registro, detalle, secuencia, clasificación y seguimiento estructurado de tareas o información.'
+};
+ const prefijos = [
+  'Busca experiencias alineadas con esta área dominante:',
+  'Como apoyo complementario, considera también espacios donde puedas',
+  'Como línea asociada, también puede aportarte explorar contextos donde puedas'
+];
 
+const rankText = top.slice(0,3).map((k,i)=>`
+  <li><b>${i===0 ? 'Área principal' : i===1 ? 'Área complementaria' : 'Área asociada'}:</b> ${escapeHtml(prefijos[i] || 'Explora espacios donde puedas')} ${escapeHtml((byAxis[k] || '').toLowerCase())}</li>
+`).join('');
+  box.innerHTML = `<ul class="clean">${generic.map(t=>`<li>${escapeHtml(t)}</li>`).join('')}${rankText}</ul>`;
+}
+
+function buildContexts(resultados){
+  const box = document.getElementById('contextosBox');
+  const pro = !!window.__ESPRO__;
+  const top = topKeys(resultados?.resumen?.riasec_pct || {},3);
+
+  const escolar = {
+    R:'Explora talleres prácticos, laboratorios, ferias tecnológicas, actividades de construcción, prototipado o espacios donde puedas aprender haciendo, probando y corrigiendo sobre la marcha.',
+    I:'Explora semilleros de investigación, clubes de ciencias, análisis de datos, retos de lógica o proyectos donde debas observar, comparar, interpretar información y sacar conclusiones.',
+    A:'Explora arte, diseño, medios, literatura, producción audiovisual o proyectos creativos donde puedas comunicar ideas, proponer conceptos y desarrollar una expresión propia.',
+    S:'Explora tutorías, apoyo entre pares, brigadas, actividades de servicio, educación, salud o espacios donde puedas orientar, acompañar y trabajar directamente con personas.',
+    E:'Explora representación estudiantil, emprendimientos, liderazgo de equipos, proyectos de venta, campañas o actividades donde debas organizar, convencer y tomar iniciativa.',
+    C:'Explora gestión de eventos, finanzas escolares, bases de datos, registro, archivo, logística u organización documental en contextos que exijan orden y seguimiento.'
+  };
+
+  const profesional = {
+    R:'Explora áreas operativas, técnicas, de campo, soporte o implementación donde el trabajo se relacione con ejecución concreta, resolución práctica y resultados observables.',
+    I:'Explora analítica, investigación aplicada, mejora de procesos, tecnología, diagnóstico o funciones donde debas interpretar información y proponer soluciones fundamentadas.',
+    A:'Explora comunicación, marca, diseño, contenidos, innovación o espacios donde puedas convertir ideas en propuestas, mensajes, conceptos o soluciones creativas.',
+    S:'Explora capacitación, servicio, acompañamiento, atención a personas, desarrollo de talento o funciones donde el valor principal esté en orientar, apoyar y facilitar procesos humanos.',
+    E:'Explora coordinación, jefatura, ventas, expansión, negociación o nuevas iniciativas donde puedas liderar, movilizar decisiones y asumir retos con proyección.',
+    C:'Explora administración, planeación, control, seguimiento, calidad o soporte documental en entornos donde se valore el orden, la precisión y la continuidad de procesos.'
+  };
+
+  const map = pro ? profesional : escolar;
+
+  const blocks = top.slice(0,3).map((k,i)=>`
+    <div class="subblock">
+      <h4>${i===0 ? 'Línea principal de exploración' : i===1 ? 'Línea complementaria de exploración' : 'Línea asociada de exploración'}</h4>
+      <p>${escapeHtml(map[k] || '')}</p>
+    </div>
+  `).join('');
+
+  box.innerHTML = blocks;
+}
   function exportJSON(){
     const payload = window.__LAST_REPORT__ || {};
     const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
