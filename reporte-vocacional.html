@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Orientación Vocacional – Reporte</title>
+  <title>gggLUN 18 50 Orientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -192,7 +192,7 @@
           <div class="rep-top-row2"><span>Orientación vocacional</span></div>
           <div class="rep-top-row3">Interpretación y recomendaciones</div>
         </div>
-<div id="repHeaderBox2" class="rep-header-box"></div>
+
         <div class="interp-box">
           <h3>1.- Lectura general del perfil</h3>
           <p id="perfilGeneralTxt" class="muted" style="color:#111"></p>
@@ -425,31 +425,22 @@
   }
 
   function buildHeader(attempt){
-  const codigoActual = String(document.getElementById('codigoInput')?.value || attempt.codigo || '').trim().toUpperCase();
-  const esProfesional = codigoActual.startsWith('PRO');
-  window.__ESPRO__ = esProfesional;
-
-  const labelCurso = esProfesional ? 'Nivel' : 'Grado/Curso';
-  const fechaTexto = fmtDate(attempt.created_at || new Date().toISOString());
-
-  const headerHTML = `
-    <div><b>Nombre:</b> ${escapeHtml(attempt.nombre || '—')}</div>
-    <div><b>${labelCurso}:</b> ${escapeHtml(attempt.curso || '—')}</div>
-    <div><b>País:</b> ${escapeHtml(attempt.grupo || '—')}</div>
-    <div><b>Institución:</b> ${escapeHtml(attempt.institucion || '—')}</div>
-    <div><b>Código:</b> ${escapeHtml(attempt.codigo || codigoActual || '—')}</div>
-    <div><b>Fecha:</b> ${escapeHtml(fechaTexto)}</div>
-  `;
-
-  const header1 = document.getElementById('repHeaderBox');
-  const header2 = document.getElementById('repHeaderBox2');
-
-  if (header1) header1.innerHTML = headerHTML;
-  if (header2) header2.innerHTML = headerHTML;
-
-  document.getElementById('repDateLine1').textContent = fechaTexto;
-  document.getElementById('repDateLine2').textContent = fechaTexto;
-}
+    const codigoActual = String(document.getElementById('codigoInput')?.value || attempt.codigo || '').trim().toUpperCase();
+    const esProfesional = codigoActual.startsWith('PRO');
+    window.__ESPRO__ = esProfesional;
+    const labelCurso = esProfesional ? 'Nivel' : 'Grado/Curso';
+    const fechaTexto = fmtDate(attempt.created_at || new Date().toISOString());
+    const header = document.getElementById('repHeaderBox');
+    header.innerHTML = `
+      <div><b>Nombre:</b> ${escapeHtml(attempt.nombre || '—')}</div>
+      <div><b>${labelCurso}:</b> ${escapeHtml(attempt.curso || '—')}</div>
+      <div><b>País:</b> ${escapeHtml(attempt.grupo || '—')}</div>
+      <div><b>Institución:</b> ${escapeHtml(attempt.institucion || '—')}</div>
+      <div><b>Código:</b> ${escapeHtml(attempt.codigo || codigoActual || '—')}</div>
+      <div><b>Fecha:</b> ${escapeHtml(fechaTexto)}</div>`;
+    document.getElementById('repDateLine1').textContent = fechaTexto;
+    document.getElementById('repDateLine2').textContent = fechaTexto;
+  }
 
   function buildSummary(resultados){
     const r = resultados?.resumen?.riasec_pct || {};
