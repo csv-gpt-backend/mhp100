@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>22 32 Orientación Vocacional – Reporte</title>
+  <title>22 40 Orientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -618,10 +618,15 @@ function buildRecommendations(resultados){
       : 'Área principal: busca actividades de organización, control, registro, detalle, secuencia, clasificación y seguimiento estructurado de tareas o información.'
   };
 
-  const rankText = top.slice(0,3).map((k,i)=>`
-    <li><b>${i===0 ? 'Área principal' : i===1 ? 'Área complementaria' : 'Área asociada'}:</b> ${escapeHtml(byAxis[k] || '')}</li>
-  `).join('');
+ const prefijos = [
+  'Busca experiencias alineadas con esta área dominante',
+  'Como apoyo complementario, considera también espacios donde puedas',
+  'Como línea asociada, también puede aportarte explorar contextos donde puedas'
+];
 
+const rankText = top.slice(0,3).map((k,i)=>`
+  <li><b>${i===0 ? 'Área principal' : i===1 ? 'Área complementaria' : 'Área asociada'}:</b> ${escapeHtml(prefijos[i] || 'Explora espacios donde puedas')} ${escapeHtml((byAxis[k] || '').toLowerCase())}</li>
+`).join('');
   box.innerHTML = `<ul class="clean">${generic.map(t=>`<li>${escapeHtml(t)}</li>`).join('')}${rankText}</ul>`;
 }
 
