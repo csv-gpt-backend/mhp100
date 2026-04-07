@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>23 06 Orientación Vocacional – Reporte</title>
+  <title>23 11 Orientación Vocacional – Reporte</title>
   <style>
     :root{
       --ink:#111827; --muted:#6b7280; --line:#d1d5db; --soft:#f8fafc;
@@ -590,15 +590,74 @@ function buildAxisInterpretation(resultados){
     </div>`;
   }).join('');
 }
-  function buildIndicatorInterpretation(resultados){
-    const box = document.getElementById('indicadoresInterpretacion');
-    const items = [
-      {name:'Razonamiento visual', value:compValue(resultados,'visual_pct')},
-      {name:'Seguimiento secuencial', value:compValue(resultados,'secuencia_pct')},
-      {name:'Relación visual', value:compValue(resultados,'relacion_pct')}
-    ];
-    box.innerHTML = items.map(it=>`<div class="subblock"><h4>${escapeHtml(it.name)}</h4><p><b>Nivel observado:</b> ${escapeHtml(prefLabel(it.value))} (${it.value}).</p><p>${escapeHtml(indicatorLevelText(it.name,it.value))}</p></div>`).join('');
+function buildIndicatorInterpretation(resultados){
+  const box = document.getElementById('indicadoresInterpretacion');
+  const pro = !!window.__ESPRO__;
+
+  const items = [
+    {
+      name:'Razonamiento visual',
+      value:compValue(resultados,'visual_pct'),
+      desc: pro
+        ? {
+            low:'Sugiere que conviene fortalecer la lectura de formas, patrones, proporciones y relaciones espaciales en tareas que exigen interpretar información visual con rapidez y precisión.',
+            mid:'Aporta una base funcional para interpretar esquemas, formas, distribuciones y relaciones visuales en tareas de complejidad media.',
+            high:'Aporta una base favorable para analizar configuraciones visuales, detectar patrones, comparar estructuras y comprender información presentada de forma gráfica o espacial.'
+          }
+        : {
+            low:'Sugiere que conviene fortalecer la lectura de figuras, formas, ubicaciones y patrones visuales mediante ejercicios guiados y práctica gradual.',
+            mid:'Ofrece una base útil para comprender esquemas, figuras, relaciones espaciales y ejercicios visuales de dificultad media.',
+            high:'Aporta una base favorable para reconocer patrones, comparar formas, interpretar relaciones espaciales y responder con seguridad a tareas visuales.'
+          }
+    },
+    {
+      name:'Seguimiento secuencial',
+      value:compValue(resultados,'secuencia_pct'),
+      desc: pro
+        ? {
+            low:'Sugiere que conviene reforzar el seguimiento ordenado de pasos, instrucciones, secuencias y procesos que requieren continuidad y control.',
+            mid:'Ofrece una base funcional para seguir secuencias, ordenar procedimientos y sostener tareas que requieren atención al paso a paso.',
+            high:'Aporta una base favorable para comprender procesos encadenados, seguir instrucciones con orden, anticipar pasos y mantener continuidad en tareas secuenciales.'
+          }
+        : {
+            low:'Sugiere que conviene reforzar el seguimiento de pasos, instrucciones y secuencias mediante actividades que exijan orden y continuidad.',
+            mid:'Ofrece una base útil para seguir secuencias, ordenar pasos y resolver tareas que dependen de una lógica progresiva.',
+            high:'Aporta una base favorable para seguir instrucciones, organizar pasos, mantener el orden de una tarea y comprender secuencias con claridad.'
+          }
+    },
+    {
+      name:'Relación visual',
+      value:compValue(resultados,'relacion_pct'),
+      desc: pro
+        ? {
+            low:'Sugiere que conviene fortalecer la capacidad de vincular elementos visuales, reconocer equivalencias y detectar relaciones entre partes de una misma estructura.',
+            mid:'Ofrece una base funcional para establecer relaciones entre figuras, comparar elementos y reconocer correspondencias visuales en tareas habituales.',
+            high:'Aporta una base favorable para identificar relaciones entre elementos, reconocer equivalencias, comparar configuraciones y establecer conexiones visuales con mayor rapidez.'
+          }
+        : {
+            low:'Sugiere que conviene fortalecer la capacidad de relacionar figuras, reconocer semejanzas y diferencias, y encontrar vínculos entre elementos visuales.',
+            mid:'Ofrece una base útil para comparar figuras, encontrar relaciones y reconocer correspondencias en ejercicios visuales de exigencia media.',
+            high:'Aporta una base favorable para comparar elementos, reconocer relaciones, detectar equivalencias y resolver ejercicios que exigen vincular información visual.'
+          }
+    }
+  ];
+
+  function pickText(levelSet, value){
+    const p = pct(value);
+    if (p <= 40) return levelSet.low;
+    if (p <= 70) return levelSet.mid;
+    return levelSet.high;
   }
+
+  box.innerHTML = items.map(it=>`
+    <div class="subblock">
+      <h4>${escapeHtml(it.name)}</h4>
+      <p><b>Nivel observado:</b> ${escapeHtml(prefLabel(it.value))} (${it.value}).</p>
+      <p>${escapeHtml(indicatorLevelText(it.name,it.value))}</p>
+      <p class="muted" style="color:#111">${escapeHtml(pickText(it.desc, it.value))}</p>
+    </div>
+  `).join('');
+}
 
 function buildRecommendations(resultados){
   const box = document.getElementById('recomendacionesBox');
