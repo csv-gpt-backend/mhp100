@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Misión Nexo — Borrador jugable</title>
+  <style>
+    :root{
+      --bg1:#0b1220; --bg2:#151d33; --panel:#101827; --panel-2:#172236; --soft:#22314d;
+      --line:#2e4268; --text:#ebf2ff; --muted:#a9b9d8; --accent:#6ee7ff; --accent-2:#9b8cff;
+      --good:#7ee787; --warn:#f5c26b; --bad:#ff8f8f; --shadow:0 18px 40px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{
+      margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(110,231,255,.12), transparent 28%),
+        radial-gradient(circle at 82% 18%, rgba(155,140,255,.12), transparent 24%),
+        linear-gradient(180deg,var(--bg1),var(--bg2));
+      overflow-x:hidden;
+    }
+    .shell{max-width:1180px;margin:0 auto;padding:24px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:14px;font-weight:800;letter-spacing:.3px}
+    .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:#05111d;font-size:22px;box-shadow:var(--shadow)}
+    .muted{color:var(--muted)}
+    .card{background:linear-gradient(180deg,rgba(23,34,54,.96),rgba(15,24,39,.94));border:1px solid rgba(110,231,255,.12);border-radius:26px;box-shadow:var(--shadow)}
+    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;padding:28px;min-height:540px}
+    .hero h1{font-size:42px;line-height:1.02;margin:8px 0 14px}
+    .hero p{font-size:18px;line-height:1.65;margin:0 0 12px}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(110,231,255,.08);border:1px solid rgba(110,231,255,.18);color:#d8fbff;font-size:13px;font-weight:700;letter-spacing:.25px}
+    .hero-visual{position:relative;border-radius:22px;padding:18px;overflow:hidden;background:
+        radial-gradient(circle at 70% 15%, rgba(110,231,255,.22), transparent 20%),
+        radial-gradient(circle at 18% 76%, rgba(155,140,255,.22), transparent 22%),
+        linear-gradient(180deg,#16233a,#0f1728);border:1px solid rgba(155,140,255,.16);min-height:430px}
+    .city{position:absolute;inset:auto 0 0 0;height:64%;background:
+        linear-gradient(180deg,transparent,rgba(0,0,0,.08)),
+        linear-gradient(90deg,transparent 0 4%, rgba(255,255,255,.05) 4% 5%, transparent 5% 15%, rgba(255,255,255,.05) 15% 16%, transparent 16% 28%, rgba(255,255,255,.05) 28% 29%, transparent 29% 40%, rgba(255,255,255,.05) 40% 41%, transparent 41% 52%, rgba(255,255,255,.05) 52% 53%, transparent 53% 64%, rgba(255,255,255,.05) 64% 65%, transparent 65% 76%, rgba(255,255,255,.05) 76% 77%, transparent 77% 88%);
+      clip-path:polygon(0 100%,0 52%,8% 52%,8% 30%,15% 30%,15% 58%,24% 58%,24% 18%,34% 18%,34% 44%,43% 44%,43% 26%,51% 26%,51% 64%,60% 64%,60% 34%,69% 34%,69% 56%,79% 56%,79% 22%,89% 22%,89% 48%,100% 48%,100% 100%);opacity:.9}
+    .path{position:absolute;left:8%;right:8%;bottom:14%;height:12px;border-radius:999px;background:linear-gradient(90deg,#4fc3ff,#7ee787,#f5c26b,#9b8cff);box-shadow:0 0 20px rgba(110,231,255,.35)}
+    .nodes{position:absolute;left:8%;right:8%;bottom:11.6%;display:flex;justify-content:space-between}
+    .node{width:42px;height:42px;border-radius:999px;display:grid;place-items:center;color:#07111f;font-weight:900;background:linear-gradient(135deg,#d2f7ff,#a7b5ff);border:3px solid rgba(255,255,255,.55);box-shadow:0 6px 16px rgba(0,0,0,.25)}
+    .panel-stack{position:absolute;inset:24px 24px auto auto;width:70%;display:grid;gap:10px}
+    .mini-panel{background:rgba(10,15,28,.62);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:12px 14px}
+    .mini-title{font-size:13px;font-weight:800;color:#d9e8ff;text-transform:uppercase;letter-spacing:.6px}
+    .mini-row{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:13px;color:#cfe0ff}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+    button{font:inherit;border:none;cursor:pointer;border-radius:16px;padding:14px 18px;font-weight:800;transition:.18s transform,.18s filter,.18s opacity}
+    button:hover{transform:translateY(-1px)}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#08111c}
+    .btn-secondary{background:#1a2740;color:#e9f2ff;border:1px solid #36517d}
+    .layout{display:none;grid-template-columns:280px 1fr;gap:20px;margin-top:18px}
+    .sidebar{padding:18px;position:sticky;top:18px;height:fit-content}
+    .map-title{font-size:14px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:#c9d9f7}
+    .station-list{display:grid;gap:10px;margin-top:14px}
+    .station{border:1px solid #30466f;background:#141f33;border-radius:18px;padding:12px 12px 12px 14px;display:flex;gap:12px;align-items:center}
+    .station.done{border-color:rgba(126,231,135,.45);background:rgba(40,74,50,.35)}
+    .station.active{border-color:rgba(110,231,255,.5);box-shadow:0 0 0 1px rgba(110,231,255,.18) inset}
+    .station-icon{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:#223456;font-size:16px}
+    .station strong{display:block;font-size:14px}
+    .station small{color:var(--muted)}
+    .score-box{margin-top:18px;padding:14px;border-radius:18px;background:#0f1727;border:1px solid #2a3c61}
+    .bars{display:grid;gap:10px;margin-top:12px}
+    .bar .head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+    .track{height:10px;border-radius:999px;background:#22314d;overflow:hidden}
+    .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+    .main{padding:22px;min-height:680px}
+    .stage-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:10px}
+    .stage-title{font-size:32px;font-weight:900;margin:0}
+    .stage-sub{font-size:16px;color:var(--muted);line-height:1.55;margin:6px 0 0}
+    .progress-chip{padding:9px 12px;border-radius:14px;background:#18253b;border:1px solid #31476f;font-weight:800;font-size:13px}
+    .scene{margin-top:14px;padding:20px;border-radius:22px;background:#0f1727;border:1px solid #263a5e}
+    .scene-top{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:stretch}
+    .story{padding:18px;border-radius:20px;background:linear-gradient(180deg,#142238,#10192b);border:1px solid #2d4369}
+    .story h3{margin:0 0 10px;font-size:21px}
+    .story p{margin:0;font-size:16px;line-height:1.7;color:#e6eefc}
+    .scene-visual{position:relative;border-radius:20px;min-height:240px;border:1px solid #2c4168;overflow:hidden;background:
+        radial-gradient(circle at 28% 22%, rgba(110,231,255,.18), transparent 20%),
+        radial-gradient(circle at 75% 30%, rgba(155,140,255,.18), transparent 22%),
+        linear-gradient(180deg,#16233a,#101827);display:grid;place-items:center}
+    .avatar-grid{display:flex;gap:12px;align-items:flex-end}
+    .avatar{width:86px;height:140px;border-radius:28px 28px 22px 22px;background:linear-gradient(180deg,#2f4671,#1c2941);position:relative;box-shadow:0 12px 24px rgba(0,0,0,.22)}
+    .avatar:before{content:"";position:absolute;top:-28px;left:22px;width:42px;height:42px;border-radius:999px;background:linear-gradient(180deg,#fde6c9,#f6d2a8)}
+    .avatar:after{content:"";position:absolute;top:34px;left:20px;right:20px;height:12px;border-radius:999px;background:rgba(255,255,255,.12)}
+    .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+    .choice{position:relative;padding:16px;border-radius:20px;border:1px solid #34507c;background:#131e31;color:var(--text);min-height:190px;text-align:left}
+    .choice.selected{border-color:var(--accent);box-shadow:0 0 0 1px rgba(110,231,255,.2) inset;background:#16253d}
+    .choice h4{margin:12px 0 8px;font-size:18px}
+    .choice p{margin:0;font-size:14px;line-height:1.55;color:#d7e4fb}
+    .choice .iconbox{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,#213657,#17243b);display:grid;place-items:center;font-size:26px;border:1px solid #345079}
+    .feedback{margin-top:14px;padding:12px 14px;border-radius:16px;background:#111a2b;border:1px solid #2c4167;color:#d9e7ff;font-size:14px;line-height:1.6;display:none}
+    .task-panel{margin-top:18px;padding:18px;border-radius:20px;background:#111b2d;border:1px solid #2c4067}
+    .task-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+    .tile{min-height:100px;border-radius:18px;border:1px solid #35517f;background:#16243b;display:grid;place-items:center;font-size:32px;font-weight:900;color:#ebf3ff}
+    .tile.pick{cursor:pointer}
+    .tile.pick.selected{outline:3px solid rgba(110,231,255,.3);background:#203457}
+    .task-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+    .mini-btn{padding:10px 14px;border-radius:14px;font-size:13px}
+    .footer-actions{display:flex;justify-content:space-between;gap:12px;margin-top:22px;align-items:center}
+    .result-wrap{display:none;margin-top:18px}
+    .result-hero{padding:24px;display:grid;grid-template-columns:1fr .9fr;gap:20px}
+    .medal{width:92px;height:92px;border-radius:999px;display:grid;place-items:center;font-size:40px;background:linear-gradient(135deg,#ffe7b0,#f5c26b);color:#4a3200;border:4px solid rgba(255,255,255,.55)}
+    .result-list{display:grid;gap:12px;margin-top:14px}
+    .result-item{padding:14px;border-radius:18px;background:#121c2d;border:1px solid #2c4166}
+    .result-item strong{display:block;font-size:15px}
+    .floating-note{margin-top:14px;padding:12px 14px;border-radius:18px;background:rgba(110,231,255,.07);border:1px dashed rgba(110,231,255,.28);color:#d9f8ff;font-size:14px;line-height:1.55}
+    @media (max-width:980px){.hero,.scene-top,.result-hero,.layout{grid-template-columns:1fr}.sidebar{position:relative;top:0}.card-grid,.task-grid{grid-template-columns:1fr}.hero h1{font-size:34px}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">✦</div>
+        <div>
+          <div style="font-size:18px">Misión Nexo</div>
+          <div class="muted" style="font-size:13px">Borrador jugable • narrativa + decisiones + retos visuales</div>
+        </div>
+      </div>
+      <div class="pill">Primer borrador HTML</div>
+    </div>
+
+    <section class="card hero" id="introScreen">
+      <div>
+        <span class="pill">Experiencia interactiva</span>
+        <h1>Un recorrido donde cada decisión parece parte del juego.</h1>
+        <p>Este primer borrador plantea una experiencia visual, natural y jugable. La persona entra a una misión, atraviesa estaciones, toma decisiones, resuelve pequeños retos y avanza por escenas sin sentir que está llenando un test tradicional.</p>
+        <p>Cada clic alimenta dimensiones emocionales por debajo: forma de reaccionar, prioridad ante presión, empatía, regulación, cooperación y flexibilidad.</p>
+        <div class="floating-note">
+          <b>Idea central:</b> el usuario juega como si estuviera superando misiones dentro de una ciudad interactiva. Las decisiones, rutas y pequeños retos gráficos construyen el resultado final.
+        </div>
+        <div class="actions">
+          <button class="btn-primary" id="btnStart">Iniciar borrador jugable</button>
+          <button class="btn-secondary" id="btnShowConcept">Ver concepto del juego</button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="panel-stack">
+          <div class="mini-panel"><div class="mini-title">Estación 1</div><div class="mini-row"><span>Lectura de escena</span><span>Decisión</span></div></div>
+          <div class="mini-panel"><div class="mini-title">Estación 2</div><div class="mini-row"><span>Relación con personajes</span><span>Prioridad</span></div></div>
+          <div class="mini-panel"><div class="mini-title">Estación 3</div><div class="mini-row"><span>Reto visual</span><span>Secuencia</span></div></div>
+        </div>
+        <div class="city"></div>
+        <div class="path"></div>
+        <div class="nodes"><div class="node">1</div><div class="node">2</div><div class="node">3</div><div class="node">4</div><div class="node">5</div></div>
+      </div>
+    </section>
+
+    <section class="layout" id="gameLayout">
+      <aside class="card sidebar">
+        <div class="map-title">Mapa de misión</div>
+        <div class="station-list" id="stationList"></div>
+        <div class="score-box">
+          <div class="map-title">Motor oculto del borrador</div>
+          <div class="muted" style="margin-top:8px;font-size:13px;line-height:1.55">El usuario solo ve un juego. Por debajo, cada escena va alimentando dimensiones emocionales.</div>
+          <div class="bars" id="scoreBars"></div>
+        </div>
+      </aside>
+      <main class="card main">
+        <div class="stage-head">
+          <div><h2 class="stage-title" id="stageTitle">Misión</h2><p class="stage-sub" id="stageSub">...</p></div>
+          <div class="progress-chip" id="progressChip">0 / 5</div>
+        </div>
+        <section class="scene" id="sceneRoot"></section>
+        <div class="result-wrap" id="resultWrap">
+          <section class="card result-hero">
+            <div>
+              <div class="pill" id="resultBadge">Resultado del recorrido</div>
+              <h2 style="font-size:34px;margin:12px 0 10px" id="resultTitle">Perfil de misión</h2>
+              <p style="font-size:17px;line-height:1.7;color:#e6eefc;margin:0" id="resultText"></p>
+              <div class="result-list" id="resultList"></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:center;margin-top:10px"><div class="medal" id="medal">⚡</div></div>
+              <div class="floating-note" style="margin-top:24px"><b>Uso de este borrador:</b> sirve como referencia para un siguiente paso más técnico, donde cada escena se podría mapear con precisión a reactivos reales de la evaluación emocional.</div>
+              <div class="actions" style="margin-top:20px"><button class="btn-primary" id="btnRestart">Jugar otra vez</button></div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </section>
+  </div>
+
+  <script>
+    const dimensions = {
+      calma: { label: 'Calma', icon: '🌊', value: 0 },
+      empatia: { label: 'Empatía', icon: '🤝', value: 0 },
+      iniciativa: { label: 'Iniciativa', icon: '🚀', value: 0 },
+      adaptabilidad: { label: 'Adaptabilidad', icon: '🧭', value: 0 },
+      cooperacion: { label: 'Cooperación', icon: '🫶', value: 0 }
+    };
+    const stations = [
+      { key:'entrada', title:'Estación 1', subtitle:'Llegada a la Plaza Nexo', icon:'🏙️' },
+      { key:'equipo', title:'Estación 2', subtitle:'Tensión en el equipo', icon:'👥' },
+      { key:'ruta', title:'Estación 3', subtitle:'Ruta y prioridad', icon:'🗺️' },
+      { key:'torre', title:'Estación 4', subtitle:'Reto visual de la torre', icon:'🧩' },
+      { key:'cierre', title:'Estación 5', subtitle:'Decisión final', icon:'✨' }
+    ];
+    const state = { step: 0, done: [], picks: {} };
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    function renderStations(){
+      $('#stationList').innerHTML = stations.map((s,i)=>`
+        <div class="station ${state.done.includes(i) ? 'done' : ''} ${state.step===i ? 'active' : ''}">
+          <div class="station-icon">${s.icon}</div>
+          <div><strong>${s.title}</strong><small>${s.subtitle}</small></div>
+        </div>`).join('');
+    }
+    function renderBars(){
+      $('#scoreBars').innerHTML = Object.entries(dimensions).map(([k,v])=>{
+        const pct = Math.min(100, Math.max(0, v.value * 10));
+        return `<div class="bar"><div class="head"><span>${v.icon} ${v.label}</span><span>${pct}%</span></div><div class="track"><div class="fill" style="width:${pct}%"></div></div></div>`;
+      }).join('');
+    }
+    function updateHeader(){
+      const s = stations[state.step] || stations[stations.length-1];
+      $('#stageTitle').textContent = s.title;
+      $('#stageSub').textContent = s.subtitle;
+      $('#progressChip').textContent = `${Math.min(state.step+1, stations.length)} / ${stations.length}`;
+    }
+    function addScore(map){
+      Object.keys(map).forEach(k=>{ if(dimensions[k]) dimensions[k].value += map[k]; });
+      renderBars();
+    }
+    function nextStep(){
+      if(!state.done.includes(state.step)) state.done.push(state.step);
+      state.step += 1;
+      if(state.step >= stations.length){ renderResult(); } else { renderStations(); updateHeader(); renderScene(); }
+    }
+    function selectCard(btn, group){
+      $$(`[data-group="${group}"]`).forEach(x=>x.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.picks[group] = btn.dataset.choice;
+    }
+
+    function renderScene(){
+      const root = $('#sceneRoot');
+      const k = stations[state.step].key;
+
+      if(k === 'entrada'){
+        root.innerHTML = `
+          <div class="scene-top">
+            <div class="story"><h3>La plaza se enciende</h3><p>Acabas de entrar a la ciudad Nexo. En la plaza central aparece una misión urgente: un grupo no logra coordinarse para activar el sistema de energía. Tú eres la primera persona en llegar a la escena.</p></div>
+            <div class="scene-visual"><div class="avatar-grid"><div class="avatar"></div><div class="avatar" style="transform:scale(.92)"></div><div class="avatar" style="transform:scale(.82)"></div></div></div>
+          </div>
+          <div class="card-grid">
+            <button class="choice" data-group="g1" data-choice="a"><div class="iconbox">🧠</div><h4>Observar primero</h4><p>Te detienes unos segundos, miras lo que está pasando y preguntas qué intentaron antes de intervenir.</p></button>
+            <button class="choice" data-group="g1" data-choice="b"><div class="iconbox">⚡</div><h4>Actuar de inmediato</h4><p>Empiezas a mover piezas y a organizar personas sin pedir más contexto, con la idea de resolver rápido.</p></button>
+            <button class="choice" data-group="g1" data-choice="c"><div class="iconbox">🤝</div><h4>Contener al grupo</h4><p>Antes de tocar nada, tratas de calmar al equipo y bajar la tensión para que puedan pensar mejor.</p></button>
+          </div>
+          <div class="feedback" id="fb1"></div>
+          <div class="footer-actions"><div class="muted">Elige una forma inicial de entrar a la misión.</div><button class="btn-primary" id="btnNext1">Continuar</button></div>`;
+        $$('[data-group="g1"]').forEach(btn=>btn.onclick=()=>selectCard(btn,'g1'));
+        $('#btnNext1').onclick = ()=>{
+          const pick = state.picks.g1;
+          if(!pick){ $('#fb1').style.display='block'; $('#fb1').textContent='Elige una acción para continuar.'; return; }
+          if(pick==='a') addScore({calma:2, iniciativa:1});
+          if(pick==='b') addScore({iniciativa:2, adaptabilidad:1});
+          if(pick==='c') addScore({empatia:2, cooperacion:1, calma:1});
+          nextStep();
+        };
+      }
+
+      if(k === 'equipo'){
+        root.innerHTML = `
+          <div class="scene-top">
+            <div class="story"><h3>La conversación se rompe</h3><p>Mientras revisan el problema, dos integrantes del equipo discuten. Uno culpa al otro y la comunicación empieza a cortar el avance. Necesitas decidir cómo intervenir sin perder el foco de la misión.</p></div>
+            <div class="scene-visual"><div class="avatar-grid"><div class="avatar" style="background:linear-gradient(180deg,#5a2b3e,#2b1d27)"></div><div class="avatar" style="background:linear-gradient(180deg,#2a4b61,#182939)"></div><div class="avatar" style="background:linear-gradient(180deg,#41586d,#232f3d)"></div></div></div>
+          </div>
+          <div class="card-grid">
+            <button class="choice" data-group="g2" data-choice="a"><div class="iconbox">🎯</div><h4>Redirigir al objetivo</h4><p>Detienes la discusión y propones volver a la meta concreta: resolver la activación en el menor tiempo posible.</p></button>
+            <button class="choice" data-group="g2" data-choice="b"><div class="iconbox">🫶</div><h4>Escuchar a ambos</h4><p>Pides a cada uno que explique lo sucedido y tratas de reordenar la conversación sin que se sientan atacados.</p></button>
+            <button class="choice" data-group="g2" data-choice="c"><div class="iconbox">🧱</div><h4>Separar funciones</h4><p>Les das tareas separadas para evitar roce y continuar el trabajo sin profundizar en el conflicto.</p></button>
+          </div>
+          <div class="feedback" id="fb2"></div>
+          <div class="footer-actions"><div class="muted">Elige cómo sostener el avance sin perder al equipo.</div><button class="btn-primary" id="btnNext2">Continuar</button></div>`;
+        $$('[data-group="g2"]').forEach(btn=>btn.onclick=()=>selectCard(btn,'g2'));
+        $('#btnNext2').onclick = ()=>{
+          const pick = state.picks.g2;
+          if(!pick){ $('#fb2').style.display='block'; $('#fb2').textContent='Elige una respuesta para continuar.'; return; }
+          if(pick==='a') addScore({iniciativa:2, calma:1});
+          if(pick==='b') addScore({empatia:2, cooperacion:2});
+          if(pick==='c') addScore({adaptabilidad:2, iniciativa:1});
+          nextStep();
+        };
+      }
+
+      if(k === 'ruta'){
+        root.innerHTML = `
+          <div class="scene-top">
+            <div class="story"><h3>Ordena tu prioridad</h3><p>El sistema de energía tiene tres frentes abiertos. No puedes atenderlos a la vez. Debes escoger cuál activar primero y sostener esa decisión. Esta escena imita un pequeño reto de priorización dentro del juego.</p></div>
+            <div class="scene-visual">
+              <svg width="100%" height="220" viewBox="0 0 420 220" fill="none">
+                <rect x="24" y="96" width="110" height="62" rx="18" fill="#1f3352" stroke="#416391"/>
+                <rect x="154" y="56" width="110" height="62" rx="18" fill="#243a5d" stroke="#5976ab"/>
+                <rect x="284" y="116" width="110" height="62" rx="18" fill="#1f3352" stroke="#416391"/>
+                <path d="M132 127H154" stroke="#8cdfff" stroke-width="5" stroke-linecap="round"/>
+                <path d="M262 127H284" stroke="#a9b4ff" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="79" cy="127" r="17" fill="#7ee787"/>
+                <circle cx="209" cy="87" r="17" fill="#6ee7ff"/>
+                <circle cx="339" cy="147" r="17" fill="#f5c26b"/>
+              </svg>
+            </div>
+          </div>
+          <div class="card-grid">
+            <button class="choice" data-group="g3" data-choice="a"><div class="iconbox">🛠️</div><h4>Reparar el nodo estable</h4><p>Aseguras primero lo que ya parece viable para no perder más recursos en el sistema central.</p></button>
+            <button class="choice" data-group="g3" data-choice="b"><div class="iconbox">🔍</div><h4>Verificar la fuente del fallo</h4><p>Atiendes primero el punto donde podría estar el origen del problema, aunque retrase unos minutos la ejecución.</p></button>
+            <button class="choice" data-group="g3" data-choice="c"><div class="iconbox">📣</div><h4>Coordinar al grupo</h4><p>Tu prioridad es alinear al equipo para que elijan juntos antes de intervenir técnicamente.</p></button>
+          </div>
+          <div class="feedback" id="fb3"></div>
+          <div class="footer-actions"><div class="muted">Elige la prioridad inicial del recorrido.</div><button class="btn-primary" id="btnNext3">Continuar</button></div>`;
+        $$('[data-group="g3"]').forEach(btn=>btn.onclick=()=>selectCard(btn,'g3'));
+        $('#btnNext3').onclick = ()=>{
+          const pick = state.picks.g3;
+          if(!pick){ $('#fb3').style.display='block'; $('#fb3').textContent='Selecciona una prioridad.'; return; }
+          if(pick==='a') addScore({iniciativa:1, adaptabilidad:2});
+          if(pick==='b') addScore({calma:2, adaptabilidad:1});
+          if(pick==='c') addScore({cooperacion:2, empatia:1});
+          nextStep();
+        };
+      }
+
+      if(k === 'torre'){
+        root.innerHTML = `
+          <div class="scene-top">
+            <div class="story"><h3>Reto de la torre</h3><p>Una puerta solo se abre si reconoces el símbolo que completa la secuencia del panel. Este mini reto sirve como ejemplo de cómo un juego puede incluir lógica visual sin que el usuario sienta que está frente a un formulario clásico.</p></div>
+            <div class="scene-visual"><div style="display:grid;grid-template-columns:repeat(4,70px);gap:14px;align-items:center"><div class="tile">◆</div><div class="tile">●</div><div class="tile">◆</div><div class="tile" style="font-size:42px;background:#203457;border-color:#5676a6">?</div></div></div>
+          </div>
+          <div class="task-panel">
+            <div style="font-weight:800;font-size:17px">Elige el símbolo que completa el panel</div>
+            <div class="muted" style="margin-top:6px">La opción correcta no se presenta como “pregunta”; se integra de forma natural al reto.</div>
+            <div class="task-grid">
+              <button class="tile pick" data-group="g4" data-choice="a">●</button>
+              <button class="tile pick" data-group="g4" data-choice="b">▲</button>
+              <button class="tile pick" data-group="g4" data-choice="c">◆</button>
+              <button class="tile pick" data-group="g4" data-choice="d">■</button>
+            </div>
+            <div class="task-row"><button class="btn-secondary mini-btn" id="btnCheck4">Probar panel</button><div class="feedback" id="fb4" style="display:block;min-height:48px;flex:1"></div></div>
+          </div>
+          <div class="footer-actions"><div class="muted">Debes probar el panel antes de continuar.</div><button class="btn-primary" id="btnNext4" disabled style="opacity:.55;cursor:not-allowed">Continuar</button></div>`;
+        $$('[data-group="g4"]').forEach(btn=>btn.onclick=()=>selectCard(btn,'g4'));
+        $('#btnCheck4').onclick = ()=>{
+          const pick = state.picks.g4;
+          const fb = $('#fb4');
+          if(!pick){ fb.textContent='Selecciona una opción para probar el panel.'; return; }
+          if(pick === 'a'){ fb.innerHTML = '<b style="color:#7ee787">El panel responde.</b> Reconociste el patrón y la puerta empieza a abrirse.'; addScore({calma:1, adaptabilidad:2}); }
+          else { fb.innerHTML = '<b style="color:#f5c26b">El panel no se abre todavía.</b> Ajustas tu lectura del patrón y pruebas de nuevo.'; addScore({adaptabilidad:1}); }
+          $('#btnNext4').disabled = false; $('#btnNext4').style.opacity = 1; $('#btnNext4').style.cursor = 'pointer';
+        };
+        $('#btnNext4').onclick = nextStep;
+      }
+
+      if(k === 'cierre'){
+        root.innerHTML = `
+          <div class="scene-top">
+            <div class="story"><h3>Última decisión</h3><p>La ciudad se estabiliza. Antes de cerrar la misión, el sistema te ofrece un último giro: elegir cómo quieres dejar preparado el equipo para el siguiente reto. Tu decisión marcará el tono final del recorrido.</p></div>
+            <div class="scene-visual">
+              <svg width="100%" height="230" viewBox="0 0 420 230">
+                <circle cx="210" cy="110" r="72" fill="rgba(110,231,255,.12)" stroke="#79e7ff" stroke-width="3"/>
+                <circle cx="210" cy="110" r="42" fill="rgba(155,140,255,.14)" stroke="#b2a7ff" stroke-width="3"/>
+                <path d="M210 38v-18M210 200v18M138 110h-18M300 110h18M160 60l-12-12M272 172l12 12M260 58l12-12M148 172l-12 12" stroke="#d8e4ff" stroke-width="4" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+          <div class="card-grid">
+            <button class="choice" data-group="g5" data-choice="a"><div class="iconbox">📘</div><h4>Dejar un plan claro</h4><p>Cierras la misión dejando un esquema de pasos, roles y prioridades para que el equipo continúe sin perder orden.</p></button>
+            <button class="choice" data-group="g5" data-choice="b"><div class="iconbox">🌱</div><h4>Fortalecer al equipo</h4><p>Cierras la misión reforzando confianza, comunicación y clima emocional para que el grupo avance mejor la próxima vez.</p></button>
+            <button class="choice" data-group="g5" data-choice="c"><div class="iconbox">🧪</div><h4>Probar una nueva ruta</h4><p>Cierras proponiendo una solución distinta y dejando abierta la experimentación para próximos desafíos.</p></button>
+          </div>
+          <div class="feedback" id="fb5"></div>
+          <div class="footer-actions"><div class="muted">Elige cómo quieres cerrar el recorrido.</div><button class="btn-primary" id="btnNext5">Finalizar misión</button></div>`;
+        $$('[data-group="g5"]').forEach(btn=>btn.onclick=()=>selectCard(btn,'g5'));
+        $('#btnNext5').onclick = ()=>{
+          const pick = state.picks.g5;
+          if(!pick){ $('#fb5').style.display='block'; $('#fb5').textContent='Selecciona una forma de cierre para finalizar.'; return; }
+          if(pick==='a') addScore({calma:2, iniciativa:1});
+          if(pick==='b') addScore({empatia:2, cooperacion:2});
+          if(pick==='c') addScore({adaptabilidad:2, iniciativa:1});
+          nextStep();
+        };
+      }
+    }
+
+    function renderResult(){
+      renderStations(); updateHeader(); $('#sceneRoot').innerHTML = ''; $('#resultWrap').style.display = 'block';
+      const vals = Object.entries(dimensions).sort((a,b)=>b[1].value-a[1].value);
+      const top = vals[0][0];
+      const profiles = {
+        calma:{badge:'Perfil de misión',title:'Estilo de avance sereno',icon:'🌊',text:'Tus decisiones mostraron tendencia a observar, regular y sostener la situación con estabilidad antes de precipitarte. En una versión más técnica, este patrón podría asociarse a regulación, pausa estratégica y respuesta menos impulsiva.'},
+        empatia:{badge:'Perfil de misión',title:'Estilo de conexión y apoyo',icon:'🤝',text:'Tus elecciones favorecieron la lectura emocional del contexto, la contención del grupo y la búsqueda de acuerdos. En una versión más técnica, este patrón se acercaría a empatía, sensibilidad interpersonal y cooperación.'},
+        iniciativa:{badge:'Perfil de misión',title:'Estilo de impulso y acción',icon:'🚀',text:'Tus decisiones mostraron una inclinación a movilizar, decidir y empujar el avance del sistema. En una versión más técnica, este patrón se relacionaría con iniciativa, energía de respuesta y activación conductual.'},
+        adaptabilidad:{badge:'Perfil de misión',title:'Estilo flexible de resolución',icon:'🧭',text:'Tu recorrido mostró facilidad para moverte entre opciones, reajustar la estrategia y mantener avance aun cuando el escenario cambia. En una versión más técnica, este patrón se vincularía con flexibilidad y ajuste al cambio.'},
+        cooperacion:{badge:'Perfil de misión',title:'Estilo colaborativo de misión',icon:'🫶',text:'Tus decisiones priorizaron sostener al equipo, repartir cargas y avanzar desde la construcción conjunta. En una versión más técnica, este patrón apuntaría a cooperación y trabajo relacional.'}
+      };
+      const p = profiles[top];
+      $('#resultBadge').textContent = p.badge;
+      $('#resultTitle').textContent = p.title;
+      $('#resultText').textContent = p.text;
+      $('#medal').textContent = p.icon;
+      $('#resultList').innerHTML = vals.slice(0,3).map(([k,v],i)=>`<div class="result-item"><strong>${i+1}. ${dimensions[k].icon} ${dimensions[k].label}</strong><div class="muted" style="margin-top:6px">Nivel observado en este borrador: ${Math.min(100, v.value*10)}%</div></div>`).join('');
+      $('#progressChip').textContent = 'Misión completada';
+    }
+
+    function resetGame(){
+      state.step = 0; state.done = []; state.picks = {};
+      Object.keys(dimensions).forEach(k=>dimensions[k].value=0);
+      $('#resultWrap').style.display = 'none';
+      renderStations(); renderBars(); updateHeader(); renderScene();
+    }
+
+    $('#btnStart').onclick = ()=>{ $('#introScreen').style.display = 'none'; $('#gameLayout').style.display = 'grid'; resetGame(); };
+    $('#btnShowConcept').onclick = ()=>{ alert('Este borrador usa narrativa, tarjetas de decisión, rutas y mini retos visuales. La idea es que el usuario juegue sin sentir que responde un test, mientras el sistema registra patrones emocionales por debajo.'); };
+    document.addEventListener('click', (e)=>{ if(e.target && e.target.id === 'btnRestart'){ resetGame(); }});
+  </script>
+</body>
+</html>
