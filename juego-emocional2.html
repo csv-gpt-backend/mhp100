@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ciudad Nexo — Demo visual</title>
+  <style>
+    :root{
+      --bg:#08111d; --bg2:#0e1728; --panel:#111c2f; --panel2:#17263d; --line:#2a4167;
+      --soft:#1f3150; --text:#ecf4ff; --muted:#9fb4d6; --aqua:#62e6ff; --violet:#a892ff;
+      --gold:#f7c56d; --green:#84e3a7; --danger:#ff9d9d; --shadow:0 20px 50px rgba(0,0,0,.35);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text);
+      background:
+        radial-gradient(circle at 12% 12%, rgba(98,230,255,.10), transparent 24%),
+        radial-gradient(circle at 85% 16%, rgba(168,146,255,.09), transparent 20%),
+        radial-gradient(circle at 70% 80%, rgba(247,197,109,.06), transparent 22%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      overflow-x:hidden;
+    }
+    .shell{max-width:1280px;margin:0 auto;padding:22px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+    .brand{display:flex;align-items:center;gap:14px}
+    .logo{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,var(--aqua),var(--violet));display:grid;place-items:center;color:#07111d;font-weight:900;font-size:22px;box-shadow:var(--shadow)}
+    .brand h1{margin:0;font-size:18px}
+    .brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(98,230,255,.08);border:1px solid rgba(98,230,255,.16);font-size:12px;font-weight:800}
+    .layout{display:grid;grid-template-columns:310px 1fr;gap:18px}
+    .card{background:linear-gradient(180deg,rgba(17,28,47,.96),rgba(11,19,31,.94));border:1px solid rgba(98,230,255,.12);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .sidebar{padding:18px;position:sticky;top:18px;height:fit-content}
+    .side-title{font-size:13px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:#d8e8ff}
+    .city-map{margin-top:14px;padding:16px;border-radius:20px;background:#0d1627;border:1px solid #23395e}
+    .map-svg{width:100%;height:auto;display:block}
+    .zone-list{display:grid;gap:10px;margin-top:16px}
+    .zone{display:flex;gap:12px;align-items:center;padding:12px;border-radius:18px;border:1px solid #30486f;background:#141f33;cursor:pointer}
+    .zone.active{border-color:rgba(98,230,255,.55);box-shadow:0 0 0 1px rgba(98,230,255,.18) inset}
+    .zone-icon{width:38px;height:38px;border-radius:14px;background:#223657;display:grid;place-items:center;font-size:18px}
+    .zone strong{display:block;font-size:14px}
+    .zone small{color:var(--muted)}
+    .meta-box{margin-top:16px;padding:14px;border-radius:18px;background:#0e1727;border:1px solid #243b61}
+    .meta-box p{margin:8px 0 0;color:#cfe0ff;font-size:13px;line-height:1.55}
+    .main{padding:20px}
+    .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;align-items:stretch}
+    .hero-copy{padding:10px 4px 0}
+    .hero-copy h2{font-size:38px;line-height:1.04;margin:8px 0 14px}
+    .hero-copy p{margin:0 0 10px;font-size:16px;line-height:1.7;color:#deebff}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+    button{font:inherit;border:none;cursor:pointer;border-radius:16px;padding:13px 17px;font-weight:800;transition:.18s transform,.18s opacity,.18s filter}
+    button:hover{transform:translateY(-1px)}
+    .btn-primary{background:linear-gradient(135deg,var(--aqua),var(--violet));color:#08111c}
+    .btn-secondary{background:#1a2842;color:#eef5ff;border:1px solid #33517e}
+    .scene-card{position:relative;border-radius:22px;min-height:420px;overflow:hidden;border:1px solid rgba(168,146,255,.18);background:
+        radial-gradient(circle at 22% 18%, rgba(98,230,255,.15), transparent 18%),
+        radial-gradient(circle at 80% 20%, rgba(168,146,255,.16), transparent 18%),
+        linear-gradient(180deg,#14243b,#0f1728)}
+    .scene-card:before{content:"";position:absolute;inset:auto 0 0 0;height:58%;background:
+        linear-gradient(180deg,transparent,rgba(0,0,0,.06)),
+        linear-gradient(90deg,transparent 0 5%, rgba(255,255,255,.04) 5% 6%, transparent 6% 14%, rgba(255,255,255,.04) 14% 15%, transparent 15% 26%, rgba(255,255,255,.04) 26% 27%, transparent 27% 39%, rgba(255,255,255,.04) 39% 40%, transparent 40% 53%, rgba(255,255,255,.04) 53% 54%, transparent 54% 66%, rgba(255,255,255,.04) 66% 67%, transparent 67% 81%, rgba(255,255,255,.04) 81% 82%, transparent 82% 100%);
+      clip-path:polygon(0 100%,0 56%,8% 56%,8% 26%,18% 26%,18% 60%,26% 60%,26% 14%,37% 14%,37% 44%,47% 44%,47% 24%,58% 24%,58% 63%,69% 63%,69% 34%,79% 34%,79% 55%,89% 55%,89% 21%,100% 21%,100% 100%);opacity:.92}
+    .scene-overlay{position:absolute;inset:18px;display:grid;grid-template-rows:auto 1fr auto;gap:14px}
+    .scene-panel{width:72%;padding:14px;border-radius:18px;background:rgba(10,16,27,.72);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.10)}
+    .scene-panel strong{display:block;font-size:12px;letter-spacing:.65px;text-transform:uppercase;color:#d8e8ff}
+    .scene-panel p{margin:6px 0 0;font-size:14px;line-height:1.55;color:#dbe8ff}
+    .avatars{align-self:end;display:flex;justify-content:center;gap:18px;padding-bottom:14px}
+    .avatar{width:96px;height:154px;border-radius:30px 30px 22px 22px;position:relative;background:linear-gradient(180deg,#314a73,#1b2941);box-shadow:0 14px 26px rgba(0,0,0,.24)}
+    .avatar:before{content:"";position:absolute;top:-30px;left:25px;width:46px;height:46px;border-radius:999px;background:linear-gradient(180deg,#fde8cf,#f8d5af)}
+    .avatar:after{content:"";position:absolute;top:38px;left:22px;right:22px;height:12px;border-radius:999px;background:rgba(255,255,255,.14)}
+    .avatar.alt{background:linear-gradient(180deg,#5b2e41,#281b25)}
+    .avatar.alt2{background:linear-gradient(180deg,#2d566d,#1a2d39)}
+    .module-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+    .module{padding:18px;border-radius:22px;border:1px solid #263f67;background:#10192b}
+    .module h3{margin:0 0 12px;font-size:20px}
+    .module p{margin:0;color:#d9e7ff;line-height:1.65;font-size:14px}
+    .choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+    .choice{min-height:200px;text-align:left;padding:16px;border-radius:20px;border:1px solid #34507c;background:#131f33;cursor:pointer;position:relative}
+    .choice:hover{border-color:#5e7ead}
+    .choice.active{border-color:var(--aqua);box-shadow:0 0 0 1px rgba(98,230,255,.18) inset;background:#17263d}
+    .choice .icon{width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#21395b,#16253b);display:grid;place-items:center;font-size:26px;border:1px solid #365582}
+    .choice h4{margin:12px 0 8px;font-size:18px}
+    .choice p{margin:0;font-size:14px;line-height:1.55;color:#d9e7ff}
+    .mini-hud{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+    .hud-card{padding:14px;border-radius:18px;background:#0d1627;border:1px solid #243b61}
+    .hud-card strong{display:block;font-size:13px}
+    .hud-card span{display:block;margin-top:6px;color:#d9e8ff;font-size:15px;font-weight:800}
+    .section-title{display:flex;align-items:center;gap:10px;margin-top:22px;margin-bottom:10px;font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.65px;color:#d7e9ff}
+    .dot{width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--aqua),var(--violet))}
+    .object-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:10px}
+    .object{padding:16px;border-radius:20px;border:1px solid #2f496f;background:#131f33;min-height:128px;display:grid;align-content:start;gap:10px}
+    .object .glyph{width:52px;height:52px;border-radius:18px;display:grid;place-items:center;font-size:26px;background:linear-gradient(135deg,#203658,#16253b);border:1px solid #385886}
+    .object strong{font-size:15px}
+    .object small{font-size:13px;line-height:1.5;color:#d3e2fb}
+    .footer-note{margin-top:18px;padding:14px;border-radius:18px;background:rgba(98,230,255,.07);border:1px dashed rgba(98,230,255,.26);color:#d6f8ff;font-size:14px;line-height:1.6}
+    @media (max-width:1020px){.layout,.hero,.module-grid,.choice-grid,.object-row,.mini-hud{grid-template-columns:1fr}.scene-panel{width:100%}.hero-copy h2{font-size:32px}.sidebar{position:relative;top:0}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">✦</div>
+        <div>
+          <h1>Ciudad Nexo</h1>
+          <p>Muestra visual más aterrizada • juego emocional con zonas, personajes y objetos interactivos</p>
+        </div>
+      </div>
+      <div class="badge">Demo HTML conceptual</div>
+    </div>
+
+    <div class="layout">
+      <aside class="card sidebar">
+        <div class="side-title">Mapa de la ciudad</div>
+        <div class="city-map">
+          <svg class="map-svg" viewBox="0 0 260 220" fill="none">
+            <path d="M28 182C42 156 58 142 82 130C108 116 130 116 154 102C183 84 194 68 228 42" stroke="url(#road)" stroke-width="10" stroke-linecap="round"/>
+            <circle cx="34" cy="178" r="18" fill="#62E6FF"/>
+            <circle cx="90" cy="126" r="18" fill="#84E3A7"/>
+            <circle cx="150" cy="102" r="18" fill="#F7C56D"/>
+            <circle cx="208" cy="56" r="18" fill="#A892FF"/>
+            <circle cx="236" cy="34" r="14" fill="#FF9D9D"/>
+            <text x="34" y="183" text-anchor="middle" fill="#05111d" font-size="12" font-weight="900">1</text>
+            <text x="90" y="131" text-anchor="middle" fill="#05111d" font-size="12" font-weight="900">2</text>
+            <text x="150" y="107" text-anchor="middle" fill="#05111d" font-size="12" font-weight="900">3</text>
+            <text x="208" y="61" text-anchor="middle" fill="#05111d" font-size="12" font-weight="900">4</text>
+            <text x="236" y="38" text-anchor="middle" fill="#05111d" font-size="11" font-weight="900">5</text>
+            <defs>
+              <linearGradient id="road" x1="28" y1="182" x2="228" y2="42" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#62E6FF"/>
+                <stop offset=".4" stop-color="#84E3A7"/>
+                <stop offset=".7" stop-color="#F7C56D"/>
+                <stop offset="1" stop-color="#A892FF"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="zone-list">
+          <div class="zone active"><div class="zone-icon">🏙️</div><div><strong>Plaza Central</strong><small>Entrada y primer contacto</small></div></div>
+          <div class="zone"><div class="zone-icon">👥</div><div><strong>Distrito de vínculos</strong><small>Relación con personajes</small></div></div>
+          <div class="zone"><div class="zone-icon">⚙️</div><div><strong>Torre de presión</strong><small>Obstáculos y tensión</small></div></div>
+          <div class="zone"><div class="zone-icon">🧭</div><div><strong>Laboratorio del cambio</strong><small>Rutas y adaptación</small></div></div>
+          <div class="zone"><div class="zone-icon">✨</div><div><strong>Centro de decisión</strong><small>Cierre del recorrido</small></div></div>
+        </div>
+        <div class="meta-box">
+          <div class="side-title">Qué demuestra esta muestra</div>
+          <p>Que el juego puede verse como una experiencia moderna, con ciudad, zonas, personajes, tarjetas y objetos, sin parecer una evaluación tradicional.</p>
+        </div>
+      </aside>
+
+      <main class="card main">
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="badge">Aventura social inmersiva</div>
+            <h2>Una ciudad viva donde cada clic parece parte del recorrido.</h2>
+            <p>Esta muestra baja la idea a una experiencia más real: un mundo con personajes, mapa, zonas, objetos y decisiones visibles. La intención es que el usuario entre a una misión, se mueva por escenarios y tome acciones sin sentir que responde una prueba tradicional.</p>
+            <p>Por debajo, cada acción podría seguir alimentando dimensiones emocionales ya trabajadas en la evaluación emocional, pero aquí el foco es mostrar la estética y la sensación de juego real.</p>
+            <div class="actions">
+              <button class="btn-primary" id="btnPulse">Explorar escena</button>
+              <button class="btn-secondary" id="btnMode">Ver lógica del juego</button>
+            </div>
+            <div class="mini-hud">
+              <div class="hud-card"><strong>Modo</strong><span>Misiones</span></div>
+              <div class="hud-card"><strong>Escena</strong><span>Plaza Central</span></div>
+              <div class="hud-card"><strong>Interacción</strong><span>Visual + elección</span></div>
+              <div class="hud-card"><strong>Base</strong><span>Evaluación emocional</span></div>
+            </div>
+          </div>
+
+          <div class="scene-card">
+            <div class="scene-overlay">
+              <div class="scene-panel">
+                <strong>Escena activa</strong>
+                <p>El sistema central de Ciudad Nexo acaba de fallar. Un equipo discute frente al panel de energía y el jugador entra justo en el momento en que todos esperan una decisión.</p>
+              </div>
+              <div class="avatars">
+                <div class="avatar"></div>
+                <div class="avatar alt"></div>
+                <div class="avatar alt2"></div>
+              </div>
+              <div class="scene-panel" style="justify-self:end">
+                <strong>Objetivo visible</strong>
+                <p>Elegir una forma de intervenir, contener la tensión o reorganizar el avance. Todo se presenta como escena de juego, no como pregunta directa.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="section-title"><span class="dot"></span><span>Decisiones presentadas como juego</span></div>
+        <section class="module-grid">
+          <div class="module">
+            <h3>Tarjetas de decisión inmersiva</h3>
+            <p>En vez de una pregunta textual típica, el usuario ve una situación y responde con acciones jugables. Cada opción tiene icono, tono y consecuencia visual dentro del entorno.</p>
+            <div class="choice-grid">
+              <button class="choice sample-choice"><div class="icon">🧠</div><h4>Leer la escena</h4><p>Observar primero, comprender qué pasó y decidir luego cómo actuar.</p></button>
+              <button class="choice sample-choice"><div class="icon">⚡</div><h4>Intervenir ya</h4><p>Tomar control de inmediato y mover al equipo sin pedir demasiado contexto.</p></button>
+              <button class="choice sample-choice"><div class="icon">🤝</div><h4>Contener al grupo</h4><p>Calmar el ambiente y ordenar a las personas antes de intentar resolver.</p></button>
+            </div>
+          </div>
+
+          <div class="module">
+            <h3>Reto visual integrado</h3>
+            <p>La misma muestra puede incluir pequeños retos visuales dentro del mundo. No se ven como “preguntas”, sino como mecanismos de puertas, paneles, rutas o bloques que el usuario debe resolver.</p>
+            <div class="object-row">
+              <div class="object"><div class="glyph">◆</div><strong>Panel de acceso</strong><small>Completar una secuencia gráfica para abrir una compuerta.</small></div>
+              <div class="object"><div class="glyph">↟</div><strong>Ruta variable</strong><small>Elegir la dirección o el movimiento que permite seguir el recorrido.</small></div>
+              <div class="object"><div class="glyph">◧</div><strong>Bloques del sistema</strong><small>Ordenar piezas o activar módulos en la secuencia adecuada.</small></div>
+              <div class="object"><div class="glyph">⟲</div><strong>Respuesta al cambio</strong><small>Adaptarse cuando el entorno modifica la ruta prevista.</small></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="section-title"><span class="dot"></span><span>Cómo se sentiría el juego real</span></div>
+        <section class="module-grid">
+          <div class="module">
+            <h3>Zonas con identidad</h3>
+            <p>Cada parte de la ciudad tiene personalidad propia. La plaza trabaja primer contacto y reacción. El distrito de vínculos se enfoca en personajes. La torre introduce presión. El laboratorio plantea cambio. El centro final integra decisiones.</p>
+            <div class="footer-note"><b>Resultado visual:</b> el usuario siente que atraviesa un mundo con estaciones y no una hoja de preguntas.</div>
+          </div>
+          <div class="module">
+            <h3>Objetos y personajes interactivos</h3>
+            <p>El juego puede apoyarse en paneles, puertas, rutas, bloques, estaciones de energía, dispositivos, símbolos, señales y personajes con presencia visual. Todo eso ayuda a esconder la lógica de evaluación debajo de una experiencia mucho más natural.</p>
+            <div class="footer-note"><b>Resultado funcional:</b> cada clic sigue pudiendo mapear una dimensión emocional, pero el usuario solo percibe un mundo, una misión y una serie de decisiones.</div>
+          </div>
+        </section>
+
+        <div class="footer-note" id="statusNote">
+          <b>Estado de esta muestra:</b> este archivo no busca cerrar todavía la lógica de puntuación final. Su objetivo es bajar la propuesta a una experiencia visual más real, moderna e inmersiva, mucho más cercana a un juego que a una evaluación visible.
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const choices = Array.from(document.querySelectorAll('.sample-choice'));
+    choices.forEach(btn=>btn.addEventListener('click', ()=>{
+      choices.forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+    }));
+    const statusNote = document.getElementById('statusNote');
+    document.getElementById('btnPulse').addEventListener('click', ()=>{
+      statusNote.innerHTML = '<b>Exploración de escena:</b> en una versión siguiente, este botón podría abrir una secuencia interactiva real con personajes, rutas, paneles y decisiones dentro de la ciudad.';
+    });
+    document.getElementById('btnMode').addEventListener('click', ()=>{
+      statusNote.innerHTML = '<b>Lógica del juego:</b> cada decisión visible puede mapearse a un reactivo o dimensión emocional por debajo, sin que el usuario sienta que está contestando una evaluación tradicional.';
+    });
+  </script>
+</body>
+</html>
