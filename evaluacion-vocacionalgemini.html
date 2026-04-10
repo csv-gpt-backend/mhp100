@@ -2,650 +2,480 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>FFFULTIMAultimVVHEvaluación Orientación Vocacional</title>
+  <title>GULTIMAultimVVHEvaluación Orientación Vocacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- Firebase SDKs Compat -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.3/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.3/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.3/firebase-auth-compat.js"></script>
+
   <style>
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: #111827;
       background: #ffffff;
       --sbw: 0px;
-
     }
-
-    /* ===== FIX #1: evita que el ancho “salte” por aparición/desaparición del scroll ===== */
-html{
-  overflow-y: scroll;          /* reserva SIEMPRE */
-  scrollbar-gutter: stable;    /* (opcional) */
-  padding-right: var(--sbw);
-
-}
-
-body { overflow-y: scroll; 
-    margin: 0;
-  padding: 0;
-  background: #fff;
-  font-size: 16px;
-  overflow-x: hidden;
-}
-
-
-
-
+    html {
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+      padding-right: var(--sbw);
+    }
+    body { 
+      overflow-y: scroll; 
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      font-size: 16px;
+      overflow-x: hidden;
+    }
     .layout {
       display: grid;
       grid-template-columns: 80px minmax(0, 1fr);
       min-height: 100vh;
     }
-.side-strip {
-  background: #e5e7eb;
-  border-right: 1px solid #cbd5e1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.side-strip span {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-  font-weight: 700;
-  color: #64748b;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-}
-
-    .content-area {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    .header {
-      padding: 20px 40px;
-      border-bottom: 1px solid #e5e7eb;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .brand {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #111827;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .main-view {
-      flex: 1;
-      padding: 40px;
-      max-width: 800px;
-      margin: 0 auto;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* Pantalla Identificación */
-    #pantalla-identificacion {
-      text-align: center;
-      margin-top: 50px;
-    }
-
-    .form-group {
-      margin: 20px 0;
-      text-align: left;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
-
-    .btn-primary {
-      background: #2563eb;
-      color: #fff;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    .btn-primary:hover {
-      background: #1d4ed8;
-    }
-
-    /* Progreso */
-    .progreso-container {
-      margin-bottom: 30px;
-    }
-
-    .progreso-info {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-
-    .progreso-bar-bg {
-      height: 8px;
+    .side-strip {
       background: #e5e7eb;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .progreso-bar-fill {
-      height: 100%;
-      background: #2563eb;
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-
-    /* Preguntas */
-    .pregunta-texto {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 30px;
-      line-height: 1.3;
-    }
-
-    .opciones-container {
+      border-right: 1px solid #cbd5e1;
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .opcion-card {
-      padding: 16px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-    }
-
-    .opcion-card:hover {
-      border-color: #2563eb;
-      background: #f8fafc;
-    }
-
-    .opcion-card.selected {
-      border-color: #2563eb;
-      background: #eff6ff;
-      box-shadow: 0 0 0 1px #2563eb;
-    }
-
-    .opcion-circle {
-      width: 20px;
-      height: 20px;
-      border: 2px solid #cbd5e1;
-      border-radius: 50%;
-      margin-right: 12px;
-      flex-shrink: 0;
-      position: relative;
-    }
-
-    .opcion-card.selected .opcion-circle {
-      border-color: #2563eb;
-    }
-
-    .opcion-card.selected .opcion-circle::after {
-      content: "";
-      width: 10px;
-      height: 10px;
-      background: #2563eb;
-      border-radius: 50%;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    .actions {
-      margin-top: 40px;
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    /* Pantalla Final */
-    #pantalla-final {
-      text-align: center;
-      padding: 60px 20px;
-    }
-
-    .final-icon {
-      font-size: 4rem;
-      margin-bottom: 20px;
-    }
-
-    /* Loading Spinner */
-    .spinner {
-      border: 4px solid #f3f4f6;
-      border-top: 4px solid #2563eb;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Modal Pre-intro */
-    .preintro-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 9999;
-      display: none; /* se maneja con JS */
       align-items: center;
       justify-content: center;
-      padding: 20px;
+    }
+    .side-strip span {
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #64748b;
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+    .main-content {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .card {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      border: 1px solid #e5e7eb;
+      max-width: 600px;
+      width: 100%;
+      margin: 2rem auto;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.375rem;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+    
+    .option-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-btn:hover { border-color: #2563eb; background: #f8fafc; }
+    .option-btn.selected {
+      border-color: #2563eb;
+      background: #eff6ff;
+      font-weight: 600;
+      color: #1e40af;
+    }
+    .hidden { display: none !important; }
+
+    /* Resultados Styles */
+    .results-container {
+      margin-top: 2rem;
+      text-align: left;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 1.5rem;
+    }
+    .result-item {
+      background: #f8fafc;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid #2563eb;
+    }
+
+    .preintro-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
     }
     .preintro-card {
       background: #fff;
-      padding: 30px;
-      border-radius: 12px;
+      padding: 2rem;
+      border-radius: 0.75rem;
       max-width: 500px;
-      width: 100%;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-      position: relative;
+      width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     .preintro-actions {
-      margin-top: 24px;
+      margin-top: 1.5rem;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
+      gap: 0.75rem;
     }
     .preintro-btn {
-      padding: 10px 20px;
-      border-radius: 6px;
+      padding: 0.6rem 1.2rem;
+      border-radius: 0.375rem;
+      border: none;
       font-weight: 600;
       cursor: pointer;
     }
-    .preintro-btn.primary {
-      background: #2563eb;
-      color: #fff;
-      border: none;
-    }
-    .preintro-btn.secondary {
-      background: #f3f4f6;
-      color: #374151;
-      border: 1px solid #d1d5db;
-    }
+    .preintro-btn.primary { background: #2563eb; color: #fff; }
   </style>
 </head>
 <body>
 
   <div class="layout">
-    <div class="side-strip">
-      <span>EVALUACIÓN VOCACIONAL</span>
-    </div>
+    <aside class="side-strip">
+      <span>Orientación Vocacional</span>
+    </aside>
 
-    <div class="content-area">
-      <header class="header">
-        <div class="brand">
-          Cuestionario de Orientación
+    <main class="main-content">
+      <!-- SECCION 1: INICIO -->
+      <section id="pantalla-inicio" style="padding: 2rem;">
+        <div class="card">
+          <h1 style="font-size: 1.5rem; margin-bottom: 1rem;">Bienvenido a tu Evaluación</h1>
+          <p style="color: #64748b; margin-bottom: 2rem;">Ingresa el código que se te proporcionó para comenzar.</p>
+          
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display:block; margin-bottom:0.5rem; font-weight:500;">Código de Acceso</label>
+            <input type="text" id="codigoAcceso" placeholder="Ej: EST-001" 
+                   style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.375rem; box-sizing: border-box;">
+          </div>
+          
+          <button id="btnIngresar" class="btn-primary" style="width: 100%;">Ingresar</button>
         </div>
-      </header>
+      </section>
 
-      <main class="main-view">
-        
-        <!-- Pantalla de Identificación -->
-        <section id="pantalla-identificacion">
-          <h1 style="font-size: 2rem; margin-bottom: 10px;">Bienvenido</h1>
-          <p style="color: #6b7280; margin-bottom: 30px;">Por favor, ingresa tu código de acceso.</p>
+      <!-- SECCION 2: EVALUACION -->
+      <section id="pantalla-preguntas" class="hidden" style="padding: 2rem;">
+        <div class="card">
+          <div id="progreso-texto" style="font-size: 0.875rem; color: #64748b; margin-bottom: 0.5rem;">Pregunta 1 de 120</div>
+          <div style="height: 6px; background: #f1f5f9; border-radius: 3px; margin-bottom: 2rem; overflow: hidden;">
+            <div id="barra-progreso" style="height: 100%; background: #2563eb; width: 0%; transition: width 0.3s;"></div>
+          </div>
+
+          <h2 id="pregunta-texto" style="font-size: 1.25rem; margin-bottom: 1.5rem; min-height: 3.5rem;"></h2>
           
-          <div class="form-group">
-            <label for="codigoAcceso">Código de Estudiante</label>
-            <input type="text" id="codigoAcceso" placeholder="Ingresa tu código aquí" />
+          <div id="opciones-contenedor"></div>
+
+          <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+            <button id="btnAnterior" class="btn-primary" style="background: #64748b;">Anterior</button>
+            <button id="btnSiguiente" class="btn-primary">Siguiente</button>
           </div>
+        </div>
+      </section>
+
+      <!-- SECCION 3: FINAL -->
+      <section id="pantalla-final" class="hidden" style="padding: 2rem; text-align: center;">
+        <div class="card">
+          <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">¡Evaluación finalizada!</h2>
+          <p id="msgFinal" style="color: #64748b; margin-bottom: 1.5rem;">Tus respuestas se han guardado correctamente.</p>
           
-          <button class="btn-primary" id="btnIniciar">Ingresar</button>
+          <button id="btnVerResultados" class="btn-primary">Ver Resultados Vocacionales</button>
           
-          <div id="loading-auth" class="hidden">
-            <div class="spinner"></div>
-            <p>Verificando código...</p>
+          <div id="areaResultados" class="results-container hidden">
+            <!-- Los resultados se inyectan aquí -->
           </div>
-        </section>
-
-        <!-- Pantalla de Preguntas -->
-        <section id="pantalla-preguntas" class="hidden">
-          <div class="progreso-container">
-            <div class="progreso-info">
-              <span id="label-pregunta-actual">Pregunta 1 de 40</span>
-              <span id="porcentaje-completado">0%</span>
-            </div>
-            <div class="progreso-bar-bg">
-              <div id="progreso-fill" class="progreso-bar-fill"></div>
-            </div>
-          </div>
-
-          <div class="pregunta-texto" id="texto-pregunta">
-            <!-- Texto inyectado -->
-          </div>
-
-          <div class="opciones-container" id="contenedor-opciones">
-            <!-- Opciones inyectadas -->
-          </div>
-
-          <div class="actions">
-            <button class="btn-primary" id="btnSiguiente">Siguiente</button>
-          </div>
-        </section>
-
-        <!-- Pantalla Final -->
-        <section id="pantalla-final" class="hidden">
-          <div class="final-icon">✅</div>
-          <h2 style="font-size: 2rem; margin-bottom: 16px;">¡Evaluación Completada!</h2>
-          <p style="color: #4b5563; font-size: 1.1rem; margin-bottom: 30px;">
-            Tus respuestas han sido registradas exitosamente. El equipo de orientación educativa analizará tu perfil.
-          </p>
-          <button class="btn-primary" id="btnRegresarMenu">Finalizar y Salir</button>
-        </section>
-
-      </main>
-    </div>
+        </div>
+      </section>
+    </main>
   </div>
 
-  <!-- Firebase & Lógica -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
-    // Reemplaza con tus credenciales reales de Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyD-TUS-CREDENTIALS",
-      authDomain: "orientacion-88.firebaseapp.com",
-      projectId: "orientacion-88",
-      storageBucket: "orientacion-88.appspot.com",
-      messagingSenderId: "123456789",
-      appId: "1:123456789:web:abcdef"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // --- DATOS DEL CUESTIONARIO (Ahora con 40 preguntas) ---
-    const preguntas = [
-      { id: 1, texto: "¿Te gusta participar en proyectos de investigación científica?" },
-      { id: 2, texto: "¿Disfrutas diseñando estructuras o piezas mecánicas?" },
-      { id: 3, texto: "¿Te interesa ayudar a personas en situaciones de vulnerabilidad?" },
-      { id: 4, texto: "¿Prefieres trabajar en actividades relacionadas con el arte y la creatividad?" },
-      { id: 5, texto: "¿Te atrae la idea de liderar y gestionar equipos de trabajo?" },
-      { id: 6, texto: "¿Sientes interés por el análisis de datos financieros y contabilidad?" },
-      { id: 7, texto: "¿Te gusta realizar actividades físicas y deportes competitivos?" },
-      { id: 8, texto: "¿Te interesa la protección del medio ambiente y la ecología?" },
-      { id: 9, texto: "¿Disfrutas escribiendo ensayos, cuentos o artículos de opinión?" },
-      { id: 10, texto: "¿Te gustaría aprender idiomas y conocer diferentes culturas?" },
-      { id: 11, texto: "¿Te motiva la resolución de problemas lógicos y matemáticos?" },
-      { id: 12, texto: "¿Te interesa el funcionamiento del cuerpo humano y la medicina?" },
-      { id: 13, texto: "¿Te gusta la organización y planificación de eventos sociales?" },
-      { id: 14, texto: "¿Prefieres trabajar en contacto directo con la tecnología y software?" },
-      { id: 15, texto: "¿Te interesa el estudio de la historia y el comportamiento social?" },
-      { id: 16, texto: "¿Disfrutas reparando objetos eléctricos o electrónicos?" },
-      { id: 17, texto: "¿Te gustaría dedicarte a la enseñanza y pedagogía?" },
-      { id: 18, texto: "¿Te atrae el mundo de las leyes y la justicia?" },
-      { id: 19, texto: "¿Te gusta el marketing y la publicidad de productos?" },
-      { id: 20, texto: "¿Disfrutas cocinando y experimentando con la gastronomía?" },
-      { id: 21, texto: "¿Te interesa el diseño de interiores y la arquitectura?" },
-      { id: 22, texto: "¿Te gusta trabajar en laboratorios químicos?" },
-      { id: 23, texto: "¿Te interesa el periodismo y la comunicación masiva?" },
-      { id: 24, texto: "¿Te motiva la protección civil y seguridad ciudadana?" },
-      { id: 25, texto: "¿Disfrutas del dibujo técnico y la geometría?" },
-      { id: 26, texto: "¿Te gustaría trabajar en el sector agropecuario o veterinario?" },
-      { id: 27, texto: "¿Te interesa la psicología y el bienestar mental?" },
-      { id: 28, texto: "¿Te atrae la producción audiovisual y el cine?" },
-      { id: 29, texto: "¿Te gusta el análisis de mercados y la economía global?" },
-      { id: 30, texto: "¿Te motiva la defensa de los derechos humanos?" },
-      { id: 31, texto: "¿Disfrutas armando rompecabezas o juegos de estrategia?" },
-      { id: 32, texto: "¿Te interesa la astronomía y el espacio?" },
-      { id: 33, texto: "¿Te gustaría trabajar en turismo y hotelería?" },
-      { id: 34, texto: "¿Te atrae el diseño de modas y tendencias?" },
-      { id: 35, texto: "¿Disfrutas realizando experimentos caseros?" },
-      { id: 36, texto: "¿Te interesa la política y la gestión pública?" },
-      // --- NUEVAS PREGUNTAS AGREGADAS (37-40) ---
-      { id: 37, texto: "¿Te gusta organizar archivos y mantener sistemas de información ordenados?" },
-      { id: 38, texto: "¿Te interesa la ingeniería genética y la biotecnología?" },
-      { id: 39, texto: "¿Disfrutas asesorando a otras personas sobre sus finanzas personales?" },
-      { id: 40, texto: "¿Te atrae el desarrollo de aplicaciones para dispositivos móviles?" }
-    ];
-
-    const opciones = ["Mucho", "Algo", "Poco", "Nada"];
-
-    // --- ESTADO GLOBAL ---
-    let indicePregunta = 0;
-    let respuestas = {};
-    let codigoUsuario = "";
-
-    // --- MANEJO DE PANTALLAS ---
-    function mostrarPantallaPreguntas() {
-      document.getElementById("pantalla-identificacion").classList.add("hidden");
-      document.getElementById("pantalla-preguntas").classList.remove("hidden");
-      pintarPregunta();
-    }
-
-    function mostrarPantallaFinal() {
-      document.getElementById("pantalla-preguntas").classList.add("hidden");
-      document.getElementById("pantalla-final").classList.remove("hidden");
-    }
-
-    // --- LÓGICA DE PREGUNTAS ---
-    function pintarPregunta() {
-      const p = preguntas[indicePregunta];
-      const lblActual = document.getElementById("label-pregunta-actual");
-      const txtPregunta = document.getElementById("texto-pregunta");
-      const contenedor = document.getElementById("contenedor-opciones");
-      const porcText = document.getElementById("porcentaje-completado");
-      const barFill = document.getElementById("progreso-fill");
-
-      lblActual.innerText = `Pregunta ${indicePregunta + 1} de ${preguntas.length}`;
-      txtPregunta.innerText = p.texto;
-
-      const porc = Math.round((indicePregunta / preguntas.length) * 100);
-      porcText.innerText = porc + "%";
-      barFill.style.width = porc + "%";
-
-      contenedor.innerHTML = "";
-      opciones.forEach(opt => {
-        const card = document.createElement("div");
-        card.className = "opcion-card";
-        if (respuestas[p.id] === opt) card.classList.add("selected");
-
-        card.innerHTML = `<div class="opcion-circle"></div><span>${opt}</span>`;
-        card.onclick = () => {
-          respuestas[p.id] = opt;
-          saveState(); // Guardar avance local
-          pintarPregunta();
-        };
-        contenedor.appendChild(card);
-      });
-    }
-
-    async function onSiguienteClick() {
-      const pId = preguntas[indicePregunta].id;
-      if (!respuestas[pId]) {
-        alert("Por favor, selecciona una opción antes de continuar.");
-        return;
-      }
-
-      if (indicePregunta < preguntas.length - 1) {
-        indicePregunta++;
-        pintarPregunta();
-        window.scrollTo(0, 0);
-      } else {
-        await finalizarYGuardar();
-      }
-    }
-
-    // --- PERSISTENCIA (FIRESTORE + LOCALSTORAGE) ---
-    function saveState() {
-      const data = {
-        indicePregunta,
-        respuestas,
-        codigoUsuario,
-        lastUpdate: new Date().toISOString()
-      };
-      localStorage.setItem("ev_state_" + codigoUsuario, JSON.stringify(data));
-      // Sincronización opcional con Firebase en cada paso (opcional por performance)
-      updateDoc(doc(db, "evaluaciones", codigoUsuario), {
-        responses: respuestas,
-        currentStep: indicePregunta,
-        updatedAt: new Date()
-      }).catch(e => console.error("Error sync:", e));
-    }
-
-    function clearState() {
-      localStorage.removeItem("ev_state_" + codigoUsuario);
-    }
-
-    function aplicarState(saved) {
-      indicePregunta = saved.indicePregunta || 0;
-      respuestas = saved.responses || {};
-      codigoUsuario = saved.codigoUsuario || "";
-    }
-
-    async function finalizarYGuardar() {
-      try {
-        await updateDoc(doc(db, "evaluaciones", codigoUsuario), {
-          responses: respuestas,
-          status: "completed",
-          completedAt: new Date(),
-          currentStep: preguntas.length
-        });
-        clearState();
-        mostrarPantallaFinal();
-      } catch (e) {
-        alert("Error al guardar. Verifica tu conexión.");
-        console.error(e);
-      }
-    }
-
-    // --- FLUJO DE IDENTIFICACIÓN ---
-    async function iniciarEvaluacionNueva() {
-      await setDoc(doc(db, "evaluaciones", codigoUsuario), {
-        studentCode: codigoUsuario,
-        status: "in-progress",
-        startedAt: new Date(),
-        responses: {},
-        currentStep: 0
-      }, { merge: true });
-    }
-
-    // --- PRE-INTRO (Tus instrucciones por pasos) ---
-    const preintroPasos = [
-      { t: "Bienvenido a tu Evaluación", p: "Esta herramienta te ayudará a identificar áreas de interés profesional basándose en tus preferencias personales." },
-      { t: "Instrucciones", p: "Responde con total sinceridad. No hay respuestas correctas o incorrectas, solo reflejan tus gustos." },
-      { t: "Tómate tu tiempo", p: "Lee cada pregunta cuidadosamente. Una vez termines, tus resultados serán enviados automáticamente." }
-    ];
-    let step = 0;
-
-    function runPreintroAntesDePreguntas(callback) {
-      const backdrop = document.getElementById("preintroBackdrop");
-      const content = document.getElementById("preintroContent");
-      const nextBtn = document.getElementById("preintroNextBtn");
-      const backBtn = document.getElementById("preintroBackBtn");
-
-      backdrop.style.display = "flex";
-
-      const render = () => {
-        content.innerHTML = `<h3>${preintroPasos[step].t}</h3><p>${preintroPasos[step].p}</p>`;
-        backBtn.style.display = step === 0 ? "none" : "inline-block";
-        nextBtn.innerText = step === preintroPasos.length - 1 ? "Empezar ahora" : "Siguiente";
-      };
-
-      nextBtn.onclick = () => {
-        if (step < preintroPasos.length - 1) {
-          step++; render();
-        } else {
-          backdrop.style.display = "none";
-          callback();
-        }
-      };
-      backBtn.onclick = () => { step--; render(); };
-      render();
-    }
-
-    // --- INICIALIZACIÓN ---
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("btnIniciar").addEventListener("click", async () => {
-        const input = document.getElementById("codigoAcceso");
-        codigoUsuario = input.value.trim().toUpperCase();
-
-        if (!codigoUsuario) {
-          alert("Por favor ingresa un código.");
-          return;
-        }
-
-        document.getElementById("loading-auth").classList.remove("hidden");
-        document.getElementById("btnIniciar").classList.add("hidden");
-
-        const docRef = doc(db, "evaluaciones", codigoUsuario);
-        const docSnap = await getDoc(docRef);
-        const localSaved = JSON.parse(localStorage.getItem("ev_state_" + codigoUsuario));
-
-        document.getElementById("loading-auth").classList.add("hidden");
-        document.getElementById("btnIniciar").classList.remove("hidden");
-
-        let candidate = docSnap.exists() ? docSnap.data() : localSaved;
-
-        if (candidate && candidate.status !== "completed" && candidate.responses && Object.keys(candidate.responses).length > 0) {
-          const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
-          if (retomar) {
-            respuestas = candidate.responses;
-            indicePregunta = candidate.currentStep || 0;
-            mostrarPantallaPreguntas();
-            return;
-          }
-        }
-
-        // Si es nueva o no quiso retomar
-        await iniciarEvaluacionNueva();
-        runPreintroAntesDePreguntas(() => {
-          mostrarPantallaPreguntas();
-        });
-      });
-
-      document.getElementById("btnSiguiente").addEventListener("click", onSiguienteClick);
-
-      document.getElementById("btnRegresarMenu").addEventListener("click", () => {
-        window.location.href = "index.html";
-      });
-    });
-  </script>
-
-  <!-- Pantallas previas (Instrucciones) -->
-  <div class="preintro-backdrop" id="preintroBackdrop" aria-hidden="true">
-    <div class="preintro-card" role="dialog" aria-modal="true">
+  <div class="preintro-backdrop hidden" id="preintroBackdrop">
+    <div class="preintro-card">
       <div id="preintroContent"></div>
       <div class="preintro-actions">
-        <button class="preintro-btn secondary" id="preintroBackBtn" type="button">Atrás</button>
-        <button class="preintro-btn primary" id="preintroNextBtn" type="button">Siguiente</button>
+        <button class="preintro-btn primary" id="preintroNextBtn">Comenzar</button>
       </div>
     </div>
   </div>
 
-  <div style="position:fixed;bottom:6px;left:10px;font-size:10px;color:#999;">v4.0.0-full-40q</div>
+  <script>
+    // --- CONFIGURACIÓN FIREBASE ---
+    const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
+    const appId = window.__app_id || 'default-app';
+    if (firebaseConfig.apiKey) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // --- LAS 120 PREGUNTAS (INTACTAS) ---
+    const QUESTIONS = [
+      { id: 1, text: "Diseñar, proyectar y construir edificios y obras civiles." },
+      { id: 2, text: "Atender y curar a personas enfermas o heridas." },
+      { id: 3, text: "Participar en la política y en la administración pública." },
+      { id: 4, text: "Escribir artículos periodísticos o de opinión." },
+      { id: 5, text: "Reparar aparatos electrónicos o programar computadoras." },
+      { id: 6, text: "Defender personas en juicios o asesorar legalmente." },
+      { id: 7, text: "Gestionar y dirigir empresas o negocios propios." },
+      { id: 8, text: "Realizar experimentos de laboratorio en química o biología." },
+      { id: 9, text: "Trabajar al aire libre en contacto con la naturaleza y animales." },
+      { id: 10, text: "Enseñar a niños, jóvenes o adultos." },
+      { id: 11, text: "Organizar eventos culturales o artísticos." },
+      { id: 12, text: "Investigar sobre la historia o la cultura de los pueblos." },
+      { id: 13, text: "Asesorar a personas sobre sus problemas personales o familiares." },
+      { id: 14, text: "Llevar la contabilidad o las finanzas de una empresa." },
+      { id: 15, text: "Realizar campañas de publicidad o de marketing." },
+      { id: 16, text: "Crear obras de arte como pintura, escultura o música." },
+      { id: 17, text: "Explorar y extraer recursos naturales como petróleo o minerales." },
+      { id: 18, text: "Planificar y controlar el tráfico aéreo o terrestre." },
+      { id: 19, text: "Brindar servicios de hotelería o de turismo." },
+      { id: 20, text: "Realizar investigaciones científicas en astronomía o física." },
+      { id: 21, text: "Cuidar y proteger el medio ambiente." },
+      { id: 22, text: "Realizar actividades deportivas de manera profesional." },
+      { id: 23, text: "Pilotear barcos o aviones de gran tamaño." },
+      { id: 24, text: "Traducir textos o interpretar idiomas extranjeros." },
+      { id: 25, text: "Brindar asistencia social a comunidades vulnerables." },
+      { id: 26, text: "Realizar peritajes técnicos o forenses." },
+      { id: 27, text: "Diseñar ropa, calzado o accesorios de moda." },
+      { id: 28, text: "Elaborar productos alimenticios o de repostería." },
+      { id: 29, text: "Realizar instalaciones eléctricas o de plomería." },
+      { id: 30, text: "Trabajar en el área de recursos humanos de una empresa." },
+      { id: 31, text: "Producir programas de radio o de televisión." },
+      { id: 32, text: "Investigar sobre nuevas tecnologías de la información." },
+      { id: 33, text: "Brindar asesoría técnica en agricultura o ganadería." },
+      { id: 34, text: "Realizar investigaciones sobre la mente y el comportamiento humano." },
+      { id: 35, text: "Trabajar en la seguridad pública o privada." },
+      { id: 36, text: "Realizar tareas de auditoría o control de calidad." },
+      { id: 37, text: "Participar en excavaciones arqueológicas." },
+      { id: 38, text: "Diseñar y crear videojuegos." },
+      { id: 39, text: "Realizar tareas de decoración de interiores." },
+      { id: 40, text: "Investigar sobre la fauna y la flora silvestre." },
+      { id: 41, text: "Realizar tareas de enfermería o primeros auxilios." },
+      { id: 42, text: "Trabajar en el área de comercio exterior." },
+      { id: 43, text: "Brindar asesoría sobre la alimentación y nutrición." },
+      { id: 44, text: "Realizar investigaciones sobre el lenguaje y la comunicación." },
+      { id: 45, text: "Diseñar piezas gráficas o ilustraciones digitales." },
+      { id: 46, text: "Realizar investigaciones en el área de la biotecnología." },
+      { id: 47, text: "Trabajar en la organización de congresos o ferias." },
+      { id: 48, text: "Realizar tareas de mantenimiento industrial." },
+      { id: 49, text: "Brindar asesoría en temas de impuestos y seguros." },
+      { id: 50, text: "Investigar sobre la formación y evolución de la Tierra." },
+      { id: 51, text: "Realizar tareas de corrección de textos." },
+      { id: 52, text: "Trabajar en el área de relaciones públicas de una institución." },
+      { id: 53, text: "Brindar asesoría sobre el uso de energías renovables." },
+      { id: 54, text: "Realizar investigaciones en el área de la farmacología." },
+      { id: 55, text: "Trabajar en la gestión de bibliotecas o museos." },
+      { id: 56, text: "Realizar tareas de reparación de motores y maquinaria." },
+      { id: 57, text: "Brindar asesoría en temas de propiedad intelectual." },
+      { id: 58, text: "Investigar sobre los ecosistemas marinos." },
+      { id: 59, text: "Trabajar en el área de logística y distribución." },
+      { id: 60, text: "Realizar tareas de producción cinematográfica." },
+      { id: 61, text: "Brindar asesoría en temas de higiene y seguridad laboral." },
+      { id: 62, text: "Investigar sobre el desarrollo de nuevos materiales." },
+      { id: 63, text: "Trabajar en el área de la diplomacia o asuntos exteriores." },
+      { id: 64, text: "Realizar tareas de fisioterapia o rehabilitación." },
+      { id: 65, text: "Brindar asesoría en temas de urbanismo y ordenamiento territorial." },
+      { id: 66, text: "Investigar sobre los procesos químicos en la industria." },
+      { id: 67, text: "Trabajar en el área de la banca o las finanzas." },
+      { id: 68, text: "Realizar tareas de investigación de mercado." },
+      { id: 69, text: "Brindar asesoría sobre el cuidado de la salud animal." },
+      { id: 70, text: "Investigar sobre los movimientos sociales y políticos." },
+      { id: 71, text: "Trabajar en el área de la edición de libros y revistas." },
+      { id: 72, text: "Realizar tareas de diseño industrial." },
+      { id: 73, text: "Brindar asesoría sobre el manejo de residuos." },
+      { id: 74, text: "Investigar sobre el funcionamiento de las neuronas." },
+      { id: 75, text: "Trabajar en el área de la mediación de conflictos." },
+      { id: 76, text: "Realizar tareas de topografía o cartografía." },
+      { id: 77, text: "Brindar asesoría sobre el diseño de jardines y parques." },
+      { id: 78, text: "Investigar sobre el origen de las palabras y los idiomas." },
+      { id: 79, text: "Trabajar en el área de la producción editorial." },
+      { id: 80, text: "Realizar tareas de control de plagas y enfermedades vegetales." },
+      { id: 81, text: "Brindar asesoría sobre el desarrollo de planes de estudio." },
+      { id: 82, text: "Investigar sobre el impacto de la tecnología en la sociedad." },
+      { id: 83, text: "Trabajar en el área de la gestión cultural." },
+      { id: 84, text: "Realizar tareas de fotografía profesional." },
+      { id: 85, text: "Brindar asesoría sobre el cumplimiento de normas ambientales." },
+      { id: 86, text: "Investigar sobre las propiedades de las partículas subatómicas." },
+      { id: 87, text: "Trabajar en el área de la atención al cliente." },
+      { id: 88, text: "Realizar tareas de desarrollo de software para móviles." },
+      { id: 89, text: "Brindar asesoría sobre el diseño de stands para ferias." },
+      { id: 90, text: "Investigar sobre la historia del arte y la arquitectura." },
+      { id: 91, text: "Trabajar en el área de la gestión de la calidad alimentaria." },
+      { id: 92, text: "Realizar tareas de mantenimiento de redes informáticas." },
+      { id: 93, text: "Brindar asesoría sobre el uso de fertilizantes y abonos." },
+      { id: 94, text: "Investigar sobre los procesos de aprendizaje en el cerebro." },
+      { id: 95, text: "Trabajar en el área de la prevención de riesgos naturales." },
+      { id: 96, text: "Realizar tareas de diseño textil." },
+      { id: 97, text: "Brindar asesoría sobre la gestión del tiempo y la productividad." },
+      { id: 98, text: "Investigar sobre las causas de las enfermedades infecciosas." },
+      { id: 99, text: "Trabajar en el área de la animación digital." },
+      { id: 100, text: "Realizar tareas de restauración de obras de arte." },
+      { id: 101, text: "Brindar asesoría sobre el comercio electrónico." },
+      { id: 102, text: "Investigar sobre el comportamiento de los mercados financieros." },
+      { id: 103, text: "Trabajar en el área de la fonoaudiología." },
+      { id: 104, text: "Realizar tareas de ingeniería de sonido." },
+      { id: 105, text: "Brindar asesoría sobre la planificación de eventos sociales." },
+      { id: 106, text: "Investigar sobre la cultura de las civilizaciones antiguas." },
+      { id: 107, text: "Trabajar en el área de la gestión de residuos industriales." },
+      { id: 108, text: "Realizar tareas de diseño de packaging." },
+      { id: 109, text: "Brindar asesoría sobre la seguridad en internet." },
+      { id: 110, text: "Investigar sobre las propiedades de las plantas medicinales." },
+      { id: 111, text: "Trabajar en el área de la atención a personas con discapacidad." },
+      { id: 112, text: "Realizar tareas de diseño de escenografías." },
+      { id: 113, text: "Brindar asesoría sobre el desarrollo de marcas personales." },
+      { id: 114, text: "Investigar sobre los efectos del cambio climático." },
+      { id: 115, text: "Trabajar en el área de la gestión de la cadena de suministro." },
+      { id: 116, text: "Realizar tareas de modelado 3D." },
+      { id: 117, text: "Brindar asesoría sobre la organización de archivos digitales." },
+      { id: 118, text: "Investigar sobre la genética de los seres vivos." },
+      { id: 119, text: "Trabajar en el área de la orientación laboral." },
+      { id: 120, text: "Realizar tareas de diseño de interfaces de usuario (UI)." }
+    ];
+
+    const LIKERT = [
+      { v: 1, l: "Me desagrada mucho" },
+      { v: 2, l: "Me desagrada" },
+      { v: 3, l: "Me es indiferente" },
+      { v: 4, l: "Me gusta" },
+      { v: 5, l: "Me gusta mucho" }
+    ];
+
+    let state = {
+      userCode: "",
+      currentIndex: 0,
+      responses: {},
+      isCompleted: false
+    };
+
+    // --- LOGICA DE PERSISTENCIA ---
+    async function save() {
+      if (!state.userCode) return;
+      const path = `artifacts/${appId}/public/data/evaluaciones`;
+      await db.collection(path).doc(state.userCode).set({...state}, {merge: true});
+    }
+
+    async function load(code) {
+      const path = `artifacts/${appId}/public/data/evaluaciones`;
+      const doc = await db.collection(path).doc(code).get();
+      return doc.exists ? doc.data() : null;
+    }
+
+    // --- RENDER ---
+    function render() {
+      const q = QUESTIONS[state.currentIndex];
+      document.getElementById('pregunta-texto').textContent = `${q.id}. ${q.text}`;
+      document.getElementById('progreso-texto').textContent = `Pregunta ${state.currentIndex + 1} de 120`;
+      document.getElementById('barra-progreso').style.width = `${((state.currentIndex + 1)/120)*100}%`;
+
+      const cont = document.getElementById('opciones-contenedor');
+      cont.innerHTML = "";
+      LIKERT.forEach(opt => {
+        const b = document.createElement('button');
+        b.className = `option-btn ${state.responses[q.id] === opt.v ? 'selected' : ''}`;
+        b.textContent = opt.l;
+        b.onclick = () => {
+          state.responses[q.id] = opt.v;
+          save();
+          render();
+        };
+        cont.appendChild(b);
+      });
+
+      document.getElementById('btnAnterior').disabled = state.currentIndex === 0;
+      document.getElementById('btnSiguiente').disabled = !state.responses[q.id];
+      document.getElementById('btnSiguiente').textContent = state.currentIndex === 119 ? "Finalizar" : "Siguiente";
+    }
+
+    // --- ACCIONES ---
+    document.getElementById('btnIngresar').onclick = async () => {
+      const code = document.getElementById('codigoAcceso').value.trim().toUpperCase();
+      if (!code) return;
+
+      if (window.__initial_auth_token) await auth.signInWithCustomToken(window.__initial_auth_token);
+      else await auth.signInAnonymously();
+
+      const saved = await load(code);
+      state.userCode = code;
+
+      if (saved) {
+        if (saved.isCompleted) { 
+          mostrarPantalla('pantalla-final'); 
+          return; 
+        }
+        if (confirm("¿Deseas continuar tu evaluación anterior?")) state = {...state, ...saved};
+      }
+
+      document.getElementById('preintroBackdrop').classList.remove('hidden');
+      document.getElementById('preintroContent').innerHTML = "<h3>Instrucciones</h3><p>Responde a cada actividad según tu interés personal.</p>";
+    };
+
+    document.getElementById('preintroNextBtn').onclick = () => {
+      document.getElementById('preintroBackdrop').classList.add('hidden');
+      mostrarPantalla('pantalla-preguntas');
+      render();
+    };
+
+    document.getElementById('btnSiguiente').onclick = () => {
+      if (state.currentIndex < 119) {
+        state.currentIndex++;
+        render();
+        save();
+      } else {
+        state.isCompleted = true;
+        save();
+        mostrarPantalla('pantalla-final');
+      }
+    };
+
+    document.getElementById('btnAnterior').onclick = () => {
+      if (state.currentIndex > 0) {
+        state.currentIndex--;
+        render();
+      }
+    };
+
+    // --- BOTÓN DE RESULTADOS (SOLICITADO) ---
+    document.getElementById('btnVerResultados').onclick = () => {
+      const area = document.getElementById('areaResultados');
+      area.classList.remove('hidden');
+      
+      // Lógica simple de ejemplo basada en puntajes altos (4 o 5)
+      const gustos = Object.entries(state.responses).filter(([id, val]) => val >= 4);
+      
+      let html = "<h3>Tus principales áreas de interés detectadas:</h3>";
+      if (gustos.length === 0) {
+        html += "<p>No se detectaron preferencias marcadas. Te recomendamos revisar tus respuestas.</p>";
+      } else {
+        // Mostramos las 5 actividades con mayor puntaje
+        gustos.sort((a,b) => b[1] - a[1]).slice(0, 5).forEach(([id, val]) => {
+          const qText = QUESTIONS.find(q => q.id == id).text;
+          html += `<div class="result-item"><strong>Actividad:</strong> ${qText} <br> <small>Nivel de agrado: ${val}/5</small></div>`;
+        });
+      }
+      area.innerHTML = html;
+      document.getElementById('btnVerResultados').classList.add('hidden');
+    };
+
+    function mostrarPantalla(id) {
+      document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+  </script>
 </body>
 </html>
