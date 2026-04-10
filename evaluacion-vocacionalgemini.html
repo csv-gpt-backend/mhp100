@@ -1,302 +1,239 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <title>Evaluación Vocacional PRO - Modelo Holland RIASEC</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      --primary: #0f172a;
-      --accent: #2563eb;
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --success: #10b981;
-    }
-
-    body {
-      margin: 0; padding: 0;
-      background: var(--bg);
-      color: #334155;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 70px 1fr;
-      min-height: 100vh;
-    }
-
-    .sidebar {
-      background: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .sidebar span {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      color: white;
-      font-weight: 800;
-      letter-spacing: 5px;
-      opacity: 0.5;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 20px;
-    }
-
-    .card {
-      background: var(--card);
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      padding: 40px;
-      border: 1px solid #e2e8f0;
-    }
-
-    h1 {
-      color: var(--primary);
-      font-size: 24px;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .progress-container {
-      margin: 20px 0;
-    }
-
-    .progress-bar {
-      height: 10px;
-      background: #e2e8f0;
-      border-radius: 5px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: var(--accent);
-      width: 0%;
-      transition: width 0.4s;
-    }
-
-    .question-row {
-      display: grid;
-      grid-template-columns: 1fr repeat(3, 80px);
-      gap: 10px;
-      padding: 20px 0;
-      border-bottom: 1px solid #f1f5f9;
-      align-items: center;
-    }
-
-    .question-row:hover {
-      background: #f8fafc;
-    }
-
-    .question-text {
-      font-weight: 500;
-      font-size: 16px;
-    }
-
-    .options-header {
-      display: grid;
-      grid-template-columns: 1fr repeat(3, 80px);
-      gap: 10px;
-      margin-bottom: 10px;
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--accent);
-      text-align: center;
-      position: sticky;
-      top: 0;
-      background: white;
-      padding: 10px 0;
-      z-index: 5;
-    }
-
-    input[type="radio"] {
-      transform: scale(1.3);
-      cursor: pointer;
-    }
-
-    .btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 14px 30px;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background 0.3s;
-    }
-
-    .btn:hover { background: #1d4ed8; }
-    .btn:disabled { background: #cbd5e1; }
-
-    .hidden { display: none; }
-
-    .badge-new {
-      background: #fef3c7;
-      color: #92400e;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-left: 8px;
-      vertical-align: middle;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDDTest de Orientación Vocacional Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .progress-bar { transition: width 0.4s ease-in-out; }
+        .option-card:hover { transform: translateY(-2px); transition: all 0.2s; }
+        .hidden-step { display: none; }
+    </style>
 </head>
-<body>
+<body class="min-h-screen text-slate-800">
 
-  <div class="layout">
-    <div class="sidebar"><span>PRO AUDIT EDITION</span></div>
-    
-    <div class="container">
-      <!-- Pantalla de Inicio -->
-      <div id="screen-start" class="card">
-        <h1>Evaluación Vocacional</h1>
-        <p>Modelo Psicométrico RIASEC adaptado para Estudiantes y Adultos.</p>
-        <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
-        <div style="margin-bottom: 20px;">
-          <label style="display:block; font-weight:700; margin-bottom:8px;">Nombre Completo:</label>
-          <input type="text" id="userName" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box;">
+    <div class="max-w-4xl mx-auto px-4 py-8 md:py-12">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-900 mb-2">Evaluación Vocacional</h1>
+            <p class="text-slate-500">Descubre tu perfil profesional respondiendo a estas 40 actividades.</p>
+        </header>
+
+        <!-- Main Card -->
+        <div id="quiz-container" class="glass rounded-3xl shadow-xl border border-white p-6 md:p-10">
+            
+            <!-- Progress -->
+            <div class="mb-8">
+                <div class="flex justify-between text-sm font-semibold text-slate-400 mb-2">
+                    <span id="progress-text">Pregunta 1 de 40</span>
+                    <span id="percentage-text">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2.5">
+                    <div id="progress-fill" class="bg-indigo-600 h-2.5 rounded-full progress-bar" style="width: 2.5%"></div>
+                </div>
+            </div>
+
+            <!-- Question Area -->
+            <div id="question-box" class="min-h-[300px] flex flex-col justify-center">
+                <h2 id="question-title" class="text-xl md:text-2xl font-semibold text-slate-800 mb-8 leading-tight">
+                    Cargando evaluación...
+                </h2>
+
+                <div class="grid grid-cols-1 gap-4" id="options-grid">
+                    <button onclick="handleAnswer(4)" class="option-card w-full p-4 text-left border-2 border-slate-100 rounded-2xl hover:border-indigo-500 hover:bg-indigo-50 flex items-center group">
+                        <span class="w-10 h-10 rounded-full bg-slate-100 group-hover:bg-indigo-100 flex items-center justify-center mr-4 font-bold text-indigo-600">A</span>
+                        <span class="text-lg">Me interesa mucho</span>
+                    </button>
+                    <button onclick="handleAnswer(2)" class="option-card w-full p-4 text-left border-2 border-slate-100 rounded-2xl hover:border-indigo-500 hover:bg-indigo-50 flex items-center group">
+                        <span class="w-10 h-10 rounded-full bg-slate-100 group-hover:bg-indigo-100 flex items-center justify-center mr-4 font-bold text-indigo-600">B</span>
+                        <span class="text-lg">Me es indiferente</span>
+                    </button>
+                    <button onclick="handleAnswer(0)" class="option-card w-full p-4 text-left border-2 border-slate-100 rounded-2xl hover:border-indigo-500 hover:bg-indigo-50 flex items-center group">
+                        <span class="w-10 h-10 rounded-full bg-slate-100 group-hover:bg-indigo-100 flex items-center justify-center mr-4 font-bold text-indigo-600">C</span>
+                        <span class="text-lg">No me interesa</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="mt-10 pt-6 border-t border-slate-50 flex justify-between items-center">
+                <button id="prev-btn" onclick="goBack()" class="px-6 py-2 text-slate-400 hover:text-indigo-600 font-medium disabled:opacity-0" disabled>
+                    ← Anterior
+                </button>
+                <div id="status-indicator" class="text-xs uppercase tracking-widest text-slate-300 font-bold">
+                    Área Profesional
+                </div>
+            </div>
         </div>
-        <button class="btn" id="startBtn">INICIAR PRUEBA DE AGILIDAD</button>
-      </div>
 
-      <!-- Pantalla de Preguntas -->
-      <div id="screen-test" class="card hidden">
-        <div class="progress-container">
-          <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px;">
-            <span id="progreso-txt">Progreso: 0%</span>
-            <span id="page-txt">Página 1 de 8</span>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" id="bar"></div></div>
+        <!-- Result Card (Hidden by default) -->
+        <div id="result-container" class="hidden glass rounded-3xl shadow-2xl border border-white p-8 md:p-12">
+            <div class="text-center mb-10">
+                <div class="inline-block p-4 bg-green-100 text-green-600 rounded-full mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-bold text-slate-900">Tu Perfil Vocacional</h2>
+                <p class="text-slate-500 mt-2">Basado en tus respuestas a las 40 preguntas del test.</p>
+            </div>
+
+            <div id="top-results" class="space-y-6 mb-10">
+                <!-- Se llenará con JS -->
+            </div>
+
+            <div class="bg-indigo-900 rounded-2xl p-6 text-white text-center">
+                <h3 class="font-bold mb-2">¿Qué sigue ahora?</h3>
+                <p class="text-indigo-200 text-sm mb-6">Te recomendamos agendar una sesión con un psicopedagogo para profundizar en estos resultados.</p>
+                <button onclick="window.location.reload()" class="bg-white text-indigo-900 px-8 py-3 rounded-full font-bold hover:bg-indigo-50 transition">
+                    Reiniciar Test
+                </button>
+            </div>
         </div>
-
-        <div class="options-header">
-          <span>PREGUNTA</span>
-          <span>MUCHO</span>
-          <span>ALGO</span>
-          <span>POCO</span>
-        </div>
-
-        <div id="questions-container"></div>
-
-        <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
-          <button class="btn" id="nextBtn">SIGUIENTE</button>
-        </div>
-      </div>
-
-      <!-- Pantalla Final -->
-      <div id="screen-end" class="card hidden" style="text-align:center;">
-        <h1 style="color:var(--success);">¡Prueba Completada!</h1>
-        <p>Los datos han sido registrados bajo el modelo Holland.</p>
-        <button class="btn" onclick="location.reload()">REINICIAR</button>
-      </div>
     </div>
-  </div>
 
-  <script>
-    const allQuestions = [
-      { id: 1, text: "Me gusta trabajar con herramientas o maquinaria.", type: "R" },
-      { id: 2, text: "Prefiero actividades prácticas donde pueda manipular objetos.", type: "R" },
-      { id: 3, text: "Me gusta analizar problemas para encontrar soluciones lógicas.", type: "I" },
-      { id: 4, text: "Disfruto investigar temas que despiertan mi curiosidad.", type: "I" },
-      { id: 5, text: "Me gusta expresar ideas de forma creativa u original.", type: "A" },
-      { id: 6, text: "Disfruto crear cosas que no existían antes.", type: "A" },
-      { id: 7, text: "Me gusta ayudar y enseñar a otras personas.", type: "S" },
-      { id: 8, text: "Me siento cómodo escuchando y orientando a otros.", type: "S" },
-      { id: 9, text: "Me gusta liderar grupos y tomar decisiones importantes.", type: "E" },
-      { id: 10, text: "Me siento cómodo persuadiendo a otros de mis ideas.", type: "E" },
-      { id: 11, text: "Me gusta organizar información, datos o archivos.", type: "C" },
-      { id: 12, text: "Prefiero trabajar en ambientes bien estructurados.", type: "C" },
-      // ... (Aquí irían el resto de las 36 originales)
-      
-      // LAS 4 NUEVAS PARA EL "EFECTO CONDORITO"
-      { id: 37, text: "¿Estaría dispuesto a re-entrenarse técnicamente por 6 meses para mayor estabilidad?", type: "I", isNew: true },
-      { id: 38, text: "¿Disfruta más diseñando estrategias que mentorizando personas?", type: "E", isNew: true },
-      { id: 39, text: "¿Se siente cómodo adaptando sus métodos a la Inteligencia Artificial?", type: "C", isNew: true },
-      { id: 40, text: "¿Preferiría crear una solución desde cero que mejorar una existente?", type: "A", isNew: true }
-    ];
+    <script>
+        const questions = [
+            // CÁLCULO / INGENIERÍA
+            { q: "1. ¿Te gustaría diseñar software o aplicaciones móviles?", area: "Ingeniería y Tecnología" },
+            { q: "2. ¿Te interesa resolver problemas matemáticos complejos?", area: "Ingeniería y Tecnología" },
+            { q: "3. ¿Disfrutarías desarmando y reparando dispositivos electrónicos?", area: "Ingeniería y Tecnología" },
+            { q: "4. ¿Te atrae la idea de trabajar con inteligencia artificial?", area: "Ingeniería y Tecnología" },
+            { q: "5. ¿Te gustaría calcular estructuras para puentes o edificios?", area: "Ingeniería y Tecnología" },
+            
+            // CIENCIAS DE LA SALUD
+            { q: "6. ¿Te gustaría investigar la cura para enfermedades?", area: "Ciencias de la Salud" },
+            { q: "7. ¿Sientes interés por estudiar el funcionamiento del cuerpo humano?", area: "Ciencias de la Salud" },
+            { q: "8. ¿Te sentirías cómodo(a) trabajando en un hospital o clínica?", area: "Ciencias de la Salud" },
+            { q: "9. ¿Te gustaría brindar primeros auxilios en situaciones críticas?", area: "Ciencias de la Salud" },
+            { q: "10. ¿Te interesa la nutrición y la alimentación saludable?", area: "Ciencias de la Salud" },
 
-    let currentPage = 0;
-    const itemsPerPage = 5;
-    const userResponses = {};
+            // ARTES Y DISEÑO
+            { q: "11. ¿Disfrutas creando ilustraciones o diseños digitales?", area: "Artes y Diseño" },
+            { q: "12. ¿Te gustaría trabajar en la producción de películas o animaciones?", area: "Artes y Diseño" },
+            { q: "13. ¿Te interesa el diseño de interiores o la decoración?", area: "Artes y Diseño" },
+            { q: "14. ¿Te gusta expresar ideas a través de la fotografía o pintura?", area: "Artes y Diseño" },
+            { q: "15. ¿Te atrae la moda y el diseño de prendas de vestir?", area: "Artes y Diseño" },
 
-    const startBtn = document.getElementById('startBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const screens = {
-      start: document.getElementById('screen-start'),
-      test: document.getElementById('screen-test'),
-      end: document.getElementById('screen-end')
-    };
+            // CIENCIAS SOCIALES Y HUMANIDADES
+            { q: "16. ¿Te gustaría defender los derechos de las personas ante la justicia?", area: "Sociales y Humanidades" },
+            { q: "17. ¿Te interesa estudiar el comportamiento de la sociedad?", area: "Sociales y Humanidades" },
+            { q: "18. ¿Disfrutas escribiendo artículos de opinión o noticias?", area: "Sociales y Humanidades" },
+            { q: "19. ¿Te gustaría enseñar y transmitir conocimientos a otros?", area: "Sociales y Humanidades" },
+            { q: "20. ¿Te apasiona la historia y el origen de las culturas?", area: "Sociales y Humanidades" },
 
-    startBtn.onclick = () => {
-      if(!document.getElementById('userName').value) return alert("Por favor ingresa un nombre");
-      screens.start.classList.add('hidden');
-      screens.test.classList.remove('hidden');
-      renderQuestions();
-    };
+            // NEGOCIOS Y ADMINISTRACIÓN
+            { q: "21. ¿Te gustaría liderar equipos y gestionar empresas?", area: "Negocios y Gestión" },
+            { q: "22. ¿Te interesa el mercado de valores y las inversiones?", area: "Negocios y Gestión" },
+            { q: "23. ¿Te gustaría crear tu propio modelo de negocio (emprender)?", area: "Negocios y Gestión" },
+            { q: "24. ¿Disfrutas analizando estrategias de marketing y publicidad?", area: "Negocios y Gestión" },
+            { q: "25. ¿Te gusta organizar procesos y mejorar la productividad?", area: "Negocios y Gestión" },
 
-    function renderQuestions() {
-      const container = document.getElementById('questions-container');
-      container.innerHTML = '';
-      
-      const start = currentPage * itemsPerPage;
-      const end = start + itemsPerPage;
-      const currentSet = allQuestions.slice(start, end);
+            // CIENCIAS NATURALES
+            { q: "26. ¿Te gustaría trabajar en el campo estudiando la biodiversidad?", area: "Ciencias Naturales" },
+            { q: "27. ¿Te preocupa el cambio climático y buscas soluciones ambientales?", area: "Ciencias Naturales" },
+            { q: "28. ¿Te gustaría estudiar la composición química de las sustancias?", area: "Ciencias Naturales" },
+            { q: "29. ¿Te interesa la astronomía y la exploración espacial?", area: "Ciencias Naturales" },
+            { q: "30. ¿Disfrutarías trabajando en un laboratorio de biología?", area: "Ciencias Naturales" },
 
-      currentSet.forEach(q => {
-        const row = document.createElement('div');
-        row.className = 'question-row';
-        row.innerHTML = `
-          <div class="question-text">
-            ${q.text} ${q.isNew ? '<span class="badge-new">NUEVA MÉTRICA</span>' : ''}
-          </div>
-          <div style="text-align:center"><input type="radio" name="q${q.id}" value="3" ${userResponses[q.id]=='3'?'checked':''}></div>
-          <div style="text-align:center"><input type="radio" name="q${q.id}" value="2" ${userResponses[q.id]=='2'?'checked':''}></div>
-          <div style="text-align:center"><input type="radio" name="q${q.id}" value="1" ${userResponses[q.id]=='1'?'checked':''}></div>
-        `;
-        row.querySelectorAll('input').forEach(input => {
-          input.onchange = () => {
-            userResponses[q.id] = input.value;
-            updateProgress();
-          };
-        });
-        container.appendChild(row);
-      });
+            // COMUNICACIÓN Y LENGUAS
+            { q: "31. ¿Te gustaría dominar varios idiomas para trabajar fuera?", area: "Comunicación y Lenguas" },
+            { q: "32. ¿Te interesa la traducción de textos literarios?", area: "Comunicación y Lenguas" },
+            { q: "33. ¿Disfrutarías hablando en público o presentando eventos?", area: "Comunicación y Lenguas" },
+            { q: "34. ¿Te gustaría trabajar en relaciones públicas para marcas?", area: "Comunicación y Lenguas" },
+            { q: "35. ¿Te interesa la comunicación política y diplomática?", area: "Comunicación y Lenguas" },
 
-      document.getElementById('page-txt').innerText = `Página ${currentPage + 1} de ${Math.ceil(allQuestions.length/itemsPerPage)}`;
-    }
+            // CIENCIAS DE LA CONDUCTA
+            { q: "36. ¿Te interesa ayudar a las personas a resolver sus conflictos?", area: "Psicología y Conducta" },
+            { q: "37. ¿Te gustaría estudiar los procesos mentales y emociones?", area: "Psicología y Conducta" },
+            { q: "38. ¿Disfrutas escuchando y aconsejando a los demás?", area: "Psicología y Conducta" },
+            { q: "39. ¿Te gustaría trabajar con niños en su desarrollo temprano?", area: "Psicología y Conducta" },
+            { q: "40. ¿Te interesa la investigación sobre la conducta humana?", area: "Psicología y Conducta" }
+        ];
 
-    function updateProgress() {
-      const answered = Object.keys(userResponses).length;
-      const pct = Math.round((answered / allQuestions.length) * 100);
-      document.getElementById('bar').style.width = pct + '%';
-      document.getElementById('progreso-txt').innerText = `Progreso: ${pct}%`;
-    }
+        let currentQuestion = 0;
+        let scores = {};
+        let history = [];
 
-    nextBtn.onclick = () => {
-      const start = currentPage * itemsPerPage;
-      const end = start + itemsPerPage;
-      const currentSet = allQuestions.slice(start, end);
-      
-      const allDone = currentSet.every(q => userResponses[q.id]);
-      if(!allDone) return alert("Completa todas las preguntas de la página");
+        function initQuiz() {
+            showQuestion();
+        }
 
-      if(end < allQuestions.length) {
-        currentPage++;
-        renderQuestions();
-        window.scrollTo(0,0);
-      } else {
-        screens.test.classList.add('hidden');
-        screens.end.classList.remove('hidden');
-      }
-    };
-  </script>
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('question-title').innerText = q.q;
+            document.getElementById('status-indicator').innerText = q.area;
+            
+            // Update progress
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+            document.getElementById('progress-text').innerText = `Pregunta ${currentQuestion + 1} de ${questions.length}`;
+            document.getElementById('percentage-text').innerText = `${Math.round(progress)}%`;
+            
+            document.getElementById('prev-btn').disabled = currentQuestion === 0;
+        }
+
+        function handleAnswer(points) {
+            const area = questions[currentQuestion].area;
+            
+            // Save to scores
+            scores[area] = (scores[area] || 0) + points;
+            
+            // Save to history for "Back" button
+            history.push({ area, points });
+
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function goBack() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                const lastAction = history.pop();
+                scores[lastAction.area] -= lastAction.points;
+                showQuestion();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.classList.remove('hidden');
+
+            const sortedResults = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+            const resultsDiv = document.getElementById('top-results');
+            
+            // Get top 3
+            const top3 = sortedResults.slice(0, 3);
+            
+            resultsDiv.innerHTML = top3.map((res, index) => {
+                const percentage = Math.min(Math.round((res[1] / 20) * 100), 100); // 20 es el max score por area (5 q * 4 pts)
+                return `
+                    <div class="relative">
+                        <div class="flex justify-between items-end mb-2">
+                            <div>
+                                <span class="text-xs font-bold text-indigo-500 uppercase">Prioridad #${index + 1}</span>
+                                <h4 class="text-xl font-bold text-slate-800">${res[0]}</h4>
+                            </div>
+                            <span class="text-2xl font-black text-indigo-600">${percentage}%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-4 overflow-hidden">
+                            <div class="bg-indigo-600 h-full rounded-full" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.onload = initQuiz;
+    </script>
 </body>
 </html>
