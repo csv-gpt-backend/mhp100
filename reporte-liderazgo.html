@@ -5,7 +5,7 @@
 
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Reporte Liderazgo</title>
+<title>cursor Reporte Liderazgo</title>
 <style>
   :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
   *{box-sizing:border-box}
@@ -772,6 +772,7 @@ function categoriaClass(p){
 }
 function setMarker(p){
   const s = Math.max(0, Math.min(100, Number(p)||0));
+  window.__liderCurveValue = s;
   const wrap = document.querySelector('.curveGauge');
   const img  = document.getElementById('freqCurveImg');
   const mk   = document.getElementById('curveMarker');
@@ -797,19 +798,22 @@ function setMarker(p){
     const maxX = leftInWrap + drawnW - padR;
 
     const t = s / 100;
-    mk.style.left = `${minX + t*(maxX-minX)}px`;
+    const x = minX + t * (maxX - minX);
 
     // Inclinación visual de la curva (base del marcador)
     const bottomAt0 = 94;
     const bottomAt100 = 28;
-    mk.style.bottom = `${bottomAt0 + t*(bottomAt100-bottomAt0)}px`;
+    const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+
+    // % respecto al gauge: en PDF/print el layout cambia; px fijos se desalinean.
+    const w = rW.width || 1;
+    const h = rW.height || 1;
+    mk.style.left = `${(x / w) * 100}%`;
+    mk.style.bottom = `${(y / h) * 100}%`;
   };
 
   if (img.complete) requestAnimationFrame(place);
   else img.addEventListener('load', () => requestAnimationFrame(place), {once:true});
-
-  // Recolocar si cambia el viewport
-  window.addEventListener('resize', place, { passive:true });
 }
 function highlightIV(prefix, idx){
   for (let i=0;i<3;i++){
@@ -1086,6 +1090,23 @@ async function cargar(){
 }
 $('#btn').addEventListener('click', cargar);
 $('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
+
+window.addEventListener('resize', () => {
+  const v = window.__liderCurveValue;
+  if (v == null || Number.isNaN(Number(v))) return;
+  setMarker(Number(v));
+}, { passive: true });
+
+window.addEventListener('beforeprint', () => {
+  const v = window.__liderCurveValue;
+  if (v == null || Number.isNaN(Number(v))) return;
+  requestAnimationFrame(() => setMarker(Number(v)));
+});
+window.addEventListener('afterprint', () => {
+  const v = window.__liderCurveValue;
+  if (v == null || Number.isNaN(Number(v))) return;
+  requestAnimationFrame(() => setMarker(Number(v)));
+});
 </script>
 <div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.7;z-index:9999;">MARKER REP-LID-RANGOS-20260310</div>
 </body>
