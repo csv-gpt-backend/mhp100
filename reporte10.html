@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Inteligencia Emocional – Reporte</title>
+  <title>CURSORInteligencia Emocional – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -638,7 +638,6 @@ function setCurveMarker(iie){
     // X (horizontal)
     let x = minX + t * (maxX - minX);
     x = Math.max(minX, Math.min(maxX, x));
-    mk.style.left = `${x}px`;
 
     // Y (vertical): regla inclinada (toque mágico)
     // Ajusta estos dos valores UNA VEZ:
@@ -647,7 +646,13 @@ function setCurveMarker(iie){
     const bottomAt0 = 94;    // px
     const bottomAt100 = 30;  // px
     const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
-    mk.style.bottom = `${y}px`;
+
+    // Porcentajes respecto a .curve-gauge: al imprimir/PDF el zoom cambia el layout;
+    // los px fijos quedan desalineados; los % escalan con el mismo contenedor que la imagen.
+    const w = rW.width || 1;
+    const h = rW.height || 1;
+    mk.style.left = `${(x / w) * 100}%`;
+    mk.style.bottom = `${(y / h) * 100}%`;
   };
 
   // Asegura que se calcule cuando ya hay layout + imagen lista
@@ -2647,7 +2652,6 @@ const labelCurso = esProfesional ? "Nivel" : "Grado/Curso";
     let iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie ?? (resultados.globales ? resultados.globales.IIE : undefined);
     const iieBase = (iie != null && !Number.isNaN(Number(iie))) ? Number(iie) : ((bIntra||bInter||bPV) ? Math.round((bIntra+bInter+bPV)/3) : 0);
     const iieFinal = adjScore(iieBase, {bloqueNorm:"", subNorm:""});
-    console.log("IIE base/final:", iieBase, iieFinal); // <-- AQUÍ
 
     document.getElementById("repIIE").textContent = iieFinal || "—";
     const tituloCurva = document.getElementById("tituloCurvaFrecuencias");
@@ -2656,6 +2660,7 @@ const labelCurso = esProfesional ? "Nivel" : "Grado/Curso";
       tituloCurva.textContent = `CURVA DE DISTRIBUCIÓN DE FRECUENCIAS: (IIE = ${iieTitulo}).`;
     }
     const iieForCurve = iieFinal || 0;
+    window.__curveIIEValue = iieForCurve;
 
 // 1) intento inmediato
 setCurveMarker(iieForCurve);
@@ -2759,6 +2764,17 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
   document.getElementById("btnExportJSON").addEventListener("click", exportJSON);
   document.getElementById("btnPDF").addEventListener("click", ()=>window.print());
   document.getElementById("btnJSON").addEventListener("click", exportJSON);
+
+  window.addEventListener("beforeprint", () => {
+    const v = window.__curveIIEValue;
+    if (v == null || Number.isNaN(Number(v))) return;
+    requestAnimationFrame(() => setCurveMarker(Number(v)));
+  });
+  window.addEventListener("afterprint", () => {
+    const v = window.__curveIIEValue;
+    if (v == null || Number.isNaN(Number(v))) return;
+    requestAnimationFrame(() => setCurveMarker(Number(v)));
+  });
 
   (function init(){
     const qp = new URLSearchParams(location.search);
