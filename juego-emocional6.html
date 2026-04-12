@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Juego Emocional - Escena 1</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f6f8;
+}
+
+header {
+  padding: 10px;
+  background: #1f2937;
+  color: white;
+}
+
+#escena {
+  position: relative;
+  height: 500px;
+  background: #e5e7eb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.objeto {
+  position: absolute;
+  padding: 10px;
+  background: white;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+#panel {
+  position: fixed;
+  right: 20px;
+  top: 100px;
+  background: white;
+  padding: 15px;
+  border: 1px solid #ccc;
+  display: none;
+}
+
+button {
+  display: block;
+  margin: 5px 0;
+  padding: 8px;
+  cursor: pointer;
+}
+
+#finalizar {
+  margin: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  Escena 1 - Aula
+</header>
+
+<div style="padding:10px;">
+  <strong>Tu compañero está molesto por el trabajo.</strong>
+</div>
+
+<div id="escena">
+
+  <div class="objeto" style="top:50px; left:100px;" onclick="abrir('companero')">
+    Compañero
+  </div>
+
+  <div class="objeto" style="top:200px; left:200px;" onclick="abrir('cuaderno')">
+    Cuaderno
+  </div>
+
+  <div class="objeto" style="top:300px; left:100px;" onclick="abrir('celular')">
+    Celular
+  </div>
+
+  <div class="objeto" style="top:150px; right:100px;" onclick="abrir('puerta')">
+    Puerta
+  </div>
+
+</div>
+
+<div id="panel"></div>
+
+<button id="finalizar" onclick="finalizar()">FINALIZAR</button>
+
+<pre id="resultado"></pre>
+
+<script>
+
+let respuestas = [];
+
+function abrir(objeto){
+  let panel = document.getElementById("panel");
+  panel.style.display = "block";
+
+  if(objeto === "companero"){
+    panel.innerHTML = `
+      <h3>¿Qué haces?</h3>
+      <button onclick="guardar(15,'entender_causa',1)">Entender la causa</button>
+      <button onclick="guardar(17,'pedir_explicacion',2)">Pedir explicación</button>
+      <button onclick="guardar(14,'responder_fuerte',3)">Responder fuerte</button>
+      <button onclick="guardar(18,'retirarse',3)">Retirarse</button>
+    `;
+  }
+
+  if(objeto === "cuaderno"){
+    panel.innerHTML = `
+      <h3>¿Qué haces?</h3>
+      <button onclick="guardar(null,'corregir',1)">Corregir</button>
+      <button onclick="guardar(null,'revisar',2)">Revisar</button>
+      <button onclick="guardar(null,'ignorar',3)">Ignorar</button>
+    `;
+  }
+
+  if(objeto === "celular"){
+    panel.innerHTML = `
+      <h3>¿Qué haces?</h3>
+      <button onclick="guardar(null,'guardar',1)">Guardar celular</button>
+      <button onclick="guardar(null,'escribir',2)">Escribir</button>
+      <button onclick="guardar(null,'distraerse',3)">Distraerse</button>
+    `;
+  }
+
+  if(objeto === "puerta"){
+    panel.innerHTML = `
+      <h3>¿Qué haces?</h3>
+      <button onclick="guardar(null,'buscar_docente',1)">Buscar docente</button>
+      <button onclick="guardar(null,'quedarse',2)">Quedarse</button>
+      <button onclick="guardar(null,'salir',3)">Salir</button>
+    `;
+  }
+}
+
+function guardar(item, accion, valor){
+  respuestas.push({
+    item: item,
+    accion: accion,
+    valor: valor
+  });
+
+  document.getElementById("panel").style.display = "none";
+}
+
+function finalizar(){
+  let resultado = {
+    escena: "conflicto_companero",
+    respuestas: respuestas
+  };
+
+  document.getElementById("resultado").innerText =
+    JSON.stringify(resultado, null, 2);
+}
+
+</script>
+
+</body>
+</html>
