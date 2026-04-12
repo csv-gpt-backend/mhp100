@@ -2,10 +2,12 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>mmmJuego Emocional Phaser</title>
+  <title>Jhuego Emocional Real</title>
+
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+
   <style>
-    body { margin:0; background:#111; }
+    body { margin:0; background:#000; }
   </style>
 </head>
 <body>
@@ -15,18 +17,25 @@ const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 500,
-  scene: { create }
+  scene: {
+    preload,
+    create
+  }
 };
 
 new Phaser.Game(config);
+
+function preload() {
+
+  // CARGAR PERSONAJE REAL
+  this.load.image('personaje', 'assets/character-female-a.png');
+
+}
 
 function create() {
 
   // Fondo
   this.add.rectangle(400, 250, 800, 500, 0x2c3e50);
-
-  // Piso
-  this.add.rectangle(400, 400, 800, 200, 0x34495e);
 
   // Texto
   this.add.text(20, 20, 'Tu compañero está molesto por el trabajo', {
@@ -34,59 +43,16 @@ function create() {
     color: '#ffffff'
   });
 
-  // Panel
-  let panel = this.add.rectangle(650, 250, 260, 300, 0xffffff).setVisible(false);
-  let textoPanel = this.add.text(550, 150, '', { color: '#000' });
+  // PERSONAJE PRINCIPAL
+  let player = this.add.image(300, 300, 'personaje').setScale(0.5);
 
-  function mostrarOpciones(opciones) {
-    panel.setVisible(true);
-    textoPanel.setText(opciones.join('\n'));
-  }
+  // COMPAÑERO (mismo sprite por ahora)
+  let companero = this.add.image(500, 300, 'personaje').setScale(0.5).setTint(0xff4444);
 
-  // Compañero
-  let comp = this.add.rectangle(200, 250, 80, 120, 0xe74c3c).setInteractive();
-  this.add.text(170, 320, 'Compañero', { color: '#fff' });
+  companero.setInteractive();
 
-  comp.on('pointerdown', () => {
-    mostrarOpciones([
-      'Hablar con calma',
-      'Pedir explicación',
-      'Responder molesto'
-    ]);
-  });
-
-  // Cuaderno
-  let cuad = this.add.rectangle(350, 350, 60, 40, 0xf1c40f).setInteractive();
-  this.add.text(320, 380, 'Cuaderno', { color: '#fff' });
-
-  cuad.on('pointerdown', () => {
-    mostrarOpciones([
-      'Corregir',
-      'Revisar',
-      'Ignorar'
-    ]);
-  });
-
-  // Celular
-  let cel = this.add.rectangle(150, 400, 30, 60, 0x1abc9c).setInteractive();
-  this.add.text(130, 470, 'Celular', { color: '#fff' });
-
-  cel.on('pointerdown', () => {
-    mostrarOpciones([
-      'Guardar celular',
-      'Usar celular'
-    ]);
-  });
-
-  // Puerta
-  let puerta = this.add.rectangle(700, 250, 80, 160, 0x8e44ad).setInteractive();
-  this.add.text(680, 340, 'Puerta', { color: '#fff' });
-
-  puerta.on('pointerdown', () => {
-    mostrarOpciones([
-      'Buscar docente',
-      'Salir'
-    ]);
+  companero.on('pointerdown', () => {
+    alert("Interacción real: estás hablando con el compañero");
   });
 
 }
