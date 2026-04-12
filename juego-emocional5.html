@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title> 1 pasoJuego Emocional Escolar v2</title>
+  <style>
+    :root{
+      --bg:#eef2f7;
+      --panel:#ffffff;
+      --ink:#172033;
+      --muted:#63708a;
+      --accent:#1e40af;
+      --ok:#15803d;
+      --warn:#b45309;
+      --line:#d9e1ee;
+      --shadow:0 14px 34px rgba(15,23,42,.12);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:var(--ink);background:linear-gradient(180deg,#e9eef6 0%,#f7f9fc 100%)}
+    .app{max-width:1180px;margin:0 auto;padding:18px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+    .brand{display:flex;gap:14px;align-items:center}
+    .badge{width:54px;height:54px;border-radius:16px;background:linear-gradient(145deg,#dbe5f6,#ffffff);border:1px solid #c8d3e6;display:grid;place-items:center;box-shadow:var(--shadow);font-weight:800;color:#334155}
+    .title h1{margin:0;font-size:24px}.title p{margin:4px 0 0;color:var(--muted)}
+    .pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:#334155;box-shadow:var(--shadow);font-size:14px}
+    .layout{display:grid;grid-template-columns:1.35fr .85fr;gap:16px;align-items:start}
+    .scene-card,.side-card{background:var(--panel);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}
+    .scene-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)}
+    .scene-head strong{font-size:18px}.scene-head span{color:var(--muted);font-size:14px}
+    .scene{position:relative;min-height:680px;background:linear-gradient(180deg,#d7e3f4 0 24%,#f5f8fc 24% 72%,#d6ddeb 72% 100%)}
+    .back-wall{position:absolute;inset:0 0 28% 0;background:linear-gradient(180deg,#d8e3f4,#edf4fb)}
+    .floor{position:absolute;left:0;right:0;bottom:0;height:28%;background:linear-gradient(180deg,#ccd5e4,#b9c4d6)}
+    .window{position:absolute;left:8%;top:9%;width:18%;height:18%;border:8px solid #f6f9ff;background:linear-gradient(180deg,#9cc8f3,#d8eefc);box-shadow:inset 0 0 0 1px #abc4e2}
+    .board{position:absolute;left:34%;top:10%;width:30%;height:16%;border-radius:8px;background:#20543f;color:#e8f8ec;padding:12px 14px;font-weight:700;box-shadow:0 8px 18px rgba(0,0,0,.12)}
+    .clock{position:absolute;right:10%;top:9%;width:72px;height:72px;border-radius:50%;background:#fff;border:5px solid #d6deec;box-shadow:var(--shadow)}
+    .clock:before,.clock:after{content:"";position:absolute;left:50%;top:50%;background:#334155;transform-origin:bottom center}
+    .clock:before{width:3px;height:18px;transform:translate(-50%,-100%) rotate(25deg)}
+    .clock:after{width:3px;height:24px;transform:translate(-50%,-100%) rotate(120deg)}
+    .teacher-desk,.student-desk,.student-desk2,.student-desk3{position:absolute;border-radius:16px;background:linear-gradient(180deg,#b07b4f,#8b5e3c);box-shadow:0 12px 20px rgba(0,0,0,.14)}
+    .teacher-desk{left:58%;top:35%;width:26%;height:15%}.student-desk{left:12%;top:47%;width:23%;height:14%}.student-desk2{left:40%;top:51%;width:23%;height:14%}.student-desk3{left:68%;top:56%;width:23%;height:14%}
+    .chair,.chair2,.chair3,.chair4{position:absolute;border-radius:10px;background:#58657b}
+    .chair{left:18%;top:62%;width:10%;height:8%}.chair2{left:47%;top:66%;width:10%;height:8%}.chair3{left:74%;top:71%;width:10%;height:8%}.chair4{left:67%;top:48%;width:10%;height:8%}
+    .clickable{position:absolute;border:2px solid transparent;border-radius:18px;cursor:pointer;transition:.18s ease;background:transparent}
+    .clickable:hover{transform:translateY(-2px) scale(1.02);border-color:#60a5fa;box-shadow:0 0 0 5px rgba(96,165,250,.16)}
+    .clickable.done{border-color:#16a34a; box-shadow:0 0 0 4px rgba(22,163,74,.16)}
+    .hotspot-label{position:absolute;left:50%;bottom:-28px;transform:translateX(-50%);background:rgba(15,23,42,.88);color:#fff;border-radius:999px;padding:5px 10px;font-size:12px;white-space:nowrap}
+    .notebook{left:17%;top:51%;width:11%;height:7%;background:linear-gradient(180deg,#fdfefe,#e7edf7)}
+    .notebook:before{content:"";position:absolute;left:8%;right:8%;top:20%;height:2px;background:#cbd5e1;box-shadow:0 8px 0 #cbd5e1,0 16px 0 #cbd5e1}
+    .notebook:after{content:"!";position:absolute;right:8px;top:4px;color:#dc2626;font-weight:800;font-size:24px}
+    .classmate{left:42%;top:38%;width:14%;height:22%}
+    .classmate .head{position:absolute;left:50%;transform:translateX(-50%);top:0;width:54px;height:54px;border-radius:50%;background:#f3d1b0;border:1px solid rgba(0,0,0,.08)}
+    .classmate .body{position:absolute;left:50%;transform:translateX(-50%);top:48px;width:84px;height:88px;border-radius:16px;background:#8b5cf6}
+    .classmate .bubble{position:absolute;right:-18px;top:10px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:8px 10px;font-size:12px;box-shadow:var(--shadow);width:114px;text-align:center}
+    .classmate .bubble strong{display:block;color:#b91c1c}
+    .phone{left:73%;top:59%;width:6%;height:10%;background:linear-gradient(180deg,#1f2937,#334155);border-radius:14px;border:3px solid #0f172a}
+    .phone:before{content:"";position:absolute;left:50%;transform:translateX(-50%);top:10px;width:40%;height:4px;border-radius:999px;background:#94a3b8}
+    .phone:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:8px;width:12px;height:12px;border-radius:50%;border:2px solid #94a3b8}
+    .door{right:4%;top:26%;width:12%;height:38%;background:linear-gradient(180deg,#8b6d57,#6b4f3e);border-radius:12px 12px 0 0;border:4px solid #5d4638}
+    .door:before{content:"";position:absolute;right:12px;top:50%;width:12px;height:12px;border-radius:50%;background:#fbbf24}
+    .taskbar{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);border-top:1px solid var(--line);backdrop-filter: blur(8px);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .taskbar strong{font-size:15px}.taskbar span{color:var(--muted);font-size:14px}
+    .btn{border:none;border-radius:999px;padding:11px 16px;font-weight:700;cursor:pointer;background:#e5ecf8;color:#1e293b}.btn.primary{background:var(--accent);color:#fff}.btn.success{background:var(--ok);color:#fff}.btn:disabled{opacity:.55;cursor:default}
+    .side-card{padding:18px}.side-card h3{margin:0 0 10px;font-size:18px}.side-card p{margin:0 0 12px;color:var(--muted);line-height:1.45}
+    .log{display:grid;gap:10px;margin-top:10px}.log-item{background:#f8fafc;border:1px solid #e5edf7;border-radius:16px;padding:12px}.log-item strong{display:block;margin-bottom:4px;font-size:14px}.log-item span{font-size:13px;color:#64748b}
+    .metric{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#f8fafc;border:1px solid #e7eef8;border-radius:16px;padding:10px 12px;margin-top:10px}.metric b{font-size:14px}.metric small{color:var(--muted)}.metric .value{font-weight:800;color:#0f172a}
+    .metric .low{color:#16a34a}.metric .mid{color:#0f172a}.metric .high{color:#b45309}
+    .modal{position:fixed;inset:0;background:rgba(15,23,42,.48);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}.modal.open{display:flex}
+    .dialog{width:min(560px,100%);background:#fff;border-radius:24px;box-shadow:0 24px 60px rgba(15,23,42,.28);overflow:hidden;border:1px solid #e2e8f0}
+    .dialog-head{padding:18px 20px;border-bottom:1px solid #e2e8f0;background:linear-gradient(180deg,#fff,#f8fbff)}.dialog-head h4{margin:0;font-size:20px}.dialog-head p{margin:6px 0 0;color:var(--muted)}
+    .choices{padding:16px;display:grid;gap:10px}.choice{width:100%;text-align:left;border:1px solid #dbe6f4;background:#f8fbff;border-radius:16px;padding:14px;cursor:pointer;transition:.16s ease;font-size:15px;color:#172033}.choice:hover{transform:translateY(-1px);border-color:#93c5fd;background:#eef6ff}
+    .choice small{display:block;color:#64748b;margin-top:4px}
+    .dialog-foot{padding:0 16px 16px}.result{margin-top:12px;padding:14px;border-radius:16px;background:#f6fdf7;border:1px solid #cdeed4;color:#14532d;display:none}.result.warn{background:#fffaf0;border-color:#f6d7a7;color:#92400e}
+    .end-screen{display:none;padding:18px}.end-screen.show{display:block}.score-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.score-box{background:#f8fafc;border:1px solid #e5edf7;border-radius:18px;padding:14px}.score-box strong{display:block;margin-bottom:6px}.score-box span{font-size:24px;font-weight:800}.note{margin-top:10px;color:#64748b;font-size:13px;line-height:1.45}
+    .map-box{margin-top:14px;padding:12px;border-radius:16px;background:#f8fbff;border:1px solid #deebff}.map-box code{display:block;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:#334155}
+    @media (max-width:980px){.layout{grid-template-columns:1fr}.scene{min-height:620px}}
+    @media (max-width:640px){.app{padding:12px}.title h1{font-size:20px}.scene{min-height:560px}.scene-head{align-items:flex-start;flex-direction:column}.score-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge">IE</div>
+        <div class="title">
+          <h1>Juego Emocional Escolar · v2</h1>
+          <p>Escena pequeña pero real · basada en la escala 1/2/3 de tu evaluación</p>
+        </div>
+      </div>
+      <div class="pill" id="statusPill">Objetos resueltos: 0 / 4</div>
+    </div>
+
+    <div class="layout">
+      <section class="scene-card">
+        <div class="scene-head">
+          <div>
+            <strong>Escena 1 · Aula</strong><br>
+            <span>Tu compañero está molesto por el trabajo. Explora el aula y actúa.</span>
+          </div>
+          <button class="btn primary" id="btnRestart">Reiniciar</button>
+        </div>
+
+        <div class="scene" id="scene">
+          <div class="back-wall"></div>
+          <div class="floor"></div>
+          <div class="window"></div>
+          <div class="board">Trabajo grupal<br><span style="font-size:13px;font-weight:500;opacity:.9">Revisión final</span></div>
+          <div class="clock"></div>
+          <div class="teacher-desk"></div>
+          <div class="student-desk"></div>
+          <div class="student-desk2"></div>
+          <div class="student-desk3"></div>
+          <div class="chair"></div>
+          <div class="chair2"></div>
+          <div class="chair3"></div>
+          <div class="chair4"></div>
+
+          <button class="clickable notebook" data-id="notebook" aria-label="Cuaderno con error">
+            <span class="hotspot-label">Cuaderno</span>
+          </button>
+
+          <button class="clickable classmate" data-id="classmate" aria-label="Compañero molesto">
+            <div class="head"></div>
+            <div class="body"></div>
+            <div class="bubble"><strong>Molesto</strong>“Esto salió mal”</div>
+            <span class="hotspot-label">Compañero</span>
+          </button>
+
+          <button class="clickable phone" data-id="phone" aria-label="Celular"></button>
+          <div style="position:absolute;left:71%;top:70%;font-size:12px;background:rgba(15,23,42,.88);color:#fff;border-radius:999px;padding:5px 10px;">Celular</div>
+
+          <button class="clickable door" data-id="door" aria-label="Puerta">
+            <span class="hotspot-label">Puerta</span>
+          </button>
+
+          <div class="taskbar">
+            <div>
+              <strong>Contexto</strong><br>
+              <span id="taskText">Resuelve la situación usando los objetos del aula.</span>
+            </div>
+            <button class="btn success" id="btnFinish" disabled>Ver resumen técnico</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-card">
+        <h3>Cómo puntúa</h3>
+        <p>Este prototipo ya usa la lógica base de tu evaluación: cada acción guarda un valor oculto de <strong>1 = Siempre</strong>, <strong>2 = Algunas veces</strong> o <strong>3 = Rara vez</strong>. En esta escena, <strong>1</strong> representa la respuesta más adecuada y <strong>3</strong> la menos adecuada.</p>
+
+        <div class="metric"><div><b>Compañero</b><br><small>Conflicto / reacción</small></div><div class="value" id="m-classmate">—</div></div>
+        <div class="metric"><div><b>Cuaderno</b><br><small>Responsabilidad</small></div><div class="value" id="m-notebook">—</div></div>
+        <div class="metric"><div><b>Celular</b><br><small>Enfoque</small></div><div class="value" id="m-phone">—</div></div>
+        <div class="metric"><div><b>Puerta</b><br><small>Afrontamiento</small></div><div class="value" id="m-door">—</div></div>
+
+        <h3 style="margin-top:18px">Registro de acciones</h3>
+        <div class="log" id="log"></div>
+
+        <div class="end-screen" id="endScreen">
+          <h3>Resumen técnico</h3>
+          <p>Este panel es solo de prueba. Sirve para verificar que el mini juego ya está guardando la escala 1/2/3 con base emocional.</p>
+          <div class="score-grid">
+            <div class="score-box"><strong>Total de escena</strong><span id="s-total">0</span></div>
+            <div class="score-box"><strong>Promedio</strong><span id="s-promedio">0.0</span></div>
+            <div class="score-box"><strong>Lectura</strong><span id="s-lectura" style="font-size:18px">—</span></div>
+            <div class="score-box"><strong>Objetos resueltos</strong><span id="s-objetos">0/4</span></div>
+          </div>
+          <div class="map-box">
+            <strong>Mapa actual de valores</strong>
+            <code>Compañero: pedir explicación = 1 · hablar con calma = 2 · responder molesto = 3
+Cuaderno: corregirlo = 1 · revisarlo = 2 · ignorarlo = 3
+Celular: guardarlo = 1 · escribir a alguien = 2 · distraerte = 3
+Puerta: buscar al docente = 1 · quedarte = 2 · salir del aula = 3</code>
+          </div>
+          <div class="note">En tu evaluación base, la escala visible es 1 = Siempre, 2 = Algunas veces, 3 = Rara vez. Aquí ya queda llevada a acciones jugables.</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="dialog">
+      <div class="dialog-head">
+        <h4 id="modalTitle">Objeto</h4>
+        <p id="modalText">Elige una acción.</p>
+      </div>
+      <div class="choices" id="choices"></div>
+      <div class="dialog-foot"><div class="result" id="resultBox"></div></div>
+    </div>
+  </div>
+
+  <script>
+    const DATA = {
+      classmate: {
+        title: 'Compañero molesto',
+        text: 'Este bloque está amarrado al conflicto: cuando alguien se enoja contigo, ¿cómo actúas?',
+        doneText: 'Resuelto: manejo de conflicto.',
+        choices: [
+          { label: 'Pedir explicación', helper: 'Valor oculto: 1 = Siempre', value: 1, feedback: 'Elegiste la conducta más adecuada para esta escena.', source: 'conflicto' },
+          { label: 'Hablar con calma', helper: 'Valor oculto: 2 = Algunas veces', value: 2, feedback: 'Elegiste una conducta intermedia y funcional.', source: 'conflicto' },
+          { label: 'Responder molesto', helper: 'Valor oculto: 3 = Rara vez', value: 3, feedback: 'Elegiste la conducta menos adecuada para esta escena.', source: 'conflicto', warn: true }
+        ]
+      },
+      notebook: {
+        title: 'Cuaderno con error',
+        text: 'Notas un error visible en el trabajo del equipo.',
+        doneText: 'Resuelto: manejo de error.',
+        choices: [
+          { label: 'Corregirlo', helper: 'Valor oculto: 1 = Siempre', value: 1, feedback: 'Asumiste la corrección del problema.' },
+          { label: 'Revisarlo', helper: 'Valor oculto: 2 = Algunas veces', value: 2, feedback: 'Observaste antes de decidir del todo.' },
+          { label: 'Ignorarlo', helper: 'Valor oculto: 3 = Rara vez', value: 3, feedback: 'Dejaste el problema abierto.', warn: true }
+        ]
+      },
+      phone: {
+        title: 'Celular',
+        text: 'Te llega una notificación justo en medio del conflicto.',
+        doneText: 'Resuelto: foco y distractor.',
+        choices: [
+          { label: 'Guardarlo', helper: 'Valor oculto: 1 = Siempre', value: 1, feedback: 'Mantuviste el foco en la situación.' },
+          { label: 'Escribir a alguien', helper: 'Valor oculto: 2 = Algunas veces', value: 2, feedback: 'Usaste el recurso, pero saliste parcialmente de la escena.' },
+          { label: 'Distraerte', helper: 'Valor oculto: 3 = Rara vez', value: 3, feedback: 'El distractor te sacó del conflicto real.', warn: true }
+        ]
+      },
+      door: {
+        title: 'Puerta',
+        text: 'Puedes salir, quedarte o buscar apoyo.',
+        doneText: 'Resuelto: afrontamiento.',
+        choices: [
+          { label: 'Buscar al docente', helper: 'Valor oculto: 1 = Siempre', value: 1, feedback: 'Buscaste apoyo funcional sin abandonar el problema.' },
+          { label: 'Quedarte', helper: 'Valor oculto: 2 = Algunas veces', value: 2, feedback: 'Te mantuviste en la escena para afrontar la situación.' },
+          { label: 'Salir del aula', helper: 'Valor oculto: 3 = Rara vez', value: 3, feedback: 'Evitaste directamente el problema.', warn: true }
+        ]
+      }
+    };
+
+    const state = { resolved: {}, values: {}, logs: [] };
+    const statusPill = document.getElementById('statusPill');
+    const taskText = document.getElementById('taskText');
+    const btnFinish = document.getElementById('btnFinish');
+    const logEl = document.getElementById('log');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalText = document.getElementById('modalText');
+    const choicesEl = document.getElementById('choices');
+    const resultBox = document.getElementById('resultBox');
+    const endScreen = document.getElementById('endScreen');
+    const metricEls = {
+      classmate: document.getElementById('m-classmate'),
+      notebook: document.getElementById('m-notebook'),
+      phone: document.getElementById('m-phone'),
+      door: document.getElementById('m-door')
+    };
+
+    function scoreClass(v){ return v === 1 ? 'low' : v === 2 ? 'mid' : 'high'; }
+    function scoreLabel(v){ return v ? String(v) : '—'; }
+    function totalScore(){ return Object.values(state.values).reduce((a,b) => a + b, 0); }
+    function averageScore(){ const c = Object.keys(state.values).length; return c ? totalScore()/c : 0; }
+    function lectura(avg){
+      if (!avg) return '—';
+      if (avg <= 1.5) return 'Conducta adecuada';
+      if (avg <= 2.25) return 'Conducta intermedia';
+      return 'Conducta evitativa / reactiva';
+    }
+
+    function updateUI(){
+      const totalObjects = Object.keys(state.resolved).length;
+      statusPill.textContent = `Objetos resueltos: ${totalObjects} / 4`;
+      btnFinish.disabled = totalObjects < 4;
+      taskText.textContent = totalObjects < 4 ? 'Resuelve la situación usando los objetos del aula.' : 'Escenario completo. Ya puedes ver el resumen técnico.';
+      Object.keys(metricEls).forEach((k) => {
+        const el = metricEls[k];
+        const v = state.values[k];
+        el.textContent = scoreLabel(v);
+        el.className = `value ${v ? scoreClass(v) : ''}`;
+      });
+      document.getElementById('s-total').textContent = totalScore();
+      document.getElementById('s-promedio').textContent = averageScore().toFixed(1);
+      document.getElementById('s-lectura').textContent = lectura(averageScore());
+      document.getElementById('s-objetos').textContent = `${totalObjects}/4`;
+    }
+
+    function renderLog(){
+      if(!state.logs.length){
+        logEl.innerHTML = '<div class="log-item"><strong>Sin acciones aún</strong><span>Haz clic en un objeto del aula para empezar.</span></div>';
+        return;
+      }
+      logEl.innerHTML = state.logs.map(item => `\n        <div class="log-item">\n          <strong>${item.title}</strong>\n          <span>${item.choice} · Valor oculto ${item.value}</span>\n        </div>\n      `).join('');
+    }
+
+    function openModal(objectId){
+      if(state.resolved[objectId]) return;
+      const obj = DATA[objectId];
+      modalTitle.textContent = obj.title;
+      modalText.textContent = obj.text;
+      resultBox.style.display = 'none';
+      resultBox.className = 'result';
+      choicesEl.innerHTML = '';
+      obj.choices.forEach((choice, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.innerHTML = `<strong>${choice.label}</strong><small>${choice.helper}</small>`;
+        btn.addEventListener('click', () => chooseAction(objectId, idx));
+        choicesEl.appendChild(btn);
+      });
+      modal.classList.add('open');
+    }
+
+    function chooseAction(objectId, idx){
+      const obj = DATA[objectId];
+      const choice = obj.choices[idx];
+      state.resolved[objectId] = true;
+      state.values[objectId] = choice.value;
+      state.logs.unshift({ title: obj.title, choice: choice.label, value: choice.value });
+      const hotspot = document.querySelector(`.clickable[data-id="${objectId}"]`);
+      if(hotspot) hotspot.classList.add('done');
+      resultBox.textContent = `${choice.feedback} Guardado interno: ${choice.value}.`;
+      resultBox.className = choice.warn ? 'result warn' : 'result';
+      resultBox.style.display = 'block';
+      updateUI();
+      renderLog();
+      setTimeout(() => { modal.classList.remove('open'); }, 950);
+    }
+
+    function resetAll(){
+      state.resolved = {};
+      state.values = {};
+      state.logs = [];
+      document.querySelectorAll('.clickable').forEach(el => el.classList.remove('done'));
+      endScreen.classList.remove('show');
+      updateUI();
+      renderLog();
+    }
+
+    document.querySelectorAll('.clickable').forEach(el => el.addEventListener('click', () => openModal(el.dataset.id)));
+    modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('open'); });
+    document.getElementById('btnFinish').addEventListener('click', () => { endScreen.classList.add('show'); endScreen.scrollIntoView({ behavior:'smooth', block:'nearest' }); });
+    document.getElementById('btnRestart').addEventListener('click', resetAll);
+    resetAll();
+  </script>
+</body>
+</html>
