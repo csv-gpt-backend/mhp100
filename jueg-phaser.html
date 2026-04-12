@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Juego Emocional Phaser</title>
+
+  <!-- Phaser CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+    }
+  </style>
+</head>
+<body>
+
+<script>
+const config = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 500,
+  scene: {
+    preload,
+    create
+  }
+};
+
+let game = new Phaser.Game(config);
+
+function preload() {
+
+  // Fondo aula (color simulado)
+  this.load.image('fondo', 'https://i.imgur.com/8Qf6b5F.png');
+
+  // Objetos
+  this.load.image('companero', 'https://i.imgur.com/6X12bKz.png');
+  this.load.image('cuaderno', 'https://i.imgur.com/5ZQZ6kT.png');
+  this.load.image('celular', 'https://i.imgur.com/Qp7Z8kP.png');
+  this.load.image('puerta', 'https://i.imgur.com/9Yj8X9p.png');
+}
+
+function create() {
+
+  // Fondo
+  this.add.image(400, 250, 'fondo').setScale(0.8);
+
+  // Texto contexto
+  this.add.text(20, 20, 'Tu compañero está molesto por el trabajo', {
+    fontSize: '18px',
+    fill: '#ffffff'
+  });
+
+  // Panel
+  let panel = this.add.rectangle(650, 250, 260, 300, 0xffffff).setVisible(false);
+  let textoPanel = this.add.text(580, 140, '', { color: '#000' });
+
+  function mostrarOpciones(opciones) {
+    panel.setVisible(true);
+    textoPanel.setText(opciones.join('\n'));
+  }
+
+  // OBJETOS INTERACTIVOS
+
+  let comp = this.add.image(200, 200, 'companero').setInteractive();
+  comp.on('pointerdown', () => {
+    mostrarOpciones([
+      'Hablar con calma',
+      'Pedir explicación',
+      'Responder molesto'
+    ]);
+  });
+
+  let cuad = this.add.image(350, 300, 'cuaderno').setInteractive();
+  cuad.on('pointerdown', () => {
+    mostrarOpciones([
+      'Corregir',
+      'Revisar',
+      'Ignorar'
+    ]);
+  });
+
+  let cel = this.add.image(150, 350, 'celular').setInteractive();
+  cel.on('pointerdown', () => {
+    mostrarOpciones([
+      'Guardar celular',
+      'Usarlo'
+    ]);
+  });
+
+  let puerta = this.add.image(700, 200, 'puerta').setInteractive();
+  puerta.on('pointerdown', () => {
+    mostrarOpciones([
+      'Buscar docente',
+      'Salir'
+    ]);
+  });
+
+}
+</script>
+
+</body>
+</html>
