@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Juego emocional v3 - robusto</title>
+<style>
+body{margin:0;background:#111;font-family:Arial;}
+#game{position:relative;width:1000px;height:600px;margin:20px auto;
+background:url('aula.png') center/cover no-repeat;border-radius:12px;overflow:hidden}
+
+.char{position:absolute;width:60px;height:60px;border-radius:50%;cursor:pointer;
+display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold}
+
+#player{background:#10b981}
+.npc{background:#3b82f6}
+#npc2{background:#f59e0b}
+
+#hud{position:absolute;top:10px;left:10px;background:#fff;padding:8px;border-radius:8px;font-weight:bold}
+
+#dialog{position:absolute;bottom:0;left:0;width:100%;background:rgba(0,0,0,0.8);color:#fff;padding:20px;display:none}
+button{margin:5px;padding:10px;cursor:pointer}
+
+</style>
+</head>
+<body>
+
+<div id="game">
+
+<div id="hud">Misión: hablar con todos</div>
+
+<div id="player" class="char" style="left:200px;top:400px;">Tú</div>
+
+<div id="npc1" class="char npc" style="left:500px;top:380px;">A</div>
+<div id="npc2" class="char npc" style="left:750px;top:380px;">B</div>
+
+<div id="dialog"></div>
+
+</div>
+
+<script>
+let player = document.getElementById("player");
+let dialog = document.getElementById("dialog");
+
+let keys = {};
+let speed = 4;
+
+let progreso = {npc1:false,npc2:false};
+
+document.addEventListener("keydown",e=>keys[e.key]=true);
+document.addEventListener("keyup",e=>keys[e.key]=false);
+
+function loop(){
+  let x = player.offsetLeft;
+  let y = player.offsetTop;
+
+  if(keys["ArrowRight"]||keys["d"]) x+=speed;
+  if(keys["ArrowLeft"]||keys["a"]) x-=speed;
+  if(keys["ArrowUp"]||keys["w"]) y-=speed;
+  if(keys["ArrowDown"]||keys["s"]) y+=speed;
+
+  player.style.left = x+"px";
+  player.style.top = y+"px";
+
+  requestAnimationFrame(loop);
+}
+loop();
+
+function distancia(a,b){
+  return Math.hypot(a.offsetLeft-b.offsetLeft,a.offsetTop-b.offsetTop);
+}
+
+function abrirDialogo(tipo){
+  dialog.style.display="block";
+
+  if(tipo==="npc1"){
+    dialog.innerHTML=`
+    <b>Compañero molesto</b><br><br>
+    ¿Qué haces?<br>
+    <button onclick="respuesta('calma','npc1')">Calma</button>
+    <button onclick="respuesta('explicar','npc1')">Explicar</button>
+    <button onclick="respuesta('gritar','npc1')">Gritar</button>
+    `;
+  }
+
+  if(tipo==="npc2"){
+    dialog.innerHTML=`
+    <b>Docente</b><br><br>
+    ¿Qué haces?<br>
+    <button onclick="respuesta('pedir','npc2')">Pedir ayuda</button>
+    <button onclick="respuesta('evitar','npc2')">Evitar</button>
+    `;
+  }
+}
+
+function respuesta(op,npc){
+  if(npc==="npc1"){
+    if(op==="calma") alert("Mejor resultado");
+    if(op==="explicar") alert("Intermedio");
+    if(op==="gritar") alert("Peor resultado");
+  }
+
+  if(npc==="npc2"){
+    if(op==="pedir") alert("Bien");
+    if(op==="evitar") alert("Mal");
+  }
+
+  progreso[npc]=true;
+  dialog.style.display="none";
+
+  if(progreso.npc1 && progreso.npc2){
+    document.getElementById("hud").innerText="MISIÓN COMPLETA";
+  }
+}
+
+setInterval(()=>{
+  let npc1 = document.getElementById("npc1");
+  let npc2 = document.getElementById("npc2");
+
+  if(distancia(player,npc1)<80 && !progreso.npc1){
+    abrirDialogo("npc1");
+  }
+
+  if(distancia(player,npc2)<80 && !progreso.npc2){
+    abrirDialogo("npc2");
+  }
+
+},300);
+
+</script>
+
+</body>
+</html>
