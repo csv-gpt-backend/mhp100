@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Juego emocional v2</title>
+<style>
+  :root{
+    --w: 1000px;
+    --h: 620px;
+    --ui-bg: rgba(16,24,40,.82);
+    --ui-border: rgba(255,255,255,.14);
+    --text: #f8fafc;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    min-height:100vh;
+    display:grid;
+    place-items:center;
+    background:#dbe4ee;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#111827;
+  }
+  .wrap{ width:min(100%, calc(var(--w) + 24px)); padding:12px; }
+  .game-shell{
+    position:relative;
+    width:var(--w);
+    max-width:100%;
+    aspect-ratio:1000 / 620;
+    margin:0 auto;
+    overflow:hidden;
+    border-radius:18px;
+    box-shadow:0 18px 42px rgba(0,0,0,.18);
+    background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.08)), #cfd8e3;
+  }
+  .scene-bg{
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.04)),
+      url('aula.png') center/cover no-repeat;
+  }
+  .topbar{
+    position:absolute;
+    left:14px; top:14px; right:14px;
+    display:flex; justify-content:space-between; gap:12px;
+    z-index:5; pointer-events:none;
+  }
+  .pill{
+    pointer-events:auto;
+    background:rgba(255,255,255,.88);
+    border:1px solid rgba(0,0,0,.08);
+    color:#111827;
+    border-radius:999px;
+    padding:9px 14px;
+    font-weight:700;
+    font-size:14px;
+    box-shadow:0 4px 14px rgba(0,0,0,.08);
+  }
+  .hint{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:145px;
+    z-index:6;
+    background:rgba(255,255,255,.94);
+    color:#111827;
+    border-radius:12px;
+    padding:10px 14px;
+    font-weight:700;
+    font-size:14px;
+    box-shadow:0 10px 24px rgba(0,0,0,.14);
+    border:1px solid rgba(0,0,0,.08);
+    display:none;
+  }
+  .character{
+    position:absolute;
+    width:68px; height:68px;
+    border-radius:50%;
+    display:grid; place-items:center;
+    user-select:none;
+    transition:filter .18s ease, transform .12s ease, box-shadow .18s ease, background .2s ease;
+    box-shadow:0 10px 18px rgba(0,0,0,.18);
+  }
+  .character::before{
+    content:"";
+    position:absolute; inset:-6px;
+    border-radius:50%;
+    background:rgba(255,255,255,.16);
+    z-index:-1;
+  }
+  .character .face{
+    width:34px; height:34px;
+    border-radius:50%;
+    background:#f4c7a1;
+    position:relative;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,.08);
+  }
+  .character .body{
+    position:absolute;
+    width:36px; height:24px;
+    border-radius:14px 14px 10px 10px;
+    top:36px;
+  }
+  #player{ background:#14b8a6; }
+  #player .body{ background:#0f766e; }
+  #npc{ background:#60a5fa; }
+  #npc .body{ background:#1d4ed8; }
+  .hair{
+    position:absolute;
+    top:-2px; left:2px; right:2px;
+    height:12px;
+    border-radius:10px 10px 6px 6px;
+    background:#3f3f46;
+  }
+  .glasses{
+    position:absolute;
+    top:12px; left:4px;
+    width:26px; height:8px;
+    border-top:2px solid #111827;
+    border-bottom:2px solid transparent;
+  }
+  .glasses:before,.glasses:after{
+    content:"";
+    position:absolute; top:0;
+    width:9px; height:7px;
+    border:2px solid #111827;
+    border-radius:3px;
+  }
+  .glasses:before{ left:0; }
+  .glasses:after{ right:0; }
+  .eye{
+    position:absolute;
+    top:16px; width:4px; height:4px;
+    border-radius:50%; background:#111827;
+  }
+  .eye.left{ left:9px; }
+  .eye.right{ right:9px; }
+  .mouth{
+    position:absolute;
+    left:50%; transform:translateX(-50%);
+    bottom:6px;
+    width:12px; height:6px;
+    border-bottom:2px solid #7c2d12;
+    border-radius:0 0 10px 10px;
+  }
+  .npc-angry{ filter:saturate(1.05); }
+  .npc-angry .mouth{
+    width:12px; height:2px;
+    border-bottom:none;
+    background:#7f1d1d;
+    border-radius:2px;
+    bottom:9px;
+  }
+  .npc-calm{ box-shadow:0 0 0 4px rgba(34,197,94,.28), 0 10px 18px rgba(0,0,0,.18); }
+  .npc-tense{ box-shadow:0 0 0 4px rgba(239,68,68,.24), 0 10px 18px rgba(0,0,0,.18); }
+  .npc-neutral{ box-shadow:0 0 0 4px rgba(245,158,11,.20), 0 10px 18px rgba(0,0,0,.18); }
+
+  .dialog{
+    position:absolute;
+    left:18px; right:18px; bottom:18px;
+    z-index:8;
+    background:var(--ui-bg);
+    color:var(--text);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:18px;
+    padding:16px;
+    box-shadow:0 14px 30px rgba(0,0,0,.24);
+    display:none;
+    backdrop-filter: blur(6px);
+  }
+  .dialog h3{ margin:0 0 8px; font-size:18px; }
+  .dialog p{ margin:0 0 12px; line-height:1.35; color:#e5e7eb; }
+  .choices{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:10px;
+  }
+  .choice{
+    border:none; border-radius:12px;
+    padding:12px 10px;
+    font-size:14px; font-weight:700;
+    cursor:pointer;
+    transition:transform .08s ease, filter .18s ease;
+  }
+  .choice:hover{ filter:brightness(0.98); }
+  .choice:active{ transform:translateY(1px); }
+  .choice.good{ background:#dcfce7; color:#166534; }
+  .choice.mid{ background:#fef3c7; color:#92400e; }
+  .choice.bad{ background:#fee2e2; color:#991b1b; }
+
+  .feedback{
+    margin-top:12px;
+    padding:10px 12px;
+    border-radius:12px;
+    font-weight:700;
+    display:none;
+  }
+  .feedback.good{ background:rgba(34,197,94,.16); color:#dcfce7; }
+  .feedback.mid{ background:rgba(245,158,11,.16); color:#fde68a; }
+  .feedback.bad{ background:rgba(239,68,68,.16); color:#fecaca; }
+
+  .next{ margin-top:12px; display:none; justify-content:flex-end; }
+  .next button{
+    border:none; border-radius:999px;
+    padding:11px 18px;
+    font-weight:800; cursor:pointer;
+    background:#ffffff; color:#111827;
+  }
+
+  .legend{
+    position:absolute;
+    right:14px; top:60px;
+    z-index:5;
+    width:220px;
+    background:rgba(255,255,255,.9);
+    border-radius:14px;
+    padding:12px;
+    font-size:13px;
+    color:#111827;
+    box-shadow:0 10px 24px rgba(0,0,0,.12);
+  }
+  .legend b{ display:block; margin-bottom:6px; }
+  .legend div{ margin-top:4px; }
+
+  .result{
+    position:absolute; inset:0;
+    z-index:12;
+    display:none; place-items:center;
+    background:rgba(15,23,42,.58);
+    backdrop-filter: blur(4px);
+  }
+  .result-card{
+    width:min(560px, calc(100% - 28px));
+    background:white;
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 24px 50px rgba(0,0,0,.22);
+  }
+  .result-card h2{ margin:0 0 10px; }
+  .result-card p{ margin:0 0 12px; line-height:1.45; }
+  .result-actions{ display:flex; justify-content:flex-end; }
+  .result-actions button{
+    border:none; border-radius:999px;
+    padding:11px 18px;
+    font-weight:800; cursor:pointer;
+    background:#111827; color:white;
+  }
+
+  @media (max-width: 860px){
+    .legend{ width:180px; font-size:12px; }
+    .choices{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="game" class="game-shell">
+    <div class="scene-bg"></div>
+
+    <div class="topbar">
+      <div class="pill">Escena 1 · Aula</div>
+      <div class="pill" id="statusPill">Estado: explorando</div>
+    </div>
+
+    <div class="legend">
+      <b>Controles</b>
+      <div>Flechas o WASD para moverte</div>
+      <div>Acércate al compañero</div>
+      <div>Presiona <b>E</b> para interactuar</div>
+    </div>
+
+    <div id="hint" class="hint">Presiona E para hablar</div>
+
+    <div id="player" class="character" aria-label="Jugador">
+      <div class="face">
+        <div class="hair"></div>
+        <div class="glasses"></div>
+      </div>
+      <div class="body"></div>
+    </div>
+
+    <div id="npc" class="character npc-angry npc-tense" aria-label="Compañero">
+      <div class="face">
+        <div class="hair"></div>
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+        <div class="mouth"></div>
+      </div>
+      <div class="body"></div>
+    </div>
+
+    <div id="dialog" class="dialog">
+      <h3 id="dialogTitle">Tu compañero está molesto</h3>
+      <p id="dialogText">¿Qué haces?</p>
+
+      <div class="choices" id="choices">
+        <button class="choice good" data-choice="calma">Hablar con calma</button>
+        <button class="choice mid" data-choice="explicacion">Pedir explicación</button>
+        <button class="choice bad" data-choice="molesto">Responder molesto</button>
+      </div>
+
+      <div id="feedback" class="feedback"></div>
+
+      <div class="next" id="nextRow">
+        <button id="continueBtn">Continuar</button>
+      </div>
+    </div>
+
+    <div class="result" id="resultScreen">
+      <div class="result-card">
+        <h2>Escena completada</h2>
+        <p id="resultText"></p>
+        <div class="result-actions">
+          <button id="restartBtn">Volver a intentar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const player = document.getElementById('player');
+  const npc = document.getElementById('npc');
+  const hint = document.getElementById('hint');
+  const dialog = document.getElementById('dialog');
+  const choices = document.getElementById('choices');
+  const feedback = document.getElementById('feedback');
+  const nextRow = document.getElementById('nextRow');
+  const continueBtn = document.getElementById('continueBtn');
+  const statusPill = document.getElementById('statusPill');
+  const resultScreen = document.getElementById('resultScreen');
+  const resultText = document.getElementById('resultText');
+  const restartBtn = document.getElementById('restartBtn');
+
+  const state = {
+    x: 220, y: 468,
+    npcX: 600, npcY: 462,
+    speed: 3.2,
+    interacting: false,
+    interactionDone: false,
+    chosen: null,
+    nearNpc: false,
+    keys: {}
+  };
+
+  const bounds = { minX: 40, maxX: 920, minY: 390, maxY: 532 };
+
+  function setPosition(el, x, y){
+    el.style.left = (x - 34) + 'px';
+    el.style.top = (y - 34) + 'px';
+  }
+
+  function distance(ax, ay, bx, by){
+    return Math.hypot(ax - bx, ay - by);
+  }
+
+  function updateHint(){
+    hint.style.display = (state.nearNpc && !state.interacting && !state.interactionDone) ? 'block' : 'none';
+  }
+
+  function openDialog(){
+    if (state.interactionDone) return;
+    state.interacting = true;
+    dialog.style.display = 'block';
+    feedback.style.display = 'none';
+    nextRow.style.display = 'none';
+    statusPill.textContent = 'Estado: conversando';
+  }
+
+  function closeDialog(){
+    state.interacting = false;
+    dialog.style.display = 'none';
+    updateHint();
+    if (!state.interactionDone) statusPill.textContent = 'Estado: explorando';
+  }
+
+  function applyOutcome(choice){
+    state.chosen = choice;
+    choices.style.pointerEvents = 'none';
+    choices.style.opacity = '.72';
+    nextRow.style.display = 'flex';
+    feedback.style.display = 'block';
+    npc.classList.remove('npc-tense', 'npc-calm', 'npc-neutral');
+
+    if (choice === 'calma'){
+      feedback.className = 'feedback good';
+      feedback.textContent = 'La tensión baja. Tu compañero siente apertura para hablar.';
+      npc.classList.add('npc-calm');
+      statusPill.textContent = 'Estado: conflicto regulado';
+    } else if (choice === 'explicacion'){
+      feedback.className = 'feedback mid';
+      feedback.textContent = 'Tu compañero explica lo que pasó. La situación se estabiliza, pero queda algo de tensión.';
+      npc.classList.add('npc-neutral');
+      statusPill.textContent = 'Estado: tensión moderada';
+    } else {
+      feedback.className = 'feedback bad';
+      feedback.textContent = 'El conflicto aumenta. El compañero se pone más defensivo.';
+      npc.classList.add('npc-tense');
+      statusPill.textContent = 'Estado: conflicto escalado';
+    }
+  }
+
+  function finishScene(){
+    state.interactionDone = true;
+    closeDialog();
+    let msg = '';
+    if (state.chosen === 'calma'){
+      msg = 'Elegiste una respuesta serena y directa. La escena termina con una disminución clara de la tensión.';
+    } else if (state.chosen === 'explicacion'){
+      msg = 'Elegiste pedir explicación. La escena termina con apertura parcial y oportunidad de aclarar el problema.';
+    } else {
+      msg = 'Elegiste responder molesto. La escena termina con más fricción y peor clima interpersonal.';
+    }
+    resultText.textContent = msg;
+    resultScreen.style.display = 'grid';
+  }
+
+  function resetScene(){
+    state.x = 220;
+    state.y = 468;
+    state.interacting = false;
+    state.interactionDone = false;
+    state.chosen = null;
+    state.nearNpc = false;
+    choices.style.pointerEvents = 'auto';
+    choices.style.opacity = '1';
+    feedback.style.display = 'none';
+    nextRow.style.display = 'none';
+    statusPill.textContent = 'Estado: explorando';
+    npc.classList.remove('npc-calm', 'npc-neutral');
+    npc.classList.add('npc-tense');
+    resultScreen.style.display = 'none';
+    setPosition(player, state.x, state.y);
+    updateHint();
+  }
+
+  function loop(){
+    if (!state.interacting && !state.interactionDone){
+      let dx = 0, dy = 0;
+      if (state.keys['arrowleft'] || state.keys['a']) dx -= state.speed;
+      if (state.keys['arrowright'] || state.keys['d']) dx += state.speed;
+      if (state.keys['arrowup'] || state.keys['w']) dy -= state.speed;
+      if (state.keys['arrowdown'] || state.keys['s']) dy += state.speed;
+      state.x = Math.max(bounds.minX, Math.min(bounds.maxX, state.x + dx));
+      state.y = Math.max(bounds.minY, Math.min(bounds.maxY, state.y + dy));
+      setPosition(player, state.x, state.y);
+    }
+    state.nearNpc = distance(state.x, state.y, state.npcX, state.npcY) < 95;
+    updateHint();
+    requestAnimationFrame(loop);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    const key = e.key.toLowerCase();
+    state.keys[key] = true;
+    if (key === 'e' && state.nearNpc && !state.interactionDone && !state.interacting){
+      openDialog();
+    }
+    if (key === 'escape' && state.interacting){
+      closeDialog();
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    state.keys[e.key.toLowerCase()] = false;
+  });
+
+  choices.addEventListener('click', (e) => {
+    const btn = e.target.closest('.choice');
+    if (!btn) return;
+    applyOutcome(btn.dataset.choice);
+  });
+
+  continueBtn.addEventListener('click', finishScene);
+  restartBtn.addEventListener('click', resetScene);
+
+  npc.addEventListener('click', () => {
+    if (state.nearNpc && !state.interactionDone){
+      openDialog();
+    }
+  });
+
+  setPosition(player, state.x, state.y);
+  setPosition(npc, state.npcX, state.npcY);
+  loop();
+})();
+</script>
+</body>
+</html>
