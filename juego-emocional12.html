@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo impacto v2 - Juego emocional</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #0f172a;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 18px;
+  }
+
+  #game {
+    position: relative;
+    width: 1100px;
+    height: 650px;
+    background:
+      linear-gradient(rgba(0,0,0,.06), rgba(0,0,0,.18)),
+      url('aula.png') center/cover no-repeat;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+  }
+
+  #topbar {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    z-index: 20;
+  }
+
+  .pill {
+    background: rgba(255,255,255,.92);
+    color: #111827;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-weight: 800;
+    font-size: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.14);
+  }
+
+  #questPanel {
+    position: absolute;
+    right: 12px;
+    top: 62px;
+    width: 260px;
+    background: rgba(255,255,255,.92);
+    color: #111827;
+    border-radius: 16px;
+    padding: 14px;
+    z-index: 20;
+    box-shadow: 0 10px 22px rgba(0,0,0,.18);
+  }
+
+  #questPanel h3 {
+    margin: 0 0 10px;
+    font-size: 16px;
+  }
+
+  #questPanel ul {
+    padding-left: 18px;
+    margin: 0;
+  }
+
+  #questPanel li {
+    margin: 8px 0;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .done {
+    color: #16a34a;
+    text-decoration: line-through;
+  }
+
+  .character, .object {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: white;
+    user-select: none;
+    box-shadow: 0 10px 20px rgba(0,0,0,.22);
+    transition: transform .14s ease, filter .14s ease, box-shadow .2s ease, background .2s ease;
+  }
+
+  .character {
+    z-index: 10;
+  }
+
+  #player {
+    background: #10b981;
+    width: 58px;
+    height: 58px;
+  }
+
+  .clickable {
+    cursor: pointer;
+  }
+
+  .clickable:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 6px rgba(255,255,255,.18), 0 12px 22px rgba(0,0,0,.25);
+  }
+
+  #npc1 { background: #ef4444; }
+  #npc2 { background: #3b82f6; }
+  #npc3 { background: #f59e0b; }
+
+  .object {
+    border-radius: 16px;
+    width: 72px;
+    height: 72px;
+    font-size: 30px;
+    z-index: 8;
+  }
+
+  #desk { background: #8b5e3c; }
+  #phone { background: #111827; }
+  #door { background: #7c3aed; }
+  #board { background: #374151; color: #e5e7eb; }
+
+  .label {
+    position: absolute;
+    font-size: 12px;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,.8);
+    pointer-events: none;
+    z-index: 11;
+  }
+
+  #hint {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 150px;
+    background: rgba(255,255,255,.95);
+    color: #111827;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 800;
+    display: none;
+    z-index: 25;
+    box-shadow: 0 10px 20px rgba(0,0,0,.18);
+  }
+
+  #dialog {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    background: rgba(0,0,0,.84);
+    color: white;
+    border-radius: 18px;
+    padding: 18px;
+    display: none;
+    z-index: 30;
+    box-shadow: 0 18px 30px rgba(0,0,0,.3);
+  }
+
+  #dialogTitle {
+    margin: 0 0 8px;
+    font-size: 21px;
+  }
+
+  #dialogText {
+    margin: 0 0 14px;
+    color: #e5e7eb;
+    line-height: 1.4;
+    font-size: 15px;
+  }
+
+  #choices {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 10px;
+  }
+
+  #choices button {
+    border: none;
+    border-radius: 12px;
+    padding: 12px 10px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .good { background: #22c55e; color: white; }
+  .mid { background: #f59e0b; color: white; }
+  .bad { background: #ef4444; color: white; }
+
+  #feedback {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 16px;
+  }
+
+  #feedback.good { background: rgba(34,197,94,.2); color: #bbf7d0; }
+  #feedback.mid { background: rgba(245,158,11,.2); color: #fde68a; }
+  #feedback.bad { background: rgba(239,68,68,.2); color: #fecaca; }
+
+  #nextWrap {
+    display: none;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
+
+  #nextBtn {
+    border: none;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-weight: 800;
+    cursor: pointer;
+    background: white;
+    color: #111827;
+  }
+
+  #result {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.72);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+
+  #resultCard {
+    width: min(760px, calc(100% - 30px));
+    background: white;
+    color: #111827;
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 20px 44px rgba(0,0,0,.28);
+  }
+
+  #resultCard h2 { margin-top: 0; }
+  #resultCard p { line-height: 1.5; }
+
+  #scoreGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 18px 0;
+  }
+
+  .scoreBox {
+    background: #f3f4f6;
+    border-radius: 14px;
+    padding: 14px;
+  }
+
+  .scoreBox b {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #374151;
+  }
+
+  .scoreBox span {
+    font-size: 26px;
+    font-weight: 900;
+  }
+
+  #restartBtn {
+    border: none;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-weight: 800;
+    cursor: pointer;
+    background: #111827;
+    color: white;
+  }
+
+  .pulse {
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,.35); }
+    70% { transform: scale(1.04); box-shadow: 0 0 0 18px rgba(255,255,255,0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+  }
+
+  @media (max-width: 1200px) {
+    #game { width: 100%; height: 78vh; }
+    #choices { grid-template-columns: 1fr; }
+    #questPanel { width: 230px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="game">
+  <div id="topbar">
+    <div class="pill">Demo estratégico · Evaluación emocional gamificada</div>
+    <div class="pill" id="statusPill">Estado: explora y resuelve</div>
+  </div>
+
+  <div id="questPanel">
+    <h3>Objetivos</h3>
+    <ul>
+      <li id="q1">Habla con tu compañero molesto</li>
+      <li id="q2">Revisa el trabajo en el escritorio</li>
+      <li id="q3">Decide qué hacer con el celular</li>
+      <li id="q4">Consulta al docente</li>
+    </ul>
+  </div>
+
+  <div id="hud" class="pill" style="position:absolute; left:12px; top:62px; z-index:20;">
+    Progreso: <span id="progressText">0 / 4</span>
+  </div>
+
+  <div id="player" class="character" style="left:180px; top:500px;">Tú</div>
+
+  <div id="npc1" class="character clickable pulse" style="left:470px; top:430px;">😠</div>
+  <div class="label" style="left:458px; top:500px;">Compañero</div>
+
+  <div id="npc2" class="character clickable" style="left:820px; top:210px;">👩‍🏫</div>
+  <div class="label" style="left:832px; top:280px;">Docente</div>
+
+  <div id="npc3" class="character" style="left:220px; top:170px;">👥</div>
+  <div class="label" style="left:220px; top:240px;">Grupo</div>
+
+  <div id="desk" class="object clickable" style="left:620px; top:420px;">📄</div>
+  <div class="label" style="left:628px; top:500px;">Trabajo</div>
+
+  <div id="phone" class="object clickable" style="left:720px; top:500px;">📱</div>
+  <div class="label" style="left:736px; top:580px;">Celular</div>
+
+  <div id="door" class="object" style="left:930px; top:350px;">🚪</div>
+  <div class="label" style="left:950px; top:430px;">Puerta</div>
+
+  <div id="board" class="object" style="left:120px; top:80px;">📝</div>
+  <div class="label" style="left:125px; top:160px;">Pizarra</div>
+
+  <div id="hint">Presiona E para interactuar</div>
+
+  <div id="dialog">
+    <h2 id="dialogTitle"></h2>
+    <p id="dialogText"></p>
+    <div id="choices"></div>
+    <div id="feedback"></div>
+    <div id="nextWrap"><button id="nextBtn">Continuar</button></div>
+  </div>
+
+  <div id="result">
+    <div id="resultCard">
+      <h2>Escena completada</h2>
+      <p id="resultNarrative"></p>
+
+      <div id="scoreGrid">
+        <div class="scoreBox">
+          <b>Manejo del conflicto</b>
+          <span id="scoreConflict">0</span>
+        </div>
+        <div class="scoreBox">
+          <b>Responsabilidad</b>
+          <span id="scoreResponsibility">0</span>
+        </div>
+        <div class="scoreBox">
+          <b>Autocontrol</b>
+          <span id="scoreControl">0</span>
+        </div>
+      </div>
+
+      <p id="resultSummary"></p>
+      <button id="restartBtn">Volver a intentar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const player = document.getElementById('player');
+const hint = document.getElementById('hint');
+const dialog = document.getElementById('dialog');
+const dialogTitle = document.getElementById('dialogTitle');
+const dialogText = document.getElementById('dialogText');
+const choices = document.getElementById('choices');
+const feedback = document.getElementById('feedback');
+const nextWrap = document.getElementById('nextWrap');
+const nextBtn = document.getElementById('nextBtn');
+const statusPill = document.getElementById('statusPill');
+const progressText = document.getElementById('progressText');
+const result = document.getElementById('result');
+const resultNarrative = document.getElementById('resultNarrative');
+const resultSummary = document.getElementById('resultSummary');
+const restartBtn = document.getElementById('restartBtn');
+
+const entities = {
+  npc1: { el: document.getElementById('npc1'), x: 470, y: 430, type: 'npc1' },
+  npc2: { el: document.getElementById('npc2'), x: 820, y: 210, type: 'npc2' },
+  desk: { el: document.getElementById('desk'), x: 620, y: 420, type: 'desk' },
+  phone: { el: document.getElementById('phone'), x: 720, y: 500, type: 'phone' }
+};
+
+const questEls = {
+  npc1: document.getElementById('q1'),
+  desk: document.getElementById('q2'),
+  phone: document.getElementById('q3'),
+  npc2: document.getElementById('q4')
+};
+
+const state = {
+  x: 180,
+  y: 500,
+  vx: 0,
+  vy: 0,
+  speed: 0.75,
+  friction: 0.86,
+  maxSpeed: 6.5,
+  keys: {},
+  near: null,
+  dialogOpen: false,
+  currentInteraction: null,
+  completed: { npc1:false, desk:false, phone:false, npc2:false },
+  chosen: {},
+  scores: { conflict:0, responsibility:0, control:0 }
+};
+
+function setPos(el, x, y) {
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+}
+
+function distance(ax, ay, bx, by) {
+  return Math.hypot(ax - bx, ay - by);
+}
+
+function updateProgress() {
+  const done = Object.values(state.completed).filter(Boolean).length;
+  progressText.textContent = `${done} / 4`;
+
+  if (done === 4) {
+    statusPill.textContent = 'Estado: misión completa';
+    setTimeout(showResult, 500);
+  }
+}
+
+function markDone(key) {
+  if (!state.completed[key]) {
+    state.completed[key] = true;
+    questEls[key].classList.add('done');
+    updateProgress();
+  }
+}
+
+function showHint(text) {
+  hint.textContent = text;
+  hint.style.display = 'block';
+}
+
+function hideHint() {
+  hint.style.display = 'none';
+}
+
+function getInteractionData(type) {
+  const map = {
+    npc1: {
+      title: 'Tu compañero está molesto',
+      text: 'Dice que el trabajo salió mal y te mira con tensión. ¿Qué haces?',
+      options: [
+        { label: 'Hablar con calma', kind: 'good', effect: 'good', score: { conflict: 3 } },
+        { label: 'Pedir explicación', kind: 'mid', effect: 'mid', score: { conflict: 2 } },
+        { label: 'Responder molesto', kind: 'bad', effect: 'bad', score: { conflict: 0 } }
+      ]
+    },
+    desk: {
+      title: 'Revisión del trabajo',
+      text: 'En el escritorio hay un error visible en la tarea entregada. ¿Qué haces?',
+      options: [
+        { label: 'Corregir de inmediato', kind: 'good', effect: 'good', score: { responsibility: 3 } },
+        { label: 'Revisar antes de actuar', kind: 'mid', effect: 'mid', score: { responsibility: 2 } },
+        { label: 'Ignorarlo por ahora', kind: 'bad', effect: 'bad', score: { responsibility: 0 } }
+      ]
+    },
+    phone: {
+      title: 'Distracción en el conflicto',
+      text: 'Tu celular vibra justo en medio de la situación. ¿Qué haces?',
+      options: [
+        { label: 'Guardarlo y seguir', kind: 'good', effect: 'good', score: { control: 3 } },
+        { label: 'Mirarlo rápido', kind: 'mid', effect: 'mid', score: { control: 2 } },
+        { label: 'Distraerte con el celular', kind: 'bad', effect: 'bad', score: { control: 0 } }
+      ]
+    },
+    npc2: {
+      title: 'Consulta con la docente',
+      text: 'La docente está disponible. ¿Cómo te acercas para resolver la situación?',
+      options: [
+        { label: 'Explicar claramente lo ocurrido', kind: 'good', effect: 'good', score: { conflict: 1, responsibility: 1 } },
+        { label: 'Pedir ayuda sin mucho detalle', kind: 'mid', effect: 'mid', score: { conflict: 1 } },
+        { label: 'Evitar hablar del problema', kind: 'bad', effect: 'bad', score: { control: 0 } }
+      ]
+    }
+  };
+  return map[type];
+}
+
+function openDialog(type) {
+  if (state.completed[type]) return;
+  state.dialogOpen = true;
+  state.currentInteraction = type;
+  dialog.style.display = 'block';
+  feedback.style.display = 'none';
+  nextWrap.style.display = 'none';
+  choices.innerHTML = '';
+  statusPill.textContent = 'Estado: tomando decisión';
+
+  const data = getInteractionData(type);
+  dialogTitle.textContent = data.title;
+  dialogText.textContent = data.text;
+
+  data.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = opt.kind;
+    btn.textContent = opt.label;
+    btn.onclick = () => chooseOption(type, opt);
+    choices.appendChild(btn);
+  });
+}
+
+function closeDialog() {
+  dialog.style.display = 'none';
+  state.dialogOpen = false;
+  state.currentInteraction = null;
+  statusPill.textContent = 'Estado: explora y resuelve';
+}
+
+function applyReaction(type, effect) {
+  if (type === 'npc1') {
+    const npc = entities.npc1.el;
+    npc.classList.remove('pulse');
+    if (effect === 'good') {
+      npc.textContent = '🙂';
+      npc.style.background = '#22c55e';
+    } else if (effect === 'mid') {
+      npc.textContent = '😐';
+      npc.style.background = '#f59e0b';
+    } else {
+      npc.textContent = '😡';
+      npc.style.background = '#ef4444';
+    }
+  }
+
+  if (type === 'npc2') {
+    const npc = entities.npc2.el;
+    if (effect === 'good') {
+      npc.textContent = '👍';
+      npc.style.background = '#22c55e';
+    } else if (effect === 'mid') {
+      npc.textContent = '🤔';
+      npc.style.background = '#f59e0b';
+    } else {
+      npc.textContent = '😕';
+      npc.style.background = '#ef4444';
+    }
+  }
+
+  if (type === 'desk') {
+    entities.desk.el.textContent = effect === 'good' ? '✅' : effect === 'mid' ? '🔎' : '❌';
+  }
+
+  if (type === 'phone') {
+    entities.phone.el.textContent = effect === 'good' ? '🔕' : effect === 'mid' ? '📲' : '📱';
+  }
+}
+
+function chooseOption(type, opt) {
+  choices.style.pointerEvents = 'none';
+  choices.style.opacity = '.75';
+  feedback.style.display = 'block';
+  nextWrap.style.display = 'flex';
+
+  Object.keys(opt.score).forEach(k => {
+    state.scores[k] += opt.score[k];
+  });
+
+  state.chosen[type] = opt.label;
+  applyReaction(type, opt.effect);
+
+  feedback.className = '';
+  if (opt.effect === 'good') {
+    feedback.classList.add('good');
+    feedback.textContent = 'Buena decisión. El entorno responde de forma positiva.';
+  } else if (opt.effect === 'mid') {
+    feedback.classList.add('mid');
+    feedback.textContent = 'Respuesta intermedia. La situación mejora parcialmente.';
+  } else {
+    feedback.classList.add('bad');
+    feedback.textContent = 'La decisión complica la situación o la deja sin resolver.';
+  }
+
+  markDone(type);
+}
+
+function showResult() {
+  if (result.style.display === 'flex') return;
+  result.style.display = 'flex';
+
+  const c = state.scores.conflict;
+  const r = state.scores.responsibility;
+  const ct = state.scores.control;
+
+  document.getElementById('scoreConflict').textContent = c;
+  document.getElementById('scoreResponsibility').textContent = r;
+  document.getElementById('scoreControl').textContent = ct;
+
+  let summary = '';
+  if (c >= 5 && r >= 4 && ct >= 3) {
+    summary = 'El desempeño general muestra buen manejo emocional, responsabilidad y autocontrol. Este formato permite evaluar conducta dentro de una experiencia interactiva.';
+  } else if (c >= 3 || r >= 3 || ct >= 2) {
+    summary = 'El desempeño general es mixto: hay recursos adecuados, pero también áreas que pueden fortalecerse. El valor del juego está en capturar decisiones situadas.';
+  } else {
+    summary = 'El desempeño general muestra respuestas impulsivas o evitativas. Aquí aparece el valor del enfoque gamificado: hacer visible la conducta real.';
+  }
+
+  resultNarrative.textContent = 'Durante la escena, el jugador tuvo que regular un conflicto, atender una tarea y manejar distractores en tiempo real.';
+  resultSummary.textContent = summary;
+}
+
+nextBtn.onclick = () => {
+  choices.style.pointerEvents = 'auto';
+  choices.style.opacity = '1';
+  closeDialog();
+};
+
+restartBtn.onclick = () => {
+  location.reload();
+};
+
+function bindDirectClicks() {
+  entities.npc1.el.onclick = () => { if (!state.completed.npc1) openDialog('npc1'); };
+  entities.npc2.el.onclick = () => { if (!state.completed.npc2) openDialog('npc2'); };
+  entities.desk.el.onclick = () => { if (!state.completed.desk) openDialog('desk'); };
+  entities.phone.el.onclick = () => { if (!state.completed.phone) openDialog('phone'); };
+}
+
+document.addEventListener('keydown', e => {
+  state.keys[e.key.toLowerCase()] = true;
+
+  if (e.key.toLowerCase() === 'e' && state.near && !state.dialogOpen && !state.completed[state.near]) {
+    openDialog(state.near);
+  }
+});
+
+document.addEventListener('keyup', e => {
+  state.keys[e.key.toLowerCase()] = false;
+});
+
+function moveAmbient() {
+  const t = Date.now() / 500;
+  document.getElementById('npc3').style.transform = `translateY(${Math.sin(t) * 3}px)`;
+  entities.npc2.el.style.transform = `translateY(${Math.cos(t) * 2}px)`;
+}
+
+function loop() {
+  if (!state.dialogOpen) {
+    if (state.keys['arrowright'] || state.keys['d']) state.vx += state.speed;
+    if (state.keys['arrowleft'] || state.keys['a']) state.vx -= state.speed;
+    if (state.keys['arrowup'] || state.keys['w']) state.vy -= state.speed;
+    if (state.keys['arrowdown'] || state.keys['s']) state.vy += state.speed;
+
+    state.vx *= state.friction;
+    state.vy *= state.friction;
+
+    state.vx = Math.max(-state.maxSpeed, Math.min(state.maxSpeed, state.vx));
+    state.vy = Math.max(-state.maxSpeed, Math.min(state.maxSpeed, state.vy));
+
+    state.x += state.vx;
+    state.y += state.vy;
+
+    state.x = Math.max(40, Math.min(1000, state.x));
+    state.y = Math.max(90, Math.min(560, state.y));
+
+    setPos(player, state.x, state.y);
+
+    if (Math.abs(state.vx) > .2 || Math.abs(state.vy) > .2) {
+      player.style.transform = `scale(${1 + Math.sin(Date.now()/80)*0.03})`;
+    } else {
+      player.style.transform = 'scale(1)';
+    }
+
+    let found = null;
+    for (const key of ['npc1','desk','phone','npc2']) {
+      const ent = entities[key];
+      if (state.completed[key]) continue;
+      const d = distance(state.x, state.y, ent.x, ent.y);
+      if (d < 95) {
+        found = key;
+        break;
+      }
+    }
+
+    state.near = found;
+    if (found) {
+      showHint('Presiona E o haz clic para interactuar');
+    } else {
+      hideHint();
+    }
+  }
+
+  moveAmbient();
+  requestAnimationFrame(loop);
+}
+
+setPos(player, state.x, state.y);
+bindDirectClicks();
+loop();
+</script>
+
+</body>
+</html>
