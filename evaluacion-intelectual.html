@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Evaluación intelectual — modelo CHC (demostración)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --primary: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --ok: #15803d;
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html {
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: #f8fafc;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    .side-strip {
+      background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+      border-right: 1px solid #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .side-strip span {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      font-size: 18px;
+      color: #e0e7ff;
+      text-align: center;
+    }
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px 16px 48px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 1.25rem;
+      margin: 0 0 4px;
+      font-weight: 800;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin: 0 0 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    .sticky-head {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #f8fafc;
+      padding-top: 8px;
+      margin: 0 -4px 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .progress {
+      flex: 1;
+      height: 8px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+    .progress .bar {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.25s ease;
+    }
+    .pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 1rem;
+      margin: 0 0 10px;
+    }
+    .q {
+      margin-bottom: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .q:last-child { border-bottom: none; }
+    .q-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .q-text {
+      margin: 0 0 10px;
+      font-weight: 600;
+    }
+    .opts {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .opts label {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 400;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .opts label:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    .opts input { margin-top: 3px; accent-color: var(--primary); }
+    .opts label:has(input:checked) {
+      background: var(--primary-soft);
+      border-color: #93c5fd;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    button, .btn {
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn-ghost {
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+    .hidden { display: none !important; }
+    .consent label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+    .field input[type="text"] {
+      width: 100%;
+      max-width: 320px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .mem-box {
+      font-size: 2rem;
+      letter-spacing: 0.35em;
+      text-align: center;
+      padding: 20px;
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 10px;
+      font-weight: 700;
+      margin: 12px 0;
+    }
+    .mem-input {
+      font-size: 1.25rem;
+      letter-spacing: 0.2em;
+      text-align: center;
+      padding: 12px;
+      width: 100%;
+      max-width: 280px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+    }
+    .timer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+    .timer-badge.critical { background: #fee2e2; color: #991b1b; }
+    .gs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+    }
+    .gs-item {
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      text-align: center;
+      font-size: 1.4rem;
+      cursor: pointer;
+      user-select: none;
+      background: #fff;
+    }
+    .gs-item.marked {
+      background: #dcfce7;
+      border-color: #22c55e;
+      outline: 2px solid #22c55e;
+    }
+    .fig-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .fig-opt {
+      width: 72px;
+      height: 72px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: #fff;
+    }
+    .fig-opt svg { width: 56px; height: 56px; }
+    .fig-opt.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 12px 0;
+    }
+    .results-table th, .results-table td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    .results-table th { background: #f1f5f9; }
+    details.doc {
+      margin-top: 24px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 16px;
+      background: #fff;
+    }
+    details.doc summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    @media (max-width: 600px) {
+      .layout { grid-template-columns: 48px 1fr; }
+      .side-strip span { font-size: 14px; letter-spacing: 0.12em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="side-strip" aria-hidden="true"><span>CHC · COG</span></aside>
+    <main class="page">
+      <!-- Pantalla inicio -->
+      <section id="screen-intro" class="card">
+        <h1>Evaluación intelectual (modelo CHC)</h1>
+        <p class="sub">Versión demostración para uso educativo y de diseño. No sustituye un test estandarizado ni un informe clínico.</p>
+        <p>La prueba incluye bloques breves alineados con factores <strong>Gf, Gc, Gwm, Gs, Gv</strong> y un bloque corto de <strong>memoria asociativa (Glr)</strong>. Puede interrumpirse; se recomienda completar en un solo intento (aprox. 35–50 minutos).</p>
+        <div class="field">
+          <label for="part-name">Nombre o código (opcional)</label>
+          <input type="text" id="part-name" placeholder="Ej. participante 01" autocomplete="name" />
+        </div>
+        <div class="consent card" style="background:#fffbeb;border-color:#fcd34d;">
+          <label>
+            <input type="checkbox" id="consent-check" />
+            <span>He leído que los resultados son orientativos, que los datos se procesan de forma local en este navegador y que el uso responsable requiere interpretación profesional cuando aplique.</span>
+          </label>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-primary" id="btn-start" disabled>Comenzar prueba</button>
+        </div>
+      </section>
+
+      <!-- Bloques (se muestran uno a uno) -->
+      <section id="screen-blocks" class="hidden">
+        <div class="sticky-head">
+          <div class="progress-wrap">
+            <span id="step-label">Bloque</span>
+            <div class="progress" aria-hidden="true"><div class="bar" id="prog-bar"></div></div>
+          </div>
+        </div>
+        <div id="block-container"></div>
+        <div class="btn-row">
+          <button type="button" class="btn-ghost hidden" id="btn-prev">Anterior</button>
+          <button type="button" class="btn-primary" id="btn-next">Siguiente</button>
+        </div>
+      </section>
+
+      <!-- Resultados -->
+      <section id="screen-results" class="hidden">
+        <div class="card">
+          <span class="pill">Resultados orientativos</span>
+          <h2>Resumen por factor CHC</h2>
+          <p class="sub" id="res-participant"></p>
+          <table class="results-table" id="results-table">
+            <thead>
+              <tr><th>Factor</th><th>Puntos</th><th>Máx.</th><th>%</th></tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+          <p id="res-total" style="font-weight:700;"></p>
+          <p class="sub" style="margin-top:12px;">Los porcentajes son sobre el máximo alcanzable en esta demostración. Para baremos reales se requiere estandarización con muestra propia.</p>
+          <div class="btn-row">
+            <button type="button" class="btn-primary" id="btn-restart">Hacer de nuevo</button>
+          </div>
+        </div>
+      </section>
+
+      <details class="doc" id="doc-chc">
+        <summary>Documentación breve: modelo CHC</summary>
+        <p style="margin-top:12px;"><strong>CHC</strong> (Cattell–Horn–Carroll) describe habilidades cognitivas en factores amplios (p. ej. <code>Gf</code> razonamiento fluido, <code>Gc</code> conocimiento cristalizado, <code>Gwm</code> memoria de trabajo, <code>Gs</code> velocidad, <code>Gv</code> visual-espacial). Esta página es una demostración técnica; no reproduce ítems ni normas de tests comerciales.</p>
+      </details>
+    </main>
+  </div>
+
+  <script>
+(function () {
+  "use strict";
+
+  const state = {
+    step: 0,
+    answers: {},
+    memTrials: [],
+    gwmTrialIndex: 0,
+    gsStart: null,
+    gsMarked: new Set()
+  };
+
+  const STEPS = [
+    { id: "gf", label: "A · Razonamiento fluido (Gf)", factor: "Gf" },
+    { id: "gc", label: "B · Conocimiento verbal (Gc)", factor: "Gc" },
+    { id: "gwm", label: "C · Memoria de trabajo (Gwm)", factor: "Gwm" },
+    { id: "gs", label: "D · Velocidad (Gs)", factor: "Gs" },
+    { id: "gv", label: "E · Visual-espacial (Gv)", factor: "Gv" },
+    { id: "glr", label: "F · Memoria asociativa (Glr)", factor: "Glr" }
+  ];
+
+  const ITEMS = {
+    gf: [
+      { id: "gf1", text: "Serie numérica: 3, 7, 11, 15, ?", options: [{ v: "a", t: "17" }, { v: "b", t: "19" }, { v: "c", t: "21" }, { v: "d", t: "23" }], correct: "b" },
+      { id: "gf2", text: "Serie: 2, 6, 18, 54, ?", options: [{ v: "a", t: "108" }, { v: "b", t: "162" }, { v: "c", t: "144" }, { v: "d", t: "216" }], correct: "b" },
+      { id: "gf3", text: "Si todas las rosas del jardín son flores y esta planta es una rosa, entonces:", options: [{ v: "a", t: "Seguro es un árbol" }, { v: "b", t: "Es una flor" }, { v: "c", t: "No puede ser flor" }, { v: "d", t: "Falta información" }], correct: "b" },
+      { id: "gf4", text: "¿Qué número falta? 1, 1, 2, 3, 5, 8, ?", options: [{ v: "a", t: "11" }, { v: "b", t: "12" }, { v: "c", t: "13" }, { v: "d", t: "10" }], correct: "c" },
+      { id: "gf5", text: "En un código, A=1, B=2, C=3… ¿Qué suma da la palabra CAB?", options: [{ v: "a", t: "6" }, { v: "b", t: "7" }, { v: "c", t: "8" }, { v: "d", t: "9" }], correct: "a" },
+      { id: "gf6", text: "Si NO es verde implica encender la luz, y la luz está apagada, entonces:", options: [{ v: "a", t: "Seguro es verde" }, { v: "b", t: "No puede deducirse sin más datos" }, { v: "c", t: "Seguro no es verde" }, { v: "d", t: "La luz está rota" }], correct: "b" },
+      { id: "gf7", text: "Patrón: Z, Y, X, W, ?", options: [{ v: "a", t: "U" }, { v: "b", t: "V" }, { v: "c", t: "T" }, { v: "d", t: "S" }], correct: "b" },
+      { id: "gf8", text: "Un cubo pintado se corta en 8 cubitos iguales. ¿Cuántas caras pintadas tiene como máximo un cubito de esquina?", options: [{ v: "a", t: "1" }, { v: "b", t: "2" }, { v: "c", t: "3" }, { v: "d", t: "4" }], correct: "c" }
+    ],
+    gc: [
+      { id: "gc1", text: "El término más cercano a «efímero» es:", options: [{ v: "a", t: "eterno" }, { v: "b", t: "pasajero" }, { v: "c", t: "pesado" }, { v: "d", t: "oscuro" }], correct: "b" },
+      { id: "gc2", text: "Analogía: «Libro» es a «leer» como «comida» es a:", options: [{ v: "a", t: "cocinar" }, { v: "b", t: "comer" }, { v: "c", t: "mesa" }, { v: "d", t: "hambre" }], correct: "b" },
+      { id: "gc3", text: "«Mitigar» se acerca más a:", options: [{ v: "a", t: "aumentar" }, { v: "b", t: "suavizar o reducir" }, { v: "c", t: "destruir" }, { v: "d", t: "imitar" }], correct: "b" },
+      { id: "gc4", text: "¿Cuál es un sinónimo de «prudente»?", options: [{ v: "a", t: "impulsivo" }, { v: "b", t: "cauto" }, { v: "c", t: "ruidoso" }, { v: "d", t: "rápido" }], correct: "b" },
+      { id: "gc5", text: "Complete: «La mayoría votó a favor; la decisión fue ___.»", options: [{ v: "a", t: "unánime" }, { v: "b", t: "controvertida" }, { v: "c", t: "por mayoría" }, { v: "d", t: "ilegal" }], correct: "c" },
+      { id: "gc6", text: "«Altruista» describe a quien:", options: [{ v: "a", t: "busca el lucro" }, { v: "b", t: "actúa en beneficio ajeno" }, { v: "c", t: "evita el contacto" }, { v: "d", t: "solo obedece órdenes" }], correct: "b" },
+      { id: "gc7", text: "Analogía: «Frío» es a «calor» como «seco» es a:", options: [{ v: "a", t: "viento" }, { v: "b", t: "húmedo" }, { v: "c", t: "nube" }, { v: "d", t: "invierno" }], correct: "b" },
+      { id: "gc8", text: "¿Qué significa «perseverar»?", options: [{ v: "a", t: "cambiar de idea a menudo" }, { v: "b", t: "mantener el esfuerzo pese a dificultades" }, { v: "c", t: "evitar responsabilidades" }, { v: "d", t: "trabajar sin descanso un solo día" }], correct: "b" }
+    ],
+    gv: [
+      { id: "gv1", text: "¿Qué figura completa la secuencia: círculo, cuadrado, círculo, cuadrado, ?", options: [], svgChoice: true, choices: ["circle", "square", "triangle", "hex"], correct: 0 },
+      { id: "gv2", text: "Vista de arriba de una cruz (+). ¿Cuántas piezas rectangulares iguales forman solo los brazos si el centro es un cuadrado?", options: [{ v: "a", t: "2" }, { v: "b", t: "4" }, { v: "c", t: "5" }, { v: "d", t: "6" }], correct: "b" },
+      { id: "gv3", text: "Si giras una «L» 90° en sentido horario, ¿qué forma predomina?", options: [{ v: "a", t: "Sigue pareciendo L" }, { v: "b", t: "Se vuelve una línea recta" }, { v: "c", t: "Se invierte como ┘" }, { v: "d", t: "Desaparece" }], correct: "c" },
+      { id: "gv4", text: "Un espejo refleja la palabra «TIMO». ¿Qué se lee mejor aproximadamente?", options: [{ v: "a", t: "OMIT" }, { v: "b", t: "TIMO igual" }, { v: "c", t: "MOIT" }, { v: "d", t: "OMTI" }], correct: "a" },
+      { id: "gv5", text: "Las dos diagonales de un cuadrado que se cruzan en el centro lo dividen en:", options: [{ v: "a", t: "2 triángulos" }, { v: "b", t: "4 triángulos" }, { v: "c", t: "6 triángulos" }, { v: "d", t: "8 triángulos" }], correct: "b" },
+      { id: "gv6", text: "Perspectiva: dos rectas paralelas en el papel se ven como:", options: [{ v: "a", t: "Siempre perpendiculares" }, { v: "b", t: "Paralelas o que convergen según la perspectiva" }, { v: "c", t: "Siempre curvas" }, { v: "d", t: "Un solo punto" }], correct: "b" }
+    ],
+    glr: [
+      { id: "glr1", text: "Empareje: «perro» iba con «ladrido». ¿Con qué iba «gato»?", options: [{ v: "a", t: "cola" }, { v: "b", t: "maullido" }, { v: "c", t: "pez" }, { v: "d", t: "casa" }], correct: "b" },
+      { id: "glr2", text: "Si «azul» se asoció a «cielo», la pareja coherente es «verde» y:", options: [{ v: "a", t: "fuego" }, { v: "b", t: "hierba" }, { v: "c", t: "noche" }, { v: "d", t: "hielo" }], correct: "b" },
+      { id: "glr3", text: "«Pan» se emparejó con «horno». «Pescado» va mejor con:", options: [{ v: "a", t: "red" }, { v: "b", t: "árbol" }, { v: "c", t: "coche" }, { v: "d", t: "papel" }], correct: "a" },
+      { id: "glr4", text: "Recordar pares: «clave–puerta». ¿Qué iba con «llave»?", options: [{ v: "a", t: "ventana" }, { v: "b", t: "cerradura" }, { v: "c", t: "pared" }, { v: "d", t: "suelo" }], correct: "b" },
+      { id: "glr5", text: "Asociación: «música»–«oído». «Aroma»–", options: [{ v: "a", t: "vista" }, { v: "b", t: "olfato" }, { v: "c", t: "gusto" }, { v: "d", t: "tacto" }], correct: "b" }
+    ]
+  };
+
+  const GWM_TRIALS = [
+    { id: "gwm1", seq: "4 8 1", mode: "forward" },
+    { id: "gwm2", seq: "7 2 9 3", mode: "forward" },
+    { id: "gwm3", seq: "5 1 6", mode: "reverse" },
+    { id: "gwm4", seq: "2 4 6 8 1", mode: "reverse" }
+  ];
+
+  const GS_TARGET = "★";
+  const GS_ITEMS = [
+    { id: "gs0", sym: "★" }, { id: "gs1", sym: "☆" }, { id: "gs2", sym: "★" },
+    { id: "gs3", sym: "●" }, { id: "gs4", sym: "★" }, { id: "gs5", sym: "◆" },
+    { id: "gs6", sym: "★" }, { id: "gs7", sym: "▲" }, { id: "gs8", sym: "★" },
+    { id: "gs9", sym: "■" }, { id: "gs10", sym: "★" }, { id: "gs11", sym: "▼" },
+    { id: "gs12", sym: "★" }, { id: "gs13", sym: "◇" }, { id: "gs14", sym: "★" },
+    { id: "gs15", sym: "○" }, { id: "gs16", sym: "★" }, { id: "gs17", sym: "◎" },
+    { id: "gs18", sym: "★" }, { id: "gs19", sym: "⊕" }
+  ];
+
+  function el(tag, props, html) {
+    const e = document.createElement(tag);
+    if (props) Object.assign(e, props);
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+
+  function renderMCBlock(items, factorPrefix) {
+    const wrap = el("div");
+    items.forEach((it, i) => {
+      const q = el("div", { className: "q" });
+      q.appendChild(el("div", { className: "q-num" }, factorPrefix + " · Ítem " + (i + 1)));
+      q.appendChild(el("p", { className: "q-text" }, it.text));
+      if (it.svgChoice) {
+        const row = el("div", { className: "fig-row" });
+        const shapes = [
+          '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#3b82f6"/></svg>',
+          '<svg viewBox="0 0 40 40"><rect x="4" y="4" width="32" height="32" fill="#8b5cf6"/></svg>',
+          '<svg viewBox="0 0 40 40"><polygon points="20,4 36,36 4,36" fill="#10b981"/></svg>',
+          '<svg viewBox="0 0 40 40"><polygon points="20,4 36,14 36,26 20,36 4,26 4,14" fill="#f59e0b"/></svg>'
+        ];
+        it.choices.forEach((ch, idx) => {
+          const lab = el("label", { className: "fig-opt" });
+          lab.innerHTML = shapes[idx];
+          const inp = el("input", { type: "radio", name: it.id, value: String(idx) });
+          lab.insertBefore(inp, lab.firstChild);
+          if (state.answers[it.id] === String(idx)) {
+            inp.checked = true;
+            lab.classList.add("selected");
+          }
+          inp.addEventListener("change", () => {
+            state.answers[it.id] = String(idx);
+            row.querySelectorAll(".fig-opt").forEach((x) => x.classList.remove("selected"));
+            lab.classList.add("selected");
+          });
+          row.appendChild(lab);
+        });
+        q.appendChild(row);
+      } else {
+        const opts = el("div", { className: "opts" });
+        it.options.forEach((o) => {
+          const lab = el("label");
+          const inp = el("input", { type: "radio", name: it.id, value: o.v });
+          if (state.answers[it.id] === o.v) inp.checked = true;
+          inp.addEventListener("change", () => { state.answers[it.id] = o.v; });
+          lab.appendChild(inp);
+          lab.appendChild(el("span", {}, o.t));
+          opts.appendChild(lab);
+        });
+        q.appendChild(opts);
+      }
+      wrap.appendChild(q);
+    });
+    return wrap;
+  }
+
+  function renderGWM() {
+    const wrap = el("div");
+
+    function showTrial() {
+      wrap.innerHTML = "";
+      const trialIndex = state.gwmTrialIndex;
+      if (trialIndex >= GWM_TRIALS.length) {
+        wrap.appendChild(el("p", {}, "Has completado los ejercicios de memoria de trabajo."));
+        return;
+      }
+      const t = GWM_TRIALS[trialIndex];
+      const instr = t.mode === "reverse"
+        ? "Memoriza la secuencia. Luego escríbela al revés (sin espacios, solo dígitos)."
+        : "Memoriza la secuencia. Luego escríbela en el mismo orden (sin espacios).";
+      wrap.appendChild(el("p", {}, instr));
+      const box = el("div", { className: "mem-box" }, t.seq.replace(/ /g, "  "));
+      wrap.appendChild(box);
+      const btn = el("button", { type: "button", className: "btn-primary" }, "Ocultar y responder");
+      const input = el("input", { type: "text", className: "mem-input", inputMode: "numeric", placeholder: "Escribe los dígitos", autocomplete: "off" });
+      input.classList.add("hidden");
+      const submit = el("button", { type: "button", className: "btn-primary hidden" }, "Confirmar respuesta");
+      btn.addEventListener("click", () => {
+        box.classList.add("hidden");
+        btn.classList.add("hidden");
+        input.classList.remove("hidden");
+        submit.classList.remove("hidden");
+        input.focus();
+      });
+      submit.addEventListener("click", () => {
+        const raw = input.value.replace(/\D/g, "");
+        const seq = t.seq.replace(/ /g, "");
+        let expected = seq;
+        if (t.mode === "reverse") expected = seq.split("").reverse().join("");
+        const ok = raw === expected;
+        state.memTrials.push({ id: t.id, ok, mode: t.mode });
+        state.answers[t.id] = ok ? "1" : "0";
+        state.gwmTrialIndex++;
+        showTrial();
+      });
+      wrap.appendChild(btn);
+      wrap.appendChild(input);
+      wrap.appendChild(submit);
+    }
+    showTrial();
+    return wrap;
+  }
+
+  let gsTimerId = null;
+  let gsSeconds = 45;
+
+  function renderGS() {
+    const wrap = el("div");
+    state.gsMarked = new Set();
+    state.answers.gs_time = null;
+    if (state.answers.gs_score != null) {
+      delete state.answers.gs_score;
+      delete state.answers.gs_max;
+    }
+    state.gsStart = null;
+    const badge = el("div", { className: "timer-badge", id: "gs-timer" }, "Tiempo: " + gsSeconds + " s");
+    wrap.appendChild(badge);
+    wrap.appendChild(el("p", {}, "Tienes " + gsSeconds + " segundos. Toca cada celda que muestre exactamente la figura objetivo: " + GS_TARGET + " (estrella rellena). Marca todas las que puedas antes de que termine el tiempo."));
+    const grid = el("div", { className: "gs-grid" });
+    GS_ITEMS.forEach((cell) => {
+      const d = el("div", { className: "gs-item" }, cell.sym);
+      d.dataset.id = cell.id;
+      d.addEventListener("click", () => {
+        if (!state.gsStart) return;
+        d.classList.toggle("marked");
+        if (d.classList.contains("marked")) state.gsMarked.add(cell.id);
+        else state.gsMarked.delete(cell.id);
+      });
+      grid.appendChild(d);
+    });
+    wrap.appendChild(grid);
+    const startBtn = el("button", { type: "button", className: "btn-primary" }, "Iniciar cronómetro y tarea");
+    startBtn.addEventListener("click", () => {
+      if (state.gsStart) return;
+      state.gsStart = Date.now();
+      startBtn.disabled = true;
+      let left = gsSeconds;
+      badge.textContent = "Tiempo: " + left + " s";
+      gsTimerId = setInterval(() => {
+        left--;
+        badge.textContent = "Tiempo: " + left + " s";
+        if (left <= 10) badge.classList.add("critical");
+        if (left <= 0) {
+          clearInterval(gsTimerId);
+          gsTimerId = null;
+          finishGS(wrap, badge, grid);
+        }
+      }, 1000);
+    });
+    wrap.appendChild(startBtn);
+    return wrap;
+  }
+
+  function finishGS(wrap, badge, grid) {
+    let hits = 0;
+    let falseAlarm = 0;
+    GS_ITEMS.forEach((cell) => {
+      const should = cell.sym === GS_TARGET;
+      const marked = state.gsMarked.has(cell.id);
+      if (should && marked) hits++;
+      if (!should && marked) falseAlarm++;
+    });
+    const score = Math.max(0, hits - falseAlarm);
+    state.answers.gs_score = String(score);
+    state.answers.gs_max = String(GS_ITEMS.filter((c) => c.sym === GS_TARGET).length);
+    badge.textContent = "Tiempo agotado · Aciertos netos: " + score;
+    badge.classList.remove("critical");
+    grid.querySelectorAll(".gs-item").forEach((d) => {
+      d.style.pointerEvents = "none";
+      const id = d.dataset.id;
+      const cell = GS_ITEMS.find((c) => c.id === id);
+      if (cell.sym === GS_TARGET) d.style.borderColor = "#22c55e";
+    });
+  }
+
+  function countAnsweredMc(items) {
+    return items.filter((it) => state.answers[it.id] != null && state.answers[it.id] !== "").length;
+  }
+
+  function validateCurrentStep() {
+    const step = STEPS[state.step];
+    if (step.id === "gf") {
+      if (countAnsweredMc(ITEMS.gf) < ITEMS.gf.length) {
+        alert("Responde todos los ítems de razonamiento fluido antes de continuar.");
+        return false;
+      }
+    }
+    if (step.id === "gc") {
+      if (countAnsweredMc(ITEMS.gc) < ITEMS.gc.length) {
+        alert("Responde todos los ítems verbales antes de continuar.");
+        return false;
+      }
+    }
+    if (step.id === "gwm") {
+      if (state.gwmTrialIndex < GWM_TRIALS.length) {
+        alert("Completa los cuatro ejercicios de memoria (memoriza y confirma cada uno).");
+        return false;
+      }
+    }
+    if (step.id === "gs") {
+      if (state.answers.gs_score == null) {
+        alert("Inicia el cronómetro, marca las estrellas objetivo y espera a que termine el tiempo.");
+        return false;
+      }
+    }
+    if (step.id === "gv") {
+      if (countAnsweredMc(ITEMS.gv) < ITEMS.gv.length) {
+        alert("Responde todos los ítems visuales antes de continuar.");
+        return false;
+      }
+    }
+    if (step.id === "glr") {
+      if (countAnsweredMc(ITEMS.glr) < ITEMS.glr.length) {
+        alert("Responde todos los ítems de asociación antes de finalizar.");
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function renderStep() {
+    const container = document.getElementById("block-container");
+    const step = STEPS[state.step];
+    const prog = ((state.step + 1) / STEPS.length) * 100;
+    document.getElementById("prog-bar").style.width = prog + "%";
+    document.getElementById("step-label").textContent = step.label + " (" + (state.step + 1) + "/" + STEPS.length + ")";
+    document.getElementById("btn-prev").classList.toggle("hidden", state.step === 0);
+    const nextBtn = document.getElementById("btn-next");
+    nextBtn.textContent = state.step >= STEPS.length - 1 ? "Ver resultados" : "Siguiente";
+
+    container.innerHTML = "";
+    const card = el("div", { className: "card" });
+    card.appendChild(el("span", { className: "pill" }, step.factor));
+    card.appendChild(el("h2", {}, step.label));
+
+    if (step.id === "gf") card.appendChild(renderMCBlock(ITEMS.gf, "Gf"));
+    else if (step.id === "gc") card.appendChild(renderMCBlock(ITEMS.gc, "Gc"));
+    else if (step.id === "gwm") card.appendChild(renderGWM());
+    else if (step.id === "gs") card.appendChild(renderGS());
+    else if (step.id === "gv") card.appendChild(renderMCBlock(ITEMS.gv, "Gv"));
+    else if (step.id === "glr") card.appendChild(renderMCBlock(ITEMS.glr, "Glr"));
+
+    container.appendChild(card);
+  }
+
+  function scoreGF() {
+    let n = 0;
+    ITEMS.gf.forEach((it) => {
+      if (state.answers[it.id] === it.correct) n++;
+    });
+    return { score: n, max: ITEMS.gf.length };
+  }
+
+  function scoreGC() {
+    let n = 0;
+    ITEMS.gc.forEach((it) => {
+      if (state.answers[it.id] === it.correct) n++;
+    });
+    return { score: n, max: ITEMS.gc.length };
+  }
+
+  function scoreGV() {
+    let n = 0;
+    ITEMS.gv.forEach((it) => {
+      const a = state.answers[it.id];
+      if (it.svgChoice) {
+        if (a === String(it.correct)) n++;
+      } else if (a === it.correct) n++;
+    });
+    return { score: n, max: ITEMS.gv.length };
+  }
+
+  function scoreGWM() {
+    let n = 0;
+    GWM_TRIALS.forEach((t) => {
+      if (state.answers[t.id] === "1") n++;
+    });
+    return { score: n, max: GWM_TRIALS.length };
+  }
+
+  function scoreGS() {
+    const max = GS_ITEMS.filter((c) => c.sym === GS_TARGET).length;
+    const s = parseInt(state.answers.gs_score, 10);
+    const sc = Number.isFinite(s) ? s : 0;
+    return { score: sc, max: max };
+  }
+
+  function scoreGLR() {
+    let n = 0;
+    ITEMS.glr.forEach((it) => {
+      if (state.answers[it.id] === it.correct) n++;
+    });
+    return { score: n, max: ITEMS.glr.length };
+  }
+
+  function showResults() {
+    document.getElementById("screen-blocks").classList.add("hidden");
+    document.getElementById("screen-results").classList.remove("hidden");
+
+    const gf = scoreGF();
+    const gc = scoreGC();
+    const gwm = scoreGWM();
+    const gs = scoreGS();
+    const gv = scoreGV();
+    const glr = scoreGLR();
+
+    const name = document.getElementById("part-name").value.trim();
+    document.getElementById("res-participant").textContent = name ? "Participante: " + name : "Participante: (sin nombre)";
+
+    const rows = [
+      { code: "Gf", label: "Razonamiento fluido", ...gf },
+      { code: "Gc", label: "Conocimiento verbal", ...gc },
+      { code: "Gwm", label: "Memoria de trabajo", ...gwm },
+      { code: "Gs", label: "Velocidad", ...gs },
+      { code: "Gv", label: "Visual-espacial", ...gv },
+      { code: "Glr", label: "Memoria asociativa", ...glr }
+    ];
+
+    const tbody = document.getElementById("results-body");
+    tbody.innerHTML = "";
+    let sumS = 0, sumM = 0;
+    rows.forEach((r) => {
+      sumS += r.score;
+      sumM += r.max;
+      const pct = r.max ? Math.round((r.score / r.max) * 100) : 0;
+      const tr = el("tr");
+      tr.innerHTML = "<td><strong>" + r.code + "</strong> · " + r.label + "</td><td>" + r.score + "</td><td>" + r.max + "</td><td>" + pct + "%</td>";
+      tbody.appendChild(tr);
+    });
+    const totalPct = sumM ? Math.round((sumS / sumM) * 100) : 0;
+    document.getElementById("res-total").textContent = "Total aproximado: " + sumS + " / " + sumM + " (" + totalPct + "%)";
+  }
+
+  document.getElementById("consent-check").addEventListener("change", (e) => {
+    document.getElementById("btn-start").disabled = !e.target.checked;
+  });
+
+  document.getElementById("btn-start").addEventListener("click", () => {
+    document.getElementById("screen-intro").classList.add("hidden");
+    document.getElementById("screen-blocks").classList.remove("hidden");
+    state.step = 0;
+    state.answers = {};
+    state.memTrials = [];
+    state.gwmTrialIndex = 0;
+    state.gsStart = null;
+    state.gsMarked = new Set();
+    if (gsTimerId) {
+      clearInterval(gsTimerId);
+      gsTimerId = null;
+    }
+    renderStep();
+  });
+
+  document.getElementById("btn-prev").addEventListener("click", () => {
+    if (state.step > 0) {
+      state.step--;
+      renderStep();
+    }
+  });
+
+  document.getElementById("btn-next").addEventListener("click", () => {
+    if (!validateCurrentStep()) return;
+    if (state.step < STEPS.length - 1) {
+      state.step++;
+      renderStep();
+    } else {
+      showResults();
+    }
+  });
+
+  document.getElementById("btn-restart").addEventListener("click", () => {
+    document.getElementById("screen-results").classList.add("hidden");
+    document.getElementById("screen-intro").classList.remove("hidden");
+    document.getElementById("consent-check").checked = false;
+    document.getElementById("btn-start").disabled = true;
+    if (gsTimerId) {
+      clearInterval(gsTimerId);
+      gsTimerId = null;
+    }
+  });
+})();
+  </script>
+</body>
+</html>
