@@ -2,38 +2,34 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>eEvaluación intelectual — modelo CHC (demostración)</title>
+  <title>CEvaluación intelectual — modelo CHC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --ink: #0f172a;
-      --muted: #64748b;
-      --line: #e2e8f0;
-      --primary: #1d4ed8;
-      --primary-soft: #eff6ff;
-      --ok: #15803d;
-      --card: #ffffff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #111827;
+      background: #ffffff;
+      --sbw: 0px;
     }
-    * { box-sizing: border-box; }
     html {
       overflow-y: scroll;
       scrollbar-gutter: stable;
+      padding-right: var(--sbw);
     }
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
-      background: #f8fafc;
-      color: var(--ink);
+      padding: 0;
+      background: #ffffff;
       font-size: 16px;
-      line-height: 1.5;
+      overflow-y: scroll;
     }
     .layout {
       display: grid;
-      grid-template-columns: 72px minmax(0, 1fr);
+      grid-template-columns: 80px minmax(0, 1fr);
       min-height: 100vh;
     }
     .side-strip {
-      background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+      background: #1e3a8a;
       border-right: 1px solid #1d4ed8;
       display: flex;
       align-items: center;
@@ -43,163 +39,138 @@
       writing-mode: vertical-rl;
       transform: rotate(180deg);
       font-weight: 800;
-      letter-spacing: 0.2em;
-      font-size: 18px;
-      color: #e0e7ff;
+      letter-spacing: 0.15em;
+      font-size: 20px;
       text-align: center;
+      color: #e0e7ff;
     }
     .page {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 16px 16px 48px;
+      max-width: 1000px;
       width: 100%;
+      box-sizing: border-box;
+      margin: 0 auto;
+      padding: 16px;
     }
-    h1 {
-      font-size: 1.25rem;
-      margin: 0 0 4px;
-      font-weight: 800;
-    }
-    .sub {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin: 0 0 16px;
-    }
+    header h1 { font-size: 19px; margin: 0 0 4px; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .ok { color: #16a34a; font-size: 13px; font-weight: 600; }
+    .err { color: #dc2626; font-size: 13px; font-weight: 600; }
     .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 18px 20px;
-      margin-bottom: 14px;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      background: #ffffff;
+      width: 100%;
+      box-sizing: border-box;
     }
-    .sticky-head {
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+    }
+    .field { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+    .field label { font-weight: 600; }
+    .field input {
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+    .field input[readonly] { background: #f9fafb; color: #4b5563; }
+    .instructions-header {
+      font-weight: 700;
+      text-align: center;
+      margin: 8px 0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #1d4ed8;
+      color: #ffffff;
+      font-size: 13px;
+    }
+    .sticky-wrap {
       position: sticky;
       top: 0;
-      z-index: 20;
-      background: #f8fafc;
+      z-index: 999;
+      background: #ffffff;
       padding-top: 8px;
-      margin: 0 -4px 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--line);
-    }
-    .progress-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.8rem;
-      color: var(--muted);
+      margin-top: 0;
+      border-bottom: 1px solid #e5e7eb;
     }
     .progress {
-      flex: 1;
+      width: 100%;
       height: 8px;
       border-radius: 999px;
-      background: #e2e8f0;
+      background: #e5e7eb;
       overflow: hidden;
+      margin-top: 4px;
     }
     .progress .bar {
       height: 100%;
       width: 0%;
-      background: var(--primary);
-      transition: width 0.25s ease;
+      background: #2563eb;
+      transition: width 0.2s ease-out;
     }
     .pill {
-      display: inline-block;
-      padding: 2px 10px;
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
       border-radius: 999px;
-      background: var(--primary-soft);
-      color: var(--primary);
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin-bottom: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+      background: #f9fafb;
     }
-    h2 {
-      font-size: 1rem;
-      margin: 0 0 10px;
+    #btnIniciar, #btnChcNext, #btnChcPrev {
+      border: none;
+      border-radius: 999px;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
     }
-    .q {
-      margin-bottom: 18px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid #f1f5f9;
+    #btnIniciar, #btnChcNext {
+      background: #16a34a;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
     }
-    .q:last-child { border-bottom: none; }
-    .q-num {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--muted);
-      margin-bottom: 4px;
+    #btnIniciar:hover, #btnChcNext:hover { filter: brightness(0.95); }
+    #btnIniciar:disabled {
+      background: #9ca3af;
+      cursor: default;
+      box-shadow: none;
     }
-    .q-text {
-      margin: 0 0 10px;
-      font-weight: 600;
+    #btnChcPrev {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+      box-shadow: none;
     }
-    .opts {
+    .chc-nav {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      justify-content: flex-end;
     }
+    .q { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid #f3f4f6; }
+    .q:last-child { border-bottom: none; }
+    .q-num { font-size: 0.75rem; font-weight: 700; color: #6b7280; margin-bottom: 4px; }
+    .q-text { margin: 0 0 10px; font-weight: 600; }
+    .opts { display: flex; flex-direction: column; gap: 6px; }
     .opts label {
       display: flex;
       align-items: flex-start;
       gap: 8px;
       padding: 8px 10px;
-      border: 1px solid var(--line);
+      border: 1px solid #e5e7eb;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: 400;
-      transition: background 0.15s, border-color 0.15s;
     }
-    .opts label:hover {
-      background: #f8fafc;
-      border-color: #cbd5e1;
-    }
-    .opts input { margin-top: 3px; accent-color: var(--primary); }
-    .opts label:has(input:checked) {
-      background: var(--primary-soft);
-      border-color: #93c5fd;
-    }
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 18px;
-    }
-    button, .btn {
-      font-family: inherit;
-      font-size: 0.95rem;
-      padding: 10px 18px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-    .btn-primary:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-    .btn-ghost {
-      background: #fff;
-      border: 1px solid var(--line);
-      color: var(--ink);
-    }
-    .hidden { display: none !important; }
-    .consent label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
-    .field { margin-bottom: 12px; }
-    .field label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
-    .field input[type="text"] {
-      width: 100%;
-      max-width: 320px;
-      padding: 8px 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      font-size: 1rem;
-    }
+    .opts label:has(input:checked) { background: #eff6ff; border-color: #93c5fd; }
+    .opts input { margin-top: 3px; accent-color: #2563eb; }
     .mem-box {
-      font-size: 2rem;
-      letter-spacing: 0.35em;
+      font-size: 1.75rem;
+      letter-spacing: 0.3em;
       text-align: center;
       padding: 20px;
       background: #0f172a;
@@ -209,19 +180,17 @@
       margin: 12px 0;
     }
     .mem-input {
-      font-size: 1.25rem;
-      letter-spacing: 0.2em;
+      font-size: 1.15rem;
+      letter-spacing: 0.15em;
       text-align: center;
-      padding: 12px;
+      padding: 10px;
       width: 100%;
       max-width: 280px;
-      border: 2px solid var(--line);
+      border: 2px solid #e5e7eb;
       border-radius: 8px;
     }
     .timer-badge {
       display: inline-flex;
-      align-items: center;
-      gap: 6px;
       padding: 6px 12px;
       background: #fef3c7;
       color: #92400e;
@@ -233,15 +202,15 @@
     .timer-badge.critical { background: #fee2e2; color: #991b1b; }
     .gs-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       gap: 8px;
     }
     .gs-item {
       padding: 8px;
-      border: 1px solid var(--line);
+      border: 1px solid #e5e7eb;
       border-radius: 8px;
       text-align: center;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       cursor: pointer;
       user-select: none;
       background: #fff;
@@ -251,16 +220,11 @@
       border-color: #22c55e;
       outline: 2px solid #22c55e;
     }
-    .fig-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 10px 0;
-    }
+    .fig-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
     .fig-opt {
-      width: 72px;
-      height: 72px;
-      border: 2px solid var(--line);
+      width: 68px;
+      height: 68px;
+      border: 2px solid #e5e7eb;
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -268,10 +232,17 @@
       cursor: pointer;
       background: #fff;
     }
-    .fig-opt svg { width: 56px; height: 56px; }
-    .fig-opt.selected {
-      border-color: var(--primary);
-      background: var(--primary-soft);
+    .fig-opt svg { width: 52px; height: 52px; }
+    .fig-opt.selected { border-color: #2563eb; background: #eff6ff; }
+    .factor-pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
     .results-table {
       width: 100%;
@@ -280,92 +251,121 @@
       margin: 12px 0;
     }
     .results-table th, .results-table td {
-      border: 1px solid var(--line);
+      border: 1px solid #e5e7eb;
       padding: 8px 10px;
       text-align: left;
     }
     .results-table th { background: #f1f5f9; }
-    details.doc {
-      margin-top: 24px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 12px 16px;
-      background: #fff;
+    .check-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      background: #dcfce7;
+      color: #16a34a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 12px;
     }
-    details.doc summary {
+    button.secondary {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-weight: 600;
       cursor: pointer;
-      font-weight: 700;
-      color: var(--primary);
     }
-    @media (max-width: 600px) {
-      .layout { grid-template-columns: 48px 1fr; }
-      .side-strip span { font-size: 14px; letter-spacing: 0.12em; }
+    .hidden { display: none !important; }
+    .consent label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 56px minmax(0, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="layout">
-    <aside class="side-strip" aria-hidden="true"><span>CHC · COG</span></aside>
+    <aside class="side-strip"><span>INTELECTUAL CHC</span></aside>
     <main class="page">
-      <!-- Pantalla inicio -->
-      <section id="screen-intro" class="card">
-        <h1>Evaluación intelectual (modelo CHC)</h1>
-        <p class="sub">Versión demostración para uso educativo y de diseño. No sustituye un test estandarizado ni un informe clínico.</p>
-        <p>La prueba incluye bloques breves alineados con factores <strong>Gf, Gc, Gwm, Gs, Gv</strong> y un bloque corto de <strong>memoria asociativa (Glr)</strong>. Puede interrumpirse; se recomienda completar en un solo intento (aprox. 35–50 minutos).</p>
-        <div class="field">
-          <label for="part-name">Nombre o código (opcional)</label>
-          <input type="text" id="part-name" placeholder="Ej. participante 01" autocomplete="name" />
+      <header><h1>Evaluación intelectual (modelo CHC)</h1></header>
+
+      <section id="datos-participante" class="card">
+        <div class="grid-2">
+          <div class="field">
+            <label for="codigo">Código</label>
+            <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
+            <small id="codigoMsg" class="muted"></small>
+          </div>
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" type="text" autocomplete="name" />
+          </div>
+          <div class="field">
+            <label for="curso" id="labelCurso">Grado/Curso/Nivel</label>
+            <input id="curso" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="institucion">Institución</label>
+            <input id="institucion" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="grupo">País / Grupo</label>
+            <input id="grupo" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="fecha">Fecha</label>
+            <input id="fecha" type="text" readonly />
+          </div>
         </div>
-        <div class="consent card" style="background:#fffbeb;border-color:#fcd34d;">
-          <label>
+      </section>
+
+      <section id="pantalla-inicio" class="card instructions">
+        <h2>Instrucciones</h2>
+        <p>Esta evaluación es una <strong>demostración técnica</strong> alineada al marco <strong>CHC</strong> (habilidades cognitivas). No sustituye un test estandarizado ni un informe clínico.</p>
+        <p>Incluye bloques breves: razonamiento fluido (Gf), conocimiento verbal (Gc), memoria de trabajo (Gwm), velocidad (Gs), visual-espacial (Gv) y memoria asociativa (Glr). Puede usar <strong>Anterior</strong> entre bloques para revisar.</p>
+        <div class="instructions-header">Antes de iniciar</div>
+        <p>1. Valide su <strong>código</strong> y complete su <strong>nombre</strong>.</p>
+        <p>2. Acepte la casilla de consentimiento.</p>
+        <div class="card" style="background:#fffbeb;border-color:#fcd34d;margin-top:12px;">
+          <label class="consent">
             <input type="checkbox" id="consent-check" />
-            <span>He leído que los resultados son orientativos, que los datos se procesan de forma local en este navegador y que el uso responsable requiere interpretación profesional cuando aplique.</span>
+            <span>Entiendo que los resultados son orientativos, que el progreso puede guardarse en el servidor según la configuración de la plataforma y que la interpretación responsable puede requerir personal competente.</span>
           </label>
         </div>
-        <div class="btn-row">
-          <button type="button" class="btn-primary" id="btn-start" disabled>Comenzar prueba</button>
+        <div style="margin-top: 12px; text-align: right;">
+          <button type="button" id="btnIniciar" class="primary" disabled>INICIAR</button>
         </div>
       </section>
 
-      <!-- Bloques (se muestran uno a uno) -->
-      <section id="screen-blocks" class="hidden">
-        <div class="sticky-head">
-          <div class="progress-wrap">
-            <span id="step-label">Bloque</span>
-            <div class="progress" aria-hidden="true"><div class="bar" id="prog-bar"></div></div>
-          </div>
-        </div>
-        <div id="block-container"></div>
-        <div class="btn-row">
-          <button type="button" class="btn-ghost hidden" id="btn-prev">Anterior</button>
-          <button type="button" class="btn-primary" id="btn-next">Siguiente</button>
-        </div>
-      </section>
-
-      <!-- Resultados -->
-      <section id="screen-results" class="hidden">
+      <section id="pantalla-preguntas" class="hidden">
         <div class="card">
-          <span class="pill">Resultados orientativos</span>
-          <h2>Resumen por factor CHC</h2>
-          <p class="sub" id="res-participant"></p>
-          <table class="results-table" id="results-table">
-            <thead>
-              <tr><th>Factor</th><th>Puntos</th><th>Máx.</th><th>%</th></tr>
-            </thead>
-            <tbody id="results-body"></tbody>
-          </table>
-          <p id="res-total" style="font-weight:700;"></p>
-          <p class="sub" style="margin-top:12px;">Los porcentajes son sobre el máximo alcanzable en esta demostración. Para baremos reales se requiere estandarización con muestra propia.</p>
-          <div class="btn-row">
-            <button type="button" class="btn-primary" id="btn-restart">Hacer de nuevo</button>
+          <div class="sticky-wrap">
+            <h2 style="margin:0 0 6px;">Bloques de la prueba</h2>
+            <div class="progress" aria-label="Progreso"><div class="bar" id="prog-bar"></div></div>
+            <div style="margin:8px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+              <span class="pill" id="step-pill">—</span>
+              <small class="muted" id="chc-meta">Modelo CHC · v1</small>
+            </div>
+          </div>
+          <div id="block-container"></div>
+          <div class="chc-nav">
+            <button type="button" id="btnChcPrev" class="hidden">Anterior</button>
+            <button type="button" id="btnChcNext">Siguiente</button>
           </div>
         </div>
       </section>
 
-      <details class="doc" id="doc-chc">
-        <summary>Documentación breve: modelo CHC</summary>
-        <p style="margin-top:12px;"><strong>CHC</strong> (Cattell–Horn–Carroll) describe habilidades cognitivas en factores amplios (p. ej. <code>Gf</code> razonamiento fluido, <code>Gc</code> conocimiento cristalizado, <code>Gwm</code> memoria de trabajo, <code>Gs</code> velocidad, <code>Gv</code> visual-espacial). Esta página es una demostración técnica; no reproduce ítems ni normas de tests comerciales.</p>
-      </details>
+      <section id="pantalla-final" style="display: none;">
+        <div class="card" style="text-align: center;">
+          <div class="check-icon">✔</div>
+          <h2>Evaluación terminada</h2>
+          <p>Los datos fueron enviados al servidor (si hay conexión y código válido).</p>
+          <div id="chc-resumen-wrap" style="text-align:left; margin-top:16px;"></div>
+          <button type="button" id="btnRegresarMenu" class="secondary" style="margin-top:16px;">REGRESAR AL MENÚ</button>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -373,7 +373,263 @@
 (function () {
   "use strict";
 
-  const state = {
+  (function lockScrollbarWidth() {
+    function setSBW() {
+      const sbw = window.innerWidth - document.documentElement.clientWidth;
+      document.documentElement.style.setProperty("--sbw", (sbw > 0 ? sbw : 0) + "px");
+    }
+    setSBW();
+    window.addEventListener("resize", setSBW);
+  })();
+
+  let __startTime = Date.now();
+  let CODIGO_ACTUAL = null;
+  const STORAGE_PREFIX = "eval_chc_state_";
+
+  const codigoInput = document.getElementById("codigo");
+  const instInput = document.getElementById("institucion");
+  const grupoInput = document.getElementById("grupo");
+  const cursoInput = document.getElementById("curso");
+  const labelCurso = document.getElementById("labelCurso");
+  const btnIniciar = document.getElementById("btnIniciar");
+  const codigoMsg = document.getElementById("codigoMsg");
+  const consentCheck = document.getElementById("consent-check");
+
+  function actualizarLabelCurso(codigo) {
+    const limpio = String(codigo || "").trim().toUpperCase();
+    if (!labelCurso) return;
+    labelCurso.textContent = !limpio ? "Grado/Curso/Nivel" : (limpio.startsWith("PRO") ? "Nivel" : "Grado/Curso");
+  }
+
+  function getStorageKey() {
+    const codigo = CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+    return codigo ? STORAGE_PREFIX + codigo : null;
+  }
+
+  function loadStateForCurrentCode() {
+    const key = getStorageKey();
+    if (!key) return null;
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      console.warn("No se pudo leer el estado local:", e);
+      return null;
+    }
+  }
+
+  function clearState() {
+    const key = getStorageKey();
+    if (!key) return;
+    try { localStorage.removeItem(key); } catch (e) { console.warn(e); }
+  }
+
+  function responsesComplete(resp) {
+    if (!resp || typeof resp !== "object") return false;
+    const need = []
+      .concat(ITEMS.gf.map((i) => i.id))
+      .concat(ITEMS.gc.map((i) => i.id))
+      .concat(GWM_TRIALS.map((t) => t.id))
+      .concat(ITEMS.gv.map((i) => i.id))
+      .concat(ITEMS.glr.map((i) => i.id));
+    for (const k of need) {
+      if (resp[k] == null || resp[k] === "") return false;
+    }
+    if (resp.gs_score == null || resp.gs_score === "") return false;
+    return true;
+  }
+
+  function isStateCompleted(state) {
+    if (!state) return false;
+    if (state.completed) return true;
+    return responsesComplete(state.responses || {});
+  }
+
+  async function syncAutosaveToServer(state) {
+    try {
+      const codigo = state.codigo;
+      if (!codigo) return;
+      const payload = {
+        codigo,
+        currentPage: state.currentPage || 0,
+        responses: state.responses || {},
+        snapshot: {
+          nombre: state.nombre || "",
+          institucion: state.institucion || "",
+          grupo: state.grupo || "",
+          curso: state.curso || "",
+          fecha: state.fecha || "",
+          startTime: state.startTime || null,
+          prueba: "CHC",
+          chcGwmTrialIndex: state.chcGwmTrialIndex ?? 0
+        }
+      };
+      await fetch("/api/autosave", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      console.warn("No se pudo sincronizar autosave servidor:", e);
+    }
+  }
+
+  async function cargarAutosaveServidor(codigo) {
+    if (!codigo) return null;
+    try {
+      const r = await fetch("/api/autosave?codigo=" + encodeURIComponent(codigo));
+      const data = await r.json();
+      if (!r.ok || !data.ok || !data.autosave) return null;
+      const row = data.autosave;
+      const snap = row.snapshot || {};
+      return {
+        codigo: row.codigo || codigo,
+        nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+        institucion: snap.institucion || DATOS_FIJOS.institucion,
+        grupo: snap.grupo || DATOS_FIJOS.grupo,
+        curso: snap.curso || DATOS_FIJOS.curso,
+        fecha: snap.fecha || document.getElementById("fecha").value,
+        currentPage: typeof row.current_page === "number" ? row.current_page : 0,
+        responses: row.responses || {},
+        startTime: snap.startTime || Date.now(),
+        completed: false,
+        chcGwmTrialIndex: typeof snap.chcGwmTrialIndex === "number" ? snap.chcGwmTrialIndex : 0
+      };
+    } catch (e) {
+      console.warn("No se pudo cargar autosave servidor:", e);
+      return null;
+    }
+  }
+
+  let saveTimer = null;
+  function scheduleSave(completedFlag) {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      saveTimer = null;
+      saveState(completedFlag);
+    }, 380);
+  }
+
+  function saveState(completedFlag) {
+    const key = getStorageKey();
+    if (!key) return;
+    try {
+      const prev = loadStateForCurrentCode() || {};
+      const state = {
+        ...prev,
+        codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
+        nombre: document.getElementById("nombre").value.trim(),
+        institucion: document.getElementById("institucion").value,
+        grupo: document.getElementById("grupo").value,
+        curso: document.getElementById("curso").value,
+        fecha: document.getElementById("fecha").value,
+        currentPage: stateCHC.step,
+        responses: getResponsesPayload(),
+        startTime: __startTime || Date.now(),
+        completed: typeof completedFlag === "boolean" ? completedFlag : !!prev.completed,
+        chcGwmTrialIndex: stateCHC.gwmTrialIndex
+      };
+      localStorage.setItem(key, JSON.stringify(state));
+      syncAutosaveToServer(state);
+    } catch (e) {
+      console.warn("No se pudo guardar el progreso local:", e);
+    }
+  }
+
+  async function lookupCodigo() {
+    const codigo = codigoInput.value.trim().toUpperCase();
+    codigoInput.value = codigo;
+    actualizarLabelCurso(codigo);
+    CODIGO_ACTUAL = null;
+    updateIniciarEnabled();
+
+    if (codigoMsg) {
+      codigoMsg.textContent = codigo ? "Buscando..." : "Ingresa un código.";
+      codigoMsg.className = codigo ? "muted" : "err";
+    }
+    if (!codigo) {
+      instInput.value = grupoInput.value = cursoInput.value = "";
+      return;
+    }
+    try {
+      const r = await fetch("/api/lookup?codigo=" + encodeURIComponent(codigo));
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Código no válido");
+
+      const codigoUsado =
+        data.usado === true ||
+        data.usado === "true" ||
+        (typeof data.disponible === "boolean" && data.disponible === false) ||
+        (data.estado && String(data.estado).toLowerCase() !== "activo") ||
+        (typeof data.intentos_max === "number" &&
+          typeof data.intentos_usados === "number" &&
+          data.intentos_usados >= data.intentos_max);
+
+      if (codigoUsado) {
+        instInput.value = grupoInput.value = cursoInput.value = "";
+        CODIGO_ACTUAL = null;
+        if (codigoMsg) {
+          codigoMsg.textContent = "Este código ya fue utilizado o no está disponible.";
+          codigoMsg.className = "err";
+        }
+        updateIniciarEnabled();
+        return;
+      }
+
+      CODIGO_ACTUAL = data.codigo || codigo;
+
+      const localState = loadStateForCurrentCode();
+      if (isStateCompleted(localState)) {
+        instInput.value = grupoInput.value = cursoInput.value = "";
+        CODIGO_ACTUAL = null;
+        if (codigoMsg) {
+          codigoMsg.textContent = "Este código ya fue utilizado para completar una evaluación en este dispositivo.";
+          codigoMsg.className = "err";
+        }
+        updateIniciarEnabled();
+        return;
+      }
+
+      instInput.value = data.institucion || "";
+      grupoInput.value = data.grupo || "";
+      cursoInput.value = data.curso || "";
+      if (codigoMsg) {
+        codigoMsg.textContent = "Código válido.";
+        codigoMsg.className = "ok";
+      }
+    } catch (e) {
+      instInput.value = grupoInput.value = cursoInput.value = "";
+      CODIGO_ACTUAL = null;
+      if (codigoMsg) {
+        codigoMsg.textContent = "Código no encontrado.";
+        codigoMsg.className = "err";
+      }
+    }
+    updateIniciarEnabled();
+  }
+
+  function updateIniciarEnabled() {
+    btnIniciar.disabled = !(CODIGO_ACTUAL && consentCheck.checked);
+  }
+
+  codigoInput.addEventListener("input", function () {
+    codigoInput.value = codigoInput.value.toUpperCase();
+    actualizarLabelCurso(codigoInput.value);
+  });
+  codigoInput.addEventListener("blur", lookupCodigo);
+  codigoInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); lookupCodigo(); }
+  });
+  consentCheck.addEventListener("change", updateIniciarEnabled);
+  actualizarLabelCurso(codigoInput.value);
+
+  const DATOS_FIJOS = {
+    institucion: "Institución por defecto",
+    grupo: "País por defecto",
+    curso: "Grado/Curso/Nivel por defecto"
+  };
+
+  const stateCHC = {
     step: 0,
     answers: {},
     memTrials: [],
@@ -447,6 +703,9 @@
     { id: "gs18", sym: "★" }, { id: "gs19", sym: "⊕" }
   ];
 
+  let gsTimerId = null;
+  const gsSeconds = 45;
+
   function el(tag, props, html) {
     const e = document.createElement(tag);
     if (props) Object.assign(e, props);
@@ -454,9 +713,22 @@
     return e;
   }
 
+  function getResponsesPayload() {
+    const map = {};
+    Object.keys(stateCHC.answers).forEach(function (k) {
+      const v = stateCHC.answers[k];
+      if (v != null) map[k] = v;
+    });
+    return map;
+  }
+
+  function onAnswerChanged() {
+    scheduleSave(false);
+  }
+
   function renderMCBlock(items, factorPrefix) {
     const wrap = el("div");
-    items.forEach((it, i) => {
+    items.forEach(function (it, i) {
       const q = el("div", { className: "q" });
       q.appendChild(el("div", { className: "q-num" }, factorPrefix + " · Ítem " + (i + 1)));
       q.appendChild(el("p", { className: "q-text" }, it.text));
@@ -468,30 +740,34 @@
           '<svg viewBox="0 0 40 40"><polygon points="20,4 36,36 4,36" fill="#10b981"/></svg>',
           '<svg viewBox="0 0 40 40"><polygon points="20,4 36,14 36,26 20,36 4,26 4,14" fill="#f59e0b"/></svg>'
         ];
-        it.choices.forEach((ch, idx) => {
+        it.choices.forEach(function (ch, idx) {
           const lab = el("label", { className: "fig-opt" });
           lab.innerHTML = shapes[idx];
           const inp = el("input", { type: "radio", name: it.id, value: String(idx) });
           lab.insertBefore(inp, lab.firstChild);
-          if (state.answers[it.id] === String(idx)) {
+          if (stateCHC.answers[it.id] === String(idx)) {
             inp.checked = true;
             lab.classList.add("selected");
           }
-          inp.addEventListener("change", () => {
-            state.answers[it.id] = String(idx);
-            row.querySelectorAll(".fig-opt").forEach((x) => x.classList.remove("selected"));
+          inp.addEventListener("change", function () {
+            stateCHC.answers[it.id] = String(idx);
+            row.querySelectorAll(".fig-opt").forEach(function (x) { x.classList.remove("selected"); });
             lab.classList.add("selected");
+            onAnswerChanged();
           });
           row.appendChild(lab);
         });
         q.appendChild(row);
       } else {
         const opts = el("div", { className: "opts" });
-        it.options.forEach((o) => {
+        it.options.forEach(function (o) {
           const lab = el("label");
           const inp = el("input", { type: "radio", name: it.id, value: o.v });
-          if (state.answers[it.id] === o.v) inp.checked = true;
-          inp.addEventListener("change", () => { state.answers[it.id] = o.v; });
+          if (stateCHC.answers[it.id] === o.v) inp.checked = true;
+          inp.addEventListener("change", function () {
+            stateCHC.answers[it.id] = o.v;
+            onAnswerChanged();
+          });
           lab.appendChild(inp);
           lab.appendChild(el("span", {}, o.t));
           opts.appendChild(lab);
@@ -505,10 +781,9 @@
 
   function renderGWM() {
     const wrap = el("div");
-
     function showTrial() {
       wrap.innerHTML = "";
-      const trialIndex = state.gwmTrialIndex;
+      const trialIndex = stateCHC.gwmTrialIndex;
       if (trialIndex >= GWM_TRIALS.length) {
         wrap.appendChild(el("p", {}, "Has completado los ejercicios de memoria de trabajo."));
         return;
@@ -520,26 +795,30 @@
       wrap.appendChild(el("p", {}, instr));
       const box = el("div", { className: "mem-box" }, t.seq.replace(/ /g, "  "));
       wrap.appendChild(box);
-      const btn = el("button", { type: "button", className: "btn-primary" }, "Ocultar y responder");
+      const btn = el("button", { type: "button", id: "gwm-show" }, "Ocultar y responder");
+      btn.style.cssText = "border-radius:999px;padding:10px 18px;font-weight:700;border:none;background:#2563eb;color:#fff;cursor:pointer;";
       const input = el("input", { type: "text", className: "mem-input", inputMode: "numeric", placeholder: "Escribe los dígitos", autocomplete: "off" });
       input.classList.add("hidden");
-      const submit = el("button", { type: "button", className: "btn-primary hidden" }, "Confirmar respuesta");
-      btn.addEventListener("click", () => {
+      const submit = el("button", { type: "button", id: "gwm-ok" }, "Confirmar respuesta");
+      submit.classList.add("hidden");
+      submit.style.cssText = btn.style.cssText;
+      btn.addEventListener("click", function () {
         box.classList.add("hidden");
         btn.classList.add("hidden");
         input.classList.remove("hidden");
         submit.classList.remove("hidden");
         input.focus();
       });
-      submit.addEventListener("click", () => {
+      submit.addEventListener("click", function () {
         const raw = input.value.replace(/\D/g, "");
         const seq = t.seq.replace(/ /g, "");
         let expected = seq;
         if (t.mode === "reverse") expected = seq.split("").reverse().join("");
         const ok = raw === expected;
-        state.memTrials.push({ id: t.id, ok, mode: t.mode });
-        state.answers[t.id] = ok ? "1" : "0";
-        state.gwmTrialIndex++;
+        stateCHC.memTrials.push({ id: t.id, ok: ok, mode: t.mode });
+        stateCHC.answers[t.id] = ok ? "1" : "0";
+        stateCHC.gwmTrialIndex++;
+        onAnswerChanged();
         showTrial();
       });
       wrap.appendChild(btn);
@@ -550,42 +829,40 @@
     return wrap;
   }
 
-  let gsTimerId = null;
-  let gsSeconds = 45;
-
   function renderGS() {
     const wrap = el("div");
-    state.gsMarked = new Set();
-    state.answers.gs_time = null;
-    if (state.answers.gs_score != null) {
-      delete state.answers.gs_score;
-      delete state.answers.gs_max;
+    stateCHC.gsMarked = new Set();
+    stateCHC.answers.gs_time = null;
+    if (stateCHC.answers.gs_score != null) {
+      delete stateCHC.answers.gs_score;
+      delete stateCHC.answers.gs_max;
     }
-    state.gsStart = null;
+    stateCHC.gsStart = null;
     const badge = el("div", { className: "timer-badge", id: "gs-timer" }, "Tiempo: " + gsSeconds + " s");
     wrap.appendChild(badge);
-    wrap.appendChild(el("p", {}, "Tienes " + gsSeconds + " segundos. Toca cada celda que muestre exactamente la figura objetivo: " + GS_TARGET + " (estrella rellena). Marca todas las que puedas antes de que termine el tiempo."));
+    wrap.appendChild(el("p", {}, "Tienes " + gsSeconds + " segundos. Toca cada celda que muestre exactamente: " + GS_TARGET + ". Marca todas las que puedas."));
     const grid = el("div", { className: "gs-grid" });
-    GS_ITEMS.forEach((cell) => {
+    GS_ITEMS.forEach(function (cell) {
       const d = el("div", { className: "gs-item" }, cell.sym);
       d.dataset.id = cell.id;
-      d.addEventListener("click", () => {
-        if (!state.gsStart) return;
+      d.addEventListener("click", function () {
+        if (!stateCHC.gsStart) return;
         d.classList.toggle("marked");
-        if (d.classList.contains("marked")) state.gsMarked.add(cell.id);
-        else state.gsMarked.delete(cell.id);
+        if (d.classList.contains("marked")) stateCHC.gsMarked.add(cell.id);
+        else stateCHC.gsMarked.delete(cell.id);
       });
       grid.appendChild(d);
     });
     wrap.appendChild(grid);
-    const startBtn = el("button", { type: "button", className: "btn-primary" }, "Iniciar cronómetro y tarea");
-    startBtn.addEventListener("click", () => {
-      if (state.gsStart) return;
-      state.gsStart = Date.now();
+    const startBtn = el("button", { type: "button", id: "gs-start" }, "Iniciar cronómetro y tarea");
+    startBtn.style.cssText = "border-radius:999px;padding:10px 18px;font-weight:700;border:none;background:#16a34a;color:#fff;cursor:pointer;";
+    startBtn.addEventListener("click", function () {
+      if (stateCHC.gsStart) return;
+      stateCHC.gsStart = Date.now();
       startBtn.disabled = true;
       let left = gsSeconds;
       badge.textContent = "Tiempo: " + left + " s";
-      gsTimerId = setInterval(() => {
+      gsTimerId = setInterval(function () {
         left--;
         badge.textContent = "Tiempo: " + left + " s";
         if (left <= 10) badge.classList.add("critical");
@@ -593,6 +870,7 @@
           clearInterval(gsTimerId);
           gsTimerId = null;
           finishGS(wrap, badge, grid);
+          onAnswerChanged();
         }
       }, 1000);
     });
@@ -603,84 +881,73 @@
   function finishGS(wrap, badge, grid) {
     let hits = 0;
     let falseAlarm = 0;
-    GS_ITEMS.forEach((cell) => {
+    GS_ITEMS.forEach(function (cell) {
       const should = cell.sym === GS_TARGET;
-      const marked = state.gsMarked.has(cell.id);
+      const marked = stateCHC.gsMarked.has(cell.id);
       if (should && marked) hits++;
       if (!should && marked) falseAlarm++;
     });
     const score = Math.max(0, hits - falseAlarm);
-    state.answers.gs_score = String(score);
-    state.answers.gs_max = String(GS_ITEMS.filter((c) => c.sym === GS_TARGET).length);
+    stateCHC.answers.gs_score = String(score);
+    stateCHC.answers.gs_max = String(GS_ITEMS.filter(function (c) { return c.sym === GS_TARGET; }).length);
     badge.textContent = "Tiempo agotado · Aciertos netos: " + score;
     badge.classList.remove("critical");
-    grid.querySelectorAll(".gs-item").forEach((d) => {
+    grid.querySelectorAll(".gs-item").forEach(function (d) {
       d.style.pointerEvents = "none";
       const id = d.dataset.id;
-      const cell = GS_ITEMS.find((c) => c.id === id);
+      const cell = GS_ITEMS.find(function (c) { return c.id === id; });
       if (cell.sym === GS_TARGET) d.style.borderColor = "#22c55e";
     });
   }
 
   function countAnsweredMc(items) {
-    return items.filter((it) => state.answers[it.id] != null && state.answers[it.id] !== "").length;
+    return items.filter(function (it) {
+      return stateCHC.answers[it.id] != null && stateCHC.answers[it.id] !== "";
+    }).length;
   }
 
   function validateCurrentStep() {
-    const step = STEPS[state.step];
-    if (step.id === "gf") {
-      if (countAnsweredMc(ITEMS.gf) < ITEMS.gf.length) {
-        alert("Responde todos los ítems de razonamiento fluido antes de continuar.");
-        return false;
-      }
+    const step = STEPS[stateCHC.step];
+    if (step.id === "gf" && countAnsweredMc(ITEMS.gf) < ITEMS.gf.length) {
+      alert("Responde todos los ítems de razonamiento fluido antes de continuar.");
+      return false;
     }
-    if (step.id === "gc") {
-      if (countAnsweredMc(ITEMS.gc) < ITEMS.gc.length) {
-        alert("Responde todos los ítems verbales antes de continuar.");
-        return false;
-      }
+    if (step.id === "gc" && countAnsweredMc(ITEMS.gc) < ITEMS.gc.length) {
+      alert("Responde todos los ítems verbales antes de continuar.");
+      return false;
     }
-    if (step.id === "gwm") {
-      if (state.gwmTrialIndex < GWM_TRIALS.length) {
-        alert("Completa los cuatro ejercicios de memoria (memoriza y confirma cada uno).");
-        return false;
-      }
+    if (step.id === "gwm" && stateCHC.gwmTrialIndex < GWM_TRIALS.length) {
+      alert("Completa los cuatro ejercicios de memoria.");
+      return false;
     }
-    if (step.id === "gs") {
-      if (state.answers.gs_score == null) {
-        alert("Inicia el cronómetro, marca las estrellas objetivo y espera a que termine el tiempo.");
-        return false;
-      }
+    if (step.id === "gs" && stateCHC.answers.gs_score == null) {
+      alert("Inicia el cronómetro y completa la tarea de velocidad.");
+      return false;
     }
-    if (step.id === "gv") {
-      if (countAnsweredMc(ITEMS.gv) < ITEMS.gv.length) {
-        alert("Responde todos los ítems visuales antes de continuar.");
-        return false;
-      }
+    if (step.id === "gv" && countAnsweredMc(ITEMS.gv) < ITEMS.gv.length) {
+      alert("Responde todos los ítems visuales.");
+      return false;
     }
-    if (step.id === "glr") {
-      if (countAnsweredMc(ITEMS.glr) < ITEMS.glr.length) {
-        alert("Responde todos los ítems de asociación antes de finalizar.");
-        return false;
-      }
+    if (step.id === "glr" && countAnsweredMc(ITEMS.glr) < ITEMS.glr.length) {
+      alert("Responde todos los ítems de asociación.");
+      return false;
     }
     return true;
   }
 
   function renderStep() {
     const container = document.getElementById("block-container");
-    const step = STEPS[state.step];
-    const prog = ((state.step + 1) / STEPS.length) * 100;
+    const step = STEPS[stateCHC.step];
+    const prog = ((stateCHC.step + 1) / STEPS.length) * 100;
     document.getElementById("prog-bar").style.width = prog + "%";
-    document.getElementById("step-label").textContent = step.label + " (" + (state.step + 1) + "/" + STEPS.length + ")";
-    document.getElementById("btn-prev").classList.toggle("hidden", state.step === 0);
-    const nextBtn = document.getElementById("btn-next");
-    nextBtn.textContent = state.step >= STEPS.length - 1 ? "Ver resultados" : "Siguiente";
+    document.getElementById("step-pill").textContent = step.label + " (" + (stateCHC.step + 1) + "/" + STEPS.length + ")";
+    document.getElementById("btnChcPrev").classList.toggle("hidden", stateCHC.step === 0);
+    document.getElementById("btnChcNext").textContent = stateCHC.step >= STEPS.length - 1 ? "Finalizar" : "Siguiente";
 
     container.innerHTML = "";
     const card = el("div", { className: "card" });
-    card.appendChild(el("span", { className: "pill" }, step.factor));
-    card.appendChild(el("h2", {}, step.label));
+    card.appendChild(el("span", { className: "factor-pill" }, step.factor));
+    card.appendChild(el("h2", { style: "margin:0 0 12px;font-size:1rem;" }, step.label));
 
     if (step.id === "gf") card.appendChild(renderMCBlock(ITEMS.gf, "Gf"));
     else if (step.id === "gc") card.appendChild(renderMCBlock(ITEMS.gc, "Gc"));
@@ -690,142 +957,260 @@
     else if (step.id === "glr") card.appendChild(renderMCBlock(ITEMS.glr, "Glr"));
 
     container.appendChild(card);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function scoreGF() {
     let n = 0;
-    ITEMS.gf.forEach((it) => {
-      if (state.answers[it.id] === it.correct) n++;
-    });
+    ITEMS.gf.forEach(function (it) { if (stateCHC.answers[it.id] === it.correct) n++; });
     return { score: n, max: ITEMS.gf.length };
   }
-
   function scoreGC() {
     let n = 0;
-    ITEMS.gc.forEach((it) => {
-      if (state.answers[it.id] === it.correct) n++;
-    });
+    ITEMS.gc.forEach(function (it) { if (stateCHC.answers[it.id] === it.correct) n++; });
     return { score: n, max: ITEMS.gc.length };
   }
-
   function scoreGV() {
     let n = 0;
-    ITEMS.gv.forEach((it) => {
-      const a = state.answers[it.id];
-      if (it.svgChoice) {
-        if (a === String(it.correct)) n++;
-      } else if (a === it.correct) n++;
+    ITEMS.gv.forEach(function (it) {
+      const a = stateCHC.answers[it.id];
+      if (it.svgChoice) { if (a === String(it.correct)) n++; }
+      else if (a === it.correct) n++;
     });
     return { score: n, max: ITEMS.gv.length };
   }
-
   function scoreGWM() {
     let n = 0;
-    GWM_TRIALS.forEach((t) => {
-      if (state.answers[t.id] === "1") n++;
-    });
+    GWM_TRIALS.forEach(function (t) { if (stateCHC.answers[t.id] === "1") n++; });
     return { score: n, max: GWM_TRIALS.length };
   }
-
   function scoreGS() {
-    const max = GS_ITEMS.filter((c) => c.sym === GS_TARGET).length;
-    const s = parseInt(state.answers.gs_score, 10);
-    const sc = Number.isFinite(s) ? s : 0;
-    return { score: sc, max: max };
+    const max = GS_ITEMS.filter(function (c) { return c.sym === GS_TARGET; }).length;
+    const s = parseInt(stateCHC.answers.gs_score, 10);
+    return { score: Number.isFinite(s) ? s : 0, max: max };
   }
-
   function scoreGLR() {
     let n = 0;
-    ITEMS.glr.forEach((it) => {
-      if (state.answers[it.id] === it.correct) n++;
-    });
+    ITEMS.glr.forEach(function (it) { if (stateCHC.answers[it.id] === it.correct) n++; });
     return { score: n, max: ITEMS.glr.length };
   }
 
-  function showResults() {
-    document.getElementById("screen-blocks").classList.add("hidden");
-    document.getElementById("screen-results").classList.remove("hidden");
-
+  function buildResultados() {
     const gf = scoreGF();
     const gc = scoreGC();
     const gwm = scoreGWM();
     const gs = scoreGS();
     const gv = scoreGV();
     const glr = scoreGLR();
-
-    const name = document.getElementById("part-name").value.trim();
-    document.getElementById("res-participant").textContent = name ? "Participante: " + name : "Participante: (sin nombre)";
-
     const rows = [
-      { code: "Gf", label: "Razonamiento fluido", ...gf },
-      { code: "Gc", label: "Conocimiento verbal", ...gc },
-      { code: "Gwm", label: "Memoria de trabajo", ...gwm },
-      { code: "Gs", label: "Velocidad", ...gs },
-      { code: "Gv", label: "Visual-espacial", ...gv },
-      { code: "Glr", label: "Memoria asociativa", ...glr }
+      { code: "Gf", label: "Razonamiento fluido", score: gf.score, max: gf.max },
+      { code: "Gc", label: "Conocimiento verbal", score: gc.score, max: gc.max },
+      { code: "Gwm", label: "Memoria de trabajo", score: gwm.score, max: gwm.max },
+      { code: "Gs", label: "Velocidad", score: gs.score, max: gs.max },
+      { code: "Gv", label: "Visual-espacial", score: gv.score, max: gv.max },
+      { code: "Glr", label: "Memoria asociativa", score: glr.score, max: glr.max }
     ];
-
-    const tbody = document.getElementById("results-body");
-    tbody.innerHTML = "";
-    let sumS = 0, sumM = 0;
-    rows.forEach((r) => {
+    let sumS = 0;
+    let sumM = 0;
+    rows.forEach(function (r) {
       sumS += r.score;
       sumM += r.max;
-      const pct = r.max ? Math.round((r.score / r.max) * 100) : 0;
-      const tr = el("tr");
-      tr.innerHTML = "<td><strong>" + r.code + "</strong> · " + r.label + "</td><td>" + r.score + "</td><td>" + r.max + "</td><td>" + pct + "%</td>";
-      tbody.appendChild(tr);
+      r.pct = r.max ? Math.round((r.score / r.max) * 100) : 0;
     });
     const totalPct = sumM ? Math.round((sumS / sumM) * 100) : 0;
-    document.getElementById("res-total").textContent = "Total aproximado: " + sumS + " / " + sumM + " (" + totalPct + "%)";
+    const mins = Math.round((Date.now() - __startTime) / 60000);
+    return {
+      prueba: "Intelectual_CHC",
+      modelo: "CHC",
+      version_banco: "CHC-v1",
+      meta: { minutos_aprox: mins, items_total: sumM },
+      globales: {},
+      bloques: {},
+      factores: rows,
+      total: { puntos: sumS, max: sumM, pct: totalPct }
+    };
   }
 
-  document.getElementById("consent-check").addEventListener("change", (e) => {
-    document.getElementById("btn-start").disabled = !e.target.checked;
-  });
+  function renderResumenHTML(resultados) {
+    let html = '<table class="results-table"><thead><tr><th>Factor</th><th>Puntos</th><th>Máx.</th><th>%</th></tr></thead><tbody>';
+    resultados.factores.forEach(function (r) {
+      html += "<tr><td><strong>" + r.code + "</strong> · " + r.label + "</td><td>" + r.score + "</td><td>" + r.max + "</td><td>" + r.pct + "%</td></tr>";
+    });
+    html += "</tbody></table>";
+    html += "<p style=\"font-weight:700;\">Total: " + resultados.total.puntos + " / " + resultados.total.max + " (" + resultados.total.pct + "%)</p>";
+    return html;
+  }
 
-  document.getElementById("btn-start").addEventListener("click", () => {
-    document.getElementById("screen-intro").classList.add("hidden");
-    document.getElementById("screen-blocks").classList.remove("hidden");
-    state.step = 0;
-    state.answers = {};
-    state.memTrials = [];
-    state.gwmTrialIndex = 0;
-    state.gsStart = null;
-    state.gsMarked = new Set();
-    if (gsTimerId) {
-      clearInterval(gsTimerId);
-      gsTimerId = null;
-    }
+  function aplicarEstadoCHC(st) {
+    if (!st) return;
+    document.getElementById("nombre").value = st.nombre || "";
+    document.getElementById("institucion").value = st.institucion || DATOS_FIJOS.institucion;
+    document.getElementById("grupo").value = st.grupo || DATOS_FIJOS.grupo;
+    document.getElementById("curso").value = st.curso || DATOS_FIJOS.curso;
+    if (st.fecha) document.getElementById("fecha").value = st.fecha;
+    CODIGO_ACTUAL = st.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+    const resp = st.responses || {};
+    stateCHC.answers = {};
+    Object.keys(resp).forEach(function (k) {
+      stateCHC.answers[k] = typeof resp[k] === "number" ? String(resp[k]) : resp[k];
+    });
+    stateCHC.step = Number.isFinite(st.currentPage) ? st.currentPage : 0;
+    stateCHC.gwmTrialIndex = typeof st.chcGwmTrialIndex === "number" ? st.chcGwmTrialIndex : 0;
+    __startTime = st.startTime || Date.now();
+    stateCHC.memTrials = [];
+  }
+
+  function mostrarPantallaPreguntas() {
+    document.getElementById("pantalla-inicio").classList.add("hidden");
+    document.getElementById("datos-participante").classList.add("hidden");
+    document.getElementById("pantalla-final").style.display = "none";
+    document.getElementById("pantalla-preguntas").classList.remove("hidden");
     renderStep();
-  });
+  }
 
-  document.getElementById("btn-prev").addEventListener("click", () => {
-    if (state.step > 0) {
-      state.step--;
+  function iniciarEvaluacionNueva() {
+    __startTime = Date.now();
+    stateCHC.answers = {};
+    stateCHC.step = 0;
+    stateCHC.gwmTrialIndex = 0;
+    stateCHC.memTrials = [];
+    stateCHC.gsStart = null;
+    stateCHC.gsMarked = new Set();
+    if (gsTimerId) { clearInterval(gsTimerId); gsTimerId = null; }
+    saveState(false);
+    mostrarPantallaPreguntas();
+  }
+
+  function validarAntesDeIniciar() {
+    const nombre = document.getElementById("nombre").value.trim();
+    if (!nombre) {
+      alert("Por favor ingresa tu nombre antes de iniciar.");
+      return false;
+    }
+    if (!consentCheck.checked) {
+      alert("Debes aceptar el consentimiento para continuar.");
+      return false;
+    }
+    return true;
+  }
+
+  function finalizarYEnviar() {
+    const nombre = document.getElementById("nombre").value.trim();
+    if (!nombre) {
+      alert("Falta el nombre.");
+      return;
+    }
+    if (!responsesComplete(stateCHC.answers)) {
+      alert("Faltan respuestas por completar.");
+      return;
+    }
+    const resultados = buildResultados();
+    const payload = {
+      codigo: CODIGO_ACTUAL,
+      snapshot: {
+        nombre: nombre,
+        institucion: document.getElementById("institucion").value,
+        grupo: document.getElementById("grupo").value,
+        curso: document.getElementById("curso").value,
+        version_banco: "CHC-v1"
+      },
+      resultados: resultados,
+      responses: getResponsesPayload()
+    };
+
+    saveState(true);
+
+    fetch("/api/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function () {
+        document.getElementById("chc-resumen-wrap").innerHTML = renderResumenHTML(resultados);
+      })
+      .catch(function () {
+        document.getElementById("chc-resumen-wrap").innerHTML =
+          "<p class=\"err\">No se confirmó el guardado en servidor. Tus respuestas quedaron en este dispositivo hasta que haya conexión; puedes contactar al coordinador.</p>" +
+          renderResumenHTML(resultados);
+      })
+      .finally(function () {
+        document.getElementById("nombre").readOnly = true;
+        document.getElementById("pantalla-preguntas").classList.add("hidden");
+        document.getElementById("datos-participante").classList.remove("hidden");
+        document.getElementById("pantalla-final").style.display = "block";
+        document.getElementById("pantalla-final").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+  }
+
+  document.getElementById("btnChcPrev").addEventListener("click", function () {
+    if (stateCHC.step > 0) {
+      stateCHC.step--;
       renderStep();
+      scheduleSave(false);
     }
   });
 
-  document.getElementById("btn-next").addEventListener("click", () => {
+  document.getElementById("btnChcNext").addEventListener("click", function () {
     if (!validateCurrentStep()) return;
-    if (state.step < STEPS.length - 1) {
-      state.step++;
+    if (stateCHC.step < STEPS.length - 1) {
+      stateCHC.step++;
       renderStep();
+      scheduleSave(false);
     } else {
-      showResults();
+      finalizarYEnviar();
     }
   });
 
-  document.getElementById("btn-restart").addEventListener("click", () => {
-    document.getElementById("screen-results").classList.add("hidden");
-    document.getElementById("screen-intro").classList.remove("hidden");
-    document.getElementById("consent-check").checked = false;
-    document.getElementById("btn-start").disabled = true;
-    if (gsTimerId) {
-      clearInterval(gsTimerId);
-      gsTimerId = null;
+  btnIniciar.addEventListener("click", async function () {
+    if (!validarAntesDeIniciar()) return;
+    if (!CODIGO_ACTUAL) await lookupCodigo();
+    if (!CODIGO_ACTUAL) {
+      alert("Por favor valida el código antes de iniciar.");
+      return;
     }
+    const codigo = CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+    let serverState = null;
+    if (codigo) serverState = await cargarAutosaveServidor(codigo);
+    const localSaved = loadStateForCurrentCode();
+    const candidate = serverState || localSaved;
+
+    if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
+      const retomar = confirm("Hay un intento en curso para este código. ¿Continuar donde lo dejaste?");
+      if (retomar) {
+        aplicarEstadoCHC(candidate);
+        mostrarPantallaPreguntas();
+        return;
+      } else {
+        clearState();
+      }
+    }
+    iniciarEvaluacionNueva();
+  });
+
+  document.getElementById("btnRegresarMenu").addEventListener("click", function () {
+    window.location.href = "index.html";
+  });
+
+  function inicializarDatosFijos() {
+    document.getElementById("institucion").value = DATOS_FIJOS.institucion;
+    document.getElementById("grupo").value = DATOS_FIJOS.grupo;
+    document.getElementById("curso").value = DATOS_FIJOS.curso;
+    const hoy = new Date();
+    try {
+      document.getElementById("fecha").value = new Intl.DateTimeFormat("es-EC", { year: "numeric", month: "2-digit", day: "2-digit" }).format(hoy);
+    } catch (e) {
+      document.getElementById("fecha").value =
+        String(hoy.getDate()).padStart(2, "0") + "/" + String(hoy.getMonth() + 1).padStart(2, "0") + "/" + hoy.getFullYear();
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    inicializarDatosFijos();
+    btnIniciar.disabled = true;
   });
 })();
   </script>
