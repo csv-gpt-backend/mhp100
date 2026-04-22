@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>Inicio Adalam</title>
+  <title>sInicio Adalam</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
@@ -346,7 +346,7 @@
           <input type="password" id="passInput" autocomplete="off" placeholder="••••••••">
           <div id="msg" class="msg"></div>
           <div class="login-hint">
-            (Mensaje Temporal) Acceso restringido. Clave completa: <strong>ADALAM </strong>. Solo algunas pruebas: <strong>ADALAM135</strong> (pruebas 1, 3 y 5). Los dígitos van del 1 al 6. Si olvidaste la contraseña, contacta al coordinador.
+            Acceso restringido. Clave completa: <strong>ADALAM</strong>. Solo algunas pruebas: <strong>ADALAM135</strong> (pruebas 1, 3 y 5). Los dígitos van del 1 al 6. Si olvidaste la contraseña, contacta al coordinador.
           </div>
         </div>
         <div class="login-right">
@@ -514,6 +514,35 @@
             </div>
           </section>
 
+          <section class="catalog-section" data-block="7">
+            <h2 class="catalog-title">EVALUACIÓN INTELECTUAL (CHC)</h2>
+            <div class="menu-grid">
+              <article class="pane">
+                <h2>Evaluación <span class="pane-tag gold">CHC</span></h2>
+                <p>
+                  Inicia la evaluación basada en el modelo CHC (factores fluido, cristalizado, memoria de trabajo,
+                  velocidad, visual y memoria a largo plazo).
+                </p>
+                <a href="evaluacion-intelectual.html" class="pane-button">
+                  <span class="icon">▶</span>
+                  <span>Iniciar evaluación</span>
+                </a>
+              </article>
+
+              <article class="pane">
+                <h2>Ver informe <span class="pane-tag alt">Individual</span></h2>
+                <p>
+                  Informe gráfico por código para esta batería: en preparación. Los resultados detallados quedan en el
+                  intento (campo <code>resultados</code>).
+                </p>
+                <button type="button" class="pane-button btn-secondary" disabled style="opacity:0.72;cursor:not-allowed;">
+                  <span class="icon">📊</span>
+                  <span>Próximamente</span>
+                </button>
+              </article>
+            </div>
+          </section>
+
         </div>
       </section>
     </main>
@@ -525,12 +554,12 @@
 
 <script>
   const ACCESS_SESSION_KEY = "adal_access_session";
-  /** Pruebas 1–6: 1 Socioemocional, 2 Valores, 3 Liderazgo, 4 Hábitos, 5 Aprendizaje, 6 Vocacional */
-  const ALL_BLOCKS = [1, 2, 3, 4, 5, 6];
+  /** Pruebas 1–7: 1 Socioemocional, 2 Valores, 3 Liderazgo, 4 Hábitos, 5 Aprendizaje, 6 Vocacional, 7 Intelectual CHC */
+  const ALL_BLOCKS = [1, 2, 3, 4, 5, 6, 7];
 
   /**
    * ADALAM → todas las pruebas.
-   * ADALAM135 → solo pruebas 1, 3 y 5 (cada dígito 1–6 activa ese bloque; se ignoran otros caracteres).
+   * ADALAM135 → solo pruebas 1, 3 y 5 (cada dígito 1–7 activa ese bloque; se ignoran otros caracteres).
    */
   function parseAccessPassword(raw) {
     const value = (raw || "").trim().toUpperCase();
@@ -540,7 +569,7 @@
     if (!suffix) return { ok: true, blocks: ALL_BLOCKS.slice() };
     const set = new Set();
     for (const ch of suffix) {
-      if (ch >= "1" && ch <= "6") set.add(Number(ch));
+      if (ch >= "1" && ch <= "7") set.add(Number(ch));
     }
     if (set.size === 0) return null;
     return { ok: true, blocks: Array.from(set).sort((a, b) => a - b) };
