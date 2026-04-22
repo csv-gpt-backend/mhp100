@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>CEvaluación intelectual — modelo CHC</title>
+  <title>CUREvaluación intelectual — modelo CHC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -29,8 +29,8 @@
       min-height: 100vh;
     }
     .side-strip {
-      background: #1e3a8a;
-      border-right: 1px solid #1d4ed8;
+      background: #e5e7eb;
+      border-right: 1px solid #cbd5e1;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -39,10 +39,13 @@
       writing-mode: vertical-rl;
       transform: rotate(180deg);
       font-weight: 800;
-      letter-spacing: 0.15em;
-      font-size: 20px;
+      letter-spacing: 0.18em;
+      font-size: 24px;
       text-align: center;
-      color: #e0e7ff;
+      color: #6b7280;
+      text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.8),
+        0 -1px 0 rgba(0, 0, 0, 0.18);
     }
     .page {
       max-width: 1000px;
@@ -51,7 +54,15 @@
       margin: 0 auto;
       padding: 16px;
     }
-    header h1 { font-size: 19px; margin: 0 0 4px; }
+    h1 {
+      font-size: 19px;
+      margin: 0 0 4px;
+    }
+    h2 {
+      font-size: 16px;
+      margin: 16px 0 8px;
+    }
+    header h1 { margin: 0 0 4px; }
     .muted { color: #6b7280; font-size: 13px; }
     .ok { color: #16a34a; font-size: 13px; font-weight: 600; }
     .err { color: #dc2626; font-size: 13px; font-weight: 600; }
@@ -63,6 +74,12 @@
       background: #ffffff;
       width: 100%;
       box-sizing: border-box;
+      overflow: visible;
+    }
+    #pantalla-preguntas .card {
+      min-height: 420px;
+      overflow-x: hidden;
+      max-width: 100%;
     }
     .grid-2 {
       display: grid;
@@ -120,30 +137,75 @@
       font-size: 12px;
       background: #f9fafb;
     }
-    #btnIniciar, #btnChcNext, #btnChcPrev {
+    #btnIniciar {
       border: none;
       border-radius: 999px;
       padding: 9px 20px;
       font-size: 13px;
       font-weight: 800;
       cursor: pointer;
-    }
-    #btnIniciar, #btnChcNext {
       background: #16a34a;
       color: #ffffff;
       box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
     }
-    #btnIniciar:hover, #btnChcNext:hover { filter: brightness(0.95); }
+    #btnIniciar:hover { filter: brightness(0.95); }
+    #btnIniciar:active { transform: translateY(1px); }
     #btnIniciar:disabled {
       background: #9ca3af;
+      color: #ffffff;
+      opacity: 1;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+    #btnChcNext {
+      border: none;
+      border-radius: 999px;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      background: #16a34a;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
+    }
+    #btnChcNext:hover { filter: brightness(0.95); }
+    #btnChcNext:active { transform: translateY(1px); }
+    #btnChcNext:disabled {
+      opacity: 0.55;
       cursor: default;
       box-shadow: none;
     }
     #btnChcPrev {
+      border-radius: 999px;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
       background: #ffffff;
       color: #111827;
       border: 1px solid #d1d5db;
       box-shadow: none;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #16a34a;
+      color: #ffffff;
+    }
+    button.primary { background: #16a34a; }
+    button.secondary {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
     }
     .chc-nav {
       display: flex;
@@ -244,29 +306,37 @@
       font-weight: 700;
       margin-bottom: 8px;
     }
-    .results-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      margin: 12px 0;
-    }
-    .results-table th, .results-table td {
+    #pantalla-final {
+      margin-top: 32px;
+      padding: 24px 18px;
+      border-radius: 8px;
       border: 1px solid #e5e7eb;
-      padding: 8px 10px;
-      text-align: left;
+      background: #fefce8;
+      text-align: center;
+      display: none;
     }
-    .results-table th { background: #f1f5f9; }
+    #pantalla-final h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
     .check-icon {
-      width: 56px;
-      height: 56px;
+      width: 40px;
+      height: 40px;
       border-radius: 999px;
-      background: #dcfce7;
-      color: #16a34a;
-      display: flex;
+      border: 2px solid #16a34a;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      margin: 0 auto 12px;
+      color: #16a34a;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    #chc-final-msg {
+      margin-top: 12px;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
     }
     button.secondary {
       background: #ffffff;
@@ -279,6 +349,9 @@
     }
     .hidden { display: none !important; }
     .consent label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+    @media (max-width: 840px) {
+      .side-strip span { font-size: 18px; }
+    }
     @media (max-width: 720px) {
       .layout { grid-template-columns: 56px minmax(0, 1fr); }
       .grid-2 { grid-template-columns: 1fr; }
@@ -357,14 +430,12 @@
         </div>
       </section>
 
-      <section id="pantalla-final" style="display: none;">
-        <div class="card" style="text-align: center;">
-          <div class="check-icon">✔</div>
-          <h2>Evaluación terminada</h2>
-          <p>Los datos fueron enviados al servidor (si hay conexión y código válido).</p>
-          <div id="chc-resumen-wrap" style="text-align:left; margin-top:16px;"></div>
-          <button type="button" id="btnRegresarMenu" class="secondary" style="margin-top:16px;">REGRESAR AL MENÚ</button>
-        </div>
+      <section id="pantalla-final">
+        <div class="check-icon">✔</div>
+        <h2>Evaluación terminada</h2>
+        <p>Felicidades, has concluido tu evaluación intelectual.</p>
+        <p id="chc-final-msg" class="hidden" role="status"></p>
+        <button type="button" id="btnRegresarMenu" class="secondary" style="margin-top:16px;">REGRESAR AL MENÚ</button>
       </section>
     </main>
   </div>
@@ -1031,16 +1102,6 @@
     };
   }
 
-  function renderResumenHTML(resultados) {
-    let html = '<table class="results-table"><thead><tr><th>Factor</th><th>Puntos</th><th>Máx.</th><th>%</th></tr></thead><tbody>';
-    resultados.factores.forEach(function (r) {
-      html += "<tr><td><strong>" + r.code + "</strong> · " + r.label + "</td><td>" + r.score + "</td><td>" + r.max + "</td><td>" + r.pct + "%</td></tr>";
-    });
-    html += "</tbody></table>";
-    html += "<p style=\"font-weight:700;\">Total: " + resultados.total.puntos + " / " + resultados.total.max + " (" + resultados.total.pct + "%)</p>";
-    return html;
-  }
-
   function aplicarEstadoCHC(st) {
     if (!st) return;
     document.getElementById("nombre").value = st.nombre || "";
@@ -1130,12 +1191,17 @@
         return r.json();
       })
       .then(function () {
-        document.getElementById("chc-resumen-wrap").innerHTML = renderResumenHTML(resultados);
+        const msg = document.getElementById("chc-final-msg");
+        msg.textContent = "";
+        msg.classList.add("hidden");
+        msg.classList.remove("err");
       })
       .catch(function () {
-        document.getElementById("chc-resumen-wrap").innerHTML =
-          "<p class=\"err\">No se confirmó el guardado en servidor. Tus respuestas quedaron en este dispositivo hasta que haya conexión; puedes contactar al coordinador.</p>" +
-          renderResumenHTML(resultados);
+        const msg = document.getElementById("chc-final-msg");
+        msg.textContent =
+          "No se confirmó el guardado en el servidor. Tus respuestas quedaron registradas en este dispositivo; puedes contactar al coordinador.";
+        msg.classList.remove("hidden");
+        msg.classList.add("err");
       })
       .finally(function () {
         document.getElementById("nombre").readOnly = true;
