@@ -2,359 +2,552 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>SEvaluación Intelectual CHC</title>
+  <title>VVVEvaluación Intelectual CHC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color:#111827; background:#fff; --sbw:0px;
-      --ink:#111827; --muted:#6b7280; --line:#e5e7eb; --line2:#cbd5e1;
-      --soft:#f8fafc; --soft2:#f3f4f6; --accent:#111827; --accent2:#16a34a;
+      color:#0f172a;
+      background:#ffffff;
+      --sbw:0px;
+      --accent:#f59e0b;
+      --accent-strong:#ea580c;
+      --accent-soft:#fff7ed;
+      --blue:#2563eb;
+      --green:#16a34a;
+      --slate:#64748b;
+      --line:#e5e7eb;
+      --card:#ffffff;
+      --bg:#ffffff;
     }
     html{ overflow-y:scroll; scrollbar-gutter:stable; padding-right:var(--sbw); }
-    body{ margin:0; padding:0; background:#fff; font-size:16px; overflow-x:hidden; }
+    body{ margin:0; padding:0; background:#fff; font-size:16px; overflow-x:hidden; color:#0f172a; }
     .layout{ display:grid; grid-template-columns:80px minmax(0,1fr); min-height:100vh; }
     .side-strip{ background:#e5e7eb; border-right:1px solid #cbd5e1; display:flex; align-items:center; justify-content:center; }
-    .side-strip span{ writing-mode:vertical-rl; transform:rotate(180deg); font-weight:800; letter-spacing:.18em; font-size:24px; text-align:center; color:#6b7280; text-shadow:0 1px 0 rgba(255,255,255,.8),0 -1px 0 rgba(0,0,0,.18); }
+    .side-strip span{ writing-mode:vertical-rl; transform:rotate(180deg); font-weight:800; letter-spacing:.18em; font-size:24px; color:#6b7280; text-shadow:0 1px 0 rgba(255,255,255,.8),0 -1px 0 rgba(0,0,0,.18); }
     .page{ max-width:1200px; margin:0 auto; padding:16px; width:100%; box-sizing:border-box; }
-    h1{ font-size:22px; margin:0 0 4px; }
-    h2{ font-size:16px; margin:16px 0 8px; }
-    .muted{ color:#6b7280; font-size:13px; }
-    .ok{ color:#16a34a; font-size:13px; font-weight:600; }
-    .card{ border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:16px; background:#fff; width:100%; box-sizing:border-box; }
-    .grid-2{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 16px; }
-    .field{ display:flex; flex-direction:column; gap:2px; font-size:13px; }
-    .field label{ font-weight:600; }
-    .field input{ padding:8px 10px; border-radius:8px; border:1px solid #d1d5db; font-size:14px; }
-    .field input[readonly]{ background:#f9fafb; color:#4b5563; }
-    .instructions p{ margin:4px 0; font-size:14px; line-height:1.55; }
-    .sticky-wrap{ position:sticky; top:0; z-index:999; background:#fff; padding-top:8px; margin-top:0; border-bottom:1px solid var(--line); }
-    .progress{ width:100%; height:8px; border-radius:999px; background:#e5e7eb; overflow:hidden; margin-top:4px; }
-    .progress .bar{ height:100%; width:0%; background:#111827; transition:width .2s ease-out; }
-    .pill{ display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; border:1px solid #d1d5db; font-size:12px; background:#f9fafb; }
-    .panel-note{ font-size:12px; color:#6b7280; text-align:right; margin-top:4px; }
-    .questions-header{ display:grid; grid-template-columns:56px minmax(0,1fr) repeat(4,96px); gap:8px; align-items:center; font-size:13px; margin-top:8px; padding:4px 0; border-bottom:1px solid var(--line); width:100%; box-sizing:border-box; }
-    .questions-header div{text-align:center;}
-    .questions-header div:first-child,.questions-header div:nth-child(2){text-align:left;}
-    #questions{ margin-top:8px; width:100%; }
-    .footer-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:8px; flex-wrap:wrap; }
-    button{ border-radius:999px; border:none; padding:8px 18px; font-size:14px; font-weight:500; cursor:pointer; background:#16a34a; color:#fff; }
-    button.primary{ background:#16a34a; }
+    .card{ border:1px solid var(--line); border-radius:18px; padding:14px 16px; margin-bottom:16px; background:var(--card); width:100%; box-sizing:border-box; box-shadow:0 10px 28px rgba(15,23,42,.04); }
+    h1{ font-size:24px; margin:0 0 4px; text-align:center; }
+    h2{ font-size:18px; margin:0 0 6px; }
+    .muted{ color:#64748b; font-size:13px; }
+    .ok{ color:#16a34a; font-size:13px; font-weight:700; }
+    .err{ color:#dc2626; font-size:13px; font-weight:700; }
+    .hidden{ display:none !important; }
+    .grid-2{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px 16px; }
+    .field{ display:flex; flex-direction:column; gap:4px; font-size:13px; }
+    .field label{ font-weight:700; }
+    .field input{ padding:10px 12px; border-radius:10px; border:1px solid #d1d5db; font-size:15px; }
+    .field input[readonly]{ background:#f8fafc; color:#475569; }
+
+    .hero-title{ text-align:center; font-size:28px; font-weight:900; letter-spacing:.01em; color:#0f172a; margin-bottom:8px; }
+    .hero-sub{ max-width:920px; margin:0 auto; text-align:center; color:#475569; line-height:1.65; }
+    .instructions-header{ font-weight:800; text-align:center; margin:8px auto 12px; padding:6px 12px; border-radius:999px; background:linear-gradient(180deg,#fb923c,#ea580c); color:#fff; font-size:13px; width:max-content; }
+
+    .sticky-wrap{ position:sticky; top:0; z-index:20; background:#fff; padding-top:8px; border-bottom:1px solid var(--line); }
+    .progress{ width:100%; height:10px; border-radius:999px; background:#e5e7eb; overflow:hidden; margin-top:6px; }
+    .progress .bar{ height:100%; width:0%; background:linear-gradient(90deg,#f59e0b,#ea580c); transition:width .2s ease-out; }
+    .pill{ display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px; border:1px solid #fdba74; font-size:12px; background:#fff7ed; color:#9a3412; font-weight:700; }
+    .panel-note{ font-size:12px; color:#64748b; text-align:right; margin-top:4px; }
+    .footer-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:14px; gap:8px; flex-wrap:wrap; }
+    button{ border-radius:999px; border:none; padding:10px 18px; font-size:14px; font-weight:700; cursor:pointer; background:#16a34a; color:#fff; }
+    button.primary{ background:linear-gradient(180deg,#22c55e,#16a34a); }
     button.secondary{ background:#fff; color:#111827; border:1px solid #d1d5db; }
-    button.dark{ background:#111827; }
-    button:disabled{ opacity:.6; cursor:default; }
-    .hidden{ display:none; }
-    #pantalla-final{ margin-top:32px; padding:24px 18px; border-radius:8px; border:1px solid var(--line); background:#f8fafc; text-align:center; display:none; }
-    .check-icon{ width:40px; height:40px; border-radius:999px; border:2px solid #16a34a; display:inline-flex; align-items:center; justify-content:center; color:#16a34a; font-size:24px; margin-bottom:8px; }
-    .scale-banner{ margin-top:6px; margin-bottom:2px; display:grid; grid-template-columns:56px minmax(0,1fr) repeat(4,96px); gap:8px; align-items:end; width:100%; box-sizing:border-box; }
+    button.warn{ background:linear-gradient(180deg,#fb923c,#ea580c); }
+    button:disabled{ opacity:.55; cursor:default; }
+
+    #pantalla-final{ margin-top:32px; padding:28px 22px; border-radius:18px; border:1px solid #fed7aa; background:linear-gradient(180deg,#fff7ed 0%, #fffbf5 100%); text-align:center; display:none; box-shadow:0 16px 36px rgba(245,158,11,.10); }
+    .check-icon{ width:44px; height:44px; border-radius:999px; border:2px solid #16a34a; display:inline-flex; align-items:center; justify-content:center; color:#16a34a; font-size:24px; margin-bottom:10px; }
+
+    .scale-banner{ margin-top:8px; margin-bottom:6px; display:grid; grid-template-columns:40px minmax(0,1fr) repeat(4,88px); gap:10px; align-items:end; width:100%; box-sizing:border-box; }
     .scale-spacer{ height:1px; }
-    .scale-badge{ background:#111827; color:#fff; padding:4px 8px 6px; border-radius:4px 4px 0 0; font-size:10px; font-weight:700; text-align:center; position:relative; width:88px; justify-self:center; }
-    .scale-badge::after{ content:""; position:absolute; left:50%; transform:translateX(-50%); bottom:-4px; width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:4px solid #111827; }
-    .section-banner{ display:block; width:auto; min-width:0; margin:0; padding:6px 12px; border-radius:4px 4px 0 0; font-weight:800; font-size:14px; letter-spacing:.35px; text-transform:uppercase; background:#e5e7eb; border:1px solid #94a3b8; color:#334155; justify-self:center; align-self:end; white-space:nowrap; }
-    .question-block{ border:1px solid #edf2f7; border-radius:16px; background:#fff; padding:16px; margin-bottom:14px; box-shadow:0 1px 0 rgba(15,23,42,.03); }
-    .question-block.answered{ background:#f0fdf4; border-color:#bbf7d0; }
-    .q-head{ display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; }
-    .q-no{ width:42px; min-width:42px; height:42px; border-radius:12px; background:#f8fafc; border:1px solid #e5e7eb; display:flex; align-items:center; justify-content:center; font-weight:800; color:#64748b; }
-    .q-meta{ flex:1; min-width:0; }
-    .q-title{ font-size:18px; font-weight:800; color:#0f172a; line-height:1.35; }
-    .q-help{ font-size:13px; color:#64748b; margin-top:4px; line-height:1.5; }
-    .visual-wrap{ margin-top:8px; }
-    .visual-card{ border:1px solid #e2e8f0; border-radius:20px; padding:16px; background:linear-gradient(180deg,#fff 0%,#fcfcfd 100%); box-shadow:0 14px 34px rgba(15,23,42,.05); }
-    .visual-stimulus{ display:flex; justify-content:center; align-items:center; min-height:110px; margin:10px 0 14px; padding:14px; border-radius:16px; background:linear-gradient(180deg,#f8fafc 0%,#fff 100%); border:1px solid #dbe3ee; box-shadow:inset 0 1px 0 rgba(255,255,255,.85); }
+    .section-banner{ display:block; width:auto; margin:0; padding:6px 12px; border-radius:8px 8px 0 0; font-weight:800; font-size:14px; text-transform:uppercase; background:#fef3c7; border:1px solid #f59e0b; color:#92400e; justify-self:center; align-self:end; white-space:nowrap; }
+    .scale-badge{ background:#f97316; color:#fff; padding:4px 8px 6px; border-radius:6px 6px 0 0; font-size:10px; font-weight:800; text-align:center; position:relative; min-width:80px; justify-self:center; width:80px; }
+    .scale-badge::after{ content:""; position:absolute; left:50%; transform:translateX(-50%); bottom:-5px; border-left:6px solid transparent; border-right:6px solid transparent; border-top:5px solid #f97316; }
+    .questions-header{ display:grid; grid-template-columns:48px minmax(0,1fr) repeat(4,88px); gap:6px; align-items:center; font-size:13px; margin-top:10px; padding:6px 0; border-bottom:1px solid var(--line); width:100%; box-sizing:border-box; }
+    .questions-header div{ text-align:center; font-weight:700; }
+    .questions-header div:first-child,.questions-header div:nth-child(2){ text-align:left; }
+    .question{ display:grid; grid-template-columns:48px minmax(0,1fr) repeat(4,88px); gap:6px; align-items:center; padding:10px 0; border-bottom:1px solid #f1f5f9; font-size:15px; width:100%; box-sizing:border-box; }
+    .question:nth-child(even){ background:#fffdf8; }
+    .question.answered{ background:#ecfdf5 !important; outline:1px solid #bbf7d0; outline-offset:-1px; border-bottom-color:#bbf7d0; }
+    .q-no{ font-variant-numeric:tabular-nums; text-align:center; color:#64748b; font-weight:700; }
+    .q-text{ display:block; overflow-wrap:anywhere; word-break:break-word; }
+    .q-cell{ text-align:center; }
+    .q-cell input[type="radio"]{ width:18px; height:18px; cursor:pointer; }
+
+    .visual-wrap{ margin:12px 0 16px; }
+    .visual-card{ border:1px solid #e2e8f0; border-radius:20px; padding:16px; background:linear-gradient(180deg,#ffffff 0%,#fcfcfd 100%); box-shadow:0 14px 34px rgba(15,23,42,.07); }
+    .visual-title{ font-weight:900; margin-bottom:8px; color:#0f172a; font-size:18px; letter-spacing:.01em; }
+    .visual-subtitle{ color:#475569; font-size:15px; line-height:1.55; margin-bottom:12px; }
+    .visual-stimulus{ display:flex; justify-content:center; align-items:center; min-height:110px; margin:10px 0 14px; padding:16px; border-radius:16px; background:linear-gradient(180deg,#fff7ed 0%,#fffbf5 100%); border:1px solid #fdba74; box-shadow:inset 0 1px 0 rgba(255,255,255,.85); }
     .visual-row{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
-    .option-card{ border:1px solid #dbe3ee; border-radius:16px; padding:12px 10px; cursor:pointer; background:linear-gradient(180deg,#fff 0%,#f8fafc 100%); transition:.18s transform,.18s border-color,.18s box-shadow,.18s background; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center; min-height:96px; color:#0f172a; }
-    .option-card:hover{ transform:translateY(-2px); border-color:#64748b; box-shadow:0 14px 26px rgba(15,23,42,.1); }
-    .option-card.active{ border-color:#111827; box-shadow:0 0 0 3px rgba(17,24,39,.12),0 14px 28px rgba(15,23,42,.1); background:linear-gradient(180deg,#f8fafc 0%,#fff 100%); }
-    .option-letter{ font-weight:900; font-size:12px; color:#334155; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:999px; padding:4px 10px; }
-    .scenario-line{ font-size:15px; line-height:1.7; color:#0f172a; max-width:760px; margin:0 auto; text-align:center; }
-    .mini-note{ font-size:12px; color:#64748b; text-align:center; margin-top:8px; }
-    .result-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 20px; text-align:left; margin-top:20px; }
-    .result-card{ border:1px solid #e5e7eb; border-radius:16px; padding:14px; background:#fff; }
-    .meter{ height:10px; border-radius:999px; background:#e5e7eb; overflow:hidden; margin-top:8px; }
-    .meter > span{ display:block; height:100%; background:#111827; }
+    .option-card{ border:1px solid #dbe3ee; border-radius:16px; padding:12px 10px; cursor:pointer; background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%); transition:.18s transform,.18s border-color,.18s box-shadow,.18s background; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center; min-height:98px; color:#0f172a; }
+    .option-card:hover{ transform:translateY(-2px); border-color:#f59e0b; box-shadow:0 14px 26px rgba(245,158,11,.14); background:linear-gradient(180deg,#fffdf8 0%,#fff7ed 100%); }
+    .option-card.active{ border-color:#f59e0b; box-shadow:0 0 0 3px rgba(245,158,11,.16),0 14px 28px rgba(245,158,11,.14); background:linear-gradient(180deg,#fff7ed 0%,#fffbf5 100%); }
+    .option-letter{ font-weight:900; font-size:12px; color:#9a3412; background:#ffedd5; border:1px solid #fdba74; border-radius:999px; padding:4px 10px; }
+    .seq-line{ display:flex; gap:12px; align-items:center; justify-content:center; font-size:32px; font-weight:800; color:#0f172a; flex-wrap:wrap; }
+    .seq-arrow{ font-size:22px; color:#f59e0b; }
+    .grid3{ display:grid; grid-template-columns:repeat(3,78px); gap:8px; }
+    .cell-box{ width:78px; height:78px; border:1px solid #cbd5e1; border-radius:16px; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 18px rgba(15,23,42,.06); }
+    .mini-box{ width:58px; height:58px; border:1px solid #cbd5e1; border-radius:14px; background:#fff; display:flex; align-items:center; justify-content:center; }
+    .search-grid{ display:grid; grid-template-columns:repeat(6,48px); gap:6px; }
+    .search-cell{ width:48px; height:48px; border:1px solid #fed7aa; border-radius:12px; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 12px rgba(245,158,11,.08); }
+
+    .result-shell{ display:grid; grid-template-columns:1.2fr .9fr; gap:18px; margin-top:18px; }
+    .result-card{ border:1px solid #e5e7eb; border-radius:18px; background:#fff; padding:16px; box-shadow:0 12px 28px rgba(15,23,42,.05); }
+    .result-head{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:14px; }
+    .score-box{ padding:14px 16px; border-radius:18px; background:linear-gradient(180deg,#fff7ed,#fffbf5); border:1px solid #fdba74; min-width:180px; }
+    .score-box strong{ display:block; font-size:38px; color:#9a3412; }
+    .bar-row{ display:grid; grid-template-columns:42px minmax(0,1fr) 44px; gap:10px; align-items:center; margin-bottom:10px; }
+    .bar-track{ height:12px; border-radius:999px; background:#e5e7eb; overflow:hidden; }
+    .bar-fill{ height:100%; border-radius:999px; background:linear-gradient(90deg,#f59e0b,#ea580c); }
+    .tag{ display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:800; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+
     .preintro-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:center; justify-content:center; z-index:9999; }
-    .preintro-card{ width:min(920px,calc(100% - 32px)); max-height:calc(100vh - 32px); overflow:auto; background:#fff; border-radius:14px; box-shadow:0 18px 60px rgba(0,0,0,.25); padding:22px 22px 18px; }
-    .preintro-title{ font-size:26px; font-weight:800; margin:0 0 8px; }
+    .preintro-card{ width:min(920px,calc(100% - 32px)); max-height:calc(100vh - 32px); overflow:auto; background:#fff; border-radius:18px; box-shadow:0 18px 60px rgba(0,0,0,.25); padding:22px 22px 18px; }
+    .preintro-title{ font-size:26px; font-weight:900; margin:0 0 8px; }
+    .preintro-box{ border:1px solid rgba(0,0,0,.08); border-radius:14px; padding:12px 14px; background:#fff; }
     .preintro-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:14px; }
     .preintro-btn{ border:0; border-radius:999px; padding:10px 16px; font-weight:800; cursor:pointer; }
     .preintro-btn.primary{ background:#16a34a; color:#fff; }
     .preintro-btn.secondary{ background:rgba(0,0,0,.06); color:#111; }
-    .grid-choices-3{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
-    @media (max-width:980px){ .visual-row{grid-template-columns:repeat(2,minmax(0,1fr));} .result-grid{grid-template-columns:1fr;} }
-    @media (max-width:840px){ .layout{grid-template-columns:56px minmax(0,1fr);} .side-strip span{font-size:18px;} }
-    @media (max-width:720px){ .grid-2{grid-template-columns:1fr;} .scale-banner{grid-template-columns:1fr; gap:8px;} .section-banner{justify-self:start;} .visual-row,.grid-choices-3{grid-template-columns:1fr;} }
+
+    body.tema-pro .visual-stimulus, body.tema-pro .score-box{ background:linear-gradient(180deg,#f8fafc,#ffffff); border-color:#cbd5e1; }
+    body.tema-pro .pill{ background:#f8fafc; border-color:#cbd5e1; color:#334155; }
+    body.tema-pro .scale-badge{ background:#64748b; }
+    body.tema-pro .scale-badge::after{ border-top-color:#64748b; }
+    body.tema-pro .section-banner{ background:#e2e8f0; border-color:#94a3b8; color:#334155; }
+    body.tema-pro .bar-fill, body.tema-pro .progress .bar{ background:linear-gradient(90deg,#94a3b8,#64748b); }
+    body.tema-pro .option-card:hover, body.tema-pro .option-card.active{ border-color:#94a3b8; box-shadow:0 14px 26px rgba(15,23,42,.10); background:linear-gradient(180deg,#ffffff,#f8fafc); }
+    body.tema-pro .option-letter{ color:#334155; background:#f1f5f9; border-color:#cbd5e1; }
+
+    @media (max-width:980px){ .grid-2{ grid-template-columns:repeat(2,minmax(0,1fr)); } .result-shell{ grid-template-columns:1fr; } }
+    @media (max-width:840px){ .layout{ grid-template-columns:56px minmax(0,1fr); } .side-strip span{ font-size:18px; } }
+    @media (max-width:720px){
+      .grid-2{ grid-template-columns:1fr; }
+      .questions-header,.question,.scale-banner{ grid-template-columns:34px 1fr repeat(4,64px); gap:8px; }
+      .scale-badge{ min-width:56px; width:56px; font-size:9px; }
+      .visual-row{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .search-grid{ grid-template-columns:repeat(4,48px); justify-content:center; }
+      .cell-box{ width:64px; height:64px; }
+      .grid3{ grid-template-columns:repeat(3,64px); }
+    }
   </style>
 </head>
 <body>
-<div class="layout">
-  <aside class="side-strip"><span>INTELECTUAL</span></aside>
-  <main class="page">
-    <header><h1 style="text-align:center;">EVALUACIÓN INTELECTUAL</h1></header>
+  <div class="layout">
+    <aside class="side-strip"><span>INTELECTUAL</span></aside>
+    <main class="page">
+      <header>
+        <h1>EVALUACIÓN INTELECTUAL CHC</h1>
+        <p class="hero-sub">Prueba cognitiva estructurada en seis áreas: razonamiento fluido, comprensión verbal, memoria de trabajo, velocidad de procesamiento, procesamiento visual-espacial y razonamiento cuantitativo.</p>
+      </header>
 
-    <section id="datos-participante" class="card" style="margin-top:50px;">
-      <div class="grid-2">
-        <div class="field"><label for="codigo">Código</label><input id="codigo" type="text" autocomplete="off" style="text-transform:uppercase;" /><small id="codigoMsg" class="muted">Ingresa código y nombre para comenzar.</small></div>
-        <div class="field"><label for="nombre">Nombre</label><input id="nombre" type="text" autocomplete="name" /></div>
-        <div class="field"><label for="curso" id="lblCurso">Grado/Curso/Nivel</label><input id="curso" type="text" placeholder="Ej. 3ro B / PRO 1" /></div>
-        <div class="field"><label for="institucion">Institución</label><input id="institucion" type="text" placeholder="Institución" /></div>
-        <div class="field"><label for="grupo">País</label><input id="grupo" type="text" placeholder="País" /></div>
-        <div class="field"><label for="fecha">Fecha</label><input id="fecha" type="text" readonly /></div>
-      </div>
-    </section>
-
-    <section id="pantalla-inicio" class="card instructions">
-      <p><strong>Bienvenido.</strong> Esta evaluación intelectual está organizada en 6 secciones y presenta ejercicios de razonamiento, lenguaje, memoria, rapidez, organización visual y lógica cuantitativa.</p>
-      <p>Lee cada consigna con atención y selecciona <strong>una sola respuesta</strong> en cada ejercicio. Algunas actividades miden precisión y otras comprensión de relaciones o patrones.</p>
-      <p>No regreses a páginas anteriores una vez que avances. Procura responder con atención y mantener un ritmo constante.</p>
-      <div style="margin-top:12px; text-align:right;"><button id="btnIniciar" class="primary" disabled>Siguiente</button></div>
-    </section>
-
-    <section id="pantalla-preguntas" class="hidden">
-      <div class="card">
-        <div class="sticky-wrap">
-          <h2 id="sectionInstruction" style="margin:0 0 6px;">Lee la instrucción y selecciona una sola respuesta.</h2>
-          <div class="scale-banner">
-            <div class="scale-spacer"></div>
-            <div id="sectionBanner" class="section-banner">SECCIÓN 1 DE 6 — RAZONAMIENTO FLUIDO</div>
-            <div class="scale-badge">A</div>
-            <div class="scale-badge">B</div>
-            <div class="scale-badge">C</div>
-            <div class="scale-badge">D</div>
-          </div>
-          <div class="progress"><div class="bar" id="bar"></div></div>
-          <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span class="pill" id="pillTotal">Total: 0 / 24 (0%)</span>
-            <small id="metaInfo" class="muted"></small>
-          </div>
-          <div class="questions-header"><div>#</div><div>Ejercicio</div><div>A</div><div>B</div><div>C</div><div>D</div></div>
+      <section id="datos-participante" class="card" style="margin-top:18px;">
+        <div class="grid-2">
+          <div class="field"><label for="codigo">Código</label><input id="codigo" type="text" autocomplete="off" style="text-transform:uppercase;"><small id="codigoMsg" class="muted">Ingresa un código para activar la evaluación.</small></div>
+          <div class="field"><label for="nombre">Nombre</label><input id="nombre" type="text" autocomplete="name"></div>
+          <div class="field"><label for="curso" id="lblCurso">Grado/Curso/Nivel</label><input id="curso" type="text" readonly></div>
+          <div class="field"><label for="institucion">Institución</label><input id="institucion" type="text" readonly></div>
+          <div class="field"><label for="grupo">País</label><input id="grupo" type="text" readonly></div>
+          <div class="field"><label for="fecha">Fecha</label><input id="fecha" type="text" readonly></div>
         </div>
-        <div id="questions"></div>
-        <div class="footer-actions">
-          <div><small id="pageIndicator" class="muted"></small></div>
-          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-            <small id="notaContinuar" class="panel-note">NOTA: Para continuar debes contestar todos los ejercicios de esta pantalla. Contestados: 0/0.</small>
-            <button id="btnSiguiente" class="dark">SIGUIENTE</button>
+      </section>
+
+      <section id="pantalla-inicio" class="card instructions">
+        <div class="instructions-header">INSTRUCCIONES GENERALES</div>
+        <div class="preintro-box" style="max-width:980px;margin:0 auto;">
+          <p style="margin:0 0 10px; line-height:1.6;">Esta evaluación permite estimar el funcionamiento intelectual general a partir de seis áreas cognitivas clave. Encontrarás ejercicios visuales, verbales, numéricos y espaciales. Algunas preguntas evalúan rapidez, otras precisión y otras razonamiento.</p>
+          <ul style="margin:0; padding-left:22px; line-height:1.7; color:#334155;">
+            <li>Lee con atención cada instrucción antes de responder.</li>
+            <li>Selecciona una sola opción por ejercicio.</li>
+            <li>Trabaja con concentración y procura no dejar preguntas en blanco.</li>
+            <li>Algunas secciones presentan ejercicios visuales; otras usan palabras o números.</li>
+          </ul>
+          <p style="margin:12px 0 0; color:#475569;"><strong>Tiempo estimado:</strong> entre 20 y 30 minutos aproximadamente.</p>
+        </div>
+        <div style="margin-top:14px; text-align:right;"><button id="btnIniciar" class="primary" disabled>Siguiente</button></div>
+      </section>
+
+      <section id="pantalla-preguntas" class="hidden">
+        <div class="card">
+          <div class="sticky-wrap">
+            <h2 id="sectionInstruction" style="margin:0 0 6px;">Lee la consigna de cada ejercicio y selecciona una sola respuesta.</h2>
+            <div class="scale-banner" aria-label="Escala">
+              <div class="scale-spacer"></div>
+              <div id="sectionBanner" class="section-banner">Sección 1</div>
+              <div class="scale-badge">OPCIÓN A</div>
+              <div class="scale-badge">OPCIÓN B</div>
+              <div class="scale-badge">OPCIÓN C</div>
+              <div class="scale-badge">OPCIÓN D</div>
+            </div>
+            <div class="progress"><div class="bar" id="bar"></div></div>
+            <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
+              <small id="metaInfo" class="muted"></small>
+            </div>
+            <div class="questions-header"><div>#</div><div>Ejercicio</div><div>A</div><div>B</div><div>C</div><div>D</div></div>
+          </div>
+          <div id="questions"></div>
+          <div class="footer-actions">
+            <small id="pageIndicator" class="muted"></small>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+              <small id="notaContinuar" class="panel-note">Debes contestar todos los ejercicios de esta pantalla para continuar.</small>
+              <button id="btnSiguiente" class="primary">SIGUIENTE</button>
+            </div>
           </div>
         </div>
+      </section>
+
+      <section id="pantalla-final">
+        <div class="check-icon">✔</div>
+        <h2>Evaluación terminada</h2>
+        <p>Has concluido la evaluación intelectual. A continuación se muestra un resumen visual de resultados.</p>
+        <div id="resultados"></div>
+        <div style="margin-top:14px;"><button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="preintroBackdrop" class="preintro-backdrop">
+    <div class="preintro-card">
+      <div id="preintroContent"></div>
+      <div class="preintro-actions">
+        <button class="preintro-btn secondary" id="preintroBackBtn" type="button" style="display:none;">Atrás</button>
+        <button class="preintro-btn primary" id="preintroNextBtn" type="button">Siguiente</button>
       </div>
-    </section>
-
-    <section id="pantalla-final">
-      <div class="check-icon">✔</div>
-      <h2>Evaluación terminada</h2>
-      <p>Has concluido tu evaluación intelectual.</p>
-      <div id="resultadoResumen"></div>
-      <div style="margin-top:18px;"><button id="btnReiniciar" class="secondary">VOLVER A INICIO</button></div>
-    </section>
-  </main>
-</div>
-
-<div class="preintro-backdrop" id="preintroBackdrop" aria-hidden="true">
-  <div class="preintro-card" role="dialog" aria-modal="true" aria-labelledby="preintroTitle">
-    <div id="preintroContent"></div>
-    <div class="preintro-actions">
-      <button class="preintro-btn secondary" id="preintroBackBtn" type="button" style="display:none;">Atrás</button>
-      <button class="preintro-btn primary" id="preintroNextBtn" type="button">Siguiente</button>
     </div>
   </div>
-</div>
 
 <script>
-(function lockScrollbarWidth(){ function setSBW(){ const sbw = window.innerWidth - document.documentElement.clientWidth; document.documentElement.style.setProperty('--sbw',(sbw > 0 ? sbw : 0)+'px'); } setSBW(); window.addEventListener('resize', setSBW); })();
-const STORAGE_PREFIX = 'eval_int_chc_';
+(function lockScrollbarWidth(){
+  function setSBW(){
+    const sbw = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.setProperty('--sbw', (sbw > 0 ? sbw : 0) + 'px');
+  }
+  setSBW(); window.addEventListener('resize', setSBW);
+})();
+
+const codigoInput = document.getElementById('codigo');
+const instInput = document.getElementById('institucion');
+const grupoInput = document.getElementById('grupo');
+const cursoInput = document.getElementById('curso');
+const btnIniciar = document.getElementById('btnIniciar');
+const codigoMsg = document.getElementById('codigoMsg');
+const fechaInput = document.getElementById('fecha');
+const nombreInput = document.getElementById('nombre');
+const pantallaInicio = document.getElementById('pantalla-inicio');
+const pantallaPreguntas = document.getElementById('pantalla-preguntas');
+const pantallaFinal = document.getElementById('pantalla-final');
+const questionsEl = document.getElementById('questions');
+const bar = document.getElementById('bar');
+const pillTotal = document.getElementById('pillTotal');
+const metaInfo = document.getElementById('metaInfo');
+const pageIndicator = document.getElementById('pageIndicator');
+const notaContinuar = document.getElementById('notaContinuar');
+const sectionInstruction = document.getElementById('sectionInstruction');
+const sectionBanner = document.getElementById('sectionBanner');
+const btnSiguiente = document.getElementById('btnSiguiente');
+const resultadosEl = document.getElementById('resultados');
+const preintroBackdrop = document.getElementById('preintroBackdrop');
+const preintroContent = document.getElementById('preintroContent');
+const preintroBackBtn = document.getElementById('preintroBackBtn');
+const preintroNextBtn = document.getElementById('preintroNextBtn');
+
+fechaInput.value = new Date().toLocaleDateString('es-EC', { year:'numeric', month:'2-digit', day:'2-digit' });
+
+function aplicarTemaPorCodigo(codigo){
+  const limpio = String(codigo || '').trim().toUpperCase();
+  document.body.classList.remove('tema-pro','tema-esc');
+  if (!limpio) return;
+  if (limpio.startsWith('PRO')) document.body.classList.add('tema-pro');
+  else document.body.classList.add('tema-esc');
+  document.getElementById('lblCurso').textContent = limpio.startsWith('PRO') ? 'Nivel' : 'Grado/Curso';
+}
+
+function lookupCodigo(){
+  const codigo = codigoInput.value.trim().toUpperCase();
+  codigoInput.value = codigo;
+  btnIniciar.disabled = true;
+  if (!codigo){
+    instInput.value = ''; grupoInput.value=''; cursoInput.value='';
+    codigoMsg.textContent = 'Ingresa un código.'; codigoMsg.className='muted';
+    aplicarTemaPorCodigo('');
+    return;
+  }
+  instInput.value = codigo.startsWith('PRO') ? 'Adalam Profesional' : 'Adalam Educativo';
+  grupoInput.value = codigo.startsWith('PRO') ? 'Ecuador' : 'Ecuador';
+  cursoInput.value = codigo.startsWith('PRO') ? 'Profesional' : 'Secundaria';
+  aplicarTemaPorCodigo(codigo);
+  codigoMsg.textContent = 'Código válido para demostración.'; codigoMsg.className='ok';
+  btnIniciar.disabled = false;
+}
+
+codigoInput.addEventListener('input', ()=> codigoInput.value = codigoInput.value.toUpperCase());
+codigoInput.addEventListener('blur', lookupCodigo);
+codigoInput.addEventListener('keydown', e=>{ if (e.key === 'Enter'){ e.preventDefault(); lookupCodigo(); } });
+
+const PREINTRO = [
+  {
+    title:'SECCIÓN 1',
+    subtitle:'Razonamiento fluido',
+    html:`<h2 class="preintro-title">SECCIÓN 1</h2>
+      <div class="preintro-box"><p style="margin:0;line-height:1.6;">En esta sección observarás patrones visuales y transformaciones entre figuras. Debes identificar la opción que completa correctamente cada ejercicio.</p></div>`
+  },
+  {
+    title:'SECCIÓN 2',
+    subtitle:'Comprensión verbal',
+    html:`<h2 class="preintro-title">SECCIÓN 2</h2>
+      <div class="preintro-box"><p style="margin:0;line-height:1.6;">Aquí encontrarás analogías y relaciones entre palabras o conceptos. Lee con atención y elige la opción que expresa mejor la relación solicitada.</p></div>`
+  },
+  {
+    title:'SECCIÓN 3',
+    subtitle:'Memoria de trabajo',
+    html:`<h2 class="preintro-title">SECCIÓN 3</h2>
+      <div class="preintro-box"><p style="margin:0;line-height:1.6;">En esta sección deberás retener y reorganizar secuencias breves de números, letras o instrucciones. Piensa antes de responder.</p></div>`
+  },
+  {
+    title:'SECCIÓN 4',
+    subtitle:'Velocidad de procesamiento',
+    html:`<h2 class="preintro-title">SECCIÓN 4</h2>
+      <div class="preintro-box"><p style="margin:0;line-height:1.6;">Observarás estímulos simples y deberás identificar con rapidez la opción correcta. Responde con precisión.</p></div>`
+  },
+  {
+    title:'SECCIÓN 5',
+    subtitle:'Procesamiento visual-espacial',
+    html:`<h2 class="preintro-title">SECCIÓN 5</h2>
+      <div class="preintro-box"><p style="margin:0;line-height:1.6;">En esta parte trabajarás con rotación, ubicación y organización espacial de figuras. Analiza visualmente antes de escoger.</p></div>`
+  },
+  {
+    title:'SECCIÓN 6',
+    subtitle:'Razonamiento cuantitativo',
+    html:`<h2 class="preintro-title">SECCIÓN 6</h2>
+      <div class="preintro-box"><p style="margin:0;line-height:1.6;">Aquí encontrarás secuencias numéricas y relaciones de cantidad. Identifica la lógica y selecciona la respuesta correcta.</p></div>`
+  }
+];
+
+const ITEMS = [
+  {id:'gf1', section:1, area:'Gf', title:'Matriz visual', instruction:'Observa la matriz y elige la opción que completa correctamente el patrón.', correct:'B', type:'visual', render:'gf_matrix'},
+  {id:'gf2', section:1, area:'Gf', title:'Serie de transformación', instruction:'Observa la secuencia y selecciona la figura que sigue.', correct:'C', type:'visual', render:'gf_series'},
+  {id:'gc1', section:2, area:'Gc', title:'Analogía verbal', instruction:'Libro es a leer como termómetro es a…', options:{A:'guardar',B:'medir',C:'cortar',D:'dibujar'}, correct:'B', type:'plain'},
+  {id:'gc2', section:2, area:'Gc', title:'Relación conceptual', instruction:'¿En qué se parecen un mapa y una brújula?', options:{A:'ambos sirven para orientarse',B:'ambos pesan lo mismo',C:'ambos hacen ruido',D:'ambos son de vidrio'}, correct:'A', type:'plain'},
+  {id:'gwm1', section:3, area:'Gwm', title:'Dígitos inversos', instruction:'Si la secuencia es 7 - 2 - 9 - 4, ¿cuál es la secuencia en orden inverso?', options:{A:'4 - 9 - 2 - 7',B:'7 - 2 - 9 - 4',C:'2 - 7 - 4 - 9',D:'4 - 2 - 9 - 7'}, correct:'A', type:'memory'},
+  {id:'gwm2', section:3, area:'Gwm', title:'Reordenamiento', instruction:'Reordena B - 3 - A - 7 primero por números y luego por letras.', options:{A:'3 - 7 - A - B',B:'A - B - 3 - 7',C:'7 - 3 - B - A',D:'3 - A - 7 - B'}, correct:'A', type:'plain'},
+  {id:'gs1', section:4, area:'Gs', title:'Búsqueda visual', instruction:'Marca la opción que es idéntica al modelo.', correct:'D', type:'visual', render:'gs_target'},
+  {id:'gs2', section:4, area:'Gs', title:'Comparación rápida', instruction:'¿Qué par es exactamente igual?', options:{A:'K7P2 - K7P2',B:'T4M8 - T4N8',C:'ABX9 - ABX8',D:'93261 - 93216'}, correct:'A', type:'plain'},
+  {id:'gv1', section:5, area:'Gv', title:'Rotación mental', instruction:'Selecciona la figura que representa la misma forma rotada.', correct:'C', type:'visual', render:'gv_rotate'},
+  {id:'gv2', section:5, area:'Gv', title:'Ruta espacial', instruction:'Desde el punto inicial, sigue ↑ ↑ → → ↓. ¿Dónde termina?', options:{A:'A3',B:'B3',C:'C2',D:'B1'}, correct:'C', type:'route'},
+  {id:'gq1', section:6, area:'Gq', title:'Serie numérica', instruction:'4 - 8 - 16 - 32 - ?', options:{A:'40',B:'48',C:'56',D:'64'}, correct:'D', type:'plain'},
+  {id:'gq2', section:6, area:'Gq', title:'Relación cuantitativa', instruction:'Si △ = 3 y □ = 6, ¿cuánto vale △ + □ + △?', options:{A:'9',B:'10',C:'12',D:'15'}, correct:'C', type:'plain'}
+];
+
 const PAGE_SIZE = 4;
-let ITEMS = [];
 let currentPage = 0;
-let startTime = Date.now();
-const shownSectionModal = {};
-const sectionLabels = {1:'Razonamiento fluido',2:'Comprensión verbal',3:'Memoria de trabajo',4:'Velocidad de procesamiento',5:'Procesamiento visual-espacial',6:'Razonamiento cuantitativo'};
-const sectionInstructions = {
-  1:'Observa patrones y transformaciones. Selecciona la opción que completa correctamente la relación visual.',
-  2:'Lee cada ejercicio verbal y marca la alternativa que exprese mejor la relación o significado correcto.',
-  3:'Retén la información y elige la opción que representa la respuesta correcta después de reorganizar mentalmente la secuencia.',
-  4:'Identifica con rapidez el estímulo correcto o la relación exacta entre los elementos presentados.',
-  5:'Observa figuras, rotaciones o posiciones. Elige la alternativa que conserve la organización espacial solicitada.',
-  6:'Analiza series y relaciones cuantitativas. Selecciona la opción que completa correctamente el ejercicio.'
-};
-const PREINTRO = {
- introHtml:`
-  <h2 class="preintro-title">Evaluación Intelectual</h2>
-  <p class="muted" style="margin-top:6px; line-height:1.6;">Esta evaluación intelectual se basa en una estructura CHC y está organizada en seis secciones.</p>
-  <div style="border:1px solid rgba(0,0,0,.12); border-radius:12px; padding:12px 14px; margin-top:14px;">
-    <h4 style="margin:0 0 10px;">Secciones de la evaluación</h4>
-    <ol style="margin:0; padding-left:22px; line-height:1.7;">
-      <li>Razonamiento fluido</li>
-      <li>Comprensión verbal</li>
-      <li>Memoria de trabajo</li>
-      <li>Velocidad de procesamiento</li>
-      <li>Procesamiento visual-espacial</li>
-      <li>Razonamiento cuantitativo</li>
-    </ol>
-  </div>
-  <p class="muted" style="margin-top:12px; line-height:1.6;"><strong>Tiempo estimado:</strong> entre 20 y 30 minutos, aproximadamente.</p>`,
- instruccionesHtml:`
-  <h2 class="preintro-title">Indicaciones generales</h2>
-  <p class="muted" style="line-height:1.6;">Lee con atención cada consigna y selecciona una sola respuesta en cada ejercicio.</p>
-  <div style="border:1px solid rgba(0,0,0,.12); border-radius:12px; padding:12px 14px; margin-top:14px;">
-    <ul style="margin:0; padding-left:22px; line-height:1.75;">
-      <li>Algunos ejercicios son visuales y otros verbales o numéricos.</li>
-      <li>Trabaja con concentración y mantén un ritmo constante.</li>
-      <li>No avances sin haber respondido todos los ejercicios de la pantalla actual.</li>
-      <li>El resultado final mostrará un índice global y un perfil por áreas.</li>
-    </ul>
-  </div>`
-};
+const responses = {};
+let modalSectionIndex = 0;
 
-function setToday(){ const d = new Date(); const txt = d.toLocaleDateString('es-EC',{year:'numeric',month:'2-digit',day:'2-digit'}); document.getElementById('fecha').value = txt; }
-function maybeEnableStart(){ const code = document.getElementById('codigo').value.trim(); const nombre = document.getElementById('nombre').value.trim(); document.getElementById('btnIniciar').disabled = !(code && nombre); document.getElementById('codigoMsg').textContent = code && nombre ? 'Datos listos para comenzar.' : 'Ingresa código y nombre para comenzar.'; document.getElementById('codigoMsg').className = code && nombre ? 'ok' : 'muted'; }
-['codigo','nombre'].forEach(id => document.getElementById(id).addEventListener('input', maybeEnableStart));
+function showPreintro(index){
+  modalSectionIndex = index;
+  preintroContent.innerHTML = PREINTRO[index].html;
+  preintroBackBtn.style.display = index === 0 ? 'none' : 'inline-flex';
+  preintroNextBtn.textContent = index === PREINTRO.length - 1 ? 'Comenzar' : 'Siguiente';
+  preintroBackdrop.style.display = 'flex';
+}
+function hidePreintro(){ preintroBackdrop.style.display = 'none'; }
+preintroBackBtn.addEventListener('click', ()=> { if (modalSectionIndex > 0) showPreintro(modalSectionIndex - 1); });
+preintroNextBtn.addEventListener('click', ()=> {
+  if (modalSectionIndex < PREINTRO.length - 1) showPreintro(modalSectionIndex + 1);
+  else { hidePreintro(); pantallaInicio.classList.add('hidden'); pantallaPreguntas.classList.remove('hidden'); renderPage(); }
+});
 
-function getStorageKey(){ const code = document.getElementById('codigo').value.trim().toUpperCase(); return code ? STORAGE_PREFIX + code : null; }
-function saveState(completed=false){ const key = getStorageKey(); if(!key) return; const state = { currentPage, responses: obtenerRespuestasCrudas(), completed, startedAt:startTime, datos: recogerDatos() }; localStorage.setItem(key, JSON.stringify(state)); }
-function loadState(){ const key = getStorageKey(); if(!key) return null; try{ return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; } }
-function clearState(){ const key = getStorageKey(); if(key) localStorage.removeItem(key); }
-function recogerDatos(){ return { codigo:document.getElementById('codigo').value.trim().toUpperCase(), nombre:document.getElementById('nombre').value.trim(), curso:document.getElementById('curso').value.trim(), institucion:document.getElementById('institucion').value.trim(), grupo:document.getElementById('grupo').value.trim(), fecha:document.getElementById('fecha').value }; }
-function aplicarDatos(datos){ if(!datos) return; for(const k of ['codigo','nombre','curso','institucion','grupo','fecha']){ const el = document.getElementById(k); if(el && datos[k] != null) el.value = datos[k]; } maybeEnableStart(); }
+btnIniciar.addEventListener('click', ()=> showPreintro(0));
+document.getElementById('btnRegresarMenu').addEventListener('click', ()=> location.reload());
 
-function buildItems(){
- ITEMS = [
-  {id:101,seccion:1,tipo:'matrix4',titulo:'Matriz progresiva',ayuda:'Selecciona la opción que completa la matriz siguiendo la misma lógica visual.',correcta:'B',stimulus:{r1:['○1','●2','○3'],r2:['■1','□2','?']},opciones:{A:'■2',B:'■3',C:'◇3',D:'□4'}},
-  {id:102,seccion:1,tipo:'analogyVisual',titulo:'Analogía visual',ayuda:'A cambia a B; aplica la misma transformación a C.',correcta:'C',pair1:['○','◆'],pair2:['□','◆','fill'],base:'△',opciones:{A:'△',B:'▲',C:'▲◆',D:'□◆'}},
-  {id:103,seccion:1,tipo:'matrixShapes',titulo:'Patrón de cantidad y forma',ayuda:'Observa cómo cambia la cantidad y la forma en cada fila.',correcta:'A',stimulus:{top:[1,2,3],bottom:[2,3,'?']},shapeTop:'circle',shapeBottom:'triangle',opciones:{A:'4△',B:'3△',C:'4○',D:'2△'}},
-  {id:104,seccion:1,tipo:'sequenceVisual',titulo:'Serie por transformación',ayuda:'La figura rota y agrega un punto en cada paso.',correcta:'D',sequence:[{rot:0,d:1},{rot:90,d:2},{rot:180,d:3}],opciones:{A:{rot:90,d:4},B:{rot:270,d:3},C:{rot:180,d:4},D:{rot:270,d:4}}},
+function currentItems(){ return ITEMS.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE); }
+function overallProgress(){ return Math.round((Object.keys(responses).length / ITEMS.length) * 100); }
+function pageProgress(items){ return items.filter(it => responses[it.id]).length; }
+function sectionInfo(section){ return PREINTRO[section - 1]; }
 
-  {id:201,seccion:2,tipo:'textmcq',titulo:'Analogía verbal',ayuda:'Selecciona la relación correcta.',pregunta:'Brújula es a dirección como termómetro es a:',opciones:{A:'tamaño',B:'temperatura',C:'peso',D:'distancia'},correcta:'B'},
-  {id:202,seccion:2,tipo:'textmcq',titulo:'Semejanza conceptual',ayuda:'Marca la opción que expresa mejor la semejanza.',pregunta:'¿En qué se parecen una llave y una contraseña?',opciones:{A:'Ambas sirven para decorar.',B:'Ambas permiten acceso bajo una condición.',C:'Ambas son de metal.',D:'Ambas se usan solo en la escuela.'},correcta:'B'},
-  {id:203,seccion:2,tipo:'textmcq',titulo:'Vocabulario aplicado',ayuda:'Selecciona el significado más cercano.',pregunta:'La palabra "persistente" se relaciona mejor con:',opciones:{A:'cambiar rápido de opinión',B:'abandonar con facilidad',C:'mantener el esfuerzo',D:'actuar sin pensar'},correcta:'C'},
-  {id:204,seccion:2,tipo:'textmcq',titulo:'Relación verbal',ayuda:'Completa la relación entre conceptos.',pregunta:'Libro es a leer como mapa es a:',opciones:{A:'viajar',B:'orientarse',C:'dibujar',D:'guardar'},correcta:'B'},
-
-  {id:301,seccion:3,tipo:'memoryDigits',titulo:'Dígitos en orden inverso',ayuda:'Retén la secuencia y elige su orden inverso.',sequence:['7','2','9','4'],opciones:{A:'4 · 9 · 2 · 7',B:'7 · 4 · 9 · 2',C:'2 · 9 · 4 · 7',D:'4 · 2 · 9 · 7'},correcta:'A'},
-  {id:302,seccion:3,tipo:'memoryReorder',titulo:'Reordenamiento mixto',ayuda:'Primero números de menor a mayor y luego letras en orden alfabético.',sequence:['B','3','A','7'],opciones:{A:'3 · 7 · B · A',B:'7 · 3 · A · B',C:'3 · 7 · A · B',D:'A · B · 3 · 7'},correcta:'C'},
-  {id:303,seccion:3,tipo:'memoryInstructions',titulo:'Secuencia de instrucciones',ayuda:'Identifica el orden correcto después de aplicar la consigna.',pregunta:'Si la regla es: primero el color, luego la forma y al final el tamaño, ¿cuál es el orden correcto para "rojo · triángulo · pequeño"?',opciones:{A:'pequeño · rojo · triángulo',B:'rojo · triángulo · pequeño',C:'triángulo · rojo · pequeño',D:'rojo · pequeño · triángulo'},correcta:'B'},
-  {id:304,seccion:3,tipo:'memoryDigits',titulo:'Retención activa',ayuda:'Selecciona la secuencia resultante al revés.',sequence:['8','1','6','5','2'],opciones:{A:'2 · 5 · 6 · 1 · 8',B:'8 · 1 · 6 · 5 · 2',C:'5 · 2 · 6 · 1 · 8',D:'2 · 6 · 5 · 1 · 8'},correcta:'A'},
-
-  {id:401,seccion:4,tipo:'searchGrid',titulo:'Búsqueda visual',ayuda:'Selecciona la alternativa que indica cuántos estímulos idénticos al modelo aparecen en la matriz.',model:'target',grid:['target','circle','square','target','triangle','square','circle','target','triangle','square','circle','target','square','triangle','target','circle'],opciones:{A:'3',B:'4',C:'5',D:'6'},correcta:'C'},
-  {id:402,seccion:4,tipo:'compareStrings',titulo:'Comparación rápida',ayuda:'Selecciona el par que es exactamente igual en ambos lados.',pares:[['K7P2X','K7P2X'],['T4M8L','T4N8L'],['ABX94','ABX84'],['L2R8TK','L2R8TK']],opciones:{A:'1 y 4',B:'1 y 3',C:'2 y 4',D:'solo 2'},correcta:'A'},
-  {id:403,seccion:4,tipo:'searchGrid',titulo:'Discriminación visual',ayuda:'Cuenta cuántos cuadrados con punto central aparecen.',model:'square',grid:['square','circle','square','triangle','square','circle','target','square','circle','triangle','square','circle','square','target','triangle','square'],opciones:{A:'5',B:'6',C:'7',D:'8'},correcta:'C'},
-  {id:404,seccion:4,tipo:'compareStrings',titulo:'Precisión visual',ayuda:'Selecciona la opción correcta según la comparación mostrada.',pares:[['93261A','93261A'],['M4Q8R','M4Q8P'],['XT290','XT290'],['PL7KD','PL7DK']],opciones:{A:'1 y 2 son iguales',B:'1 y 3 son iguales',C:'2 y 4 son iguales',D:'solo 4 es igual'},correcta:'B'},
-
-  {id:501,seccion:5,tipo:'rotation',titulo:'Rotación mental',ayuda:'Selecciona la misma figura rotada correctamente.',base:{shape:'L',rot:0},opciones:{A:{shape:'L',rot:90},B:{shape:'L',rot:180},C:{shape:'L',rot:270},D:{shape:'cross',rot:0}},correcta:'B'},
-  {id:502,seccion:5,tipo:'gridPosition',titulo:'Ubicación espacial',ayuda:'¿Qué posición queda a la derecha del círculo y arriba de la flecha?',grid:[['★','○','■'],['▲','☾','➜'],['☀','◆','☁']],opciones:{A:'★',B:'■',C:'☾',D:'◆'},correcta:'B'},
-  {id:503,seccion:5,tipo:'assembly',titulo:'Ensamblaje visual',ayuda:'Selecciona la opción que forma la figura objetivo.',target:'trianglehole',opciones:{A:'A',B:'B',C:'C',D:'D'},correcta:'D'},
-  {id:504,seccion:5,tipo:'routeGrid',titulo:'Ruta espacial',ayuda:'Desde el inicio sigue: ↑ ↑ → → ↓. Selecciona la posición final.',opciones:{A:'A3',B:'B3',C:'C2',D:'C3'},correcta:'D'},
-
-  {id:601,seccion:6,tipo:'textmcq',titulo:'Serie numérica',ayuda:'Encuentra la regla y completa la serie.',pregunta:'2 · 4 · 8 · 16 · ?',opciones:{A:'18',B:'24',C:'32',D:'34'},correcta:'C'},
-  {id:602,seccion:6,tipo:'textmcq',titulo:'Relación cuantitativa',ayuda:'Selecciona el resultado correcto.',pregunta:'Si ▲ = 2 y ■ = 5, ¿cuánto vale ▲ + ■ + ▲?',opciones:{A:'7',B:'8',C:'9',D:'10'},correcta:'C'},
-  {id:603,seccion:6,tipo:'textmcq',titulo:'Serie multiplicativa',ayuda:'Completa correctamente la serie.',pregunta:'3 · 6 · 12 · 24 · ?',opciones:{A:'36',B:'42',C:'48',D:'54'},correcta:'C'},
-  {id:604,seccion:6,tipo:'textmcq',titulo:'Problema breve',ayuda:'Selecciona la alternativa correcta.',pregunta:'Si 3 cuadernos cuestan 12 dólares, ¿cuánto costarán 5 cuadernos?',opciones:{A:'18',B:'20',C:'22',D:'24'},correcta:'B'}
- ];
+function renderPage(){
+  const items = currentItems();
+  const first = items[0];
+  const section = first.section;
+  const info = sectionInfo(section);
+  sectionBanner.textContent = info.title + ' · ' + info.subtitle;
+  sectionInstruction.textContent = info.subtitle + ': ' + first.instruction;
+  pageIndicator.textContent = `Página ${currentPage + 1} de ${Math.ceil(ITEMS.length / PAGE_SIZE)}`;
+  pillTotal.textContent = `Total: ${Object.keys(responses).length} / ${ITEMS.length} (${overallProgress()}%)`;
+  metaInfo.textContent = info.subtitle;
+  bar.style.width = overallProgress() + '%';
+  questionsEl.innerHTML = items.map((item, idx) => renderQuestion(item, idx + 1 + currentPage * PAGE_SIZE)).join('');
+  bindQuestionEvents(items);
+  updateContinueState();
 }
 
-function sectionTitle(sec){ return `SECCIÓN ${sec} DE 6 — ${sectionLabels[sec].toUpperCase()}`; }
-function renderGlyph(token){
-  if(token === '?') return '<div style="font-size:34px;font-weight:900;color:#94a3b8;">?</div>';
-  const m = token.match(/^([○●■□◇△]?)(\d)$/);
-  let shape = 'circle', fill = false, dots = 1;
-  if(m){ const s = m[1], d = Number(m[2]); dots = d; shape = (s==='■'||s==='□')?'square':(s==='◇'?'diamond':(s==='△'?'triangle':'circle')); fill = (s==='●'||s==='■'); }
-  return svgShape(shape, fill, dots, 72, 0);
-}
-function svgShape(shape='circle', fill=false, dots=1, size=72, rotation=0){
-  const dotsPos = [[22,22],[40,22],[22,40],[40,40]].slice(0,dots);
-  return `<svg width="${size}" height="${size}" viewBox="0 0 64 64"><g transform="rotate(${rotation} 32 32)">${shape==='circle'?`<circle cx="32" cy="32" r="19" fill="${fill?'#111827':'none'}" stroke="#111827" stroke-width="2.4" />`:''}${shape==='square'?`<rect x="14" y="14" width="36" height="36" rx="4" fill="${fill?'#111827':'none'}" stroke="#111827" stroke-width="2.4" />`:''}${shape==='diamond'?`<rect x="16" y="16" width="32" height="32" rx="2" transform="rotate(45 32 32)" fill="${fill?'#111827':'none'}" stroke="#111827" stroke-width="2.4" />`:''}${shape==='triangle'?`<polygon points="32,12 50,46 14,46" fill="${fill?'#111827':'none'}" stroke="#111827" stroke-width="2.4" />`:''}${shape==='L'?`<rect x="16" y="12" width="12" height="38" fill="#111827" rx="2.5" /><rect x="16" y="38" width="28" height="12" fill="#111827" rx="2.5" />`:''}${shape==='cross'?`<rect x="26" y="10" width="12" height="44" fill="#111827" rx="2.5" /><rect x="10" y="26" width="44" height="12" fill="#111827" rx="2.5" />`:''}</g>${dotsPos.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.1" fill="${fill?'#ffffff':'#111827'}" />`).join('')}</svg>`;
-}
-function renderTarget(size=54){ return `<svg width="${size}" height="${size}" viewBox="0 0 54 54"><rect x="11" y="11" width="32" height="32" rx="4" fill="none" stroke="#111827" stroke-width="2.4" /><circle cx="27" cy="27" r="5.2" fill="#111827" /><line x1="27" y1="5" x2="27" y2="15" stroke="#111827" stroke-width="2" /><line x1="27" y1="39" x2="27" y2="49" stroke="#111827" stroke-width="2" /></svg>`; }
-function renderSearchSymbol(kind){ if(kind==='target') return renderTarget(36); if(kind==='circle') return '<svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="9.5" fill="none" stroke="#111827" stroke-width="2" /><circle cx="17" cy="17" r="3.2" fill="#111827" /></svg>'; if(kind==='square') return '<svg width="34" height="34" viewBox="0 0 34 34"><rect x="8" y="8" width="18" height="18" rx="2" fill="none" stroke="#111827" stroke-width="2" /><rect x="14" y="14" width="6" height="6" fill="#111827" /></svg>'; return '<svg width="34" height="34" viewBox="0 0 34 34"><path d="M8 24 L17 8 L26 24 Z" fill="none" stroke="#111827" stroke-width="2" /><circle cx="17" cy="18" r="3.2" fill="#111827" /></svg>'; }
+function renderQuestion(item, number){
+  const answered = responses[item.id] ? 'answered' : '';
+  const opts = ['A','B','C','D'].map(letter => `
+      <div class="q-cell"><input type="radio" name="${item.id}" value="${letter}" ${responses[item.id]===letter?'checked':''}></div>
+  `).join('');
 
-function renderStimulus(q){
-  if(q.tipo==='matrix4'){
-    const cells = [...q.stimulus.r1, ...q.stimulus.r2].map(token => `<div style="height:88px;border-radius:16px;border:1px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;">${renderGlyph(token)}</div>`).join('');
-    return `<div class="visual-card"><div class="visual-stimulus"><div style="display:grid;grid-template-columns:repeat(3,88px);gap:10px;">${cells}</div></div></div>`;
+  let content = `<div><strong>${item.title}</strong><div class="muted" style="margin-top:4px; line-height:1.5;">${item.instruction}</div></div>`;
+  if (item.type !== 'plain') content += renderVisual(item);
+  if (item.type === 'plain' || item.type === 'memory' || item.type === 'route'){
+    content += `<div class="visual-wrap"><div class="visual-row">${['A','B','C','D'].map(l=>`<label class="option-card ${responses[item.id]===l?'active':''}" data-item="${item.id}" data-value="${l}"><span class="option-letter">${l}</span><div>${item.options[l]||''}</div></label>`).join('')}</div></div>`;
+  } else {
+    content += `<div class="visual-wrap"><div class="visual-row">${renderVisualOptions(item)}</div></div>`;
   }
-  if(q.tipo==='analogyVisual'){
-    const pair = (base, transformed) => `<div style="display:flex;align-items:center;gap:8px;">${base}<span style="font-size:20px;color:#94a3b8;">→</span>${transformed}</div>`;
-    const a = svgShape('circle',false,1,52,0), b = svgShape('diamond',true,1,52,0), c = svgShape('triangle',false,1,52,0);
-    return `<div class="visual-card"><div class="visual-stimulus"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;">${pair(a,b)}<span style="font-size:22px;color:#94a3b8;">::</span>${c}<span style="font-size:22px;color:#94a3b8;">→</span><div style="width:44px;height:44px;border-radius:999px;border:2px dashed #94a3b8;display:flex;align-items:center;justify-content:center;font-weight:800;color:#64748b;">?</div></div></div></div>`;
+
+  return `<div class="question ${answered}"><div class="q-no">${String(number).padStart(2,'0')}</div><div class="q-text">${content}</div>${opts}</div>`;
+}
+
+function renderVisual(item){
+  if (item.render === 'gf_matrix'){
+    return `<div class="visual-wrap"><div class="visual-card"><div class="visual-title">Matriz progresiva</div><div class="visual-stimulus"><div class="grid3">
+      <div class="cell-box">${glyph('circle',false,1,0)}</div>
+      <div class="cell-box">${glyph('circle',true,2,0)}</div>
+      <div class="cell-box">${glyph('circle',false,3,45)}</div>
+      <div class="cell-box">${glyph('square',true,1,0)}</div>
+      <div class="cell-box">${glyph('square',false,2,0)}</div>
+      <div class="cell-box" style="font-size:34px;color:#94a3b8;font-weight:900;">?</div>
+    </div></div></div></div>`;
   }
-  if(q.tipo==='matrixShapes'){
-    const mk = (n,shape) => `<div style="display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;">${Array.from({length:Number(n)}).map(()=>shape==='circle'?'<span style="font-size:22px;">○</span>':'<span style="font-size:22px;">△</span>').join('')}</div>`;
-    const cells = [mk(1,'circle'),mk(2,'circle'),mk(3,'circle'),mk(2,'triangle'),mk(3,'triangle'),'<div style="font-size:30px;font-weight:900;color:#94a3b8;">?</div>'].map(html=>`<div style="height:88px;border-radius:16px;border:1px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;">${html}</div>`).join('');
-    return `<div class="visual-card"><div class="visual-stimulus"><div style="display:grid;grid-template-columns:repeat(3,88px);gap:10px;">${cells}</div></div></div>`;
+  if (item.render === 'gf_series'){
+    return `<div class="visual-wrap"><div class="visual-card"><div class="visual-title">Serie visual</div><div class="visual-stimulus"><div class="seq-line">
+      <span>${glyph('triangle',false,1,0,46)}</span><span class="seq-arrow">→</span>
+      <span>${glyph('triangle',false,2,90,46)}</span><span class="seq-arrow">→</span>
+      <span>${glyph('triangle',false,3,180,46)}</span><span class="seq-arrow">→</span><span style="font-size:36px;color:#94a3b8;">?</span>
+    </div></div></div></div>`;
   }
-  if(q.tipo==='sequenceVisual'){
-    const frame = item => `<div style="width:82px;height:82px;border-radius:16px;border:1px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;">${svgShape('triangle',false,item.d,58,item.rot)}</div>`;
-    return `<div class="visual-card"><div class="visual-stimulus"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;">${q.sequence.map((s,i)=>`${frame(s)}${i<q.sequence.length-1?'<span style="font-size:20px;color:#94a3b8;">→</span>':''}`).join('')}<div style="width:44px;height:44px;border-radius:999px;border:2px dashed #94a3b8;display:flex;align-items:center;justify-content:center;font-weight:800;color:#64748b;">?</div></div></div></div>`;
+  if (item.render === 'gs_target'){
+    return `<div class="visual-wrap"><div class="visual-card"><div class="visual-title">Modelo visual</div><div class="visual-stimulus" style="gap:14px;"><div class="mini-box">${targetIcon(42)}</div><div class="seq-arrow">→</div><div class="search-grid">${['target','circle','square','triangle','square','triangle','circle','square','triangle','circle','target','square'].map(k=>`<div class="search-cell">${searchSymbol(k)}</div>`).join('')}</div></div></div></div>`;
   }
-  if(q.tipo==='textmcq'){
-    return `<div class="visual-card"><div class="visual-stimulus" style="min-height:88px;"><div class="scenario-line">${q.pregunta}</div></div></div>`;
-  }
-  if(q.tipo==='memoryDigits'){
-    return `<div class="visual-card"><div class="visual-stimulus"><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">${q.sequence.map(x=>`<div style="width:52px;height:52px;border-radius:12px;border:1px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;">${x}</div>`).join('')}</div></div><div class="mini-note">Retén la secuencia y elige el orden inverso.</div></div>`;
-  }
-  if(q.tipo==='memoryReorder'){
-    return `<div class="visual-card"><div class="visual-stimulus"><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">${q.sequence.map(x=>`<div style="width:52px;height:52px;border-radius:12px;border:1px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;">${x}</div>`).join('')}</div></div><div class="mini-note">Ordena primero números y luego letras.</div></div>`;
-  }
-  if(q.tipo==='memoryInstructions'){
-    return `<div class="visual-card"><div class="visual-stimulus" style="min-height:88px;"><div class="scenario-line">${q.pregunta}</div></div></div>`;
-  }
-  if(q.tipo==='searchGrid'){
-    return `<div class="visual-card"><div class="visual-stimulus" style="flex-direction:column; gap:12px;"><div style="display:flex;align-items:center;gap:8px;">${q.model==='target'?renderTarget(42):renderSearchSymbol(q.model)}<span style="color:#94a3b8;font-size:20px;">→</span><span class="muted">Busca iguales en la matriz</span></div><div style="display:grid;grid-template-columns:repeat(4,54px);gap:8px;">${q.grid.map(k=>`<div style="width:54px;height:54px;border-radius:12px;border:1px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;">${renderSearchSymbol(k)}</div>`).join('')}</div></div></div>`;
-  }
-  if(q.tipo==='compareStrings'){
-    return `<div class="visual-card"><div class="visual-stimulus" style="min-height:auto;"><div style="width:100%;max-width:560px;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;background:#fff;">${q.pares.map((p,i)=>`<div style="display:grid;grid-template-columns:1fr 1fr; border-bottom:${i<q.pares.length-1?'1px solid #e5e7eb':'0'};"><div style="padding:10px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;">${p[0]}</div><div style="padding:10px 14px;border-left:1px solid #e5e7eb;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;">${p[1]}</div></div>`).join('')}</div></div></div>`;
-  }
-  if(q.tipo==='rotation'){
-    return `<div class="visual-card"><div class="visual-stimulus"><div style="display:flex;align-items:center;gap:16px;justify-content:center;">${svgShape('L',true,0,72,q.base.rot)}<span style="font-size:24px;color:#94a3b8;">⟲</span><div style="width:44px;height:44px;border-radius:999px;border:2px dashed #94a3b8;display:flex;align-items:center;justify-content:center;font-weight:800;color:#64748b;">?</div></div></div></div>`;
-  }
-  if(q.tipo==='gridPosition'){
-    return `<div class="visual-card"><div class="visual-stimulus"><div style="display:grid;grid-template-columns:repeat(3,62px);gap:8px;">${q.grid.flat().map(x=>`<div style="width:62px;height:62px;border-radius:14px;border:1px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;">${x}</div>`).join('')}</div></div></div>`;
-  }
-  if(q.tipo==='assembly'){
-    const target = `<svg width="90" height="90" viewBox="0 0 90 90"><path d="M18 60 L45 18 L72 60 Z" fill="#111827" /><rect x="32" y="46" width="26" height="16" fill="#ffffff" rx="2" /><circle cx="45" cy="31" r="5" fill="#ffffff" /></svg>`;
-    return `<div class="visual-card"><div class="visual-stimulus" style="flex-direction:column;gap:10px;">${target}<div class="mini-note">Elige el conjunto de piezas que forma la figura objetivo.</div></div></div>`;
-  }
-  if(q.tipo==='routeGrid'){
-    const cells = ['A3','B3','C3','A2','B2','C2','A1','B1','C1'];
-    return `<div class="visual-card"><div class="visual-stimulus" style="flex-direction:column;gap:12px;"><div class="mini-note">Inicio: A1 · Secuencia: ↑ ↑ → → ↓</div><div style="display:grid;grid-template-columns:repeat(3,60px);gap:8px;">${cells.map(c=>`<div style="width:60px;height:60px;border-radius:14px;border:2px solid ${c==='A1'?'#111827':'#cbd5e1'};background:${c==='A1'?'#f1f5f9':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;">${c}</div>`).join('')}</div></div></div>`;
+  if (item.render === 'gv_rotate'){
+    return `<div class="visual-wrap"><div class="visual-card"><div class="visual-title">Figura base</div><div class="visual-stimulus">${lShape(62,0)}</div></div></div>`;
   }
   return '';
 }
 
-function optionHtml(q, key, value){
-  let inner = value;
-  if(q.tipo==='matrix4' || q.tipo==='matrixShapes') inner = `<div style="display:flex;align-items:center;justify-content:center;min-height:50px;">${q.tipo==='matrix4'?renderGlyph(value):`<span style="font-weight:800;font-size:20px;">${value}</span>`}</div>`;
-  if(q.tipo==='sequenceVisual') inner = `<div style="display:flex;align-items:center;justify-content:center;min-height:50px;">${svgShape('triangle',false,value.d,56,value.rot)}</div>`;
-  if(q.tipo==='rotation') inner = `<div style="display:flex;align-items:center;justify-content:center;min-height:50px;">${value.shape==='cross'?svgShape('cross',true,0,56,0):svgShape('L',true,0,56,value.rot)}</div>`;
-  if(q.tipo==='analogyVisual'){
-    const map = {A:`${svgShape('triangle',false,0,42,0)}`,B:`${svgShape('triangle',true,0,42,0)}`,C:`<div style='display:flex;align-items:center;gap:4px;'>${svgShape('triangle',true,0,38,0)}${svgShape('diamond',true,0,26,0)}</div>`,D:`<div style='display:flex;align-items:center;gap:4px;'>${svgShape('square',false,0,38,0)}${svgShape('diamond',true,0,26,0)}</div>`}; inner = `<div style="display:flex;align-items:center;justify-content:center;min-height:50px;">${map[key]}</div>`;
+function renderVisualOptions(item){
+  if (item.render === 'gf_matrix'){
+    const map = {A:glyph('square',true,3,45,54),B:glyph('square',false,3,45,54),C:glyph('diamond',false,3,0,54),D:glyph('square',false,4,0,54)};
+    return ['A','B','C','D'].map(l=>`<label class="option-card ${responses[item.id]===l?'active':''}" data-item="${item.id}" data-value="${l}"><span class="option-letter">${l}</span><div>${map[l]}</div></label>`).join('');
   }
-  if(q.tipo==='assembly'){ const map = {A:'<svg width="84" height="56" viewBox="0 0 84 56"><rect x="12" y="34" width="24" height="12" rx="2" fill="none" stroke="#111827" stroke-width="2" /><rect x="36" y="34" width="24" height="12" rx="2" fill="none" stroke="#111827" stroke-width="2" /></svg>',B:'<svg width="84" height="56" viewBox="0 0 84 56"><rect x="12" y="34" width="24" height="12" rx="2" fill="none" stroke="#111827" stroke-width="2" /><rect x="30" y="28" width="18" height="18" rx="2" fill="none" stroke="#111827" stroke-width="2" /></svg>',C:'<svg width="84" height="56" viewBox="0 0 84 56"><rect x="10" y="34" width="20" height="12" rx="2" fill="none" stroke="#111827" stroke-width="2" /><rect x="30" y="34" width="20" height="12" rx="2" fill="none" stroke="#111827" stroke-width="2" /><rect x="20" y="20" width="20" height="12" rx="2" fill="none" stroke="#111827" stroke-width="2" /></svg>',D:'<svg width="84" height="56" viewBox="0 0 84 56"><rect x="12" y="34" width="24" height="12" rx="2" fill="none" stroke="#111827" stroke-width="2" /><rect x="36" y="34" width="24" height="12" rx="2" fill="none" stroke="#111827" stroke-width="2" /><rect x="24" y="18" width="24" height="12" rx="2" fill="none" stroke="#111827" stroke-width="2" /></svg>'}; inner = `<div style="display:flex;align-items:center;justify-content:center;min-height:50px;">${map[key]}</div>`; }
-  return `<label class="option-card ${q.value===key?'active':''}"><input type="radio" name="q_${q.id}" value="${key}" style="display:none;" ${q.value===key?'checked':''}><span class="option-letter">${key}</span>${typeof inner==='string'?`<div>${inner}</div>`:inner}</label>`;
+  if (item.render === 'gf_series'){
+    const map = {A:glyph('triangle',false,4,90,54),B:glyph('square',false,4,270,54),C:glyph('triangle',false,4,270,54),D:glyph('triangle',false,3,270,54)};
+    return ['A','B','C','D'].map(l=>`<label class="option-card ${responses[item.id]===l?'active':''}" data-item="${item.id}" data-value="${l}"><span class="option-letter">${l}</span><div>${map[l]}</div></label>`).join('');
+  }
+  if (item.render === 'gs_target'){
+    const map = {A:searchSymbol('circle'),B:searchSymbol('square'),C:searchSymbol('triangle'),D:targetIcon(36)};
+    return ['A','B','C','D'].map(l=>`<label class="option-card ${responses[item.id]===l?'active':''}" data-item="${item.id}" data-value="${l}"><span class="option-letter">${l}</span><div>${map[l]}</div></label>`).join('');
+  }
+  if (item.render === 'gv_rotate'){
+    const map = {A:lShape(46,90),B:lShape(46,180),C:lShape(46,270),D:crossShape(46)};
+    return ['A','B','C','D'].map(l=>`<label class="option-card ${responses[item.id]===l?'active':''}" data-item="${item.id}" data-value="${l}"><span class="option-letter">${l}</span><div>${map[l]}</div></label>`).join('');
+  }
+  return '';
 }
 
-function renderQuestion(q, idx){
-  return `<div class="question-block ${q.value ? 'answered' : ''}" data-qid="${q.id}"><div class="q-head"><div class="q-no">${idx}</div><div class="q-meta"><div class="q-title">${q.titulo}</div><div class="q-help">${q.ayuda}</div></div></div><div class="visual-wrap">${renderStimulus(q)}</div><div class="visual-row">${Object.entries(q.opciones).map(([k,v])=>optionHtml(q,k,v)).join('')}</div></div>`;
+function bindQuestionEvents(items){
+  document.querySelectorAll('#questions input[type="radio"]').forEach(r => {
+    r.addEventListener('change', e => {
+      responses[e.target.name] = e.target.value;
+      syncActiveCards(e.target.name, e.target.value);
+      markAnswered(e.target.name);
+      updateContinueState();
+    });
+  });
+  document.querySelectorAll('#questions .option-card').forEach(card => {
+    card.addEventListener('click', ()=>{
+      const item = card.dataset.item, value = card.dataset.value;
+      responses[item] = value;
+      const radio = document.querySelector(`input[name="${item}"][value="${value}"]`);
+      if (radio) radio.checked = true;
+      syncActiveCards(item, value);
+      markAnswered(item);
+      updateContinueState();
+    });
+  });
 }
 
-function getPageBounds(page){ const start = page * PAGE_SIZE; const end = Math.min(start + PAGE_SIZE, ITEMS.length); return {start,end}; }
-function updateSectionBanner(startIdx){ const q = ITEMS[startIdx]; if(!q) return; document.getElementById('sectionBanner').textContent = sectionTitle(q.seccion); document.getElementById('sectionInstruction').textContent = sectionInstructions[q.seccion]; }
-function obtenerRespuestasCrudas(){ const out = {}; ITEMS.forEach(q => { if(q.value != null && q.value !== '') out[String(q.id)] = q.value; }); return out; }
-function updateProgress(){ const total = ITEMS.length; const answered = ITEMS.filter(q=>q.value != null && q.value !== '').length; const pct = total ? Math.round(answered/total*100) : 0; document.getElementById('bar').style.width = pct + '%'; document.getElementById('pillTotal').textContent = `Total: ${answered} / ${total} (${pct}%)`; const {start,end} = getPageBounds(currentPage); const pageAnswered = ITEMS.slice(start,end).filter(q=>q.value!=null && q.value!=='').length; document.getElementById('notaContinuar').textContent = `NOTA: Para continuar debes contestar todos los ejercicios de esta pantalla. Contestados: ${pageAnswered}/${end-start}.`; document.getElementById('pageIndicator').textContent = `Página ${currentPage+1} de ${Math.ceil(total/PAGE_SIZE)}`; document.getElementById('metaInfo').textContent = `Ítems ${start+1}–${end} de ${total}`; }
-function renderPage(){ const {start,end} = getPageBounds(currentPage); updateSectionBanner(start); const html = ITEMS.slice(start,end).map((q,i)=>renderQuestion(q,start+i+1)).join(''); document.getElementById('questions').innerHTML = html; attachListeners(); updateProgress(); maybeShowSectionIntro(); }
-function attachListeners(){ document.querySelectorAll('#questions input[type="radio"]').forEach(input=>{ input.addEventListener('change',e=>{ const id = Number(e.target.name.replace('q_','')); const q = ITEMS.find(x=>x.id===id); if(q){ q.value = e.target.value; saveState(false); renderPage(); } }); }); }
-function validarPaginaActual(){ const {start,end} = getPageBounds(currentPage); return ITEMS.slice(start,end).every(q=>q.value!=null && q.value!==''); }
-function showPreintro(html, {showBack=false,nextText='Siguiente'}={}){ const bd=document.getElementById('preintroBackdrop'); document.getElementById('preintroContent').innerHTML = html; bd.style.display='flex'; bd.setAttribute('aria-hidden','false'); document.getElementById('preintroBackBtn').style.display = showBack ? 'inline-flex' : 'none'; document.getElementById('preintroNextBtn').textContent = nextText; }
-function hidePreintro(){ const bd=document.getElementById('preintroBackdrop'); bd.style.display='none'; bd.setAttribute('aria-hidden','true'); }
-function runIntro(onDone){ const steps=[PREINTRO.introHtml, PREINTRO.instruccionesHtml]; let i=0; const render=()=>{ showPreintro(steps[i],{showBack:i>0,nextText:i===steps.length-1?'Comenzar':'Siguiente'}); document.getElementById('preintroNextBtn').onclick=()=>{ if(i<steps.length-1){ i+=1; render(); } else { hidePreintro(); onDone && onDone(); } }; document.getElementById('preintroBackBtn').onclick=()=>{ if(i>0){ i-=1; render(); } }; }; render(); }
-function maybeShowSectionIntro(){ const {start} = getPageBounds(currentPage); const q = ITEMS[start]; if(!q || shownSectionModal[q.seccion]) return; shownSectionModal[q.seccion] = true; const html = `<h2 class="preintro-title">${sectionTitle(q.seccion)}</h2><p class="muted" style="line-height:1.65;">${sectionInstructions[q.seccion]}</p><div style="border:1px solid rgba(0,0,0,.12); border-radius:12px; padding:12px 14px; margin-top:14px;"><p style="margin:0; line-height:1.65;">En esta sección encontrarás <strong>${PAGE_SIZE}</strong> ejercicios. Lee cada consigna con atención y selecciona una sola respuesta en cada caso.</p></div>`; showPreintro(html,{nextText:'Continuar'}); document.getElementById('preintroNextBtn').onclick=hidePreintro; document.getElementById('preintroBackBtn').onclick=null; document.getElementById('preintroBackBtn').style.display='none'; }
+function syncActiveCards(itemId, value){
+  document.querySelectorAll(`.option-card[data-item="${itemId}"]`).forEach(el => el.classList.toggle('active', el.dataset.value === value));
+}
+function markAnswered(itemId){
+  const radio = document.querySelector(`input[name="${itemId}"]`);
+  if (radio) radio.closest('.question').classList.add('answered');
+}
+function updateContinueState(){
+  const items = currentItems();
+  const answered = pageProgress(items);
+  notaContinuar.textContent = `Contestadas: ${answered}/${items.length}. Para continuar debes responder todas las preguntas de esta pantalla.`;
+  btnSiguiente.disabled = answered !== items.length;
+  pillTotal.textContent = `Total: ${Object.keys(responses).length} / ${ITEMS.length} (${overallProgress()}%)`;
+  bar.style.width = overallProgress() + '%';
+}
 
-function showQuestions(){ document.getElementById('pantalla-inicio').classList.add('hidden'); document.getElementById('pantalla-preguntas').classList.remove('hidden'); document.getElementById('pantalla-final').style.display='none'; renderPage(); }
-function startNew(){ buildItems(); currentPage = 0; startTime = Date.now(); showQuestions(); saveState(false); }
-function applyState(state){ buildItems(); currentPage = state.currentPage || 0; const resp = state.responses || {}; ITEMS.forEach(q => q.value = resp[String(q.id)] || ''); if(state.datos) aplicarDatos(state.datos); showQuestions(); }
-function onNext(){ if(!validarPaginaActual()){ alert('Debes responder todos los ejercicios de esta pantalla antes de continuar.'); return; } if(currentPage < Math.ceil(ITEMS.length/PAGE_SIZE)-1){ currentPage += 1; saveState(false); renderPage(); } else { finishEvaluation(); } }
-function scoreSection(sec){ const arr = ITEMS.filter(q=>q.seccion===sec); const correct = arr.filter(q=>q.value===q.correcta).length; const pct = Math.round((correct/arr.length)*100); return {correct,total:arr.length,pct}; }
-function finishEvaluation(){ saveState(true); document.getElementById('pantalla-preguntas').classList.add('hidden'); document.getElementById('pantalla-final').style.display='block'; const parts = [1,2,3,4,5,6].map(sec=>({sec,...scoreSection(sec)})); const global = Math.round(parts.reduce((a,b)=>a+b.pct,0)/parts.length); document.getElementById('resultadoResumen').innerHTML = `<div style="margin-top:18px;"><div style="font-size:14px;color:#64748b;">Índice intelectual global</div><div style="font-size:46px;font-weight:900;line-height:1;">${global}</div></div><div class="result-grid">${parts.map(p=>`<div class="result-card"><div style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.08em;">${sectionLabels[p.sec]}</div><div style="font-size:28px;font-weight:800;margin-top:4px;">${p.pct}</div><div class="meter"><span style="width:${p.pct}%"></span></div><div class="muted" style="margin-top:8px;">Aciertos: ${p.correct}/${p.total}</div></div>`).join('')}</div>`; }
+btnSiguiente.addEventListener('click', ()=>{
+  const totalPages = Math.ceil(ITEMS.length / PAGE_SIZE);
+  if (currentPage < totalPages - 1){
+    currentPage++;
+    renderPage();
+  } else {
+    mostrarResultados();
+  }
+});
 
-document.addEventListener('DOMContentLoaded',()=>{ setToday(); maybeEnableStart(); const saved = loadState(); if(saved && saved.datos) aplicarDatos(saved.datos); document.getElementById('btnIniciar').addEventListener('click',()=>{ const saved = loadState(); if(saved && !saved.completed && saved.responses && Object.keys(saved.responses).length){ const retomar = confirm('Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?'); if(retomar){ applyState(saved); return; } clearState(); } runIntro(()=>startNew()); }); document.getElementById('btnSiguiente').addEventListener('click', onNext); document.getElementById('btnReiniciar').addEventListener('click',()=>{ clearState(); location.reload(); }); });
+function mostrarResultados(){
+  pantallaPreguntas.classList.add('hidden');
+  pantallaFinal.style.display = 'block';
+  const areas = {
+    Gf:{label:'Razonamiento fluido', vals:[]},
+    Gc:{label:'Comprensión verbal', vals:[]},
+    Gwm:{label:'Memoria de trabajo', vals:[]},
+    Gs:{label:'Velocidad de procesamiento', vals:[]},
+    Gv:{label:'Procesamiento visual-espacial', vals:[]},
+    Gq:{label:'Razonamiento cuantitativo', vals:[]}
+  };
+  ITEMS.forEach(it => areas[it.area].vals.push(responses[it.id] === it.correct ? 100 : 0));
+  const calc = Object.entries(areas).map(([code, obj]) => ({ code, label:obj.label, value: Math.round(obj.vals.reduce((a,b)=>a+b,0) / obj.vals.length) }));
+  const global = Math.round(calc.reduce((a,b)=>a+b.value,0) / calc.length);
+  resultadosEl.innerHTML = `
+    <div class="result-shell">
+      <div class="result-card">
+        <div class="result-head">
+          <div>
+            <div class="muted">Perfil cognitivo</div>
+            <h2 style="margin:4px 0 0;">Resultados por áreas</h2>
+          </div>
+          <div class="score-box"><div class="muted" style="font-size:12px; font-weight:800; color:#9a3412;">ÍNDICE GLOBAL</div><strong>${global}</strong><span class="tag">Resultado general</span></div>
+        </div>
+        ${calc.map(it => `<div class="bar-row"><div><strong>${it.code}</strong></div><div><div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px;"><span>${it.label}</span><span>${it.value}</span></div><div class="bar-track"><div class="bar-fill" style="width:${it.value}%;"></div></div></div><div class="muted" style="text-align:right;">/100</div></div>`).join('')}
+      </div>
+      <div class="result-card">
+        <div class="muted">Síntesis interpretativa</div>
+        <p style="line-height:1.75; color:#334155;">El perfil obtenido permite observar el nivel de respuesta en seis áreas cognitivas fundamentales. Esta versión demuestra la estructura visual de la evaluación intelectual, con énfasis en claridad, orden, navegación y lectura amigable del resultado final.</p>
+        <p style="line-height:1.75; color:#334155;">Las barras muestran un desempeño relativo por área y el índice global sintetiza el resultado general de la evaluación.</p>
+      </div>
+    </div>`;
+}
+
+function glyph(shape='circle', fill=false, dots=1, rotation=0, size=64){
+  const dotsPos = [[22,22],[40,22],[22,40],[40,40]].slice(0,dots);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 64 64"><g transform="rotate(${rotation} 32 32)">${shape==='circle' ? `<circle cx="32" cy="32" r="19" fill="${fill?'#111827':'none'}" stroke="#111827" stroke-width="2.4"/>` : ''}${shape==='square' ? `<rect x="14" y="14" width="36" height="36" rx="4" fill="${fill?'#111827':'none'}" stroke="#111827" stroke-width="2.4"/>` : ''}${shape==='diamond' ? `<rect x="16" y="16" width="32" height="32" rx="2" transform="rotate(45 32 32)" fill="${fill?'#111827':'none'}" stroke="#111827" stroke-width="2.4"/>` : ''}${shape==='triangle' ? `<polygon points="32,13 50,47 14,47" fill="${fill?'#111827':'none'}" stroke="#111827" stroke-width="2.4"/>` : ''}</g>${dotsPos.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.1" fill="${fill?'#ffffff':'#111827'}"/>`).join('')}</svg>`;
+}
+function targetIcon(size=54){
+  return `<svg width="${size}" height="${size}" viewBox="0 0 54 54"><rect x="11" y="11" width="32" height="32" rx="4" fill="none" stroke="#111827" stroke-width="2.4"/><circle cx="27" cy="27" r="5.2" fill="#111827"/><line x1="27" y1="5" x2="27" y2="15" stroke="#111827" stroke-width="2"/><line x1="27" y1="39" x2="27" y2="49" stroke="#111827" stroke-width="2"/></svg>`;
+}
+function searchSymbol(kind){
+  if (kind==='target') return targetIcon(30);
+  if (kind==='circle') return `<svg width="30" height="30" viewBox="0 0 34 34"><circle cx="17" cy="17" r="9.5" fill="none" stroke="#111827" stroke-width="2"/><circle cx="17" cy="17" r="3.2" fill="#111827"/></svg>`;
+  if (kind==='square') return `<svg width="30" height="30" viewBox="0 0 34 34"><rect x="8" y="8" width="18" height="18" rx="2" fill="none" stroke="#111827" stroke-width="2"/><rect x="14" y="14" width="6" height="6" fill="#111827"/></svg>`;
+  return `<svg width="30" height="30" viewBox="0 0 34 34"><path d="M8 24 L17 8 L26 24 Z" fill="none" stroke="#111827" stroke-width="2"/><circle cx="17" cy="18" r="3.2" fill="#111827"/></svg>`;
+}
+function lShape(size=62, rotation=0){
+  return `<svg width="${size}" height="${size}" viewBox="0 0 64 64"><g transform="rotate(${rotation} 32 32)"><rect x="16" y="12" width="12" height="38" fill="#111827" rx="2.5"/><rect x="16" y="38" width="28" height="12" fill="#111827" rx="2.5"/><circle cx="22" cy="20" r="2.6" fill="#ffffff"/><circle cx="22" cy="31" r="2.6" fill="#ffffff"/></g></svg>`;
+}
+function crossShape(size=62){
+  return `<svg width="${size}" height="${size}" viewBox="0 0 64 64"><rect x="26" y="10" width="12" height="44" fill="#111827" rx="2.5"/><rect x="10" y="26" width="44" height="12" fill="#111827" rx="2.5"/></svg>`;
+}
 </script>
 </body>
 </html>
