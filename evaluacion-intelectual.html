@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>XEvaluación intelectual — modelo CHC</title>
+  <title>7Evaluación intelectual — modelo CHC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -161,6 +161,47 @@
     .final-foot { font-size: 0.8rem; margin-top: 16px; }
     .final-msg.ok { color: #15803d; font-size: 14px; font-weight: 600; }
     .gwm-prog { font-size: 0.82rem; font-weight: 800; color: #1d4ed8; margin: 0 0 8px; letter-spacing: 0.02em; }
+    .gwm-wrap { width: 100%; }
+    .gwm-panel {
+      max-width: 100%;
+      padding: 12px 14px;
+      background: #fafbfc;
+      border: 1px solid #e8ecf1;
+      border-radius: 12px;
+      margin-top: 4px;
+    }
+    .gwm-panel .gwm-dots {
+      display: flex;
+      gap: 6px;
+      margin: 0 0 10px;
+      align-items: center;
+    }
+    .gwm-panel .gwm-dots .gwm-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e2e8f0;
+    }
+    .gwm-panel .gwm-dots .gwm-dot.is-on { background: #2563eb; box-shadow: 0 0 0 2px #bfdbfe; }
+    .gwm-panel .gwm-dots .gwm-dot.is-done { background: #22c55e; }
+    .gwm-panel .gwm-aux {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin: 0 0 10px;
+      line-height: 1.35;
+    }
+    .gwm-panel > p:last-of-type { margin-bottom: 0; }
+    .gwm-btn {
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    .gwm-btn:disabled { opacity: 0.55; cursor: not-allowed; }
     @media print {
       .side-strip, #btnRegresarMenu, .chc-nav, #btnIniciar, #btnChcPrev, #btnChcNext { display: none !important; }
       .page { max-width: none; }
@@ -358,6 +399,58 @@
       border: 2px solid #e5e7eb;
       border-radius: 8px;
     }
+    .gs-block {
+      width: 100%;
+    }
+    .gs-panel {
+      max-width: 100%;
+      padding: 12px 14px;
+      background: #fafbfc;
+      border: 1px solid #e8ecf1;
+      border-radius: 12px;
+    }
+    .gs-aux { font-size: 0.78rem; color: #64748b; margin: 0 0 10px; line-height: 1.4; }
+    .gs-target-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 12px;
+      padding: 8px 14px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 999px;
+      color: #9a3412;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+    .gs-target-pill .gs-target-sym {
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+    .gs-timer-row { margin-bottom: 12px; }
+    .gs-timer-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .gs-time-outer {
+      flex: 1 1 160px;
+      min-width: 120px;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .gs-time-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #16a34a, #22c55e);
+      border-radius: 99px;
+      transition: width 0.2s ease;
+    }
+    .gs-time-fill.gs-t-critical { background: linear-gradient(90deg, #b91c1c, #ef4444); }
     .timer-badge {
       display: inline-flex;
       padding: 6px 12px;
@@ -366,29 +459,38 @@
       border-radius: 8px;
       font-weight: 700;
       font-size: 0.9rem;
-      margin-bottom: 12px;
     }
     .timer-badge.critical { background: #fee2e2; color: #991b1b; }
     .gs-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 8px;
+      max-width: 520px;
+    }
+    @media (max-width: 520px) {
+      .gs-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     }
     .gs-item {
-      padding: 8px;
+      padding: 10px 6px;
+      min-height: 44px;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
       text-align: center;
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       cursor: pointer;
       user-select: none;
       background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .gs-item.marked {
       background: #dcfce7;
       border-color: #22c55e;
       outline: 2px solid #22c55e;
     }
+    .gs-start-btn { border-radius: 999px; padding: 10px 18px; font-weight: 700; border: none; background: #16a34a; color: #fff; cursor: pointer; font-size: 0.9rem; margin-top: 4px; }
+    .gs-start-btn:disabled { opacity: 0.55; cursor: not-allowed; }
     .fig-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
     .fig-row.fig-lexium { gap: 12px; padding: 4px 0; }
     .fig-opt {
@@ -703,7 +805,7 @@
     <main class="page">
         <header>
         <h1>Evaluación intelectual</h1>
-        <p class="subtitle">Modelo <strong>CHC</strong> · Banco <span id="version-badge">CHC-v2.2</span> · <span class="tag-presentacion">vista presentación</span></p>
+        <p class="subtitle">Modelo <strong>CHC</strong> · Banco <span id="version-badge">CHC-v2.3</span> · <span class="tag-presentacion">vista presentación</span></p>
         <p class="muted" style="margin:6px 0 0; font-size:14px; max-width: 52ch;">Herramienta orientativa para <strong>capacitación y selección</strong>; el informe definitivo requiere criterio profesional y, si aplica, tests estandarizados.</p>
       </header>
 
@@ -749,8 +851,8 @@
             <tbody>
               <tr><td>A</td><td>Gf</td><td>Razonamiento fluido: series, lógica, reglas</td><td>12</td></tr>
               <tr><td>B</td><td>Gc</td><td>Conocimiento verbal: caja de estímulo, sinónimos, analogías, puentes (captura-tipo)</td><td>12</td></tr>
-              <tr><td>C</td><td>Gwm</td><td>Memoria de trabajo: repetir cifras (orden o inverso)</td><td>4</td></tr>
-              <tr><td>D</td><td>Gs</td><td>Velocidad: localizar un símbolo bajo límite de tiempo (recompensa neta, máx. 10 aciertos)</td><td>1 tarea</td></tr>
+              <tr><td>C</td><td>Gwm</td><td>Memoria de trabajo: cifras (recall en orden; interfaz mínima, no puzzle gráfico)</td><td>4</td></tr>
+              <tr><td>D</td><td>Gs</td><td>Velocidad: rejilla + tiempo (objetivo fijo, máx. 10 aciertos en neto)</td><td>1 tarea</td></tr>
               <tr><td>E</td><td>Gv</td><td>Visual-espacial: formas, secuencias, tareas con gráfico o texto</td><td>10</td></tr>
               <tr><td>F</td><td>Glr</td><td>Memoria asociativa: pares y coherencia (caja y píldoras)</td><td>8</td></tr>
             </tbody>
@@ -781,7 +883,7 @@
             <div class="progress" aria-label="Progreso"><div class="bar" id="prog-bar"></div></div>
             <div style="margin:8px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
               <span class="pill" id="step-pill">—</span>
-              <small class="muted" id="chc-meta">Banco CHC-v2.2</small>
+              <small class="muted" id="chc-meta">Banco CHC-v2.3</small>
             </div>
           </div>
           <div id="block-container"></div>
@@ -798,7 +900,7 @@
         <p class="final-lead">Los resultados se envían o guardan según la configuración del servidor. A continuación un <strong>resumen por factor</strong> (vista inmediata; puede copiarse para informe interno).</p>
         <div id="chc-resultados-wrap" class="chc-resultados-wrap hidden" role="region" aria-label="Resultados por factor"></div>
         <p id="chc-final-msg" class="hidden final-msg" role="status"></p>
-        <p class="muted final-foot">Banco de ítems <strong>CHC-v2.2</strong> · Modelo Cattell-Horn-Carroll (referencia de factores, no calificación clínica estándar).</p>
+        <p class="muted final-foot">Banco de ítems <strong>CHC-v2.3</strong> · Modelo Cattell-Horn-Carroll (referencia de factores, no calificación clínica estándar).</p>
         <button type="button" id="btnRegresarMenu" class="secondary" style="margin-top:16px;">REGRESAR AL MENÚ</button>
       </section>
     </main>
@@ -1073,7 +1175,7 @@
     gsMarked: new Set()
   };
 
-  const VERSION_BANCO = "CHC-v2.2";
+  const VERSION_BANCO = "CHC-v2.3";
 
   const STEPS = [
     {
@@ -1097,16 +1199,16 @@
       label: "C · Memoria de trabajo (Gwm)",
       factor: "Gwm",
       introTitle: "Memoria de trabajo (Gwm)",
-      introBody: "Se mostrará brevemente una secuencia de cifras. Luego deberá escribirla <strong>en el mismo orden</strong> o <strong>al revés</strong>, según se indique. Solo números, sin espacios.",
-      introTip: null
+      introBody: "Bloque <strong>corto y sin imágenes de puzzle</strong>: cifras en pantalla, luego <strong>recall</strong> en el mismo orden o al revés. <strong>El núcleo</strong> es el contenido mnémonico, no un tablero gráfico largo; la interfaz solo ayuda a ver la secuencia y el avance. Solo <strong>dígitos</strong>, sin espacios.",
+      introTip: "Debe completar las 4 tareas (orden o inverso) antes de continuar. Tras memorizar, use «Ocultar y responder»; el foco no es un puzzle con figuras, sino carga y recordar orden."
     },
     {
       id: "gs",
       label: "D · Velocidad (Gs)",
       factor: "Gs",
       introTitle: "Velocidad (Gs) — tarea breve con tiempo",
-      introBody: "Tras <strong>Iniciar cronómetro</strong>, toque <strong>todas las celdas</strong> que muestren exactamente el símbolo indicado (objetivo), antes de que termine el tiempo.",
-      introTip: "No marque símbolos distintos al indicado: la puntuación usa aciertos y penaliza falsas alarmas."
+      introBody: "Bloque <strong>reacción y selección bajo límite de tiempo</strong>: celdas con símbolos, no tareas de razonamiento visual como en capturas extensas. <strong>El foco</strong> es <strong>rapidez y precisión</strong> (aciertos y penalización por toques erróneos). La pantalla ofrece <strong>cronómetro y rejilla</strong> como apoyo, no un puzzle con figuras múltiples.",
+      introTip: "Puede tocar celdas varias veces; al terminar el tiempo, se bloquean. Objetivo fijo: la caja naranja con la estrella."
     },
     {
       id: "gv",
@@ -1146,10 +1248,7 @@
     wrap.appendChild(el("h3", {}, step.introTitle || step.label));
     wrap.appendChild(el("p", { className: "block-item-meta" }, "Carga: " + labelN));
     wrap.appendChild(el("p", { innerHTML: step.introBody || "" }));
-    let tip = step.introTip;
-    if (step.id === "gwm") {
-      tip = "Debe completar las " + GWM_TRIALS.length + " tareas (orden o inverso) antes de continuar.";
-    }
+    const tip = step.introTip;
     if (tip) wrap.appendChild(el("p", { className: "block-tip" }, "→ " + tip));
     return wrap;
   }
@@ -1771,7 +1870,7 @@
   }
 
   function renderGWM() {
-    const wrap = el("div");
+    const wrap = el("div", { className: "gwm-wrap" });
     function showTrial() {
       wrap.innerHTML = "";
       const trialIndex = stateCHC.gwmTrialIndex;
@@ -1779,26 +1878,36 @@
         wrap.appendChild(
           el("p", { className: "gwm-prog" }, "Memoria de trabajo: " + GWM_TRIALS.length + " de " + GWM_TRIALS.length + " tareas finalizadas.")
         );
-        wrap.appendChild(el("p", {}, "Puede avanzar con «Siguiente»."));
+        const fin = el("div", { className: "gwm-panel" });
+        fin.appendChild(el("p", {}, "Puede avanzar con «Siguiente»."));
+        wrap.appendChild(fin);
         return;
       }
       const t = GWM_TRIALS[trialIndex];
-      wrap.appendChild(
+      const panel = el("div", { className: "gwm-panel" });
+      const dots = el("div", { className: "gwm-dots" });
+      for (var di = 0; di < GWM_TRIALS.length; di++) {
+        const cls = "gwm-dot" + (di === trialIndex ? " is-on" : di < trialIndex ? " is-done" : "");
+        dots.appendChild(el("span", { className: cls }));
+      }
+      panel.appendChild(dots);
+      panel.appendChild(
         el("p", { className: "gwm-prog" }, "Tarea " + (trialIndex + 1) + " de " + GWM_TRIALS.length + (t.mode === "reverse" ? " · orden inverso" : " · mismo orden"))
       );
       const instr = t.mode === "reverse"
         ? "Memoriza la secuencia. Luego escríbela al revés (sin espacios, solo dígitos)."
         : "Memoriza la secuencia. Luego escríbela en el mismo orden (sin espacios).";
-      wrap.appendChild(el("p", {}, instr));
+      panel.appendChild(el("p", {}, instr));
+      panel.appendChild(
+        el("p", { className: "gwm-aux" }, "Interfaz breve: no es un puzzle con figuras; solo cifras, ocultar y tecleado.")
+      );
       const box = el("div", { className: "mem-box" }, t.seq.replace(/ /g, "  "));
-      wrap.appendChild(box);
-      const btn = el("button", { type: "button", id: "gwm-show" }, "Ocultar y responder");
-      btn.style.cssText = "border-radius:999px;padding:10px 18px;font-weight:700;border:none;background:#2563eb;color:#fff;cursor:pointer;";
+      panel.appendChild(box);
+      const btn = el("button", { type: "button", id: "gwm-show", className: "gwm-btn" }, "Ocultar y responder");
       const input = el("input", { type: "text", className: "mem-input", inputMode: "numeric", placeholder: "Escribe los dígitos", autocomplete: "off" });
       input.classList.add("hidden");
-      const submit = el("button", { type: "button", id: "gwm-ok" }, "Confirmar respuesta");
+      const submit = el("button", { type: "button", id: "gwm-ok", className: "gwm-btn" }, "Confirmar respuesta");
       submit.classList.add("hidden");
-      submit.style.cssText = btn.style.cssText;
       btn.addEventListener("click", function () {
         box.classList.add("hidden");
         btn.classList.add("hidden");
@@ -1818,16 +1927,17 @@
         onAnswerChanged();
         showTrial();
       });
-      wrap.appendChild(btn);
-      wrap.appendChild(input);
-      wrap.appendChild(submit);
+      panel.appendChild(btn);
+      panel.appendChild(input);
+      panel.appendChild(submit);
+      wrap.appendChild(panel);
     }
     showTrial();
     return wrap;
   }
 
   function renderGS() {
-    const wrap = el("div");
+    const wrap = el("div", { className: "gs-block" });
     stateCHC.gsMarked = new Set();
     stateCHC.answers.gs_time = null;
     if (stateCHC.answers.gs_score != null) {
@@ -1835,9 +1945,28 @@
       delete stateCHC.answers.gs_max;
     }
     stateCHC.gsStart = null;
+    const panel = el("div", { className: "gs-panel" });
+    const pill = el("div", { className: "gs-target-pill" });
+    pill.setAttribute("role", "img");
+    pill.setAttribute("aria-label", "Símbolo objetivo");
+    const sym = el("span", { className: "gs-target-sym" }, GS_TARGET);
+    pill.appendChild(sym);
+    pill.appendChild(el("span", {}, "Celdas con este símbolo · tarea con tiempo, no puzzle gráfico largo"));
+    panel.appendChild(pill);
+    panel.appendChild(
+      el("p", { className: "gs-aux" }, "Tras empezar, " + gsSeconds + " s en pantalla. Barra: tiempo restante. Marque aciertos; penaliza tocar símbolos distintos al objetivo.")
+    );
+    const timerRow = el("div", { className: "gs-timer-row" });
+    const top = el("div", { className: "gs-timer-top" });
     const badge = el("div", { className: "timer-badge", id: "gs-timer" }, "Tiempo: " + gsSeconds + " s");
-    wrap.appendChild(badge);
-    wrap.appendChild(el("p", {}, "Tienes " + gsSeconds + " segundos. Toca cada celda que muestre exactamente: " + GS_TARGET + ". Marca todas las que puedas."));
+    const timeOuter = el("div", { className: "gs-time-outer" });
+    const timeFill = el("div", { className: "gs-time-fill" });
+    timeFill.style.width = "100%";
+    timeOuter.appendChild(timeFill);
+    top.appendChild(badge);
+    top.appendChild(timeOuter);
+    timerRow.appendChild(top);
+    panel.appendChild(timerRow);
     const grid = el("div", { className: "gs-grid" });
     GS_ITEMS.forEach(function (cell) {
       const d = el("div", { className: "gs-item" }, cell.sym);
@@ -1850,32 +1979,39 @@
       });
       grid.appendChild(d);
     });
-    wrap.appendChild(grid);
-    const startBtn = el("button", { type: "button", id: "gs-start" }, "Iniciar cronómetro y tarea");
-    startBtn.style.cssText = "border-radius:999px;padding:10px 18px;font-weight:700;border:none;background:#16a34a;color:#fff;cursor:pointer;";
+    panel.appendChild(grid);
+    const startBtn = el("button", { type: "button", id: "gs-start", className: "gs-start-btn" }, "Iniciar cronómetro y tarea");
     startBtn.addEventListener("click", function () {
       if (stateCHC.gsStart) return;
       stateCHC.gsStart = Date.now();
       startBtn.disabled = true;
       let left = gsSeconds;
       badge.textContent = "Tiempo: " + left + " s";
+      timeFill.style.width = 100 * left / gsSeconds + "%";
+      timeFill.classList.remove("gs-t-critical");
       gsTimerId = setInterval(function () {
         left--;
         badge.textContent = "Tiempo: " + left + " s";
-        if (left <= 10) badge.classList.add("critical");
+        timeFill.style.width = 100 * Math.max(0, left) / gsSeconds + "%";
+        if (left <= 10) {
+          badge.classList.add("critical");
+          timeFill.classList.add("gs-t-critical");
+        }
         if (left <= 0) {
           clearInterval(gsTimerId);
           gsTimerId = null;
-          finishGS(wrap, badge, grid);
+          timeFill.style.width = "0%";
+          finishGS(wrap, badge, grid, timeFill);
           onAnswerChanged();
         }
       }, 1000);
     });
-    wrap.appendChild(startBtn);
+    panel.appendChild(startBtn);
+    wrap.appendChild(panel);
     return wrap;
   }
 
-  function finishGS(wrap, badge, grid) {
+  function finishGS(wrap, badge, grid, timeFill) {
     let hits = 0;
     let falseAlarm = 0;
     GS_ITEMS.forEach(function (cell) {
@@ -1889,6 +2025,10 @@
     stateCHC.answers.gs_max = String(GS_ITEMS.filter(function (c) { return c.sym === GS_TARGET; }).length);
     badge.textContent = "Tiempo agotado · Aciertos netos: " + score;
     badge.classList.remove("critical");
+    if (timeFill) {
+      timeFill.style.width = "0%";
+      timeFill.classList.remove("gs-t-critical");
+    }
     grid.querySelectorAll(".gs-item").forEach(function (d) {
       d.style.pointerEvents = "none";
       const id = d.dataset.id;
