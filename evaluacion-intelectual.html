@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Evaluación intelectual — modelo CHC</title>
+  <title>ZZEvaluación intelectual — modelo CHC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -542,7 +542,7 @@
     .lexium-target {
       flex: 0 1 auto;
       min-width: 84px;
-      max-width: 200px;
+      max-width: min(100%, 320px);
       padding: 10px 14px;
       border-radius: 10px;
       background: var(--lex-navy);
@@ -560,8 +560,13 @@
       letter-spacing: 0.01em;
       font-weight: 600;
       font-size: 0.72rem;
-      max-width: min(100%, 280px);
+      max-width: 100%;
+      min-width: 0;
+      flex: 1 1 100%;
       text-align: left;
+    }
+    .lexium-pill-lane:has(.lexium-target.is-stem) {
+      flex: 1 1 100%;
     }
     .lexium-opts {
       flex: 1 1 200px;
@@ -1264,9 +1269,7 @@
   }
 
   function getGfStemPreview(it) {
-    const t = (it && it.text) ? String(it.text).replace(/\s+/g, " ").trim() : "";
-    if (t.length > 72) return t.slice(0, 69) + "…";
-    return t;
+    return (it && it.text) ? String(it.text).replace(/\s+/g, " ").trim() : "";
   }
 
   function getLexiumStimulusText(it) {
@@ -1275,7 +1278,7 @@
     const m = t.match(/«([^»]+)»/);
     if (m) return m[1];
     if (/oruga|mariposa/i.test(t) && /–\s*\?\s*–/i.test(t)) return "Oruga – ? – Mariposa";
-    return (t || "Pregunta").slice(0, 48) + (t && t.length > 48 ? "…" : "");
+    return (t || "Pregunta").trim();
   }
 
   function updateLexiumBlockFeet() {
