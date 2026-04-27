@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>7Evaluación intelectual — modelo CHC</title>
+  <title>DDEvaluación intelectual — modelo CHC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -128,6 +128,23 @@
       border-radius: 6px;
       font-size: 0.8rem;
       margin-bottom: 6px;
+    }
+    .block-nivel-meta {
+      font-size: 0.78rem;
+      color: #475569;
+      margin: 0 0 10px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .nivel-banco-nota {
+      font-size: 0.9rem;
+      color: #1e3a5f;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: 10px 0 0;
+      line-height: 1.4;
     }
     .chc-resultados-wrap {
       margin: 16px auto;
@@ -805,7 +822,8 @@
     <main class="page">
         <header>
         <h1>Evaluación intelectual</h1>
-        <p class="subtitle">Modelo <strong>CHC</strong> · Banco <span id="version-badge">CHC-v2.3</span> · <span class="tag-presentacion">vista presentación</span></p>
+        <p class="subtitle">Modelo <strong>CHC</strong> · Banco <span id="version-badge">CHC-v2.4</span> · <span class="tag-presentacion">vista presentación</span></p>
+        <p class="nivel-banco-nota" role="note"><strong>Nivel intermedio del banco (12–18 años):</strong> secundaria / bachillerato o equivalente internacional. No reemplaza normas de editoriales; resultados orientativos.</p>
         <p class="muted" style="margin:6px 0 0; font-size:14px; max-width: 52ch;">Herramienta orientativa para <strong>capacitación y selección</strong>; el informe definitivo requiere criterio profesional y, si aplica, tests estandarizados.</p>
       </header>
 
@@ -842,6 +860,7 @@
       <section id="pantalla-inicio" class="card instructions">
         <h2>Instrucciones generales</h2>
         <p>Prueba en <strong>seis bloques</strong> (A–F), del marco de habilidades cognitivas <strong>CHC</strong>. Cada bloque explica al entrar <strong>qué hacer y cuántas tareas</strong> incluye. Puede usar <strong>Anterior</strong> o <strong>Siguiente</strong> para moverse; los ítems de opción múltiple exigen <strong>una</strong> respuesta por pregunta.</p>
+        <p class="nivel-banco-nota" role="note"><strong>Público orientativo de este banco:</strong> aprox. <strong>12 a 18 años</strong> (educación secundaria / bachiller o equivalente en distintos países). Otros perfiles requerirán futuros bancos básico o avanzado.</p>
         <p class="time-est">Duración orientativa: <strong>~35–55 min</strong> (varía según el participante y la pausa en memoria/velocidad).</p>
         <div class="overview-wrap">
           <table class="overview-table" aria-label="Resumen de bloques">
@@ -883,7 +902,7 @@
             <div class="progress" aria-label="Progreso"><div class="bar" id="prog-bar"></div></div>
             <div style="margin:8px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
               <span class="pill" id="step-pill">—</span>
-              <small class="muted" id="chc-meta">Banco CHC-v2.3</small>
+              <small class="muted" id="chc-meta">Banco CHC-v2.4</small>
             </div>
           </div>
           <div id="block-container"></div>
@@ -900,7 +919,7 @@
         <p class="final-lead">Los resultados se envían o guardan según la configuración del servidor. A continuación un <strong>resumen por factor</strong> (vista inmediata; puede copiarse para informe interno).</p>
         <div id="chc-resultados-wrap" class="chc-resultados-wrap hidden" role="region" aria-label="Resultados por factor"></div>
         <p id="chc-final-msg" class="hidden final-msg" role="status"></p>
-        <p class="muted final-foot">Banco de ítems <strong>CHC-v2.3</strong> · Modelo Cattell-Horn-Carroll (referencia de factores, no calificación clínica estándar).</p>
+        <p class="muted final-foot">Banco de ítems <strong>CHC-v2.4</strong> (nivel intermedio 12–18) · Modelo Cattell-Horn-Carroll (referencia de factores, no calificación clínica estándar).</p>
         <button type="button" id="btnRegresarMenu" class="secondary" style="margin-top:16px;">REGRESAR AL MENÚ</button>
       </section>
     </main>
@@ -1175,7 +1194,8 @@
     gsMarked: new Set()
   };
 
-  const VERSION_BANCO = "CHC-v2.3";
+  const VERSION_BANCO = "CHC-v2.4";
+  const NIVEL_BANCO_TXT = "Nivel intermedio del banco · edad orientativa aprox. 12–18 años (secundaria / bachillerato o equivalente internacional).";
 
   const STEPS = [
     {
@@ -1246,6 +1266,7 @@
     wrap.setAttribute("role", "region");
     wrap.setAttribute("aria-label", "Instrucciones de este bloque");
     wrap.appendChild(el("h3", {}, step.introTitle || step.label));
+    wrap.appendChild(el("p", { className: "block-nivel-meta" }, NIVEL_BANCO_TXT));
     wrap.appendChild(el("p", { className: "block-item-meta" }, "Carga: " + labelN));
     wrap.appendChild(el("p", { innerHTML: step.introBody || "" }));
     const tip = step.introTip;
@@ -1272,6 +1293,7 @@
     t += "</tbody></table>";
     t += "<div class=\"result-total-bar\" role=\"status\">Total: <strong>" + r.total.puntos + " / " + r.total.max + "</strong> &nbsp;·&nbsp; Porcentaje global: <strong>" + r.total.pct + " %</strong> correcto aproximado</div>";
     t += "<p class=\"muted\" style=\"font-size:12px; margin:10px 0 0;\">" + escHtml(r.version_banco || VERSION_BANCO) + " · Los porcentajes son informativos; la interpretación depende de la norma y el contexto del uso (no clínica).</p>";
+    t += "<p class=\"muted\" style=\"font-size:11px; margin:6px 0 0;\">" + escHtml(NIVEL_BANCO_TXT) + "</p>";
     return t;
   }
 
