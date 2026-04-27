@@ -1,0 +1,2440 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>DDEvaluación intelectual — modelo CHC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #111827;
+      background: #ffffff;
+      --sbw: 0px;
+      --lex-navy: #1e3a5f;
+      --lex-navy-2: #0f172a;
+      --lex-purple: #7c3aed;
+      --lex-purple-d: #6d28d9;
+      --lex-green: #22c55e;
+      --lex-border: #d1d5db;
+    }
+    html {
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+      padding-right: var(--sbw);
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      font-size: 16px;
+      overflow-y: scroll;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    .side-strip {
+      background: #e5e7eb;
+      border-right: 1px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .side-strip span {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      font-size: 24px;
+      text-align: center;
+      color: #6b7280;
+      text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.8),
+        0 -1px 0 rgba(0, 0, 0, 0.18);
+    }
+    .page {
+      max-width: 1000px;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    h1 {
+      font-size: 1.25rem;
+      margin: 0 0 2px;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      margin: 0 0 4px;
+      font-size: 0.9rem;
+      color: #374151;
+    }
+    .tag-presentacion {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #1d4ed8;
+      background: #eff6ff;
+      border: 1px solid #93c5fd;
+      padding: 2px 8px;
+      border-radius: 6px;
+      vertical-align: middle;
+    }
+    .time-est {
+      font-size: 0.95rem;
+      margin: 10px 0 12px;
+      padding: 8px 12px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      color: #14532d;
+    }
+    .overview-wrap { overflow-x: auto; margin: 12px 0; -webkit-overflow-scrolling: touch; }
+    .overview-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 320px;
+    }
+    .overview-table th, .overview-table td {
+      border: 1px solid #e5e7eb;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    .overview-table thead th { background: #f8fafc; font-weight: 700; }
+    .overview-table tbody tr:nth-child(even) { background: #fafafa; }
+    .overview-table tfoot td { background: #f1f5f9; font-weight: 600; }
+    .block-intro {
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px 14px;
+      margin: 0 0 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .block-intro h3 { margin: 0 0 6px; font-size: 0.95rem; color: #0f172a; }
+    .block-intro p { margin: 0 0 8px; color: #334155; }
+    .block-intro .block-tip { margin: 0; font-size: 0.8rem; color: #64748b; }
+    .block-item-meta {
+      display: inline-block;
+      font-weight: 700;
+      color: #1d4ed8;
+      background: #eff6ff;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+    }
+    .block-nivel-meta {
+      font-size: 0.78rem;
+      color: #475569;
+      margin: 0 0 10px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .nivel-banco-nota {
+      font-size: 0.9rem;
+      color: #1e3a5f;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: 10px 0 0;
+      line-height: 1.4;
+    }
+    .chc-resultados-wrap {
+      margin: 16px auto;
+      max-width: 560px;
+      text-align: left;
+    }
+    .chc-resultados-wrap h3 { margin: 0 0 10px; font-size: 1rem; }
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }
+    .result-table th, .result-table td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
+    .result-table thead th { background: #1e3a5f; color: #fff; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .result-table tbody tr:last-child td { border-bottom: none; }
+    .result-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .result-total-bar {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    .final-lead { max-width: 48ch; margin-left: auto; margin-right: auto; }
+    .final-msg { margin-top: 12px; }
+    .final-foot { font-size: 0.8rem; margin-top: 16px; }
+    .final-msg.ok { color: #15803d; font-size: 14px; font-weight: 600; }
+    .gwm-prog { font-size: 0.82rem; font-weight: 800; color: #1d4ed8; margin: 0 0 8px; letter-spacing: 0.02em; }
+    .gwm-wrap { width: 100%; }
+    .gwm-panel {
+      max-width: 100%;
+      padding: 12px 14px;
+      background: #fafbfc;
+      border: 1px solid #e8ecf1;
+      border-radius: 12px;
+      margin-top: 4px;
+    }
+    .gwm-panel .gwm-dots {
+      display: flex;
+      gap: 6px;
+      margin: 0 0 10px;
+      align-items: center;
+    }
+    .gwm-panel .gwm-dots .gwm-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e2e8f0;
+    }
+    .gwm-panel .gwm-dots .gwm-dot.is-on { background: #2563eb; box-shadow: 0 0 0 2px #bfdbfe; }
+    .gwm-panel .gwm-dots .gwm-dot.is-done { background: #22c55e; }
+    .gwm-panel .gwm-aux {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin: 0 0 10px;
+      line-height: 1.35;
+    }
+    .gwm-panel > p:last-of-type { margin-bottom: 0; }
+    .gwm-btn {
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    .gwm-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    @media print {
+      .side-strip, #btnRegresarMenu, .chc-nav, #btnIniciar, #btnChcPrev, #btnChcNext { display: none !important; }
+      .page { max-width: none; }
+    }
+    h2 {
+      font-size: 16px;
+      margin: 16px 0 8px;
+    }
+    header h1 { margin: 0 0 4px; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .ok { color: #16a34a; font-size: 13px; font-weight: 600; }
+    .err { color: #dc2626; font-size: 13px; font-weight: 600; }
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      background: #ffffff;
+      width: 100%;
+      box-sizing: border-box;
+      overflow: visible;
+    }
+    #pantalla-preguntas .card {
+      min-height: 420px;
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+    }
+    .field { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+    .field label { font-weight: 600; }
+    .field input {
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+    .field input[readonly] { background: #f9fafb; color: #4b5563; }
+    .instructions-header {
+      font-weight: 700;
+      text-align: center;
+      margin: 8px 0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #1d4ed8;
+      color: #ffffff;
+      font-size: 13px;
+    }
+    .sticky-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: #ffffff;
+      padding-top: 8px;
+      margin-top: 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .progress .bar {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: width 0.2s ease-out;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+      background: #f9fafb;
+    }
+    #btnIniciar {
+      border: none;
+      border-radius: 999px;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      background: #16a34a;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
+    }
+    #btnIniciar:hover { filter: brightness(0.95); }
+    #btnIniciar:active { transform: translateY(1px); }
+    #btnIniciar:disabled {
+      background: #9ca3af;
+      color: #ffffff;
+      opacity: 1;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+    #btnChcNext {
+      border: none;
+      border-radius: 999px;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      background: #16a34a;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
+    }
+    #btnChcNext:hover { filter: brightness(0.95); }
+    #btnChcNext:active { transform: translateY(1px); }
+    #btnChcNext:disabled {
+      opacity: 0.55;
+      cursor: default;
+      box-shadow: none;
+    }
+    #btnChcPrev {
+      border-radius: 999px;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+      box-shadow: none;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #16a34a;
+      color: #ffffff;
+    }
+    button.primary { background: #16a34a; }
+    button.secondary {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .chc-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      justify-content: flex-end;
+    }
+    .q { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid #f3f4f6; }
+    .q:last-child { border-bottom: none; }
+    .q-num { font-size: 0.75rem; font-weight: 700; color: #6b7280; margin-bottom: 4px; }
+    .q-text { margin: 0 0 10px; font-weight: 600; }
+    .opts { display: flex; flex-direction: column; gap: 6px; }
+    .opts label {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .opts label:has(input:checked) { background: #eff6ff; border-color: #93c5fd; }
+    .opts input { margin-top: 3px; accent-color: #2563eb; }
+    .mem-box {
+      font-size: 1.75rem;
+      letter-spacing: 0.3em;
+      text-align: center;
+      padding: 20px;
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 10px;
+      font-weight: 700;
+      margin: 12px 0;
+    }
+    .mem-input {
+      font-size: 1.15rem;
+      letter-spacing: 0.15em;
+      text-align: center;
+      padding: 10px;
+      width: 100%;
+      max-width: 280px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+    }
+    .gs-block {
+      width: 100%;
+    }
+    .gs-panel {
+      max-width: 100%;
+      padding: 12px 14px;
+      background: #fafbfc;
+      border: 1px solid #e8ecf1;
+      border-radius: 12px;
+    }
+    .gs-aux { font-size: 0.78rem; color: #64748b; margin: 0 0 10px; line-height: 1.4; }
+    .gs-target-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 12px;
+      padding: 8px 14px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 999px;
+      color: #9a3412;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+    .gs-target-pill .gs-target-sym {
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+    .gs-timer-row { margin-bottom: 12px; }
+    .gs-timer-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .gs-time-outer {
+      flex: 1 1 160px;
+      min-width: 120px;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .gs-time-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #16a34a, #22c55e);
+      border-radius: 99px;
+      transition: width 0.2s ease;
+    }
+    .gs-time-fill.gs-t-critical { background: linear-gradient(90deg, #b91c1c, #ef4444); }
+    .timer-badge {
+      display: inline-flex;
+      padding: 6px 12px;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .timer-badge.critical { background: #fee2e2; color: #991b1b; }
+    .gs-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      max-width: 520px;
+    }
+    @media (max-width: 520px) {
+      .gs-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    .gs-item {
+      padding: 10px 6px;
+      min-height: 44px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 1.25rem;
+      cursor: pointer;
+      user-select: none;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gs-item.marked {
+      background: #dcfce7;
+      border-color: #22c55e;
+      outline: 2px solid #22c55e;
+    }
+    .gs-start-btn { border-radius: 999px; padding: 10px 18px; font-weight: 700; border: none; background: #16a34a; color: #fff; cursor: pointer; font-size: 0.9rem; margin-top: 4px; }
+    .gs-start-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .fig-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+    .fig-row.fig-lexium { gap: 12px; padding: 4px 0; }
+    .fig-opt {
+      width: 68px;
+      height: 68px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: #fff;
+    }
+    .fig-lexium .fig-opt {
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
+      border-color: var(--lex-border);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+    .fig-opt svg { width: 52px; height: 52px; }
+    .fig-lexium .fig-opt svg { width: 56px; height: 56px; }
+    .fig-opt.selected { border-color: var(--lex-purple); background: #f5f3ff; box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25); }
+    .fig-lexium .fig-opt.selected { background: #ede9fe; border-color: var(--lex-purple-d); }
+    .gv-graphic-block { margin: 8px 0 14px; }
+    .gv-prompt-fig {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+    .gv-figbox {
+      min-width: 88px;
+      min-height: 88px;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+    }
+    .gv-arrow-fig { font-size: 1.6rem; color: #64748b; line-height: 1; }
+    .gv-star-fig { font-size: 1.4rem; color: #f59e0b; }
+    .gv-legend-gv {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      justify-content: center;
+      padding: 10px 12px;
+      margin: 0 0 10px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+    }
+    .gv-legend-gv .lg-item { text-align: center; font-size: 0.7rem; color: #475569; }
+    .gv-legend-gv .lg-item svg { display: block; margin: 0 auto 4px; }
+    .gv-analogy-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px 12px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .gv-analogy-q { font-size: 1.5rem; font-weight: 800; color: #94a3b8; }
+    .gv-subl { font-size: 0.72rem; color: #64748b; margin: 4px 0 0; }
+    .gf-graphic-block { margin: 8px 0 14px; }
+    .gf-sym-prompt {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .gf-sym-line .gf-sym-fig { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 1.1rem; }
+    .gf-sym-line .gf-sym-fig span { color: #94a3b8; font-weight: 800; }
+    .gf-sym-sub { font-size: 0.72rem; color: #64748b; margin: 6px 0 0; }
+    .gf-rule-list { margin: 0 0 8px; }
+    .gf-rule-line { font-size: 0.78rem; line-height: 1.4; color: #334155; margin: 0; }
+    .gf-given-num {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--lex-navy, #1e3a5f);
+      text-align: center;
+      margin: 6px 0 10px;
+    }
+    .gf-diana-wrap { display: flex; justify-content: center; margin: 0 0 6px; }
+    .gf-diana-rules { font-size: 0.75rem; line-height: 1.4; color: #475569; margin: 0 0 8px; padding-left: 1.1rem; }
+    .gf-diana-rules li { margin: 3px 0; }
+    .gf-num-row .gf-num-opt { min-width: 64px; width: auto; height: 56px; padding: 0 10px; }
+    .gf-num-txt { font-weight: 800; font-size: 1.05rem; color: #1e293b; }
+    .lexium-vocab {
+      background: #fafbfc;
+      border: 1px solid #e8ecf1;
+      border-radius: 12px;
+      padding: 10px 12px 8px;
+      margin: 0 -2px 4px;
+    }
+    .lexium-vocab h4.lexium-vocab-h {
+      margin: 0 0 10px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #64748b;
+    }
+    .lexium-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 10px 12px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #eef2f7;
+    }
+    .lexium-row:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .lexium-row-num {
+      flex: 0 0 32px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      color: #64748b;
+      font-size: 0.8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
+    }
+    .lexium-body { flex: 1 1 220px; min-width: 0; }
+    .lexium-question {
+      margin: 0 0 8px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      color: #475569;
+      font-weight: 500;
+    }
+    .lexium-pill-lane { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .lexium-target {
+      flex: 0 1 auto;
+      min-width: 84px;
+      max-width: min(100%, 320px);
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--lex-navy);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: center;
+      line-height: 1.3;
+      box-shadow: 0 2px 6px rgba(30, 58, 95, 0.25);
+    }
+    .lexium-target.is-stem {
+      text-transform: none;
+      letter-spacing: 0.01em;
+      font-weight: 600;
+      font-size: 0.72rem;
+      max-width: 100%;
+      min-width: 0;
+      flex: 1 1 100%;
+      text-align: left;
+    }
+    .lexium-pill-lane:has(.lexium-target.is-stem) {
+      flex: 1 1 100%;
+    }
+    .lexium-opts {
+      flex: 1 1 200px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 0;
+    }
+    .lexium-opts label {
+      display: flex;
+      align-items: center;
+      margin: 0;
+      padding: 10px 12px;
+      border-radius: 9px;
+      border: 1px solid var(--lex-border);
+      background: #fff;
+      color: #1f2937;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+      cursor: pointer;
+      user-select: none;
+      max-width: 100%;
+      transition: background 0.12s, border-color 0.12s, color 0.12s, box-shadow 0.12s;
+    }
+    .lexium-opts label:has(input:checked),
+    .lexium-opts label.lexium-opt-sel {
+      background: var(--lex-purple);
+      border-color: var(--lex-purple-d);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(109, 40, 217, 0.35);
+    }
+    .lexium-opts input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+    .lexium-block-foot {
+      margin-top: 14px;
+      padding: 8px 0 2px;
+    }
+    .lexium-mini-bar {
+      height: 5px;
+      border-radius: 99px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+    .lexium-mini-fill { height: 100%; width: 0%; background: var(--lex-green); border-radius: 99px; transition: width 0.25s ease; }
+    .lexium-foot-txt { font-size: 0.78rem; color: #64748b; margin-top: 6px; font-weight: 600; }
+    .card-gv-lexium .opts-gv-pills {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .card-gv-lexium .opts-gv-pills label {
+      margin: 0;
+      padding: 10px 12px;
+      border-radius: 9px;
+      border: 1px solid var(--lex-border);
+      background: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .card-gv-lexium .opts-gv-pills label:has(input:checked) {
+      background: var(--lex-purple);
+      border-color: var(--lex-purple-d);
+      color: #fff;
+    }
+    .factor-pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    #pantalla-final {
+      margin-top: 32px;
+      padding: 24px 18px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: #fefce8;
+      text-align: center;
+      display: none;
+    }
+    #pantalla-final h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    .check-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 2px solid #16a34a;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #16a34a;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    #chc-final-msg {
+      margin-top: 12px;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+    button.secondary {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .hidden { display: none !important; }
+    .consent label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+    @media (max-width: 840px) {
+      .side-strip span { font-size: 18px; }
+    }
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 56px minmax(0, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="side-strip"><span>INTELECTUAL CHC</span></aside>
+    <main class="page">
+        <header>
+        <h1>Evaluación intelectual</h1>
+        <p class="subtitle">Modelo <strong>CHC</strong> · Banco <span id="version-badge">CHC-v2.4</span> · <span class="tag-presentacion">vista presentación</span></p>
+        <p class="nivel-banco-nota" role="note"><strong>Nivel intermedio del banco (12–18 años):</strong> secundaria / bachillerato o equivalente internacional. No reemplaza normas de editoriales; resultados orientativos.</p>
+        <p class="muted" style="margin:6px 0 0; font-size:14px; max-width: 52ch;">Herramienta orientativa para <strong>capacitación y selección</strong>; el informe definitivo requiere criterio profesional y, si aplica, tests estandarizados.</p>
+      </header>
+
+      <section id="datos-participante" class="card">
+        <div class="grid-2">
+          <div class="field">
+            <label for="codigo">Código</label>
+            <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
+            <small id="codigoMsg" class="muted"></small>
+          </div>
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" type="text" autocomplete="name" />
+          </div>
+          <div class="field">
+            <label for="curso" id="labelCurso">Grado/Curso/Nivel</label>
+            <input id="curso" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="institucion">Institución</label>
+            <input id="institucion" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="grupo">País / Grupo</label>
+            <input id="grupo" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="fecha">Fecha</label>
+            <input id="fecha" type="text" readonly />
+          </div>
+        </div>
+      </section>
+
+      <section id="pantalla-inicio" class="card instructions">
+        <h2>Instrucciones generales</h2>
+        <p>Prueba en <strong>seis bloques</strong> (A–F), del marco de habilidades cognitivas <strong>CHC</strong>. Cada bloque explica al entrar <strong>qué hacer y cuántas tareas</strong> incluye. Puede usar <strong>Anterior</strong> o <strong>Siguiente</strong> para moverse; los ítems de opción múltiple exigen <strong>una</strong> respuesta por pregunta.</p>
+        <p class="nivel-banco-nota" role="note"><strong>Público orientativo de este banco:</strong> aprox. <strong>12 a 18 años</strong> (educación secundaria / bachiller o equivalente en distintos países). Otros perfiles requerirán futuros bancos básico o avanzado.</p>
+        <p class="time-est">Duración orientativa: <strong>~35–55 min</strong> (varía según el participante y la pausa en memoria/velocidad).</p>
+        <div class="overview-wrap">
+          <table class="overview-table" aria-label="Resumen de bloques">
+            <thead>
+              <tr><th>Bloque</th><th>Factor</th><th>Contenido</th><th>Tareas</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>A</td><td>Gf</td><td>Razonamiento fluido: series, lógica, reglas</td><td>12</td></tr>
+              <tr><td>B</td><td>Gc</td><td>Conocimiento verbal: caja de estímulo, sinónimos, analogías, puentes (captura-tipo)</td><td>12</td></tr>
+              <tr><td>C</td><td>Gwm</td><td>Memoria de trabajo: cifras (recall en orden; interfaz mínima, no puzzle gráfico)</td><td>4</td></tr>
+              <tr><td>D</td><td>Gs</td><td>Velocidad: rejilla + tiempo (objetivo fijo, máx. 10 aciertos en neto)</td><td>1 tarea</td></tr>
+              <tr><td>E</td><td>Gv</td><td>Visual-espacial: formas, secuencias, tareas con gráfico o texto</td><td>10</td></tr>
+              <tr><td>F</td><td>Glr</td><td>Memoria asociativa: pares y coherencia (caja y píldoras)</td><td>8</td></tr>
+            </tbody>
+            <tfoot>
+              <tr><td colspan="3"><strong>Máx. teórico de puntuación (suma de aciertos por bloque, incl. hasta 10 en Gs)</strong></td><td><strong>56</strong></td></tr>
+            </tfoot>
+          </table>
+        </div>
+        <p class="muted" style="font-size:13px; margin-top:10px;">Esta implementación <strong>no</strong> sustituye baterías comerciales ni evaluación clínica. Los resultados son <strong>orientativos</strong> y sirven de base para presentación, piloto o informe interno.</p>
+        <div class="instructions-header">Antes de iniciar</div>
+        <p>1. Valide su <strong>código</strong> y complete su <strong>nombre</strong>.</p>
+        <p>2. Acepte la casilla de consentimiento.</p>
+        <div class="card" style="background:#fffbeb;border-color:#fcd34d;margin-top:12px;">
+          <label class="consent">
+            <input type="checkbox" id="consent-check" />
+            <span>Entiendo que los resultados son orientativos, que el progreso puede guardarse en el servidor según la configuración de la plataforma y que la interpretación responsable puede requerir personal competente.</span>
+          </label>
+        </div>
+        <div style="margin-top: 12px; text-align: right;">
+          <button type="button" id="btnIniciar" class="primary" disabled>INICIAR</button>
+        </div>
+      </section>
+
+      <section id="pantalla-preguntas" class="hidden">
+        <div class="card">
+          <div class="sticky-wrap">
+            <h2 style="margin:0 0 6px;">Bloques de la prueba</h2>
+            <div class="progress" aria-label="Progreso"><div class="bar" id="prog-bar"></div></div>
+            <div style="margin:8px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+              <span class="pill" id="step-pill">—</span>
+              <small class="muted" id="chc-meta">Banco CHC-v2.4</small>
+            </div>
+          </div>
+          <div id="block-container"></div>
+          <div class="chc-nav">
+            <button type="button" id="btnChcPrev" class="hidden">Anterior</button>
+            <button type="button" id="btnChcNext">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="pantalla-final">
+        <div class="check-icon">✔</div>
+        <h2>Evaluación terminada</h2>
+        <p class="final-lead">Los resultados se envían o guardan según la configuración del servidor. A continuación un <strong>resumen por factor</strong> (vista inmediata; puede copiarse para informe interno).</p>
+        <div id="chc-resultados-wrap" class="chc-resultados-wrap hidden" role="region" aria-label="Resultados por factor"></div>
+        <p id="chc-final-msg" class="hidden final-msg" role="status"></p>
+        <p class="muted final-foot">Banco de ítems <strong>CHC-v2.4</strong> (nivel intermedio 12–18) · Modelo Cattell-Horn-Carroll (referencia de factores, no calificación clínica estándar).</p>
+        <button type="button" id="btnRegresarMenu" class="secondary" style="margin-top:16px;">REGRESAR AL MENÚ</button>
+      </section>
+    </main>
+  </div>
+
+  <script>
+(function () {
+  "use strict";
+
+  (function lockScrollbarWidth() {
+    function setSBW() {
+      const sbw = window.innerWidth - document.documentElement.clientWidth;
+      document.documentElement.style.setProperty("--sbw", (sbw > 0 ? sbw : 0) + "px");
+    }
+    setSBW();
+    window.addEventListener("resize", setSBW);
+  })();
+
+  let __startTime = Date.now();
+  let CODIGO_ACTUAL = null;
+  const STORAGE_PREFIX = "eval_chc_state_";
+
+  const codigoInput = document.getElementById("codigo");
+  const instInput = document.getElementById("institucion");
+  const grupoInput = document.getElementById("grupo");
+  const cursoInput = document.getElementById("curso");
+  const labelCurso = document.getElementById("labelCurso");
+  const btnIniciar = document.getElementById("btnIniciar");
+  const codigoMsg = document.getElementById("codigoMsg");
+  const consentCheck = document.getElementById("consent-check");
+
+  function actualizarLabelCurso(codigo) {
+    const limpio = String(codigo || "").trim().toUpperCase();
+    if (!labelCurso) return;
+    labelCurso.textContent = !limpio ? "Grado/Curso/Nivel" : (limpio.startsWith("PRO") ? "Nivel" : "Grado/Curso");
+  }
+
+  function getStorageKey() {
+    const codigo = CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+    return codigo ? STORAGE_PREFIX + codigo : null;
+  }
+
+  function loadStateForCurrentCode() {
+    const key = getStorageKey();
+    if (!key) return null;
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      console.warn("No se pudo leer el estado local:", e);
+      return null;
+    }
+  }
+
+  function clearState() {
+    const key = getStorageKey();
+    if (!key) return;
+    try { localStorage.removeItem(key); } catch (e) { console.warn(e); }
+  }
+
+  function responsesComplete(resp) {
+    if (!resp || typeof resp !== "object") return false;
+    const need = []
+      .concat(ITEMS.gf.map((i) => i.id))
+      .concat(ITEMS.gc.map((i) => i.id))
+      .concat(GWM_TRIALS.map((t) => t.id))
+      .concat(ITEMS.gv.map((i) => i.id))
+      .concat(ITEMS.glr.map((i) => i.id));
+    for (const k of need) {
+      if (resp[k] == null || resp[k] === "") return false;
+    }
+    if (resp.gs_score == null || resp.gs_score === "") return false;
+    return true;
+  }
+
+  function isStateCompleted(state) {
+    if (!state) return false;
+    if (state.completed) return true;
+    return responsesComplete(state.responses || {});
+  }
+
+  async function syncAutosaveToServer(state) {
+    try {
+      const codigo = state.codigo;
+      if (!codigo) return;
+      const payload = {
+        codigo,
+        currentPage: state.currentPage || 0,
+        responses: state.responses || {},
+        snapshot: {
+          nombre: state.nombre || "",
+          institucion: state.institucion || "",
+          grupo: state.grupo || "",
+          curso: state.curso || "",
+          fecha: state.fecha || "",
+          startTime: state.startTime || null,
+          prueba: "CHC",
+          chcGwmTrialIndex: state.chcGwmTrialIndex ?? 0
+        }
+      };
+      await fetch("/api/autosave", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      console.warn("No se pudo sincronizar autosave servidor:", e);
+    }
+  }
+
+  async function cargarAutosaveServidor(codigo) {
+    if (!codigo) return null;
+    try {
+      const r = await fetch("/api/autosave?codigo=" + encodeURIComponent(codigo));
+      const data = await r.json();
+      if (!r.ok || !data.ok || !data.autosave) return null;
+      const row = data.autosave;
+      const snap = row.snapshot || {};
+      return {
+        codigo: row.codigo || codigo,
+        nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+        institucion: snap.institucion || DATOS_FIJOS.institucion,
+        grupo: snap.grupo || DATOS_FIJOS.grupo,
+        curso: snap.curso || DATOS_FIJOS.curso,
+        fecha: snap.fecha || document.getElementById("fecha").value,
+        currentPage: typeof row.current_page === "number" ? row.current_page : 0,
+        responses: row.responses || {},
+        startTime: snap.startTime || Date.now(),
+        completed: false,
+        chcGwmTrialIndex: typeof snap.chcGwmTrialIndex === "number" ? snap.chcGwmTrialIndex : 0
+      };
+    } catch (e) {
+      console.warn("No se pudo cargar autosave servidor:", e);
+      return null;
+    }
+  }
+
+  let saveTimer = null;
+  function scheduleSave(completedFlag) {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      saveTimer = null;
+      saveState(completedFlag);
+    }, 380);
+  }
+
+  function saveState(completedFlag) {
+    const key = getStorageKey();
+    if (!key) return;
+    try {
+      const prev = loadStateForCurrentCode() || {};
+      const state = {
+        ...prev,
+        codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
+        nombre: document.getElementById("nombre").value.trim(),
+        institucion: document.getElementById("institucion").value,
+        grupo: document.getElementById("grupo").value,
+        curso: document.getElementById("curso").value,
+        fecha: document.getElementById("fecha").value,
+        currentPage: stateCHC.step,
+        responses: getResponsesPayload(),
+        startTime: __startTime || Date.now(),
+        completed: typeof completedFlag === "boolean" ? completedFlag : !!prev.completed,
+        chcGwmTrialIndex: stateCHC.gwmTrialIndex
+      };
+      localStorage.setItem(key, JSON.stringify(state));
+      syncAutosaveToServer(state);
+    } catch (e) {
+      console.warn("No se pudo guardar el progreso local:", e);
+    }
+  }
+
+  async function lookupCodigo() {
+    const codigo = codigoInput.value.trim().toUpperCase();
+    codigoInput.value = codigo;
+    actualizarLabelCurso(codigo);
+    CODIGO_ACTUAL = null;
+    updateIniciarEnabled();
+
+    if (codigoMsg) {
+      codigoMsg.textContent = codigo ? "Buscando..." : "Ingresa un código.";
+      codigoMsg.className = codigo ? "muted" : "err";
+    }
+    if (!codigo) {
+      instInput.value = grupoInput.value = cursoInput.value = "";
+      return;
+    }
+    try {
+      const r = await fetch("/api/lookup?codigo=" + encodeURIComponent(codigo));
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Código no válido");
+
+      const codigoUsado =
+        data.usado === true ||
+        data.usado === "true" ||
+        (typeof data.disponible === "boolean" && data.disponible === false) ||
+        (data.estado && String(data.estado).toLowerCase() !== "activo") ||
+        (typeof data.intentos_max === "number" &&
+          typeof data.intentos_usados === "number" &&
+          data.intentos_usados >= data.intentos_max);
+
+      if (codigoUsado) {
+        instInput.value = grupoInput.value = cursoInput.value = "";
+        CODIGO_ACTUAL = null;
+        if (codigoMsg) {
+          codigoMsg.textContent = "Este código ya fue utilizado o no está disponible.";
+          codigoMsg.className = "err";
+        }
+        updateIniciarEnabled();
+        return;
+      }
+
+      CODIGO_ACTUAL = data.codigo || codigo;
+
+      const localState = loadStateForCurrentCode();
+      if (isStateCompleted(localState)) {
+        instInput.value = grupoInput.value = cursoInput.value = "";
+        CODIGO_ACTUAL = null;
+        if (codigoMsg) {
+          codigoMsg.textContent = "Este código ya fue utilizado para completar una evaluación en este dispositivo.";
+          codigoMsg.className = "err";
+        }
+        updateIniciarEnabled();
+        return;
+      }
+
+      instInput.value = data.institucion || "";
+      grupoInput.value = data.grupo || "";
+      cursoInput.value = data.curso || "";
+      if (codigoMsg) {
+        codigoMsg.textContent = "Código válido.";
+        codigoMsg.className = "ok";
+      }
+    } catch (e) {
+      instInput.value = grupoInput.value = cursoInput.value = "";
+      CODIGO_ACTUAL = null;
+      if (codigoMsg) {
+        codigoMsg.textContent = "Código no encontrado.";
+        codigoMsg.className = "err";
+      }
+    }
+    updateIniciarEnabled();
+  }
+
+  function updateIniciarEnabled() {
+    btnIniciar.disabled = !(CODIGO_ACTUAL && consentCheck.checked);
+  }
+
+  codigoInput.addEventListener("input", function () {
+    codigoInput.value = codigoInput.value.toUpperCase();
+    actualizarLabelCurso(codigoInput.value);
+  });
+  codigoInput.addEventListener("blur", lookupCodigo);
+  codigoInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); lookupCodigo(); }
+  });
+  consentCheck.addEventListener("change", updateIniciarEnabled);
+  actualizarLabelCurso(codigoInput.value);
+
+  const DATOS_FIJOS = {
+    institucion: "Institución por defecto",
+    grupo: "País por defecto",
+    curso: "Grado/Curso/Nivel por defecto"
+  };
+
+  const stateCHC = {
+    step: 0,
+    answers: {},
+    memTrials: [],
+    gwmTrialIndex: 0,
+    gsStart: null,
+    gsMarked: new Set()
+  };
+
+  const VERSION_BANCO = "CHC-v2.4";
+  const NIVEL_BANCO_TXT = "Nivel intermedio del banco · edad orientativa aprox. 12–18 años (secundaria / bachillerato o equivalente internacional).";
+
+  const STEPS = [
+    {
+      id: "gf",
+      label: "A · Razonamiento fluido (Gf)",
+      factor: "Gf",
+      introTitle: "Razonamiento fluido (Gf)",
+      introBody: "Cada pregunta tiene <strong>cuatro opciones</strong> en formato <strong>recuadro + píldoras</strong>. Abarca series, lógica, reglas, patrones y, en v2.1, tareas con <strong>figuras y tablas</strong> (suma de formas, reglas por dígitos, dianas: más cerca / más lejos) además de progresiones y <strong>dos operaciones</strong> consecutivas.",
+      introTip: "Puede usar «Anterior» o «Siguiente» entre bloques; revise este bloque antes de salir si lo necesita."
+    },
+    {
+      id: "gc",
+      label: "B · Conocimiento verbal (Gc)",
+      factor: "Gc",
+      introTitle: "Conocimiento verbal (Gc)",
+      introBody: "Como en muchas <strong>capturas de prueba de aptitud</strong>: término o relación en <strong>caja (estímulo)</strong> y <strong>cuatro píldoras</strong>. Abarca sinónimos, <strong>analogías A:B = C:?</strong>, puentes (término intermedio, metamorfosis) y oraciones por completar. <strong>Contenido verbal</strong>; si hubiera figuras, en pruebas comerciales a veces se catalogan en Gv o mixto, aquí todo es <strong>texto</strong>. <strong>Una</strong> opción por ítem.",
+      introTip: "Lea el enunciado completo antes de marcar."
+    },
+    {
+      id: "gwm",
+      label: "C · Memoria de trabajo (Gwm)",
+      factor: "Gwm",
+      introTitle: "Memoria de trabajo (Gwm)",
+      introBody: "Bloque <strong>corto y sin imágenes de puzzle</strong>: cifras en pantalla, luego <strong>recall</strong> en el mismo orden o al revés. <strong>El núcleo</strong> es el contenido mnémonico, no un tablero gráfico largo; la interfaz solo ayuda a ver la secuencia y el avance. Solo <strong>dígitos</strong>, sin espacios.",
+      introTip: "Debe completar las 4 tareas (orden o inverso) antes de continuar. Tras memorizar, use «Ocultar y responder»; el foco no es un puzzle con figuras, sino carga y recordar orden."
+    },
+    {
+      id: "gs",
+      label: "D · Velocidad (Gs)",
+      factor: "Gs",
+      introTitle: "Velocidad (Gs) — tarea breve con tiempo",
+      introBody: "Bloque <strong>reacción y selección bajo límite de tiempo</strong>: celdas con símbolos, no tareas de razonamiento visual como en capturas extensas. <strong>El foco</strong> es <strong>rapidez y precisión</strong> (aciertos y penalización por toques erróneos). La pantalla ofrece <strong>cronómetro y rejilla</strong> como apoyo, no un puzzle con figuras múltiples.",
+      introTip: "Puede tocar celdas varias veces; al terminar el tiempo, se bloquean. Objetivo fijo: la caja naranja con la estrella."
+    },
+    {
+      id: "gv",
+      label: "E · Visual-espacial (Gv)",
+      factor: "Gv",
+      introTitle: "Razonamiento visual-espacial (Gv)",
+      introBody: "Incluye ahora <strong>cuatro tareas con gráfico tipo captura</strong>: 1) rotación (óvalo + estrella de referencia), 2) misma figura en esquina, 3) análogo con íconos (pie / ? / zapato), 4) leyenda círculo-cuadrado-hexágono y anidamiento. A continuación: secuencia con figuras, píldoras y preguntas en texto. Al elegir, el borde púrpura sigue a la figura o al texto (según el ítem).",
+      introTip: "Elija una sola figura o respuesta por ítem."
+    },
+    {
+      id: "glr",
+      label: "F · Memoria asociativa (Glr)",
+      factor: "Glr",
+      introTitle: "Memoria asociativa (Glr)",
+      introBody: "Mismo <strong>esquema captura</strong> que Gc: <strong>estímulo en caja + píldoras</strong>. Pares verbales, coherencia y analogías (en <strong>texto</strong>). Las <strong>analogías puramente con dibujos</strong> en capturas suelen asignarse a Gv; aquí Glr mantiene <strong>lenguaje</strong>, sin tareas de figura.",
+      introTip: "Enlace pares; no pide recitar cifras de otros bloques."
+    }
+  ];
+
+  function getStepTaskCount(st) {
+    if (!st) return 0;
+    if (st.id === "gf") return ITEMS.gf.length;
+    if (st.id === "gc") return ITEMS.gc.length;
+    if (st.id === "gwm") return GWM_TRIALS.length;
+    if (st.id === "gs") return 1;
+    if (st.id === "gv") return ITEMS.gv.length;
+    if (st.id === "glr") return ITEMS.glr.length;
+    return 0;
+  }
+
+  function buildBlockIntroEl(step) {
+    const n = getStepTaskCount(step);
+    const labelN = n === 1 ? "1 tarea" : n + " tareas o ítems";
+    const wrap = el("div", { className: "block-intro" });
+    wrap.setAttribute("role", "region");
+    wrap.setAttribute("aria-label", "Instrucciones de este bloque");
+    wrap.appendChild(el("h3", {}, step.introTitle || step.label));
+    wrap.appendChild(el("p", { className: "block-nivel-meta" }, NIVEL_BANCO_TXT));
+    wrap.appendChild(el("p", { className: "block-item-meta" }, "Carga: " + labelN));
+    wrap.appendChild(el("p", { innerHTML: step.introBody || "" }));
+    const tip = step.introTip;
+    if (tip) wrap.appendChild(el("p", { className: "block-tip" }, "→ " + tip));
+    return wrap;
+  }
+
+  function escHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function buildResultsTableHtml(r) {
+    if (!r || !r.factores) return "";
+    const rows = r.factores;
+    let t = "<h3>Resumen por factor</h3><table class=\"result-table\" role=\"table\"><caption class=\"sr-only\" style=\"position:absolute;left:-9999px\">Puntuación por factor CHC</caption><thead><tr><th>Factor</th><th>Ámbito</th><th class=\"num\">Puntos</th><th class=\"num\">%</th></tr></thead><tbody>";
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      t += "<tr><td><strong>" + escHtml(row.code) + "</strong></td><td>" + escHtml(row.label) + "</td><td class=\"num\">" + row.score + " / " + row.max + "</td><td class=\"num\"><strong>" + row.pct + "</strong> %</td></tr>";
+    }
+    t += "</tbody></table>";
+    t += "<div class=\"result-total-bar\" role=\"status\">Total: <strong>" + r.total.puntos + " / " + r.total.max + "</strong> &nbsp;·&nbsp; Porcentaje global: <strong>" + r.total.pct + " %</strong> correcto aproximado</div>";
+    t += "<p class=\"muted\" style=\"font-size:12px; margin:10px 0 0;\">" + escHtml(r.version_banco || VERSION_BANCO) + " · Los porcentajes son informativos; la interpretación depende de la norma y el contexto del uso (no clínica).</p>";
+    t += "<p class=\"muted\" style=\"font-size:11px; margin:6px 0 0;\">" + escHtml(NIVEL_BANCO_TXT) + "</p>";
+    return t;
+  }
+
+  const ITEMS = {
+    gf: [
+      { id: "gf1", text: "Serie numérica: 3, 7, 11, 15, ?", options: [{ v: "a", t: "17" }, { v: "b", t: "19" }, { v: "c", t: "21" }, { v: "d", t: "23" }], correct: "b" },
+      { id: "gf2", gfGraphic: true, gfKind: "symbolCommute", text: "Suma de formas: la primera fila pone el valor de ○+□. Complete la celda con la misma lógica (sume las mismas formas, no importa el orden).", correct: 0 },
+      { id: "gf3", gfGraphic: true, gfKind: "digit7center", text: "Tiro con reglas: al número se le aplica, por prioridad, una sola regla (7→centro; 2 y 5 juntos 25 → anillo doble; 3→estrella; 9→cuadrado). Dado 731, ¿en qué posición de la diana queda el punto?", correct: 0 },
+      { id: "gf4", gfGraphic: true, gfKind: "masCercaRings", text: "Diana: use las reglas y el criterio: si aplica caben varias, manda el círculo con número de anillo **menor** (más cerca al centro). ¿Qué valor queda en el círculo **más cercano** al centro? Opciones: 9, 4, 5, 7.", correct: 0, gfNumOpts: [9, 4, 5, 7] },
+      { id: "gf5", gfGraphic: true, gfKind: "masLejosRings", text: "Mismas reglas y figura. ¿Qué valor queda en el círculo **más alejado** del centro? Opciones: 9, 4, 5, 7.", correct: 2, gfNumOpts: [9, 4, 5, 7] },
+      { id: "gf6", text: "Si NO es verde implica encender la luz, y la luz está apagada, entonces:", options: [{ v: "a", t: "Seguro es verde" }, { v: "b", t: "No puede deducirse sin más datos" }, { v: "c", t: "Seguro no es verde" }, { v: "d", t: "La luz está rota" }], correct: "b" },
+      { id: "gf7", text: "Patrón: Z, Y, X, W, ?", options: [{ v: "a", t: "U" }, { v: "b", t: "V" }, { v: "c", t: "T" }, { v: "d", t: "S" }], correct: "b" },
+      { id: "gf8", text: "Un cubo pintado se corta en 8 cubitos iguales. ¿Cuántas caras pintadas tiene como máximo un cubito de esquina?", options: [{ v: "a", t: "1" }, { v: "b", t: "2" }, { v: "c", t: "3" }, { v: "d", t: "4" }], correct: "c" },
+      { id: "gf9", text: "Serie: 17, 14, 11, ? (misma regla en cada paso).", options: [{ v: "a", t: "8" }, { v: "b", t: "9" }, { v: "c", t: "10" }, { v: "d", t: "6" }], correct: "a" },
+      { id: "gf10", text: "Serie: 2, 4, 8, ? (cada término se obtiene con la misma regla).", options: [{ v: "a", t: "10" }, { v: "b", t: "12" }, { v: "c", t: "14" }, { v: "d", t: "16" }], correct: "d" },
+      { id: "gf11", text: "Serie: 5, 6, 4, 5, ? (alterna +1 y −2).", options: [{ v: "a", t: "2" }, { v: "b", t: "3" }, { v: "c", t: "4" }, { v: "d", t: "6" }], correct: "b" },
+      { id: "gf12", text: "Empiezas en 3 y quieres terminar en 7 aplicando exactamente dos operaciones, una tras otra. Puedes elegir solo de: −5, +2, +3, +8, −4. ¿Qué par da la resta/ suma neta adecuada (en cualquier orden de aplicación suma 4 al inicio para llegar a 7)?", options: [{ v: "a", t: "+8 y −4" }, { v: "b", t: "+3 y +2" }, { v: "c", t: "−5 y +3" }, { v: "d", t: "+2 y +2" }], correct: "a" }
+    ],
+    gc: [
+      { id: "gc1", text: "Elija el término más próximo (sinónimo) al estímulo.", stimulus: "efímero", options: [{ v: "a", t: "eterno" }, { v: "b", t: "pasajero" }, { v: "c", t: "pesado" }, { v: "d", t: "oscuro" }], correct: "b" },
+      { id: "gc2", text: "Analogía: complete la relación (verbo / uso).", stimulus: "libro → leer · comida → ?", options: [{ v: "a", t: "cocinar" }, { v: "b", t: "comer" }, { v: "c", t: "mesa" }, { v: "d", t: "hambre" }], correct: "b" },
+      { id: "gc3", text: "Elija el significado más próximo a:", stimulus: "mitigar", options: [{ v: "a", t: "aumentar" }, { v: "b", t: "suavizar o reducir" }, { v: "c", t: "destruir" }, { v: "d", t: "imitar" }], correct: "b" },
+      { id: "gc4", text: "Elija un sinónimo de la palabra de la caja.", stimulus: "prudente", options: [{ v: "a", t: "impulsivo" }, { v: "b", t: "cauto" }, { v: "c", t: "ruidoso" }, { v: "d", t: "rápido" }], correct: "b" },
+      { id: "gc5", text: "Elija la expresión que completa con más precisión (coherencia en el discurso).", stimulus: "La mayoría votó a favor; la decisión fue ___.", options: [{ v: "a", t: "unánime" }, { v: "b", t: "controvertida" }, { v: "c", t: "por mayoría" }, { v: "d", t: "ilegal" }], correct: "c" },
+      { id: "gc6", text: "«Altruista» se acerca a la definición:", stimulus: "altruista", options: [{ v: "a", t: "busca el lucro" }, { v: "b", t: "actúa en beneficio ajeno" }, { v: "c", t: "evita el contacto" }, { v: "d", t: "solo obedece órdenes" }], correct: "b" },
+      { id: "gc7", text: "Analogía de opuestos. Complete: frío:calor = seco:?", stimulus: "frío → calor · seco → ?", options: [{ v: "a", t: "viento" }, { v: "b", t: "húmedo" }, { v: "c", t: "nube" }, { v: "d", t: "invierno" }], correct: "b" },
+      { id: "gc8", text: "Elija la paráfrasis adecuada (definición) para:", stimulus: "perseverar", options: [{ v: "a", t: "cambiar de idea a menudo" }, { v: "b", t: "mantener el esfuerzo pese a dificultades" }, { v: "c", t: "evitar responsabilidades" }, { v: "d", t: "trabajar sin descanso un solo día" }], correct: "b" },
+      { id: "gc9", text: "Puente lógico: término intermedio en una secuencia (desarrollo).", stimulus: "bebé → ? → adulto", options: [{ v: "a", t: "adolescente" }, { v: "b", t: "jubilado" }, { v: "c", t: "recién nacido" }, { v: "d", t: "anciano" }], correct: "a" },
+      { id: "gc10", text: "Metamorfosis: indique la etapa intermedia del estímulo (larva → ? → adulto).", stimulus: "oruga → ? → mariposa", options: [{ v: "a", t: "crisálido" }, { v: "b", t: "hoja" }, { v: "c", t: "huevo" }, { v: "d", t: "savia" }], correct: "a" },
+      { id: "gc11", text: "Cercanía semántica (sinónimo) con:", stimulus: "demasiado", options: [{ v: "a", t: "excesivo" }, { v: "b", t: "insuficiente" }, { v: "c", t: "exacto" }, { v: "d", t: "débil" }], correct: "a" },
+      { id: "gc12", text: "Elija el término más próximo a «helado / gélido» (muy frío) que aparece en la caja.", stimulus: "helado · gélido", options: [{ v: "a", t: "tibio" }, { v: "b", t: "glacial o muy frío" }, { v: "c", t: "cálido" }, { v: "d", t: "templado" }], correct: "b" }
+    ],
+    gv: [
+      { id: "gv1", text: "¿Qué figura completa la secuencia: círculo, cuadrado, círculo, cuadrado, ?", options: [], svgChoice: true, choices: ["circle", "square", "triangle", "hex"], correct: 0 },
+      { id: "gv2", text: "Rotación: la figura de la caja, la flecha y la estrella son referencia. Elija en las cuatro opciones el óvalo que corresponda a un giro 90° en sentido horario respecto a la posición de la estrella (referencia a captura).", gvGraphic: true, gvKind: "arrowOval", correct: 1 },
+      { id: "gv3", text: "Misma figura: el triángulo sólido ocupa el mismo “tipo de esquina” que la muestra. Elija la opción que muestre el mismo emplazamiento relativo (rotada como la muestra).", gvGraphic: true, gvKind: "sameTri", correct: 0 },
+      { id: "gv4", text: "Análogo visual: use la relación entre el primer y el tercer dibujo. ¿Qué encaja lógicamente en el hueco? (inspirado en pares puntuales / calcetín / zapato).", gvGraphic: true, gvKind: "analogy", correct: 0 },
+      { id: "gv5", text: "Leyenda: círculo = líquido, cuadrado = sólido, hexágono = dulce. «Algo dulce dentro de un líquido» — elija el diagrama que lo representa.", gvGraphic: true, gvKind: "nest", correct: 0 },
+      { id: "gv6", text: "Perspectiva: dos rectas paralelas en el papel se ven como:", options: [{ v: "a", t: "Siempre perpendiculares" }, { v: "b", t: "Paralelas o que convergen según la perspectiva" }, { v: "c", t: "Siempre curvas" }, { v: "d", t: "Un solo punto" }], correct: "b" },
+      { id: "gv7", text: "Secuencia: triángulo, círculo, triángulo, círculo, … (se repite el patrón). ¿Qué figura sigue?", options: [{ v: "a", t: "triángulo" }, { v: "b", t: "círculo" }, { v: "c", t: "cuadrado" }, { v: "d", t: "pentágono" }], correct: "a" },
+      { id: "gv8", text: "En un dado estándar (caras 1 a 6), ¿cuántas caras muestran un número impar?", options: [{ v: "a", t: "2" }, { v: "b", t: "3" }, { v: "c", t: "1" }, { v: "d", t: "4" }], correct: "b" },
+      { id: "gv9", text: "Un cuadrado: sus dos diagonales se trazan por dentro. ¿En cuántos puntos se cruzan (interior, sin contar vértices)?", options: [{ v: "a", t: "1" }, { v: "b", t: "2" }, { v: "c", t: "4" }, { v: "d", t: "0" }], correct: "a" },
+      { id: "gv10", text: "Reloj analógico: de las 3:00 a las 6:00, la manecilla de las horas gira, en el sentido habitual, aproximadamente:", options: [{ v: "a", t: "30°" }, { v: "b", t: "60°" }, { v: "c", t: "90°" }, { v: "d", t: "180°" }], correct: "c" }
+    ],
+    glr: [
+      { id: "glr1", text: "Mismo criterio de captura (par–respuesta, como el ejemplo dado en la caja).", stimulus: "perro → ladrido · gato → ?", options: [{ v: "a", t: "cola" }, { v: "b", t: "maullido" }, { v: "c", t: "pez" }, { v: "d", t: "casa" }], correct: "b" },
+      { id: "glr2", text: "Colores: complete el par coherente (estímulo con flechas en la caja).", stimulus: "azul → cielo · verde → ?", options: [{ v: "a", t: "fuego" }, { v: "b", t: "hierba" }, { v: "c", t: "noche" }, { v: "d", t: "hielo" }], correct: "b" },
+      { id: "glr3", text: "Herramienta–actividad. Complete el segundo par (como en la caja de referencia).", stimulus: "pan → horno · pescado → ?", options: [{ v: "a", t: "red" }, { v: "b", t: "árbol" }, { v: "c", t: "coche" }, { v: "d", t: "papel" }], correct: "a" },
+      { id: "glr4", text: "Pares estudiados: si «clave / puerta», complete el par de la caja (objeto: función o complemento).", stimulus: "llave → ?", options: [{ v: "a", t: "ventana" }, { v: "b", t: "cerradura" }, { v: "c", t: "pared" }, { v: "d", t: "suelo" }], correct: "b" },
+      { id: "glr5", text: "Canal sensorial (estímulo 1 → estímulo 2). Elija el sentido adecuado (caja y píldoras).", stimulus: "música → oído · aroma → ?", options: [{ v: "a", t: "vista" }, { v: "b", t: "olfato" }, { v: "c", t: "gusto" }, { v: "d", t: "tacto" }], correct: "b" },
+      { id: "glr6", text: "Parte y todo. Complete en la caja, mismo esquema que en capturas (no figuras).", stimulus: "dedo → mano · rama → ?", options: [{ v: "a", t: "árbol" }, { v: "b", t: "hoja" }, { v: "c", t: "flor" }, { v: "d", t: "corteza" }], correct: "a" },
+      { id: "glr7", text: "Asociación producto–origen (texto, sin dibujo).", stimulus: "leche → vaca · miel → ?", options: [{ v: "a", t: "madera" }, { v: "b", t: "abeja" }, { v: "c", t: "hoja" }, { v: "d", t: "océano" }], correct: "b" },
+      { id: "glr8", text: "Analogía en texto (A:B = C:?). Si la misma relación se mostrara solo con dibujos, en otras pruebas a veces se clasifica en Gv.", stimulus: "océano → profundo · cielo → ?", options: [{ v: "a", t: "alto" }, { v: "b", t: "ancho" }, { v: "c", t: "lejano" }, { v: "d", t: "nuboso" }], correct: "a" }
+    ]
+  };
+
+  const GWM_TRIALS = [
+    { id: "gwm1", seq: "4 8 1", mode: "forward" },
+    { id: "gwm2", seq: "7 2 9 3", mode: "forward" },
+    { id: "gwm3", seq: "5 1 6", mode: "reverse" },
+    { id: "gwm4", seq: "2 4 6 8 1", mode: "reverse" }
+  ];
+
+  const GS_TARGET = "★";
+  const GS_ITEMS = [
+    { id: "gs0", sym: "★" }, { id: "gs1", sym: "☆" }, { id: "gs2", sym: "★" },
+    { id: "gs3", sym: "●" }, { id: "gs4", sym: "★" }, { id: "gs5", sym: "◆" },
+    { id: "gs6", sym: "★" }, { id: "gs7", sym: "▲" }, { id: "gs8", sym: "★" },
+    { id: "gs9", sym: "■" }, { id: "gs10", sym: "★" }, { id: "gs11", sym: "▼" },
+    { id: "gs12", sym: "★" }, { id: "gs13", sym: "◇" }, { id: "gs14", sym: "★" },
+    { id: "gs15", sym: "○" }, { id: "gs16", sym: "★" }, { id: "gs17", sym: "◎" },
+    { id: "gs18", sym: "★" }, { id: "gs19", sym: "⊕" }
+  ];
+
+  let gsTimerId = null;
+  const gsSeconds = 45;
+
+  function el(tag, props, html) {
+    const e = document.createElement(tag);
+    if (props) Object.assign(e, props);
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+
+  function getResponsesPayload() {
+    const map = {};
+    Object.keys(stateCHC.answers).forEach(function (k) {
+      const v = stateCHC.answers[k];
+      if (v != null) map[k] = v;
+    });
+    return map;
+  }
+
+  function onAnswerChanged() {
+    updateLexiumBlockFeet();
+    scheduleSave(false);
+  }
+
+  function getGfStemPreview(it) {
+    return (it && it.text) ? String(it.text).replace(/\s+/g, " ").trim() : "";
+  }
+
+  function getLexiumStimulusText(it) {
+    if (it && it.stimulus) return String(it.stimulus);
+    const t = (it && it.text) ? it.text : "";
+    const m = t.match(/«([^»]+)»/);
+    if (m) return m[1];
+    if (/oruga|mariposa/i.test(t) && /–\s*\?\s*–/i.test(t)) return "Oruga – ? – Mariposa";
+    return (t || "Pregunta").trim();
+  }
+
+  function updateLexiumBlockFeet() {
+    document.querySelectorAll(".lexium-block-foot").forEach(function (foot) {
+      const block = foot.getAttribute("data-block");
+      let items;
+      if (block === "gc") items = ITEMS.gc;
+      else if (block === "gf") items = ITEMS.gf;
+      else if (block === "glr") items = ITEMS.glr;
+      else if (block === "gv") items = ITEMS.gv;
+      else return;
+      const max = items.length;
+      const n = countAnsweredMc(items);
+      const fill = foot.querySelector(".lexium-mini-fill");
+      const tx = foot.querySelector(".lexium-foot-txt");
+      if (fill) fill.style.width = (max ? (n / max) * 100 : 0) + "%";
+      if (tx) tx.textContent = "Progreso del bloque: " + n + " / " + max + " respondidos";
+    });
+  }
+
+  const GV_NAVY = "#1e3a5f";
+
+  function buildGfGraphic(it) {
+    const navy = GV_NAVY;
+    const block = el("div", { className: "gf-graphic-block gv-graphic-block" });
+    const k = it.gfKind;
+
+    function addFigRow(svgList) {
+      const row = el("div", { className: "fig-row fig-lexium" });
+      for (var z = 0; z < svgList.length; z++) {
+        (function (idx) {
+          const lab = el("label", { className: "fig-opt" });
+          lab.innerHTML = svgList[idx];
+          const inp = el("input", { type: "radio", name: it.id, value: String(idx) });
+          lab.insertBefore(inp, lab.firstChild);
+          if (stateCHC.answers[it.id] === String(idx)) {
+            inp.checked = true;
+            lab.classList.add("selected");
+          }
+          inp.addEventListener("change", function () {
+            stateCHC.answers[it.id] = String(idx);
+            row.querySelectorAll(".fig-opt").forEach(function (x) { x.classList.remove("selected"); });
+            lab.classList.add("selected");
+            onAnswerChanged();
+          });
+          row.appendChild(lab);
+        })(z);
+      }
+      return row;
+    }
+
+    function addNumRow(nums) {
+      const row = el("div", { className: "fig-row fig-lexium gf-num-row" });
+      nums.forEach(function (n, idx) {
+        const lab = el("label", { className: "fig-opt gf-num-opt" });
+        const inp = el("input", { type: "radio", name: it.id, value: String(idx) });
+        if (stateCHC.answers[it.id] === String(idx)) {
+          inp.checked = true;
+          lab.classList.add("selected");
+        }
+        lab.appendChild(inp);
+        lab.appendChild(el("span", { className: "gf-num-txt" }, String(n)));
+        inp.addEventListener("change", function () {
+          stateCHC.answers[it.id] = String(idx);
+          row.querySelectorAll(".fig-opt").forEach(function (x) { x.classList.remove("selected"); });
+          lab.classList.add("selected");
+          onAnswerChanged();
+        });
+        row.appendChild(lab);
+      });
+      return row;
+    }
+
+    function ringFromRules(n) {
+      if (n % 3 === 0) return 0;
+      if (String(n).indexOf("5", 0) >= 0) return 3;
+      if (n % 4 === 0) return 1;
+      if (n % 2 === 0) return 2;
+      return 2;
+    }
+
+    const svgCirc = "<svg viewBox=\"0 0 40 40\" width=\"48\" height=\"48\" aria-hidden=\"true\"><circle cx=\"20\" cy=\"20\" r=\"16\" fill=\"" + navy + "\"/></svg>";
+    const svgQuad = "<svg viewBox=\"0 0 40 40\" width=\"48\" height=\"48\" aria-hidden=\"true\"><rect x=\"4\" y=\"4\" width=\"32\" height=\"32\" fill=\"" + navy + "\"/></svg>";
+    const svgStar = "<svg viewBox=\"0 0 40 40\" width=\"48\" height=\"48\" aria-hidden=\"true\"><polygon points=\"20,2 25,16 40,16 28,25 32,40 20,32 8,40 12,25 0,16 15,16\" fill=\"" + navy + "\"/></svg>";
+    const svgCenter = "<svg viewBox=\"0 0 40 40\" width=\"48\" height=\"48\" aria-hidden=\"true\"><circle cx=\"20\" cy=\"20\" r=\"16\" fill=\"#e2e8f0\"/><circle cx=\"20\" cy=\"20\" r=\"4\" fill=\"" + navy + "\"/></svg>";
+    const svgDbl = "<svg viewBox=\"0 0 40 40\" width=\"48\" height=\"48\" aria-hidden=\"true\"><circle cx=\"20\" cy=\"20\" r=\"16\" fill=\"none\" stroke=\"" + navy + "\" stroke-width=\"2\"/><circle cx=\"20\" cy=\"20\" r=\"6\" fill=\"none\" stroke=\"" + navy + "\"/></svg>";
+
+    if (k === "symbolCommute") {
+      const t = el("div", { className: "gf-sym-prompt" });
+      const row1 = el("div", { className: "gf-sym-line" });
+      row1.appendChild(
+        (function () {
+          const d = el("div", { className: "gf-sym-fig" });
+          d.innerHTML = svgCirc + " <span>+</span> " + svgQuad + " <span>=</span> " + svgStar;
+          return d;
+        })()
+      );
+      t.appendChild(row1);
+      t.appendChild(
+        el("p", { className: "gf-sym-sub" }, "Elija qué completa: □ + ○ = ? (mismas formas, orden distinto).")
+      );
+      block.appendChild(t);
+      block.appendChild(addFigRow([svgStar, svgCirc, svgQuad, svgDbl]));
+      return block;
+    }
+
+    if (k === "digit7center") {
+      const leg = el("div", { className: "gf-rule-list" });
+      leg.appendChild(
+        el("p", { className: "gf-rule-line" },
+          "1) Si contiene " + String(7) + " → círculo " + String(0) + " (centro). 2) Si aparece 25 seguido → anillo doble. 3) Si contiene " + String(3) + " → estrella. 4) Si contiene " + String(9) + " → cuadrado."
+        )
+      );
+      block.appendChild(leg);
+      const big = el("div", { className: "gf-given-num" }, "731");
+      big.setAttribute("title", "Número a clasificar");
+      block.appendChild(big);
+      block.appendChild(addFigRow([svgCenter, svgStar, svgQuad, svgDbl]));
+      return block;
+    }
+
+    if (k === "masCercaRings" || k === "masLejosRings") {
+      const diana = el("div", { className: "gf-diana-wrap" });
+      diana.innerHTML =
+        "<svg class=\"gf-diana-svg\" viewBox=\"0 0 100 100\" width=\"150\" height=\"150\" aria-hidden=\"true\" role=\"img\">" +
+        "<title>Diana, cuatro círculos</title><circle cx=\"50\" cy=\"50\" r=\"18\" fill=\"#f1f5f9\" stroke=\"" + navy + "\"/>" +
+        "<circle cx=\"50\" cy=\"50\" r=\"32\" fill=\"none\" stroke=\"" + navy + "\"/>" +
+        "<circle cx=\"50\" cy=\"50\" r=\"44\" fill=\"none\" stroke=\"" + navy + "\"/>" +
+        "<circle cx=\"50\" cy=\"50\" r=\"48\" fill=\"none\" stroke=\"" + navy + "\"/>" +
+        "<text x=\"50\" y=\"20\" text-anchor=\"middle\" font-size=\"7\" fill=\"#64748b\">+ lejos</text>" +
+        "<text x=\"50\" y=\"90\" text-anchor=\"middle\" font-size=\"7\" fill=\"#64748b\">+ cerca</text>" +
+        "</svg>";
+      block.appendChild(diana);
+      const ul = el("ul", { className: "gf-diana-rules" });
+      const rules = [
+        "Círculo 0 (centro): múltiplo de 3",
+        "Círculo 1: múltiplo de 4 y no aplica el 0 (no es múltiplo de 3 en ese cálculo, aquí: si es múltiplo de 4 y no múltiplo de 3).",
+        "Círculo 2: par restante o impar sin regla anterior (p. ej. 7).",
+        "Círculo 3 (más al borde): contiene el dígito 5"
+      ];
+      rules.forEach(function (r) {
+        const li = el("li", {}, r);
+        ul.appendChild(li);
+      });
+      block.appendChild(ul);
+      const nums = (it.gfNumOpts && it.gfNumOpts.length) ? it.gfNumOpts : [9, 4, 5, 7];
+      if (k === "masCercaRings") {
+        block.appendChild(el("p", { className: "gf-sym-sub" }, "Elija el valor con anillo más bajo (0 = más cerca al centro)."));
+      } else {
+        block.appendChild(el("p", { className: "gf-sym-sub" }, "Elija el valor con anillo más alto (más lejos del centro)."));
+      }
+      block.appendChild(addNumRow(nums));
+      return block;
+    }
+
+    return block;
+  }
+
+  function renderLexiumChoiceBlock(items, factorPrefix, lopts) {
+    const total = lopts && typeof lopts.total === "number" ? lopts.total : items.length;
+    const mode = lopts && lopts.mode === "stem" ? "stem" : "stimulus";
+    const block = (lopts && lopts.block) || "";
+    const wrap = el("div", { className: "lexium-vocab" });
+    const title = (lopts && lopts.lexiumH4)
+      ? lopts.lexiumH4
+      : mode === "stem"
+        ? "Formato visual · enunciado y opciones (estilo píldora)"
+        : "Formato visual · estímulo y sinónimo / coherencia (referencia de interfaz)";
+    wrap.appendChild(el("h4", { className: "lexium-vocab-h" }, title));
+    items.forEach(function (it, i) {
+      if (block === "gf" && it.gfGraphic) {
+        const row = el("div", { className: "lexium-row" });
+        row.appendChild(el("div", { className: "lexium-row-num" }, String(i + 1)));
+        const body = el("div", { className: "lexium-body" });
+        if (mode === "stem") {
+          body.appendChild(el("p", { className: "lexium-question" }, "Lea el enunciado y responda con la figura o el número adecuado."));
+          const lane = el("div", { className: "lexium-pill-lane" });
+          const tg = el("div", { className: "lexium-target is-stem" });
+          tg.textContent = getGfStemPreview(it);
+          tg.setAttribute("title", (it.text || "").replace(/\s+/g, " ").trim());
+          lane.appendChild(tg);
+          body.appendChild(lane);
+        }
+        body.appendChild(buildGfGraphic(it));
+        row.appendChild(body);
+        wrap.appendChild(row);
+        return;
+      }
+      const row = el("div", { className: "lexium-row" });
+      row.appendChild(el("div", { className: "lexium-row-num" }, String(i + 1)));
+      const body = el("div", { className: "lexium-body" });
+      const qline = it.text || "";
+      const lane = el("div", { className: "lexium-pill-lane" });
+      if (mode === "stem") {
+        const st = getGfStemPreview(it);
+        const tg = el("div", { className: "lexium-target is-stem" });
+        tg.textContent = st;
+        tg.setAttribute("title", (it.text || "").replace(/\s+/g, " ").trim());
+        body.appendChild(el("p", { className: "lexium-question" }, "Lea el enunciado (recuadro) y elija la mejor opción."));
+        lane.appendChild(tg);
+      } else {
+        body.appendChild(el("p", { className: "lexium-question" }, qline));
+        const raw = getLexiumStimulusText(it);
+        const up = it.stimulus && /→|·/.test(String(it.stimulus)) ? String(raw) : String(raw).toLocaleUpperCase("es");
+        lane.appendChild(el("div", { className: "lexium-target" }, up));
+      }
+      const optsBox = el("div", { className: "lexium-opts" });
+      it.options.forEach(function (o) {
+        const lab = el("label");
+        const inp = el("input", { type: "radio", name: it.id, value: o.v });
+        if (stateCHC.answers[it.id] === o.v) inp.checked = true;
+        inp.addEventListener("change", function () {
+          stateCHC.answers[it.id] = o.v;
+          optsBox.querySelectorAll("label").forEach(function (x) { x.classList.remove("lexium-opt-sel"); });
+          lab.classList.add("lexium-opt-sel");
+          onAnswerChanged();
+        });
+        if (stateCHC.answers[it.id] === o.v) lab.classList.add("lexium-opt-sel");
+        lab.appendChild(inp);
+        lab.appendChild(el("span", {}, o.t));
+        optsBox.appendChild(lab);
+      });
+      lane.appendChild(optsBox);
+      body.appendChild(lane);
+      row.appendChild(body);
+      wrap.appendChild(row);
+    });
+    if (block) {
+      const foot = el("div", { className: "lexium-block-foot" });
+      foot.setAttribute("data-block", block);
+      const bar = el("div", { className: "lexium-mini-bar" });
+      bar.appendChild(el("div", { className: "lexium-mini-fill" }));
+      foot.appendChild(bar);
+      foot.appendChild(el("p", { className: "lexium-foot-txt" }, "Progreso del bloque: 0 / " + total + " respondidos"));
+      wrap.appendChild(foot);
+    }
+    return wrap;
+  }
+
+  function svgOvalR(deg) {
+    return (
+      '<svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true">' +
+        '<g transform="rotate(' + deg + " 24 24" + ')" fill="' + GV_NAVY + '">' +
+        '<ellipse cx="24" cy="15" rx="8" ry="15" />' +
+        "</g></svg>"
+    );
+  }
+
+  function svgTriQuad() {
+    return (
+      '<svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true"><rect x="3" y="3" width="42" height="42" fill="none" stroke="#cbd5e1" stroke-width="1.2"/>' +
+        '<polygon points="3,3 3,45 30,45" fill="' + GV_NAVY + '"/></svg>'
+    );
+  }
+
+  function svgTriQuadR(rot) {
+    return (
+      '<svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true"><g transform="rotate(' + rot + " 24 24" + '">' +
+        "<rect x=\"3\" y=\"3\" width=\"42\" height=\"42\" fill=\"none\" stroke=\"#cbd5e1\" stroke-width=\"1.2\"/>" +
+        '<polygon points="3,3 3,45 30,45" fill="' + GV_NAVY + '"/></g></svg>'
+    );
+  }
+
+  function svgIconFoot() {
+    return '<svg viewBox="0 0 40 50" width="40" height="50" aria-hidden="true"><path d="M8 6 Q8 0 16 0 Q26 0 28 8 L32 32 Q34 40 20 50 L6 50 Q0 30 2 20 Z" fill="none" stroke="' + GV_NAVY + '" stroke-width="2.2"/></svg>';
+  }
+  function svgIconShoe() {
+    return '<svg viewBox="0 0 50 32" width="50" height="32" aria-hidden="true"><path d="M2 20 Q8 6 30 4 L45 6 Q50 8 50 20 L45 24 L2 24 Z" fill="none" stroke="' + GV_NAVY + '" stroke-width="2.2"/></svg>';
+  }
+  function svgIconSock() {
+    return '<svg viewBox="0 0 36 40" width="40" height="40" aria-hidden="true"><path d="M8 0 L20 0 L22 24 Q24 36 8 40 Q2 32 2 20 Z" fill="' + GV_NAVY + '"/></svg>';
+  }
+  function svgIconBoot() {
+    return '<svg viewBox="0 0 40 44" width="40" height="44" aria-hidden="true"><path d="M6 0 L22 0 L26 20 L32 20 Q38 32 4 40 Q2 20 2 6 Z" fill="none" stroke="' + GV_NAVY + '" stroke-width="2"/></svg>';
+  }
+
+  function svgNestCombo(kind) {
+    if (kind === 0) {
+      return (
+        '<svg viewBox="0 0 64 64" width="100%" height="100%"><circle cx="32" cy="32" r="28" fill="none" stroke="' + GV_NAVY + '"/>' +
+          '<polygon points="32,10 50,24 50,40 32,56 14,40 14,24" fill="none" stroke="' + GV_NAVY + '"/></svg>'
+      );
+    }
+    if (kind === 1) {
+      return (
+        '<svg viewBox="0 0 64 64" width="100%" height="100%"><rect x="4" y="4" width="56" height="56" fill="none" stroke="' + GV_NAVY + '"/>' +
+          '<polygon points="20,20 50,20 50,50 20,50" fill="none" stroke="' + GV_NAVY + '"/></svg>'
+      );
+    }
+    if (kind === 2) {
+      return (
+        '<svg viewBox="0 0 64 64" width="100%" height="100%"><polygon points="32,2 60,20 60,50 32,60 2,50 2,20" fill="none" stroke="' + GV_NAVY + '"/>' +
+          '<circle cx="32" cy="32" r="12" fill="none" stroke="' + GV_NAVY + '"/></svg>'
+      );
+    }
+    return (
+      '<svg viewBox="0 0 64 64" width="100%" height="100%"><rect x="4" y="4" width="56" height="56" fill="none" stroke="' + GV_NAVY + '"/>' +
+        '<circle cx="32" cy="32" r="22" fill="none" stroke="' + GV_NAVY + '"/></svg>'
+    );
+  }
+
+  function buildGvGraphic(it, lexFigs) {
+    const block = el("div", { className: "gv-graphic-block" });
+    const k = it.gvKind;
+
+    function addFigRow(svgList, noFlex) {
+      const row = el("div", { className: "fig-row" + (lexFigs ? " fig-lexium" : "") });
+      for (var z = 0; z < svgList.length; z++) {
+        (function (idx) {
+          const lab = el("label", { className: "fig-opt" });
+          lab.innerHTML = svgList[idx];
+          const inp = el("input", { type: "radio", name: it.id, value: String(idx) });
+          lab.insertBefore(inp, lab.firstChild);
+          if (stateCHC.answers[it.id] === String(idx)) {
+            inp.checked = true;
+            lab.classList.add("selected");
+          }
+          inp.addEventListener("change", function () {
+            stateCHC.answers[it.id] = String(idx);
+            row.querySelectorAll(".fig-opt").forEach(function (x) { x.classList.remove("selected"); });
+            lab.classList.add("selected");
+            onAnswerChanged();
+          });
+          row.appendChild(lab);
+        })(z);
+      }
+      return row;
+    }
+
+    if (k === "arrowOval") {
+      const p = el("div", { className: "gv-prompt-fig" });
+      p.appendChild(
+        (function () {
+          const t = el("div", { className: "gv-figbox" });
+          t.innerHTML = svgOvalR(0);
+          return t;
+        })()
+      );
+      p.appendChild(el("div", { className: "gv-arrow-fig", title: "Sentido de referencia" }, "⟶"));
+      p.appendChild(el("div", { className: "gv-star-fig" }, "★"));
+      p.appendChild(el("p", { className: "gv-subl" }, "Imagine la elipse girada 90° en sentido horario desde la posición de la estrella. Elija el resultado."));
+      block.appendChild(p);
+      block.appendChild(addFigRow([svgOvalR(0), svgOvalR(90), svgOvalR(180), svgOvalR(270)]));
+      return block;
+    }
+
+    if (k === "sameTri") {
+      const p = el("div", { className: "gv-prompt-fig" });
+      const t = el("div", { className: "gv-figbox" });
+      t.innerHTML = svgTriQuad();
+      p.appendChild(t);
+      p.appendChild(el("p", { className: "gv-subl" }, "Elija la opción en la que la figura tenga la misma relación (triángulo en la misma esquina relativa) que la muestra."));
+      block.appendChild(p);
+      block.appendChild(
+        addFigRow([svgTriQuadR(0), svgTriQuadR(90), svgTriQuadR(180), svgTriQuadR(270)])
+      );
+      return block;
+    }
+
+    if (k === "analogy") {
+      const an = el("div", { className: "gv-analogy-row" });
+      an.appendChild(
+        (function () {
+          const d = el("div", { className: "gv-figbox" });
+          d.innerHTML = svgIconFoot();
+          return d;
+        })()
+      );
+      an.appendChild(el("div", { className: "gv-analogy-q" }, "?"));
+      an.appendChild(
+        (function () {
+          const d = el("div", { className: "gv-figbox" });
+          d.innerHTML = svgIconShoe();
+          return d;
+        })()
+      );
+      block.appendChild(an);
+      block.appendChild(el("p", { className: "gv-subl" }, "¿Qué va entre «pie / pierna desnuda» y «zapato formal»? Elegir en la misma lógica de la captura de referencia."));
+      block.appendChild(addFigRow([svgIconSock(), svgIconBoot(), svgIconFoot(), svgIconShoe()]));
+      return block;
+    }
+
+    if (k === "nest") {
+      const leg = el("div", { className: "gv-legend-gv" });
+      leg.innerHTML =
+        '<div class="lg-item"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="' +
+        GV_NAVY +
+        '"/></svg><div>Agua (líquido)</div></div>' +
+        '<div class="lg-item"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="4" width="24" height="24" fill="none" stroke="' +
+        GV_NAVY +
+        '"/></svg><div>Madera</div></div>' +
+        '<div class="lg-item"><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><polygon points="16,2 30,9 30,25 16,30 2,25 2,9" fill="none" stroke="' +
+        GV_NAVY +
+        '"/></svg><div>Azúcar / dulce</div></div>';
+      block.appendChild(leg);
+      block.appendChild(
+        el("p", { className: "gv-subl", style: "margin-bottom:8px;" },
+          "Según la leyenda, «algo con azúcar» va dentro de «líquido»."
+        )
+      );
+      block.appendChild(
+        addFigRow(
+          (function () {
+            var a = [];
+            for (var i = 0; i < 4; i++) a.push(
+              "<div class=\"gv-figbox\" style=\"min-width:72px;min-height:72px;padding:4px;\">" + svgNestCombo(i) + "</div>"
+            );
+            return a;
+          })()
+        )
+      );
+      return block;
+    }
+
+    return block;
+  }
+
+  function renderMCBlock(items, factorPrefix, opts) {
+    const total = opts && typeof opts.total === "number" ? opts.total : null;
+    const lexFigs = opts && opts.lexiumFigs;
+    const gvPills = opts && opts.gvPills;
+    const wrap = el("div");
+    items.forEach(function (it, i) {
+      const q = el("div", { className: "q" });
+      const numLabel = factorPrefix + " · Ítem " + (i + 1) + (total ? " de " + total : "");
+      q.appendChild(el("div", { className: "q-num" }, numLabel));
+      q.appendChild(el("p", { className: "q-text" }, it.text));
+      if (it.gvGraphic) {
+        q.appendChild(buildGvGraphic(it, lexFigs));
+        q.classList.add("q-gv-graphic");
+        wrap.appendChild(q);
+        return;
+      }
+      if (it.svgChoice) {
+        const row = el("div", { className: "fig-row" + (lexFigs ? " fig-lexium" : "") });
+        const nf = "var(--lex-navy, #1e3a5f)";
+        const shapes = lexFigs
+          ? [
+              '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="' + nf + '"/></svg>',
+              '<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="4" width="32" height="32" fill="' + nf + '"/></svg>',
+              '<svg viewBox="0 0 40 40" aria-hidden="true"><polygon points="20,4 36,36 4,36" fill="' + nf + '"/></svg>',
+              '<svg viewBox="0 0 40 40" aria-hidden="true"><polygon points="20,4 36,14 36,26 20,36 4,26 4,14" fill="' + nf + '"/></svg>'
+            ]
+          : [
+              '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#3b82f6"/></svg>',
+              '<svg viewBox="0 0 40 40"><rect x="4" y="4" width="32" height="32" fill="#8b5cf6"/></svg>',
+              '<svg viewBox="0 0 40 40"><polygon points="20,4 36,36 4,36" fill="#10b981"/></svg>',
+              '<svg viewBox="0 0 40 40"><polygon points="20,4 36,14 36,26 20,36 4,26 4,14" fill="#f59e0b"/></svg>'
+            ];
+        it.choices.forEach(function (ch, idx) {
+          const lab = el("label", { className: "fig-opt" });
+          lab.innerHTML = shapes[idx];
+          const inp = el("input", { type: "radio", name: it.id, value: String(idx) });
+          lab.insertBefore(inp, lab.firstChild);
+          if (stateCHC.answers[it.id] === String(idx)) {
+            inp.checked = true;
+            lab.classList.add("selected");
+          }
+          inp.addEventListener("change", function () {
+            stateCHC.answers[it.id] = String(idx);
+            row.querySelectorAll(".fig-opt").forEach(function (x) { x.classList.remove("selected"); });
+            lab.classList.add("selected");
+            onAnswerChanged();
+          });
+          row.appendChild(lab);
+        });
+        q.appendChild(row);
+      } else {
+        const opts = el("div", { className: "opts" + (gvPills ? " opts-gv-pills" : "") });
+        it.options.forEach(function (o) {
+          const lab = el("label");
+          const inp = el("input", { type: "radio", name: it.id, value: o.v });
+          if (stateCHC.answers[it.id] === o.v) inp.checked = true;
+          inp.addEventListener("change", function () {
+            stateCHC.answers[it.id] = o.v;
+            onAnswerChanged();
+          });
+          lab.appendChild(inp);
+          lab.appendChild(el("span", {}, o.t));
+          opts.appendChild(lab);
+        });
+        q.appendChild(opts);
+      }
+      wrap.appendChild(q);
+    });
+    return wrap;
+  }
+
+  function renderGWM() {
+    const wrap = el("div", { className: "gwm-wrap" });
+    function showTrial() {
+      wrap.innerHTML = "";
+      const trialIndex = stateCHC.gwmTrialIndex;
+      if (trialIndex >= GWM_TRIALS.length) {
+        wrap.appendChild(
+          el("p", { className: "gwm-prog" }, "Memoria de trabajo: " + GWM_TRIALS.length + " de " + GWM_TRIALS.length + " tareas finalizadas.")
+        );
+        const fin = el("div", { className: "gwm-panel" });
+        fin.appendChild(el("p", {}, "Puede avanzar con «Siguiente»."));
+        wrap.appendChild(fin);
+        return;
+      }
+      const t = GWM_TRIALS[trialIndex];
+      const panel = el("div", { className: "gwm-panel" });
+      const dots = el("div", { className: "gwm-dots" });
+      for (var di = 0; di < GWM_TRIALS.length; di++) {
+        const cls = "gwm-dot" + (di === trialIndex ? " is-on" : di < trialIndex ? " is-done" : "");
+        dots.appendChild(el("span", { className: cls }));
+      }
+      panel.appendChild(dots);
+      panel.appendChild(
+        el("p", { className: "gwm-prog" }, "Tarea " + (trialIndex + 1) + " de " + GWM_TRIALS.length + (t.mode === "reverse" ? " · orden inverso" : " · mismo orden"))
+      );
+      const instr = t.mode === "reverse"
+        ? "Memoriza la secuencia. Luego escríbela al revés (sin espacios, solo dígitos)."
+        : "Memoriza la secuencia. Luego escríbela en el mismo orden (sin espacios).";
+      panel.appendChild(el("p", {}, instr));
+      panel.appendChild(
+        el("p", { className: "gwm-aux" }, "Interfaz breve: no es un puzzle con figuras; solo cifras, ocultar y tecleado.")
+      );
+      const box = el("div", { className: "mem-box" }, t.seq.replace(/ /g, "  "));
+      panel.appendChild(box);
+      const btn = el("button", { type: "button", id: "gwm-show", className: "gwm-btn" }, "Ocultar y responder");
+      const input = el("input", { type: "text", className: "mem-input", inputMode: "numeric", placeholder: "Escribe los dígitos", autocomplete: "off" });
+      input.classList.add("hidden");
+      const submit = el("button", { type: "button", id: "gwm-ok", className: "gwm-btn" }, "Confirmar respuesta");
+      submit.classList.add("hidden");
+      btn.addEventListener("click", function () {
+        box.classList.add("hidden");
+        btn.classList.add("hidden");
+        input.classList.remove("hidden");
+        submit.classList.remove("hidden");
+        input.focus();
+      });
+      submit.addEventListener("click", function () {
+        const raw = input.value.replace(/\D/g, "");
+        const seq = t.seq.replace(/ /g, "");
+        let expected = seq;
+        if (t.mode === "reverse") expected = seq.split("").reverse().join("");
+        const ok = raw === expected;
+        stateCHC.memTrials.push({ id: t.id, ok: ok, mode: t.mode });
+        stateCHC.answers[t.id] = ok ? "1" : "0";
+        stateCHC.gwmTrialIndex++;
+        onAnswerChanged();
+        showTrial();
+      });
+      panel.appendChild(btn);
+      panel.appendChild(input);
+      panel.appendChild(submit);
+      wrap.appendChild(panel);
+    }
+    showTrial();
+    return wrap;
+  }
+
+  function renderGS() {
+    const wrap = el("div", { className: "gs-block" });
+    stateCHC.gsMarked = new Set();
+    stateCHC.answers.gs_time = null;
+    if (stateCHC.answers.gs_score != null) {
+      delete stateCHC.answers.gs_score;
+      delete stateCHC.answers.gs_max;
+    }
+    stateCHC.gsStart = null;
+    const panel = el("div", { className: "gs-panel" });
+    const pill = el("div", { className: "gs-target-pill" });
+    pill.setAttribute("role", "img");
+    pill.setAttribute("aria-label", "Símbolo objetivo");
+    const sym = el("span", { className: "gs-target-sym" }, GS_TARGET);
+    pill.appendChild(sym);
+    pill.appendChild(el("span", {}, "Celdas con este símbolo · tarea con tiempo, no puzzle gráfico largo"));
+    panel.appendChild(pill);
+    panel.appendChild(
+      el("p", { className: "gs-aux" }, "Tras empezar, " + gsSeconds + " s en pantalla. Barra: tiempo restante. Marque aciertos; penaliza tocar símbolos distintos al objetivo.")
+    );
+    const timerRow = el("div", { className: "gs-timer-row" });
+    const top = el("div", { className: "gs-timer-top" });
+    const badge = el("div", { className: "timer-badge", id: "gs-timer" }, "Tiempo: " + gsSeconds + " s");
+    const timeOuter = el("div", { className: "gs-time-outer" });
+    const timeFill = el("div", { className: "gs-time-fill" });
+    timeFill.style.width = "100%";
+    timeOuter.appendChild(timeFill);
+    top.appendChild(badge);
+    top.appendChild(timeOuter);
+    timerRow.appendChild(top);
+    panel.appendChild(timerRow);
+    const grid = el("div", { className: "gs-grid" });
+    GS_ITEMS.forEach(function (cell) {
+      const d = el("div", { className: "gs-item" }, cell.sym);
+      d.dataset.id = cell.id;
+      d.addEventListener("click", function () {
+        if (!stateCHC.gsStart) return;
+        d.classList.toggle("marked");
+        if (d.classList.contains("marked")) stateCHC.gsMarked.add(cell.id);
+        else stateCHC.gsMarked.delete(cell.id);
+      });
+      grid.appendChild(d);
+    });
+    panel.appendChild(grid);
+    const startBtn = el("button", { type: "button", id: "gs-start", className: "gs-start-btn" }, "Iniciar cronómetro y tarea");
+    startBtn.addEventListener("click", function () {
+      if (stateCHC.gsStart) return;
+      stateCHC.gsStart = Date.now();
+      startBtn.disabled = true;
+      let left = gsSeconds;
+      badge.textContent = "Tiempo: " + left + " s";
+      timeFill.style.width = 100 * left / gsSeconds + "%";
+      timeFill.classList.remove("gs-t-critical");
+      gsTimerId = setInterval(function () {
+        left--;
+        badge.textContent = "Tiempo: " + left + " s";
+        timeFill.style.width = 100 * Math.max(0, left) / gsSeconds + "%";
+        if (left <= 10) {
+          badge.classList.add("critical");
+          timeFill.classList.add("gs-t-critical");
+        }
+        if (left <= 0) {
+          clearInterval(gsTimerId);
+          gsTimerId = null;
+          timeFill.style.width = "0%";
+          finishGS(wrap, badge, grid, timeFill);
+          onAnswerChanged();
+        }
+      }, 1000);
+    });
+    panel.appendChild(startBtn);
+    wrap.appendChild(panel);
+    return wrap;
+  }
+
+  function finishGS(wrap, badge, grid, timeFill) {
+    let hits = 0;
+    let falseAlarm = 0;
+    GS_ITEMS.forEach(function (cell) {
+      const should = cell.sym === GS_TARGET;
+      const marked = stateCHC.gsMarked.has(cell.id);
+      if (should && marked) hits++;
+      if (!should && marked) falseAlarm++;
+    });
+    const score = Math.max(0, hits - falseAlarm);
+    stateCHC.answers.gs_score = String(score);
+    stateCHC.answers.gs_max = String(GS_ITEMS.filter(function (c) { return c.sym === GS_TARGET; }).length);
+    badge.textContent = "Tiempo agotado · Aciertos netos: " + score;
+    badge.classList.remove("critical");
+    if (timeFill) {
+      timeFill.style.width = "0%";
+      timeFill.classList.remove("gs-t-critical");
+    }
+    grid.querySelectorAll(".gs-item").forEach(function (d) {
+      d.style.pointerEvents = "none";
+      const id = d.dataset.id;
+      const cell = GS_ITEMS.find(function (c) { return c.id === id; });
+      if (cell.sym === GS_TARGET) d.style.borderColor = "#22c55e";
+    });
+  }
+
+  function countAnsweredMc(items) {
+    return items.filter(function (it) {
+      return stateCHC.answers[it.id] != null && stateCHC.answers[it.id] !== "";
+    }).length;
+  }
+
+  function validateCurrentStep() {
+    const step = STEPS[stateCHC.step];
+    if (step.id === "gf" && countAnsweredMc(ITEMS.gf) < ITEMS.gf.length) {
+      alert("Responde todos los ítems de razonamiento fluido antes de continuar.");
+      return false;
+    }
+    if (step.id === "gc" && countAnsweredMc(ITEMS.gc) < ITEMS.gc.length) {
+      alert("Responde todos los ítems verbales antes de continuar.");
+      return false;
+    }
+    if (step.id === "gwm" && stateCHC.gwmTrialIndex < GWM_TRIALS.length) {
+      alert("Completa los " + GWM_TRIALS.length + " ejercicios de memoria de trabajo antes de continuar.");
+      return false;
+    }
+    if (step.id === "gs" && stateCHC.answers.gs_score == null) {
+      alert("Inicia el cronómetro y completa la tarea de velocidad.");
+      return false;
+    }
+    if (step.id === "gv" && countAnsweredMc(ITEMS.gv) < ITEMS.gv.length) {
+      alert("Responde todos los ítems visuales.");
+      return false;
+    }
+    if (step.id === "glr" && countAnsweredMc(ITEMS.glr) < ITEMS.glr.length) {
+      alert("Responde todos los ítems de asociación.");
+      return false;
+    }
+    return true;
+  }
+
+  function renderStep() {
+    const container = document.getElementById("block-container");
+    const step = STEPS[stateCHC.step];
+    const prog = ((stateCHC.step + 1) / STEPS.length) * 100;
+    document.getElementById("prog-bar").style.width = prog + "%";
+    document.getElementById("step-pill").textContent = step.label + " (" + (stateCHC.step + 1) + "/" + STEPS.length + ")";
+    document.getElementById("btnChcPrev").classList.toggle("hidden", stateCHC.step === 0);
+    document.getElementById("btnChcNext").textContent = stateCHC.step >= STEPS.length - 1 ? "Finalizar" : "Siguiente";
+
+    container.innerHTML = "";
+    const card = el("div", { className: "card" });
+    card.appendChild(el("span", { className: "factor-pill" }, step.factor));
+    card.appendChild(el("h2", { style: "margin:0 0 12px;font-size:1rem;" }, step.label));
+
+    if (step.id === "gf") {
+      card.appendChild(buildBlockIntroEl(step));
+      card.appendChild(renderLexiumChoiceBlock(ITEMS.gf, "Gf", { total: ITEMS.gf.length, block: "gf", mode: "stem" }));
+    } else if (step.id === "gc") {
+      card.appendChild(buildBlockIntroEl(step));
+      card.appendChild(
+        renderLexiumChoiceBlock(ITEMS.gc, "Gc", {
+          total: ITEMS.gc.length,
+          block: "gc",
+          mode: "stimulus",
+          lexiumH4: "Formato captura · caja de estímulo y píldoras (Gc: sinónimo, analogía, puente, oración)"
+        })
+      );
+    } else if (step.id === "gwm") {
+      card.appendChild(buildBlockIntroEl(step));
+      card.appendChild(renderGWM());
+    } else if (step.id === "gs") {
+      card.appendChild(buildBlockIntroEl(step));
+      card.appendChild(renderGS());
+    } else if (step.id === "gv") {
+      card.appendChild(buildBlockIntroEl(step));
+      card.classList.add("card-gv-lexium");
+      card.appendChild(renderMCBlock(ITEMS.gv, "Gv", { total: ITEMS.gv.length, lexiumFigs: true, gvPills: true }));
+      (function () {
+        const total = ITEMS.gv.length;
+        const n = countAnsweredMc(ITEMS.gv);
+        const foot = el("div", { className: "lexium-block-foot" });
+        foot.setAttribute("data-block", "gv");
+        const bar = el("div", { className: "lexium-mini-bar" });
+        const fill = el("div", { className: "lexium-mini-fill" });
+        fill.style.width = (total ? (n / total) * 100 : 0) + "%";
+        bar.appendChild(fill);
+        foot.appendChild(bar);
+        foot.appendChild(el("p", { className: "lexium-foot-txt" }, "Progreso del bloque: " + n + " / " + total + " respondidos"));
+        card.appendChild(foot);
+      })();
+    } else if (step.id === "glr") {
+      card.appendChild(buildBlockIntroEl(step));
+      card.appendChild(
+        renderLexiumChoiceBlock(ITEMS.glr, "Glr", {
+          total: ITEMS.glr.length,
+          block: "glr",
+          mode: "stimulus",
+          lexiumH4: "Formato captura · caja y píldoras (Glr: pares; solo texto, sin figuras de Gv)"
+        })
+      );
+    }
+
+    container.appendChild(card);
+    setTimeout(function () { updateLexiumBlockFeet(); }, 0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function scoreGF() {
+    let n = 0;
+    ITEMS.gf.forEach(function (it) {
+      const a = stateCHC.answers[it.id];
+      if (it.gfGraphic) {
+        if (a === String(it.correct)) n++;
+      } else {
+        if (a === it.correct) n++;
+      }
+    });
+    return { score: n, max: ITEMS.gf.length };
+  }
+  function scoreGC() {
+    let n = 0;
+    ITEMS.gc.forEach(function (it) { if (stateCHC.answers[it.id] === it.correct) n++; });
+    return { score: n, max: ITEMS.gc.length };
+  }
+  function scoreGV() {
+    let n = 0;
+    ITEMS.gv.forEach(function (it) {
+      const a = stateCHC.answers[it.id];
+      if (it.svgChoice || it.gvGraphic) {
+        if (a === String(it.correct)) n++;
+      } else if (a === it.correct) n++;
+    });
+    return { score: n, max: ITEMS.gv.length };
+  }
+  function scoreGWM() {
+    let n = 0;
+    GWM_TRIALS.forEach(function (t) { if (stateCHC.answers[t.id] === "1") n++; });
+    return { score: n, max: GWM_TRIALS.length };
+  }
+  function scoreGS() {
+    const max = GS_ITEMS.filter(function (c) { return c.sym === GS_TARGET; }).length;
+    const s = parseInt(stateCHC.answers.gs_score, 10);
+    return { score: Number.isFinite(s) ? s : 0, max: max };
+  }
+  function scoreGLR() {
+    let n = 0;
+    ITEMS.glr.forEach(function (it) { if (stateCHC.answers[it.id] === it.correct) n++; });
+    return { score: n, max: ITEMS.glr.length };
+  }
+
+  function buildResultados() {
+    const gf = scoreGF();
+    const gc = scoreGC();
+    const gwm = scoreGWM();
+    const gs = scoreGS();
+    const gv = scoreGV();
+    const glr = scoreGLR();
+    const rows = [
+      { code: "Gf", label: "Razonamiento fluido", score: gf.score, max: gf.max },
+      { code: "Gc", label: "Conocimiento verbal", score: gc.score, max: gc.max },
+      { code: "Gwm", label: "Memoria de trabajo", score: gwm.score, max: gwm.max },
+      { code: "Gs", label: "Velocidad", score: gs.score, max: gs.max },
+      { code: "Gv", label: "Visual-espacial", score: gv.score, max: gv.max },
+      { code: "Glr", label: "Memoria asociativa", score: glr.score, max: glr.max }
+    ];
+    let sumS = 0;
+    let sumM = 0;
+    rows.forEach(function (r) {
+      sumS += r.score;
+      sumM += r.max;
+      r.pct = r.max ? Math.round((r.score / r.max) * 100) : 0;
+    });
+    const totalPct = sumM ? Math.round((sumS / sumM) * 100) : 0;
+    const mins = Math.round((Date.now() - __startTime) / 60000);
+    return {
+      prueba: "Intelectual_CHC",
+      modelo: "CHC",
+      version_banco: typeof VERSION_BANCO !== "undefined" ? VERSION_BANCO : "CHC-v2",
+      meta: { minutos_aprox: mins, items_total: sumM },
+      globales: {},
+      bloques: {},
+      factores: rows,
+      total: { puntos: sumS, max: sumM, pct: totalPct }
+    };
+  }
+
+  function aplicarEstadoCHC(st) {
+    if (!st) return;
+    document.getElementById("nombre").value = st.nombre || "";
+    document.getElementById("institucion").value = st.institucion || DATOS_FIJOS.institucion;
+    document.getElementById("grupo").value = st.grupo || DATOS_FIJOS.grupo;
+    document.getElementById("curso").value = st.curso || DATOS_FIJOS.curso;
+    if (st.fecha) document.getElementById("fecha").value = st.fecha;
+    CODIGO_ACTUAL = st.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+    const resp = st.responses || {};
+    stateCHC.answers = {};
+    Object.keys(resp).forEach(function (k) {
+      stateCHC.answers[k] = typeof resp[k] === "number" ? String(resp[k]) : resp[k];
+    });
+    stateCHC.step = Number.isFinite(st.currentPage) ? st.currentPage : 0;
+    stateCHC.gwmTrialIndex = typeof st.chcGwmTrialIndex === "number" ? st.chcGwmTrialIndex : 0;
+    __startTime = st.startTime || Date.now();
+    stateCHC.memTrials = [];
+  }
+
+  function mostrarPantallaPreguntas() {
+    document.getElementById("pantalla-inicio").classList.add("hidden");
+    document.getElementById("datos-participante").classList.add("hidden");
+    document.getElementById("pantalla-final").style.display = "none";
+    document.getElementById("pantalla-preguntas").classList.remove("hidden");
+    renderStep();
+  }
+
+  function iniciarEvaluacionNueva() {
+    __startTime = Date.now();
+    stateCHC.answers = {};
+    stateCHC.step = 0;
+    stateCHC.gwmTrialIndex = 0;
+    stateCHC.memTrials = [];
+    stateCHC.gsStart = null;
+    stateCHC.gsMarked = new Set();
+    if (gsTimerId) { clearInterval(gsTimerId); gsTimerId = null; }
+    const rw = document.getElementById("chc-resultados-wrap");
+    if (rw) {
+      rw.innerHTML = "";
+      rw.classList.add("hidden");
+    }
+    const fm = document.getElementById("chc-final-msg");
+    if (fm) {
+      fm.textContent = "";
+      fm.classList.add("hidden");
+      fm.classList.remove("err", "ok");
+    }
+    saveState(false);
+    mostrarPantallaPreguntas();
+  }
+
+  function validarAntesDeIniciar() {
+    const nombre = document.getElementById("nombre").value.trim();
+    if (!nombre) {
+      alert("Por favor ingresa tu nombre antes de iniciar.");
+      return false;
+    }
+    if (!consentCheck.checked) {
+      alert("Debes aceptar el consentimiento para continuar.");
+      return false;
+    }
+    return true;
+  }
+
+  function finalizarYEnviar() {
+    const nombre = document.getElementById("nombre").value.trim();
+    if (!nombre) {
+      alert("Falta el nombre.");
+      return;
+    }
+    if (!responsesComplete(stateCHC.answers)) {
+      alert("Faltan respuestas por completar. Revise bloques y use «Anterior» si hace falta.");
+      return;
+    }
+    const resultados = buildResultados();
+    const resWrap = document.getElementById("chc-resultados-wrap");
+    if (resWrap) {
+      resWrap.classList.remove("hidden");
+      resWrap.innerHTML = buildResultsTableHtml(resultados);
+    }
+    const payload = {
+      codigo: CODIGO_ACTUAL,
+      snapshot: {
+        nombre: nombre,
+        institucion: document.getElementById("institucion").value,
+        grupo: document.getElementById("grupo").value,
+        curso: document.getElementById("curso").value,
+        version_banco: typeof VERSION_BANCO !== "undefined" ? VERSION_BANCO : "CHC-v2"
+      },
+      resultados: resultados,
+      responses: getResponsesPayload()
+    };
+
+    saveState(true);
+
+    fetch("/api/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function () {
+        const msg = document.getElementById("chc-final-msg");
+        msg.textContent = "Envío al servidor aceptado. El resumen arriba refleja esta sesión.";
+        msg.classList.remove("hidden", "err");
+        msg.classList.add("ok");
+      })
+      .catch(function () {
+        const msg = document.getElementById("chc-final-msg");
+        msg.textContent =
+          "Atención: no se pudo confirmar el guardado en el servidor. El resumen mostrado corresponde a tu sesión; en este dispositivo el progreso pudo quedar almacenado. Contacta al coordinador si se requiere registro en servidor.";
+        msg.classList.remove("hidden", "ok");
+        msg.classList.add("err");
+      })
+      .finally(function () {
+        document.getElementById("nombre").readOnly = true;
+        document.getElementById("pantalla-preguntas").classList.add("hidden");
+        document.getElementById("datos-participante").classList.remove("hidden");
+        document.getElementById("pantalla-final").style.display = "block";
+        document.getElementById("pantalla-final").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+  }
+
+  document.getElementById("btnChcPrev").addEventListener("click", function () {
+    if (stateCHC.step > 0) {
+      stateCHC.step--;
+      renderStep();
+      scheduleSave(false);
+    }
+  });
+
+  document.getElementById("btnChcNext").addEventListener("click", function () {
+    if (!validateCurrentStep()) return;
+    if (stateCHC.step < STEPS.length - 1) {
+      stateCHC.step++;
+      renderStep();
+      scheduleSave(false);
+    } else {
+      finalizarYEnviar();
+    }
+  });
+
+  btnIniciar.addEventListener("click", async function () {
+    if (!validarAntesDeIniciar()) return;
+    if (!CODIGO_ACTUAL) await lookupCodigo();
+    if (!CODIGO_ACTUAL) {
+      alert("Por favor valida el código antes de iniciar.");
+      return;
+    }
+    const codigo = CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+    let serverState = null;
+    if (codigo) serverState = await cargarAutosaveServidor(codigo);
+    const localSaved = loadStateForCurrentCode();
+    const candidate = serverState || localSaved;
+
+    if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
+      const retomar = confirm("Hay un intento en curso para este código. ¿Continuar donde lo dejaste?");
+      if (retomar) {
+        aplicarEstadoCHC(candidate);
+        mostrarPantallaPreguntas();
+        return;
+      } else {
+        clearState();
+      }
+    }
+    iniciarEvaluacionNueva();
+  });
+
+  document.getElementById("btnRegresarMenu").addEventListener("click", function () {
+    window.location.href = "index.html";
+  });
+
+  function inicializarDatosFijos() {
+    document.getElementById("institucion").value = DATOS_FIJOS.institucion;
+    document.getElementById("grupo").value = DATOS_FIJOS.grupo;
+    document.getElementById("curso").value = DATOS_FIJOS.curso;
+    const hoy = new Date();
+    try {
+      document.getElementById("fecha").value = new Intl.DateTimeFormat("es-EC", { year: "numeric", month: "2-digit", day: "2-digit" }).format(hoy);
+    } catch (e) {
+      document.getElementById("fecha").value =
+        String(hoy.getDate()).padStart(2, "0") + "/" + String(hoy.getMonth() + 1).padStart(2, "0") + "/" + hoy.getFullYear();
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    inicializarDatosFijos();
+    btnIniciar.disabled = true;
+    const vb = document.getElementById("version-badge");
+    if (vb) vb.textContent = typeof VERSION_BANCO !== "undefined" ? VERSION_BANCO : "CHC-v2";
+  });
+})();
+  </script>
+</body>
+</html>
