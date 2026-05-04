@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>XEvaluación intelectual (CHC) – Reporte</title>
+  <title>SSSvaluación intelectual (CHC) – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -582,11 +582,7 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
-      if (st.completed && !st.resultados) {
-        msg.textContent = "Intento completo sin bloque resultados. Vuelva a «Finalizar» desde evaluacion-intelectual.html con la versión actual o consulte en servidor.";
-        msg.className = "msg err";
-        return;
-      }
+      // Local puede estar incompleto (ej. finalized con versión vieja sin resultados): seguir intentando servidor.
     }
 
     try {
@@ -606,7 +602,11 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (e) {
       console.warn(e);
-      msg.textContent = st ? (e.message || "Sin datos en servidor.") : (e.message || "Sin datos. Complete la evaluación o verifique el código.");
+      var txt = st ? (e.message || "Sin datos en servidor.") : (e.message || "Sin datos. Complete la evaluación o verifique el código.");
+      if (st && st.completed && (!st.resultados || !esInformeIntelAceptable(parseResultados(st.resultados)))) {
+        txt += " Este equipo tiene un borrador incompleto en navegador; si ya finalizó con éxito, borre la clave eval_chc_state_" + codigo + " en localStorage o vuelva a «Finalizar» en evaluacion-intelectual.html.";
+      }
+      msg.textContent = txt;
       msg.className = "msg err";
     }
   }
