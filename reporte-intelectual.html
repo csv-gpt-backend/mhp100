@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>DEvaluación intelectual (CHC) – Reporte</title>
+  <title>VEvaluación intelectual (CHC) – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -487,17 +487,35 @@
   }
 
   async function tryServer(codigo) {
-    const r = await fetch("/api/report?codigo=" + encodeURIComponent(codigo));
-    const data = await r.json();
-    if (!r.ok || data.error) throw new Error(data.error || "No encontrado");
-    if (data.puede_ver_resultado !== true) {
-      throw new Error("Este código no está habilitado para ver su reporte.");
+    const url =
+      "/api/report?codigo=" +
+      encodeURIComponent(codigo) +
+      "&tipo=chc";
+    const r = await fetch(url);
+    let data = {};
+    try {
+      data = await r.json();
+    } catch (e) {
+      throw new Error("Respuesta del servidor no válida.");
+    }
+    if (!r.ok) {
+      throw new Error(data.error || "No encontrado (HTTP " + r.status + ").");
+    }
+    if (data.error && !data.attempt) {
+      throw new Error(data.error);
+    }
+    if (data.puede_ver_resultado === false) {
+      throw new Error(
+        "Este código tiene deshabilitada la visualización del reporte (puede_ver_resultado). Un coordinador puede activarla en la ficha del participante."
+      );
     }
     const att = data.attempt;
-    if (!att) throw new Error("No hay intento registrado.");
+    if (!att) throw new Error("No hay intento registrado en el servidor para este código.");
     let res = parseResultados(att.resultados);
     if (!res || res.prueba !== "Intelectual_CHC" || !res.factores) {
-      throw new Error("El último intento guardado no corresponde a la evaluación intelectual CHC.");
+      throw new Error(
+        "El intento no incluye el bloque resultados CHC (vacío o otro tipo de prueba). Verifique que el envío al guardar haya terminado bien o vuelva a finalizar la evaluación."
+      );
     }
     const snap = {
       nombre: att.nombre || "",
