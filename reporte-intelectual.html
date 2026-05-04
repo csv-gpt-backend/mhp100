@@ -1,628 +1,1113 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>VEvaluación intelectual (CHC) – Reporte</title>
-  <style>
-    :root{
-      --ink:#111; --muted:#666; --line:#ddd;
-      --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757;
-      --blue:#1d4ed8;
-    }
-    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#fff;color:#0f172a;min-height:100vh;}
-    .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
-    h1,h2,h3{margin:0 0 8px 0}
-    .muted{color:var(--muted)}
-    .topbar{display:flex;gap:12px;align-items:center;margin-bottom:8px}
-    .topbar input{flex:1;max-width:220px;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;text-transform:uppercase}
-    .btn{padding:9px 14px;border-radius:999px;border:0;background:#1a8f3b;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
-    .msg{margin-left:8px;font-weight:700}
-    .msg.ok{color:#0a8}
-    .msg.err{color:#c00}
-    .hint{font-size:12px;color:var(--muted);margin-bottom:8px}
+<!-- BUILD: CORREGIDO_V5 pct10 visual+parte2+3+avg0safe 2026-03-04 -->
 
-    .rep-top{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:6px;}
-    .rep-top-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px;margin-bottom:6px;}
-    .rep-date{justify-self:flex-start;}
-    .rep-top-center{text-align:center;font-weight:700;text-transform:uppercase;}
-    .rep-top-logo{justify-self:flex-end;}
-    .mhp-logo{height:200px;margin-left:12px;margin-top:-4px;object-fit:contain;}
-    .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase;}
-    .rep-top-row3{text-align:center;font-size:17px;font-weight:800;line-height:1.25;padding:0 8px;}
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ZReporte Liderazgo</title>
+<style>
+  :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#fff}
+  .wrap{max-width:980px;margin:14px auto;padding:0 12px}
+  .topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  input{padding:9px 10px;border:1px solid #bbb;border-radius:8px;min-width:220px}
+  .btn{padding:9px 14px;border:0;border-radius:999px;background:#2563eb;color:#fff;font-weight:800;cursor:pointer}
+  .btn.alt{background:#6b7280}
+  .msg{padding:8px 10px;border-radius:8px;background:#f3f4f6;color:#374151;font-size:13px}
+  .msg.err{background:#fee2e2;color:#991b1b}
+  .msg.ok{background:#ecfdf5;color:#065f46}
+  .header{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
+  .r1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px}
+  .center{text-align:center;font-weight:800}
+  .logo{text-align:right;color:#9ca3af;font-weight:700}
+  .logo img{height:120px;max-width:220px;object-fit:contain;display:inline-block}
+  .r2{text-align:center;font-weight:900;font-size:24px;margin-top:4px}
+  .r3{text-align:center;font-weight:800;font-size:17px}
+  .box{border:1px solid #000;padding:6px;font-size:12px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .curveBox{position:relative;height:220px;border:1px solid #dbe1ea;border-radius:8px;padding:8px;background:linear-gradient(180deg,#f8fafc,#fff)}
+.curveGauge{position:relative;width:100%;height:100%}
+.curveGauge img{width:100%;height:100%;object-fit:contain;display:block}
+.curveMarker{position:absolute;left:50%;bottom:26px;width:0;height:0;z-index:3;pointer-events:none}
+  .iv th,.iv td{border:1px solid #111;padding:6px;font-size:12px}
+  .iv{width:100%;border-collapse:collapse}
+  .hl{background:var(--yellow)}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;margin-top:6px}
+  .blk-title{display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px;font-weight:800}
+  .badgeY{background:var(--yellow);padding:2px 10px;border-radius:2px;min-width:36px;display:inline-block;text-align:center}
+  .badgeB{background:var(--blue);color:#fff;padding:3px 12px;border-radius:2px;min-width:40px;display:inline-block;text-align:center}
+  .bar-head,.bar-row{display:grid;grid-template-columns:240px 1fr 1fr 1fr;gap:6px;align-items:center}
+  .bar-head{font-size:11px;color:#475569;margin-bottom:4px}
+  .bar-row{margin:4px 0}
+  .slot{height:16px;border:1px solid #aab;border-radius:4px;background:#f3f5f8;position:relative;overflow:hidden}
+  .fill{position:absolute;left:0;top:0;bottom:0;background:#94a3b8}
+  .slot.mid .fill{background:#f59e0b}
+  .slot.high .fill{background:#22c55e}
+  .pctTag{font-size:11px;color:#475569;text-align:right}
+  .iie{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:10px;font-weight:800}
+  .page{margin-top:12px}
+  .card{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
+  table{width:100%;border-collapse:collapse}
+  .result th,.result td{border-bottom:1px solid #e5e7eb;padding:6px 8px;font-size:13px;text-align:left}
+  .hidden{display:none}
+  .small{font-size:12px;color:var(--muted)}
+  @media print {.topbar,#msg,.small{display:none} #page1{page-break-after:always}}
 
-    .iv-table td.hl{background:var(--yellow)}
-    .iv-key{font-weight:900;color:#000;}
+/* --- Parte 2 robusta (numerada) --- */
+.p2sec{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;margin:12px 0}
+.p2sec h4{margin:0 0 8px;font-size:15px}
+.p2sec h5{margin:10px 0 6px;font-size:13.5px}
+.p2sec p{margin:0 0 8px;color:#334155;line-height:1.45}
+.p2sec ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.35;color:#334155}
+.p2chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 8px}
+.p2chip{padding:4px 10px;border-radius:999px;border:1px solid #dbe2ea;font-size:12px;font-weight:800;background:#fff}
+.p2chip.low{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.p2chip.mid{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.p2chip.high{background:#ecfdf5;border-color:#bbf7d0;color:#166534}
+.p2note{font-size:12px;color:#475569}
 
-    .page{margin-top:10px}
-    .page-break{height:0;margin:0;border:0}
-    @media print{
-      @page{ size:A4; margin:8mm 8mm }
-      .topbar,.hint,.no-print{display:none !important}
-      body{zoom:0.92;}
-      .wrap{max-width:none;margin:0 auto;padding:0 6px}
-      #page1{zoom:0.90;page-break-after:always; break-after:page;}
-      #page1 *{break-inside:avoid;}
-      .mhp-logo{height:130px !important;margin-top:0 !important}
-      .rep-top-row2{font-size:22px !important;margin-bottom:0 !important}
-      .rep-top-row3{font-size:15px !important}
-    }
+/* --- Ajuste tipográfico Parte 2 (solo informe psicométrico) --- */
+.page2 h3{margin:10px 0 8px;font-size:16px}
+.page2 .card{font-size:13px}
+.page2 .card div,#nivelGlobal{font-size:13px;line-height:1.45;color:#334155}
+.page2 .p2sec h4{margin:0 0 8px;font-size:16px}
+.page2 .p2sec h5{margin:10px 0 6px;font-size:13px}
+.page2 .p2sec p{font-size:13px}
+.page2 .p2sec ul{font-size:13px}
 
-    .bloque-title{font-weight:800;margin:12px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
-    .bloque-left{display:flex;align-items:center;gap:6px;}
-    .bloque-bullet{width:10px;height:10px;border-radius:999px;background:#f4a338;flex:0 0 auto;}
-    .ih-badge{background:var(--yellow);padding:2px 10px;border-radius:2px;min-width:36px;text-align:center;font-weight:800;}
-    .iie-row{display:flex;justify-content:flex-end;align-items:center;margin:12px 0 6px;font-weight:800;gap:8px;flex-wrap:wrap;}
-    .iie-badge{background:var(--blue);color:#fff;padding:3px 12px;border-radius:2px;min-width:40px;text-align:center;}
 
-    .scale-section{margin-top:14px;}
-    .section-title{display:flex;align-items:center;gap:6px;font-weight:800;margin-bottom:6px;}
-    .section-dot{width:10px;height:10px;border-radius:999px;background:#f4a338;flex:0 0 auto;}
-    .scale-range-header{display:grid;grid-template-columns:220px 1fr 1fr 1fr;font-size:11px;font-weight:700;margin:0 0 2px;align-items:flex-end;}
-    .scale-range-header span{text-align:center;}
 
-    .interp-title{margin-top:8px;font-size:18px;font-weight:800;}
-    .interp-legend{font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:4px;}
-    .interp-bloque{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;font-size:12px;background:#fff;}
-    .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:800;font-size:12px;color:#fff}
-    .b-red{background:var(--red)}
-    .b-orange{background:var(--orange)}
-    .b-green{background:var(--green)}
-    .res-grid{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;}
-    .res-grid th,.res-grid td{border:1px solid #e5e5e5;padding:8px;text-align:left}
-    .res-grid thead th{background:#1e3a5f;color:#fff;font-weight:800}
-    .res-grid .num{text-align:right;font-variant-numeric:tabular-nums}
-    .iv-title{font-weight:700;font-size:14px;text-transform:uppercase;text-align:center;margin:0 0 10px;}
-  </style>
+/* Rango color (Liderazgo: 0–39 / 40–60 / 61–100) */
+td.rangoCell{font-weight:700;border-radius:10px;padding:6px 10px;display:inline-block;line-height:1.1}
+td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700}
+.rangoPill.low{background:#ffe7e7;color:#8a1f1f;border:1px solid #f3b1b1}
+.rangoPill.mid{background:#fff3d6;color:#7a4a00;border:1px solid #f1d18a}
+.rangoPill.high{background:#e6f7ea;color:#145a25;border:1px solid #a9dfb4}
+/* Fila completa por rango */
+.result tbody tr.row-low > td{background:#fff0f0}
+.result tbody tr.row-mid > td{background:#fff8e6}
+.result tbody tr.row-high > td{background:#eefaf0}
+
+
+</style>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
-    <input id="codigoInput" placeholder="Código (ej. CHC001)" maxlength="32"/>
-    <button type="button" class="btn" id="btnVer">Ver reporte</button>
-    <span id="msg" class="msg"></span>
+    <input id="codigo" placeholder="Código (ej. LIDER001)"/>
+    <button id="btn" class="btn" type="button">Ver reporte</button>
+    <button class="btn alt" type="button" onclick="window.print()">Imprimir / PDF</button>
   </div>
-  <div class="hint">Tip: <code>?codigo=SU_CODIGO</code>. Se cargan datos del intento terminado desde este equipo (<code>localStorage</code>) o, si aplica, desde <code>/api/report</code>.</div>
+  <div id="msg" class="msg">Paso 1 (datos reales): conecta /api/report y pinta factores, IA/IB/IC/ID + IFL.</div>
 
-  <div id="reporteContainer" style="display:none">
-
+  <div id="reporte" class="hidden">
     <section id="page1" class="page">
-      <div class="rep-top">
-        <div class="rep-top-row1">
-          <div id="repDateLine" class="rep-date"></div>
-          <div class="rep-top-center">SCORE REPORT</div>
-          <div class="rep-top-logo">
-            <img src="assets/logo_adalam.png" alt="Logotipo" class="mhp-logo" width="200" height="80">
-          </div>
-        </div>
-        <div class="rep-top-row2"><span>REPORTE</span></div>
-        <div class="rep-top-row3">EVALUACIÓN INTELECTUAL · MODELO CHC</div>
+      <div class="header">
+        <div class="r1"><div id="fechaGenTop">—</div><div class="center">GRÁFICA INDIVIDUAL</div><div class="logo"><img src="assets/logo_adalam.png" alt="Logo Adalam"></div></div>
+        <div class="r2">SCORE REPORT</div>
+        <div class="r3">LIDERAZGO - (LEADERSHIP)</div>
       </div>
 
-      <div class="rep-ids" id="repHeaderBox"
-           style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:12px;margin-top:8px"></div>
+      <div id="headerBox1" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
 
-      <div class="rep-mid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
-        <div class="curve">
-          <div id="tituloCurvaFrecuencias" style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
-          <div class="curve-gauge" style="position:relative;width:100%;height:220px;margin-top:6px;">
-            <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución"
-                 style="width:100%;height:220px;object-fit:contain;display:block;">
-            <div id="curveMarker" aria-hidden="true" style="position:absolute;left:50%;bottom:26px;width:0;height:0;z-index:3;pointer-events:none;">
-              <svg width="30" height="54" viewBox="0 0 18 30"
-                   style="position:absolute;left:0;bottom:0;transform:translateX(-50%);display:block;overflow:visible;">
-                <defs>
-                  <linearGradient id="blkMainChc" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stop-color="#1a1a1a"/><stop offset="28%" stop-color="#2b2b2b"/>
-                    <stop offset="55%" stop-color="#111111"/><stop offset="78%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/>
-                  </linearGradient>
-                  <filter id="blkShadowChc" x="-40%" y="-40%" width="180%" height="200%">
-                    <feDropShadow dx="0" dy="1.1" stdDeviation="1.0" flood-color="#000" flood-opacity="0.28"/>
-                  </filter>
-                </defs>
-                <g filter="url(#blkShadowChc)">
-                  <rect x="6" y="0" width="6" height="16" rx="1.2" fill="url(#blkMainChc)" stroke="#050505" stroke-width="0.55"/>
-                  <path d="M9 30 L2 16 H16 Z" fill="url(#blkMainChc)" stroke="#050505" stroke-width="0.55"/>
-                </g>
-              </svg>
+      <div class="grid2" style="margin-top:8px">
+        <div>
+          <div style="font-weight:700"><span>CURVA DE DISTRIBUCIÓN DE FRECUENCIAS :  (IFL)= <span id="iflCurveInline">—</span></span></div>
+          <div class="curveBox">
+            <div class="curveGauge">
+              <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución"/>
+              <div id="curveMarker" class="curveMarker" aria-hidden="true">
+                <svg width="30" height="54" viewBox="0 0 18 30" style="position:absolute;left:0;bottom:0;transform:translateX(-50%);display:block;overflow:visible;">
+                  <defs>
+                    <linearGradient id="blkMain" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#1a1a1a"/><stop offset="28%" stop-color="#2b2b2b"/><stop offset="55%" stop-color="#111"/><stop offset="78%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="6" y="0" width="6" height="16" rx="1.2" fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+                  <path d="M9 30 L2 16 H16 Z" fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="rep-iv" style="margin-top:26px;">
-          <div class="iv-title">DATOS DEL INFORME CHC</div>
-          <table class="iv-table" style="width:100%;border-collapse:collapse;font-size:12px">
-            <tbody>
-            <tr id="ivMeta1">
-              <th class="iv-key" style="border:1px solid #111;padding:6px">PR</th>
-              <td style="border:1px solid #111;padding:6px">Ítems presentes en este banco · intento aplicado por completo</td>
-              <td style="border:1px solid #111;padding:6px">Ítems parciales registrados · revisión de bloques pendientes</td>
-              <td style="border:1px solid #111;padding:6px">Sin registro suficiente de ítems en este equipo</td>
-            </tr>
-            <tr id="ivMeta2">
-              <th class="iv-key" style="border:1px solid #111;padding:6px">MN</th>
-              <td style="border:1px solid #111;padding:6px">Tiempo de sesión similar al esperado para la batería</td>
-              <td style="border:1px solid #111;padding:6px">Sesión breve o parcial</td>
-              <td style="border:1px solid #111;padding:6px">Sesión inusualmente larga (revisar validez del intento)</td>
-            </tr>
-            <tr id="ivMeta3">
-              <th class="iv-key" style="border:1px solid #111;padding:6px">VB</th>
-              <td style="border:1px solid #111;padding:6px">Banco actualizado (versión reciente)</td>
-              <td style="border:1px solid #111;padding:6px">Banco intermedio</td>
-              <td style="border:1px solid #111;padding:6px">Versión legada o no identificada</td>
-            </tr>
-            </tbody>
+        <div style="margin-top:24px">
+          <div style="font-weight:700;text-align:center;margin-bottom:8px">ÍNDICES DE VALIDACIÓN</div>
+          <table class="iv">
+            <tr><th>NA</th><td id="na0">Alto nivel de autoconocimiento</td><td id="na1">Nivel medio de autoconocimiento</td><td id="na2">Bajo autoconocimiento requiere apoyo</td></tr>
+            <tr><th>NC</th><td id="nc0">Sin contradicción</td><td id="nc1">Con algunas contradicciones</td><td id="nc2">Contradicción frecuente</td></tr>
+            <tr><th>PT</th><td id="pt0">Tiempo adecuado</td><td id="pt1">Demasiado breve</td><td id="pt2">Demasiado lento</td></tr>
           </table>
-          <div class="iv-legend" style="display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;font-size:11px;">
-            <span><b>PR</b> Alcance de ítems</span>
-            <span><b>MN</b> Duración aproximada</span>
-            <span><b>VB</b> Versión del banco publicado</span>
-          </div>
+          <div class="legend"><span><b>NA</b> Nivel de Autoconocimiento</span><span><b>NC</b> Nivel de Contradicción</span><span><b>PT</b> Promedio del Tiempo</span></div>
+          <div class="small" id="contestadasLine" style="margin-top:8px">Contestadas: —</div>
         </div>
       </div>
 
-      <div class="bloque-title">
-        <div class="bloque-left"><span class="bloque-bullet"></span><span>PROCESAMIENTO FLUIDO, MEMORIA DE TRABAJO Y VELOCIDAD</span></div>
-        <div>IFV: <span class="ih-badge" id="ihFluido">—</span></div>
-      </div>
-      <div class="rep-bloque" id="bloqueFluido"></div>
+      <div class="blk-title"><span>VÍNCULOS INTERPERSONALES</span><span>IVI: <span class="badgeY" id="idxA">—</span></span></div>
+      <div class="bar-head"><div></div><div style="text-align:center">POR DESARROLLAR</div><div style="text-align:center">POR FORTALECER</div><div style="text-align:center">POR ENRIQUECER</div></div>
+      <div id="bloqueA"></div>
 
-      <div class="bloque-title">
-        <div class="bloque-left"><span class="bloque-bullet"></span><span>CONOCIMIENTO VERBAL, MEMORIA ASOCIATIVA Y VISUAL</span></div>
-        <div>ICV: <span class="ih-badge" id="ihCristal">—</span></div>
-      </div>
-      <div class="rep-bloque" id="bloqueCristal"></div>
+      <div class="blk-title"><span>ENTORNO SITUACIONAL</span><span>IES: <span class="badgeY" id="idxB">—</span></span></div>
+      <div id="bloqueB"></div>
 
-      <div class="iie-row">
-        <span>ÍNDICE GLOBAL APROXIMADO (I.G. · % correcto del banco):</span>
-        <span class="iie-badge" id="repIGlobal">—</span>
-      </div>
+      <div class="blk-title"><span>PERFORMANCE</span><span>IPR: <span class="badgeY" id="idxC">—</span></span></div>
+      <div id="bloqueC"></div>
 
-      <div class="scale-section">
-        <div class="section-title">
-          <div class="section-dot"></div>
-          <div>LECTURA INTEGRADA · BAJO / PROMEDIO / ALTO (APROX.)</div>
-        </div>
-        <div class="scale-range-header">
-          <span></span>
-          <span>BAJO</span>
-          <span>PROMEDIO</span>
-          <span>ALTO</span>
-        </div>
-        <div class="rep-scale" id="resumenGlobal"></div>
-        <p class="muted" style="font-size:11px;margin-top:6px;">Los porcentajes son orientativos (proporción de aciertos en el banco piloto). No equivalen a percentiles normados por edad salvo que se documente una norma propia.</p>
-      </div>
+      <div class="blk-title"><span>JUICIO</span><span>IJI: <span class="badgeY" id="idxD">—</span></span></div>
+      <div id="bloqueD"></div>
 
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap" class="no-print">
-        <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
-        <button type="button" id="btnExportJSON" class="btn" style="background:#6b7280">Exportar JSON</button>
-      </div>
+      <div class="iie">ÍNDICE GLOBAL DE FACTORES DE LIDERAZGO (IFL): <span class="badgeB" id="iflBadge">—</span></div>
     </section>
 
-    <div class="page-break"></div>
+    <section class="page page2">
+      <div class="header">
+        <div class="r1"><div id="fechaGenTop2">—</div><div class="center">INFORME PSICOMÉTRICO</div><div class="logo"><img src="assets/logo_adalam.png" alt="Logo Adalam"></div></div>
+        <div class="r2" style="font-size:20px">INFORME PSICOMÉTRICO</div>
+        <div class="r3" style="font-size:15px">FACTORES DE LIDERAZGO – INTERPRETACIÓN</div>
+      </div>
+      <h3>1.- Datos personales.</h3>
+      <div id="headerBox2" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
 
-    <section class="page" id="pageInterp">
-      <div class="rep-top">
-        <div class="rep-top-row1">
-          <div id="repDateLine2" class="rep-date"></div>
-          <div class="rep-top-center">Informe psicométrico</div>
-          <div class="rep-top-logo">
-            <img src="assets/logo_adalam.png" alt="Logotipo" class="mhp-logo" width="200" height="80">
-          </div>
-        </div>
-        <div class="rep-top-row2"><span>Informe de resultados</span></div>
-        <div class="rep-top-row3">EVALUACIÓN INTELECTUAL CHC – INTERPRETACIÓN</div>
+      <h3>2.- Interpretación por Factores y Perfil global</h3>
+      <div class="card">
+        <div><b>IFL:</b> <span id="iflText">—</span>/100</div>
+        <div id="nivelGlobal" style="margin-top:6px">Pendiente de textos finales (Paso visual e interpretación).</div>
       </div>
 
-      <h2 class="interp-title">1. Datos personales</h2>
-      <div id="repHeaderBox2" class="rep-ids"
-           style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:12px;margin-top:4px"></div>
-
-      <h2 class="interp-title">2. Instrumento y criterios</h2>
-      <div class="interp-bloque">
-        <p>La evaluación implementa un banco de ítems inspirado en el modelo Cattell-Horn-Carroll (CHC), con factores abreviados Gf, Gc, Gwm, Gs, Gv y Glr. Los puntajes mostrados son <b>porcentajes de acierto</b> sobre el conjunto de ítems activos en la versión del banco indicada.</p>
-        <p class="interp-legend">Para lectura rápida se puede alinear con tres franjas de referencia interna (no clínica):</p>
-        <p>
-          <span class="badge b-red">1–40 · Bajo</span>
-          <span class="badge b-orange">41–70 · Medio</span>
-          <span class="badge b-green">71–100 · Alto</span>
-        </p>
-        <p class="interp-legend">No sustituye baterías comerciales ni juicio clínico. La interpretación depende del contexto educativo u organizacional y de normas propias si existieran.</p>
+      <div class="card">
+        <div><b>Factores de Evaluación:</b></div>
+        <table class="result">
+          <thead><tr><th>Factor</th><th>Resultado</th><th>Rango</th></tr></thead>
+          <tbody id="tbodyFactores"></tbody>
+        </table>
       </div>
 
-      <h2 class="interp-title">3. Tabla por factor</h2>
-      <div id="tablaFactorWrap"></div>
+      <div id="p2detail"></div>
     </section>
   </div>
 </div>
 
 <script>
-(function () {
-  "use strict";
+const $ = (s)=>document.querySelector(s);
+const norm = (s='') => (s||'').toString().toLowerCase()
+  .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  .replace(/\s+/g,' ').trim();
+const esc = (s='') => (s??'').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const pctSel = (f) => (f && f.pct10 !== undefined && f.pct10 !== null) ? Number(f.pct10) : (Number(f?.pct)||0);
 
-  const STORAGE_PREFIX = "eval_chc_state_";
+const FACTOR_ORDER = [
+  'Contacto personal','Pertenencia','Asertividad',
+  'Atención','Control','Influencia',
+  'Apertura','Ritmo de trabajo','Desempeño',
+  'Juicio','Visión','Enfoque estratégico'
+];
 
-  function clamp(n, a, b) {
-    return Math.max(a, Math.min(b, n));
+const FACTOR_TO_BLOQUE = {
+  'contacto personal':'A','pertenencia':'A','asertividad':'A',
+  'atencion':'B','control':'B','influencia':'B',
+  'apertura':'C','ritmo de trabajo':'C','desempeno':'C',
+  'juicio':'D','vision':'D','enfoque estrategico':'D'
+};
+
+function canonFactor(s){
+  const t = norm(s).replace(/[^a-z0-9 ]+/g,' ');
+  if (t.includes('contacto')) return 'contacto personal';
+  if (t.includes('pertenencia')) return 'pertenencia';
+  if (t.includes('asert')) return 'asertividad';
+  if (t.includes('atencion')) return 'atencion';
+  if (t.includes('control')) return 'control';
+  if (t.includes('influencia')) return 'influencia';
+  if (t.includes('apertura')) return 'apertura';
+  if (t.includes('ritmo')) return 'ritmo de trabajo';
+  if (t.includes('desempen')) return 'desempeno';
+  if (t.includes('juicio')) return 'juicio';
+  if (t.includes('vision')) return 'vision';
+  if (t.includes('enfoque')) return 'enfoque estrategico';
+  return t;
+}
+function displayFactorFromCanon(c){
+  const map = {
+    'contacto personal':'Contacto personal','pertenencia':'Pertenencia','asertividad':'Asertividad',
+    'atencion':'Atención','control':'Control','influencia':'Influencia',
+    'apertura':'Apertura','ritmo de trabajo':'Ritmo de trabajo','desempeno':'Desempeño',
+    'juicio':'Juicio','vision':'Visión','enfoque estrategico':'Enfoque estratégico'
+  };
+  return map[c] || c;
+}
+
+/* --- Parte 2 (accionable, escolar/profesional) --- */
+const FACTOR_DEF = {
+  "Contacto personal":"Capacidad para vincularse, generar cercanía y comunicación efectiva con otras personas.",
+  "Pertenencia":"Tendencia a integrarse, colaborar y comprometerse con el grupo o institución.",
+  "Asertividad":"Habilidad para expresar ideas y límites con respeto, seguridad y claridad.",
+  "Atención":"Capacidad de concentración, seguimiento y cuidado de detalles en tareas o responsabilidades.",
+  "Control":"Manejo de impulsos, autorregulación y consistencia para sostener normas y acuerdos.",
+  "Influencia":"Capacidad para persuadir, movilizar y guiar a otros de forma ética y efectiva.",
+  "Apertura":"Disposición a aprender, escuchar perspectivas y adaptarse a cambios.",
+  "Ritmo de trabajo":"Nivel de constancia y velocidad sostenida para ejecutar tareas y avanzar en objetivos.",
+  "Desempeño":"Efectividad para lograr resultados, cumplir metas y mantener calidad en lo realizado.",
+  "Juicio":"Criterio para tomar decisiones, anticipar consecuencias y evaluar alternativas.",
+  "Visión":"Capacidad para proyectar metas, comprender el propósito y orientar acciones a futuro.",
+  "Enfoque estratégico":"Habilidad para priorizar, planificar y coordinar acciones alineadas a objetivos."
+};
+
+function p2Rango(p){
+  const n = Number(p)||0;
+  // Rangos oficiales: 0–39 / 40–60 / 61–100
+  if(n <= 39) return {lab:"Por desarrollar", cls:"low"};
+  if(n <= 60) return {lab:"Por fortalecer", cls:"mid"};
+  return {lab:"Por enriquecer", cls:"high"};
+}
+function isProfesional(codigo){
+  const c = String(codigo||"").trim().toUpperCase();
+  return c.startsWith("PRO");
+}
+
+/* Plantillas por factor (acciones puntuales + contexto) */
+const P2 = {
+  // OK NUEVO
+  "Contacto personal": {
+  seePRO: [
+    "A veces entras directo al tema y se pierde la oportunidad de crear una conexión breve con la otra persona.",
+    "En algunas reuniones o llamadas, te cuesta iniciar una conversación corta que ayude a generar confianza.",
+    "Tu contacto personal mejora cuando saludas, haces una pregunta simple y escuchas unos segundos antes de entrar al tema."
+  ],
+  doPRO: [
+    {a:"Al empezar una reunión, llamada o conversación, saluda y pregunta algo breve, por ejemplo: ‘Hola, ¿cómo vas hoy?’ o ‘¿Cómo te fue con lo de ayer?’. Luego escucha sin interrumpir durante 20 a 30 segundos.", w:"Al iniciar una reunión, llamada o conversación", t:"1 min"},
+    {a:"Cuando otra persona exponga una idea, nómbrala y reconoce una parte útil antes de dar tu punto, por ejemplo: ‘Ana, eso ayuda porque ordena el tema. Yo agregaría este paso...’.", w:"Cuando alguien expone o propone algo", t:"1 a 2 min"},
+    {a:"Antes de cerrar la conversación, haz una pregunta breve de apoyo, por ejemplo: ‘¿Necesitas algo de mí para seguir con esto?’ o ‘¿Hay algo que deba dejarte listo hoy?’.", w:"Al final de la interacción", t:"1 min"}
+  ],
+  indPRO:"Lo logré si esta semana inicié 4 conversaciones con saludo y pregunta breve, validé al menos 2 ideas antes de responder y cerré 3 interacciones preguntando si la otra persona necesitaba algo más.",
+  avoidPRO:"Evita sonar automático o amable por obligación; usa frases breves, naturales y relacionadas con la situación.",
+  seeSCH: [
+    "A veces te cuesta acercarte a tus compañeras o compañeros o entrar con naturalidad a trabajos en grupo.",
+    "En algunas actividades prefieres quedarte callado si nadie te pregunta directamente.",
+    "Tu contacto personal mejora cuando saludas, haces una pregunta simple y dices una frase útil dentro del grupo."
+  ],
+  doSCH: [
+    {a:"Al llegar a clase o a un trabajo en grupo, saluda diciendo el nombre de la persona y haz una pregunta breve, por ejemplo: ‘Hola, Ana, ¿qué toca hoy?’ o ‘¿Por dónde van?’.", w:"Al llegar a clase o al grupo", t:"1 min"},
+    {a:"Durante el trabajo en grupo, repite una idea útil de un compañero y añade una propuesta corta, por ejemplo: ‘Lo que dijo Luis sirve; propongo agregar un ejemplo.’", w:"Durante el trabajo grupal", t:"1 a 2 min"},
+    {a:"Antes de terminar la actividad, confirma qué sigue al día siguiente, por ejemplo: ‘Entonces mañana primero hacemos esto, ¿verdad?’.", w:"Al final de la clase o actividad", t:"1 min"}
+  ],
+  indSCH:"Lo logré si esta semana saludé e hice una pregunta breve al menos 3 veces, participé con una frase útil en 3 actividades grupales y confirmé qué seguiría al dia siguiente antes de cerrar 2 actividades.",
+  avoidSCH:"Evita quedarte callado esperando que te incluyan; di al menos una pregunta o una frase útil en cada actividad grupal."
+},
+  // OK NUEVO
+ "Pertenencia": {
+  seePRO:[
+    "A veces te cuesta mantenerte alineado con acuerdos del equipo cuando hay varios pendientes al mismo tiempo.",
+    "En algunas actividades trabajas por tu cuenta y no siempre avisas avances o cambios a tiempo.",
+    "Tu integración al equipo mejora cuando haces visible lo que ya hiciste, lo que falta y si necesitas apoyo."
+  ],
+  doPRO:[
+    {a:"Elige 1 acuerdo del equipo y cúmplelo sin excepción, por ejemplo: llegar a la hora, responder un mensaje pendiente, enviar un avance o entregar tu parte en la fecha acordada.", w:"Todos los días", t:"1 min"},
+    {a:"Al final del día, envía un mensaje corto con 3 líneas: 1) qué terminaste, 2) qué sigues haciendo y 3) qué te falta o qué te bloquea.", w:"Fin del día o reunión breve del equipo", t:"2 min"},
+    {a:"Una vez por semana, ofrece ayuda puntual en una tarea pequeña, por ejemplo: revisar un texto corto, ordenar materiales, recordar un acuerdo o confirmar una fecha.", w:"1 vez por semana", t:"5 a 10 min"}
+  ],
+  indPRO:"Lo logré si esta semana cumplí 1 acuerdo sin recordatorio, envié 3 reportes cortos y ofrecí 1 ayuda concreta al equipo.",
+  avoidPRO:"Evita atrasarte o cambiar algo sin avisar el mismo día al equipo.",
+  seeSCH:[
+    "A veces te cuesta seguir las reglas del curso o del grupo cuando hay varias tareas al mismo tiempo.",
+    "En trabajos en grupo, no siempre avisas a tiempo qué parte ya hiciste y qué parte te falta.",
+    "Tu participación mejora cuando cumples tu parte, informas avances y preguntas qué falta por hacer."
+  ],
+  doSCH:[
+    {a:"Elige 1 regla del curso y cúmplela siempre, por ejemplo: llegar puntual, llevar materiales, guardar silencio cuando corresponde o entregar una tarea en la fecha acordada.", w:"Todos los días", t:"1 min"},
+    {a:"Cuando empiece un trabajo grupal, escribe en tu cuaderno o en una hoja qué parte te toca y para qué día debes entregarla.", w:"Al inicio del trabajo", t:"3 min"},
+    {a:"En cada actividad en grupo, pregunta: ‘¿qué falta por hacer?’ y toma 1 tarea pequeña, por ejemplo: escribir una parte, leer una instrucción, ordenar materiales o recordar una fecha.", w:"En cada grupo", t:"5 min"}
+  ],
+  indSCH:"Lo logré si esta semana cumplí 1 regla del curso sin recordatorio, terminé mi parte a tiempo en 1 trabajo y tomé 1 tarea pequeña en el grupo.",
+  avoidSCH:"Evita dejar tu parte para el último día o quedarte callado sin avisar que te falta algo por hacer."
+},
+
+// OK NUEVO
+"Asertividad": {
+  seePRO:["Te cuesta decir ‘no’ y terminas sobrecargado.","Evitas conversaciones difíciles y el problema crece.","Tu mensaje sale ambiguo y luego hay confusiones."],
+  doPRO:[
+    {a:"Responde con dos opciones claras: ‘Puedo entregarte una versión corta hoy a las 17:00, o la completa mañana a las 10:00.’", w:"Cuando te pidan algo adicional (chat/correo)", t:"20–30 seg"},
+    {a:"Si insisten, repite una sola vez: ‘Para que salga bien, solo puedo con una de esas dos opciones.’", w:"En la misma conversación", t:"10–15 seg"},
+    {a:"Cierra por escrito: ‘Confirmo: hoy 17:00 versión corta / mañana 10:00 completa.’", w:"Justo después (mensaje breve)", t:"30–40 seg"}
+  ],
+  indPRO:"Lo logré si di 1 límite con 2 opciones y confirmé por escrito al menos 2 veces esta semana.",
+  avoidPRO:"Evita justificarte demasiado; di la frase y repítela una vez si presionan.",
+  seeSCH:["Te cuesta pedir ayuda o decir que no entiendes.","A veces respondes con enojo o te quedas callado.","Te cuesta defender tu idea con respeto."],
+  doSCH:[
+    {a:"En clase, levanta la mano y di exactamente: ‘Profesor, no entendí la instrucción. ¿Puede repetirla, por favor?’", w:"En el momento en que no entiendas", t:"10–15 seg"},
+    {a:"En un trabajo en grupo, di exactamente: ‘Yo puedo hacer el resumen en 5 líneas. No puedo hacer todo.’", w:"Cuando repartan tareas", t:"15–20 seg"},
+    {a:"Si discuten una idea, di exactamente: ‘Yo propongo empezar por el punto 1 porque así avanzamos más rápido.’", w:"Durante el trabajo o debate", t:"15–20 seg"}
+  ],
+  indSCH:"Lo logré si hice 2 frases asertivas en la semana (1 para pedir claridad y 1 para poner un límite) sin pelear.",
+  avoidSCH:"Evita gritar o callarte; usa frases cortas y en tono calmado."
+},
+// OK NUEVO
+  "Atención": {
+  seePRO:[
+    "A veces se te pasan detalles importantes cuando haces varias cosas al mismo tiempo, por ejemplo: una fecha, un nombre o una instrucción específica.",
+    "En algunas tareas avanzas rápido, pero dejas partes sin revisar y eso te obliga a volver después.",
+    "Tu atención mejora cuando trabajas por bloques cortos y revisas antes de entregar."
+  ],
+  doPRO:[
+    {a:"Trabaja en un solo pendiente durante 25 minutos sin abrir otra tarea. Al terminar, descansa 5 minutos antes de empezar la siguiente.", w:"Al iniciar una tarea importante", t:"30 min"},
+    {a:"Antes de enviar un mensaje, archivo o tarea, revisa 3 cosas: 1) nombre correcto, 2) fecha correcta y 3) pedido completo.", w:"Antes de entregar o enviar", t:"2 min"},
+    {a:"Al final del día, escribe una lista corta con 3 pendientes y pon una hora aproximada para cada uno del día siguiente.", w:"Fin del día", t:"3 min"}
+  ],
+  indPRO:"Lo logré si esta semana trabajé al menos 4 veces en bloques de 25 minutos, revisé 5 entregas antes de enviarlas y cerré 3 días con lista de pendientes.",
+  avoidPRO:"Evita hacer varias cosas al mismo tiempo; termina una, revisa y recién después empieza otra.",
+  seeSCH:[
+    "A veces te distraes durante la clase y se te van instrucciones, fechas o pasos de la actividad.",
+    "En algunos días olvidas materiales, tareas o partes importantes porque no las anotas al momento.",
+    "Tu atención mejora cuando escribes lo importante y estudias un rato corto sin celular cerca."
+  ],
+  doSCH:[
+    {a:"Durante la clase, escribe 3 palabras clave de lo que explicó el docente, por ejemplo: tema, tarea y fecha.", w:"Durante la clase", t:"10 a 15 seg"},
+    {a:"Antes de salir del aula, anota en una sola línea la tarea y la fecha de entrega en tu cuaderno, hoja o celular.", w:"Al final de la clase", t:"30 seg"},
+    {a:"En casa, estudia o revisa una tarea durante 20 minutos con el celular fuera de la mesa o en otra habitación.", w:"En casa", t:"20 min"}
+  ],
+  indSCH:"Lo logré si esta semana anoté tareas o fechas en 4 clases y estudié 3 veces durante 20 minutos sin el celular al lado.",
+  avoidSCH:"Evita estudiar con el celular al lado o empezar una tarea sin anotar primero qué tienes que hacer."
+},
+// OK NUEVO
+"Control": {
+  seePRO:[
+    "A veces respondes demasiado rápido cuando algo te molesta y luego notas que era mejor esperar unos segundos.",
+    "En días de presión, te cuesta mantener reglas simples como orden, puntualidad o respuesta a tiempo.",
+    "Tu control mejora cuando haces una pausa breve antes de responder y sostienes una sola regla diaria con constancia."
+  ],
+  doPRO:[
+    {a:"Cuando algo te moleste, no respondas de inmediato. Cuenta 10 segundos en silencio antes de hablar o escribir.", w:"Cuando sientas enojo o presión", t:"10 seg"},
+    {a:"Elige 1 regla personal para toda la semana, por ejemplo: responder mensajes pendientes antes de las 17:00, llegar a la hora o dejar ordenado tu espacio al terminar.", w:"Todos los días", t:"1 min"},
+    {a:"Si te equivocas o reaccionas mal, corrige en una sola frase y en una sola acción, por ejemplo: ‘Me equivoqué, lo corrijo ahora’ y haz el paso correcto en ese momento.", w:"Al detectar el error", t:"30 seg"}
+  ],
+  indPRO:"Lo logré si esta semana hice 5 pausas conscientes antes de responder y mantuve 1 regla personal durante 5 días.",
+  avoidPRO:"Evita responder por chat o hablar en caliente cuando todavía estás molesto.",
+  seeSCH:[
+    "A veces reaccionas rápido cuando algo te molesta y después notas que podías haberlo dicho mejor.",
+    "En algunos días te cuesta seguir reglas simples como llegar a tiempo, llevar materiales o guardar silencio cuando corresponde.",
+    "Tu control mejora cuando haces una pausa corta antes de hablar y sostienes una sola regla con constancia."
+  ],
+  doSCH:[
+    {a:"Cuando te enojes o te provoque responder rápido, respira 3 veces y cuenta hasta 5 antes de hablar.", w:"Cuando algo te moleste", t:"15 seg"},
+    {a:"Elige 1 regla del día y cúmplela sin excepción, por ejemplo: llegar puntual, llevar el cuaderno, guardar silencio cuando corresponde o terminar una actividad antes de hablar de otra cosa.", w:"Todos los días", t:"1 min"},
+    {a:"Si te equivocas, repara enseguida con una frase corta y una acción, por ejemplo: ‘Perdón, ahora lo hago bien’ y corrige en ese momento.", w:"Después del error", t:"20 seg"}
+  ],
+  indSCH:"Lo logré si esta semana evité 3 reacciones impulsivas y cumplí 1 regla durante 5 días.",
+  avoidSCH:"Evita discutir para ganar o seguir respondiendo cuando ya estás molesto; pausa, corrige y sigue."
+},
+  // OK NUEVO
+"Influencia": {
+  seePRO:[
+    "A veces te cuesta lograr que otros se sumen a una idea sin sentir que debes insistir demasiado.",
+    "Cuando explicas una propuesta sin decir para qué sirve, al equipo le cuesta ver su utilidad.",
+    "Tu influencia mejora cuando pides una acción concreta, con tiempo claro y un resultado fácil de verificar."
+  ],
+  doPRO:[
+    {a:"Cuando propongas una idea, di en una sola frase para qué sirve, por ejemplo: ‘Esto nos ayuda a cerrar hoy esta parte y evitar retrasos mañana.’", w:"Al presentar una idea", t:"20 seg"},
+    {a:"Cuando necesites apoyo, pide un compromiso pequeño y concreto, por ejemplo: ‘Antes de las 17:00, envíame 3 puntos: avance, bloqueo y siguiente paso.’", w:"Cuando necesites colaboración", t:"30 seg"},
+    {a:"Una vez por semana, reconoce en voz alta o por mensaje un avance puntual de otra persona, por ejemplo: ‘Gracias por enviarlo hoy; eso ayudó a cerrar esta parte a tiempo.’", w:"1 vez por semana", t:"30 seg"}
+  ],
+  indPRO:"Lo logré si esta semana expliqué 2 beneficios con claridad, conseguí 2 compromisos pequeños y reconocí 1 avance de otra persona.",
+  avoidPRO:"Evita pedir apoyo con frases vagas o dar órdenes sin explicar para qué sirve la acción.",
+  seeSCH:[
+    "A veces te cuesta lograr que tus compañeros sigan una idea cuando no explicas con claridad qué toca hacer.",
+    "En algunos grupos, tu propuesta se pierde si no dices el objetivo y el orden de los pasos.",
+    "Tu influencia mejora cuando organizas una acción concreta, pides una tarea pequeña y reconoces lo que sí se hizo."
+  ],
+  doSCH:[
+    {a:"Al iniciar el trabajo en grupo, di en voz alta el objetivo y los 3 pasos, por ejemplo: ‘Primero buscamos la información, después escribimos y al final revisamos.’", w:"Al iniciar el grupo", t:"20 seg"},
+    {a:"Reparte tareas diciendo nombre + tarea + tiempo, por ejemplo: ‘Ana busca la información en 5 minutos; Luis escribe el título en 3 minutos.’", w:"Al organizar el grupo", t:"2 min"},
+    {a:"Al final, agradece una acción concreta de un compañero y repite la meta del grupo, por ejemplo: ‘Gracias por terminar esa parte; ahora solo nos falta revisar y entregar.’", w:"Al cierre de la actividad", t:"30 seg"}
+  ],
+  indSCH:"Lo logré si esta semana organicé 1 grupo diciendo objetivo y pasos, repartí tareas con tiempo claro y reconocí 1 avance de un compañero.",
+  avoidSCH:"Evita dar órdenes sueltas o enojarte cuando no te siguen; primero explica qué se hará, en qué orden y para cuándo."
+},
+
+ // OK NUEVO
+"Apertura": {
+  seePRO:[
+    "A veces te cuesta cambiar de plan aunque aparezca información nueva que conviene tomar en cuenta.",
+    "Cuando recibes una observación o corrección, al inicio puedes cerrarte o defenderte antes de revisar si algo sí sirve.",
+    "Tu apertura mejora cuando haces una pregunta concreta, pruebas una mejora pequeña y usas esa idea en una tarea real."
+  ],
+  doPRO:[
+    {a:"Antes de cerrar una decisión, hazte esta pregunta y escríbela si hace falta: ‘¿Qué dato me falta para decidir mejor hoy?’. Luego busca solo 1 dato adicional antes de decidir.", w:"Antes de cerrar una decisión", t:"1 a 2 min"},
+    {a:"Una vez por semana, escribe 3 líneas sobre una tarea o reunión: 1) qué hice, 2) qué salió mejor de lo esperado y 3) qué voy a hacer distinto la próxima vez.", w:"1 vez por semana", t:"5 min"},
+    {a:"Dos veces por semana, lée o mira un material corto relacionado con tu trabajo y usa ese mismo día 1 idea concreta, por ejemplo: cambiar el orden de una tarea, mejorar un mensaje o probar una forma distinta de explicar algo.", w:"2 veces por semana", t:"10 a 15 min"}
+  ],
+  indPRO:"Lo logré si esta semana pedí 1 comentario claro, probé 1 cambio concreto y apliqué 1 idea nueva en una tarea real.",
+  avoidPRO:"Evita responder de inmediato para defenderte; primero escucha, resume en una frase y luego decide qué sí te sirve.",
+  seeSCH:[
+    "A veces te cuesta cambiar la forma de estudiar, aunque el método que usas no te esté ayudando lo suficiente.",
+    "Cuando te corrigen, puedes frustrarte rápido y dejar el ejercicio antes de intentar otra forma.",
+    "Tu apertura mejora cuando pruebas un método distinto, pides una orientación concreta y corriges un error el mismo día."
+  ],
+  doSCH:[
+    {a:"Al estudiar, prueba un método distinto al que usas normalmente, por ejemplo: hacer un resumen corto, un mapa simple o 3 preguntas con respuesta.", w:"Cuando estudies", t:"20 min"},
+    {a:"Después de una nota o corrección, pregunta exactamente: ‘¿Qué debo mejorar primero?’. Anota la respuesta en una línea.", w:"Después de una corrección o nota", t:"2 min"},
+    {a:"Ese mismo día, corrige 1 error concreto y repite el ejercicio o la pregunta una vez más para ver si ya te sale mejor.", w:"Ese mismo día", t:"10 min"}
+  ],
+  indSCH:"Lo logré si esta semana probé 1 método nuevo, pedí 1 orientación clara y corregí 1 error concreto el mismo día.",
+  avoidSCH:"Evita decir ‘no puedo’ y dejarlo ahí; cambia una sola cosa del método y vuelve a intentarlo."
+},
+// OK NUEVO
+"Desempeño": {
+  seePRO:[
+    "A veces empiezas una tarea sin dejar claro cómo sabrás que ya quedó bien hecha.",
+    "En algunos trabajos haces correcciones al final porque no revisaste antes los puntos más importantes.",
+    "Tu desempeño mejora cuando defines desde el inicio qué debes entregar, para cuándo y con qué nivel de calidad."
+  ],
+  doPRO:[
+    {a:"Antes de empezar una tarea, escribe 3 criterios de ‘listo’, por ejemplo: 1) se entrega hoy a las 17:00, 2) lleva el formato correcto y 3) no tiene errores visibles en nombres, fechas o datos.", w:"Antes de iniciar", t:"3 min"},
+    {a:"Cuando la tarea vaya por la mitad, envía un borrador corto o una parte avanzada para recibir un comentario a tiempo, por ejemplo: un mensaje, una diapositiva, un cuadro o un resumen.", w:"A mitad del trabajo", t:"10 min"},
+    {a:"Antes de entregar, revisa 3 errores típicos: 1) nombre o destinatario, 2) fecha o dato clave y 3) si respondiste exactamente lo que te pidieron.", w:"Antes de entregar", t:"4 min"}
+  ],
+  indPRO:"Lo logré si esta semana definí 3 veces cuándo una tarea estaba realmente lista, envié 1 borrador antes de terminar y entregué sin tener que repetir por errores simples.",
+  avoidPRO:"Evita empezar a trabajar sin definir primero qué debes entregar, para cuándo y qué debe incluir.",
+  seeSCH:[
+    "A veces haces una tarea sin revisar bien la consigna y eso te lleva a olvidar partes importantes.",
+    "En algunos trabajos entregas rápido, pero con errores simples que se podían corregir antes.",
+    "Tu desempeño mejora cuando lees primero lo que te piden, haces un borrador y revisas antes de entregar."
+  ],
+  doSCH:[
+    {a:"Antes de empezar una tarea, lée la consigna y subraya 3 cosas: qué debes hacer, cómo debes entregarlo y para qué fecha es.", w:"Antes de empezar", t:"3 min"},
+    {a:"Haz un borrador corto y revísalo con una lista simple: 1) respondí lo que pedían, 2) está ordenado y 3) no faltan partes importantes.", w:"Antes de entregar", t:"10 min"},
+    {a:"Si puedes, pide a una persona que revise una sola cosa puntual, por ejemplo: ortografía, orden o claridad de una idea.", w:"Antes de entregar", t:"5 min"}
+  ],
+  indSCH:"Lo logré si esta semana usé una lista de revisión en 2 tareas y tuve menos correcciones por errores simples o partes olvidadas.",
+  avoidSCH:"Evita entregar apenas termines; revisa una vez más la consigna y una vez más tu trabajo antes de darlo."
+},
+  // OK NUEVO
+"Ritmo de trabajo": {
+  seePRO:[
+    "A veces empiezas el día con energía, pero te cuesta mantener el mismo ritmo cuando aparecen varias tareas pequeñas al mismo tiempo.",
+    "En algunos momentos postergas tareas cortas y luego terminas haciéndolas con apuro al final del día.",
+    "Tu ritmo de trabajo mejora cuando eliges pocas tareas, cierras una antes de abrir otra y marcas lo que ya terminaste."
+  ],
+  doPRO:[
+    {a:"Al iniciar el día, escribe 3 tareas pequeñas y concretas, por ejemplo: responder un correo, revisar un archivo y enviar un avance. Termina una antes de empezar la siguiente.", w:"Al iniciar el día", t:"5 min"},
+    {a:"Si una tarea toma menos de 2 minutos, hazla de inmediato. Por ejemplo: responder un mensaje corto, confirmar una fecha o archivar un documento.", w:"Durante el día", t:"Hasta 2 min"},
+    {a:"Cada vez que termines una tarea, escribe ‘listo’ o marca una ✓ en tu lista para ver lo que ya cerraste.", w:"Al finalizar cada tarea", t:"10 seg"}
+  ],
+  indPRO:"Lo logré si esta semana terminé al menos 8 tareas pequeñas, cerré una antes de abrir otra y marqué con ✓ cada tarea terminada.",
+  avoidPRO:"Evita abrir varias tareas a la vez y dejar todas empezadas; elige una, termínala y recién después sigue con otra.",
+  seeSCH:[
+    "A veces dejas tareas para el último momento y luego estudias o trabajas con apuro.",
+    "En algunos días te cuesta sostener un ritmo de estudio porque empiezas una cosa y la dejas a medias.",
+    "Tu ritmo mejora cuando divides la tarea en pasos cortos, estudias por tiempo fijo y dejas listo el material del día siguiente."
+  ],
+  doSCH:[
+    {a:"Cuando llegues a casa, divide una tarea en 3 pasos y haz solo el paso 1 ese mismo día. Por ejemplo: 1) leer la consigna, 2) resolver la primera parte, 3) revisar.", w:"Al llegar a casa", t:"15 min"},
+    {a:"Usa un cronómetro para estudiar 20 minutos seguidos y luego descansar 5. Durante esos 20 minutos, deja el celular lejos o fuera de la mesa.", w:"Cuando estudies", t:"25 min"},
+    {a:"Antes de dormir, deja preparado el cuaderno, materiales o tarea del día siguiente para no empezar con desorden en la mañana.", w:"En la noche", t:"3 min"}
+  ],
+  indSCH:"Lo logré si esta semana estudié 3 días con bloques de 20 minutos y avancé el paso 1 en al menos 2 tareas.",
+  avoidSCH:"Evita esperar a tener ganas para empezar; usa el cronómetro y comienza por el paso 1."
+},
+
+  // OK NUEVO
+"Juicio": {
+  seePRO:[
+    "A veces tomas una decisión rápido y luego notas que faltó revisar una consecuencia importante.",
+    "En algunas situaciones cambias de opción varias veces porque no comparaste desde el inicio qué ganabas y qué arriesgabas con cada una.",
+    "Tu juicio mejora cuando miras dos opciones, identificas un riesgo por cada una y dejas un plan simple si algo no sale como esperabas."
+  ],
+  doPRO:[
+    {a:"Antes de decidir algo importante, escribe 2 opciones posibles y debajo de cada una anota 1 riesgo concreto. Por ejemplo: ‘Opción A: enviar hoy — riesgo: va incompleto. Opción B: enviar mañana — riesgo: se atrasa la respuesta.’", w:"Antes de una decisión importante", t:"3 min"},
+    {a:"Antes de cerrar la decisión, pregunta a 1 persona de confianza: ‘¿Qué no estoy viendo?’ o ‘¿Qué riesgo ves aquí?’. Escucha una sola respuesta y anótala en una línea.", w:"Antes de cerrar una decisión", t:"2 min"},
+    {a:"Al decidir, deja escrito un plan B en una sola frase, por ejemplo: ‘Si no me responden hoy, mañana a las 9:00 llamo y cierro por teléfono.’", w:"Al tomar la decisión", t:"2 min"}
+  ],
+  indPRO:"Lo logré si esta semana usé la lista de 2 opciones y 1 riesgo en 2 decisiones, pedí 1 punto de vista externo y dejé escrito 1 plan B.",
+  avoidPRO:"Evita decidir cuando estás muy cansado, molesto o apurado; espera unos minutos y revisa primero las opciones.",
+  seeSCH:[
+    "A veces eliges rápido y después te arrepientes porque no pensaste qué podía pasar.",
+    "En algunas situaciones te dejas llevar por la presión del momento, por amigos o por la primera idea que aparece.",
+    "Tu juicio mejora cuando comparas dos opciones, piensas una consecuencia y pides orientación si sigues con duda."
+  ],
+  doSCH:[
+    {a:"Antes de actuar o responder, detente unos segundos y hazte esta pregunta: ‘¿Qué pasa si hago esto ahora?’. Piensa una consecuencia buena y una mala.", w:"Antes de decidir", t:"10 a 15 seg"},
+    {a:"Si tienes dos opciones, elige entre las dos y escribe en una línea por qué te conviene más una que la otra.", w:"Cuando tengas que elegir", t:"1 min"},
+    {a:"Si sigues con duda, pide consejo a un adulto, docente u orientador diciendo exactamente: ‘Tengo estas dos opciones y no sé cuál me conviene más. ¿Qué me recomienda mirar primero?’", w:"Cuando no veas claro qué hacer", t:"2 min"}
+  ],
+  indSCH:"Lo logré si esta semana pensé consecuencias antes de actuar en 3 momentos, escribí 1 elección con su motivo y pedí orientación 1 vez cuando seguía con duda.",
+  avoidSCH:"Evita decidir solo para quedar bien con otros o para salir rápido del momento; piensa primero qué resultado te conviene más."
+},
+
+  // OK NUEVO
+"Visión": {
+  seePRO:[
+    "A veces te concentras tanto en lo urgente del día que pierdes de vista para qué estás haciendo esa tarea.",
+    "En algunos periodos trabajas mucho, pero sin una meta corta y clara que te ayude a medir si estás avanzando.",
+    "Tu visión mejora cuando defines una meta de pocas semanas y eliges cada día una acción pequeña que te acerque a ella."
+  ],
+  doPRO:[
+    {a:"Al inicio de la semana, escribe una meta de 2 semanas en una sola frase. Por ejemplo: ‘En 2 semanas dejaré listo el primer borrador del informe’ o ‘En 2 semanas tendré ordenado el proceso de seguimiento de clientes’.", w:"Inicio de semana", t:"3 min"},
+    {a:"Cada mañana, elige una sola acción que acerque a esa meta. Por ejemplo: revisar una base, escribir una parte del informe, llamar a una persona clave o cerrar una tarea pendiente relacionada.", w:"Inicio del día", t:"2 min"},
+    {a:"Al final de la semana laboral, escribe en 3 líneas: 1) qué sí avanzó, 2) qué quedó pendiente y 3) cuál será el siguiente paso la próxima semana.", w:"Fin de semana laboral", t:"5 min"}
+  ],
+  indPRO:"Lo logré si dejé escrita 1 meta de 2 semanas y durante 5 días hice 1 acción concreta para acercarme a ella.",
+  avoidPRO:"Evita ponerte metas enormes o muy vagas; usa una meta corta, clara y con un siguiente paso visible.",
+  seeSCH:[
+    "A veces haces tareas o estudias sin tener claro para qué te sirve eso en las próximas semanas.",
+    "En algunos momentos te desmotivas porque piensas en metas muy grandes y no en pasos cortos que sí puedes cumplir.",
+    "Tu visión mejora cuando escribes una meta corta y trabajas cada día una acción pequeña que te acerque a ella."
+  ],
+  doSCH:[
+    {a:"Al empezar la semana, escribe una meta de 2 semanas en una sola frase. Por ejemplo: ‘En 2 semanas subiré mi nota en Matemáticas’ o ‘En 2 semanas entregaré a tiempo todas las tareas pendientes’.", w:"Domingo o lunes", t:"3 min"},
+    {a:"Antes de estudiar, elige una acción pequeña para esa meta. Por ejemplo: resolver 3 ejercicios, leer 2 páginas, hacer un resumen corto o terminar una parte de la tarea.", w:"Antes de estudiar", t:"2 min"},
+    {a:"El viernes, revisa en 3 líneas: 1) qué mejoró, 2) qué todavía falta y 3) qué harás primero la próxima semana para seguir avanzando.", w:"Viernes", t:"5 min"}
+  ],
+  indSCH:"Lo logré si escribí 1 meta de 2 semanas y la trabajé al menos 4 días con acciones pequeñas.",
+  avoidSCH:"Evita pensar en todo el año o en metas muy lejanas; piensa en 2 semanas y en una acción pequeña por día."
+},
+  // OK NUEVO
+"Enfoque estratégico": {
+  seePRO:[
+    "A veces tienes varias tareas abiertas y te cuesta decidir cuál realmente debe hacerse primero.",
+    "En algunos días empiezas por lo más fácil o por lo más urgente de otros, y dejas para después lo que más impacto tiene.",
+    "Tu enfoque estratégico mejora cuando eliges pocas prioridades, defines el siguiente paso exacto y revisas una vez al día si sigues en lo importante."
+  ],
+  doPRO:[
+    {a:"Al iniciar el día, elige 3 prioridades reales y marca cuál es la número 1. Luego reserva un bloque de tiempo para empezar por esa, por ejemplo: 9:00 a 9:30 solo para la prioridad principal.", w:"Inicio del día", t:"5 min"},
+    {a:"Antes de empezar a trabajar, escribe el siguiente paso exacto de la prioridad 1, por ejemplo: ‘abrir el archivo y escribir el título’, ‘llamar al cliente y confirmar fecha’ o ‘revisar 5 registros de la base’.", w:"Antes de trabajar en la prioridad 1", t:"1 min"},
+    {a:"A mitad del día, detente 1 minuto y pregúntate: ‘¿Sigo trabajando en lo más importante de hoy o me desvié?’. Si te desviaste, vuelve a la prioridad 1 en el siguiente bloque.", w:"A mitad del día", t:"1 min"}
+  ],
+  indPRO:"Lo logré si esta semana elegí 3 prioridades por día, reservé tiempo para la prioridad número 1 al menos 4 días y escribí el siguiente paso exacto antes de empezar.",
+  avoidPRO:"Evita llenar el día solo con urgencias ajenas; primero avanza en tu prioridad 1 y luego atiende lo demás.",
+  seeSCH:[
+    "A veces se te acumulan tareas porque no decides cuál debes empezar primero.",
+    "En algunos días te quedas en lo más fácil y dejas para después la tarea que más te conviene avanzar.",
+    "Tu enfoque estratégico mejora cuando eliges pocas tareas, empiezas por la más importante y das un primer paso claro ese mismo día."
+  ],
+  doSCH:[
+    {a:"Al llegar a casa, elige 3 tareas reales del día y marca cuál es la más importante. Empieza por esa antes de pasar a otra.", w:"Al llegar a casa", t:"5 min"},
+    {a:"Divide esa tarea importante en pasos pequeños y haz el paso 1 de inmediato, por ejemplo: leer la consigna, resolver el primer ejercicio o escribir el primer párrafo.", w:"Inicio del estudio o tarea", t:"10 min"},
+    {a:"A mitad del estudio, revisa en 1 minuto si sigues en la tarea importante o si te fuiste a otra más fácil. Si te desviaste, vuelve al paso que dejaste pendiente.", w:"A mitad del estudio", t:"1 min"}
+  ],
+  indSCH:"Lo logré si esta semana elegí 3 tareas del día, empecé al menos 3 días por la más importante y avancé de inmediato el paso 1.",
+  avoidSCH:"Evita decir ‘mañana empiezo’; empieza hoy con un solo paso pequeño de la tarea más importante."
+}
+};
+
+function actionListHTML(actions){
+  return actions.map(x => `
+    <li><b>Acción:</b> ${esc(x.a)}<br>
+        <b>Cuándo:</b> ${esc(x.w)} · <b>Duración:</b> ${esc(x.t)}</li>
+  `).join("");
+}
+
+function plan14HTML(factorName, isPRO){
+  const lab = isPRO ? "PROFESIONAL" : "ESCOLAR";
+
+  const wk1 = isPRO ? [
+    "Día 1: Lée las 3 tareas o acciones que aparecen arriba en ‘Tareas puntuales’ y elige solo 1 para practicar durante estas 2 semanas. Escríbela en tu agenda o en una nota del celular.",
+    "Días 2–6: Haz esa misma tarea o acción todos los días o cada vez que aparezca la situación. No cambies de tarea todavía. La meta es repetirla hasta que te salga con más facilidad.",
+    "Día 7: Revisa estas 3 preguntas y escribe una respuesta corta para cada una: 1) ¿Sí la hice? 2) ¿Qué me lo impidió? 3) ¿Qué voy a ajustar para la semana 2?"
+  ] : [
+    "Día 1: Lée las 3 tareas o acciones que aparecen arriba en ‘Tareas puntuales’ y elige solo 1 para practicar durante estas 2 semanas. Escríbela en tu cuaderno, en una hoja o en una nota del celular.",
+    "Días 2–6: Haz esa misma tarea o acción todos los días o cada vez que aparezca la situación. No cambies de tarea todavía. La meta es repetirla hasta que te salga con más facilidad.",
+    "Día 7: Revisa estas 3 preguntas y escribe una respuesta corta para cada una: 1) ¿Sí la hice? 2) ¿Qué me distrajo o me frenó? 3) ¿Qué voy a ajustar para la semana 2?"
+  ];
+
+  const wk2 = isPRO ? [
+    "Días 8–13: Repite la misma tarea o acción y úsala en una situación un poco más difícil, por ejemplo: con más personas, con menos tiempo o con una tarea de más responsabilidad.",
+    "Día 14: Escribe 3 líneas: 1) qué hice durante estas 2 semanas, 2) qué me salió mejor y 3) qué voy a seguir haciendo desde mañana. Después anota una sola meta para las próximas 2 semanas."
+  ] : [
+    "Días 8–13: Repite la misma tarea o acción y úsala en una situación un poco más difícil, por ejemplo: en un trabajo grupal más largo, en una materia que te cueste más o con menos ayuda.",
+    "Día 14: Escribe 3 líneas: 1) qué hice durante estas 2 semanas, 2) qué me salió mejor y 3) qué voy a seguir haciendo desde mañana. Después anota una sola meta para las próximas 2 semanas."
+  ];
+
+  return `
+    <h5>Plan de 14 días (Prioridad principal)</h5>
+    <p class="p2note">Escenario: <b>${lab}</b>. Elige una sola tarea o acción de las que aparecen arriba en <b>Tareas puntuales</b>. Practica esa misma tarea durante 14 días antes de pasar a otra. Si un día no cumples, retoma al siguiente día sin empezar desde cero.</p>
+    <ul>
+      <li><b>Semana 1:</b><ul>${wk1.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></li>
+      <li><b>Semana 2:</b><ul>${wk2.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></li>
+    </ul>
+  `;
+}
+function factorDetail(idx, f, isPRO, isMain){
+  const psel = pctSel(f);
+  const r = p2Rango(psel);
+  const pack = P2[f.name] || {};
+  const see = isPRO ? (pack.seePRO||[]) : (pack.seeSCH||[]);
+  const actions = isPRO ? (pack.doPRO||[]) : (pack.doSCH||[]);
+  const ind = isPRO ? (pack.indPRO||"") : (pack.indSCH||"");
+  const avoid = isPRO ? (pack.avoidPRO||"") : (pack.avoidSCH||"");
+  const def = FACTOR_DEF[f.name] || "Descripción del factor.";
+
+  // Ajuste por rango: cantidad/expectativa (mismo lenguaje, distintas exigencias)
+  const rangoNota = (r.lab==="Por desarrollar")
+    ? "Empieza con una sola acción pequeña. No busques hacerlo perfecto: busca repetirlo."
+    : (r.lab==="Por fortalecer")
+      ? "Ya tienes base. Ahora toca repetirlo con más constancia."
+      : "Ya es una fortaleza. Mantén ese hábito y úsalo para apoyar a otras personas.";
+
+  return `
+    <div class="p2sec">
+      <h4>3.${idx} ${esc(f.name)} ${isMain ? "— PRIORIDAD PRINCIPAL" : ""}</h4>
+      <div class="p2chips">
+        <span class="p2chip ${r.cls}">Rango: ${r.lab}</span>
+        <span class="p2chip">Puntaje: ${Math.round(psel)}</span>
+      </div>
+
+      <p><b>Qué significa:</b> ${esc(def)}</p>
+      <p class="p2note">${esc(rangoNota)}</p>
+
+      <h5>Cómo se ve en tu día a día</h5>
+      <ul>${see.slice(0,3).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+
+      <h5>Tareas puntuales (Qué hacer y cuándo)</h5>
+      <ul>${actionListHTML(actions.slice(0,3))}</ul>
+
+      <h5>Indicador de avance</h5>
+      <p>${esc(ind)}</p>
+
+      <h5>Error típico a evitar</h5>
+      <ul><li>${esc(avoid)}</li></ul>
+
+      ${isMain ? plan14HTML(f.name, isPRO) : ""}
+    </div>
+  `;
+}
+
+function buildParte2Detalle({header, ifl, ordered}){
+  const r = p2Rango(ifl);
+  const pro = isProfesional(header?.codigo);
+
+  const valid = [...ordered].filter(x=>!x.missing).sort((a,b)=>pctSel(a)-pctSel(b));
+  const foco = valid[0];
+  const apoyo1 = valid[1];
+  const apoyo2 = valid[2];
+
+  const sec2 = `
+    <div class="p2sec">
+      <h4>2.1.- Resumen de Perfil - (Índice General de Factores de Liderazgon. IFL)</h4>
+      <div class="p2chips">
+        <span class="p2chip ${r.cls}">IFL: ${Math.round(ifl)} — ${r.lab}</span>
+        <span class="p2chip">Escenario: ${pro ? "Profesional/Adulto" : "Escolar"}</span>
+      </div>
+      <p>Lée primero la <b>Prioridad principal</b> que consta a continuación en <b>interpretación práctica</b>.</p>
+    </div>
+  `;
+
+const sec2b = pro ? `
+  <div class="p2sec">
+    <h4>4.- Consecución del objetivo</h4>
+    <p>Este apartado resume los resultados profesionales que la persona podría empezar a consolidar si aplica de manera constante las orientaciones de este informe. No se refiere a cambios inmediatos, sino a avances visibles, medibles, cuantificables en su forma de relacionarse, responder al entorno, ejecutar su trabajo y tomar decisiones.</p>
+
+    <h5>4.1 Área interpersonal</h5>
+    <p>La meta en esta área es lograr una relación de trabajo más clara, estable y funcional con otras personas. Esto implica comunicarse mejor, integrarse con mayor facilidad al trabajo conjunto, expresar ideas con respeto y sostener acuerdos que favorezcan la cooperación y la confianza dentro del equipo.</p>
+    <p>Este objetivo se verá reflejado cuando la persona logre interactuar con mayor seguridad y equilibrio, reduciendo malentendidos y facilitando la coordinación con otros. Se notará en su manera de pedir apoyo, dar su opinión, poner límites de forma adecuada y convertirse en alguien con quien resulta más fácil trabajar y avanzar.</p>
+
+    <h5>4.2 Entorno situacional</h5>
+    <p>La meta en esta área es responder con mayor estabilidad y criterio frente a las exigencias cambiantes del trabajo. Esto supone adaptarse mejor a nuevas condiciones, manejar con más control la presión y responder de forma más flexible ante cambios, errores o situaciones imprevistas.</p>
+    <p>Este objetivo se verá reflejado cuando la persona pueda enfrentar cambios de prioridad, observaciones o nuevas exigencias sin bloquearse ni reaccionar impulsivamente. Se notará en su capacidad para reorganizarse, mantener el foco y sostener un desempeño más estable aun en contextos exigentes o inciertos.</p>
+
+    <h5>4.3 Performance</h5>
+    <p>La meta en esta área es fortalecer la forma en que la persona organiza, desarrolla y concluye su trabajo. Esto implica mejorar la constancia, administrar mejor el tiempo, priorizar con mayor claridad y sostener un ritmo de ejecución más ordenado y efectivo.</p>
+    <p>Este objetivo se verá reflejado cuando la persona cumpla con mayor consistencia, cierre tareas con mejor calidad y responda con más confiabilidad frente a sus responsabilidades. Se notará en una mayor continuidad en su trabajo diario, menos dispersión y una forma de ejecución más clara y estable.</p>
+
+    <h5>4.4 Juicio</h5>
+    <p>La meta en esta área es fortalecer la capacidad de decidir con mayor claridad, sentido práctico y conciencia de las consecuencias. Esto implica analizar mejor las opciones, distinguir lo urgente de lo importante y evitar decisiones tomadas solo por impulso o presión.</p>
+    <p>Este objetivo se verá reflejado cuando la persona empiece a tomar decisiones más consistentes y mejor conectadas con sus metas de trabajo. Se notará en su capacidad para priorizar con más criterio, mantener una dirección más clara y ajustar sus acciones de forma más inteligente según los resultados que vaya obteniendo.</p>
+
+    <h5>Cierre integrador</h5>
+    <p>Cuando estas cuatro áreas se fortalecen de manera constante, la persona puede mostrar una mejora progresiva en su desempeño profesional general. Esto se refleja en relaciones laborales más funcionales, mejor respuesta ante situaciones exigentes, mayor orden en la ejecución y decisiones más claras para avanzar.</p>
+    <p>En conjunto, la consecución del objetivo no se limita a mejorar una tarea puntual, sino a desarrollar una forma de trabajo más sólida, consciente y sostenible en el tiempo. El resultado esperado es una persona que no solo cumple mejor, sino que también se adapta mejor, se relaciona mejor y orienta su esfuerzo con mayor claridad.</p>
+  </div>
+` : ``;
+  const sec3head = `
+    <div class="p2sec">
+      <h4>3.- Interpretación práctica (Con tareas)</h4>
+      <p class="p2note">Aquí tienes acciones claras para aplicar en tu rutina. El objetivo es avanzar con pasos pequeños y medibles.</p>
+    </div>
+  `;
+
+  const picked = [foco, apoyo1, apoyo2].filter(Boolean);
+  const details = picked.map((f,i)=>factorDetail(i+1, f, pro, i===0)).join("");
+
+  const sec4 = foco ? `
+    <div class="p2sec">
+      <h4>4.- Cierre rápido</h4>
+      <ul>
+        <li><b>Prioridad 14 días:</b> ${esc(foco.name)} (${Math.round(foco.pct)}%).</li>
+        ${apoyo1 ? `<li><b>Apoyo 1:</b> ${esc(apoyo1.name)} (${Math.round(apoyo1.pct)}%).</li>` : ""}
+        ${apoyo2 ? `<li><b>Apoyo 2:</b> ${esc(apoyo2.name)} (${Math.round(apoyo2.pct)}%).</li>` : ""}
+        <li><b>Regla:</b> si un día fallas, retomas al siguiente. Lo que importa es repetir.</li>
+      </ul>
+    </div>
+  ` : "";
+
+  const sec5 = `
+    <div class="p2sec">
+      <h4>5.- Vínculos de apoyo</h4>
+      ${pro ? `
+        <ul>
+          <li><a href="https://www.who.int/teams/mental-health-and-substance-use/mental-health-in-the-workplace" target="_blank" rel="noopener">OMS / Salud mental en el trabajo</a></li>
+          <li><a href="https://www.apa.org/topics/stress" target="_blank" rel="noopener">APA / Manejo práctico del estrés</a></li>
+          <li><a href="https://www.cdc.gov/niosh/topics/stress/" target="_blank" rel="noopener">CDC-NIOSH / Estrés laboral y prevención</a></li>
+        </ul>
+      ` : `
+        <ul>
+          <li><a href="https://www.unicef.org/parenting/es/salud-mental" target="_blank" rel="noopener">UNICEF / Bienestar y apoyo emocional</a></li>
+          <li><a href="https://www.apa.org/topics/children/healthy-emotions" target="_blank" rel="noopener">APA / Habilidades emocionales y comunicación</a></li>
+          <li><a href="https://www.commonsensemedia.org/articles/social-emotional-learning-resources-for-parents" target="_blank" rel="noopener">Common Sense / Recursos para habilidades socioemocionales</a></li>
+        </ul>
+      `}
+    </div>
+  `;
+return sec2 + sec3head + details + sec2b + sec5;
+}
+function rangoFromPct(p){
+  const n = Number(p)||0;
+  if (n <= 39) return 'Por desarrollar';
+  if (n <= 60) return 'Por fortalecer';
+  return 'Por enriquecer';
+}
+function categoriaClass(p){
+  const n = Number(p)||0;
+  if (n <= 39) return '';
+  if (n <= 60) return 'mid';
+  return 'high';
+}
+function setMarker(p){
+  const s = Math.max(0, Math.min(100, Number(p)||0));
+  window.__liderCurveValue = s;
+  const wrap = document.querySelector('.curveGauge');
+  const img  = document.getElementById('freqCurveImg');
+  const mk   = document.getElementById('curveMarker');
+  if(!wrap || !img || !mk) return;
+
+  const place = () => {
+    const rW = wrap.getBoundingClientRect();
+    const rI = img.getBoundingClientRect();
+    const natW = img.naturalWidth || 1;
+    const natH = img.naturalHeight || 1;
+
+    // object-fit: contain
+    const scale = Math.min(rI.width/natW, rI.height/natH);
+    const drawnW = natW * scale;
+    const offsetXInsideImg = (rI.width - drawnW)/2;
+
+    const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+
+    // Calibración acordada (reutilizable)
+    const padL = drawnW * 0.10;
+    const padR = drawnW * 0.22;
+    const minX = leftInWrap + padL;
+    const maxX = leftInWrap + drawnW - padR;
+
+    const t = s / 100;
+    const x = minX + t * (maxX - minX);
+
+    // Inclinación visual de la curva (base del marcador)
+    const bottomAt0 = 94;
+    const bottomAt100 = 28;
+    const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+
+    // % respecto al gauge: en PDF/print el layout cambia; px fijos se desalinean.
+    const w = rW.width || 1;
+    const h = rW.height || 1;
+    mk.style.left = `${(x / w) * 100}%`;
+    mk.style.bottom = `${(y / h) * 100}%`;
+  };
+
+  if (img.complete) requestAnimationFrame(place);
+  else img.addEventListener('load', () => requestAnimationFrame(place), {once:true});
+}
+function highlightIV(prefix, idx){
+  for (let i=0;i<3;i++){
+    const el = document.getElementById(prefix + i);
+    if (!el) continue;
+    el.classList.toggle('hl', Number(idx) === i);
   }
-
-  function setCurveMarker(score) {
-    const s = clamp(Number(score) || 0, 1, 100);
-    const wrap = document.querySelector(".curve .curve-gauge");
-    const img = document.getElementById("freqCurveImg");
-    const mk = document.getElementById("curveMarker");
-    if (!wrap || !img || !mk) return;
-
-    const place = function () {
-      const rW = wrap.getBoundingClientRect();
-      const rI = img.getBoundingClientRect();
-      const natW = img.naturalWidth || 1;
-      const natH = img.naturalHeight || 1;
-      const scale = Math.min(rI.width / natW, rI.height / natH);
-      const drawnW = natW * scale;
-      const offsetXInsideImg = (rI.width - drawnW) / 2;
-      const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
-      const padL = drawnW * 0.12;
-      const padR = drawnW * 0.22;
-      const minX = leftInWrap + padL;
-      const maxX = leftInWrap + drawnW - padR;
-      const t = (s - 1) / 99;
-      let x = minX + t * (maxX - minX);
-      x = Math.max(minX, Math.min(maxX, x));
-      const bottomAt0 = 94;
-      const bottomAt100 = 30;
-      const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
-      const w = rW.width || 1;
-      const h = rW.height || 1;
-      mk.style.left = (x / w) * 100 + "%";
-      mk.style.bottom = (y / h) * 100 + "%";
-    };
-
-    if (img.complete) requestAnimationFrame(place);
-    else img.addEventListener("load", function () { requestAnimationFrame(place); }, { once: true });
-  }
-
-  function highlightIV(rowId, colIndex) {
-    const row = document.getElementById(rowId);
-    if (!row) return;
-    [].forEach.call(row.children, function (td) { td.classList.remove("hl"); });
-    const idx = Math.max(1, Math.min(3, colIndex | 0));
-    const td = row.children[idx];
-    if (td) td.classList.add("hl");
-  }
-
-  function addFactorRow(container, label, pct) {
-    const row = document.createElement("div");
-    row.style.display = "grid";
-    row.style.gridTemplateColumns = "220px 1fr 1fr 1fr";
-    row.style.alignItems = "center";
-    row.style.gap = "6px";
-    row.style.margin = "2px 0";
-
-    const nameCell = document.createElement("div");
-    nameCell.textContent = label;
-    nameCell.style.fontWeight = "700";
-    nameCell.style.fontSize = "12px";
-    row.appendChild(nameCell);
-
-    for (let i = 0; i < 3; i++) {
-      const track = document.createElement("div");
-      track.style.position = "relative";
-      track.style.height = "14px";
-      track.style.border = "1px solid #aab";
-      track.style.borderRadius = "4px";
-      track.style.background = "#f3f5f8";
-      track.style.overflow = "hidden";
-      const fill = document.createElement("div");
-      fill.style.position = "absolute";
-      fill.style.left = "0";
-      fill.style.top = "0";
-      fill.style.bottom = "0";
-      fill.style.background = "#6b7280";
-      let w = 0;
-      if (i === 0 && pct <= 40) w = Math.max(2, Math.round((pct / 40) * 100));
-      if (i === 1 && pct > 40 && pct <= 70) w = Math.max(2, Math.round(((pct - 40) / 30) * 100));
-      if (i === 2 && pct > 70) w = Math.max(2, Math.round(((pct - 70) / 30) * 100));
-      fill.style.width = w + "%";
-      track.appendChild(fill);
-      row.appendChild(track);
-    }
-    container.appendChild(row);
-  }
-
-  function buildBloqueHost(hostId, items) {
-    const cont = document.getElementById(hostId);
-    if (!cont) return;
-    cont.innerHTML = "";
-    const cols = document.createElement("div");
-    cols.style.display = "grid";
-    cols.style.gridTemplateColumns = "220px 1fr 1fr 1fr";
-    cols.style.gap = "6px";
-    cols.style.marginBottom = "6px";
-    const blank = document.createElement("div");
-    cols.appendChild(blank);
-    ["POR DESARROLLAR", "POR FORTALECER", "POR ENRIQUECER"].forEach(function (t) {
-      const d = document.createElement("div");
-      d.style.fontSize = "11px";
-      d.style.textAlign = "center";
-      d.style.color = "#374151";
-      d.textContent = t;
-      cols.appendChild(d);
-    });
-    cont.appendChild(cols);
-    items.forEach(function (it) {
-      addFactorRow(cont, it.code + " · " + it.label, it.pct);
-    });
-  }
-
-  function avgPct(rows, codes) {
-    const list = rows.filter(function (r) { return codes.indexOf(r.code) >= 0; });
-    if (!list.length) return 0;
-    return Math.round(list.reduce(function (s, r) { return s + r.pct; }, 0) / list.length);
-  }
-
-  function escHtml(s) {
-    return String(s == null ? "" : s)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
-
-  function buildTableHtml(r) {
-    if (!r || !r.factores) return "<p class='muted'>Sin tabla.</p>";
-    let t = "<table class='res-grid' role='table'><thead><tr><th>Factor</th><th>Ámbito</th><th class='num'>Puntos</th><th class='num'>%</th></tr></thead><tbody>";
-    r.factores.forEach(function (row) {
-      t += "<tr><td><strong>" + escHtml(row.code) + "</strong></td><td>" + escHtml(row.label) + "</td><td class='num'>" + row.score + " / " + row.max + "</td><td class='num'><strong>" + row.pct + "</strong></td></tr>";
-    });
-    t += "</tbody></table>";
-    t += "<p class='muted' style='margin-top:8px;font-size:12px'><strong>Total:</strong> " + r.total.puntos + " / " + r.total.max + " · <strong>% global aprox.:</strong> " + r.total.pct + "</p>";
-    return t;
-  }
-
-  function fillHeader(box, ctx) {
-    const codigo = ctx.codigo || "—";
-    const esPro = String(codigo).toUpperCase().startsWith("PRO");
-    const labelCurso = esPro ? "Nivel" : "Grado/Curso";
-    box.innerHTML =
-      "<div><b>Nombre:</b> " + escHtml(ctx.nombre || "—") + "</div>" +
-      "<div><b>" + labelCurso + ":</b> " + escHtml(ctx.curso || "—") + "</div>" +
-      "<div><b>País / Grupo:</b> " + escHtml(ctx.grupo || "—") + "</div>" +
-      "<div><b>Institución:</b> " + escHtml(ctx.institucion || "—") + "</div>" +
-      "<div><b>Código:</b> " + escHtml(codigo) + "</div>" +
-      "<div><b>Fecha informe:</b> " + escHtml(ctx.fecha || "—") + "</div>";
-  }
-
-  function renderResumenLine(hostId, label, pct) {
-    const host = document.getElementById(hostId);
-    if (!host) return;
-    host.innerHTML = "";
-    addFactorRow(host, label, pct);
-  }
-
-  function applyMetaHighlights(resultados) {
-    const r = resultados;
-    const meta = r.meta || {};
-    const mins = meta.minutos_aprox;
-    const ver = r.version_banco || "—";
-
-    const factoresOk = r.factores && r.factores.length > 0;
-    highlightIV("ivMeta1", factoresOk ? 1 : 3);
-
-    let colTime = 2;
-    if (typeof mins === "number" && !isNaN(mins)) {
-      if (mins >= 12 && mins <= 120) colTime = 1;
-      else if (mins < 8) colTime = 2;
-      else colTime = 3;
-    }
-    highlightIV("ivMeta2", colTime);
-
-    let colVb = 2;
-    if (/v2\.[3-9]|v3/i.test(String(ver))) colVb = 1;
-    else if (/v2|CHC/i.test(String(ver))) colVb = 2;
-    else colVb = 3;
-    highlightIV("ivMeta3", colVb);
-  }
-
-  function renderAll(ctx) {
-    window.__LAST_CHC_REPORT__ = ctx;
-    const r = ctx.resultados;
-    const rows = r.factores || [];
-    const ig = clamp(r.total && r.total.pct != null ? Number(r.total.pct) : 0, 1, 100);
-
-    const d1 = document.getElementById("repDateLine");
-    const d2 = document.getElementById("repDateLine2");
-    const now = new Date().toLocaleString("es-EC", { dateStyle: "short", timeStyle: "short" });
-    if (d1) d1.textContent = now;
-    if (d2) d2.textContent = now;
-
-    fillHeader(document.getElementById("repHeaderBox"), ctx);
-    fillHeader(document.getElementById("repHeaderBox2"), ctx);
-
-    const tituloCurva = document.getElementById("tituloCurvaFrecuencias");
-    if (tituloCurva) tituloCurva.textContent = "CURVA DE DISTRIBUCIÓN DE FRECUENCIAS: (I.G. = " + Math.round(ig) + ").";
-
-    window.__curveCHCValue = ig;
-    setCurveMarker(ig);
-    requestAnimationFrame(function () { setCurveMarker(ig); });
-    setTimeout(function () { setCurveMarker(ig); }, 120);
-
-    const fluido = rows.filter(function (x) { return ["Gf", "Gwm", "Gs"].indexOf(x.code) >= 0; });
-    const cristal = rows.filter(function (x) { return ["Gc", "Glr", "Gv"].indexOf(x.code) >= 0; });
-
-    document.getElementById("ihFluido").textContent = String(avgPct(rows, ["Gf", "Gwm", "Gs"]));
-    document.getElementById("ihCristal").textContent = String(avgPct(rows, ["Gc", "Glr", "Gv"]));
-    document.getElementById("repIGlobal").textContent = String(Math.round(ig));
-
-    buildBloqueHost("bloqueFluido", fluido);
-    buildBloqueHost("bloqueCristal", cristal);
-
-    renderResumenLine("resumenGlobal", "DESEMPEÑO GLOBAL EN EL BANCO (aprox.)", Math.round(ig));
-
-    applyMetaHighlights(r);
-
-    const tw = document.getElementById("tablaFactorWrap");
-    if (tw) tw.innerHTML = buildTableHtml(r);
-
-    document.getElementById("reporteContainer").style.display = "block";
-  }
-
-  function parseResultados(raw) {
-    if (raw == null) return null;
-    if (typeof raw === "string") {
-      try { return JSON.parse(raw); } catch (e) { return null; }
-    }
-    return raw;
-  }
-
-  function tryLocalStorage(codigo) {
-    const key = STORAGE_PREFIX + codigo;
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    try {
-      return JSON.parse(raw);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  async function tryServer(codigo) {
-    const url =
-      "/api/report?codigo=" +
-      encodeURIComponent(codigo) +
-      "&tipo=chc";
-    const r = await fetch(url);
-    let data = {};
-    try {
-      data = await r.json();
-    } catch (e) {
-      throw new Error("Respuesta del servidor no válida.");
-    }
-    if (!r.ok) {
-      throw new Error(data.error || "No encontrado (HTTP " + r.status + ").");
-    }
-    if (data.error && !data.attempt) {
-      throw new Error(data.error);
-    }
-    if (data.puede_ver_resultado === false) {
-      throw new Error(
-        "Este código tiene deshabilitada la visualización del reporte (puede_ver_resultado). Un coordinador puede activarla en la ficha del participante."
-      );
-    }
-    const att = data.attempt;
-    if (!att) throw new Error("No hay intento registrado en el servidor para este código.");
-    let res = parseResultados(att.resultados);
-    if (!res || res.prueba !== "Intelectual_CHC" || !res.factores) {
-      throw new Error(
-        "El intento no incluye el bloque resultados CHC (vacío o otro tipo de prueba). Verifique que el envío al guardar haya terminado bien o vuelva a finalizar la evaluación."
-      );
-    }
-    const snap = {
-      nombre: att.nombre || "",
-      institucion: att.institucion || "",
-      grupo: att.grupo || "",
-      curso: att.curso || "",
-      fecha: att.created_at ? new Date(att.created_at).toLocaleDateString("es-EC") : "—"
-    };
-    return { codigo: codigo, snapshot: snap, resultados: res, source: "server" };
-  }
-
-  function ctxFromLocalState(st, codigo) {
-    const res = st.resultados;
-    if (!res || !res.factores) return null;
+}
+function parseFechaHuman(fechaBase){
+  const d = fechaBase ? new Date(fechaBase) : new Date();
+  try{
     return {
-      codigo: codigo,
-      nombre: st.nombre || "",
-      institucion: st.institucion || "",
-      grupo: st.grupo || "",
-      curso: st.curso || "",
-      fecha: st.fecha || "—",
-      resultados: res,
-      source: "local"
+      top: d.toLocaleString('es-EC', { dateStyle:'short', timeStyle:'short' }),
+      box: d.toLocaleDateString('es-EC', { day:'numeric', month:'long', year:'numeric' })
     };
+  }catch(e){
+    return { top: d.toISOString(), box: d.toISOString().slice(0,10) };
   }
+}
+function buildHeaderHTML({nombre,curso,grupo,inst,fecha,codigo}){
+  return `
+    <div><b>Nombre:</b> ${esc(nombre||'—')}</div>
+    <div><b>${String(codigo||'').toUpperCase().startsWith('PRO') ? 'Nivel' : 'Grado/Curso'}:</b> ${esc(curso||'—')}</div>
+    
+    <div><b>País:</b> ${esc(grupo||'—')}</div>
+    <div><b>Institución:</b> ${esc(inst||'—')}</div>
+    <div><b>Fecha:</b> ${esc(fecha||'—')}</div>
+    <div><b>Código:</b> ${esc(codigo||'—')}</div>`;
+}
+function adaptData(data){
+  const attempt = data.attempt || {};
+  const autosave = data.autosave || data.auto || {};
+  const participant = data.participant || data.participants || {};
+  const snap = data.snapshot || attempt.snapshot || autosave.snapshot || participant.snapshot || {};
 
-  async function cargar(codigo) {
-    const msg = document.getElementById("msg");
-    document.getElementById("reporteContainer").style.display = "none";
-    msg.textContent = "Buscando...";
-    msg.className = "msg";
+  const resultados = data.resultados || data.results || attempt.resultados || snap.resultados || {};
+  let subRows =
+    (Array.isArray(data.subhabilidades) && data.subhabilidades) ||
+    (Array.isArray(resultados?.subhabilidades) && resultados.subhabilidades) ||
+    (Array.isArray(data.factores) && data.factores) ||
+    (Array.isArray(data.subpruebas) && data.subpruebas) ||
+    [];
+  let bloques = Array.isArray(resultados?.bloques) ? resultados.bloques : [];
+  const globales = data.globales || resultados?.globales || {};
 
-    const st = tryLocalStorage(codigo);
-    if (st) {
-      const ctx = ctxFromLocalState(st, codigo);
-      if (ctx) {
-        msg.textContent = "Reporte cargado (dispositivo local).";
-        msg.className = "msg ok";
-        renderAll(ctx);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
-      }
-      if (st.completed && !st.resultados) {
-        msg.textContent = "Intento completo sin bloque resultados. Vuelva a «Finalizar» desde evaluacion-intelectual.html con la versión actual o consulte en servidor.";
-        msg.className = "msg err";
-        return;
-      }
-    }
-
-    try {
-      const ctx = await tryServer(codigo);
-      msg.textContent = "Reporte cargado (servidor).";
-      msg.className = "msg ok";
-      const merged = {
-        codigo: ctx.codigo,
-        nombre: ctx.snapshot.nombre,
-        institucion: ctx.snapshot.institucion,
-        grupo: ctx.snapshot.grupo,
-        curso: ctx.snapshot.curso,
-        fecha: ctx.snapshot.fecha,
-        resultados: ctx.resultados
+  const canonRows = subRows.map((r)=> {
+    const rawName = r.sub || r.name || r.factor || r.nombre || '';
+    const c = canonFactor(rawName);
+    return (() => {
+      const p10raw = (r.pct10 ?? r.pct_10 ?? r.pctNorm ?? r.pct_norm ?? r.pct10Norm ?? r.pctLex10);
+      const pct10 = (p10raw === undefined || p10raw === null || p10raw === "") ? null : Number(p10raw);
+      return {
+        name: displayFactorFromCanon(c),
+        canon: c,
+        bloque: FACTOR_TO_BLOQUE[c] || (r.bloque || r.conjunto || '—'),
+        items: Number(r.items ?? r.n_items ?? r.items_count ?? 11) || 11,
+        pts: Number(r.pts ?? r.puntos ?? r.score ?? r.suma ?? 0) || 0,
+        pct: Number(r.pct ?? r.percent ?? r.porcentaje ?? 0) || 0,
+        pct10: Number.isFinite(pct10) ? pct10 : null
       };
-      renderAll(merged);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (e) {
-      console.warn(e);
-      msg.textContent = st ? (e.message || "Sin datos en servidor.") : (e.message || "Sin datos. Complete la evaluación o verifique el código.");
-      msg.className = "msg err";
-    }
+    })();
+  });
+
+  // Orden canónico de 12 factores
+  const rowsByCanon = new Map(canonRows.map(r => [r.canon, r]));
+  const ordered = FACTOR_ORDER.map(name => {
+    const c = canonFactor(name);
+    return rowsByCanon.get(c) || { name, canon:c, bloque: FACTOR_TO_BLOQUE[c], items:11, pts:0, pct:0, missing:true };
+  });
+
+  const bloqueRows = {
+    A: ordered.filter(r=>r.bloque==='A'),
+    B: ordered.filter(r=>r.bloque==='B'),
+    C: ordered.filter(r=>r.bloque==='C'),
+    D: ordered.filter(r=>r.bloque==='D'),
+  };
+  // Índices por bloque: prioridad al JSON real de liderazgo (bloqPercents)
+  const bloqPercents = data.bloqPercents || resultados.bloqPercents || {};
+
+  const avg = arr => arr.length
+    ? Math.round(arr.reduce((a,b)=>a+(((b.pct10!==undefined && b.pct10!==null)?Number(b.pct10):(Number(b.pct)||0))||0),0)/arr.length)
+    : null;
+
+  const idxA = Number(
+    bloqPercents.A ??
+    data.idxA ??
+    resultados.idxA ??
+    avg(bloqueRows.A) ??
+    0
+  ) || 0;
+
+  const idxB = Number(
+    bloqPercents.B ??
+    data.idxB ??
+    resultados.idxB ??
+    avg(bloqueRows.B) ??
+    0
+  ) || 0;
+
+  const idxC = Number(
+    bloqPercents.C ??
+    data.idxC ??
+    resultados.idxC ??
+    avg(bloqueRows.C) ??
+    0
+  ) || 0;
+
+  const idxD = Number(
+    bloqPercents.D ??
+    data.idxD ??
+    resultados.idxD ??
+    avg(bloqueRows.D) ??
+    0
+  ) || 0;
+
+  // IFL (NO usar IIE heredado)
+  const iflCandidates = [
+    data.ifl,
+    data.IFL,
+    resultados.ifl,
+    resultados.IFL,
+    globales.IFL,
+    attempt.ifl,
+    snap.ifl
+  ];
+
+  let ifl = Number(iflCandidates.find(v => v !== undefined && v !== null && v !== '')) || 0;
+
+  // Fallback: promedio de índices A/B/C/D
+  if (!ifl) {
+    ifl = Math.round((idxA + idxB + idxC + idxD) / 4);
   }
 
-  document.getElementById("btnVer").addEventListener("click", function () {
-    const c = document.getElementById("codigoInput").value.trim().toUpperCase();
-    if (!c) return;
-    cargar(c);
-  });
+    const iv1 = Number(globales.IV1 ?? data.iv1 ?? attempt.iv1 ?? 0); // NA
+  const iv2 = Number(globales.IV2 ?? data.iv2 ?? attempt.iv2 ?? 0); // NC
 
-  document.getElementById("btnImprimir").addEventListener("click", function () { window.print(); });
-  document.getElementById("btnExportJSON").addEventListener("click", function () {
-    const p = window.__LAST_CHC_REPORT__ || {};
-    const blob = new Blob([JSON.stringify(p, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "reporte-intelectual-chc.json";
-    a.click();
-  });
+  // =============================================================
+  // PT (Promedio del Tiempo)
+  // Usar IV3 real desde base de datos / backend cuando exista:
+  //   iv3 = 0 -> Tiempo adecuado
+  //   iv3 = 1 -> Demasiado breve
+  //   iv3 = 2 -> Demasiado lento
+  // Si IV3 NO viene, aplicar fallback temporal (corte vs no corte).
+  // =============================================================
+  const iv3Raw = (globales.IV3 ?? data.iv3 ?? attempt.iv3 ?? null);
+  let iv3 = null;
+  const iv3Num = Number(iv3Raw);
+  if (iv3Raw !== null && iv3Raw !== undefined && iv3Raw !== '' && !Number.isNaN(iv3Num)) {
+    iv3 = iv3Num;
+  } else {
+    // =============================================================
+    // NOTA (TEMPORAL) — fallback por corte
+    // =============================================================
+    const TOTAL_LID_ITEMS = 132;
+    const inferAnswered = () => {
+      const c = attempt.contestadas || attempt.n_respondidas || data.contestadas || snap.contestadas || null;
+      if (typeof c === 'number') return c;
+      if (typeof c === 'string') {
+        const mm = c.match(/(\d+)\s*de\s*(\d+)/i);
+        if (mm) return Number(mm[1]);
+        const m1 = c.match(/\d+/);
+        if (m1) return Number(m1[0]);
+      }
+      if (attempt.responses && typeof attempt.responses === 'object') return Object.keys(attempt.responses).length;
+      return null;
+    };
+    const answered = inferAnswered();
+    const isCut = (answered !== null && answered < TOTAL_LID_ITEMS) || Boolean(attempt.incompleto || attempt.incomplete || attempt.aborted || attempt.cancelled || attempt.cortado);
+    iv3 = isCut ? 2 : 0;
+  }
+  const aSnap = autosave.snapshot || {};
+  const fechaBase = attempt.created_at || attempt.fecha || snap.fecha || aSnap.fecha || null;
+  const f = parseFechaHuman(fechaBase);
 
-  window.addEventListener("beforeprint", function () {
-    const v = window.__curveCHCValue;
-    if (v == null || isNaN(Number(v))) return;
-    requestAnimationFrame(function () { setCurveMarker(Number(v)); });
-  });
-  window.addEventListener("afterprint", function () {
-    const v = window.__curveCHCValue;
-    if (v == null || isNaN(Number(v))) return;
-    requestAnimationFrame(function () { setCurveMarker(Number(v)); });
-  });
+  const header = {
+    nombre: snap.nombre || attempt.nombre || aSnap.nombre || participant.nombre || participant.full_name || '—',
+    curso: snap.curso || attempt.curso || aSnap.curso || participant.curso || participant.grado || '—',
+    grupo: snap.grupo || attempt.grupo || aSnap.grupo || participant.grupo || '—',
+    inst: snap.institucion || attempt.institucion || aSnap.institucion || participant.institucion || '—',
+    fecha: f.box,
+    codigo: attempt.codigo || data.codigo || $('#codigo').value.trim().toUpperCase() || '—'
+  };
 
-  (function init() {
-    const qp = new URLSearchParams(location.search);
-    const c = (qp.get("codigo") || "").trim().toUpperCase();
-    if (c) {
-      document.getElementById("codigoInput").value = c;
-      cargar(c);
-    }
-  })();
-})();
+  const contestadas = attempt.contestadas || attempt.n_respondidas || data.contestadas || snap.contestadas || (attempt.responses ? Object.keys(attempt.responses).length : null) || '132 de 132';
+  return {attempt, autosave, participant, snap, ordered, bloqueRows, idxA, idxB, idxC, idxD, ifl, iv1, iv2, iv3, header, fechaTop:f.top, contestadas};
+}
+function makeBarRow(r){
+  const pRaw = Math.max(0, Math.min(100, Number(r.pct)||0));
+  const p = (r.pct10 !== undefined && r.pct10 !== null) ? Math.max(0, Math.min(100, Number(r.pct10)||0)) : pRaw;
+  const c = categoriaClass(p);
+  const slot = w => `<div class="slot ${c}"><div class="fill" style="width:${w}%"></div></div>`;
+  let a=0,b=0,d=0;
+  // Rangos oficiales: 0–39 (desarrollar), 40–60 (fortalecer), 61–100 (enriquecer)
+  if (p<=39){ a = Math.round((p/39)*100); }
+  else if (p<=60){ a = 100; b = Math.round(((p-40)/20)*100); }
+  else { a = 100; b = 100; d = Math.round(((p-61)/39)*100); }
+  return `<div class="bar-row">
+    <div>${esc(r.name)}</div>
+    ${slot(a)} ${slot(b)} ${slot(d)}
+  </div>`;
+}
+function renderBloque(elId, rows){
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.innerHTML = rows.map(makeBarRow).join('') || '<div class="small">Sin datos</div>';
+}
+function renderTable(rows){
+  const tb = $('#tbodyFactores');
+  tb.innerHTML = rows.map(r => {
+    // Regla visual del reporte normado: si existe pct10 usarlo (aunque sea 0), si no usar pct
+    const p = pctSel(r);
+    const rg = p2Rango(p);
+    const cls = r.missing ? '' : ('row-' + rg.cls);
+    return `<tr class="${cls}">
+      <td>${esc(r.name)}</td>
+      
+      <td>${r.missing ? '—' : p}</td>
+      <td>${r.missing ? '—' : ('<span class="rangoPill ' + rg.cls + '\">' + rg.lab + '</span>')}</td>
+    </tr>`;
+  }).join('');
+}
+function renderHeader(header, fechaTop){
+  $('#fechaGenTop').textContent = fechaTop;
+  $('#fechaGenTop2').textContent = fechaTop;
+  const html = buildHeaderHTML(header);
+  $('#headerBox1').innerHTML = html;
+  $('#headerBox2').innerHTML = html;
+}
+function setBadge(id, v){ const el = document.getElementById(id); if (el) el.textContent = (v ?? '—'); }
+
+async function cargar(){
+  const codigo = $('#codigo').value.trim().toUpperCase();
+  if (!codigo){ $('#msg').textContent = 'Ingresa un código.'; $('#msg').className='msg err'; return; }
+  $('#msg').textContent = 'Buscando...'; $('#msg').className='msg';
+  $('#reporte').classList.add('hidden');
+  try{
+    const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+    const data = await r.json();
+    if (!r.ok || data.error) throw new Error(data.error || 'No encontrado');
+    const m = adaptData(data);
+
+    renderHeader(m.header, m.fechaTop);
+    $('#contestadasLine').textContent = 'Contestadas: ' + m.contestadas;
+
+    setBadge('idxA', m.idxA ?? '—'); setBadge('idxB', m.idxB ?? '—');
+    setBadge('idxC', m.idxC ?? '—'); setBadge('idxD', m.idxD ?? '—');
+    setBadge('iflBadge', m.ifl ?? '—'); $('#iflText').textContent = m.ifl ?? '—';
+    try{ const el=document.getElementById('iflCurveInline'); if(el) el.textContent = (m.ifl ?? '—'); }catch(_e){}
+
+    highlightIV('na', m.iv1); highlightIV('nc', m.iv2); highlightIV('pt', m.iv3);
+    setMarker(m.ifl || 0);
+
+    renderBloque('bloqueA', m.bloqueRows.A);
+    renderBloque('bloqueB', m.bloqueRows.B);
+    renderBloque('bloqueC', m.bloqueRows.C);
+    renderBloque('bloqueD', m.bloqueRows.D);
+    renderTable(m.ordered);
+
+    // Parte 2 robusta (numerada)
+    try{
+      const det = document.getElementById('p2detail');
+      if(det){ det.innerHTML = buildParte2Detalle({header:m.header, ifl:(m.ifl||0), ordered:m.ordered}); }
+    }catch(e){ console.error(e); }
+
+    const n = m.ifl || 0;
+    $('#nivelGlobal').textContent = n<=39 ? 'Perfil global con áreas importantes por desarrollar.' :
+      (n<=60 ? 'Perfil global presente al momento y áreas por fortalecer.' : 'Perfil global con fortalezas consolidadas y oportunidades por enriquecer.');
+    $('#reporte').classList.remove('hidden');
+    $('#msg').textContent = 'OK: datos cargados (Paso 1).'; $('#msg').className='msg ok';
+  }catch(e){
+    $('#msg').textContent = 'Error: ' + (e.message || e);
+    $('#msg').className='msg err';
+  }
+}
+$('#btn').addEventListener('click', cargar);
+$('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
+
+window.addEventListener('resize', () => {
+  const v = window.__liderCurveValue;
+  if (v == null || Number.isNaN(Number(v))) return;
+  setMarker(Number(v));
+}, { passive: true });
+
+window.addEventListener('beforeprint', () => {
+  const v = window.__liderCurveValue;
+  if (v == null || Number.isNaN(Number(v))) return;
+  requestAnimationFrame(() => setMarker(Number(v)));
+});
+window.addEventListener('afterprint', () => {
+  const v = window.__liderCurveValue;
+  if (v == null || Number.isNaN(Number(v))) return;
+  requestAnimationFrame(() => setMarker(Number(v)));
+});
 </script>
+<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.7;z-index:9999;">MARKER REP-LID-RANGOS-20260310</div>
 </body>
 </html>
