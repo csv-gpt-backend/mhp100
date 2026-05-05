@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>XEvaluación intelectual — modelo CHC</title>
+  <title>HHHEvaluación intelectual — modelo CHC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -586,14 +586,7 @@
       transition: transform 2.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .gv11-stim-svg .gv11-spin-target.gv11-spun { transform: rotate(90deg); }
-    @keyframes gv12-dbl-cw {
-      0% { transform: rotate(0deg); }
-      50% { transform: rotate(90deg); }
-      100% { transform: rotate(180deg); }
-    }
-    .gv11-stim-svg .gv11-spin-target.gv12-dbl-spin {
-      animation: gv12-dbl-cw 5s ease-in-out forwards;
-    }
+    .gv11-stim-svg .gv11-spin-target.gv13-spun { transform: rotate(var(--gv-spin-final, 135deg)); }
     .gv11-stim-play {
       margin-top: 10px;
       padding: 8px 16px;
@@ -1239,7 +1232,7 @@
     gsMarked: new Set()
   };
 
-  const VERSION_BANCO = "CHC-v2.6";
+  const VERSION_BANCO = "CHC-v2.7";
   const NIVEL_BANCO_TXT = "Nivel intermedio del banco · edad orientativa aprox. 12–18 años (secundaria / bachillerato o equivalente internacional).";
 
   const STEPS = [
@@ -1280,7 +1273,7 @@
       label: "E · Visual-espacial (Gv)",
       factor: "Gv",
       introTitle: "Razonamiento visual-espacial (Gv)",
-      introBody: "Incluye ahora <strong>cuatro tareas con gráfico tipo captura</strong>: 1) rotación (óvalo + estrella de referencia), 2) misma figura en esquina, 3) análogo con íconos (pie / ? / zapato), 4) leyenda círculo-cuadrado-hexágono y anidamiento. A continuación: secuencia con figuras, píldoras y texto, y <strong>dos estímulos animados</strong> (óvalo y marca): uno con un giro de 90° y otro con <strong>dos</strong> giros de 90° (180° en total), siempre en sentido horario respecto al centro. Al elegir, el borde púrpura sigue a la figura o al texto (según el ítem).",
+      introBody: "Incluye ahora <strong>cuatro tareas con gráfico tipo captura</strong>: 1) rotación (óvalo + estrella de referencia), 2) misma figura en esquina, 3) análogo con íconos (pie / ? / zapato), 4) leyenda círculo-cuadrado-hexágono y anidamiento. A continuación: figuras y texto, más <strong>dos estímulos animados</strong>: uno con un giro claro (<strong>90°</strong>, estrella de referencia) y otro con <strong>marcador asimétrico</strong> y opciones muy parecidas (debe contrastar bien las orientaciones entre miniaturas). Al elegir, el borde púrpura sigue a la figura o al texto.",
       introTip: "Elija una sola figura o respuesta por ítem."
     },
     {
@@ -1391,13 +1384,14 @@
         correct: 3
       },
       {
-        id: "gv12",
-        text: "Pulse Reproducir y siga el movimiento: la figura gira <strong>dos veces</strong>, cada giro de <strong>90° en sentido horario</strong> alrededor del centro (resultado total equivalente a media vuelta). ¿Qué opción muestra cómo quedan al final?",
+        id: "gv13",
+        text: "Pulse Reproducir. La marca junto al óvalo es <strong>asimétrica</strong> y la figura hace un <strong>solo</strong> giro en sentido horario al rededor del centro; el texto <strong>no dice</strong> cuántos grados. Escoja la única miniatura que coincide con la orientación <strong>final</strong> (las falsas están solo a ±15° o −30°, conviene comparar con cuidado).",
         gvAnimateSvg: true,
-        gvAnimateTwoStep90: true,
+        gvFineRotation: true,
+        gvFineTargetDeg: 135,
         svgChoice: true,
-        gv11ThumbAngles: [270, 90, 0, 180],
-        correct: 3
+        gv13ThumbAngles: [120, 150, 135, 105],
+        correct: 2
       }
     ],
     glr: [
@@ -1541,6 +1535,60 @@
     );
   }
 
+  function gv13MarkerPolygonLocal(scale) {
+    const pts = [[0, -14], [34, -18], [40, 2], [6, 14], [-2, 6]];
+    return pts
+      .map(function (p) {
+        return p[0] * scale + "," + p[1] * scale;
+      })
+      .join(" ");
+  }
+
+  function buildGv13StimulusMarkup() {
+    const mp = gv13MarkerPolygonLocal(2.2);
+    return (
+      '<svg class="gv11-stim-svg" viewBox="-320 -280 640 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Óvalo con marca asimétrica">' +
+      '<g class="gv11-spin-target">' +
+      '<ellipse cx="0" cy="0" rx="220" ry="90" fill="none" stroke="' +
+      GV_NAVY +
+      '" stroke-width="8"/>' +
+      '<g transform="translate(238, 0)"><polygon points="' +
+      mp +
+      '" fill="' +
+      GV_NAVY +
+      '"/></g></g></svg>'
+    );
+  }
+
+  function gv13ThumbSvg(angleDeg) {
+    const sf = 0.42;
+    const mp = gv13MarkerPolygonLocal(2.2 * sf);
+    const rx = Math.round(220 * sf * 10) / 10;
+    const ry = Math.round(90 * sf * 10) / 10;
+    const tx = Math.round(238 * sf * 10) / 10;
+    const sw = Math.max(2.2, Math.round(8 * sf * 10) / 10);
+    return (
+      '<svg viewBox="-135 -118 270 236" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<g transform="rotate(' +
+      angleDeg +
+      ')"><ellipse cx="0" cy="0" rx="' +
+      rx +
+      '" ry="' +
+      ry +
+      '" fill="none" stroke="' +
+      GV_NAVY +
+      '" stroke-width="' +
+      sw +
+      '"/><g transform="translate(' +
+      tx +
+      ',0)"><polygon points="' +
+      mp +
+      '" fill="' +
+      GV_NAVY +
+      '"/></g></g></svg>'
+    );
+  }
+
   function buildGv11AnimateWrap(it) {
     const wrap = el("div", { className: "gv11-stim-wrap" });
     const svgHost = el("div", { className: "gv11-stim-svgwrap" });
@@ -1573,49 +1621,38 @@
     return wrap;
   }
 
-  function buildGv12TwoStepAnimateWrap() {
+  function buildGv13AnimateWrap(it) {
     const wrap = el("div", { className: "gv11-stim-wrap" });
     const svgHost = el("div", { className: "gv11-stim-svgwrap" });
-    svgHost.innerHTML = buildGv11StimulusMarkup();
+    svgHost.innerHTML = buildGv13StimulusMarkup();
     wrap.appendChild(svgHost);
     const spinTarget = svgHost.querySelector(".gv11-spin-target");
-    const fallbackMs = 5300;
+    const targetDeg = typeof it.gvFineTargetDeg === "number" ? it.gvFineTargetDeg : 135;
+    spinTarget.style.setProperty("--gv-spin-final", targetDeg + "deg");
+    const animMs = 2550;
     const btn = el(
       "button",
-      { type: "button", className: "gv11-stim-play", title: "Ver dos giros de 90° horarios (total 180°; puede repetir)" },
+      { type: "button", className: "gv11-stim-play", title: "Ver giro en sentido horario alrededor del centro (puede repetir)" },
       "Reproducir"
     );
     btn.addEventListener("click", function () {
-      if (!spinTarget || btn.getAttribute("data-gv-spin-busy") === "1") return;
-      btn.setAttribute("data-gv-spin-busy", "1");
+      if (!spinTarget || btn.getAttribute("data-gv13-busy") === "1") return;
+      btn.setAttribute("data-gv13-busy", "1");
       btn.disabled = true;
-      let settled = false;
-      let tid = null;
-      function release() {
-        if (settled) return;
-        settled = true;
-        if (tid != null) window.clearTimeout(tid);
-        btn.disabled = false;
-        btn.removeAttribute("data-gv-spin-busy");
-      }
-      spinTarget.style.animation = "none";
-      spinTarget.classList.remove("gv12-dbl-spin");
+      spinTarget.style.setProperty("--gv-spin-final", targetDeg + "deg");
+      spinTarget.style.transition = "none";
+      spinTarget.classList.remove("gv13-spun");
       void spinTarget.getBoundingClientRect();
-      spinTarget.style.removeProperty("animation");
-      tid = window.setTimeout(release, fallbackMs);
-      spinTarget.addEventListener(
-        "animationend",
-        function (e) {
-          if (e.target !== spinTarget) return;
-          release();
-        },
-        { once: true }
-      );
+      spinTarget.style.removeProperty("transition");
       window.requestAnimationFrame(function () {
         void spinTarget.getBoundingClientRect();
         window.requestAnimationFrame(function () {
-          spinTarget.classList.add("gv12-dbl-spin");
+          spinTarget.classList.add("gv13-spun");
           btn.textContent = "Repetir";
+          window.setTimeout(function () {
+            btn.disabled = false;
+            btn.removeAttribute("data-gv13-busy");
+          }, animMs);
         });
       });
     });
@@ -1624,7 +1661,7 @@
   }
 
   function buildGvAnimateWrap(it) {
-    if (it.gvAnimateTwoStep90) return buildGv12TwoStepAnimateWrap();
+    if (it.gvFineRotation) return buildGv13AnimateWrap(it);
     return buildGv11AnimateWrap(it);
   }
 
@@ -2060,9 +2097,9 @@
               '<svg viewBox="0 0 40 40"><polygon points="20,4 36,14 36,26 20,36 4,26 4,14" fill="#f59e0b"/></svg>'
             ];
         if (it.gvAnimateSvg) {
-          const angles = it.gv11ThumbAngles || [0, 90, 180, 270];
+          const angles = it.gvFineRotation ? it.gv13ThumbAngles || [105, 120, 135, 150] : it.gv11ThumbAngles || [0, 90, 180, 270];
           shapes = angles.map(function (deg) {
-            return gv11ThumbSvg(deg);
+            return it.gvFineRotation ? gv13ThumbSvg(deg) : gv11ThumbSvg(deg);
           });
         }
         shapes.forEach(function (svgHtml, idx) {
