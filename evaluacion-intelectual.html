@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>FEvaluación intelectual — modelo CHC</title>
+  <title>GEvaluación intelectual — modelo CHC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -570,8 +570,6 @@
       border-radius: 10px;
       max-width: 440px;
     }
-    .gv11-stim-caption { margin: 0 0 8px; font-size: var(--chc-text-sm); color: #334155; line-height: 1.45; }
-    .gv11-stim-sub { margin: 10px 0 0; font-size: var(--chc-text-sm); color: #475569; line-height: 1.45; }
     .gv11-stim-svgwrap {
       width: 100%;
       max-width: 360px;
@@ -585,7 +583,7 @@
     .gv11-stim-svg { display: block; width: 100%; height: auto; }
     .gv11-stim-svg .gv11-spin-target {
       transform-origin: 0 0;
-      transition: transform 1.15s cubic-bezier(0.33, 1, 0.68, 1);
+      transition: transform 2.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .gv11-stim-svg .gv11-spin-target.gv11-spun { transform: rotate(90deg); }
     .gv11-stim-play {
@@ -599,7 +597,8 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .gv11-stim-play:hover { background: #f1f5f9; border-color: #64748b; }
+    .gv11-stim-play:hover:not(:disabled) { background: #f1f5f9; border-color: #64748b; }
+    .gv11-stim-play:disabled { opacity: 0.65; cursor: wait; }
     .gv-arrow-fig { font-size: 1.6rem; color: #64748b; line-height: 1; }
     .gv-star-fig { font-size: 1.4rem; color: #f59e0b; }
     .gv-legend-gv {
@@ -1527,31 +1526,33 @@
 
   function buildGv11AnimateWrap(it) {
     const wrap = el("div", { className: "gv11-stim-wrap" });
-    wrap.appendChild(
-      el(
-        "p",
-        { className: "gv11-stim-caption" },
-        "Pulse Reproducir para ver un giro único de 90° en sentido horario alrededor del centro del óvalo."
-      )
-    );
     const svgHost = el("div", { className: "gv11-stim-svgwrap" });
     svgHost.innerHTML = buildGv11StimulusMarkup();
     wrap.appendChild(svgHost);
     const spinTarget = svgHost.querySelector(".gv11-spin-target");
-    const btn = el("button", { type: "button", className: "gv11-stim-play" }, "Reproducir");
+    const animMs = 2550;
+    const btn = el("button", { type: "button", className: "gv11-stim-play", title: "Ver giro 90° horario (puede repetir)" }, "Reproducir");
     btn.addEventListener("click", function () {
-      if (!spinTarget) return;
+      if (!spinTarget || btn.getAttribute("data-gv11-busy") === "1") return;
+      btn.setAttribute("data-gv11-busy", "1");
+      btn.disabled = true;
       spinTarget.style.transition = "none";
       spinTarget.classList.remove("gv11-spun");
-      spinTarget.getBoundingClientRect();
-      spinTarget.style.transition = "";
+      void spinTarget.getBoundingClientRect();
+      spinTarget.style.removeProperty("transition");
       window.requestAnimationFrame(function () {
-        spinTarget.classList.add("gv11-spun");
+        void spinTarget.getBoundingClientRect();
+        window.requestAnimationFrame(function () {
+          spinTarget.classList.add("gv11-spun");
+          btn.textContent = "Repetir";
+          window.setTimeout(function () {
+            btn.disabled = false;
+            btn.removeAttribute("data-gv11-busy");
+          }, animMs);
+        });
       });
-      btn.textContent = "Repetir";
     });
     wrap.appendChild(btn);
-    wrap.appendChild(el("p", { className: "gv11-stim-sub" }, "Luego elija la opción que corresponde al resultado final entre las cuatro figuritas."));
     return wrap;
   }
 
