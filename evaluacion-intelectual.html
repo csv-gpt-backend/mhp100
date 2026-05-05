@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>GEvaluación intelectual — modelo CHC</title>
+  <title>XEvaluación intelectual — modelo CHC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -586,6 +586,14 @@
       transition: transform 2.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .gv11-stim-svg .gv11-spin-target.gv11-spun { transform: rotate(90deg); }
+    @keyframes gv12-dbl-cw {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(90deg); }
+      100% { transform: rotate(180deg); }
+    }
+    .gv11-stim-svg .gv11-spin-target.gv12-dbl-spin {
+      animation: gv12-dbl-cw 5s ease-in-out forwards;
+    }
     .gv11-stim-play {
       margin-top: 10px;
       padding: 8px 16px;
@@ -914,11 +922,11 @@
               <tr><td>B</td><td>Gc</td><td>Conocimiento verbal: caja de estímulo, sinónimos, analogías, puentes (captura-tipo)</td><td>12</td></tr>
               <tr><td>C</td><td>Gwm</td><td>Memoria de trabajo: cifras (recall en orden; interfaz mínima, no puzzle gráfico)</td><td>4</td></tr>
               <tr><td>D</td><td>Gs</td><td>Velocidad: rejilla + tiempo (objetivo fijo, máx. 10 aciertos en neto)</td><td>1 tarea</td></tr>
-              <tr><td>E</td><td>Gv</td><td>Visual-espacial: formas, secuencias, tareas con gráfico o texto</td><td>11</td></tr>
+              <tr><td>E</td><td>Gv</td><td>Visual-espacial: formas, secuencias, tareas con gráfico o texto</td><td>12</td></tr>
               <tr><td>F</td><td>Glr</td><td>Memoria asociativa: pares y coherencia (caja y píldoras)</td><td>8</td></tr>
             </tbody>
             <tfoot>
-              <tr><td colspan="3"><strong>Máx. teórico de puntuación (suma de aciertos por bloque, incl. hasta 10 en Gs)</strong></td><td><strong>57</strong></td></tr>
+              <tr><td colspan="3"><strong>Máx. teórico de puntuación (suma de aciertos por bloque, incl. hasta 10 en Gs)</strong></td><td><strong>58</strong></td></tr>
             </tfoot>
           </table>
         </div>
@@ -1231,7 +1239,7 @@
     gsMarked: new Set()
   };
 
-  const VERSION_BANCO = "CHC-v2.5";
+  const VERSION_BANCO = "CHC-v2.6";
   const NIVEL_BANCO_TXT = "Nivel intermedio del banco · edad orientativa aprox. 12–18 años (secundaria / bachillerato o equivalente internacional).";
 
   const STEPS = [
@@ -1272,7 +1280,7 @@
       label: "E · Visual-espacial (Gv)",
       factor: "Gv",
       introTitle: "Razonamiento visual-espacial (Gv)",
-      introBody: "Incluye ahora <strong>cuatro tareas con gráfico tipo captura</strong>: 1) rotación (óvalo + estrella de referencia), 2) misma figura en esquina, 3) análogo con íconos (pie / ? / zapato), 4) leyenda círculo-cuadrado-hexágono y anidamiento. A continuación: secuencia con figuras, píldoras y preguntas en texto, y <strong>un estímulo animado</strong> (giro 90° en sentido horario, óvalo y marca de referencia). Al elegir, el borde púrpura sigue a la figura o al texto (según el ítem).",
+      introBody: "Incluye ahora <strong>cuatro tareas con gráfico tipo captura</strong>: 1) rotación (óvalo + estrella de referencia), 2) misma figura en esquina, 3) análogo con íconos (pie / ? / zapato), 4) leyenda círculo-cuadrado-hexágono y anidamiento. A continuación: secuencia con figuras, píldoras y texto, y <strong>dos estímulos animados</strong> (óvalo y marca): uno con un giro de 90° y otro con <strong>dos</strong> giros de 90° (180° en total), siempre en sentido horario respecto al centro. Al elegir, el borde púrpura sigue a la figura o al texto (según el ítem).",
       introTip: "Elija una sola figura o respuesta por ítem."
     },
     {
@@ -1380,6 +1388,15 @@
         gvAnimateSvg: true,
         svgChoice: true,
         gv11ThumbAngles: [270, 180, 0, 90],
+        correct: 3
+      },
+      {
+        id: "gv12",
+        text: "Pulse Reproducir y siga el movimiento: la figura gira <strong>dos veces</strong>, cada giro de <strong>90° en sentido horario</strong> alrededor del centro (resultado total equivalente a media vuelta). ¿Qué opción muestra cómo quedan al final?",
+        gvAnimateSvg: true,
+        gvAnimateTwoStep90: true,
+        svgChoice: true,
+        gv11ThumbAngles: [270, 90, 0, 180],
         correct: 3
       }
     ],
@@ -1554,6 +1571,61 @@
     });
     wrap.appendChild(btn);
     return wrap;
+  }
+
+  function buildGv12TwoStepAnimateWrap() {
+    const wrap = el("div", { className: "gv11-stim-wrap" });
+    const svgHost = el("div", { className: "gv11-stim-svgwrap" });
+    svgHost.innerHTML = buildGv11StimulusMarkup();
+    wrap.appendChild(svgHost);
+    const spinTarget = svgHost.querySelector(".gv11-spin-target");
+    const fallbackMs = 5300;
+    const btn = el(
+      "button",
+      { type: "button", className: "gv11-stim-play", title: "Ver dos giros de 90° horarios (total 180°; puede repetir)" },
+      "Reproducir"
+    );
+    btn.addEventListener("click", function () {
+      if (!spinTarget || btn.getAttribute("data-gv-spin-busy") === "1") return;
+      btn.setAttribute("data-gv-spin-busy", "1");
+      btn.disabled = true;
+      let settled = false;
+      let tid = null;
+      function release() {
+        if (settled) return;
+        settled = true;
+        if (tid != null) window.clearTimeout(tid);
+        btn.disabled = false;
+        btn.removeAttribute("data-gv-spin-busy");
+      }
+      spinTarget.style.animation = "none";
+      spinTarget.classList.remove("gv12-dbl-spin");
+      void spinTarget.getBoundingClientRect();
+      spinTarget.style.removeProperty("animation");
+      tid = window.setTimeout(release, fallbackMs);
+      spinTarget.addEventListener(
+        "animationend",
+        function (e) {
+          if (e.target !== spinTarget) return;
+          release();
+        },
+        { once: true }
+      );
+      window.requestAnimationFrame(function () {
+        void spinTarget.getBoundingClientRect();
+        window.requestAnimationFrame(function () {
+          spinTarget.classList.add("gv12-dbl-spin");
+          btn.textContent = "Repetir";
+        });
+      });
+    });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  function buildGvAnimateWrap(it) {
+    if (it.gvAnimateTwoStep90) return buildGv12TwoStepAnimateWrap();
+    return buildGv11AnimateWrap(it);
   }
 
   function buildGfGraphic(it) {
@@ -1962,7 +2034,7 @@
       q.appendChild(el("div", { className: "q-num" }, numLabel));
       q.appendChild(el("p", { className: "q-text" }, it.text));
       if (it.gvAnimateSvg) {
-        q.appendChild(buildGv11AnimateWrap(it));
+        q.appendChild(buildGvAnimateWrap(it));
         q.classList.add("q-gv-graphic");
       }
       if (it.gvGraphic) {
