@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Spatial Reasoning Stimulus</title>
+<title>GEstímulo espacial con audio</title>
 <style>
   :root{
     --blue:#1e3a5f;
@@ -19,6 +19,7 @@
   .title{font-size:16px;font-weight:700;}
   .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
   button{border:none;background:#1e3a5f;color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer;}
+  button:hover{filter:brightness(1.05)}
   .note{font-size:13px;color:#666;}
   .frame{position:relative;width:100%;aspect-ratio:16/9;background:#fff;border:1px solid #ddd;border-radius:12px;overflow:hidden;}
   .caption{position:absolute;top:18px;left:0;right:0;text-align:center;font-size:18px;color:var(--text);z-index:5;opacity:1;transition:opacity .3s;}
@@ -46,26 +47,23 @@
   <div class="card">
     <div class="head">
       <div>
-        <div class="title">Stimulus preview</div>
-        <div class="note">Self-contained HTML. Open it and press <b>Play</b>.</div>
+        <div class="title">Estímulo espacial con audio del navegador</div>
+        <div class="note">Abra este archivo en navegador y pulse <b>Reproducir</b>.</div>
       </div>
       <div class="controls">
-        <button id="playBtn">Play</button>
-        <span class="note">20-second stimulus</span>
+        <button id="playBtn">Reproducir</button>
+        <button id="stopBtn" type="button">Detener audio</button>
+        <span class="note">Duración visual: 20 segundos</span>
       </div>
     </div>
 
     <div class="frame" id="frameBox">
-      <div class="caption">Observe the rotation</div>
+      <div class="caption">Observe la rotación</div>
       <div class="continue">Continue below</div>
       <div class="fade"></div>
-      <svg viewBox="0 0 1600 900" aria-label="Spatial reasoning stimulus">
+      <svg viewBox="0 0 1600 900" aria-label="Estímulo de razonamiento espacial">
         <g class="grid" opacity="0.32">
-          <script type="application/ecmascript"><![CDATA[
-          ]]></script>
-          <!-- vertical -->
           <line x1="120" y1="80" x2="120" y2="820"/><line x1="180" y1="80" x2="180" y2="820"/><line x1="240" y1="80" x2="240" y2="820"/><line x1="300" y1="80" x2="300" y2="820"/><line x1="360" y1="80" x2="360" y2="820"/><line x1="420" y1="80" x2="420" y2="820"/><line x1="480" y1="80" x2="480" y2="820"/><line x1="540" y1="80" x2="540" y2="820"/><line x1="600" y1="80" x2="600" y2="820"/><line x1="660" y1="80" x2="660" y2="820"/><line x1="720" y1="80" x2="720" y2="820"/><line x1="780" y1="80" x2="780" y2="820"/><line x1="840" y1="80" x2="840" y2="820"/><line x1="900" y1="80" x2="900" y2="820"/><line x1="960" y1="80" x2="960" y2="820"/><line x1="1020" y1="80" x2="1020" y2="820"/><line x1="1080" y1="80" x2="1080" y2="820"/><line x1="1140" y1="80" x2="1140" y2="820"/><line x1="1200" y1="80" x2="1200" y2="820"/><line x1="1260" y1="80" x2="1260" y2="820"/><line x1="1320" y1="80" x2="1320" y2="820"/><line x1="1380" y1="80" x2="1380" y2="820"/><line x1="1440" y1="80" x2="1440" y2="820"/>
-          <!-- horizontal -->
           <line x1="120" y1="80" x2="1480" y2="80"/><line x1="120" y1="140" x2="1480" y2="140"/><line x1="120" y1="200" x2="1480" y2="200"/><line x1="120" y1="260" x2="1480" y2="260"/><line x1="120" y1="320" x2="1480" y2="320"/><line x1="120" y1="380" x2="1480" y2="380"/><line x1="120" y1="440" x2="1480" y2="440"/><line x1="120" y1="500" x2="1480" y2="500"/><line x1="120" y1="560" x2="1480" y2="560"/><line x1="120" y1="620" x2="1480" y2="620"/><line x1="120" y1="680" x2="1480" y2="680"/><line x1="120" y1="740" x2="1480" y2="740"/><line x1="120" y1="800" x2="1480" y2="800"/>
         </g>
 
@@ -83,16 +81,45 @@
   </div>
 </div>
 <script>
-  const box = document.getElementById('frameBox');
-  const btn = document.getElementById('playBtn');
-  function restart(){
-    box.classList.remove('playing');
-    void box.offsetWidth;
-    box.classList.add('playing');
+  const frameBox = document.getElementById('frameBox');
+  const playBtn = document.getElementById('playBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const instruction = 'Pulse Reproducir y observe el óvalo y la marca de referencia al completar un giro de 90 grados en sentido horario alrededor del centro. ¿Qué opción muestra cómo quedan al final?';
+  let utterance = null;
+
+  function speakInstruction(){
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    utterance = new SpeechSynthesisUtterance(instruction);
+    utterance.lang = 'es-ES';
+    utterance.rate = 0.96;
+    utterance.pitch = 1.0;
+    const voices = window.speechSynthesis.getVoices();
+    const esVoice = voices.find(v => (v.lang || '').toLowerCase().startsWith('es'));
+    if (esVoice) utterance.voice = esVoice;
+    window.speechSynthesis.speak(utterance);
   }
-  btn.addEventListener('click', restart);
-  // autoplay once on open
-  window.addEventListener('load', ()=>setTimeout(restart, 150));
+
+  function restartAnimation(){
+    frameBox.classList.remove('playing');
+    void frameBox.offsetWidth;
+    frameBox.classList.add('playing');
+  }
+
+  function playAll(){
+    restartAnimation();
+    speakInstruction();
+  }
+
+  playBtn.addEventListener('click', playAll);
+  stopBtn.addEventListener('click', () => {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  });
+
+  // preload voices in some browsers
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => {};
+  }
 </script>
 </body>
 </html>
