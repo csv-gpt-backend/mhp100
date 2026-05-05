@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>sEvaluación intelectual (CHC) – Reporte</title>
+  <title>AEvaluación intelectual (CHC) – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -154,33 +154,20 @@
         </div>
 
         <div class="rep-iv" style="margin-top:26px;">
-          <div class="iv-title">DATOS DEL INFORME CHC</div>
+          <div class="iv-title">TIEMPO APROXIMADO DE SESIÓN</div>
+          <p id="ivMinutosValor" style="margin:0 0 10px;font-size:13px;font-weight:700"></p>
           <table class="iv-table" style="width:100%;border-collapse:collapse;font-size:12px">
             <tbody>
-            <tr id="ivMeta1">
-              <th class="iv-key" style="border:1px solid #111;padding:6px">PR</th>
-              <td style="border:1px solid #111;padding:6px">Ítems presentes en este banco · intento aplicado por completo</td>
-              <td style="border:1px solid #111;padding:6px">Ítems parciales registrados · revisión de bloques pendientes</td>
-              <td style="border:1px solid #111;padding:6px">Sin registro suficiente de ítems en este equipo</td>
-            </tr>
             <tr id="ivMeta2">
               <th class="iv-key" style="border:1px solid #111;padding:6px">MN</th>
-              <td style="border:1px solid #111;padding:6px">Tiempo de sesión similar al esperado para la batería</td>
-              <td style="border:1px solid #111;padding:6px">Sesión breve o parcial</td>
-              <td style="border:1px solid #111;padding:6px">Sesión inusualmente larga (revisar validez del intento)</td>
-            </tr>
-            <tr id="ivMeta3">
-              <th class="iv-key" style="border:1px solid #111;padding:6px">VB</th>
-              <td style="border:1px solid #111;padding:6px">Banco actualizado (versión reciente)</td>
-              <td style="border:1px solid #111;padding:6px">Banco intermedio</td>
-              <td style="border:1px solid #111;padding:6px">Versión legada o no identificada</td>
+              <td style="border:1px solid #111;padding:6px">Tiempo de sesión similar al esperado para aplicar esta batería</td>
+              <td style="border:1px solid #111;padding:6px">Sesión breve o parcial (posible revisión técnica del intento)</td>
+              <td style="border:1px solid #111;padding:6px">Sesión prolongada · revisión si resulta atípica para este formato</td>
             </tr>
             </tbody>
           </table>
-          <div class="iv-legend" style="display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;font-size:11px;">
-            <span><b>PR</b> Alcance de ítems</span>
-            <span><b>MN</b> Duración aproximada</span>
-            <span><b>VB</b> Versión del banco publicado</span>
+          <div class="iv-legend" style="margin-top:6px;font-size:11px;line-height:1.45;">
+            <span><b>MN</b> usa el tiempo aproximado guardado al finalizar — desde que comienza el intento hasta cerrarlo — y ayuda a ver si esa duración resulta habitual o atípica para este formato. No equivale al tiempo máximo dentro de cada subprueba cronometrada.</span>
           </div>
         </div>
       </div>
@@ -832,10 +819,17 @@
     const r = resultados;
     const meta = r.meta || {};
     const mins = meta.minutos_aprox;
-    const ver = r.version_banco || "—";
 
-    const factoresOk = r.factores && r.factores.length > 0;
-    highlightIV("ivMeta1", factoresOk ? 1 : 3);
+    var linea = document.getElementById("ivMinutosValor");
+    if (linea) {
+      if (typeof mins === "number" && !isNaN(mins)) {
+        linea.textContent = "Registro del intento: " + mins + " minutos aprox.";
+        linea.style.color = "#0f172a";
+      } else {
+        linea.textContent = "Sin registro de minutos para este intento.";
+        linea.style.color = "var(--muted)";
+      }
+    }
 
     let colTime = 2;
     if (typeof mins === "number" && !isNaN(mins)) {
@@ -844,12 +838,6 @@
       else colTime = 3;
     }
     highlightIV("ivMeta2", colTime);
-
-    let colVb = 2;
-    if (/v2\.[3-9]|v3/i.test(String(ver))) colVb = 1;
-    else if (/v2|CHC/i.test(String(ver))) colVb = 2;
-    else colVb = 3;
-    highlightIV("ivMeta3", colVb);
   }
 
   function renderAll(ctx) {
