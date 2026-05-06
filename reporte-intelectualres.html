@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>GEvaluación intelectual (CHC) – Reporte</title>
+  <title>dEvaluación intelectual (CHC) – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -47,7 +47,7 @@
       .rep-top-row2{font-size:22px !important;margin-bottom:0 !important}
       .rep-top-row3{font-size:15px !important}
       #pageResultadosGlobales{page-break-before:always;break-before:page;margin-top:0;padding-top:0;}
-      .chc-wrap-factores,.chc-wrap-indice-global{break-inside:avoid;}
+      .chc-wrap-factores,.chc-wrap-indice-global,.ci-sim-wrap{break-inside:avoid;}
     }
 
     .interp-bloque-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px;}
@@ -121,6 +121,23 @@
       padding-bottom:8px;
       border-bottom:1px dashed #cbd5e1;
     }
+    .ci-sim-wrap{
+      margin-top:14px;padding:12px;border:1px solid #c7d2fe;border-radius:10px;
+      background:linear-gradient(180deg,#f5f3ff 0%,#fff 52%);
+    }
+    .ci-sim-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;font-weight:800;margin-bottom:8px;}
+    .ci-sim-row-lead{margin-right:auto;font-size:13px;color:#1e1b4b;max-width:min(100%,440px);}
+    .ci-sim-num{background:#5b21b6;color:#fff;padding:4px 14px;border-radius:4px;font-size:15px;min-width:44px;text-align:center;font-variant-numeric:tabular-nums;}
+    .ci-sim-nivel-badge{display:inline-block;padding:3px 12px;border-radius:999px;font-weight:800;font-size:12px;color:#fff;}
+    .ci-lvl-muybajo{background:#991b1b;}
+    .ci-lvl-bajo{background:#e45757;}
+    .ci-lvl-prombajo{background:#ea580c;}
+    .ci-lvl-adecuado{background:#2563eb;}
+    .ci-lvl-promalto{background:#16a34a;}
+    .ci-lvl-alto{background:#15803d;}
+    .ci-lvl-muyalto{background:#6b21a8;}
+    .ci-sim-foot{font-size:10px;color:#64748b;line-height:1.45;margin:0;}
+    .ci-sim-leyenda{font-size:10px;color:#64748b;line-height:1.4;margin:8px 0 0;padding-top:8px;border-top:1px dashed #c7d2fe;}
   </style>
 </head>
 <body>
@@ -217,6 +234,16 @@
       <div class="iie-row">
         <span>ÍNDICE GLOBAL APROXIMADO (I.G. · % correcto del banco):</span>
         <span class="iie-badge" id="repIGlobal">—</span>
+      </div>
+
+      <div class="ci-sim-wrap" id="ciSimWrap" aria-labelledby="ciSimTitulo">
+        <div class="ci-sim-row">
+          <span class="ci-sim-row-lead" id="ciSimTitulo"><strong>Coeficiente intelectual mostrado (simulado)</strong><br><span style="font-weight:600;font-size:11px;color:#64748b;">No es CI clínico ni normado por edad. Derivado en esta versión sólo del % global del banco (mapeo lineal orientativo).</span></span>
+          <span class="ci-sim-num" id="repCISimValor" title="Valor ilustrativo">—</span>
+          <span class="ci-sim-nivel-badge" id="repCISimNivel" title="Etiqueta orientativa">—</span>
+        </div>
+        <p class="ci-sim-foot">Fórmula interna de simulación (orientativa): ~60–130 a partir del I.G. en % (0 % → 60; 50 % → 95; 100 % → 130). Cuando exista norma propia por edad, este bloque debe sustituirse o anularse.</p>
+        <div class="ci-sim-leyenda" role="doc-footnote"><strong>Rangos de etiqueta (sobre el valor simulado):</strong> <span id="repCISimLeyenda">—</span></div>
       </div>
 
       <div class="scale-section" style="margin-top:10px;">
@@ -329,6 +356,42 @@
 
   function clamp(n, a, b) {
     return Math.max(a, Math.min(b, n));
+  }
+
+  /** CI sólo ilustrativo: lineal desde % global (approx. 60–130 cuando el % está 0–100). */
+  function simulatedCIFromPctGlobal(pct) {
+    var p = clamp(Number(pct) || 0, 0, 100);
+    return Math.round(60 + p * 0.7);
+  }
+
+  function nivelCISimFromIQ(iq) {
+    var x = Number(iq) || 0;
+    if (x >= 130) return { text: "MUY ALTO", cls: "ci-lvl-muyalto" };
+    if (x >= 120) return { text: "ALTO", cls: "ci-lvl-alto" };
+    if (x >= 110) return { text: "PROMEDIO ALTO", cls: "ci-lvl-promalto" };
+    if (x >= 90) return { text: "ADECUADO", cls: "ci-lvl-adecuado" };
+    if (x >= 80) return { text: "PROMEDIO BAJO", cls: "ci-lvl-prombajo" };
+    if (x >= 70) return { text: "BAJO", cls: "ci-lvl-bajo" };
+    return { text: "MUY BAJO", cls: "ci-lvl-muybajo" };
+  }
+
+  var CI_SIM_LEYENDA_TXT =
+    "MUY BAJO (\u226469) · BAJO (70–79) · PROMEDIO BAJO (80–89) · ADECUADO (90–109) · PROMEDIO ALTO (110–119) · ALTO (120–129) · MUY ALTO (\u2265130).";
+
+  function applyCISimulatedDOM(total) {
+    var pct = total && total.pct != null ? Number(total.pct) : 0;
+    pct = clamp(pct, 0, 100);
+    var iq = simulatedCIFromPctGlobal(pct);
+    var nv = nivelCISimFromIQ(iq);
+    var elV = document.getElementById("repCISimValor");
+    var elN = document.getElementById("repCISimNivel");
+    var elL = document.getElementById("repCISimLeyenda");
+    if (elV) elV.textContent = String(iq);
+    if (elN) {
+      elN.textContent = nv.text;
+      elN.className = "ci-sim-nivel-badge " + nv.cls;
+    }
+    if (elL) elL.textContent = CI_SIM_LEYENDA_TXT;
   }
 
   function setCurveMarker(score) {
@@ -602,6 +665,18 @@
     liTxt("IFV · procesamiento fluido, memoria de trabajo y velocidad (promedio Gf/Gwm/Gs): " + Math.round(Number(ifv) || 0));
     liTxt("ICV · conocimiento verbal, memoria asociativa y visual–espacial (promedio Gc/Glr/Gv): " + Math.round(Number(icv) || 0));
     liTxt("I.G. · porcentaje aproximado de aciertos sobre el conjunto del banco: " + Math.round(Number(ig) || 0), true);
+    var pctTot = ctx && ctx.resultados && ctx.resultados.total && ctx.resultados.total.pct != null
+      ? Number(ctx.resultados.total.pct)
+      : Number(ig);
+    var iqSim = simulatedCIFromPctGlobal(pctTot);
+    var nvSim = nivelCISimFromIQ(iqSim);
+    liTxt(
+      "CI simulado (no normado; derivado sólo del I.G.; ver advertencia página 1): " +
+      iqSim +
+      " (\"" +
+      nvSim.text +
+      "\")"
+    );
     host.appendChild(ul);
 
     var subt = document.createElement("div");
@@ -905,6 +980,7 @@
     document.getElementById("ihFluido").textContent = String(avgPct(rows, ["Gf", "Gwm", "Gs"]));
     document.getElementById("ihCristal").textContent = String(avgPct(rows, ["Gc", "Glr", "Gv"]));
     document.getElementById("repIGlobal").textContent = String(Math.round(ig));
+    applyCISimulatedDOM(r.total || null);
 
     buildBloqueHost("bloqueFluido", fluido);
     buildBloqueHost("bloqueCristal", cristal);
