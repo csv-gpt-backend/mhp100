@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>intr 2 Evaluación intelectual (CHC) – Reporte · formato único</title>
+  <title>REP 2Evaluación intelectual (CHC) – Reporte · formato único</title>
   <style>
     :root{
       --ink:#111; --muted:#4b5563; --line:#ddd;
@@ -215,12 +215,14 @@
         </div>
       </div>
 
-      <p class="chc-pagina1-resumen" role="note" style="margin:14px 0 0;font-size:14px;line-height:1.52;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"><strong>Lectura de esta página:</strong> Este informe muestra los <strong>seis factores</strong> en <strong>un solo bloque</strong> (no hay índices IFV/ICV). Cada barra corresponde a un factor. El <strong>I.G.</strong> indica <strong>todos tus aciertos sobre el total de preguntas del banco</strong>; no es la suma de los % ni un promedio automático de las seis barras.</p>
+      <p class="chc-pagina1-resumen" role="note" style="margin:14px 0 0;font-size:14px;line-height:1.52;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"><strong>Lectura de esta página:</strong> Este informe muestra los <strong>seis factores</strong> en <strong>un solo bloque</strong> (no hay IFV/ICV). Cada barra corresponde a un factor. El <strong>Promedio 6 factores</strong> es el promedio aritmético de esos seis % · <strong>no</strong> equivale al <strong>I.G.</strong>. El <strong>I.G.</strong> indica <strong>todos tus aciertos sobre el total de preguntas del banco</strong>; no es la suma de los %.</p>
 
       <div class="chc-wrap-factores">
       <div class="bloque-title">
         <div class="bloque-left"><span class="bloque-bullet"></span><span>SEIS FACTORES CHC · VISTA ÚNICA</span></div>
+        <div>Promedio 6 factores (%): <span class="ih-badge" id="repPromedio6" title="Media aritmética de los % por factor; no es I.G.">—</span></div>
       </div>
+      <p class="muted" style="font-size:13px;margin:4px 0 10px;line-height:1.45;color:#475569;"><strong>Cómo se lee el número amarillo:</strong> suma los % de Gf…Glr y divide entre seis — cada factor pesa igual aunque tenga más o menos preguntas. El <strong>I.G.</strong> más abajo usa todos los aciertos y todos los ítems del banco.</p>
       <div class="rep-bloque" id="bloqueTodosFactores"></div>
       </div>
 
@@ -558,7 +560,7 @@
     fluido: "Agrupa razonamiento en tareas relativamente nuevas (Gf), memoria de trabajo aplicada durante el desempeño (Gwm) y aspectos relacionados con la velocidad o fluidez (Gs) dentro de los ítems del banco escolar aplicado.",
     cristal: "Integra conocimiento verbal acumulado (Gc), recuperación memorística asociativa (Glr) y trabajo visual–espacial (Gv), competencias muy presentes en textos escolares, mapas conceptuales y material gráfico.",
     unificado:
-      "Este informe muestra los seis factores en orden fijo sin dividirlos visualmente en dos familias. Cada valor es acierto relativo en su bloque; el I.G. resume el intento completo sobre el banco y no equivale al promedio aritmético de los seis porcentajes.",
+      "Este informe muestra los seis factores en orden fijo sin dividirlos visualmente en dos familias. Cada valor es acierto relativo en su bloque. El número «Promedio 6 factores» es la media aritmética de esos seis porcentajes (cada factor pesa igual en esa media); el I.G. resume aciertos totales sobre el banco completo y no equivale a esa media.",
     global: "Sintetiza el acierto aproximado sobre el conjunto de ítems del intento. Siempre debe leerse junto al detalle factor a factor porque perfiles muy distintos pueden mostrar números globales parecidos."
   };
 
@@ -696,6 +698,10 @@
       ul.appendChild(li);
     }
     liTxt("I.G. · porcentaje aproximado de aciertos sobre el conjunto del banco: " + Math.round(Number(ig) || 0), true);
+    liTxt(
+      "Promedio aritmético de los % de los seis factores (orientativo · no equivale al I.G.): " +
+      avgPct(rows, ORDEN_CHC_FACTORES)
+    );
     var pctTot = ctx && ctx.resultados && ctx.resultados.total && ctx.resultados.total.pct != null
       ? Number(ctx.resultados.total.pct)
       : Number(ig);
@@ -995,6 +1001,9 @@
     applyCISimulatedDOM(r.total || null);
 
     buildBloqueHost("bloqueTodosFactores", rowsOrdenados);
+
+    var elP6 = document.getElementById("repPromedio6");
+    if (elP6) elP6.textContent = String(avgPct(rows, ORDEN_CHC_FACTORES));
 
     renderResumenLine("resumenGlobal", "DESEMPEÑO GLOBAL EN EL BANCO (aprox.)", Math.round(ig));
 
