@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>7 facREP 1 Evaluación intelectual (CHC) – Reporte</title>
+  <title> 7 facREP 1 Evaluación intelectual (CHC) – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#4b5563; --line:#ddd;
@@ -49,7 +49,7 @@
       .rep-top-row2{font-size:22px !important;margin-bottom:0 !important}
       .rep-top-row3{font-size:15px !important}
       #pageResultadosGlobales{page-break-before:always;break-before:page;margin-top:0;padding-top:0;}
-      .chc-wrap-factores,.chc-wrap-indice-global,.ci-sim-wrap{break-inside:avoid;}
+      .chc-wrap-factores,.chc-wrap-indice-global,.ci-sim-wrap,.interp-prio-wrap,.prio-factor-box{break-inside:avoid;}
     }
 
     .interp-bloque-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px;}
@@ -95,6 +95,17 @@
     .interp-title{margin-top:8px;font-size:18px;font-weight:800;}
     .interp-legend{font-size:14px;color:var(--muted);margin-top:4px;margin-bottom:4px;}
     .interp-bloque{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;font-size:14px;background:#fff;}
+    .interp-prio-wrap{border-color:#fcd34d;background:linear-gradient(180deg,#fffbeb 0%,#fff 18px);}
+    .prio-intro-note{font-size:13px;line-height:1.5;color:#92400e;margin:0 0 10px;padding:8px 10px;background:#fef3c7;border-radius:8px;border:1px dashed #f59e0b;}
+    .prio-factor-box{border-left:4px solid #dc2626;margin:12px 0 0;padding:10px 12px;background:#fef2f2;border-radius:0 10px 10px 0;}
+    .prio-factor-box.prio-tier-2{border-left-color:#ea580c;background:#fff7ed;}
+    .prio-factor-box.prio-tier-3{border-left-color:#ca8a04;background:#fefce8;}
+    .prio-factor-title{font-weight:800;font-size:14px;color:#991b1b;margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+    .prio-factor-tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px;}
+    .prio-factor-desc{font-size:13px;color:#475569;line-height:1.45;margin:0 0 8px;}
+    .prio-actions-title{font-weight:700;font-size:12px;color:#92400e;margin:8px 0 4px;}
+    .prio-actions-list{margin:0;padding-left:18px;font-size:13px;line-height:1.5;color:#1e293b;}
+    .prio-actions-list li{margin-bottom:4px;}
     .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:800;font-size:13px;color:#fff}
     .b-red{background:var(--red)}
     .b-orange{background:var(--orange)}
@@ -311,8 +322,11 @@
           <div class="interp-legend-row">Los colores de barra siguen esa misma lógica con respecto al <b>puntaje alto = mayor acierto en el ítem o factor</b> (no existe escala invertida en este instrumento).</div>
           <div class="interp-legend-row">El instrumento sintetiza el desempeño en dos grandes conjuntos en la página 1 (procesamiento fluido con memoria de trabajo y velocidad; y conocimiento cristalizado con memoria asociativa y visual), muestra aparte el factor <b>Gq</b> cuando exista bloque de ítems, además de un índice global aproximado y la lectura integrada sobre el resultado completo.</div>
           <div class="interp-legend-row muted">Este informe es <b>único para contexto escolar</b>; no distingue rutas profesionales u ocupacionales. No sustituye baterías comerciales ni evaluación neuropsicológica o clínica.</div>
+          <div class="interp-legend-row muted">Justo después, un bloque adicional desarrolla con <b>mayor incidencia</b> los <b>factores con puntaje proporcional más bajo en este intento frente al resto de factores</b> del mismo resultado, manteniendo las mismas reglas cualitativas de arriba y propuestas tácticas de refuerzo (no diagnóstico).</div>
         </div>
       </div>
+
+      <div id="interpPrioridades" class="interp-bloque interp-prio-wrap"><!-- priorización factorial vía JS --></div>
 
       <div id="interpDetFluido" class="interp-bloque"></div>
       <div id="interpDetCristal" class="interp-bloque"></div>
@@ -551,6 +565,160 @@
     return r && r.pct != null && !isNaN(Number(r.pct)) && !r._pendiente;
   }
 
+  /** Hasta «lim» factores con menor % válido en este intento (orden estable por código si empatan). */
+  function obtenerFactoresDebilesOrden(rows, lim) {
+    var L = typeof lim === "number" ? lim : 3;
+    var arr = rows
+      .filter(esFactorConPuntajeValido)
+      .slice()
+      .sort(function (a, b) {
+        var pa = Number(a.pct) || 0;
+        var pb = Number(b.pct) || 0;
+        if (pa !== pb) return pa - pb;
+        return String(a.code).localeCompare(String(b.code));
+      });
+    return arr.slice(0, Math.min(L, arr.length));
+  }
+
+  function tipEscolarFactor(code, pct) {
+    var o = FACT_ESC_TIPS[code];
+    if (!o) return null;
+    var nk = nivelDeFranja(pct);
+    return o[nk] || o.medio || o.bajo || null;
+  }
+
+  function siguientePasoRefuerzo(code, pct) {
+    var o = FACT_ESC_TIPS[code];
+    if (!o) return null;
+    var nk = nivelDeFranja(pct);
+    if (nk === "bajo" && o.medio) return "Tras establecer hábitos mínimos: " + o.medio;
+    if (nk === "medio" && o.alto) return "Si el puntaje ya se estabiliza en franja media: " + o.alto;
+    return null;
+  }
+
+  function franjaInterpretacionNombre(pct) {
+    var nk = nivelDeFranja(pct);
+    if (nk === "bajo") return "baja (orientativa · 1–40 % dentro del modelo del informe)";
+    if (nk === "medio") return "media (orientativa · 41–70 %)";
+    return "alta orientativa (71–100 %)";
+  }
+
+  function renderBloquePrioridadFactores(rows) {
+    var host = document.getElementById("interpPrioridades");
+    if (!host) return;
+    host.innerHTML = "";
+    host.className = "interp-bloque interp-prio-wrap";
+    var weakest = obtenerFactoresDebilesOrden(rows, 3);
+    var hdr = document.createElement("div");
+    hdr.className = "interp-bloque-header";
+    hdr.innerHTML =
+      "<div class='interp-bloque-nombre'>3.- Factores con menor puntaje proporcional · priorización y refuerzos</div>";
+    host.appendChild(hdr);
+
+    var note = document.createElement("p");
+    note.className = "prio-intro-note";
+    note.innerHTML =
+      "Misma lógica de §2: etiquetas cualitativas <span class=\"badge b-red\">1–40</span>, <span class=\"badge b-orange\">41–70</span>, " +
+      "<span class=\"badge b-green\">71–100</span> sólo sirven dentro de esta banca escolar piloto · <strong>no equivalen</strong> a cocientes ni percentiles externos. Aquí los factores están ordenados " +
+      "del menor al mayor puntaje dentro de <strong>este</strong> resultado; así se ve dónde conviene enfocar la primera ronda de acciones institucionales.";
+    host.appendChild(note);
+
+    if (!weakest.length) {
+      var fb = document.createElement("div");
+      fb.className = "interp-bloque-desc";
+      fb.textContent =
+        "No hay factores con puntaje suficientemente completo para priorizar (p. ej. banco incompleto o bloques sin responder). Cuando todos los ítems estén presentes, aparecerán hasta tres factores señalados según menor % relativo dentro del mismo intento.";
+      host.appendChild(fb);
+      return;
+    }
+
+    var expl = document.createElement("div");
+    expl.className = "interp-bloque-desc";
+    expl.innerHTML =
+      "Se destacan hasta <strong>tres</strong> ejes con menor desempeño relativo observado aquí (<strong>" +
+      weakest.length +
+      "</strong> en esta aplicación). Integre con las tarjetas de detalle que siguen (bloques procesamiento / cristal / Gq) y con §4–6 del informe.";
+    host.appendChild(expl);
+
+    weakest.forEach(function (w, idx) {
+      var tierExtra = idx === 1 ? " prio-tier-2" : idx === 2 ? " prio-tier-3" : "";
+      var box = document.createElement("div");
+      box.className = "prio-factor-box" + tierExtra;
+
+      var title = document.createElement("div");
+      title.className = "prio-factor-title";
+      title.textContent =
+        "Prioridad " + (idx + 1) + " · " + w.code + " · " + w.label;
+      box.appendChild(title);
+
+      var tags = document.createElement("div");
+      tags.className = "prio-factor-tags";
+      var br = rangoFranjaBadge(w.pct);
+      var pctNum = Math.round(Number(w.pct) || 0);
+      tags.innerHTML =
+        "<span class=\"badge " + br.cls + "\">" + escHtml(br.texto) + "</span>" +
+        "<span style=\"font-size:13px;font-weight:800;color:#0f172a\">" +
+        pctNum +
+        "% de aciertos en el bloque de este intento</span>";
+      box.appendChild(tags);
+
+      var descTxt = FACTOR_CHC_DESC[w.code] || "";
+      if (descTxt) {
+        var d = document.createElement("div");
+        d.className = "prio-factor-desc";
+        d.textContent = descTxt;
+        box.appendChild(d);
+      }
+
+      var actTit = document.createElement("div");
+      actTit.className = "prio-actions-title";
+      actTit.textContent = "Líneas de acción tácticas (contexto escolar · refuerzo, no etiqueta del estudiante)";
+      box.appendChild(actTit);
+
+      var ul = document.createElement("ul");
+      ul.className = "prio-actions-list";
+      function addLi(t) {
+        if (!t || !String(t).trim()) return;
+        var li = document.createElement("li");
+        li.textContent = String(t).trim();
+        ul.appendChild(li);
+      }
+
+      var pr = tipEscolarFactor(w.code, w.pct);
+      var nj = nivelDeFranja(w.pct);
+      if (pr)
+        addLi(
+          "Acción alineada a franja observada («" +
+            franjaInterpretacionNombre(w.pct) +
+            "» dentro de esta prueba piloto): " +
+            pr
+        );
+      var sig = siguientePasoRefuerzo(w.code, w.pct);
+      if (sig) addLi(sig);
+      addLi(
+        nj === "bajo"
+          ? "Documentar errores repetidos antes de nueva batería con el mismo factor; repetir formato similar en micro–bloques muy cortos (15–22 min)."
+          : "Contrastar errores sólo después de establecer rutina estable de práctica cercana al currículo (no aumentar nivel sumativo paralelo)."
+      );
+      addLi(
+        "Coordinación docente · orientador: ubicar materias donde " +
+          w.code +
+          " cargue esta semana sobre el mismo objetivo antes de proyectos extensos."
+      );
+
+      box.appendChild(ul);
+      host.appendChild(box);
+    });
+
+    var cierre = document.createElement("div");
+    cierre.className = "interp-bloque-desc";
+    cierre.style.marginTop = "10px";
+    cierre.innerHTML =
+      "<strong>Lectura prudente:</strong> valores altos globales pueden coexistir con un factor relativamente menor; ese contraste aparece porque el " +
+      "índice total (pág. 1 · I.G.) integra <strong>todos</strong> los ítem del intento aplicado, mientras cada barra factorial es proporción independiente dentro de su bloque.";
+    host.appendChild(cierre);
+  }
+
   function escHtml(s) {
     return String(s == null ? "" : s)
       .replace(/&/g, "&amp;")
@@ -692,7 +860,7 @@
     host.innerHTML = "";
     var h = document.createElement("div");
     h.className = "interp-bloque-header";
-    h.innerHTML = "<div class='interp-bloque-nombre'>3.- Perfil cuantitativo global</div>";
+    h.innerHTML = "<div class='interp-bloque-nombre'>4.- Perfil cuantitativo global</div>";
     host.appendChild(h);
     var p = document.createElement("div");
     p.className = "interp-bloque-desc";
@@ -738,6 +906,38 @@
       ul2.appendChild(li);
     });
     host.appendChild(ul2);
+
+    var sortedValid = rows.filter(esFactorConPuntajeValido).slice().sort(function (a, b) {
+      var pa = Number(a.pct) || 0;
+      var pb = Number(b.pct) || 0;
+      if (pa !== pb) return pa - pb;
+      return String(a.code).localeCompare(String(b.code));
+    });
+    var subt2 = document.createElement("div");
+    subt2.className = "plan-section-title";
+    subt2.textContent = "Orden de perfil (menor → mayor % factorial con dato; mismo criterio que §3)";
+    subt2.style.marginTop = "10px";
+    host.appendChild(subt2);
+    var ulOrd = document.createElement("ul");
+    ulOrd.className = "recom-list";
+    var priorSet = {};
+    obtenerFactoresDebilesOrden(rows, 3).forEach(function (x) {
+      priorSet[x.code] = true;
+    });
+    sortedValid.forEach(function (rw) {
+      var lio = document.createElement("li");
+      var pv = Math.round(Number(rw.pct) || 0);
+      lio.textContent =
+        (priorSet[rw.code] ? "★ Prioridad relativa · " : "") +
+        rw.code +
+        " · " +
+        rw.label +
+        ": " +
+        pv +
+        "%";
+      ulOrd.appendChild(lio);
+    });
+    host.appendChild(ulOrd);
   }
 
   var REC_ESC_IFV = {
@@ -774,7 +974,7 @@
     host.innerHTML = "";
     var head = document.createElement("div");
     head.className = "interp-bloque-header";
-    head.innerHTML = "<div class='interp-bloque-nombre'>4.- Recomendaciones orientadas al entorno escolar</div>";
+    head.innerHTML = "<div class='interp-bloque-nombre'>5.- Recomendaciones orientadas al entorno escolar</div>";
     host.appendChild(head);
     var sub = document.createElement("div");
     sub.className = "recom-subtitle";
@@ -800,17 +1000,44 @@
     var nifv = nivelDeFranja(ifv);
     var nicv = nivelDeFranja(icv);
     var nig = nivelDeFranja(ig);
+
+    var weakest3 = obtenerFactoresDebilesOrden(rows, 3);
+    var enfocados = weakest3.map(function (w, ix) {
+      var tips = FACT_ESC_TIPS[w.code];
+      var line = tips ? tips[nivelDeFranja(w.pct)] : null;
+      var pctR = Math.round(Number(w.pct) || 0);
+      var fr = nivelDeFranja(w.pct);
+      var frAdj = fr === "bajo" ? "baja" : fr === "medio" ? "media" : "alta";
+      return (
+        (ix + 1) +
+        ") · " +
+        w.code +
+        " · " +
+        w.label +
+        " · " +
+        pctR +
+        "% — franja " +
+        frAdj +
+        " (según criterios del informe) · " +
+        (line ||
+          "Práctica breve cercana al currículo de la materia donde este factor cargue más esta semana, antes de subir nueva exigencia sumativa.")
+      );
+    });
+    addGroup(
+      "Primero — refuerzo focal coherentes con §3 (tres menores puntajes relativos válidos)",
+      enfocados
+    );
+
     addGroup("Según IFV — " + nifv, REC_ESC_IFV[nifv] || []);
     addGroup("Según ICV — " + nicv, REC_ESC_ICV[nicv] || []);
     addGroup("Según I.G. global — " + nig, REC_ESC_IG[nig] || []);
 
-    var weakest = rows.filter(esFactorConPuntajeValido).slice().sort(function (a, b) { return (Number(a.pct) || 0) - (Number(b.pct) || 0); });
-    var w1 = weakest[0];
-    var w2 = weakest[1];
-    var extra = [];
-    if (w1 && FACT_ESC_TIPS[w1.code]) extra.push(w1.code + ": " + FACT_ESC_TIPS[w1.code][nivelDeFranja(w1.pct)]);
-    if (w2 && w2.code !== (w1 && w1.code) && FACT_ESC_TIPS[w2.code]) extra.push(w2.code + ": " + FACT_ESC_TIPS[w2.code][nivelDeFranja(w2.pct)]);
-    addGroup("Pistas concretas en los dos factores con menor puntaje observado aquí", extra);
+    var notaRef = document.createElement("div");
+    notaRef.className = "interp-bloque-desc";
+    notaRef.style.marginTop = "8px";
+    notaRef.textContent =
+      "Las líneas IFV · ICV · I.G. sintetizan bloques grandes o el total aplicado (pág. 1). La lista «Primero» conecta con los factores concretos marcados cuando conviene acotar el foco institucional en etapas breves.";
+    host.appendChild(notaRef);
 
     var nota = document.createElement("div");
     nota.className = "interp-bloque-desc";
@@ -825,15 +1052,19 @@
     host.innerHTML = "";
     var head = document.createElement("div");
     head.className = "interp-bloque-header";
-    head.innerHTML = "<div class='interp-bloque-nombre'>5.- Plan de acción sugerido (solo contexto escolar)</div>";
+    head.innerHTML = "<div class='interp-bloque-nombre'>6.- Plan de acción sugerido (solo contexto escolar)</div>";
     host.appendChild(head);
     var sub = document.createElement("div");
     sub.className = "recom-subtitle";
-    sub.textContent = "Distribuye acciones coherentes entre estudiante, hogar y aula (similar al esqueleto de otros reportes institucionales)";
+    sub.textContent =
+      "Armoniza estudiante · hogar · aula usando las mismas prioridades relativas ya descritas (§3 y §5 arriba). No clasifica ocupaciones ni rutas profesionales.";
     host.appendChild(sub);
 
-    var weakest = rows.filter(esFactorConPuntajeValido).slice().sort(function (a, b) { return (Number(a.pct) || 0) - (Number(b.pct) || 0); });
+    var weakest = obtenerFactoresDebilesOrden(rows, 3);
     var codeW = weakest[0] ? weakest[0].code : "";
+    var w1 = weakest[0];
+    var w2 = weakest[1];
+    var w3 = weakest[2];
 
     function bloqueTitulo(txt) {
       var d = document.createElement("div");
@@ -857,25 +1088,35 @@
     bloqueTitulo("Para el estudiante");
     lista([
       "Elegir un horario repetible tres veces/semana incluso cuando sea corto (15–25 min).",
-      "Iniciar refuerzos por el menor factor del presente intento usando material próximo a lo trabajado en clase.",
-      "Registrar práctica completa sólo cuando no necesitaste soporte de textos antes de pasar al siguiente nivel",
-      weakest[0] ? "Este periodo el foco sugerido de práctica relacionada con el factor " + weakest[0].code + "." : ""
+      w1 ? "Este periodo: priorizar micro–prácticas relacionadas con " + w1.code + " (" + w1.label + " · " + Math.round(Number(w1.pct) || 0) + "% en este intento) antes que ampliaciones generales nuevas." : "Iniciar refuerzos por el menor factor relativo marcado en §3 usando material próximo a lo trabajado en clase.",
+      w2 ? "Distribuir segunda micro–sesión semanal hacia " + w2.code + " sólo después de tener rutina estable con prioridad " + (w1 && w1.code ? "1 (" + w1.code + ")" : "principal") + "." : "",
+      w3 ? "Registro rápido (tríada ✓ sí / parcial / no) tres veces en la semana para " + w3.code + "; no extender tiempo si sólo aumenta dispersión.",
+      "Registrar práctica útil sólo cuando se completó sin apoyos que no estarán disponibles mañana en evaluaciones formales.",
+      ""
     ]);
 
     bloqueTitulo("En hogar / familia");
     lista([
-      "Conversación breve después de clase: cuál tema fue menos claro antes de empezar tarea nueva el mismo día",
-      "Reducir segunda sesión muy cronometrada en casa mismo día donde ya hubo baterías de tiempo cerrado escolar intensas",
-      weakest[1] ? "Familia puede ubicar recurso físico/visual si perceptivo relacionado aparece muy bajo (" + weakest[1].label + ")." : ""
+      "Conversación breve después de clase: qué momento del bloque pareció más cargado antes de nueva tarea el mismo día (sin etiquetar al estudiante).",
+      "Reducir segunda sesión muy cronometrada en casa mismo día donde ya hubo baterías de tiempo cerrado escolar intensas.",
+      w1 ? "Visibilizar sólo objetivos relacionados con " + w1.code + " y su materia ancla esta quincena; evitar dispersar metas paralelas grandes." : "",
+      w2 ? "Si aparece muy bajo " + w2.code + ": recurso físico/visual o léxico muy concreto alineado a la unidad en curso, no nuevo manual genérico." : "",
+      w3 ? "Tercera prioridad relativa · " + w3.label + " (" + w3.code + "): breve chequeo cualitativo antes de nueva unidad relacionada.",
+      ""
     ]);
 
     bloqueTitulo("En el aula y acompañamiento docente u orientador");
     lista([
-      "Retroalimentar primero la causa del fallo léxico antes de aumentar nivel de abstracción temática nueva",
-      "Repetición en medio distinto muy simple del mismo contenido antes de avanzar capítulo si varios errores están en el mismo factor",
+      "Retroalimentar primero causa del tipo de fallo relacionado al factor más bajo (§3) antes de nueva abstracción temática paralela.",
+      "Repetir breve formato distinto muy simple cuando varios errores del mismo código factorial reaparecen en la misma unidad.",
+      w1 ? "Seguimiento explícito a la práctica destinada al factor " + w1.code + " esta quincena; confirmar antes de nueva evaluación sumativa relacionada." : "",
+      w2 ? "Revisión grupal muy corta de estrategias típicas de " + w2.code + " si varios estudiantes comparten ese hueco dentro del paralelo observado aquí sólo institucionalmente." : "",
       codeW === "Gwm"
-        ? "Fraccionar en pasos muy visibles y numerados la información nueva si memoria operativa aparece muy baja en varios bloques correlativos."
-        : ""
+        ? "Fraccionar información nueva muy visiblemente numerada si memoria operativa aparece en prioridad rezagada (Gwm)."
+        : codeW === "Gq"
+          ? "Ejemplificar un procedimiento número–figura muy explícito en pizarra antes de nueva tanda de ítem cuantitativo si Gq marca prioridad rezagada."
+          : "",
+      ""
     ]);
 
     var foot = document.createElement("div");
@@ -931,6 +1172,8 @@
     var icv = extras.icv;
     var ig = extras.ig;
     var igR = Math.round(Number(ig) || 0);
+
+    renderBloquePrioridadFactores(rows);
 
     renderBloqueDetalleCHC(
       "interpDetFluido",
