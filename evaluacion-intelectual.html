@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>VVVDEvaluación intelectual — modelo CHC</title>
+  <title>SSSDEvaluación intelectual — modelo CHC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -387,6 +387,38 @@
     .q:last-child { border-bottom: none; }
     .q-num { font-size: var(--chc-text-sm); font-weight: 700; color: #6b7280; margin-bottom: 4px; }
     .q-text { margin: 0 0 10px; font-weight: 600; font-size: var(--chc-text); line-height: 1.45; }
+    .gv-mc-card { margin-bottom: 14px !important; padding-bottom: 0 !important; border-bottom: none !important; }
+    .gv-mc-card .q-text { margin: 0; }
+    .chc-item-head-num {
+      padding: 8px 14px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: var(--chc-text-sm);
+      font-weight: 700;
+      color: #475569;
+    }
+    .gwm-panel.chc-item-done .gwm-zone-sep.instr-zone {
+      box-shadow: inset 3px 0 0 0 #22c55e;
+      background: linear-gradient(90deg, #ecfdf5 0%, #f8fafc 70%, transparent 100%);
+    }
+    .gwm-panel.chc-item-done .gwm-zone-sep.task-zone {
+      opacity: 0.97;
+      box-shadow: inset 0 1px 0 0 #bbf7d0;
+      background: #fafefb;
+    }
+    .gwm-instr-line { margin: 0 0 8px; font-size: var(--chc-text); color: #0f172a; line-height: 1.45; }
+    .gwm-zone-sep.instr-zone { padding: 8px 0 10px; border-bottom: 1px dashed #cbd5e1; margin-bottom: 10px; }
+    .gwm-zone-sep.task-zone { padding: 8px 0 0; }
+    .gs-zones-card { padding: 0; margin-top: 8px; }
+    .gs-zones-card .lexium-instr-band { border-radius: 10px 10px 0 0; }
+    [data-chc-item="gs_speed"].chc-item-done .lexium-instr-band {
+      box-shadow: inset 3px 0 0 0 #22c55e;
+      background: linear-gradient(90deg, #ecfdf5 0%, #f1f5f9 60%, transparent 100%);
+    }
+    [data-chc-item="gs_speed"].chc-item-done .gs-panel-rest {
+      box-shadow: inset 0 1px 0 0 #bbf7d0;
+      background: #fafefb;
+    }
     .opts { display: flex; flex-direction: column; gap: 6px; }
     .opts label {
       display: flex;
@@ -694,6 +726,54 @@
       align-self: center;
     }
     .lexium-body { flex: 1 1 220px; min-width: 0; }
+    .lexium-zone-label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: #64748b;
+      margin: 0 0 8px;
+    }
+    .chc-item-body-wrap { flex: 1 1 220px; min-width: 0; }
+    .chc-item-body {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .lexium-instr-band {
+      padding: 12px 14px;
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .lexium-instr-band .lexium-question { margin: 0; }
+    .lexium-task-band {
+      padding: 12px 14px;
+      background: #fafafa;
+      border-bottom: 1px dashed #cbd5e1;
+    }
+    .lexium-choice-band {
+      padding: 12px 14px;
+      background: #ffffff;
+    }
+    .lexium-choice-band .lexium-opts {
+      flex: 1 1 auto;
+      width: 100%;
+    }
+    [data-chc-item].chc-item-done .lexium-instr-band {
+      box-shadow: inset 3px 0 0 0 #22c55e;
+      background: linear-gradient(90deg, #ecfdf5 0%, #f1f5f9 55%, #f1f5f9 100%);
+    }
+    [data-chc-item].chc-item-done .lexium-task-band {
+      background: linear-gradient(180deg, #f7fef9 0%, #fafafa 100%);
+      box-shadow: inset 0 1px 0 0 #bbf7d0;
+      opacity: 0.96;
+    }
+    [data-chc-item].chc-item-done .lexium-choice-band {
+      box-shadow: inset 0 1px 0 0 #d1fae5;
+      background: #fafefb;
+    }
     .lexium-question {
       margin: 0 0 8px;
       font-size: var(--chc-text);
@@ -1504,7 +1584,7 @@
     gsMarked: new Set()
   };
 
-  const VERSION_BANCO = "CHC-v2.8.2";
+  const VERSION_BANCO = "CHC-v2.9.0";
   const NIVEL_BANCO_TXT = "Nivel intermedio del banco · edad orientativa aprox. 12–18 años (secundaria / bachillerato o equivalente internacional).";
 
   const STEPS = [
@@ -1855,8 +1935,23 @@
     return map;
   }
 
+  function chcHasSavedAnswer(id) {
+    const a = stateCHC.answers[id];
+    return a != null && a !== "";
+  }
+
+  /** Marca ítems con respuesta (.chc-item-done) para zonas Consigna/Estímulo/Opciones. */
+  function refreshChcItemZonesDone() {
+    document.querySelectorAll("[data-chc-item]").forEach(function (node) {
+      var id = node.getAttribute("data-chc-item");
+      if (!id) return;
+      node.classList.toggle("chc-item-done", chcHasSavedAnswer(id));
+    });
+  }
+
   function onAnswerChanged() {
     updateLexiumBlockFeet();
+    refreshChcItemZonesDone();
     scheduleSave(false);
   }
 
@@ -2446,13 +2541,21 @@
     wrap.appendChild(el("h4", { className: "lexium-vocab-h" }, title));
     items.forEach(function (it, i) {
       if (block === "gq" && it.gqGraphic) {
-        const row = el("div", { className: "lexium-row" });
+        const row = el("div", { className: "lexium-row lexium-zoned-card" });
+        row.setAttribute("data-chc-item", it.id);
+        row.classList.toggle("chc-item-done", chcHasSavedAnswer(it.id));
         row.appendChild(el("div", { className: "lexium-row-num" }, String(i + 1)));
-        const body = el("div", { className: "lexium-body" });
+        const outer = el("div", { className: "lexium-body chc-item-body-wrap" });
+        const card = el("div", { className: "chc-item-body" });
+        const instrBand = el("div", { className: "lexium-instr-band" });
+        instrBand.appendChild(el("span", { className: "lexium-zone-label" }, "Consigna"));
         const mh = it.microHint;
-        if (mh) body.appendChild(el("p", { className: "lexium-question gq-micro-hint" }, mh));
-        const lane = el("div", { className: "lexium-pill-lane gq-lane-stack" });
-        lane.appendChild(buildGqStem(it));
+        if (mh) instrBand.appendChild(el("p", { className: "lexium-question gq-micro-hint" }, mh));
+        const taskBand = el("div", { className: "lexium-task-band" });
+        taskBand.appendChild(el("span", { className: "lexium-zone-label" }, "Estímulo"));
+        taskBand.appendChild(buildGqStem(it));
+        const choiceBand = el("div", { className: "lexium-choice-band" });
+        choiceBand.appendChild(el("span", { className: "lexium-zone-label" }, "Opciones"));
         const optsBox = el("div", { className: "lexium-opts" });
         it.options.forEach(function (o) {
           const lab = el("label");
@@ -2469,51 +2572,68 @@
           lab.appendChild(el("span", {}, o.t));
           optsBox.appendChild(lab);
         });
-        lane.appendChild(optsBox);
-        body.appendChild(lane);
-        row.appendChild(body);
+        choiceBand.appendChild(optsBox);
+        card.appendChild(instrBand);
+        card.appendChild(taskBand);
+        card.appendChild(choiceBand);
+        outer.appendChild(card);
+        row.appendChild(outer);
         wrap.appendChild(row);
         return;
       }
       if (block === "gf" && it.gfGraphic) {
-        const row = el("div", { className: "lexium-row" });
+        const row = el("div", { className: "lexium-row lexium-zoned-card" });
+        row.setAttribute("data-chc-item", it.id);
+        row.classList.toggle("chc-item-done", chcHasSavedAnswer(it.id));
         row.appendChild(el("div", { className: "lexium-row-num" }, String(i + 1)));
-        const body = el("div", { className: "lexium-body" });
+        const outer = el("div", { className: "lexium-body chc-item-body-wrap" });
+        const card = el("div", { className: "chc-item-body" });
+        const instrBand = el("div", { className: "lexium-instr-band" });
+        instrBand.appendChild(el("span", { className: "lexium-zone-label" }, "Consigna"));
+        const taskBand = el("div", { className: "lexium-task-band" });
+        taskBand.appendChild(el("span", { className: "lexium-zone-label" }, "Ejercicio"));
         if (mode === "stem") {
-          body.appendChild(el("p", { className: "lexium-question" }, "Lea el enunciado y responda con la figura o el número adecuado."));
-          const lane = el("div", { className: "lexium-pill-lane" });
+          instrBand.appendChild(el("p", { className: "lexium-question" }, "Lea el enunciado y responda con la figura o el número adecuado."));
           const tg = el("div", { className: "lexium-target is-stem" });
           tg.textContent = getGfStemPreview(it);
           tg.setAttribute("title", (it.text || "").replace(/\s+/g, " ").trim());
-          lane.appendChild(tg);
-          body.appendChild(lane);
+          taskBand.appendChild(tg);
         }
-        body.appendChild(buildGfGraphic(it));
-        row.appendChild(body);
+        taskBand.appendChild(buildGfGraphic(it));
+        card.appendChild(instrBand);
+        card.appendChild(taskBand);
+        outer.appendChild(card);
+        row.appendChild(outer);
         wrap.appendChild(row);
         return;
       }
-      const row = el("div", { className: "lexium-row" + (block === "gc" ? " lexium-row-gc" : "") });
+      const row = el("div", { className: "lexium-row lexium-zoned-card" + (block === "gc" ? " lexium-row-gc" : "") });
+      row.setAttribute("data-chc-item", it.id);
+      row.classList.toggle("chc-item-done", chcHasSavedAnswer(it.id));
       row.appendChild(el("div", { className: "lexium-row-num" }, String(i + 1)));
-      const body = el("div", { className: "lexium-body" });
+      const outer = el("div", { className: "lexium-body chc-item-body-wrap" });
+      const card = el("div", { className: "chc-item-body" });
+      const instrBand = el("div", { className: "lexium-instr-band" });
+      instrBand.appendChild(el("span", { className: "lexium-zone-label" }, "Consigna"));
+      const taskBand = el("div", { className: "lexium-task-band" + (block === "gc" ? " gc-pill-lane" : "") });
+      taskBand.appendChild(el("span", { className: "lexium-zone-label" }, "Estímulo"));
+      const choiceBand = el("div", { className: "lexium-choice-band" });
+      choiceBand.appendChild(el("span", { className: "lexium-zone-label" }, "Opciones"));
       const qline = it.text || "";
-      const lane = el("div", { className: "lexium-pill-lane" });
       if (mode === "stem") {
-        const st = getGfStemPreview(it);
+        instrBand.appendChild(el("p", { className: "lexium-question" }, "Lea el enunciado (recuadro) y elija la mejor opción."));
         const tg = el("div", { className: "lexium-target is-stem" });
-        tg.textContent = st;
+        tg.textContent = getGfStemPreview(it);
         tg.setAttribute("title", (it.text || "").replace(/\s+/g, " ").trim());
-        body.appendChild(el("p", { className: "lexium-question" }, "Lea el enunciado (recuadro) y elija la mejor opción."));
-        lane.appendChild(tg);
+        taskBand.appendChild(tg);
       } else {
-        body.appendChild(el("p", { className: "lexium-question" + (block === "gc" ? " gc-q-line" : "") }, qline));
+        instrBand.appendChild(el("p", { className: "lexium-question" + (block === "gc" ? " gc-q-line" : "") }, qline));
         if (block === "gc") {
-          lane.classList.add("gc-pill-lane");
-          lane.appendChild(buildGcStimulusVisual(it));
+          taskBand.appendChild(buildGcStimulusVisual(it));
         } else {
           const raw = getLexiumStimulusText(it);
           const up = it.stimulus && /→|·/.test(String(it.stimulus)) ? String(raw) : String(raw).toLocaleUpperCase("es");
-          lane.appendChild(el("div", { className: "lexium-target" }, up));
+          taskBand.appendChild(el("div", { className: "lexium-target" }, up));
         }
       }
       const optsBox = el("div", { className: "lexium-opts" });
@@ -2532,9 +2652,12 @@
         lab.appendChild(el("span", {}, o.t));
         optsBox.appendChild(lab);
       });
-      lane.appendChild(optsBox);
-      body.appendChild(lane);
-      row.appendChild(body);
+      choiceBand.appendChild(optsBox);
+      card.appendChild(instrBand);
+      card.appendChild(taskBand);
+      card.appendChild(choiceBand);
+      outer.appendChild(card);
+      row.appendChild(outer);
       wrap.appendChild(row);
     });
     if (block) {
@@ -2733,20 +2856,41 @@
     const gvPills = opts && opts.gvPills;
     const wrap = el("div");
     items.forEach(function (it, i) {
-      const q = el("div", { className: "q" });
+      const q = el("div", { className: "q gv-mc-card" });
+      q.setAttribute("data-chc-item", it.id);
+      q.classList.toggle("chc-item-done", chcHasSavedAnswer(it.id));
       const numLabel = factorPrefix + " · Ítem " + (i + 1) + (total ? " de " + total : "");
-      q.appendChild(el("div", { className: "q-num" }, numLabel));
-      q.appendChild(el("p", { className: "q-text" }, it.text));
+
+      const bodyCard = el("div", { className: "chc-item-body" });
+      bodyCard.appendChild(el("div", { className: "chc-item-head-num" }, numLabel));
+
+      const instrBand = el("div", { className: "lexium-instr-band" });
+      instrBand.appendChild(el("span", { className: "lexium-zone-label" }, "Consigna"));
+      instrBand.appendChild(el("p", { className: "q-text" }, it.text));
+      bodyCard.appendChild(instrBand);
+
       if (it.gvAnimateSvg) {
-        q.appendChild(buildGvAnimateWrap(it));
         q.classList.add("q-gv-graphic");
+        const demoBand = el("div", { className: "lexium-task-band" });
+        demoBand.appendChild(el("span", { className: "lexium-zone-label" }, "Demostración"));
+        demoBand.appendChild(buildGvAnimateWrap(it));
+        bodyCard.appendChild(demoBand);
       }
+
       if (it.gvGraphic) {
-        q.appendChild(buildGvGraphic(it, lexFigs));
         q.classList.add("q-gv-graphic");
+        const gband = el("div", { className: "lexium-task-band" });
+        gband.appendChild(el("span", { className: "lexium-zone-label" }, "Ejercicio y respuesta"));
+        gband.appendChild(buildGvGraphic(it, lexFigs));
+        bodyCard.appendChild(gband);
+        q.appendChild(bodyCard);
         wrap.appendChild(q);
         return;
       }
+
+      const pickBand = el("div", { className: "lexium-choice-band" });
+      pickBand.appendChild(el("span", { className: "lexium-zone-label" }, "Opciones"));
+
       if (it.svgChoice) {
         const row = el("div", { className: "fig-row" + (lexFigs ? " fig-lexium" : "") });
         const nf = "var(--lex-navy, #1e3a5f)";
@@ -2786,9 +2930,9 @@
           });
           row.appendChild(lab);
         });
-        q.appendChild(row);
+        pickBand.appendChild(row);
       } else {
-        const opts = el("div", { className: "opts" + (gvPills ? " opts-gv-pills" : "") });
+        const optsEl = el("div", { className: "opts" + (gvPills ? " opts-gv-pills" : "") });
         it.options.forEach(function (o) {
           const lab = el("label");
           const inp = el("input", { type: "radio", name: it.id, value: o.v });
@@ -2799,10 +2943,13 @@
           });
           lab.appendChild(inp);
           lab.appendChild(el("span", {}, o.t));
-          opts.appendChild(lab);
+          optsEl.appendChild(lab);
         });
-        q.appendChild(opts);
+        pickBand.appendChild(optsEl);
       }
+
+      bodyCard.appendChild(pickBand);
+      q.appendChild(bodyCard);
       wrap.appendChild(q);
     });
     return wrap;
@@ -2824,24 +2971,30 @@
       }
       const t = GWM_TRIALS[trialIndex];
       const panel = el("div", { className: "gwm-panel" });
+      panel.setAttribute("data-chc-item", t.id);
+      panel.classList.toggle("chc-item-done", chcHasSavedAnswer(t.id));
       const dots = el("div", { className: "gwm-dots" });
       for (var di = 0; di < GWM_TRIALS.length; di++) {
         const cls = "gwm-dot" + (di === trialIndex ? " is-on" : di < trialIndex ? " is-done" : "");
         dots.appendChild(el("span", { className: cls }));
       }
-      panel.appendChild(dots);
-      panel.appendChild(
+      const zi = el("div", { className: "gwm-zone-sep instr-zone" });
+      zi.appendChild(el("span", { className: "lexium-zone-label" }, "Consigna"));
+      zi.appendChild(dots);
+      zi.appendChild(
         el("p", { className: "gwm-prog" }, "Tarea " + (trialIndex + 1) + " de " + GWM_TRIALS.length + (t.mode === "reverse" ? " · orden inverso" : " · mismo orden"))
       );
       const instr = t.mode === "reverse"
         ? "Memoriza la secuencia. Luego escríbela al revés (sin espacios, solo dígitos)."
         : "Memoriza la secuencia. Luego escríbela en el mismo orden (sin espacios).";
-      panel.appendChild(el("p", {}, instr));
-      panel.appendChild(
+      zi.appendChild(el("p", { className: "gwm-instr-line" }, instr));
+      zi.appendChild(
         el("p", { className: "gwm-aux" }, "Interfaz breve: no es un puzzle con figuras; solo cifras, ocultar y tecleado.")
       );
+      const zt = el("div", { className: "gwm-zone-sep task-zone" });
+      zt.appendChild(el("span", { className: "lexium-zone-label" }, "Ejercicio"));
       const box = el("div", { className: "mem-box" }, t.seq.replace(/ /g, "  "));
-      panel.appendChild(box);
+      zt.appendChild(box);
       const btn = el("button", { type: "button", id: "gwm-show", className: "gwm-btn" }, "Ocultar y responder");
       const input = el("input", { type: "text", className: "mem-input", inputMode: "numeric", placeholder: "Escribe los dígitos", autocomplete: "off" });
       input.classList.add("hidden");
@@ -2866,9 +3019,11 @@
         onAnswerChanged();
         showTrial();
       });
-      panel.appendChild(btn);
-      panel.appendChild(input);
-      panel.appendChild(submit);
+      zt.appendChild(btn);
+      zt.appendChild(input);
+      zt.appendChild(submit);
+      panel.appendChild(zi);
+      panel.appendChild(zt);
       wrap.appendChild(panel);
     }
     showTrial();
@@ -2885,16 +3040,30 @@
     }
     stateCHC.gsStart = null;
     const panel = el("div", { className: "gs-panel" });
+    const zones = el("div", { className: "gs-zones-card" });
+    zones.setAttribute("data-chc-item", "gs_speed");
+    zones.classList.toggle("chc-item-done", chcHasSavedAnswer("gs_speed"));
+
+    const instrBand = el("div", { className: "lexium-instr-band" });
+    instrBand.appendChild(el("span", { className: "lexium-zone-label" }, "Consigna"));
     const pill = el("div", { className: "gs-target-pill" });
     pill.setAttribute("role", "img");
     pill.setAttribute("aria-label", "Símbolo objetivo");
     const sym = el("span", { className: "gs-target-sym" }, GS_TARGET);
     pill.appendChild(sym);
-    pill.appendChild(el("span", {}, "Celdas con este símbolo · tarea con tiempo, no puzzle gráfico largo"));
-    panel.appendChild(pill);
-    panel.appendChild(
-      el("p", { className: "gs-aux" }, "Tras empezar, " + gsSeconds + " s en pantalla. Barra: tiempo restante. Marque aciertos; penaliza tocar símbolos distintos al objetivo.")
+    pill.appendChild(el("span", {}, "Celdas con este símbolo · tarea con tiempo, no puzzle gráfico largo."));
+    instrBand.appendChild(pill);
+    instrBand.appendChild(
+      el("p", { className: "gs-aux", style: "margin:10px 0 0;line-height:1.45;" },
+        "Tras empezar, " +
+          gsSeconds +
+          " s en pantalla. Barra: tiempo restante. Marque aciertos; penaliza tocar símbolos distintos al objetivo.")
     );
+    zones.appendChild(instrBand);
+
+    const rest = el("div", { className: "gs-panel-rest" });
+    rest.appendChild(el("span", { className: "lexium-zone-label" }, "Ejercicio"));
+
     const timerRow = el("div", { className: "gs-timer-row" });
     const top = el("div", { className: "gs-timer-top" });
     const badge = el("div", { className: "timer-badge", id: "gs-timer" }, "Tiempo: " + gsSeconds + " s");
@@ -2905,7 +3074,7 @@
     top.appendChild(badge);
     top.appendChild(timeOuter);
     timerRow.appendChild(top);
-    panel.appendChild(timerRow);
+    rest.appendChild(timerRow);
     const grid = el("div", { className: "gs-grid" });
     GS_ITEMS.forEach(function (cell) {
       const d = el("div", { className: "gs-item" }, cell.sym);
@@ -2918,7 +3087,7 @@
       });
       grid.appendChild(d);
     });
-    panel.appendChild(grid);
+    rest.appendChild(grid);
     const startBtn = el("button", { type: "button", id: "gs-start", className: "gs-start-btn" }, "Iniciar cronómetro y tarea");
     startBtn.addEventListener("click", function () {
       if (stateCHC.gsStart) return;
@@ -2945,7 +3114,9 @@
         }
       }, 1000);
     });
-    panel.appendChild(startBtn);
+    rest.appendChild(startBtn);
+    zones.appendChild(rest);
+    panel.appendChild(zones);
     wrap.appendChild(panel);
     return wrap;
   }
@@ -3089,7 +3260,10 @@
     }
 
     container.appendChild(card);
-    setTimeout(function () { updateLexiumBlockFeet(); }, 0);
+    setTimeout(function () {
+      updateLexiumBlockFeet();
+      refreshChcItemZonesDone();
+    }, 0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
