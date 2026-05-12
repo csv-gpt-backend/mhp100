@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demo: texto → voz y boca (TTS + Web Audio)</title>
+  <style>
+    :root { --bg:#0f172a; --fg:#e2e8f0; --acc:#38bdf8; --mouth:#fda4af; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; font: 15px/1.45 system-ui, sans-serif;
+      background: var(--bg); color: var(--fg);
+      display: flex; flex-direction: column; align-items: center; padding: 24px 16px 32px;
+    }
+    h1 { font-size: 1.1rem; font-weight: 600; margin: 0 0 6px; text-align: center; }
+    .note {
+      max-width: 520px; font-size: 0.82rem; color: #94a3b8; margin: 0 0 16px; text-align: center;
+    }
+    .panel {
+      width: 100%; max-width: 520px; background: #1e293b; border-radius: 12px;
+      padding: 16px; border: 1px solid #334155;
+    }
+    label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 6px; }
+    textarea {
+      width: 100%; min-height: 88px; resize: vertical; padding: 10px 12px;
+      border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: var(--fg);
+      font: inherit;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    button {
+      padding: 9px 14px; border-radius: 8px; border: 1px solid #475569;
+      background: #334155; color: var(--fg); cursor: pointer; font: inherit;
+    }
+    button:hover { background: #475569; }
+    button.primary { background: #0369a1; border-color: #0284c7; color: #fff; }
+    button.primary:hover { background: #0284c7; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .stage {
+      margin-top: 18px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .stage-label { font-size: 0.75rem; color: #94a3b8; }
+    canvas {
+      display: block; width: 280px; height: 160px; border-radius: 12px;
+      background: #0f172a; border: 1px solid #334155;
+    }
+    .meter { height: 6px; width: 280px; background: #334155; border-radius: 4px; overflow: hidden; }
+    .meter i { display: block; height: 100%; width: 0%; background: var(--acc); transition: width 0.05s linear; }
+    .hint { margin-top: 14px; font-size: 0.78rem; color: #64748b; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <h1>Demo: texto → audio y movimiento de boca</h1>
+  <p class="note">
+    <strong>TTS del navegador</strong> (gratis, sin servidor): escribes texto y suena la voz del sistema.
+    La boca se anima <em>aproximada</em> al hablar (eventos + ritmo). Para enlazar la boca al
+    <strong>audio real</strong> con medidor, usa la prueba del <strong>oscilador</strong> o, en producción, un MP3/WAV vía <code>Audio</code> + <code>AnalyserNode</code>.
+  </p>
+
+  <div class="panel">
+    <label for="txt">Texto a leer</label>
+    <textarea id="txt" placeholder="Escribe una frase o párrafo corto…">Hola, esto es una prueba. La boca se mueve mientras el navegador sintetiza la voz.</textarea>
+    <div class="row">
+      <button type="button" class="primary" id="btnSpeak">Leer en voz alta</button>
+      <button type="button" id="btnStop">Detener</button>
+      <button type="button" id="btnTone">Probar oscilador (boca ↔ audio real)</button>
+    </div>
+
+    <div class="stage">
+      <span class="stage-label" id="modeLbl">Boca — modo: inactivo</span>
+      <canvas id="cv" width="280" height="160" aria-hidden="true"></canvas>
+      <div class="meter" title="Nivel usado para abrir la boca (solo en modo oscilador)"><i id="meterBar"></i></div>
+    </div>
+
+    <p class="hint">
+      <strong>Modo lectura:</strong> usa <code>speechSynthesis</code>; la boca sigue una estimación (límites de palabra si el navegador lo permite).<br />
+      <strong>Modo oscilador:</strong> el sonido pasa por Web Audio; la apertura de la boca viene del <strong>AnalyserNode</strong> (esto es lo que aplicarías a un MP3 generado en tu backend).
+    </p>
+  </div>
+
+<script>
+(function () {
+  const txt = document.getElementById("txt");
+  const btnSpeak = document.getElementById("btnSpeak");
+  const btnStop = document.getElementById("btnStop");
+  const btnTone = document.getElementById("btnTone");
+  const cv = document.getElementById("cv");
+  const ctx2 = cv.getContext("2d");
+  const modeLbl = document.getElementById("modeLbl");
+  const meterBar = document.getElementById("meterBar");
+
+  const mouth = { open: 0 }; /* 0..1 */
+  let raf = 0;
+  let mode = "idle"; /* idle | tts | tone */
+
+  /** Audio para modo “enlazado al sonido real” */
+  let audioCtx = null;
+  let osc = null;
+  let gainNode = null;
+  let analyser = null;
+  let dataArray = null;
+
+  function drawMouth() {
+    const w = cv.width, h = cv.height;
+    ctx2.clearRect(0, 0, w, h);
+    ctx2.fillStyle = "#1e293b";
+    ctx2.fillRect(0, 0, w, h);
+
+    const cx = w / 2, cy = h / 2 + 8;
+    const rx = 38 + mouth.open * 14;
+    const ry = 22 + mouth.open * 34;
+    ctx2.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--mouth").trim() || "#fda4af";
+    ctx2.beginPath();
+    ctx2.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx2.fill();
+
+    ctx2.fillStyle = "#450a0a";
+    ctx2.beginPath();
+    ctx2.ellipse(cx, cy + ry * 0.35, rx * 0.55, ry * 0.25, 0, 0, Math.PI * 2);
+    ctx2.fill();
+  }
+
+  function loopDraw() {
+    drawMouth();
+    raf = requestAnimationFrame(loopDraw);
+  }
+  loopDraw();
+
+  function setMode(m, label) {
+    mode = m;
+    modeLbl.textContent = "Boca — " + (label || m);
+  }
+
+  function stopToneDemo() {
+    if (osc) { try { osc.stop(); } catch (_) {} osc = null; }
+    if (audioCtx && audioCtx.state !== "closed") {
+      audioCtx.close().catch(function () {});
+    }
+    audioCtx = null;
+    analyser = null;
+    dataArray = null;
+    meterBar.style.width = "0%";
+  }
+
+  /* ------- Modo TTS (speechSynthesis) ------- */
+  btnSpeak.addEventListener("click", function () {
+    if (!window.speechSynthesis) {
+      alert("Este navegador no soporta speechSynthesis.");
+      return;
+    }
+    stopToneDemo();
+    speechSynthesis.cancel();
+
+    const text = (txt.value || "").trim();
+    if (!text) return;
+
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "es-ES";
+    u.rate = 1;
+    const voices = speechSynthesis.getVoices();
+    const v = voices.find(function (x) { return (x.lang || "").toLowerCase().startsWith("es"); }) || voices[0];
+    if (v) u.voice = v;
+
+    let pulse = 0;
+
+    u.onstart = function () {
+      setMode("tts", "lectura (TTS)");
+      btnSpeak.disabled = true;
+      btnTone.disabled = true;
+    };
+
+    u.onboundary = function (ev) {
+      if (ev.name === "word" || ev.charIndex != null) {
+        mouth.open = Math.min(1, 0.35 + Math.random() * 0.5);
+        pulse = 4;
+      }
+    };
+
+    u.onend = u.onerror = function () {
+      mouth.open = 0;
+      btnSpeak.disabled = false;
+      btnTone.disabled = false;
+      if (mode === "tts") setMode("idle", "inactivo");
+    };
+
+    /* Fallback si no hay eventos boundary: pulso rítmico mientras habla */
+    let fake = 0;
+    function tickFake() {
+      if (!speechSynthesis.speaking) return;
+      fake++;
+      if (pulse > 0) pulse--;
+      if (!speechSynthesis.pending && speechSynthesis.speaking) {
+        mouth.open = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(fake / 7));
+      }
+      requestAnimationFrame(tickFake);
+    }
+    tickFake();
+
+    speechSynthesis.speak(u);
+  });
+
+  btnStop.addEventListener("click", function () {
+    speechSynthesis.cancel();
+    stopToneDemo();
+    mouth.open = 0;
+    btnSpeak.disabled = false;
+    btnTone.disabled = false;
+    setMode("idle", "inactivo");
+  });
+
+  /* ------- Modo oscilador + AnalyserNode (audio real en el grafo) ------- */
+  btnTone.addEventListener("click", function () {
+    speechSynthesis.cancel();
+    stopToneDemo();
+
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    osc = audioCtx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 1.2);
+
+    gainNode = audioCtx.createGain();
+    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2);
+
+    osc.connect(gainNode);
+    gainNode.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 2);
+
+    setMode("tone", "oscilador (nivel = AnalyserNode)");
+    btnTone.disabled = true;
+    btnSpeak.disabled = true;
+
+    function readLevel() {
+      if (mode !== "tone" || !analyser) return;
+      analyser.getByteTimeDomainData(dataArray);
+      let sum = 0;
+      for (let i = 0; i < dataArray.length; i++) {
+        const v = (dataArray[i] - 128) / 128;
+        sum += v * v;
+      }
+      const rms = Math.sqrt(sum / dataArray.length);
+      const level = Math.min(1, rms * 4);
+      mouth.open = level;
+      meterBar.style.width = Math.round(level * 100) + "%";
+      requestAnimationFrame(readLevel);
+    }
+    readLevel();
+
+    osc.onended = function () {
+      mouth.open = 0;
+      meterBar.style.width = "0%";
+      btnTone.disabled = false;
+      btnSpeak.disabled = false;
+      stopToneDemo();
+      setMode("idle", "inactivo");
+    };
+  });
+
+  speechSynthesis.onvoiceschanged = function () {};
+})();
+</script>
+</body>
+</html>
