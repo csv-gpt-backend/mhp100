@@ -52,8 +52,9 @@
   <h1>Demo: texto → audio y movimiento de boca</h1>
   <p class="note">
     <strong>TTS del navegador</strong> (gratis, sin servidor): escribes texto y suena la voz del sistema.
-    La boca se anima <em>aproximada</em> al hablar (eventos + ritmo). Para enlazar la boca al
-    <strong>audio real</strong> con medidor, usa la prueba del <strong>oscilador</strong> o, en producción, un MP3/WAV vía <code>Audio</code> + <code>AnalyserNode</code>.
+    La boca se anima <em>aproximada</em> al hablar. El dibujo es una <strong>cara de caricatura en canvas</strong> solo para la demo;
+    en tu Lexium la “forma” sería tu vídeo, sprites PNG o un modelo 3D, usando la misma variable <code>mouth.open</code>.
+    Para enlazar la boca al <strong>audio real</strong> con medidor, usa la prueba del <strong>oscilador</strong> o, en producción, un MP3/WAV vía <code>Audio</code> + <code>AnalyserNode</code>.
   </p>
 
   <div class="panel">
@@ -105,17 +106,40 @@
     ctx2.fillStyle = "#1e293b";
     ctx2.fillRect(0, 0, w, h);
 
-    const cx = w / 2, cy = h / 2 + 8;
-    const rx = 38 + mouth.open * 14;
-    const ry = 22 + mouth.open * 34;
+    /* Cabeza simple (el demo es pedagógico: aquí podrías usar <img> sprites o tu video) */
+    const cx = w / 2;
+    const cy = h / 2 + 6;
+    const headR = 62;
+    ctx2.fillStyle = "#fcd34d";
+    ctx2.beginPath();
+    ctx2.arc(cx, cy - 4, headR, 0, Math.PI * 2);
+    ctx2.fill();
+    ctx2.strokeStyle = "#b45309";
+    ctx2.lineWidth = 2;
+    ctx2.stroke();
+
+    /* Ojos */
+    ctx2.fillStyle = "#1e293b";
+    ctx2.beginPath();
+    ctx2.arc(cx - 22, cy - 18, 6, 0, Math.PI * 2);
+    ctx2.arc(cx + 22, cy - 18, 6, 0, Math.PI * 2);
+    ctx2.fill();
+
+    /* Boca: apertura según mouth.open (0..1) */
+    const rx = 20 + mouth.open * 22;
+    const ry = 6 + mouth.open * 22;
+    const mouthY = cy + 28;
     ctx2.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--mouth").trim() || "#fda4af";
     ctx2.beginPath();
-    ctx2.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx2.ellipse(cx, mouthY, rx, ry, 0, 0, Math.PI * 2);
     ctx2.fill();
+    ctx2.strokeStyle = "#9f1239";
+    ctx2.lineWidth = 1.5;
+    ctx2.stroke();
 
     ctx2.fillStyle = "#450a0a";
     ctx2.beginPath();
-    ctx2.ellipse(cx, cy + ry * 0.35, rx * 0.55, ry * 0.25, 0, 0, Math.PI * 2);
+    ctx2.ellipse(cx, mouthY + ry * 0.25, rx * 0.55, Math.max(2, ry * 0.28), 0, 0, Math.PI * 2);
     ctx2.fill();
   }
 
