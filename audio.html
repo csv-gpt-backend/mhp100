@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ddDemo: texto → voz y boca (TTS + Web Audio)</title>
+  <title>dDemo: texto → voz y boca (TTS + Web Audio)</title>
   <style>
     :root { --bg:#0f172a; --fg:#e2e8f0; --acc:#38bdf8; --mouth:#fda4af; }
     * { box-sizing: border-box; }
@@ -40,10 +40,10 @@
     }
     .stage-label { font-size: 0.75rem; color: #94a3b8; }
     canvas {
-      display: block; width: 280px; height: 160px; border-radius: 12px;
+      display: block; width: 320px; height: 220px; border-radius: 12px;
       background: #0f172a; border: 1px solid #334155;
     }
-    .meter { height: 6px; width: 280px; background: #334155; border-radius: 4px; overflow: hidden; }
+    .meter { height: 6px; width: 320px; background: #334155; border-radius: 4px; overflow: hidden; }
     .meter i { display: block; height: 100%; width: 0%; background: var(--acc); transition: width 0.05s linear; }
     .hint { margin-top: 14px; font-size: 0.78rem; color: #64748b; line-height: 1.4; }
   </style>
@@ -52,8 +52,7 @@
   <h1>Demo: texto → audio y movimiento de boca</h1>
   <p class="note">
     <strong>TTS del navegador</strong> (gratis, sin servidor): escribes texto y suena la voz del sistema.
-    La boca se anima <em>aproximada</em> al hablar. El dibujo es una <strong>cara de caricatura en canvas</strong> solo para la demo;
-    en tu Lexium la “forma” sería tu vídeo, sprites PNG o un modelo 3D, usando la misma variable <code>mouth.open</code>.
+    La boca se anima <em>aproximada</em> al hablar. El rostro es una <strong>ilustración en canvas</strong> (no foto); para parecer foto real usarías imagen o vídeo en Lexium con la misma variable <code>mouth.open</code>.
     Para enlazar la boca al <strong>audio real</strong> con medidor, usa la prueba del <strong>oscilador</strong> o, en producción, un MP3/WAV vía <code>Audio</code> + <code>AnalyserNode</code>.
   </p>
 
@@ -68,7 +67,7 @@
 
     <div class="stage">
       <span class="stage-label" id="modeLbl">Boca — modo: inactivo</span>
-      <canvas id="cv" width="280" height="160" aria-hidden="true"></canvas>
+      <canvas id="cv" width="320" height="220" aria-hidden="true"></canvas>
       <div class="meter" title="Nivel usado para abrir la boca (solo en modo oscilador)"><i id="meterBar"></i></div>
     </div>
 
@@ -102,45 +101,154 @@
 
   function drawMouth() {
     const w = cv.width, h = cv.height;
+    const cx = w / 2;
+    const cy = h / 2 + 8;
+
     ctx2.clearRect(0, 0, w, h);
-    ctx2.fillStyle = "#1e293b";
+    const bgGrad = ctx2.createRadialGradient(cx, cy, 20, cx, cy, h * 0.85);
+    bgGrad.addColorStop(0, "#293548");
+    bgGrad.addColorStop(1, "#0f172a");
+    ctx2.fillStyle = bgGrad;
     ctx2.fillRect(0, 0, w, h);
 
-    /* Cabeza simple (el demo es pedagógico: aquí podrías usar <img> sprites o tu video) */
-    const cx = w / 2;
-    const cy = h / 2 + 6;
-    const headR = 62;
-    ctx2.fillStyle = "#fcd34d";
+    /* Pelo (capa posterior) */
+    ctx2.fillStyle = "#1c191d";
     ctx2.beginPath();
-    ctx2.arc(cx, cy - 4, headR, 0, Math.PI * 2);
+    ctx2.moveTo(cx - 88, cy + 55);
+    ctx2.bezierCurveTo(cx - 95, cy - 55, cx - 40, cy - 95, cx, cy - 92);
+    ctx2.bezierCurveTo(cx + 40, cy - 95, cx + 95, cy - 55, cx + 88, cy + 55);
+    ctx2.lineTo(cx + 82, cy + 70);
+    ctx2.bezierCurveTo(cx + 30, cy + 20, cx - 30, cy + 20, cx - 82, cy + 70);
+    ctx2.closePath();
     ctx2.fill();
-    ctx2.strokeStyle = "#b45309";
-    ctx2.lineWidth = 2;
+    const hairShine = ctx2.createLinearGradient(cx - 60, cy - 80, cx + 50, cy - 40);
+    hairShine.addColorStop(0, "rgba(60,55,65,0.5)");
+    hairShine.addColorStop(1, "rgba(28,25,29,0)");
+    ctx2.fillStyle = hairShine;
+    ctx2.fill();
+
+    /* Piel (ovalo tipo rostro) */
+    ctx2.save();
+    ctx2.beginPath();
+    ctx2.ellipse(cx, cy + 2, 72, 88, 0, 0, Math.PI * 2);
+    ctx2.clip();
+    const skin = ctx2.createRadialGradient(cx - 25, cy - 35, 8, cx, cy + 10, 95);
+    skin.addColorStop(0, "#f5d0c5");
+    skin.addColorStop(0.45, "#e8b7a8");
+    skin.addColorStop(0.85, "#d4a08e");
+    skin.addColorStop(1, "#c08b7a");
+    ctx2.fillStyle = skin;
+    ctx2.fillRect(cx - 90, cy - 100, 180, 200);
+    /* Rubor */
+    const blush = ctx2.createRadialGradient(cx - 38, cy + 12, 0, cx - 38, cy + 12, 28);
+    blush.addColorStop(0, "rgba(220,120,130,0.35)");
+    blush.addColorStop(1, "rgba(220,120,130,0)");
+    ctx2.fillStyle = blush;
+    ctx2.beginPath();
+    ctx2.ellipse(cx - 40, cy + 10, 22, 14, -0.2, 0, Math.PI * 2);
+    ctx2.fill();
+    const blush2 = ctx2.createRadialGradient(cx + 38, cy + 12, 0, cx + 38, cy + 12, 28);
+    blush2.addColorStop(0, "rgba(220,120,130,0.32)");
+    blush2.addColorStop(1, "rgba(220,120,130,0)");
+    ctx2.fillStyle = blush2;
+    ctx2.beginPath();
+    ctx2.ellipse(cx + 40, cy + 10, 22, 14, 0.2, 0, Math.PI * 2);
+    ctx2.fill();
+    ctx2.restore();
+
+    /* Contorno suave cara */
+    ctx2.strokeStyle = "rgba(120,80,70,0.35)";
+    ctx2.lineWidth = 1.2;
+    ctx2.beginPath();
+    ctx2.ellipse(cx, cy + 2, 72, 88, 0, 0, Math.PI * 2);
     ctx2.stroke();
 
-    /* Ojos */
-    ctx2.fillStyle = "#1e293b";
+    /* Cejas */
+    ctx2.strokeStyle = "rgba(55,45,40,0.85)";
+    ctx2.lineWidth = 2.2;
+    ctx2.lineCap = "round";
     ctx2.beginPath();
-    ctx2.arc(cx - 22, cy - 18, 6, 0, Math.PI * 2);
-    ctx2.arc(cx + 22, cy - 18, 6, 0, Math.PI * 2);
-    ctx2.fill();
+    ctx2.moveTo(cx - 48, cy - 32);
+    ctx2.bezierCurveTo(cx - 35, cy - 38, cx - 18, cy - 36, cx - 8, cy - 30);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(cx + 48, cy - 32);
+    ctx2.bezierCurveTo(cx + 35, cy - 38, cx + 18, cy - 36, cx + 8, cy - 30);
+    ctx2.stroke();
 
-    /* Boca: apertura según mouth.open (0..1) */
-    const rx = 20 + mouth.open * 22;
-    const ry = 6 + mouth.open * 22;
-    const mouthY = cy + 28;
-    ctx2.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--mouth").trim() || "#fda4af";
-    ctx2.beginPath();
-    ctx2.ellipse(cx, mouthY, rx, ry, 0, 0, Math.PI * 2);
-    ctx2.fill();
-    ctx2.strokeStyle = "#9f1239";
+    /* Nariz */
+    ctx2.strokeStyle = "rgba(160,110,95,0.25)";
     ctx2.lineWidth = 1.5;
+    ctx2.beginPath();
+    ctx2.moveTo(cx, cy - 8);
+    ctx2.quadraticCurveTo(cx + 6, cy + 18, cx - 2, cy + 32);
     ctx2.stroke();
 
-    ctx2.fillStyle = "#450a0a";
+    function drawEye(ex, ey) {
+      ctx2.fillStyle = "#fdf8f5";
+      ctx2.beginPath();
+      ctx2.ellipse(ex, ey, 18, 12, 0, 0, Math.PI * 2);
+      ctx2.fill();
+      ctx2.strokeStyle = "rgba(180,150,140,0.4)";
+      ctx2.lineWidth = 1;
+      ctx2.stroke();
+      const iris = ctx2.createRadialGradient(ex - 3, ey - 2, 2, ex, ey, 11);
+      iris.addColorStop(0, "#6b8cae");
+      iris.addColorStop(0.55, "#4a6a86");
+      iris.addColorStop(1, "#2d4a5c");
+      ctx2.fillStyle = iris;
+      ctx2.beginPath();
+      ctx2.arc(ex, ey, 8.5, 0, Math.PI * 2);
+      ctx2.fill();
+      ctx2.fillStyle = "#0d1117";
+      ctx2.beginPath();
+      ctx2.arc(ex + 1, ey, 4, 0, Math.PI * 2);
+      ctx2.fill();
+      ctx2.fillStyle = "rgba(255,255,255,0.95)";
+      ctx2.beginPath();
+      ctx2.arc(ex - 3, ey - 3, 2.2, 0, Math.PI * 2);
+      ctx2.fill();
+    }
+    drawEye(cx - 34, cy - 12);
+    drawEye(cx + 34, cy - 12);
+
+    /* Boca / labios — mouth.open 0..1 */
+    const open = mouth.open;
+    const mouthY = cy + 48;
+    const lipW = 26 + open * 20;
+    const lipGap = 2 + open * 20;
+
+    ctx2.fillStyle = "rgba(130,60,70,0.65)";
     ctx2.beginPath();
-    ctx2.ellipse(cx, mouthY + ry * 0.25, rx * 0.55, Math.max(2, ry * 0.28), 0, 0, Math.PI * 2);
+    ctx2.ellipse(cx, mouthY + open * 4, lipW * 0.92, Math.max(3, lipGap * 0.55), 0, 0, Math.PI * 2);
     ctx2.fill();
+
+    const upperLip = ctx2.createLinearGradient(cx, mouthY - 14, cx, mouthY);
+    upperLip.addColorStop(0, "rgba(180,95,105,0.9)");
+    upperLip.addColorStop(1, "rgba(200,120,130,0.95)");
+    ctx2.fillStyle = upperLip;
+    ctx2.beginPath();
+    ctx2.moveTo(cx - lipW, mouthY - 2);
+    ctx2.quadraticCurveTo(cx, mouthY - 10 - open * 6, cx + lipW, mouthY - 2);
+    ctx2.quadraticCurveTo(cx, mouthY + 2, cx - lipW, mouthY - 2);
+    ctx2.fill();
+
+    const lowerLip = ctx2.createLinearGradient(cx, mouthY, cx, mouthY + 14);
+    lowerLip.addColorStop(0, "rgba(210,130,140,0.92)");
+    lowerLip.addColorStop(1, "rgba(190,100,115,0.88)");
+    ctx2.fillStyle = lowerLip;
+    ctx2.beginPath();
+    ctx2.moveTo(cx - lipW * 0.95, mouthY);
+    ctx2.quadraticCurveTo(cx, mouthY + 10 + open * 10, cx + lipW * 0.95, mouthY);
+    ctx2.quadraticCurveTo(cx, mouthY - 1, cx - lipW * 0.95, mouthY);
+    ctx2.fill();
+
+    ctx2.strokeStyle = "rgba(120,50,60,0.35)";
+    ctx2.lineWidth = 1;
+    ctx2.beginPath();
+    ctx2.moveTo(cx - lipW, mouthY - 1);
+    ctx2.quadraticCurveTo(cx, mouthY - 8 - open * 5, cx + lipW, mouthY - 1);
+    ctx2.stroke();
   }
 
   function loopDraw() {
