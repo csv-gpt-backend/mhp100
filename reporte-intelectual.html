@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>ccEvaluación intelectual (CHC) – Reporte</title>
+  <title>ffffffvaluación intelectual (CHC) – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#4b5563; --line:#ddd;
@@ -14,7 +14,7 @@
     .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
     h1,h2,h3{margin:0 0 8px 0}
     .muted{color:var(--muted)}
-    .topbar{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+    .topbar{display:flex;gap:12px;align-items:center;margin-bottom:8px;justify-content:center;flex-wrap:wrap}
     .topbar input{flex:1;max-width:220px;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;text-transform:uppercase}
     .btn{padding:9px 14px;border-radius:999px;border:0;background:#1a8f3b;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
     .msg{margin-left:8px;font-weight:700}
@@ -23,7 +23,9 @@
     /* Texto principal del informe algo mayor que el topbar para lectura en portátil */
     #reporteContainer{font-size:15px;line-height:1.52;}
     .hint{font-size:13px;color:var(--muted);margin-bottom:8px}
-    .hint.ingreso-usuario{text-align:center;font-size:12px;line-height:1.45;margin-top:-2px}
+    .hint.ingreso-usuario{text-align:center;font-size:12px;line-height:1.45;margin-top:-2px;margin-bottom:14px}
+    .intro-logo-wrap{display:flex;justify-content:center;align-items:center;margin:28px 0 12px;}
+    .intro-logo{width:220px;max-width:70vw;height:auto;object-fit:contain}
 
     .rep-top{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:6px;}
     .rep-top-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:13px;margin-bottom:6px;}
@@ -41,7 +43,7 @@
     .page-break{height:0;margin:0;border:0}
     @media print{
       @page{ size:A4; margin:8mm 8mm }
-      .topbar,.hint,.no-print{display:none !important}
+      .topbar,.hint,.intro-logo-wrap,.no-print{display:none !important}
       body{zoom:0.92;}
       .wrap{max-width:none;margin:0 auto;padding:0 6px}
       #page1{zoom:0.90;page-break-after:always; break-after:page;}
@@ -158,13 +160,15 @@
 </head>
 <body>
 <div class="wrap">
+  <div class="intro-logo-wrap no-print">
+    <img src="assets/logo_adalam.png" alt="Adalam" class="intro-logo" width="200" height="80"/>
+  </div>
   <div class="topbar">
     <input id="codigoInput" placeholder="Código (ej. CHC001)" maxlength="32"/>
     <button type="button" class="btn" id="btnVer">Ver reporte</button>
     <span id="msg" class="msg"></span>
   </div>
   <div class="hint ingreso-usuario">Ingrese un <strong>código válido</strong>, el mismo que <strong>utilizó</strong> para realizar la evaluación intelectual (el ejemplo del campo de arriba es solo orientativo).</div>
-  <div id="hintOrigen" class="hint">Tip: <code>?codigo=SU_CODIGO</code>. Este informe necesita el JSON <strong>resultados</strong> en la tabla <strong>attempts</strong> del mismo proyecto (no sólo lista en participants). Datos locales: clave <code>eval_chc_state_</code> + código · servidor: <code>/api/report?…&amp;tipo=chc</code>.</div>
 
   <div id="reporteContainer" style="display:none">
 
@@ -1507,17 +1511,6 @@
     if (v == null || isNaN(Number(v))) return;
     requestAnimationFrame(function () { setCurveMarker(Number(v)); });
   });
-
-  (function avisoSiArchivoDesdeDisco() {
-    var hint = document.getElementById("hintOrigen");
-    if (!hint || location.protocol !== "file:") return;
-    hint.style.borderLeft = "4px solid #f59e0b";
-    hint.style.paddingLeft = "10px";
-    hint.style.color = "#92400e";
-    hint.innerHTML =
-      '<strong>Ojo:</strong> Página abierta como <code>file:///</code> — la API suele fallar (Failed to fetch). Abra desde el servidor (mismo origen que Vercel u localhost).<br><br>' +
-      hint.innerHTML;
-  })();
 
   (function init() {
     const qp = new URLSearchParams(location.search);
