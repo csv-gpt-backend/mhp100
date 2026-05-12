@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>dDemo: texto → voz y boca (TTS + Web Audio)</title>
+  <title>dddddDemo: texto → voz y boca (TTS + Web Audio)</title>
   <style>
     :root { --bg:#0f172a; --fg:#e2e8f0; --acc:#38bdf8; --mouth:#fda4af; }
     * { box-sizing: border-box; }
@@ -40,20 +40,30 @@
     }
     .stage-label { font-size: 0.75rem; color: #94a3b8; }
     canvas {
-      display: block; width: 320px; height: 220px; border-radius: 12px;
+      display: block; width: 360px; height: 260px; border-radius: 12px;
       background: #0f172a; border: 1px solid #334155;
     }
-    .meter { height: 6px; width: 320px; background: #334155; border-radius: 4px; overflow: hidden; }
+    .meter { height: 6px; width: 360px; background: #334155; border-radius: 4px; overflow: hidden; }
     .meter i { display: block; height: 100%; width: 0%; background: var(--acc); transition: width 0.05s linear; }
     .hint { margin-top: 14px; font-size: 0.78rem; color: #64748b; line-height: 1.4; }
+    .faceControls {
+      margin-top: 12px; padding: 12px; border-radius: 10px;
+      background: #0f172a; border: 1px solid #334155; font-size: 0.82rem;
+    }
+    .faceControls h3 { margin: 0 0 10px; font-size: 0.85rem; font-weight: 600; color: #cbd5e1; }
+    .faceRow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .faceRow label.inline { display: inline; margin: 0 6px 0 0; color: #94a3b8; }
+    .faceRow input[type="url"] { flex: 1; min-width: 160px; padding: 8px 10px; border-radius: 8px; border: 1px solid #475569; background: #1e293b; color: inherit; }
+    .faceRow input[type="range"] { width: 140px; vertical-align: middle; }
+    .faceRow span.val { color: #64748b; font-size: 0.8rem; min-width: 2.5rem; }
+    .badge { font-size: 0.75rem; color: #64748b; }
   </style>
 </head>
 <body>
   <h1>Demo: texto → audio y movimiento de boca</h1>
   <p class="note">
-    <strong>TTS del navegador</strong> (gratis, sin servidor): escribes texto y suena la voz del sistema.
-    La boca se anima <em>aproximada</em> al hablar. El rostro es una <strong>ilustración en canvas</strong> (no foto); para parecer foto real usarías imagen o vídeo en Lexium con la misma variable <code>mouth.open</code>.
-    Para enlazar la boca al <strong>audio real</strong> con medidor, usa la prueba del <strong>oscilador</strong> o, en producción, un MP3/WAV vía <code>Audio</code> + <code>AnalyserNode</code>.
+    <strong>TTS del navegador</strong> (gratis, sin servidor). Puedes usar <strong>foto + boca animada</strong> encima (ajusta posición con los deslizadores) o el rostro dibujado de demostración.
+    La boca sigue la variable <code>mouth.open</code>. Audio analizado: <strong>oscilador</strong> o MP3 con <code>AnalyserNode</code>.
   </p>
 
   <div class="panel">
@@ -65,9 +75,40 @@
       <button type="button" id="btnTone">Probar oscilador (boca ↔ audio real)</button>
     </div>
 
+    <div class="faceControls">
+      <h3>Rostro en pantalla</h3>
+      <div class="faceRow">
+        <label class="inline"><input type="radio" name="faceMode" value="photo" checked /> Foto + boca</label>
+        <label class="inline"><input type="radio" name="faceMode" value="draw" /> Solo ilustración (demo)</label>
+      </div>
+      <div class="faceRow">
+        <label class="inline" for="faceFile">Archivo</label>
+        <input type="file" id="faceFile" accept="image/*" />
+      </div>
+      <div class="faceRow">
+        <label class="inline" for="faceUrl">URL</label>
+        <input type="url" id="faceUrl" placeholder="https://…/foto.jpg (CORS permitido)" />
+        <button type="button" id="btnLoadUrl">Cargar URL</button>
+      </div>
+      <div class="faceRow">
+        <label class="inline" for="rngY">Boca ↑↓</label>
+        <input type="range" id="rngY" min="50" max="90" value="66" />
+        <span class="val" id="lblY">66%</span>
+        <label class="inline" for="rngX" style="margin-left:12px">←→</label>
+        <input type="range" id="rngX" min="30" max="70" value="50" />
+        <span class="val" id="lblX">50%</span>
+      </div>
+      <div class="faceRow">
+        <label class="inline" for="rngS">Tamaño boca</label>
+        <input type="range" id="rngS" min="60" max="160" value="100" />
+        <span class="val" id="lblS">100%</span>
+      </div>
+      <p class="badge" id="imgStatus">Sin imagen: se muestra la ilustración hasta que cargues una foto.</p>
+    </div>
+
     <div class="stage">
       <span class="stage-label" id="modeLbl">Boca — modo: inactivo</span>
-      <canvas id="cv" width="320" height="220" aria-hidden="true"></canvas>
+      <canvas id="cv" width="360" height="260" aria-hidden="true"></canvas>
       <div class="meter" title="Nivel usado para abrir la boca (solo en modo oscilador)"><i id="meterBar"></i></div>
     </div>
 
@@ -99,7 +140,100 @@
   let analyser = null;
   let dataArray = null;
 
-  function drawMouth() {
+  const faceImg = new Image();
+  let faceImgReady = false;
+  let faceObjectUrl = null;
+  const imgStatus = document.getElementById("imgStatus");
+  const rngX = document.getElementById("rngX");
+  const rngY = document.getElementById("rngY");
+  const rngS = document.getElementById("rngS");
+  const lblX = document.getElementById("lblX");
+  const lblY = document.getElementById("lblY");
+  const lblS = document.getElementById("lblS");
+
+  function getFaceMode() {
+    const r = document.querySelector('input[name="faceMode"]:checked');
+    return r && r.value === "draw" ? "draw" : "photo";
+  }
+
+  function drawCoverImage(img, dw, dh) {
+    const iw = img.naturalWidth, ih = img.naturalHeight;
+    if (!iw || !ih) return;
+    const scale = Math.max(dw / iw, dh / ih);
+    const nw = iw * scale, nh = ih * scale;
+    const nx = (dw - nw) / 2, ny = (dh - nh) / 2;
+    ctx2.drawImage(img, nx, ny, nw, nh);
+  }
+
+  /** Boca dibujada encima de la foto (oscurece interior + contorno de labios). */
+  function drawMouthOverlay(w, h, open) {
+    const xPct = parseInt(rngX.value, 10) / 100;
+    const yPct = parseInt(rngY.value, 10) / 100;
+    const s = parseInt(rngS.value, 10) / 100;
+    const mx = w * xPct;
+    const my = h * yPct;
+    const iw = (18 + open * 28) * s;
+    const ih = (5 + open * 26) * s;
+
+    ctx2.save();
+    ctx2.globalCompositeOperation = "multiply";
+    ctx2.fillStyle = "rgba(85,42,48," + (0.35 + open * 0.5) + ")";
+    ctx2.beginPath();
+    ctx2.ellipse(mx, my + open * 4 * s, iw * 0.92, Math.max(3, ih), 0, 0, Math.PI * 2);
+    ctx2.fill();
+    ctx2.restore();
+
+    ctx2.save();
+    const g = ctx2.createRadialGradient(mx, my + open * 2 * s, 0, mx, my + open * 2 * s, Math.max(iw, ih) * 1.1);
+    g.addColorStop(0, "rgba(30,12,16," + (0.5 + open * 0.4) + ")");
+    g.addColorStop(0.55, "rgba(30,12,16,"              + (0.2 + open * 0.2) + ")");
+    g.addColorStop(1, "rgba(30,12,16,0)");
+    ctx2.fillStyle = g;
+    ctx2.beginPath();
+    ctx2.ellipse(mx, my + open * 3 * s, iw * 0.98, Math.max(2.5, ih * 1.05), 0, 0, Math.PI * 2);
+    ctx2.fill();
+    ctx2.restore();
+
+    ctx2.strokeStyle = "rgba(130,65,78," + (0.5 + open * 0.3) + ")";
+    ctx2.lineWidth = Math.max(1.2, 2.2 * s);
+    ctx2.lineCap = "round";
+    ctx2.beginPath();
+    ctx2.arc(mx, my - 1 * s, iw * 0.9, 0.11 * Math.PI, 0.89 * Math.PI);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.arc(mx, my + 5 * s + open * 8 * s, iw * 0.85, 1.11 * Math.PI, 1.89 * Math.PI);
+    ctx2.stroke();
+  }
+
+  function drawFrame() {
+    const w = cv.width, h = cv.height;
+    const fm = getFaceMode();
+    if (fm === "photo" && faceImgReady) {
+      ctx2.clearRect(0, 0, w, h);
+      drawCoverImage(faceImg, w, h);
+      drawMouthOverlay(w, h, mouth.open);
+    } else {
+      drawIllustratedFace();
+    }
+  }
+
+  function loadFaceFromUrl(url, useCors) {
+    if (!url) return;
+    faceImgReady = false;
+    faceImg.onload = function () {
+      faceImgReady = true;
+      imgStatus.textContent = "Imagen lista. Ajusta ↑↓ ←→ y tamaño si la boca no calza.";
+    };
+    faceImg.onerror = function () {
+      faceImgReady = false;
+      imgStatus.textContent = "Error al cargar (¿CORS? o URL inválida). Prueba un archivo local.";
+    };
+    if (useCors) faceImg.crossOrigin = "anonymous";
+    else faceImg.removeAttribute("crossorigin");
+    faceImg.src = url;
+  }
+
+  function drawIllustratedFace() {
     const w = cv.width, h = cv.height;
     const cx = w / 2;
     const cy = h / 2 + 8;
@@ -252,10 +386,55 @@
   }
 
   function loopDraw() {
-    drawMouth();
+    drawFrame();
     raf = requestAnimationFrame(loopDraw);
   }
   loopDraw();
+
+  document.getElementById("faceFile").addEventListener("change", function (e) {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (faceObjectUrl) {
+      try { URL.revokeObjectURL(faceObjectUrl); } catch (_) {}
+      faceObjectUrl = null;
+    }
+    faceObjectUrl = URL.createObjectURL(f);
+    loadFaceFromUrl(faceObjectUrl, false);
+    imgStatus.textContent = "Cargando archivo…";
+  });
+
+  document.getElementById("btnLoadUrl").addEventListener("click", function () {
+    const url = (document.getElementById("faceUrl").value || "").trim();
+    if (!url) {
+      imgStatus.textContent = "Pega una URL de imagen.";
+      return;
+    }
+    if (faceObjectUrl) {
+      try { URL.revokeObjectURL(faceObjectUrl); } catch (_) {}
+      faceObjectUrl = null;
+    }
+    loadFaceFromUrl(url, true);
+    imgStatus.textContent = "Cargando URL…";
+  });
+
+  document.querySelectorAll('input[name="faceMode"]').forEach(function (el) {
+    el.addEventListener("change", function () {
+      if (getFaceMode() === "photo" && !faceImgReady) {
+        imgStatus.textContent = "Sin imagen: carga archivo o URL, o cambia a ilustración.";
+      } else if (getFaceMode() === "draw") {
+        imgStatus.textContent = "Modo ilustración demo.";
+      }
+    });
+  });
+
+  function bindRange(rng, lbl) {
+    rng.addEventListener("input", function () {
+      lbl.textContent = rng.id === "rngS" ? rng.value + "%" : rng.value + "%";
+    });
+  }
+  bindRange(rngX, lblX);
+  bindRange(rngY, lblY);
+  bindRange(rngS, lblS);
 
   function setMode(m, label) {
     mode = m;
