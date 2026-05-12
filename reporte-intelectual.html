@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>XXEvaluación intelectual (CHC) – Reporte</title>
+  <title>GYYYYEvaluación intelectual (CHC) – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#4b5563; --line:#ddd;
@@ -625,9 +625,7 @@
     var note = document.createElement("p");
     note.className = "prio-intro-note";
     note.innerHTML =
-      "Igual que en el apartado 2 (descripción del instrumento): etiquetas cualitativas <span class=\"badge b-red\">1–40</span>, <span class=\"badge b-orange\">41–70</span>, " +
-      "<span class=\"badge b-green\">71–100</span> sólo sirven dentro de esta banca escolar piloto · <strong>no equivalen</strong> a cocientes ni percentiles externos. Aquí los factores están ordenados " +
-      "del menor al mayor puntaje dentro de <strong>este</strong> resultado; así se ve dónde conviene enfocar la primera ronda de acciones institucionales.";
+      "Los rangos cualitativos son los del <strong>apartado 2</strong>. Aquí solo se muestran factores ordenados <strong>de menor a mayor puntaje relativo</strong> en este intento, para decidir primeras acciones de refuerzo en el colegio (orientativas, no diagnóstico).";
     host.appendChild(note);
 
     if (!weakest.length) {
@@ -641,12 +639,21 @@
 
     var expl = document.createElement("div");
     expl.className = "interp-bloque-desc";
-    expl.innerHTML =
-      "Se destacan hasta <strong>tres</strong> ejes con menor desempeño relativo (<strong>" +
+    expl.textContent =
+      "Hasta tres ejes relativamente más bajos (" +
       weakest.length +
-      "</strong> en esta aplicación). Encajan con los bloques de detalle que siguen (razonamiento / memoria–eficiencia / comprensión–representación), con el perfil cuantitativo global (apartado 4), con las recomendaciones escolares (apartado 5) y con el plan sugerido (apartado 6).";
+      "). El detalle por bloques, recomendaciones y plan aparecen después (apartados 4 a 6).";
+
     host.appendChild(expl);
 
+    var accionesCab = document.createElement("div");
+    accionesCab.className = "interp-bloque-desc";
+    accionesCab.style.marginTop = "8px";
+    accionesCab.style.fontWeight = "700";
+    accionesCab.style.fontSize = "13px";
+    accionesCab.textContent =
+      "Sugerencias puntuales por factor — complementarias a los apartados 5 y 6.";
+    host.appendChild(accionesCab);
     weakest.forEach(function (w, idx) {
       var tierExtra = idx === 1 ? " prio-tier-2" : idx === 2 ? " prio-tier-3" : "";
       var box = document.createElement("div");
@@ -679,7 +686,7 @@
 
       var actTit = document.createElement("div");
       actTit.className = "prio-actions-title";
-      actTit.textContent = "Líneas de acción tácticas (contexto escolar · refuerzo, no etiqueta del estudiante)";
+      actTit.textContent = "Enfoque cercano al aula:";
       box.appendChild(actTit);
 
       var ul = document.createElement("ul");
@@ -692,37 +699,36 @@
       }
 
       var pr = tipEscolarFactor(w.code, w.pct);
-      var nj = nivelDeFranja(w.pct);
-      if (pr)
-        addLi(
-          "Acción alineada a la franja observada (\"" +
-            franjaInterpretacionNombre(w.pct) +
-            "\" en esta prueba piloto): " +
-            pr
-        );
+      if (pr) addLi(franjaInterpretacionNombre(w.pct) + ": " + pr);
       var sig = siguientePasoRefuerzo(w.code, w.pct);
       if (sig) addLi(sig);
-      addLi(
-        nj === "bajo"
-          ? "Documentar errores repetidos antes de nueva batería con el mismo factor; repetir formato similar en micro–bloques muy cortos (15–22 min)."
-          : "Contrastar errores sólo después de establecer rutina estable de práctica cercana al currículo (no aumentar nivel sumativo paralelo)."
-      );
-      addLi(
-        "Coordinación docente · orientador: ubicar materias donde " +
-          w.code +
-          " cargue esta semana sobre el mismo objetivo antes de proyectos extensos."
-      );
 
       box.appendChild(ul);
       host.appendChild(box);
     });
 
+    var postComun = document.createElement("div");
+    postComun.className = "interp-bloque-desc";
+    postComun.style.marginTop = "12px";
+    postComun.style.padding = "8px 10px";
+    postComun.style.background = "#f8fafc";
+    postComun.style.borderRadius = "8px";
+    postComun.style.border = "1px solid #e2e8f0";
+    postComun.style.fontSize = "13px";
+    postComun.style.lineHeight = "1.45";
+    postComun.innerHTML =
+      "<strong>Común a las prioridades de arriba:</strong> si el factor marca <strong>franja baja</strong>, conviene registrar tipos de error antes de volver al mismo formato en sesiones muy cortas (15–22 min). " +
+      "Si marca <strong>franja media</strong>, revisar errores cuando ya hay una rutina estable de práctica al currículo. " +
+      "Coordinación docente/orientador: alinear estos refuerzos con la materia donde cada código (Gf, Gwm, …) cargue esa semana, antes de proyectos largos.";
+
+    host.appendChild(postComun);
+
     var cierre = document.createElement("div");
     cierre.className = "interp-bloque-desc";
     cierre.style.marginTop = "10px";
-    cierre.innerHTML =
-      "<strong>Lectura prudente:</strong> valores altos globales pueden coexistir con un factor relativamente menor; ese contraste aparece porque el " +
-      "índice global de la primera página (I.G.) integra <strong>todos</strong> los ítem del intento aplicado, mientras cada barra factorial es proporción independiente dentro de su bloque.";
+    cierre.textContent =
+      "Un índice global alto puede coexistir con un factor bajo: el I.G. mezcla todo el banco; cada barra factorial es proporción dentro de su bloque (véase página 1).";
+
     host.appendChild(cierre);
   }
 
