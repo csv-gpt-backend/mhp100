@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>ffDEvaluación intelectual — modelo CHC</title>
+  <title>dsDEvaluación intelectual — modelo CHC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -208,6 +208,8 @@
     @media print {
       .side-strip, #btnRegresarMenu, .chc-nav, #btnIniciar, #btnChcPrev, #btnChcNext { display: none !important; }
       .page { max-width: none; }
+      #pantalla-preguntas .chc-quiz-shell { max-height: none !important; min-height: 0 !important; overflow: visible !important; }
+      #pantalla-preguntas .chc-quiz-scroll { overflow: visible !important; max-height: none !important; flex: none !important; }
     }
     h2 {
       font-size: 1.125rem;
@@ -227,10 +229,45 @@
       box-sizing: border-box;
       overflow: visible;
     }
-    #pantalla-preguntas .card {
-      min-height: 420px;
+    #pantalla-preguntas .card.chc-quiz-shell {
+      display: flex;
+      flex-direction: column;
+      max-height: min(calc(100vh - 96px), calc(100dvh - 96px));
+      min-height: min(420px, calc(100dvh - 96px));
+      overflow: hidden;
+    }
+    #pantalla-preguntas .chc-quiz-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
       overflow-x: hidden;
-      max-width: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    #pantalla-preguntas .chc-quiz-head {
+      flex-shrink: 0;
+      position: relative;
+      z-index: 6;
+    }
+    #pantalla-preguntas .sticky-wrap.chc-quiz-head {
+      position: relative;
+      top: auto;
+    }
+    #pantalla-preguntas .chc-quiz-footer {
+      flex-shrink: 0;
+      margin-top: 0;
+      padding-top: 10px;
+      border-top: 1px solid #e5e7eb;
+      background: #fff;
+      z-index: 5;
+    }
+    #pantalla-preguntas .chc-quiz-scroll .lexium-block-foot {
+      position: sticky;
+      bottom: 0;
+      z-index: 4;
+      margin-top: 14px;
+      padding: 10px 0 6px;
+      background: #fff;
+      box-shadow: 0 -8px 16px rgba(15, 23, 42, 0.07);
     }
     .grid-2 {
       display: grid;
@@ -1429,8 +1466,8 @@
       </section>
 
       <section id="pantalla-preguntas" class="hidden">
-        <div class="card">
-          <div class="sticky-wrap">
+        <div class="card chc-quiz-shell">
+          <div class="sticky-wrap chc-quiz-head">
             <h2 style="margin:0 0 6px;">Bloques de la prueba</h2>
             <div class="progress" aria-label="Progreso"><div class="bar" id="prog-bar"></div></div>
             <div style="margin:8px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
@@ -1438,8 +1475,10 @@
               <small class="muted" id="chc-meta"></small>
             </div>
           </div>
-          <div id="block-container"></div>
-          <div class="chc-nav">
+          <div class="chc-quiz-scroll" id="chc-quiz-scroll">
+            <div id="block-container"></div>
+          </div>
+          <div class="chc-nav chc-quiz-footer">
             <button type="button" id="btnChcPrev" class="hidden">Anterior</button>
             <button type="button" id="btnChcNext">Siguiente</button>
           </div>
@@ -3595,6 +3634,8 @@
       updateLexiumBlockFeet();
       refreshChcItemZonesDone();
     }, 0);
+    const qscroll = document.getElementById("chc-quiz-scroll");
+    if (qscroll) qscroll.scrollTop = 0;
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
