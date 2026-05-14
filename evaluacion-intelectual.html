@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>FFFEvaluación intelectual</title>
+  <title>MMMEvaluación intelectual</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -131,37 +131,8 @@
       margin: 10px 0 0;
       line-height: 1.4;
     }
-    .chc-resultados-wrap {
-      margin: 16px auto;
-      max-width: 560px;
-      text-align: left;
-    }
-    .chc-resultados-wrap .chc-res-foot { font-size: var(--chc-text); line-height: 1.45; }
-    .chc-result-h3 { font-size: 1.2rem; margin: 0 0 12px; color: #0f172a; }
-    .result-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: var(--chc-text);
-      background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #e5e7eb;
-    }
-    .result-table th, .result-table td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
-    .result-table thead th { background: #1e3a5f; color: #fff; text-align: left; font-size: var(--chc-text-sm); text-transform: uppercase; letter-spacing: 0.04em; }
-    .result-table tbody tr:last-child td { border-bottom: none; }
-    .result-table .num { text-align: right; font-variant-numeric: tabular-nums; }
-    .result-total-bar {
-      margin-top: 12px;
-      padding: 10px 12px;
-      background: #f0f9ff;
-      border: 1px solid #bae6fd;
-      border-radius: 8px;
-      font-size: var(--chc-text);
-    }
     .final-lead { max-width: 48ch; margin-left: auto; margin-right: auto; }
     .final-msg { margin-top: 12px; }
-    .final-foot { font-size: var(--chc-text); margin-top: 16px; }
     .final-msg.ok { color: #15803d; font-size: var(--chc-text); font-weight: 600; }
     .gwm-prog { font-size: var(--chc-text); font-weight: 800; color: #1d4ed8; margin: 0 0 8px; letter-spacing: 0.02em; }
     .gwm-wrap { width: 100%; }
@@ -1339,10 +1310,8 @@
     @media (max-width: 840px) {
       .side-strip span { font-size: 18px; }
     }
-    .header-lead { margin: 6px 0 0; max-width: 52ch; }
     .chc-landing-disclaimers { margin-bottom: 8px; }
     .instructions-foot { margin-top: 10px; }
-    #chc-meta { font-size: var(--chc-text); }
   </style>
 </head>
 <body>
@@ -1355,7 +1324,6 @@
 
       <div id="chc-landing-disclaimers" class="chc-landing-disclaimers">
         <p class="nivel-banco-nota" role="note"><strong>Nivel intermedio del banco (12–18 años):</strong> secundaria / bachillerato o equivalente internacional. No reemplaza normas de editoriales; resultados orientativos.</p>
-        <p class="muted header-lead">Herramienta orientativa para <strong>capacitación y selección</strong>; el informe definitivo requiere criterio profesional y, si aplica, tests estandarizados.</p>
       </div>
 
       <section id="datos-participante" class="card">
@@ -1422,11 +1390,9 @@
       <section id="pantalla-preguntas" class="hidden">
         <div class="card">
           <div class="sticky-wrap">
-            <h2 style="margin:0 0 6px;">Bloques de la prueba</h2>
             <div class="progress" aria-label="Progreso"><div class="bar" id="prog-bar"></div></div>
-            <div style="margin:8px 0; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+            <div style="margin:8px 0 0;">
               <span class="pill" id="step-pill">—</span>
-              <small class="muted" id="chc-meta"></small>
             </div>
           </div>
           <div id="block-container"></div>
@@ -1440,10 +1406,8 @@
       <section id="pantalla-final">
         <div class="check-icon">✔</div>
         <h2>Evaluación terminada</h2>
-        <p class="final-lead">Aquí aparece un <strong>resumen por ámbito</strong> según la configuración del servidor (puede copiarse para informe interno).</p>
-        <div id="chc-resultados-wrap" class="chc-resultados-wrap hidden" role="region" aria-label="Resultados por ámbito"></div>
+        <p class="final-lead">Sus <strong>datos de participación</strong> aparecen debajo (solo lectura). El detalle de puntuaciones e interpretación se entrega en el <strong>informe</strong>, no en esta pantalla.</p>
         <p id="chc-final-msg" class="hidden final-msg" role="status"></p>
-        <p class="muted final-foot" id="chc-final-version-foot"></p>
         <button type="button" id="btnRegresarMenu" class="secondary" style="margin-top:16px;">REGRESAR AL MENÚ</button>
       </section>
     </main>
@@ -1726,7 +1690,7 @@
     const s = v != null ? String(v) : String(VERSION_BANCO);
     return s.replace(/^CHC-/i, "").trim() || s;
   }
-  const NIVEL_BANCO_TXT = "Nivel intermedio del banco · edad orientativa aprox. 12–18 años (secundaria / bachillerato o equivalente internacional).";
+
 
   const STEPS = [
     {
@@ -1807,21 +1771,6 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
-  }
-
-  function buildResultsTableHtml(r) {
-    if (!r || !r.factores) return "";
-    const rows = r.factores;
-    let t = "<h3 class=\"chc-result-h3\">Resumen por ámbito</h3><table class=\"result-table\" role=\"table\"><caption class=\"sr-only\" style=\"position:absolute;left:-9999px\">Puntuación por ámbito</caption><thead><tr><th>Ámbito</th><th class=\"num\">Puntos</th><th class=\"num\">%</th></tr></thead><tbody>";
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      t += "<tr><td><strong>" + escHtml(row.label) + "</strong></td><td class=\"num\">" + row.score + " / " + row.max + "</td><td class=\"num\"><strong>" + row.pct + "</strong> %</td></tr>";
-    }
-    t += "</tbody></table>";
-    t += "<div class=\"result-total-bar\" role=\"status\">Total: <strong>" + r.total.puntos + " / " + r.total.max + "</strong> &nbsp;·&nbsp; Porcentaje global: <strong>" + r.total.pct + " %</strong> correcto aproximado</div>";
-    t += "<p class=\"chc-res-foot muted\" style=\"margin:10px 0 0;\">" + escHtml(etiquetaVersionBancoVisible(r.version_banco || VERSION_BANCO)) + " · Los porcentajes son informativos; la interpretación depende de la norma y el contexto del uso (no clínica).</p>";
-    t += "<p class=\"chc-res-foot muted\" style=\"margin:6px 0 0;\">" + escHtml(NIVEL_BANCO_TXT) + "</p>";
-    return t;
   }
 
   const ITEMS = {
@@ -3719,11 +3668,6 @@
     stateCHC.gsStart = null;
     stateCHC.gsMarked = new Set();
     if (gsTimerId) { clearInterval(gsTimerId); gsTimerId = null; }
-    const rw = document.getElementById("chc-resultados-wrap");
-    if (rw) {
-      rw.innerHTML = "";
-      rw.classList.add("hidden");
-    }
     const fm = document.getElementById("chc-final-msg");
     if (fm) {
       fm.textContent = "";
@@ -3754,11 +3698,6 @@
       return;
     }
     const resultados = buildResultados();
-    const resWrap = document.getElementById("chc-resultados-wrap");
-    if (resWrap) {
-      resWrap.classList.remove("hidden");
-      resWrap.innerHTML = buildResultsTableHtml(resultados);
-    }
     const payload = {
       codigo: CODIGO_ACTUAL,
       snapshot: {
@@ -3785,14 +3724,15 @@
       })
       .then(function () {
         const msg = document.getElementById("chc-final-msg");
-        msg.textContent = "Envío al servidor aceptado. El resumen arriba refleja esta sesión.";
+        msg.textContent =
+          "Envío al servidor aceptado. Tus datos de participación están en la tarjeta superior; las puntuaciones detalladas irán en el informe.";
         msg.classList.remove("hidden", "err");
         msg.classList.add("ok");
       })
       .catch(function () {
         const msg = document.getElementById("chc-final-msg");
         msg.textContent =
-          "Atención: no se pudo confirmar el guardado en el servidor. El resumen mostrado corresponde a tu sesión; en este dispositivo el progreso pudo quedar almacenado. Contacta al coordinador si se requiere registro en servidor.";
+          "Atención: no se pudo confirmar el guardado en el servidor. Esta pantalla muestra solo tus datos; el detalle por puntuaciones quedará en el informe cuando el registro esté disponible. El progreso puede haberse guardado en este dispositivo: contacta al coordinador si hace falta.";
         msg.classList.remove("hidden", "ok");
         msg.classList.add("err");
       })
@@ -3801,7 +3741,7 @@
         document.getElementById("pantalla-preguntas").classList.add("hidden");
         document.getElementById("datos-participante").classList.remove("hidden");
         document.getElementById("pantalla-final").style.display = "block";
-        document.getElementById("pantalla-final").scrollIntoView({ behavior: "smooth", block: "start" });
+        document.getElementById("datos-participante").scrollIntoView({ behavior: "smooth", block: "start" });
       });
   }
 
@@ -3873,16 +3813,6 @@
     const vb = document.getElementById("version-badge");
     const vtxt = typeof VERSION_BANCO !== "undefined" ? etiquetaVersionBancoVisible(VERSION_BANCO) : "v2";
     if (vb) vb.textContent = vtxt.startsWith("v") ? vtxt : "v" + vtxt;
-    const cm = document.getElementById("chc-meta");
-    if (cm) cm.textContent = "Versión del banco: " + (vtxt.startsWith("v") ? vtxt : "v" + vtxt);
-    const ff = document.getElementById("chc-final-version-foot");
-    if (ff) {
-      const vis = vtxt.startsWith("v") ? vtxt : "v" + vtxt;
-      ff.innerHTML =
-        "Versión del banco <strong>" +
-        vis +
-        "</strong> (nivel intermedio orientativo 12–18). Resultados no sustituyen instrumentos estandarizados ni valoración clínica.";
-    }
   });
 })();
   </script>
