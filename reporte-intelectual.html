@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>DEvaluación intelectual – Reporte</title>
+  <title>CCCEvaluación intelectual – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#4b5563; --line:#ddd;
@@ -52,7 +52,7 @@
       .rep-top-row2{font-size:22px !important;margin-bottom:0 !important}
       .rep-top-row3{font-size:15px !important}
       #pageResultadosGlobales{page-break-before:always;break-before:page;margin-top:0;padding-top:0;}
-      .chc-wrap-factores,.chc-wrap-indice-global,.ci-sim-wrap,.interp-prio-wrap,.prio-factor-box{break-inside:avoid;}
+      .chc-wrap-factores,.chc-wrap-indice-global,.ci-sim-wrap,.interp-prio-wrap,.prio-factor-box,.tres-grupos-promedio-row{break-inside:avoid;}
     }
 
     .interp-bloque-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px;}
@@ -234,8 +234,6 @@
         </div>
       </div>
 
-      <p class="chc-pagina1-resumen" role="note" style="margin:14px 0 0;font-size:14px;line-height:1.52;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"><strong>Lectura de esta página:</strong> Los indicadores <strong>IRZ</strong>, <strong>IME</strong> e <strong>ICR</strong> son el <strong>promedio de los porcentajes</strong> dentro de cada bloque acordado por el departamento de Psicología (la explicación detallada aparece después, en el apartado 2: Descripción del instrumento y criterios de interpretación) — no equivalen al 50&nbsp;% del examen entendido como mitad puntuable. El <strong>I.G.</strong> de más abajo es otro resultado: <strong>todos los aciertos del intento respecto del total del banco</strong>; no es el promedio de IRZ, IME e ICR ni la suma de los porcentajes fila por fila. El <strong>CI simulado</strong> de esta versión usa como entrada la <strong>media aritmética entre los porcentajes de los siete ámbitos del banco con dato válido</strong>; no debe confundirse con el I.G. ni pretende ser CI clínico.</p>
-
       <div class="chc-wrap-factores">
       <div class="bloque-title">
         <div class="bloque-left"><span class="bloque-bullet"></span><span>BLOQUE DE RAZONAMIENTO</span></div>
@@ -258,6 +256,12 @@
       <p class="muted" style="font-size:12px;margin:0 0 8px;line-height:1.45;color:#475569;"><strong>Incluye:</strong> comprensión verbal · procesamiento visual-espacial.</p>
       <div class="rep-bloque" id="bloqueCompRep"></div>
       </div>
+
+      <div class="iie-row tres-grupos-promedio-row" role="note" aria-label="Promedio de IRZ IME ICR">
+        <span style="margin-right:auto;font-weight:800;font-size:15px;line-height:1.35;max-width:min(100%,520px);">Promedio de los tres índices de grupo (<strong>IRZ</strong> · <strong>IME</strong> · <strong>ICR</strong>):</span>
+        <span class="ih-badge" id="ihPromedioGrupos" title="Media aritmética redondeada de IRZ + IME + ICR (estos tres índices de la misma página)">—</span>
+      </div>
+      <p class="muted" style="margin:0 0 12px;font-size:12px;line-height:1.45;color:#64748b;">Distinto del I.G. y del CI simulado que aparecen debajo.</p>
 
       <div class="chc-wrap-indice-global">
       <div class="ci-sim-wrap" id="ciSimWrap" aria-labelledby="ciSimTitulo">
@@ -320,7 +324,7 @@
       <h2 class="interp-title">2.- Descripción del instrumento y criterios de interpretación</h2>
       <div class="interp-bloque">
         <div class="interp-legend">
-          <p class="interp-legend-row">Este banco piloto mide <b>siete ámbitos</b> distribuidos en tres grupos institucionales. Cada valor es el <b>% de aciertos</b> de ese subtema dentro del intento. En página 1 (criterio Psicología): el <b>IRZ</b> es el promedio de los porcentajes de <b>razonamiento fluido</b> y <b>razonamiento cuantitativo</b>; la <b>IME</b> agrupa la media de <b>memoria de trabajo</b>, <b>velocidad de procesamiento</b> y <b>memoria asociativa / recuperación</b>; el <b>ICR</b> agrupa la media de <b>comprensión verbal</b> y <b>procesamiento visual-espacial</b>. El <b>I.G.</b> es el acierto sobre <b>todos</b> los ítems del banco — no suma los tres índices de grupo ni es su promedio.</p>
+          <p class="interp-legend-row">Este banco piloto mide <b>siete ámbitos</b> distribuidos en tres grupos institucionales. Cada valor es el <b>% de aciertos</b> de ese subtema dentro del intento. En página 1 (criterio Psicología): el <b>IRZ</b> es el promedio de los porcentajes de <b>razonamiento fluido</b> y <b>razonamiento cuantitativo</b>; la <b>IME</b> agrupa la media de <b>memoria de trabajo</b>, <b>velocidad de procesamiento</b> y <b>memoria asociativa / recuperación</b>; el <b>ICR</b> agrupa la media de <b>comprensión verbal</b> y <b>procesamiento visual-espacial</b>. El <b>I.G.</b> es el acierto sobre <b>todos</b> los ítems del banco — no suma los tres índices de grupo ni es su promedio. <strong>Debajo</strong> de esos tres bloques en la primera página aparece la <strong>media aritmética entre IRZ, IME e ICR</strong>; es distinta del <b>I.G.</b> y del número del CI simulado.</p>
           <div class="interp-legend-row">Referencias <b>internas</b> (no son percentiles clínicos salvo norma propia):</div>
           <div class="interp-legend-row">
             <span class="badge b-red">1–40 · Bajo</span>
@@ -1441,6 +1445,9 @@
     if (elME) elME.textContent = String(imeVal);
     var elCR = document.getElementById("ihCompRep");
     if (elCR) elCR.textContent = String(icrVal);
+    var promTresIdx = Math.round((Number(irzVal) + Number(imeVal) + Number(icrVal)) / 3);
+    var elPG = document.getElementById("ihPromedioGrupos");
+    if (elPG) elPG.textContent = isNaN(promTresIdx) ? "—" : String(promTresIdx);
     document.getElementById("repIGlobal").textContent = String(Math.round(ig));
     applyCISimulatedDOM(rows, r.total || null);
 
