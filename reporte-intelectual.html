@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>REP Evaluación intelectual (CHC) – Reporte</title>
+  <title>55Evaluación intelectual (CHC) – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#4b5563; --line:#ddd;
@@ -234,7 +234,7 @@
         </div>
       </div>
 
-      <p class="chc-pagina1-resumen" role="note" style="margin:14px 0 0;font-size:14px;line-height:1.52;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"><strong>Lectura de esta página:</strong> Los indicadores <strong>IRZ</strong>, <strong>IME</strong> e <strong>ICR</strong> son el <strong>promedio de los porcentajes</strong> dentro de cada bloque acordado por el departamento de Psicología (la explicación detallada aparece después, en el apartado 2: Descripción del instrumento y criterios de interpretación) — no equivalen al 50&nbsp;% del examen entendido como mitad puntuable. El <strong>I.G.</strong> de más abajo es otro resultado: <strong>todos los aciertos del intento respecto del total del banco</strong>; no es el promedio de IRZ, IME e ICR ni la suma de los porcentajes factor a factor.</p>
+      <p class="chc-pagina1-resumen" role="note" style="margin:14px 0 0;font-size:14px;line-height:1.52;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"><strong>Lectura de esta página:</strong> Los indicadores <strong>IRZ</strong>, <strong>IME</strong> e <strong>ICR</strong> son el <strong>promedio de los porcentajes</strong> dentro de cada bloque acordado por el departamento de Psicología (la explicación detallada aparece después, en el apartado 2: Descripción del instrumento y criterios de interpretación) — no equivalen al 50&nbsp;% del examen entendido como mitad puntuable. El <strong>I.G.</strong> de más abajo es otro resultado: <strong>todos los aciertos del intento respecto del total del banco</strong>; no es el promedio de IRZ, IME e ICR ni la suma de los porcentajes factor a factor. El <strong>CI simulado</strong> de esta versión sí usa como entrada la <strong>media aritmética entre los porcentajes de los siete factores CHC del banco con dato</strong>; no debe confundirse con el I.G. ni pretende ser CI clínico.</p>
 
       <div class="chc-wrap-factores">
       <div class="bloque-title">
@@ -262,11 +262,11 @@
       <div class="chc-wrap-indice-global">
       <div class="ci-sim-wrap" id="ciSimWrap" aria-labelledby="ciSimTitulo">
         <div class="ci-sim-row">
-          <span class="ci-sim-row-lead" id="ciSimTitulo"><strong>Coeficiente intelectual mostrado (simulado)</strong><br><span style="font-weight:600;font-size:13px;color:#475569;">No es CI clínico ni normado por edad. Derivado en esta versión sólo del % global del banco (mapeo lineal orientativo).</span></span>
+          <span class="ci-sim-row-lead" id="ciSimTitulo"><strong>Coeficiente intelectual mostrado (simulado)</strong><br><span style="font-weight:600;font-size:13px;color:#475569;">No es CI clínico ni normado por edad. En esta versión se deriva con mapeo lineal orientativo a partir de la <strong>media</strong> de los % de los <strong>siete factores CHC</strong> que tengan dato en este intento (no del I.G. del banco).</span></span>
           <span class="ci-sim-num" id="repCISimValor" title="Valor ilustrativo">—</span>
           <span class="ci-sim-nivel-badge" id="repCISimNivel" title="Etiqueta orientativa">—</span>
         </div>
-        <p class="ci-sim-foot">Fórmula interna de simulación (orientativa): ~60–130 a partir del I.G. en % (0 % → 60; 50 % → 95; 100 % → 130). Cuando exista norma propia por edad, este bloque debe sustituirse o anularse.</p>
+        <p class="ci-sim-foot">Fórmula interna de simulación (orientativa): ~60–130 a partir del <strong>% entrada</strong> (0&nbsp;% → 60; 50&nbsp;% → 95; 100&nbsp;% → 130). La entrada es la <strong>media aritmética de los siete % factoriales CHC válidos</strong>; si no hubiera ninguno, se usa como respaldo el I.G. del banco. Cuando exista norma propia por edad, este bloque debe sustituirse o anularse.</p>
         <div class="ci-sim-leyenda" role="doc-footnote"><strong>Rangos de etiqueta (sobre el valor simulado):</strong> <span id="repCISimLeyenda">—</span></div>
       </div>
 
@@ -391,7 +391,7 @@
     return Math.max(a, Math.min(b, n));
   }
 
-  /** CI sólo ilustrativo: lineal desde % global (approx. 60–130 cuando el % está 0–100). */
+  /** CI sólo ilustrativo: lineal desde % de entrada (approx. 60–130 cuando el % está 0–100); la entrada efectiva viene de `pctEntradaCISimulado` (media factorial o respaldo I.G.). */
   function simulatedCIFromPctGlobal(pct) {
     var p = clamp(Number(pct) || 0, 0, 100);
     return Math.round(60 + p * 0.7);
@@ -411,9 +411,8 @@
   var CI_SIM_LEYENDA_TXT =
     "MUY BAJO (\u226469) · BAJO (70–79) · PROMEDIO BAJO (80–89) · ADECUADO (90–109) · PROMEDIO ALTO (110–119) · ALTO (120–129) · MUY ALTO (\u2265130).";
 
-  function applyCISimulatedDOM(total) {
-    var pct = total && total.pct != null ? Number(total.pct) : 0;
-    pct = clamp(pct, 0, 100);
+  function applyCISimulatedDOM(rows, totalFallback) {
+    var pct = pctEntradaCISimulado(rows || [], totalFallback || null);
     var iq = simulatedCIFromPctGlobal(pct);
     var nv = nivelCISimFromIQ(iq);
     var elV = document.getElementById("repCISimValor");
@@ -766,6 +765,31 @@
   var CHC_GRUPO_RAZON = ["Gf", "Gq"];
   var CHC_GRUPO_MEM_EF = ["Gwm", "Gs", "Glr"];
   var CHC_GRUPO_COMP_REP = ["Gc", "Gv"];
+  /** Siete factores CHC del banco piloto para media simple (entrada CI simulado / criterio Psicología). */
+  var CHC_CODIGOS_SIETE = CHC_GRUPO_RAZON.concat(CHC_GRUPO_MEM_EF).concat(CHC_GRUPO_COMP_REP);
+
+  /** Media aritmética de los % de cada factor válido (`null` si ningún factor con dato). */
+  function pctMediaSimpleFactoresCHC(rows) {
+    var list = (rows || []).filter(function (r) {
+      return (
+        r &&
+        CHC_CODIGOS_SIETE.indexOf(r.code) >= 0 &&
+        r.pct != null &&
+        !isNaN(Number(r.pct)) &&
+        !r._pendiente
+      );
+    });
+    if (!list.length) return null;
+    return list.reduce(function (s, x) { return s + Number(x.pct); }, 0) / list.length;
+  }
+
+  /** % que alimenta el CI simulado: primero media de factores; si no hay datos, I.G. del banco. */
+  function pctEntradaCISimulado(rows, totalFallback) {
+    var m = pctMediaSimpleFactoresCHC(rows);
+    if (m != null) return clamp(m, 0, 100);
+    if (totalFallback && totalFallback.pct != null) return clamp(Number(totalFallback.pct), 0, 100);
+    return 0;
+  }
 
   var BLOQUE_CHC_TEXTO = {
     razon:
@@ -898,17 +922,20 @@
     liTxt("IME · memoria y eficiencia cognitiva — promedio Gwm, Gs, Glr: " + Math.round(Number(ime) || 0));
     liTxt("ICR · comprensión y representación — promedio Gc, Gv: " + Math.round(Number(icr) || 0));
     liTxt("I.G. · porcentaje aproximado de aciertos sobre el conjunto del banco: " + Math.round(Number(ig) || 0), true);
-    var pctTot = ctx && ctx.resultados && ctx.resultados.total && ctx.resultados.total.pct != null
-      ? Number(ctx.resultados.total.pct)
-      : Number(ig);
-    var iqSim = simulatedCIFromPctGlobal(pctTot);
+    var pctCi = pctEntradaCISimulado(rows, ctx && ctx.resultados ? ctx.resultados.total : null);
+    var pctCiRounded = Math.round(Number(pctCi) || 0);
+    var iqSim = simulatedCIFromPctGlobal(pctCi);
     var nvSim = nivelCISimFromIQ(iqSim);
     liTxt(
-      "CI simulado (no normado; derivado sólo del I.G.; ver advertencia página 1): " +
-      iqSim +
-      " (\"" +
-      nvSim.text +
-      "\")"
+      "CI simulado (orientativo · no normado): " +
+        iqSim +
+        " («" +
+        nvSim.text +
+        "»). Según criterio Psicología: la entrada es la media aritmética de los porcentajes de los siete factores CHC con dato válido (valor redondeado al entero cercano: " +
+        pctCiRounded +
+        " %). El I.G. del banco más arriba (" +
+        Math.round(Number(ig) || 0) +
+        " %) es el acierto global sobre todos los ítems y no entra en esta simulación."
     );
     host.appendChild(ul);
 
@@ -1421,7 +1448,7 @@
     var elCR = document.getElementById("ihCompRep");
     if (elCR) elCR.textContent = String(icrVal);
     document.getElementById("repIGlobal").textContent = String(Math.round(ig));
-    applyCISimulatedDOM(r.total || null);
+    applyCISimulatedDOM(rows, r.total || null);
 
     buildBloqueHost("bloqueRazon", razonFilas);
     buildBloqueHost("bloqueMemEf", memEfFilas);
