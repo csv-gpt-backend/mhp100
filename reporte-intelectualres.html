@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>ffffREP 1 Evaluación intelectual (CHC) – Reporte</title>
+  <title>FDDDEvaluación intelectual (CHC) – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#4b5563; --line:#ddd;
@@ -14,7 +14,7 @@
     .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
     h1,h2,h3{margin:0 0 8px 0}
     .muted{color:var(--muted)}
-    .topbar{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+    .topbar{display:flex;gap:12px;align-items:center;margin-bottom:8px;justify-content:center;flex-wrap:wrap}
     .topbar input{flex:1;max-width:220px;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;text-transform:uppercase}
     .btn{padding:9px 14px;border-radius:999px;border:0;background:#1a8f3b;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
     .msg{margin-left:8px;font-weight:700}
@@ -23,6 +23,9 @@
     /* Texto principal del informe algo mayor que el topbar para lectura en portátil */
     #reporteContainer{font-size:15px;line-height:1.52;}
     .hint{font-size:13px;color:var(--muted);margin-bottom:8px}
+    .hint.ingreso-usuario{text-align:center;font-size:12px;line-height:1.45;margin-top:-2px;margin-bottom:14px}
+    .intro-logo-wrap{display:flex;justify-content:center;align-items:center;margin:28px 0 12px;}
+    .intro-logo{width:220px;max-width:70vw;height:auto;object-fit:contain}
 
     .rep-top{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:6px;}
     .rep-top-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:13px;margin-bottom:6px;}
@@ -40,7 +43,7 @@
     .page-break{height:0;margin:0;border:0}
     @media print{
       @page{ size:A4; margin:8mm 8mm }
-      .topbar,.hint,.no-print{display:none !important}
+      .topbar,.hint,.intro-logo-wrap,.no-print{display:none !important}
       body{zoom:0.92;}
       .wrap{max-width:none;margin:0 auto;padding:0 6px}
       #page1{zoom:0.90;page-break-after:always; break-after:page;}
@@ -157,12 +160,15 @@
 </head>
 <body>
 <div class="wrap">
+  <div class="intro-logo-wrap no-print">
+    <img src="assets/logo_adalam.png" alt="Adalam" class="intro-logo" width="200" height="80"/>
+  </div>
   <div class="topbar">
     <input id="codigoInput" placeholder="Código (ej. CHC001)" maxlength="32"/>
     <button type="button" class="btn" id="btnVer">Ver reporte</button>
     <span id="msg" class="msg"></span>
   </div>
-  <div id="hintOrigen" class="hint">Tip: <code>?codigo=SU_CODIGO</code>. Este informe necesita el JSON <strong>resultados</strong> en la tabla <strong>attempts</strong> del mismo proyecto (no sólo lista en participants). Datos locales: clave <code>eval_chc_state_</code> + código · servidor: <code>/api/report?…&amp;tipo=chc</code>.</div>
+  <div class="hint ingreso-usuario">Ingrese un <strong>código válido</strong>, el mismo que <strong>utilizó</strong> para realizar la evaluación intelectual (el ejemplo del campo de arriba es solo orientativo).</div>
 
   <div id="reporteContainer" style="display:none">
 
@@ -228,27 +234,29 @@
         </div>
       </div>
 
-      <p class="chc-pagina1-resumen" role="note" style="margin:14px 0 0;font-size:14px;line-height:1.52;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"><strong>Lectura de esta página:</strong> <strong>IFV</strong> e <strong>ICV</strong> son el promedio de los % dentro de cada grupo de factores — no equivalen al «50 % del examen». El <strong>I.G.</strong> de más abajo es otro resultado: <strong>todos tus aciertos del intento respecto del total del banco</strong>; no es el promedio de IFV e ICV ni la suma de los % por factor.</p>
+      <p class="chc-pagina1-resumen" role="note" style="margin:14px 0 0;font-size:14px;line-height:1.52;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#1e293b;"><strong>Lectura de esta página:</strong> Los indicadores <strong>IRZ</strong>, <strong>IME</strong> e <strong>ICR</strong> son el <strong>promedio de los porcentajes</strong> dentro de cada bloque acordado por el departamento de Psicología (la explicación detallada aparece después, en el apartado 2: Descripción del instrumento y criterios de interpretación) — no equivalen al 50&nbsp;% del examen entendido como mitad puntuable. El <strong>I.G.</strong> de más abajo es otro resultado: <strong>todos los aciertos del intento respecto del total del banco</strong>; no es el promedio de IRZ, IME e ICR ni la suma de los porcentajes factor a factor.</p>
 
       <div class="chc-wrap-factores">
       <div class="bloque-title">
-        <div class="bloque-left"><span class="bloque-bullet"></span><span>PROCESAMIENTO FLUIDO, MEMORIA DE TRABAJO Y VELOCIDAD</span></div>
-        <div>IFV: <span class="ih-badge" id="ihFluido">—</span></div>
+        <div class="bloque-left"><span class="bloque-bullet"></span><span>BLOQUE DE RAZONAMIENTO (Gf · Gq)</span></div>
+        <div>IRZ: <span class="ih-badge" id="ihRazon">—</span></div>
       </div>
-      <div class="rep-bloque" id="bloqueFluido"></div>
+      <p class="muted" style="font-size:12px;margin:0 0 8px;line-height:1.45;color:#475569;"><strong>Gf</strong> = razonamiento fluido · <strong>Gq</strong> = razonamiento cuantitativo.</p>
+      <div class="rep-bloque" id="bloqueRazon"></div>
 
       <div class="bloque-title">
-        <div class="bloque-left"><span class="bloque-bullet"></span><span>CONOCIMIENTO VERBAL, MEMORIA ASOCIATIVA Y VISUAL</span></div>
-        <div>ICV: <span class="ih-badge" id="ihCristal">—</span></div>
+        <div class="bloque-left"><span class="bloque-bullet" style="background:#0d9488"></span><span>BLOQUE DE MEMORIA Y EFICIENCIA COGNITIVA (Gwm · Gs · Glr)</span></div>
+        <div>IME: <span class="ih-badge" id="ihMemEf">—</span></div>
       </div>
-      <div class="rep-bloque" id="bloqueCristal"></div>
+      <p class="muted" style="font-size:12px;margin:0 0 8px;line-height:1.45;color:#475569;"><strong>Gwm</strong> = memoria de trabajo · <strong>Gs</strong> = velocidad de procesamiento · <strong>Glr</strong> = memoria asociativa / recuperación a largo plazo.</p>
+      <div class="rep-bloque" id="bloqueMemEf"></div>
 
       <div class="bloque-title">
-        <div class="bloque-left"><span class="bloque-bullet" style="background:#4f46e5"></span><span>RAZONAMIENTO CUANTITATIVO (Gq)</span></div>
-        <div style="font-size:12px;font-weight:700;color:#4338ca">CHC · reserva</div>
+        <div class="bloque-left"><span class="bloque-bullet" style="background:#4f46e5"></span><span>BLOQUE DE COMPRENSIÓN Y REPRESENTACIÓN (Gc · Gv)</span></div>
+        <div>ICR: <span class="ih-badge" id="ihCompRep">—</span></div>
       </div>
-      <p class="muted" style="font-size:12px;margin:0 0 8px;line-height:1.45;color:#475569;">Los ítems de este factor se integrarán en una versión próxima del banco. Hasta entonces se muestra el espacio reservado; <strong>no</strong> entra en IFV ni en ICV.</p>
-      <div class="rep-bloque" id="bloqueGq"></div>
+      <p class="muted" style="font-size:12px;margin:0 0 8px;line-height:1.45;color:#475569;"><strong>Gc</strong> = comprensión verbal · <strong>Gv</strong> = procesamiento visual-espacial.</p>
+      <div class="rep-bloque" id="bloqueCompRep"></div>
       </div>
 
       <div class="chc-wrap-indice-global">
@@ -262,7 +270,7 @@
         <div class="ci-sim-leyenda" role="doc-footnote"><strong>Rangos de etiqueta (sobre el valor simulado):</strong> <span id="repCISimLeyenda">—</span></div>
       </div>
 
-      <p class="chc-indice-kicker"><strong>Índice sobre el banco completo.</strong> El valor azul y la franja de lectura integrada <strong>más abajo</strong> resumen <strong>todos los ítems</strong> del intento (aciertos respecto del total del banco). <strong>No</strong> es el promedio entre IFV e ICV ni continúa los bloques anteriores.</p>
+      <p class="chc-indice-kicker"><strong>Índice sobre el banco completo.</strong> El valor azul y la franja de lectura integrada <strong>más abajo</strong> resumen <strong>todos los ítems</strong> del intento (aciertos respecto del total del banco). <strong>No</strong> es el promedio entre IRZ, IME e ICR ni continúa los bloques anteriores.</p>
       <div class="iie-row">
         <span>ÍNDICE GLOBAL APROXIMADO (I.G. · % correcto del banco):</span>
         <span class="iie-badge" id="repIGlobal">—</span>
@@ -312,25 +320,24 @@
       <h2 class="interp-title">2.- Descripción del instrumento y criterios de interpretación</h2>
       <div class="interp-bloque">
         <div class="interp-legend">
-          <p class="interp-legend-row">La evaluación implementa un banco piloto inspirado en el modelo Cattell-Horn-Carroll (CHC), con factores abreviados <b>Gf, Gc, Gwm, Gs, Gv</b>, <b>Glr</b> y <b>Gq</b> (este último con ítems en incorporación según versión del banco). Los puntajes son <b>porcentajes de acierto</b> sobre el conjunto de ítems aplicados en la versión activa del banco publicada.</p>
-          <div class="interp-legend-row">Para facilitar la lectura se utilizan tres rangos de referencia <b>interna</b> (no clínica ni percentil normado salvo norma propia):</div>
+          <p class="interp-legend-row">Banco piloto inspirado en el modelo CHC. Factores medidos: <b>Gf, Gq, Gc, Gwm, Gs, Glr, Gv</b>. Cada valor es el <b>% de aciertos</b> de ese bloque en el intento. En página 1 (criterio Psicología): <b>IRZ</b> = promedio de Gf y Gq; <b>IME</b> = Gwm, Gs y Glr; <b>ICR</b> = Gc y Gv. El <b>I.G.</b> es el acierto sobre <b>todos</b> los ítems del banco — no suma los tres bloques anteriores ni es su promedio.</p>
+          <div class="interp-legend-row">Referencias <b>internas</b> (no son percentiles clínicos salvo norma propia):</div>
           <div class="interp-legend-row">
             <span class="badge b-red">1–40 · Bajo</span>
             <span class="badge b-orange">41–70 · Medio</span>
             <span class="badge b-green">71–100 · Alto</span>
           </div>
-          <div class="interp-legend-row">Los colores de barra siguen esa misma lógica con respecto al <b>puntaje alto = mayor acierto en el ítem o factor</b> (no existe escala invertida en este instrumento).</div>
-          <div class="interp-legend-row">El instrumento sintetiza el desempeño en dos grandes conjuntos en la página 1 (procesamiento fluido con memoria de trabajo y velocidad; y conocimiento cristalizado con memoria asociativa y visual), muestra aparte el factor <b>Gq</b> cuando exista bloque de ítems, además de un índice global aproximado y la lectura integrada sobre el resultado completo.</div>
-          <div class="interp-legend-row muted">Este informe es <b>único para contexto escolar</b>; no distingue rutas profesionales u ocupacionales. No sustituye baterías comerciales ni evaluación neuropsicológica o clínica.</div>
-          <div class="interp-legend-row muted">Justo después, un bloque adicional desarrolla con <b>mayor incidencia</b> los <b>factores con puntaje proporcional más bajo en este intento frente al resto de factores</b> del mismo resultado, manteniendo las mismas reglas cualitativas de arriba y propuestas tácticas de refuerzo (no diagnóstico).</div>
+          <div class="interp-legend-row">En gráficas y barras: <b>más alto</b> = más aciertos (no hay escala invertida).</div>
+          <div class="interp-legend-row muted">Informe para <b>uso escolar</b>; no sustituye baterías comerciales ni valoración neuropsicológica o clínica. No orienta rutas ocupacionales.</div>
+          <div class="interp-legend-row muted">El siguiente bloque destaca los factores con <b>menor desempeño relativo</b> en este intento y sugiere refuerzos puntuales; <b>no es diagnóstico</b>.</div>
         </div>
       </div>
 
       <div id="interpPrioridades" class="interp-bloque interp-prio-wrap"><!-- priorización factorial vía JS --></div>
 
-      <div id="interpDetFluido" class="interp-bloque"></div>
-      <div id="interpDetCristal" class="interp-bloque"></div>
-      <div id="interpDetGq" class="interp-bloque"></div>
+      <div id="interpDetRazon" class="interp-bloque"></div>
+      <div id="interpDetMemEf" class="interp-bloque"></div>
+      <div id="interpDetCompRep" class="interp-bloque"></div>
       <div id="interpDetGlobo" class="interp-bloque"></div>
 
       <div id="perfilGlobal" class="interp-bloque"></div>
@@ -565,7 +572,7 @@
     return r && r.pct != null && !isNaN(Number(r.pct)) && !r._pendiente;
   }
 
-  /** Hasta «lim» factores con menor % válido en este intento (orden estable por código si empatan). */
+  /** Hasta `lim` factores con menor % válido en este intento (orden estable por código si empatan). */
   function obtenerFactoresDebilesOrden(rows, lim) {
     var L = typeof lim === "number" ? lim : 3;
     var arr = rows
@@ -591,16 +598,16 @@
     var o = FACT_ESC_TIPS[code];
     if (!o) return null;
     var nk = nivelDeFranja(pct);
-    if (nk === "bajo" && o.medio) return "Tras establecer hábitos mínimos: " + o.medio;
-    if (nk === "medio" && o.alto) return "Si el puntaje ya se estabiliza en franja media: " + o.alto;
+    if (nk === "bajo" && o.medio) return "Después de 1–2 semanas con la tarea anterior, pasar a: " + o.medio;
+    if (nk === "medio" && o.alto) return "Si ya hay buen ritmo, subir nivel con: " + o.alto;
     return null;
   }
 
-  function franjaInterpretacionNombre(pct) {
+  function etiquetaPrioridadFactoresIntro(pct) {
     var nk = nivelDeFranja(pct);
-    if (nk === "bajo") return "baja (orientativa · 1–40 % dentro del modelo del informe)";
-    if (nk === "medio") return "media (orientativa · 41–70 %)";
-    return "alta orientativa (71–100 %)";
+    if (nk === "bajo") return "Ejercicio (franja baja en el informe · 1–40 %)";
+    if (nk === "medio") return "Ejercicio (franja media · 41–70 %)";
+    return "Ejercicio (franja alta · más de 70 %)";
   }
 
   function renderBloquePrioridadFactores(rows) {
@@ -618,9 +625,7 @@
     var note = document.createElement("p");
     note.className = "prio-intro-note";
     note.innerHTML =
-      "Misma lógica de §2: etiquetas cualitativas <span class=\"badge b-red\">1–40</span>, <span class=\"badge b-orange\">41–70</span>, " +
-      "<span class=\"badge b-green\">71–100</span> sólo sirven dentro de esta banca escolar piloto · <strong>no equivalen</strong> a cocientes ni percentiles externos. Aquí los factores están ordenados " +
-      "del menor al mayor puntaje dentro de <strong>este</strong> resultado; así se ve dónde conviene enfocar la primera ronda de acciones institucionales.";
+      "Los rangos cualitativos son los del <strong>apartado 2</strong>. Aquí solo se muestran factores ordenados <strong>de menor a mayor puntaje relativo</strong> en este intento, para decidir primeras acciones de refuerzo en el colegio (orientativas, no diagnóstico).";
     host.appendChild(note);
 
     if (!weakest.length) {
@@ -634,12 +639,21 @@
 
     var expl = document.createElement("div");
     expl.className = "interp-bloque-desc";
-    expl.innerHTML =
-      "Se destacan hasta <strong>tres</strong> ejes con menor desempeño relativo observado aquí (<strong>" +
+    expl.textContent =
+      "Hasta tres ejes relativamente más bajos (" +
       weakest.length +
-      "</strong> en esta aplicación). Integre con las tarjetas de detalle que siguen (bloques procesamiento / cristal / Gq) y con §4–6 del informe.";
+      "). El detalle por bloques, recomendaciones y plan aparecen después (apartados 4 a 6).";
+
     host.appendChild(expl);
 
+    var accionesCab = document.createElement("div");
+    accionesCab.className = "interp-bloque-desc";
+    accionesCab.style.marginTop = "8px";
+    accionesCab.style.fontWeight = "700";
+    accionesCab.style.fontSize = "13px";
+    accionesCab.textContent =
+      "Sugerencias puntuales por factor — complementarias a los apartados 5 y 6.";
+    host.appendChild(accionesCab);
     weakest.forEach(function (w, idx) {
       var tierExtra = idx === 1 ? " prio-tier-2" : idx === 2 ? " prio-tier-3" : "";
       var box = document.createElement("div");
@@ -672,7 +686,7 @@
 
       var actTit = document.createElement("div");
       actTit.className = "prio-actions-title";
-      actTit.textContent = "Líneas de acción tácticas (contexto escolar · refuerzo, no etiqueta del estudiante)";
+      actTit.textContent = "Enfoque cercano al aula:";
       box.appendChild(actTit);
 
       var ul = document.createElement("ul");
@@ -685,37 +699,35 @@
       }
 
       var pr = tipEscolarFactor(w.code, w.pct);
-      var nj = nivelDeFranja(w.pct);
-      if (pr)
-        addLi(
-          "Acción alineada a franja observada («" +
-            franjaInterpretacionNombre(w.pct) +
-            "» dentro de esta prueba piloto): " +
-            pr
-        );
+      if (pr) addLi(etiquetaPrioridadFactoresIntro(w.pct) + ": " + pr);
       var sig = siguientePasoRefuerzo(w.code, w.pct);
       if (sig) addLi(sig);
-      addLi(
-        nj === "bajo"
-          ? "Documentar errores repetidos antes de nueva batería con el mismo factor; repetir formato similar en micro–bloques muy cortos (15–22 min)."
-          : "Contrastar errores sólo después de establecer rutina estable de práctica cercana al currículo (no aumentar nivel sumativo paralelo)."
-      );
-      addLi(
-        "Coordinación docente · orientador: ubicar materias donde " +
-          w.code +
-          " cargue esta semana sobre el mismo objetivo antes de proyectos extensos."
-      );
 
       box.appendChild(ul);
       host.appendChild(box);
     });
 
+    var postComun = document.createElement("div");
+    postComun.className = "interp-bloque-desc";
+    postComun.style.marginTop = "12px";
+    postComun.style.padding = "8px 10px";
+    postComun.style.background = "#f8fafc";
+    postComun.style.borderRadius = "8px";
+    postComun.style.border = "1px solid #e2e8f0";
+    postComun.style.fontSize = "13px";
+    postComun.style.lineHeight = "1.45";
+    postComun.innerHTML =
+      "<strong>Antes de repetir otro igual:</strong> con franja <strong>baja</strong>, después de cada microsesión de 15–22 min escribir <em>una</em> línea: tipo de error (sin etiquetar a la persona). Con franja <strong>media</strong>, usar esas anotaciones solo tras tres días seguidos en la rutina corta. " +
+      "<strong>En el colegio:</strong> coordinar materia/objetivos de esa semana con docente u orientador antes de proyectos extensos.";
+
+    host.appendChild(postComun);
+
     var cierre = document.createElement("div");
     cierre.className = "interp-bloque-desc";
     cierre.style.marginTop = "10px";
-    cierre.innerHTML =
-      "<strong>Lectura prudente:</strong> valores altos globales pueden coexistir con un factor relativamente menor; ese contraste aparece porque el " +
-      "índice total (pág. 1 · I.G.) integra <strong>todos</strong> los ítem del intento aplicado, mientras cada barra factorial es proporción independiente dentro de su bloque.";
+    cierre.textContent =
+      "Un índice global alto puede coexistir con un factor bajo: el I.G. mezcla todo el banco; cada barra factorial es proporción dentro de su bloque (véase página 1).";
+
     host.appendChild(cierre);
   }
 
@@ -742,20 +754,28 @@
   }
 
   var FACTOR_CHC_DESC = {
-    Gf: "Capacidad de resolver situaciones relativamente nuevas, detectar relaciones implícitas y transferir estrategias de un ejercicio a otro dentro del trabajo escolar.",
-    Gc: "Conocimiento verbal y léxico desarrollados en clase: vocabulario, conceptos disciplinarios y automatismos de lectura/comprensión relacionados con el currículo.",
-    Gwm: "Mantener y reorganizar información en la memoria operativa durante unos instantes para seguir pasos largos sin perder datos intermedios.",
-    Gs: "Rapidez y fluidez en tareas donde el formato preve tiempo corto entre ítem e ítem, propio de algunos automatismos y revisiones rápidas en el ámbito académico.",
-    Gv: "Manipulación mental de figuras, orientación espacial y comprensión de representaciones bidimensionales típicas de mapas, gráficas o geometrías básicas.",
-    Glr: "Asociar, codificar y volver a utilizar contenidos recién estudiados: memoria de asociación en listas breves y encadenamiento de información significativa.",
-    Gq: "Razonamiento con números, relaciones cuantitativas y relaciones lógico-matemáticas en contexto escolar: proporciones, relaciones entre cantidades y aplicación de reglas sobre información numérica o simbólica."
+    Gf: "Hallar patrones o reglas en ejercicios no memorizados (series, proporciones muy guiadas, figuras relacionadas). Se entrena mejor con uno o dos problemas cortos después de clase que con lecturas largas sólo teoría.",
+    Gc: "Que el léxico escolar llegue vivo a los textos y tareas escritas del curso. Lista editable: 5 palabras nuevas al terminar el día lectivo y repasarlas al día siguiente (10 min mismo horario, solo estudiante).",
+    Gwm: "Sostener en mente unos datos mientras ejecuta el paso siguiente (p. ej. números o condiciones del enunciado). Si falla, conviene repetirlos en voz alta o anotarlos en el borrador antes de tachar opción nueva.",
+    Gs: "Hacer rápido con sentido usando límites de tiempo razonables y corrigiendo errores después.",
+    Gv: "Leer bien mapas simples, gráficas escolares y figuras antes de marcar sólo clic. Una ayuda concreta: recorte igual a la figura del libro durante 1–2 min para ver tamaño y giro antes de responder.",
+    Glr: "Que lo estudiado vuelva a aparecer algunos días después; mejor repartir el repaso que dejar todo para la misma víspera. Tarjetitas breves día 1, 3 y 7 son suficientes al inicio.",
+    Gq: "Ordenar en el papel el dato y la operación antes de usar calculadora marcar opción múltiple; verificar una vez con método distinto (p. ej. proporción rápida o dibujo mínimo) ayuda detectar errores."
   };
 
+  var CHC_GRUPO_RAZON = ["Gf", "Gq"];
+  var CHC_GRUPO_MEM_EF = ["Gwm", "Gs", "Glr"];
+  var CHC_GRUPO_COMP_REP = ["Gc", "Gv"];
+
   var BLOQUE_CHC_TEXTO = {
-    fluido: "Agrupa razonamiento en tareas relativamente nuevas (Gf), memoria de trabajo aplicada durante el desempeño (Gwm) y aspectos relacionados con la velocidad o fluidez (Gs) dentro de los ítems del banco escolar aplicado.",
-    cristal: "Integra conocimiento verbal acumulado (Gc), recuperación memorística asociativa (Glr) y trabajo visual–espacial (Gv), competencias muy presentes en textos escolares, mapas conceptuales y material gráfico.",
-    gq: "El factor Gq (razonamiento cuantitativo en el modelo CHC) sintetiza el desempeño en tareas con carga numérica o lógico-matemática cuando el banco incluye un bloque específico de ítems. Si aún no hay ítems publicados para Gq en la versión vigente, el informe mantiene esta sección como reserva hasta la actualización del instrumento.",
-    global: "Sintetiza el acierto aproximado sobre el conjunto de ítems del intento. Siempre debe leerse junto al detalle factor a factor porque perfiles muy distintos pueden mostrar números globales parecidos."
+    razon:
+      "Según el modelo de lectura institucional definido con Psicología, integra razonamiento fluido (Gf) y razonamiento cuantitativo (Gq): resolución con reglas nuevas o poco automatizadas y relaciones cuantitativas en formato escolar.",
+    memEf:
+      "Agrupa memoria de trabajo (Gwm), velocidad de procesamiento (Gs) y memoria asociativa o recuperación a largo plazo (Glr): retención transitoria durante el desempeño, fluidez ante límites de tiempo y recuperación verbal asociativa.",
+    compRep:
+      "Agrupa comprensión verbal (Gc) y procesamiento visual-espacial (Gv): léxico y lectura relacionados con currículo, y organización espacial de figuras y representaciones bidimensionales.",
+    global:
+      "Sintetiza el acierto aproximado sobre el conjunto de ítems del intento. Siempre debe leerse junto al detalle factor a factor porque perfiles muy distintos pueden mostrar números globales parecidos."
   };
 
   function rowBy(rows, code) {
@@ -854,7 +874,7 @@
     );
   }
 
-  function renderPerfilCuantitativoGlobalCHC(ctx, ifv, icv, ig, rows) {
+  function renderPerfilCuantitativoGlobalCHC(ctx, irz, ime, icr, ig, rows) {
     var host = document.getElementById("perfilGlobal");
     if (!host) return;
     host.innerHTML = "";
@@ -874,8 +894,9 @@
       if (destacarIg) li.classList.add("perfil-iie");
       ul.appendChild(li);
     }
-    liTxt("IFV · procesamiento fluido, memoria de trabajo y velocidad (promedio Gf/Gwm/Gs): " + Math.round(Number(ifv) || 0));
-    liTxt("ICV · conocimiento verbal, memoria asociativa y visual–espacial (promedio Gc/Glr/Gv): " + Math.round(Number(icv) || 0));
+    liTxt("IRZ · bloque de razonamiento — promedio Gf, Gq: " + Math.round(Number(irz) || 0));
+    liTxt("IME · memoria y eficiencia cognitiva — promedio Gwm, Gs, Glr: " + Math.round(Number(ime) || 0));
+    liTxt("ICR · comprensión y representación — promedio Gc, Gv: " + Math.round(Number(icr) || 0));
     liTxt("I.G. · porcentaje aproximado de aciertos sobre el conjunto del banco: " + Math.round(Number(ig) || 0), true);
     var pctTot = ctx && ctx.resultados && ctx.resultados.total && ctx.resultados.total.pct != null
       ? Number(ctx.resultados.total.pct)
@@ -915,7 +936,7 @@
     });
     var subt2 = document.createElement("div");
     subt2.className = "plan-section-title";
-    subt2.textContent = "Orden de perfil (menor → mayor % factorial con dato; mismo criterio que §3)";
+    subt2.textContent = "Orden de perfil (menor a mayor porcentaje por factor cuando hay dato; mismo criterio que el apartado 3, priorización relativa)";
     subt2.style.marginTop = "10px";
     host.appendChild(subt2);
     var ulOrd = document.createElement("ul");
@@ -940,35 +961,102 @@
     host.appendChild(ulOrd);
   }
 
-  var REC_ESC_IFV = {
-    bajo: ["Micro–tareas de 15–20 min por bloque temático separando razonamiento, memoria rápida y velocidad cuando el formato combine esos elementos.", "Revisión de errores dos veces por semana con checklist escrito antes de nueva práctica masiva"],
-    medio: ["Alternar cada sesión entre un ítem novedoso y uno ya automatizado antes de cortes de clase importantes.", "Usar tiempo visible sólo donde el formato del banco realmente penaliza tiempo, no durante todo estudio paralelo"],
-    alto: ["Mantener práctica sólo después de ordenar errores típicos; evitar aumentar sólo volumen sin variar formato de aplicación."]
+  var REC_ESC_IRZ = {
+    bajo: [
+      "Después de clase, mismo escritorio, 18 min, 4 noches/semana: en papel ordena breve cada paso y recién tachar en libro 2 problemas (patrón muy simple más proporciones chicas del mismo párrafo trabajado en clase). Solo estudiante; si igual error el día 3 del mismo formato, reunión rápida con docente sólo método distinto sin sumativa nueva inmediata.",
+      "Cuaderno: antes de nueva tanda similar, una línea con el tipo de fallo repetido (serie, proporción, figura)."
+    ],
+    medio: [
+      "Sesión hogar (~20 min, mismo horario/lugar): mitad tiempo ítem nuevo de patrones/figuras del tema; mitad proporción muy guiada similar a la clase. Solo estudiante; si igual error igual semana, hablar con docente una pregunta concreta de método antes de nueva tanda igual.",
+      "Antes de marcar en el libro escribir en borrador aparte una frase corta: ¿qué pide literal esta pregunta?; después tachar igual página. · 12 min · solo estudiante."
+    ],
+    alto: [
+      "Combinar día dibujo/tablas pequeños y día siguiente solo lista de números sobre el mismo núcleo; evitar sólo copias iguales. · ~22 min · tres noches/semana · mismo escritorio · solo estudiante."
+    ]
   };
 
-  var REC_ESC_ICV = {
-    bajo: ["Glosario activo pegado por unidad y repasar al abrir clase cuatro noches cada quince días.", "Mapa o línea temporal visual amplia combinando léxico nuevo y ubicación cuando Gv aparece bajo también"],
-    medio: ["Alternar lectura oral y escrita corta sobre el mismo subtema el mismo día antes de cambiar de materia.", "Pregunta breve usando un nuevo término aprendido al cierre del periodo donde Gc muestra comportamiento medio."], 
-    alto: ["Comprobar conocimiento verbal enseñando en voz alta a un compañero o familiar un micro-tema."]
+  var REC_ESC_IME = {
+    bajo: [
+      "Información nueva con muchos pasos: usar listados numerados en pizarra o guía (apoya la memoria de trabajo). Sugerencia: 15 min al inicio del tema esa semana, en clase con docente.",
+      "Tareas con tiempo corto (Gs): cuando el concepto esté seguro, bloques de ~8 min con temporizador suave, priorizar aciertos antes que velocidad. · 3 noches/semana · en casa mismo horario · solo estudiante.",
+      "Glr — reparto en el tiempo: 5 fichas el día que se estudia, repaso muy breve el día 3 y el día 7 (10 min cada uno) · mismo escritorio · solo estudiante."
+    ],
+    medio: [
+      "Repasar igual contenido: primero en voz alta (~5 min), luego por escrito (~5 min) antes de una nueva unidad · en casa mismo horario.",
+      "Una sesión dos rondas de ~8 min con el mismo tipo de ejercicios: corregir errores después de la primera ronda. · casa · solo estudiante."
+    ],
+    alto: [
+      "Siga alternando formato (oral, escrito, esquema) y anote errores puntuales aunque el índice del bloque siga alto. · ~22 min · 3 noches/semana mismo lugar · solo estudiante."
+    ]
+  };
+
+  var REC_ESC_ICR = {
+    bajo: [
+      "Gc: en el margen del cuaderno de la materia, 5 palabras nuevas con definición de una línea; repasarlas al día siguiente durante 12 min mismo horario; solo estudiante (familiar sólo oyente si hace falta).",
+      "Gv antes de clic en pantalla: recorte papel del tamaño real de la figura del libro, girarlo 1–2 min sobre la mesa. · 10 min · en casa mismo horario · solo estudiante.",
+      "Cierre breve clase o casa: hacer una frase nueva con un término visto ese día (~8 min mismo horario) · puede ser con familia oyendo sin hacer la respuesta por el estudiante."
+    ],
+    medio: [
+      "Pregunta al docente o familiar usando 1 término nuevo del día (~10 min) · mismo horario nocturno · llevar lista breve preparada ese día en clase.",
+      "Mismo subtema: leer párrafo corto ~5 min ver mini mapa dibujado papel ~5 min antes proyecto grande · solo estudiante."
+    ],
+    alto: [
+      "~10 min voz alta explicando un tema cerrado sin apoyo escrito · luego 10 min señalar en papel sólo etiquetas/ejes del gráfico del libro · mismo horario habitual · solo estudiante."
+    ]
   };
 
   var REC_ESC_IG = {
-    bajo: ["Priorizar el refuerzo de los factores marcados tras revisar errores repetidos antes de subir nivel de todas las materias.", "Registrar con docente sólo contenidos marcados hasta dominar esa capa antes de sumar nueva exigencia"],
-    medio: ["Distribuir práctica: tiempo dedicado proporcionalmente a factores rezagados pero sin abandonar hábitos de estudio habitual"],
-    alto: ["Ofrecer ampliaciones sólo después de automatizar hábitos básicos (planificación corta visible)."]
+    bajo: [
+      "En casa tres noches/semana (~20 min, mismo escritorio tras clase, solo estudiante; familiar cercano sólo escucha si hace falta): revisar errores repetidos asociados a los factores señalados en el informe antes de aumentar a la vez la exigencia en todas las materias.",
+      "Con el docente: acordar lista breve de objetivos y capas antes de la siguiente evaluación sumativa (charla rápida ~10 min)."
+    ],
+    medio: [
+      "Tabla semanal con tres bloques fijos (~20 min) destinados a factores rezagados sin abandonar hábitos habituales en el resto de materias · solo estudiante mismo horario."
+    ],
+    alto: [
+      "Antes de sumar nuevas extracurriculares escribir en cartel visible el horario breve de la semana siguiente (5 min cada domingo por la noche) · revisar igual horario con familia."
+    ]
   };
 
   var FACT_ESC_TIPS = {
-    Gf: { bajo: "Series cortas ¿qué no encaja? 2× por semana, 12 minutos.", medio: "Un problema distinto cada día revisando sólo estrategia, no resultado final inicial.", alto: "Mismo problema en otro medio (dibujo texto número) antes de nueva dificultad." },
-    Gc: { bajo: "Cinco tarjetas de concepto por día con respuesta rápida al terminar clase.", medio: "Pregunta con un término nuevo al día al docente o familiar.", alto: "Explicación sin apoyo después de cerrar tema en clase antes de proyecto extra." },
-    Gwm: { bajo: "En cadena en voz tres datos antes del siguiente paso del ejercicio.", medio: "Anotación obligatoria de datos intermediarios en papel antes de responder.", alto: "Problemas con dos pasos y pausa antes de segunda mitad memorizada." },
-    Gs: { bajo: "Actividad cronométrica corta enfocándose sólo en acierto estable, no sólo marca rápida.", medio: "Repetición con tiempo extendido después de mejorar primera versión.", alto: "Mantener práctica incluso donde no existe cronometraje diario formal." },
-    Gv: { bajo: "Modelos recortados físicos antes de resolver sólo opción cerrada espacial.", medio: "Marcar centro de rotación antes de responder figuras rotadas.", alto: "Puzzles combinando escala y leyenda simple." },
-    Glr: { bajo: "Repaso día 1-3-7 con fichas cortas.", medio: "Resumen línea antes de nueva materia sin mirar libro.", alto: "Repetición oral en mismo orden otros tres intentos dispersos semana." },
-    Gq: { bajo: "Fijar procedimientos mínimos con calculadora sólo después de plantear el problema en papel.", medio: "Mezclar formato numérico y verificación múltiple elegida antes de comparar con pares.", alto: "Plantear la misma relación en dos escalas distintas (tabla proporciones / diagrama barra)." }
+    Gf: {
+      bajo: "Qué hacer: marcar elemento que rompe serie o figurita muy simple y decir antes «por eso». · ¿Cuánto? 14 min · ¿Cuándo? 4 noches/semana tras clase, mismo escritorio tranquilo · ¿Con quién? solo estudiante; adulto cercano sólo repite consignas del libro si tras dos intentos sigue igual.",
+      medio: "Misma sesión hogar (~20 min, mismo lugar): mitad problema patrón/figuras nuevas de la guía, mitad mini proporciones del mismo párrafo de clase · solo estudiante · si igual error tres veces en la misma semana, pregunta concreta método al docente el viernes.",
+      alto: "Mismo problema núcleo dos noches seguidas: noche 1 con dibujo o tabla corta · noche 2 solo lista de números · 18 min cada noche · 3 noches/semana mismo lugar · sin subir nueva dificultad hasta repetir ese esquema con seguridad · solo estudiante."
+    },
+    Gc: {
+      bajo: "5 fichas (anverso: palabra · reverso: oración ejemplo) al terminar el día lectivo · repasar al día siguiente · 12 min · mismo escritorio mismo horario · solo estudiante · familiar cercano oyente sí, sin hacer la respuesta por el estudiante.",
+      medio: "Cada día 1 preguntita al docente o familiar usando término nuevo anotado en clase · 10 min · mismo espacio habitual nocturno · solo estudiante pregunta; adulto sólo aclara definición puntual.",
+      alto: "Cerrar tema pequeño: explicarlo en voz alta ~10 min sin apoyo escrito ese mismo día · solo estudiante; familiar escucha sin interrumpir."
+    },
+    Gwm: {
+      bajo: "Qué hacer: leer el problema, decir en voz alta tres datos clave orden (cantidades, condiciones, pedido), volcarlos al borrador, ejecutar primera operación y sólo después marcar en el libro. · 12–14 min · 4 noches/semana tras clase mismo horario · mismo escritorio tranquilo · primero solo estudiante; familiar cercano repite sólo las consignas si hace falta segundo intento, sin resolver por él.",
+      medio: "Antes de tachar libro: datos intermediarios escritos como columnitas en borrador + consignas completas revisadas una vez más · ~15 min · tareas materias con cuentas o pasos · solo estudiante misma mesa habitual.",
+      alto: "Problemas cortos de dos pasos con pausa 5 min entre pasos (memoriza segunda mitad al volver) · sesión ~18 min · 3 noches/semana · mismo escritorio tranquilo · solo estudiante."
+    },
+    Gs: {
+      bajo: "Dos corridas (~8 min c/u, temporizador suave) con igual tipo del libro: corrige errores antes de segunda corrida · enfoque en aciertos, no sólo marca rápida · 3 noches/semana, mismo escritorio tranquilo después de clase · solo estudiante.",
+      medio: "Dos rondas de 10 min la misma noche con igual tipo de ejercicios: entre ronda anota errores repetidos · solo estudiante usando borrador.",
+      alto: "Aunque la clase casi no use cronómetro día a día, en casa háganse tres sesiones de ~12 min priorizando aciertos estable antes que sólo velocidad. · mismo escritorio tranquilo · 3 noches/semana igual horario tras clase · solo estudiante."
+    },
+    Gv: {
+      bajo: "Antes de marcar en pantalla: recorta figura del libro al mismo tamaño, gírala en la mesa 2 min, luego 10 min con mini preguntas visuales del mismo libro · misma noche habitual · solo estudiante.",
+      medio: "Con lápiz marcar centro de rotación en figuritas antes de tachar libro · ~10 min · 3 noches/semana igual lugar · solo estudiante.",
+      alto: "Pequeños puzzles que pidan interpretar escalas iguales leyendas igual ~15 papel min igual 3 noches semana igual escritorio tranquilos igual solo igual estudiante."
+    },
+    Glr: {
+      bajo: "Cinco fichas: estudio papel día papel 1, repaso papel día papel 3, repaso papel día papel 7 (10 min cada igual noche) · misma hora escritorio tranquilo papel solo papel estudiante.",
+      medio: "Resumen sin libro abierto: una línea con lo nuevo aprendido ese día (~10 min) antes siguiente clase nueva · mismo horario habitual · solo estudiante.",
+      alto: "Tres repaso oral mismo orden igual contenidos semana dispersadas 15 papel min cada noche solo estudiante papel."
+    },
+    Gq: {
+      bajo: "Borrador mínimos datos operaciones antes calculadora papel marcas opciones múltiples · 15 papel min · tres noches semana papel misma papel horarios papel solo papel estudiante.",
+      medio: "Mezclar papel preguntas numéricas papel verificación papel múltiples elegidas 12 papel min antes papel comparar papel resultados papel con compañeros papel papel aparte papel juntos papel mesa papel.",
+      alto: "Misma relaciones cuantitativas dos representaciones distintas papel tabla papel proporciones o barras papel sencillas 15 papel min 3 papel noches semana puede papel parejas papel papel aparte papel."
+    }
   };
 
-  function renderRecomEscolar(rows, ifv, icv, ig) {
+  function renderRecomEscolar(rows, irz, ime, icr, ig) {
     var host = document.getElementById("recomendacionesCHC");
     if (!host) return;
     host.innerHTML = "";
@@ -997,8 +1085,9 @@
       host.appendChild(ul);
     }
 
-    var nifv = nivelDeFranja(ifv);
-    var nicv = nivelDeFranja(icv);
+    var nirz = nivelDeFranja(irz);
+    var nime = nivelDeFranja(ime);
+    var nicr = nivelDeFranja(icr);
     var nig = nivelDeFranja(ig);
 
     var weakest3 = obtenerFactoresDebilesOrden(rows, 3);
@@ -1024,19 +1113,20 @@
       );
     });
     addGroup(
-      "Primero — refuerzo focal coherentes con §3 (tres menores puntajes relativos válidos)",
+      "Primero — refuerzo focal alineado con el apartado 3 (los tres puntajes relativos más bajos que apliquen)",
       enfocados
     );
 
-    addGroup("Según IFV — " + nifv, REC_ESC_IFV[nifv] || []);
-    addGroup("Según ICV — " + nicv, REC_ESC_ICV[nicv] || []);
+    addGroup("Según IRZ (razonamiento) — " + nirz, REC_ESC_IRZ[nirz] || []);
+    addGroup("Según IME (memoria y eficiencia) — " + nime, REC_ESC_IME[nime] || []);
+    addGroup("Según ICR (comprensión y representación) — " + nicr, REC_ESC_ICR[nicr] || []);
     addGroup("Según I.G. global — " + nig, REC_ESC_IG[nig] || []);
 
     var notaRef = document.createElement("div");
     notaRef.className = "interp-bloque-desc";
     notaRef.style.marginTop = "8px";
     notaRef.textContent =
-      "Las líneas IFV · ICV · I.G. sintetizan bloques grandes o el total aplicado (pág. 1). La lista «Primero» conecta con los factores concretos marcados cuando conviene acotar el foco institucional en etapas breves.";
+      "Las líneas IRZ · IME · ICR · I.G. sintetizan los tres bloques institucionales de la página 1 y el total del banco. La sección llamada Primero enlaza factores concretos cuando conviene acotar el foco.";
     host.appendChild(notaRef);
 
     var nota = document.createElement("div");
@@ -1057,7 +1147,7 @@
     var sub = document.createElement("div");
     sub.className = "recom-subtitle";
     sub.textContent =
-      "Armoniza estudiante · hogar · aula usando las mismas prioridades relativas ya descritas (§3 y §5 arriba). No clasifica ocupaciones ni rutas profesionales.";
+      "Armoniza estudiante, hogar y aula con las mismas prioridades relativas que ya están en los apartados 3 y 5 (más arriba). No clasifica ocupaciones ni rutas profesionales.";
     host.appendChild(sub);
 
     var weakest = obtenerFactoresDebilesOrden(rows, 3);
@@ -1088,7 +1178,7 @@
     bloqueTitulo("Para el estudiante");
     lista([
       "Elegir un horario repetible tres veces/semana incluso cuando sea corto (15–25 min).",
-      w1 ? "Este periodo: priorizar micro–prácticas relacionadas con " + w1.code + " (" + w1.label + " · " + Math.round(Number(w1.pct) || 0) + "% en este intento) antes que ampliaciones generales nuevas." : "Iniciar refuerzos por el menor factor relativo marcado en §3 usando material próximo a lo trabajado en clase.",
+      w1 ? "Este periodo: priorizar micro–prácticas relacionadas con " + w1.code + " (" + w1.label + " · " + Math.round(Number(w1.pct) || 0) + "% en este intento) antes que ampliaciones generales nuevas." : "Iniciar refuerzos por el menor factor relativo que indica el apartado 3, con material cercano a lo trabajado en clase.",
       w2 ? "Distribuir segunda micro–sesión semanal hacia " + w2.code + " sólo después de tener rutina estable con prioridad " + (w1 && w1.code ? "1 (" + w1.code + ")" : "principal") + "." : "",
       w3 ? "Registro rápido (tríada ✓ sí / parcial / no) tres veces en la semana para " + w3.code + "; no extender tiempo si sólo aumenta dispersión." : "",
       "Registrar práctica útil sólo cuando se completó sin apoyos que no estarán disponibles mañana en evaluaciones formales.",
@@ -1107,7 +1197,7 @@
 
     bloqueTitulo("En el aula y acompañamiento docente u orientador");
     lista([
-      "Retroalimentar primero causa del tipo de fallo relacionado al factor más bajo (§3) antes de nueva abstracción temática paralela.",
+      "Retroalimentar primero la causa del tipo de fallo ligado al factor más bajo (según apartado 3) antes de abrir otra línea temática nueva en paralelo.",
       "Repetir breve formato distinto muy simple cuando varios errores del mismo código factorial reaparecen en la misma unidad.",
       w1 ? "Seguimiento explícito a la práctica destinada al factor " + w1.code + " esta quincena; confirmar antes de nueva evaluación sumativa relacionada." : "",
       w2 ? "Revisión grupal muy corta de estrategias típicas de " + w2.code + " si varios estudiantes comparten ese hueco dentro del paralelo observado aquí sólo institucionalmente." : "",
@@ -1168,41 +1258,41 @@
   }
 
   function renderInterpretacionExtendida(ctx, rows, extras) {
-    var ifv = extras.ifv;
-    var icv = extras.icv;
+    var irz = extras.irz;
+    var ime = extras.ime;
+    var icr = extras.icr;
     var ig = extras.ig;
     var igR = Math.round(Number(ig) || 0);
 
     renderBloquePrioridadFactores(rows);
 
     renderBloqueDetalleCHC(
-      "interpDetFluido",
-      "PROCESAMIENTO FLUIDO, MEMORIA DE TRABAJO Y VELOCIDAD",
-      BLOQUE_CHC_TEXTO.fluido,
+      "interpDetRazon",
+      "BLOQUE DE RAZONAMIENTO (Gf · Gq)",
+      BLOQUE_CHC_TEXTO.razon,
       rows,
-      ["Gf", "Gwm", "Gs"],
-      ifv
+      CHC_GRUPO_RAZON,
+      irz
     );
     renderBloqueDetalleCHC(
-      "interpDetCristal",
-      "CONOCIMIENTO VERBAL, MEMORIA ASOCIATIVA Y VISUAL–ESPACIAL",
-      BLOQUE_CHC_TEXTO.cristal,
+      "interpDetMemEf",
+      "BLOQUE DE MEMORIA Y EFICIENCIA COGNITIVA (Gwm · Gs · Glr)",
+      BLOQUE_CHC_TEXTO.memEf,
       rows,
-      ["Gc", "Glr", "Gv"],
-      icv
+      CHC_GRUPO_MEM_EF,
+      ime
     );
     renderBloqueDetalleCHC(
-      "interpDetGq",
-      "RAZONAMIENTO CUANTITATIVO (Gq)",
-      BLOQUE_CHC_TEXTO.gq,
+      "interpDetCompRep",
+      "BLOQUE DE COMPRENSIÓN Y REPRESENTACIÓN (Gc · Gv)",
+      BLOQUE_CHC_TEXTO.compRep,
       rows,
-      ["Gq"],
-      null,
-      true
+      CHC_GRUPO_COMP_REP,
+      icr
     );
     renderLecturaGlobalCHC(igR);
-    renderPerfilCuantitativoGlobalCHC(ctx, ifv, icv, ig, rows);
-    renderRecomEscolar(rows, ifv, icv, ig);
+    renderPerfilCuantitativoGlobalCHC(ctx, irz, ime, icr, ig, rows);
+    renderRecomEscolar(rows, irz, ime, icr, ig);
     renderPlanEscolar(rows);
     fillTablaGlobales(rows, extras.totales, extras.resultados);
   }
@@ -1273,29 +1363,35 @@
     requestAnimationFrame(function () { setCurveMarker(ig); });
     setTimeout(function () { setCurveMarker(ig); }, 120);
 
-    const fluido = rows.filter(function (x) { return ["Gf", "Gwm", "Gs"].indexOf(x.code) >= 0; });
-    const cristal = rows.filter(function (x) { return ["Gc", "Glr", "Gv"].indexOf(x.code) >= 0; });
-    const gqFilas = rows.filter(function (x) { return x.code === "Gq"; });
+    const razonFilas = rows.filter(function (x) { return CHC_GRUPO_RAZON.indexOf(x.code) >= 0; });
+    const memEfFilas = rows.filter(function (x) { return CHC_GRUPO_MEM_EF.indexOf(x.code) >= 0; });
+    const compRepFilas = rows.filter(function (x) { return CHC_GRUPO_COMP_REP.indexOf(x.code) >= 0; });
 
-    document.getElementById("ihFluido").textContent = String(avgPct(rows, ["Gf", "Gwm", "Gs"]));
-    document.getElementById("ihCristal").textContent = String(avgPct(rows, ["Gc", "Glr", "Gv"]));
+    var irzVal = avgPct(rows, CHC_GRUPO_RAZON);
+    var imeVal = avgPct(rows, CHC_GRUPO_MEM_EF);
+    var icrVal = avgPct(rows, CHC_GRUPO_COMP_REP);
+
+    var elRZ = document.getElementById("ihRazon");
+    if (elRZ) elRZ.textContent = String(irzVal);
+    var elME = document.getElementById("ihMemEf");
+    if (elME) elME.textContent = String(imeVal);
+    var elCR = document.getElementById("ihCompRep");
+    if (elCR) elCR.textContent = String(icrVal);
     document.getElementById("repIGlobal").textContent = String(Math.round(ig));
     applyCISimulatedDOM(r.total || null);
 
-    buildBloqueHost("bloqueFluido", fluido);
-    buildBloqueHost("bloqueCristal", cristal);
-    buildBloqueHost("bloqueGq", gqFilas);
+    buildBloqueHost("bloqueRazon", razonFilas);
+    buildBloqueHost("bloqueMemEf", memEfFilas);
+    buildBloqueHost("bloqueCompRep", compRepFilas);
 
     renderResumenLine("resumenGlobal", "DESEMPEÑO GLOBAL EN EL BANCO (aprox.)", Math.round(ig));
 
     applyMetaHighlights(r);
 
-    var ifvVal = avgPct(rows, ["Gf", "Gwm", "Gs"]);
-    var icvVal = avgPct(rows, ["Gc", "Glr", "Gv"]);
-
     renderInterpretacionExtendida(ctx, rows, {
-      ifv: ifvVal,
-      icv: icvVal,
+      irz: irzVal,
+      ime: imeVal,
+      icr: icrVal,
       ig: ig,
       totals: r.total || null,
       resultados: r
@@ -1342,9 +1438,9 @@
       throw new Error(
         esFile ?
           "No hay servidor: abra esta página desde el mismo sitio donde corre la API (p. ej. http://localhost:3000/reporte-intelectual.html), no como archivo disco (file:///)."
-          : ("Sin conexión con el servidor («" +
+          : ("Sin conexión con el servidor (" +
             String(net.message || net) +
-            "»). Comprueba que está publicado `/api/report` desde el mismo origen.")
+            "). Comprueba que está publicado `/api/report` desde el mismo origen.")
       );
     }
     let data = {};
@@ -1370,7 +1466,7 @@
     const resParsed = parseResultados(att.resultados);
     if (!esInformeIntelAceptable(resParsed)) {
       throw new Error(
-        "Los datos guardados en «resultados» no traen los factores CHC (vacío u otra prueba). Revise la fila en la tabla attempts o vuelva a finalizar desde la evaluación."
+        "Los datos guardados en el campo resultados no traen los factores CHC (vacío u otra prueba). Revise la fila en la tabla attempts o vuelva a finalizar desde la evaluación."
       );
     }
     const fechaRaw =
@@ -1441,7 +1537,7 @@
       console.warn(e);
       var txt = st ? (e.message || "Sin datos en servidor.") : (e.message || "Sin datos. Complete la evaluación o verifique el código.");
       if (st && st.completed && (!st.resultados || !esInformeIntelAceptable(parseResultados(st.resultados)))) {
-        txt += " Este equipo tiene un borrador incompleto en navegador; si ya finalizó con éxito, borre la clave eval_chc_state_" + codigo + " en localStorage o vuelva a «Finalizar» en evaluacion-intelectual.html.";
+        txt += " Este equipo tiene un borrador incompleto en navegador; si ya finalizó con éxito, borre la clave eval_chc_state_" + codigo + " en localStorage o pulse de nuevo Finalizar en evaluacion-intelectual.html.";
       }
       msg.textContent = txt;
       msg.className = "msg err";
@@ -1480,17 +1576,6 @@
     if (v == null || isNaN(Number(v))) return;
     requestAnimationFrame(function () { setCurveMarker(Number(v)); });
   });
-
-  (function avisoSiArchivoDesdeDisco() {
-    var hint = document.getElementById("hintOrigen");
-    if (!hint || location.protocol !== "file:") return;
-    hint.style.borderLeft = "4px solid #f59e0b";
-    hint.style.paddingLeft = "10px";
-    hint.style.color = "#92400e";
-    hint.innerHTML =
-      '<strong>Ojo:</strong> Página abierta como <code>file:///</code> — la API suele fallar (Failed to fetch). Abra desde el servidor (mismo origen que Vercel u localhost).<br><br>' +
-      hint.innerHTML;
-  })();
 
   (function init() {
     const qp = new URLSearchParams(location.search);
