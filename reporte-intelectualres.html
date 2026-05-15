@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>V1Evaluación intelectual – Reporte</title>
+  <title>Evaluación intelectual – Reporte</title>
   <style>
     :root{
       --ink:#111; --muted:#4b5563; --line:#ddd;
@@ -868,7 +868,7 @@
     if (ocultarIndiceGrupo) {
       hdr.innerHTML = "<div class='interp-bloque-nombre'>" + escHtml(titulo) + "</div>";
     } else {
-      var idxTxt = indiceValor != null && !isNaN(Number(indiceValor)) ? Math.round(Number(indiceValor)) : "—";
+      var idxTxt = indiceValor != null && !isNaN(Number(indiceValor)) ? Math.round(Number(indiceValor)) + "%" : "—";
       hdr.innerHTML = "<div class='interp-bloque-nombre'>" + escHtml(titulo) + "</div><div class='interp-bloque-indice'>Índice grupo: <span>" + idxTxt + "</span></div>";
     }
     cont.appendChild(hdr);
@@ -891,7 +891,7 @@
     cont.innerHTML = "";
     var hdr = document.createElement("div");
     hdr.className = "interp-bloque-header";
-    hdr.innerHTML = "<div class='interp-bloque-nombre'>LECTURA INTEGRADA · DESEMPEÑO GLOBAL </div><div class='interp-bloque-indice'>I.G.: <span>" + igRounded + "</span></div>";
+    hdr.innerHTML = "<div class='interp-bloque-nombre'>LECTURA INTEGRADA · DESEMPEÑO GLOBAL </div><div class='interp-bloque-indice'>I.G.: <span>" + igRounded + "%</span></div>";
     cont.appendChild(hdr);
     var p = document.createElement("div");
     p.className = "interp-bloque-desc";
@@ -925,10 +925,10 @@
       if (destacarIg) li.classList.add("perfil-iie");
       ul.appendChild(li);
     }
-    liTxt("IRZ · bloque de razonamiento — promedio de razonamiento fluido · razonamiento cuantitativo: " + Math.round(Number(irz) || 0));
-    liTxt("IME · memoria y eficiencia cognitiva — promedio de memoria de trabajo · velocidad de procesamiento · memoria asociativa: " + Math.round(Number(ime) || 0));
-    liTxt("ICR · comprensión y representación — promedio de comprensión verbal · procesamiento visual-espacial: " + Math.round(Number(icr) || 0));
-    liTxt("I.G. · porcentaje aproximado de aciertos sobre el conjunto del banco: " + Math.round(Number(ig) || 0), true);
+    liTxt("IRZ · bloque de razonamiento — promedio de razonamiento fluido · razonamiento cuantitativo: " + Math.round(Number(irz) || 0) + "%");
+    liTxt("IME · memoria y eficiencia cognitiva — promedio de memoria de trabajo · velocidad de procesamiento · memoria asociativa: " + Math.round(Number(ime) || 0) + "%");
+    liTxt("ICR · comprensión y representación — promedio de comprensión verbal · procesamiento visual-espacial: " + Math.round(Number(icr) || 0) + "%");
+    liTxt("I.G. · porcentaje aproximado de aciertos sobre el conjunto del banco: " + Math.round(Number(ig) || 0) + "%", true);
     var pctCi = pctEntradaCISimulado(rows, ctx && ctx.resultados ? ctx.resultados.total : null);
     var pctCiRounded = Math.round(Number(pctCi) || 0);
     var iqSim = simulatedCIFromPctGlobal(pctCi);
@@ -957,7 +957,7 @@
     rows.forEach(function (rw) {
       var li = document.createElement("li");
       var pv = rw.pct != null && !isNaN(Number(rw.pct)) ? Math.round(Number(rw.pct)) : null;
-      li.textContent = etiquetaAmbitoUsuario(rw) + ": " + (pv != null ? pv : "— (en preparación)");
+      li.textContent = etiquetaAmbitoUsuario(rw) + ": " + (pv != null ? pv + "%" : "— (en preparación)");
       ul2.appendChild(li);
     });
     host.appendChild(ul2);
@@ -1305,7 +1305,7 @@
         "<td><strong>" + escHtml(etiquetaAmbitoUsuario(rw)) + "</strong></td>" +
         "<td class='num'>" + (pend ? "—" : rw.max) + "</td>" +
         "<td class='num'>" + (pend ? "—" : rw.score) + "</td>" +
-        "<td class='num'><strong>" + (pend ? "—" : rw.pct) + "</strong></td>" +
+        "<td class='num'><strong>" + (pend ? "—" : rw.pct + "%") + "</strong></td>" +
         "<td><span class='badge " + br.cls + "'>" + escHtml(br.texto) + "</span></td>";
       tb.appendChild(tr);
     });
@@ -1317,7 +1317,7 @@
         "<td colspan='1'><strong>TOTAL combinado del banco aplicado</strong></td>" +
         "<td class='num'>" + totals.max + "</td>" +
         "<td class='num'>" + totals.puntos + "</td>" +
-        "<td class='num'><strong>" + totals.pct + "</strong></td>" +
+        "<td class='num'><strong>" + totals.pct + "%</strong></td>" +
         "<td><span class='badge " + brT.cls + "'>" + escHtml(brT.texto) + "</span></td>";
       tb.appendChild(trtot);
     }
@@ -1422,7 +1422,7 @@
     fillHeader(document.getElementById("repHeaderBox2"), ctx);
 
     const tituloCurva = document.getElementById("tituloCurvaFrecuencias");
-    if (tituloCurva) tituloCurva.textContent = "CURVA DE DISTRIBUCIÓN DE FRECUENCIAS: (I.G. = " + Math.round(ig) + ").";
+    if (tituloCurva) tituloCurva.textContent = "CURVA DE DISTRIBUCIÓN DE FRECUENCIAS: (I.G. = " + Math.round(ig) + " %).";
 
     window.__curveCHCValue = ig;
     setCurveMarker(ig);
@@ -1438,15 +1438,15 @@
     var icrVal = avgPct(rows, CHC_GRUPO_COMP_REP);
 
     var elRZ = document.getElementById("ihRazon");
-    if (elRZ) elRZ.textContent = String(irzVal);
+    if (elRZ) elRZ.textContent = String(irzVal) + "%";
     var elME = document.getElementById("ihMemEf");
-    if (elME) elME.textContent = String(imeVal);
+    if (elME) elME.textContent = String(imeVal) + "%";
     var elCR = document.getElementById("ihCompRep");
-    if (elCR) elCR.textContent = String(icrVal);
+    if (elCR) elCR.textContent = String(icrVal) + "%";
     var promTresIdx = Math.round((Number(irzVal) + Number(imeVal) + Number(icrVal)) / 3);
     var elPG = document.getElementById("ihPromedioGrupos");
-    if (elPG) elPG.textContent = isNaN(promTresIdx) ? "—" : String(promTresIdx);
-    document.getElementById("repIGlobal").textContent = String(Math.round(ig));
+    if (elPG) elPG.textContent = isNaN(promTresIdx) ? "—" : String(promTresIdx) + "%";
+    document.getElementById("repIGlobal").textContent = String(Math.round(ig)) + "%";
     applyCISimulatedDOM(rows, r.total || null);
 
     buildBloqueHost("bloqueRazon", razonFilas);
