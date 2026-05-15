@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>v1Evaluación intelectual</title>
+  <title>Evaluación intelectual</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -19,6 +19,9 @@
       --lex-purple-d: #6d28d9;
       --lex-green: #22c55e;
       --lex-border: #d1d5db;
+      /* Sombras para cajas anidadas (evita líneas paralelas en el lateral). */
+      --chc-shadow-panel: 0 1px 2px rgba(15, 23, 42, 0.05), 0 4px 14px rgba(15, 23, 42, 0.04);
+      --chc-shadow-item: 0 1px 3px rgba(15, 23, 42, 0.06), 0 3px 10px rgba(15, 23, 42, 0.05);
     }
     html {
       overflow-y: scroll;
@@ -93,13 +96,14 @@
     .overview-table tbody tr:nth-child(even) { background: #fafafa; }
     .overview-table tfoot td { background: #f1f5f9; font-weight: 600; }
     .block-intro {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      border: none;
       border-radius: 10px;
       padding: 10px 12px 12px;
       margin: 0 0 14px;
       font-size: var(--chc-text);
       line-height: 1.45;
+      box-shadow: var(--chc-shadow-panel);
     }
     .block-intro .block-intro-lead { margin: 0 0 6px; color: #334155; }
     .block-intro .block-intro-lead:last-child { margin-bottom: 0; }
@@ -136,35 +140,26 @@
     .final-msg.ok { color: #15803d; font-size: var(--chc-text); font-weight: 600; }
     .gwm-prog { font-size: var(--chc-text); font-weight: 800; color: #1d4ed8; margin: 0 0 8px; letter-spacing: 0.02em; }
     .gwm-wrap { width: 100%; }
-    .gwm-panel {
-      max-width: 100%;
-      padding: 12px 14px;
-      background: #fafbfc;
-      border: 1px solid #e8ecf1;
-      border-radius: 12px;
-      margin-top: 4px;
-    }
-    .gwm-panel .gwm-dots {
+    .lexium-vocab.lexium-vocab-gwm .gwm-dots {
       display: flex;
       gap: 6px;
       margin: 0 0 10px;
       align-items: center;
     }
-    .gwm-panel .gwm-dots .gwm-dot {
+    .lexium-vocab.lexium-vocab-gwm .gwm-dots .gwm-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: #e2e8f0;
     }
-    .gwm-panel .gwm-dots .gwm-dot.is-on { background: #2563eb; box-shadow: 0 0 0 2px #bfdbfe; }
-    .gwm-panel .gwm-dots .gwm-dot.is-done { background: #22c55e; }
-    .gwm-panel .gwm-aux {
+    .lexium-vocab.lexium-vocab-gwm .gwm-dots .gwm-dot.is-on { background: #2563eb; box-shadow: 0 0 0 2px #bfdbfe; }
+    .lexium-vocab.lexium-vocab-gwm .gwm-dots .gwm-dot.is-done { background: #22c55e; }
+    .lexium-vocab.lexium-vocab-gwm .gwm-aux {
       font-size: var(--chc-text-sm);
       color: #64748b;
       margin: 0 0 10px;
       line-height: 1.35;
     }
-    .gwm-panel > p:last-of-type { margin-bottom: 0; }
     .gwm-btn {
       border-radius: 999px;
       padding: 10px 18px;
@@ -179,6 +174,13 @@
     @media print {
       .side-strip, #btnRegresarMenu, .chc-nav, #btnIniciar, #btnChcPrev, #btnChcNext { display: none !important; }
       .page { max-width: none; }
+      .block-intro,
+      .lexium-vocab,
+      .chc-item-body,
+      #pantalla-preguntas .card {
+        box-shadow: none !important;
+        border: 1px solid #d1d5db !important;
+      }
     }
     h2 {
       font-size: 1.125rem;
@@ -203,6 +205,8 @@
       min-height: 420px;
       overflow-x: hidden;
       max-width: 100%;
+      border: none;
+      box-shadow: var(--chc-shadow-panel);
     }
     .grid-2 {
       display: grid;
@@ -341,8 +345,10 @@
     .q:last-child { border-bottom: none; }
     .q-num { font-size: var(--chc-text-sm); font-weight: 700; color: #6b7280; margin-bottom: 4px; }
     .q-text { margin: 0 0 10px; font-weight: 600; font-size: var(--chc-text); line-height: 1.45; }
-    .gv-mc-card { margin-bottom: 14px !important; padding-bottom: 0 !important; border-bottom: none !important; }
-    .gv-mc-card .q-text { margin: 0; }
+    .gv-q-line { color: #334155; font-weight: 600; }
+    .lexium-instr-band.lexium-instr-to-choice {
+      border-bottom: 1px dashed #cbd5e1;
+    }
     .chc-item-head-num {
       padding: 8px 14px;
       background: #f8fafc;
@@ -351,27 +357,25 @@
       font-weight: 700;
       color: #475569;
     }
-    .gwm-panel.chc-item-done .gwm-zone-sep.instr-zone {
-      box-shadow: inset 3px 0 0 0 #22c55e;
-      background: linear-gradient(90deg, #ecfdf5 0%, #f8fafc 70%, transparent 100%);
-    }
-    .gwm-panel.chc-item-done .gwm-zone-sep.task-zone {
-      opacity: 0.97;
-      box-shadow: inset 0 1px 0 0 #bbf7d0;
-      background: #fafefb;
-    }
     .gwm-instr-line { margin: 0 0 8px; font-size: var(--chc-text); color: #0f172a; line-height: 1.45; }
-    .gwm-zone-sep.instr-zone { padding: 8px 0 10px; border-bottom: 1px dashed #cbd5e1; margin-bottom: 10px; }
-    .gwm-zone-sep.task-zone { padding: 8px 0 0; }
-    .gs-zones-card { padding: 0; margin-top: 8px; }
-    .gs-zones-card .lexium-instr-band { border-radius: 10px 10px 0 0; }
+    .lexium-vocab.lexium-vocab-gv,
+    .lexium-vocab.lexium-vocab-gwm,
+    .lexium-vocab.lexium-vocab-gs,
+    .lexium-vocab.lexium-vocab-gf,
+    .lexium-vocab.lexium-vocab-gq,
+    .lexium-vocab.lexium-vocab-glr {
+      background: #f8fafc;
+    }
     [data-chc-item="gs_speed"].chc-item-done .lexium-instr-band {
       box-shadow: inset 3px 0 0 0 #22c55e;
       background: linear-gradient(90deg, #ecfdf5 0%, #f1f5f9 60%, transparent 100%);
     }
-    [data-chc-item="gs_speed"].chc-item-done .gs-panel-rest {
+    [data-chc-item="gs_speed"].chc-item-done .lexium-task-band {
       box-shadow: inset 0 1px 0 0 #bbf7d0;
       background: #fafefb;
+    }
+    .lexium-vocab.lexium-vocab-gs .chc-item-body .lexium-instr-band:first-child {
+      border-radius: 10px 10px 0 0;
     }
     .opts { display: flex; flex-direction: column; gap: 6px; }
     .opts label {
@@ -642,10 +646,11 @@
     .gf-num-txt { font-weight: 800; font-size: 1.05rem; color: #1e293b; }
     .lexium-vocab {
       background: #fafbfc;
-      border: 1px solid #e8ecf1;
+      border: none;
       border-radius: 12px;
       padding: 10px 12px 8px;
       margin: 0 -2px 4px;
+      box-shadow: var(--chc-shadow-panel);
     }
     .lexium-vocab h4.lexium-vocab-h {
       margin: 0 0 10px;
@@ -691,10 +696,11 @@
     }
     .chc-item-body-wrap { flex: 1 1 220px; min-width: 0; }
     .chc-item-body {
-      border: 1px solid #e2e8f0;
+      border: none;
       border-radius: 12px;
       overflow: hidden;
       background: #fff;
+      box-shadow: var(--chc-shadow-item);
     }
     .lexium-instr-band {
       padding: 12px 14px;
@@ -815,10 +821,17 @@
       background: #f8fafc;
       border-color: #dbeafe;
     }
-    .lexium-row-gc .lexium-row-num {
+    .lexium-row-gc .lexium-row-num,
+    .lexium-row-glr .lexium-row-num,
+    .lexium-row-gv .lexium-row-num,
+    .lexium-row-gwm .lexium-row-num,
+    .lexium-row-gs .lexium-row-num,
+    .lexium-row-gf .lexium-row-num,
+    .lexium-row-gq .lexium-row-num {
       background: linear-gradient(145deg, #eff6ff, #e0e7ff);
       color: #3730a3;
       border: 1px solid #c7d2fe;
+      align-self: flex-start;
     }
     .gc-q-line { color: #334155; font-weight: 600; }
     .gc-pill-lane { align-items: flex-start; }
@@ -938,16 +951,7 @@
       padding: 11px 16px;
     }
     .gc-stim-compact.gc-stim-single .gc-chip { font-size: 1rem; padding: 9px 14px; }
-    /* Glr: mismo esquema de tarjetas que Gc + acento teal y cinta guía SVG */
-    .lexium-vocab.lexium-vocab-glr {
-      background: linear-gradient(180deg, #f8fafaf5 0%, #f5fffb 100%);
-      border-color: #a7f3d0;
-    }
-    .lexium-row-glr .lexium-row-num {
-      background: linear-gradient(145deg, #ecfdf5, #ccfbf1);
-      color: #0f766e;
-      border: 1px solid #5eead4;
-    }
+    /* Glr: estímulo con cinta guía (contenido); contenedor igual que Gc. */
     .glr-q-line { color: #134e4a; font-weight: 600; }
     .glr-pill-lane { align-items: flex-start; }
     .glr-stim-host {
@@ -1099,12 +1103,12 @@
       padding: 11px 17px;
     }
     .glr-stim-compact.glr-stim-single .glr-chip { font-size: 1rem; padding: 9px 15px; }
-    .card-gv-lexium .opts-gv-pills {
+    .lexium-vocab.lexium-vocab-gv .opts-gv-pills {
       flex-direction: row;
       flex-wrap: wrap;
       gap: 8px;
     }
-    .card-gv-lexium .opts-gv-pills label {
+    .lexium-vocab.lexium-vocab-gv .opts-gv-pills label {
       margin: 0;
       padding: 10px 12px;
       border-radius: 9px;
@@ -1115,7 +1119,7 @@
       text-transform: uppercase;
       letter-spacing: 0.02em;
     }
-    .card-gv-lexium .opts-gv-pills label:has(input:checked) {
+    .lexium-vocab.lexium-vocab-gv .opts-gv-pills label:has(input:checked) {
       background: var(--lex-purple);
       border-color: var(--lex-purple-d);
       color: #fff;
@@ -1381,7 +1385,7 @@
         </div>
         <p class="muted instructions-foot"><strong></strong>.</p>
         <div class="instructions-header">Antes de iniciar</div>
-        <p>1. Valide su <strong>código</strong> y complete su <strong>nombre</strong>.</p>
+        <p>Valide su <strong>código</strong> y complete su <strong>Nombre</strong>.</p>
         <div style="margin-top: 12px; text-align: right;">
           <button type="button" id="btnIniciar" class="primary" disabled>INICIAR</button>
         </div>
@@ -2787,7 +2791,9 @@
     const wrap = el("div", {
       className:
         "lexium-vocab" +
-        (block === "gc" ? " lexium-vocab-gc" : block === "glr" ? " lexium-vocab-glr" : "")
+        (block === "gc" ? " lexium-vocab-gc" : block === "glr" ? " lexium-vocab-glr" : "") +
+        (block === "gf" ? " lexium-vocab-gf" : "") +
+        (block === "gq" ? " lexium-vocab-gq" : "")
     });
     const title = (lopts && lopts.lexiumH4)
       ? lopts.lexiumH4
@@ -2797,7 +2803,7 @@
     wrap.appendChild(el("h4", { className: "lexium-vocab-h" }, title));
     items.forEach(function (it, i) {
       if (block === "gq" && it.gqGraphic) {
-        const row = el("div", { className: "lexium-row lexium-zoned-card" });
+        const row = el("div", { className: "lexium-row lexium-zoned-card lexium-row-gq" });
         row.setAttribute("data-chc-item", it.id);
         row.classList.toggle("chc-item-done", chcHasSavedAnswer(it.id));
         row.appendChild(el("div", { className: "lexium-row-num" }, String(i + 1)));
@@ -2838,7 +2844,7 @@
         return;
       }
       if (block === "gf" && it.gfGraphic) {
-        const row = el("div", { className: "lexium-row lexium-zoned-card" });
+        const row = el("div", { className: "lexium-row lexium-zoned-card lexium-row-gf" });
         row.setAttribute("data-chc-item", it.id);
         row.classList.toggle("chc-item-done", chcHasSavedAnswer(it.id));
         row.appendChild(el("div", { className: "lexium-row-num" }, String(i + 1)));
@@ -2847,7 +2853,7 @@
         const instrBand = el("div", { className: "lexium-instr-band" });
         instrBand.appendChild(el("span", { className: "lexium-zone-label" }, "Consigna"));
         const taskBand = el("div", { className: "lexium-task-band" });
-        taskBand.appendChild(el("span", { className: "lexium-zone-label" }, "Ejercicio"));
+        taskBand.appendChild(el("span", { className: "lexium-zone-label" }, "Estímulo"));
         if (mode === "stem") {
           instrBand.appendChild(el("p", { className: "lexium-question" }, "Lea el enunciado y responda con la figura o el número adecuado."));
           const tg = el("div", { className: "lexium-target is-stem" });
@@ -2866,6 +2872,7 @@
       const row = el("div", {
         className:
           "lexium-row lexium-zoned-card" +
+          (block === "gf" ? " lexium-row-gf" : block === "gq" ? " lexium-row-gq" : "") +
           (block === "gc" ? " lexium-row-gc" : block === "glr" ? " lexium-row-glr" : "")
       });
       row.setAttribute("data-chc-item", it.id);
@@ -3130,23 +3137,32 @@
     const total = opts && typeof opts.total === "number" ? opts.total : null;
     const lexFigs = opts && opts.lexiumFigs;
     const gvPills = opts && opts.gvPills;
-    const wrap = el("div");
-    items.forEach(function (it, i) {
-      const q = el("div", { className: "q gv-mc-card" });
-      q.setAttribute("data-chc-item", it.id);
-      q.classList.toggle("chc-item-done", chcHasSavedAnswer(it.id));
-      const numLabel = "Ítem " + (i + 1) + (total ? " de " + total : "");
+    const block = opts && opts.block ? opts.block : "";
+    const wrap = el("div", { className: "lexium-vocab lexium-vocab-gv" });
+    wrap.appendChild(
+      el(
+        "h4",
+        { className: "lexium-vocab-h" },
+        (opts && opts.lexiumH4) || "Ítems visuo-espaciales"
+      )
+    );
 
+    items.forEach(function (it, i) {
+      const row = el("div", { className: "lexium-row lexium-zoned-card lexium-row-gv" });
+      row.setAttribute("data-chc-item", it.id);
+      row.classList.toggle("chc-item-done", chcHasSavedAnswer(it.id));
+
+      row.appendChild(el("div", { className: "lexium-row-num" }, String(i + 1)));
+      const bodyWrap = el("div", { className: "lexium-body chc-item-body-wrap" });
       const bodyCard = el("div", { className: "chc-item-body" });
-      bodyCard.appendChild(el("div", { className: "chc-item-head-num" }, numLabel));
 
       const instrBand = el("div", { className: "lexium-instr-band" });
       instrBand.appendChild(el("span", { className: "lexium-zone-label" }, "Consigna"));
-      instrBand.appendChild(el("p", { className: "q-text" }, it.text));
+      instrBand.appendChild(el("p", { className: "lexium-question gv-q-line" }, it.text));
       bodyCard.appendChild(instrBand);
 
       if (it.gvAnimateSvg) {
-        q.classList.add("q-gv-graphic");
+        row.classList.add("q-gv-graphic");
         const demoBand = el("div", { className: "lexium-task-band" });
         demoBand.appendChild(el("span", { className: "lexium-zone-label" }, "Demostración"));
         demoBand.appendChild(buildGvAnimateWrap(it));
@@ -3154,13 +3170,14 @@
       }
 
       if (it.gvGraphic) {
-        q.classList.add("q-gv-graphic");
+        row.classList.add("q-gv-graphic");
         const gband = el("div", { className: "lexium-task-band" });
-        gband.appendChild(el("span", { className: "lexium-zone-label" }, "Ejercicio y respuesta"));
+        gband.appendChild(el("span", { className: "lexium-zone-label" }, "Estímulo"));
         gband.appendChild(buildGvGraphic(it, lexFigs));
         bodyCard.appendChild(gband);
-        q.appendChild(bodyCard);
-        wrap.appendChild(q);
+        bodyWrap.appendChild(bodyCard);
+        row.appendChild(bodyWrap);
+        wrap.appendChild(row);
         return;
       }
 
@@ -3168,7 +3185,7 @@
       pickBand.appendChild(el("span", { className: "lexium-zone-label" }, "Opciones"));
 
       if (it.svgChoice) {
-        const row = el("div", { className: "fig-row" + (lexFigs ? " fig-lexium" : "") });
+        const figRow = el("div", { className: "fig-row" + (lexFigs ? " fig-lexium" : "") });
         const nf = "var(--lex-navy, #1e3a5f)";
         let shapes = lexFigs
           ? [
@@ -3200,13 +3217,13 @@
           }
           inp.addEventListener("change", function () {
             stateCHC.answers[it.id] = String(idx);
-            row.querySelectorAll(".fig-opt").forEach(function (x) { x.classList.remove("selected"); });
+            figRow.querySelectorAll(".fig-opt").forEach(function (x) { x.classList.remove("selected"); });
             lab.classList.add("selected");
             onAnswerChanged();
           });
-          row.appendChild(lab);
+          figRow.appendChild(lab);
         });
-        pickBand.appendChild(row);
+        pickBand.appendChild(figRow);
       } else {
         const optsEl = el("div", { className: "opts" + (gvPills ? " opts-gv-pills" : "") });
         it.options.forEach(function (o) {
@@ -3225,9 +3242,25 @@
       }
 
       bodyCard.appendChild(pickBand);
-      q.appendChild(bodyCard);
-      wrap.appendChild(q);
+      if (!it.gvAnimateSvg) {
+        instrBand.classList.add("lexium-instr-to-choice");
+      }
+      bodyWrap.appendChild(bodyCard);
+      row.appendChild(bodyWrap);
+      wrap.appendChild(row);
     });
+
+    if (block === "gv" && total != null) {
+      const foot = el("div", { className: "lexium-block-foot" });
+      foot.setAttribute("data-block", "gv");
+      const bar = el("div", { className: "lexium-mini-bar" });
+      bar.appendChild(el("div", { className: "lexium-mini-fill" }));
+      foot.appendChild(bar);
+      foot.appendChild(
+        el("p", { className: "lexium-foot-txt" }, "Progreso del bloque: 0 / " + total + " respondidos")
+      );
+      wrap.appendChild(foot);
+    }
     return wrap;
   }
 
@@ -3235,42 +3268,58 @@
     const wrap = el("div", { className: "gwm-wrap" });
     function showTrial() {
       wrap.innerHTML = "";
+      wrap.className = "gwm-wrap lexium-vocab lexium-vocab-gwm";
+      wrap.appendChild(el("h4", { className: "lexium-vocab-h" }, "Ítems · memoria de trabajo"));
+
       const trialIndex = stateCHC.gwmTrialIndex;
       if (trialIndex >= GWM_TRIALS.length) {
         wrap.appendChild(
-          el("p", { className: "gwm-prog" }, "Memoria de trabajo: " + GWM_TRIALS.length + " de " + GWM_TRIALS.length + " tareas finalizadas.")
+          el(
+            "p",
+            { className: "gwm-prog", style: "margin:4px 0 12px;" },
+            "Memoria de trabajo: " + GWM_TRIALS.length + " de " + GWM_TRIALS.length + " tareas finalizadas."
+          )
         );
-        const fin = el("div", { className: "gwm-panel" });
-        fin.appendChild(el("p", {}, "Puede avanzar con «Siguiente»."));
-        wrap.appendChild(fin);
+        const finCard = el("div", { className: "chc-item-body" });
+        finCard.appendChild(el("p", { className: "lexium-question", style: "margin:0;" }, "Puede avanzar con «Siguiente»."));
+        wrap.appendChild(finCard);
         return;
       }
+
       const t = GWM_TRIALS[trialIndex];
-      const panel = el("div", { className: "gwm-panel" });
-      panel.setAttribute("data-chc-item", t.id);
-      panel.classList.toggle("chc-item-done", chcHasSavedAnswer(t.id));
+      const row = el("div", { className: "lexium-row lexium-zoned-card lexium-row-gwm" });
+      row.setAttribute("data-chc-item", t.id);
+      row.classList.toggle("chc-item-done", chcHasSavedAnswer(t.id));
+      row.appendChild(el("div", { className: "lexium-row-num" }, String(trialIndex + 1)));
+      const outer = el("div", { className: "lexium-body chc-item-body-wrap" });
+      const card = el("div", { className: "chc-item-body" });
+
+      const instrBand = el("div", { className: "lexium-instr-band" });
+      instrBand.appendChild(el("span", { className: "lexium-zone-label" }, "Consigna"));
       const dots = el("div", { className: "gwm-dots" });
       for (var di = 0; di < GWM_TRIALS.length; di++) {
         const cls = "gwm-dot" + (di === trialIndex ? " is-on" : di < trialIndex ? " is-done" : "");
         dots.appendChild(el("span", { className: cls }));
       }
-      const zi = el("div", { className: "gwm-zone-sep instr-zone" });
-      zi.appendChild(el("span", { className: "lexium-zone-label" }, "Consigna"));
-      zi.appendChild(dots);
-      zi.appendChild(
-        el("p", { className: "gwm-prog" }, "Tarea " + (trialIndex + 1) + " de " + GWM_TRIALS.length + (t.mode === "reverse" ? " · orden inverso" : " · mismo orden"))
+      instrBand.appendChild(dots);
+      instrBand.appendChild(
+        el(
+          "p",
+          { className: "gwm-prog" },
+          "Tarea " + (trialIndex + 1) + " de " + GWM_TRIALS.length + (t.mode === "reverse" ? " · orden inverso" : " · mismo orden")
+        )
       );
-      const instr = t.mode === "reverse"
-        ? "Memoriza la secuencia. Luego escríbela al revés (sin espacios, solo dígitos)."
-        : "Memoriza la secuencia. Luego escríbela en el mismo orden (sin espacios).";
-      zi.appendChild(el("p", { className: "gwm-instr-line" }, instr));
-      zi.appendChild(
-        el("p", { className: "gwm-aux" }, "Solo cifras: memorice, oculte y escriba.")
-      );
-      const zt = el("div", { className: "gwm-zone-sep task-zone" });
-      zt.appendChild(el("span", { className: "lexium-zone-label" }, "Ejercicio"));
+      const instr =
+        t.mode === "reverse"
+          ? "Memoriza la secuencia. Luego escríbela al revés (sin espacios, solo dígitos)."
+          : "Memoriza la secuencia. Luego escríbela en el mismo orden (sin espacios).";
+      instrBand.appendChild(el("p", { className: "gwm-instr-line" }, instr));
+      instrBand.appendChild(el("p", { className: "gwm-aux" }, "Solo cifras: memorice, oculte y escriba."));
+
+      const taskBand = el("div", { className: "lexium-task-band" });
+      taskBand.appendChild(el("span", { className: "lexium-zone-label" }, "Estímulo"));
       const box = el("div", { className: "mem-box" }, t.seq.replace(/ /g, "  "));
-      zt.appendChild(box);
+      taskBand.appendChild(box);
       const btn = el("button", { type: "button", id: "gwm-show", className: "gwm-btn" }, "Ocultar y responder");
       const input = el("input", { type: "text", className: "mem-input", inputMode: "numeric", placeholder: "Escribe los dígitos", autocomplete: "off" });
       input.classList.add("hidden");
@@ -3295,19 +3344,24 @@
         onAnswerChanged();
         showTrial();
       });
-      zt.appendChild(btn);
-      zt.appendChild(input);
-      zt.appendChild(submit);
-      panel.appendChild(zi);
-      panel.appendChild(zt);
-      wrap.appendChild(panel);
+      taskBand.appendChild(btn);
+      taskBand.appendChild(input);
+      taskBand.appendChild(submit);
+
+      card.appendChild(instrBand);
+      card.appendChild(taskBand);
+      outer.appendChild(card);
+      row.appendChild(outer);
+      wrap.appendChild(row);
     }
     showTrial();
     return wrap;
   }
 
   function renderGS() {
-    const wrap = el("div", { className: "gs-block" });
+    const wrap = el("div", { className: "lexium-vocab lexium-vocab-gs" });
+    wrap.appendChild(el("h4", { className: "lexium-vocab-h" }, "Ítems · tarea cronometrada"));
+
     stateCHC.gsMarked = new Set();
     stateCHC.answers.gs_time = null;
     if (stateCHC.answers.gs_score != null) {
@@ -3315,10 +3369,14 @@
       delete stateCHC.answers.gs_max;
     }
     stateCHC.gsStart = null;
-    const panel = el("div", { className: "gs-panel" });
-    const zones = el("div", { className: "gs-zones-card" });
-    zones.setAttribute("data-chc-item", "gs_speed");
-    zones.classList.toggle("chc-item-done", chcHasSavedAnswer("gs_speed"));
+
+    const row = el("div", { className: "lexium-row lexium-zoned-card lexium-row-gs" });
+    row.setAttribute("data-chc-item", "gs_speed");
+    row.classList.toggle("chc-item-done", chcHasSavedAnswer("gs_speed"));
+    row.appendChild(el("div", { className: "lexium-row-num" }, "1"));
+
+    const outer = el("div", { className: "lexium-body chc-item-body-wrap" });
+    const card = el("div", { className: "chc-item-body" });
 
     const instrBand = el("div", { className: "lexium-instr-band" });
     instrBand.appendChild(el("span", { className: "lexium-zone-label" }, "Consigna"));
@@ -3335,10 +3393,9 @@
           gsSeconds +
           " s en pantalla. Barra: tiempo restante. Marque aciertos; penaliza tocar símbolos distintos al objetivo.")
     );
-    zones.appendChild(instrBand);
 
-    const rest = el("div", { className: "gs-panel-rest" });
-    rest.appendChild(el("span", { className: "lexium-zone-label" }, "Ejercicio"));
+    const rest = el("div", { className: "lexium-task-band gs-panel-rest" });
+    rest.appendChild(el("span", { className: "lexium-zone-label" }, "Estímulo"));
 
     const timerRow = el("div", { className: "gs-timer-row" });
     const top = el("div", { className: "gs-timer-top" });
@@ -3391,9 +3448,12 @@
       }, 1000);
     });
     rest.appendChild(startBtn);
-    zones.appendChild(rest);
-    panel.appendChild(zones);
-    wrap.appendChild(panel);
+
+    card.appendChild(instrBand);
+    card.appendChild(rest);
+    outer.appendChild(card);
+    row.appendChild(outer);
+    wrap.appendChild(row);
     return wrap;
   }
 
@@ -3479,7 +3539,6 @@
       card.appendChild(renderLexiumChoiceBlock(ITEMS.gf, "Gf", { total: ITEMS.gf.length, block: "gf", mode: "stem" }));
     } else if (step.id === "gc") {
       card.appendChild(buildBlockIntroEl(step));
-      card.classList.add("card-gc-visual");
       card.appendChild(
         renderLexiumChoiceBlock(ITEMS.gc, "Gc", {
           total: ITEMS.gc.length,
@@ -3496,21 +3555,15 @@
       card.appendChild(renderGS());
     } else if (step.id === "gv") {
       card.appendChild(buildBlockIntroEl(step));
-      card.classList.add("card-gv-lexium");
-      card.appendChild(renderMCBlock(ITEMS.gv, "Gv", { total: ITEMS.gv.length, lexiumFigs: true, gvPills: true }));
-      (function () {
-        const total = ITEMS.gv.length;
-        const n = countAnsweredMc(ITEMS.gv);
-        const foot = el("div", { className: "lexium-block-foot" });
-        foot.setAttribute("data-block", "gv");
-        const bar = el("div", { className: "lexium-mini-bar" });
-        const fill = el("div", { className: "lexium-mini-fill" });
-        fill.style.width = (total ? (n / total) * 100 : 0) + "%";
-        bar.appendChild(fill);
-        foot.appendChild(bar);
-        foot.appendChild(el("p", { className: "lexium-foot-txt" }, "Progreso del bloque: " + n + " / " + total + " respondidos"));
-        card.appendChild(foot);
-      })();
+      card.appendChild(
+        renderMCBlock(ITEMS.gv, "Gv", {
+          total: ITEMS.gv.length,
+          block: "gv",
+          lexiumH4: "Ítems visuo-espaciales",
+          lexiumFigs: true,
+          gvPills: true
+        })
+      );
     } else if (step.id === "glr") {
       card.appendChild(buildBlockIntroEl(step));
       card.appendChild(
