@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>ddEvaluación Intelectual</title>
+  <title>kkkkEvaluación Intelectual</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -674,6 +674,18 @@
       margin: 6px 0 10px;
     }
     .gf-diana-wrap { display: flex; justify-content: center; margin: 0 0 6px; }
+    .gf-diana-axis-hint {
+      font-size: var(--chc-text-sm);
+      line-height: 1.5;
+      color: #334155;
+      margin: 0 auto 10px;
+      max-width: 32rem;
+      text-align: center;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+    }
     .gf-diana-rules { font-size: var(--chc-text-sm); line-height: 1.45; color: #475569; margin: 0 0 8px; padding-left: 1.1rem; }
     .gf-diana-rules li { margin: 3px 0; }
     .gf-num-row .gf-num-opt { min-width: 64px; width: auto; height: 56px; padding: 0 10px; }
@@ -2707,20 +2719,27 @@
 
     if (k === "masCercaRings" || k === "masLejosRings") {
       const diana = el("div", { className: "gf-diana-wrap" });
-      /* Separar etiquetas del trazo del anillo más externo (solo gf4/gf5). */
+      /* «+ lejos» junto al borde superior; «+ cerca» en el centro geométrico (evita ambigüedad arriba/abajo). */
       diana.innerHTML =
-        "<svg class=\"gf-diana-svg\" viewBox=\"-10 -16 122 154\" width=\"156\" height=\"196\" aria-hidden=\"true\" role=\"img\">" +
-        "<title>Diana, cuatro círculos</title>" +
-        "<text x=\"50\" y=\"4\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"8\" fill=\"#64748b\" stroke=\"#f8fafc\" stroke-width=\"3\" paint-order=\"stroke fill\">+ lejos</text>" +
+        "<svg class=\"gf-diana-svg\" viewBox=\"-10 -10 122 138\" width=\"156\" height=\"176\" aria-hidden=\"true\" role=\"img\">" +
+        "<title>Diana: leyenda radial</title>" +
+        "<text x=\"50\" y=\"10\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"8\" font-weight=\"700\" fill=\"#475569\" stroke=\"#f8fafc\" stroke-width=\"3\" paint-order=\"stroke fill\">+ lejos</text>" +
         "<g transform=\"translate(0,22)\">" +
         "<circle cx=\"50\" cy=\"50\" r=\"18\" fill=\"#f1f5f9\" stroke=\"" + navy + "\"/>" +
         "<circle cx=\"50\" cy=\"50\" r=\"32\" fill=\"none\" stroke=\"" + navy + "\"/>" +
         "<circle cx=\"50\" cy=\"50\" r=\"44\" fill=\"none\" stroke=\"" + navy + "\"/>" +
         "<circle cx=\"50\" cy=\"50\" r=\"48\" fill=\"none\" stroke=\"" + navy + "\"/>" +
         "</g>" +
-        "<text x=\"50\" y=\"132\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"8\" fill=\"#64748b\" stroke=\"#f8fafc\" stroke-width=\"3\" paint-order=\"stroke fill\">+ cerca</text>" +
+        "<text x=\"50\" y=\"72\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"8\" font-weight=\"800\" fill=\"#334155\" stroke=\"#fff\" stroke-width=\"2.5\" paint-order=\"stroke fill\">+ cerca</text>" +
         "</svg>";
       block.appendChild(diana);
+      block.appendChild(
+        el(
+          "p",
+          { className: "gf-diana-axis-hint" },
+          "Leyenda en la figura: «+ lejos» está hacia el borde más exterior (alejándose del punto central). «+ cerca» está en el centro de la diana (hacia dentro, anillos más pequeños)."
+        )
+      );
       const ul = el("ul", { className: "gf-diana-rules" });
       const rules = [
         "Círculo 0 (centro): múltiplo de 3",
@@ -2735,9 +2754,21 @@
       block.appendChild(ul);
       const nums = (it.gfNumOpts && it.gfNumOpts.length) ? it.gfNumOpts : [9, 4, 5, 7];
       if (k === "masCercaRings") {
-        block.appendChild(el("p", { className: "gf-sym-sub" }, "Elija el valor con anillo más bajo (0 = más cerca al centro)."));
+        block.appendChild(
+          el(
+            "p",
+            { className: "gf-sym-sub" },
+            "Según las reglas, elija el valor que queda en el anillo más próximo al centro de la diana (anillo numéricamente más bajo; 0 = centro)."
+          )
+        );
       } else {
-        block.appendChild(el("p", { className: "gf-sym-sub" }, "Elija el valor con anillo más alto (más lejos del centro)."));
+        block.appendChild(
+          el(
+            "p",
+            { className: "gf-sym-sub" },
+            "Según las reglas, elija el valor que queda en el anillo más hacia el borde exterior de la diana (anillo numéricamente más alto; más lejos del centro)."
+          )
+        );
       }
       block.appendChild(addNumRow(nums));
       return block;
