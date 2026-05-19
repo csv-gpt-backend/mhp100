@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bosquejo visual — Portal (demo)</title>
+  <title>ddMHP100 Portal · Demostración UI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Sans:wght@500;600&display=swap" rel="stylesheet" />
@@ -60,12 +60,25 @@
       padding: 0 24px 80px;
     }
 
+    /* Sticky shell */
+    .sticky-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      margin: 0 -24px;
+      padding: 0 24px;
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
     /* Nav */
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 0 48px;
+      padding: 16px 0 20px;
       gap: 16px;
       flex-wrap: wrap;
     }
@@ -196,7 +209,39 @@
       flex-wrap: wrap;
       gap: 12px;
       align-items: center;
+      margin-bottom: 28px;
+    }
+
+    /* Premium stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
       margin-bottom: 40px;
+    }
+
+    @media (max-width: 720px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
+
+    .stat-tile {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 18px 20px;
+    }
+
+    .stat-tile .val {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+
+    .stat-tile .lbl {
+      font-size: 0.82rem;
+      color: var(--muted);
     }
 
     .btn {
@@ -487,55 +532,128 @@
       color: var(--text);
       font-weight: 600;
     }
+
+    /* CHC mock table */
+    .chc-wrap {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+      overflow: hidden;
+    }
+
+    .chc-wrap h3 {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      padding: 18px 20px 0;
+    }
+
+    .chc-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 8px 20px 16px;
+    }
+
+    .chc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    .chc-table th,
+    .chc-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-top: 1px solid var(--border);
+    }
+
+    .chc-table th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .chc-table td code {
+      font-size: 0.8rem;
+      color: #99f6e4;
+      background: var(--accent-dim);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .chc-table td.muted { color: var(--muted); }
   </style>
 </head>
 <body>
   <div class="grid-bg" aria-hidden="true"></div>
   <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="brand-mark" aria-hidden="true"></div>
-        <span>MHP100 · Portal</span>
-      </div>
-      <nav>
-        <a href="#">Inicio · Home</a>
-        <a href="#">Evaluaciones · Assessments</a>
-        <a href="#">Infra · Stack</a>
-        <span class="lang" role="presentation">
-          <button type="button">ES</button>
-          <button type="button">EN</button>
-        </span>
-      </nav>
-    </header>
+    <div class="sticky-bar">
+      <header>
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"></div>
+          <span>MHP100 Portal</span>
+        </div>
+        <nav aria-label="Demo">
+          <a href="#hero">Inicio</a>
+          <a href="#evals">Evaluaciones</a>
+          <a href="#stack">Infra / Stack</a>
+          <span class="lang" role="presentation">
+            <button type="button">ES</button>
+            <button type="button">EN</button>
+          </span>
+        </nav>
+      </header>
+    </div>
 
-    <div class="hero">
+    <div class="hero" id="hero">
       <div class="pill">
         <span class="pill-dot" aria-hidden="true"></span>
-        Bosquejo visual · Visual mockup · Sin datos reales
+        Demostración UI · Datos ficticios · Sin backend
       </div>
-      <h1>Ecosistema de <span>evaluación</span> y presentación.</h1>
+      <h1>Ecosistema de <span>evaluaciones</span> y presentación.</h1>
       <p class="hero-sub">
-        Una sola página de referencia para ver jerarquía, tipografía y bloques antes de llevar esto a Next.js y Vercel.
-        <small>ESP / ENG side by side en el contenido inferior es solo muestra de diseño bilingüe.</small>
+        Portal de referencia que unifica despliegue en Vercel, versionado en GitHub y lectura de informes vía Cloud Run.
+        <small>Selector ES | EN en la barra es solo diseño; i18n real irá en Next.js.</small>
       </p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="#" tabindex="-1">Ver resultado demo</a>
-        <a class="btn btn-ghost" href="#" tabindex="-1">Arquitectura</a>
+        <a class="btn btn-primary" href="#" tabindex="-1">Explorar evaluaciones</a>
+        <a class="btn btn-ghost" href="#stack" tabindex="-1">Ver infraestructura</a>
+      </div>
+
+      <div class="stats-row" aria-hidden="true">
+        <div class="stat-tile">
+          <div class="val">7</div>
+          <div class="lbl">Módulos publicados (demo)</div>
+        </div>
+        <div class="stat-tile">
+          <div class="val">99.9%</div>
+          <div class="lbl">Disponibilidad objetivo (placeholder)</div>
+        </div>
+        <div class="stat-tile">
+          <div class="val">CHC v2.9</div>
+          <div class="lbl">Versión de banco (ejemplo)</div>
+        </div>
       </div>
 
       <div class="hero-dash">
         <div class="card">
-          <h3>Resumen CHC · Mock</h3>
+          <h3>Resumen global · Mock</h3>
           <div class="stat-row">
-            <span class="stat-label">Total (%)</span>
+            <span class="stat-label">Total aprox. (%)</span>
             <span class="stat-meta">79%</span>
           </div>
           <div class="bar" aria-hidden="true"><div class="bar-fill" style="width:79%"></div></div>
           <div class="stat-row">
-            <span class="stat-label">Factores destacados</span>
-            <span class="stat-meta">Gf · Gv</span>
+            <span class="stat-label">Puntos / máx</span>
+            <span class="stat-meta">54 / 68</span>
           </div>
-          <div class="bar" aria-hidden="true"><div class="bar-fill violet" style="width:72%"></div></div>
+          <div class="bar" aria-hidden="true"><div class="bar-fill violet" style="width:79%"></div></div>
         </div>
         <div class="card">
           <h3>Cadena de despliegue</h3>
@@ -543,14 +661,44 @@
             <span class="tag">GitHub</span>
             <span class="tag soft">Vercel</span>
             <span class="tag">Cloud Run</span>
-            <span class="tag soft">Sin OpenAI (v1)</span>
           </div>
           <p style="margin-top:16px;font-size:0.86rem;color:var(--muted);">
-            Placeholder para cards de estado o enlaces rápidos a cada evaluación publicada.
+            Texto visual: código en repositorio, front en Vercel, servicio de solo lectura para calificaciones e informes.
           </p>
         </div>
       </div>
     </div>
+
+    <section id="chc-mock">
+      <div class="section-head">
+        <h2>Resumen ejemplo (mock) · Factores CHC</h2>
+        <p>Tabla ilustrativa; no es interpretación clínica ni resultado real de ningún usuario.</p>
+      </div>
+      <div class="chc-wrap">
+        <h3>Modelo CHC · Placeholder</h3>
+        <p class="chc-note">Datos coherentes de demostración (mismo orden de factores que en un JSON agregado típico).</p>
+        <table class="chc-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Etiqueta (ES)</th>
+              <th>Score</th>
+              <th>Max</th>
+              <th>%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Gf</code></td><td>Razonamiento fluido</td><td>9</td><td>12</td><td class="muted">75</td></tr>
+            <tr><td><code>Gc</code></td><td>Conocimiento verbal</td><td>8</td><td>12</td><td class="muted">67</td></tr>
+            <tr><td><code>Gwm</code></td><td>Memoria de trabajo</td><td>2</td><td>4</td><td class="muted">50</td></tr>
+            <tr><td><code>Gs</code></td><td>Velocidad</td><td>10</td><td>10</td><td class="muted">100</td></tr>
+            <tr><td><code>Gv</code></td><td>Visual-espacial</td><td>9</td><td>12</td><td class="muted">75</td></tr>
+            <tr><td><code>Glr</code></td><td>Memoria asociativa</td><td>7</td><td>8</td><td class="muted">88</td></tr>
+            <tr><td><code>Gq</code></td><td>Razonamiento cuantitativo</td><td>9</td><td>10</td><td class="muted">90</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
     <section id="stack">
       <div class="section-head">
@@ -562,7 +710,7 @@
           <div class="stack-icon">FE</div>
           <div class="stack-body">
             <h4>Front / Landing</h4>
-            <p>Next.js en Vercel, i18n (es/en), secciones reutilizables y tabla de factores cuando conectes la API.</p>
+            <p>Next.js en Vercel, i18n (es/en), secciones reutilizables; datos cuando conectes el endpoint de lectura.</p>
           </div>
           <div class="stack-badge">Cliente</div>
         </div>
@@ -570,7 +718,7 @@
           <div class="stack-icon" style="color:var(--violet)">API</div>
           <div class="stack-body">
             <h4>Datos · Cloud Run</h4>
-            <p>Lectura de calificaciones e información general; la página consume JSON agregado (sin análisis LLM).</p>
+            <p>Lectura de calificaciones e información general; la página puede consumir JSON agregado desde aquí.</p>
           </div>
           <div class="stack-badge">Servidor</div>
         </div>
@@ -592,21 +740,45 @@
       </div>
       <div class="eval-grid">
         <article class="eval-card">
-          <div class="eval-num">01</div>
+          <div class="eval-num">#1</div>
           <h5>Intelectual CHC</h5>
-          <p>Placeholder para descripción breve del instrumento.</p>
+          <p>Instrumento de referencia con factores amplios; descripción breve de demostración.</p>
           <span class="eval-link">Abrir · Open →</span>
         </article>
         <article class="eval-card">
-          <div class="eval-num">02</div>
-          <h5>Módulo siguiente</h5>
-          <p>Texto de apoyo hasta dos líneas.</p>
+          <div class="eval-num">#2</div>
+          <h5>Evaluación B</h5>
+          <p>Título provisional; enlazar aquí la URL real en Vercel cuando exista.</p>
           <span class="eval-link">Abrir · Open →</span>
         </article>
         <article class="eval-card">
-          <div class="eval-num">03 · 07</div>
-          <h5>Demás evaluaciones</h5>
-          <p>Misma densidad visual; repetir componente por consistencia.</p>
+          <div class="eval-num">#3</div>
+          <h5>Evaluación C</h5>
+          <p>Espacio para una o dos líneas de contexto sobre el área medida.</p>
+          <span class="eval-link">Abrir · Open →</span>
+        </article>
+        <article class="eval-card">
+          <div class="eval-num">#4</div>
+          <h5>Evaluación D</h5>
+          <p>Copy neutral; mismo patrón de card para mantener ritmo visual.</p>
+          <span class="eval-link">Abrir · Open →</span>
+        </article>
+        <article class="eval-card">
+          <div class="eval-num">#5</div>
+          <h5>Evaluación E</h5>
+          <p>Otra ranura hasta completar las siete pruebas publicadas.</p>
+          <span class="eval-link">Abrir · Open →</span>
+        </article>
+        <article class="eval-card">
+          <div class="eval-num">#6</div>
+          <h5>Evaluación F</h5>
+          <p>Máximo dos líneas de texto auxiliar como en el brief.</p>
+          <span class="eval-link">Abrir · Open →</span>
+        </article>
+        <article class="eval-card">
+          <div class="eval-num">#7</div>
+          <h5>Evaluación G</h5>
+          <p>Última card numerada del grid solicitado para el bosquejo.</p>
           <span class="eval-link">Abrir · Open →</span>
         </article>
       </div>
@@ -620,17 +792,23 @@
       <div class="bilingual">
         <div class="bio-col">
           <h4>Español</h4>
-          <p>Este párrafo muestra cómo puede leerse un bloque de valor o misión del portal en español.</p>
+          <p>
+            Este portal agrupa puntos de acceso a evaluaciones y a la infraestructura que las sustenta,
+            con el objetivo de ofrecer una experiencia clara y consistente para quienes exploran o administran el ecosistema.
+          </p>
         </div>
         <div class="bio-col">
           <h4>English</h4>
-          <p>This paragraph mirrors the layout for an English headline or mission statement—the same rhythm, translated.</p>
+          <p>
+            This portal brings together entry points to assessments and the infrastructure behind them,
+            aiming for a clear, consistent experience for anyone exploring or operating the ecosystem.
+          </p>
         </div>
       </div>
     </section>
 
     <footer>
-      <p><strong>mockup-portal-visual.html</strong> — solo bosquejo, abre este archivo en el navegador. No está conectado a GitHub ni Vercel.</p>
+      <p>© 2026 <strong>MHP100 Portal</strong> — Demostración UI. Archivo estático local; no conectado a APIs.</p>
     </footer>
   </div>
 </body>
