@@ -51,7 +51,32 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
 .factor ul{margin:0;padding-left:18px;font-size:13px;line-height:1.35}
 .rec{border:1px dashed #cbd5e1;border-radius:12px;background:#fbfdff;padding:10px}
 @media (max-width:860px){.row-top{grid-template-columns:1fr}.grid-user{grid-template-columns:1fr}.quick{grid-template-columns:1fr}.micro{grid-template-columns:1fr}.factor .head{grid-template-columns:1fr}.factor .left{border-right:0;border-bottom:1px solid var(--line)}}
-@media print{body{background:#fff}.wrap{max-width:none;margin:0;padding:0}.topbar{display:none}.sheet{display:block !important;border:0;box-shadow:none;border-radius:0;margin:0;padding:10mm}.sheet + .sheet{page-break-before:always}}
+@media print{
+  @page{size:A4;margin:8mm}
+  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .wrap{max-width:none;margin:0;padding:0}
+  .topbar{display:none}
+  .sheet{display:block !important;border:0;box-shadow:none;border-radius:0;margin:0;padding:6mm}
+  .sheet + .sheet{page-break-before:always}
+  #p1{page-break-after:always}
+  .row-top{grid-template-columns:1.02fr .98fr !important;gap:8px !important}
+  .grid-user{grid-template-columns:repeat(2,1fr) !important}
+  .quick{grid-template-columns:repeat(3,1fr) !important}
+  .micro{grid-template-columns:1fr 1fr !important}
+  .curve-wrap{height:158px !important}
+  .logo{height:78px !important;margin-top:0 !important}
+  .title h1{font-size:22px !important;margin-top:10px !important}
+  .title h2{font-size:13px !important}
+  .card{padding:8px !important}
+  .part1{gap:8px !important;margin-top:6px !important}
+  .summary p{font-size:11px !important;line-height:1.28 !important}
+  .micro .m p{font-size:10px !important}
+  .bars .bar + .bar{margin-top:5px !important}
+  .bars .bar{padding:7px !important}
+  .note{margin-top:4px;font-size:10px}
+  .numsec{padding:10px;margin-bottom:8px;font-size:12px;page-break-inside:avoid}
+  #p2 .logo{height:88px !important}
+}
 
 /* --- Curva limpia --- */
 #curveWrap{border:0!important;box-shadow:none!important;background:transparent!important}
@@ -174,6 +199,12 @@ h1{margin-top:14px !important;}
 </section>
 
 <section id="p2" class="sheet">
+  <div class="header">
+    <div id="fechaTop2">—</div>
+    <div class="center"></div>
+    <div class="right"><img class="logo" src="assets/logo_adalam.png" alt="Sello Adalam" onerror="this.style.display='none'"></div>
+  </div>
+  <div class="title"><h1>HÁBITOS</h1><h2>INTERPRETACIÓN DE RESULTADOS</h2></div>
   <div class="part2top"><h3>Interpretación de Resultados</h3><div class="pill">Prueba: HÁBITOS</div></div>
   <div id="p2content"></div>
 </section>
@@ -550,7 +581,9 @@ function userFields(persona){
 
 function render(data){
   const {persona,factores,igh}=parsePayload(data);
-  if($("user1")) $("user1").innerHTML=userFields(persona); if($("user2")) $("user2").innerHTML=userFields(persona); if($("fechaTop")) $("fechaTop").textContent="Fecha: "+persona.fecha;
+  if($("user1")) $("user1").innerHTML=userFields(persona);
+  if($("fechaTop")) $("fechaTop").textContent="Fecha: "+persona.fecha;
+  if($("fechaTop2")) $("fechaTop2").textContent="Fecha: "+persona.fecha;
   const [rl]=rango(igh); $("igh").textContent=igh; $("rango").textContent=rl; $("curveTitle").textContent=`Curva de distribución de frecuencias (IGH = ${igh})`;
   const sorted=[...factores].sort((a,b)=>b.pct-a.pct), alto=sorted[0], bajo=sorted[sorted.length-1], seg=sorted[1];
   $("r1").textContent=`Índice General de Hábitos (IGH): ${igh} (${rl}).`;
