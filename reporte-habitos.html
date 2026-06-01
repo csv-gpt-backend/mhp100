@@ -427,19 +427,14 @@ function userFields(persona){
     const place=()=>{
       const rW=wrap.getBoundingClientRect(), rI=img.getBoundingClientRect();
       if(!rW.width||!rI.width) return;
-      const natW=img.naturalWidth||1, natH=img.naturalHeight||1;
-      const scale=Math.min(rI.width/natW, rI.height/natH);
-      const drawnW=natW*scale, drawnH=natH*scale;
-      const offsetX=(rI.width-drawnW)/2, offsetY=(rI.height-drawnH)/2;
-      const leftInWrap=(rI.left-rW.left)+offsetX;
-      const topInWrap=(rI.top-rW.top)+offsetY;
-      const padL=drawnW*0.16, padR=drawnW*0.28;
+      /* Misma fórmula que el marcador en px (calibrada a curva_metal en hábitos) */
+      const padL=0.16, padR=0.28;
       const t=value/100;
-      const minX=leftInWrap+padL, maxX=leftInWrap+drawnW-padR;
-      const x=Math.max(minX, Math.min(maxX, minX+t*(maxX-minX)));
+      const xOnImg=rI.width*(padL+t*(1-padL-padR));
+      const x=(rI.left-rW.left)+xOnImg;
       const bottomAt0=76, bottomAt100=44;
       const bottomFrac=(bottomAt0+(bottomAt100-bottomAt0)*t)/100;
-      const yTop=topInWrap+drawnH*(1-bottomFrac);
+      const yTop=(rI.top-rW.top)+rI.height*(1-bottomFrac);
       mk.style.left=`${(x/rW.width)*100}%`;
       mk.style.top=`${(yTop/rW.height)*100}%`;
       mk.style.bottom="auto";
