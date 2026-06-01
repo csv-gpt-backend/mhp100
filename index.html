@@ -156,15 +156,58 @@
       box-shadow:0 8px 16px rgba(22,163,74,0.22);
     }
     .btn-logout{
-      background:#ffffff;
-      color:#111827;
-      border:1px solid #d1d5db;
-      box-shadow:none;
+      background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%);
+      color:#fff;
+      border:2px solid #b91c1c;
+      font-weight:800;
+      font-size:15px;
+      padding:11px 20px;
+      border-radius:999px;
+      box-shadow:0 8px 22px rgba(220,38,38,0.38);
+      letter-spacing:.02em;
     }
     .btn-logout:hover{
-      background:#f3f4f6;
-      transform:translateY(-1px);
-      box-shadow:none;
+      background:linear-gradient(180deg,#dc2626 0%,#b91c1c 100%);
+      transform:translateY(-2px);
+      box-shadow:0 12px 28px rgba(220,38,38,0.45);
+    }
+    .session-bar-top{
+      position:fixed;
+      top:14px;
+      right:14px;
+      z-index:200;
+      display:none;
+    }
+    .session-bar-bottom{
+      display:none;
+      max-width:960px;
+      margin:22px auto 10px;
+      padding:18px 16px;
+      text-align:center;
+      border-radius:16px;
+      background:linear-gradient(180deg,#fef2f2 0%,#ffffff 72%);
+      border:2px solid #fecaca;
+      box-shadow:0 10px 28px rgba(220,38,38,0.12);
+    }
+    .session-bar-bottom p{
+      margin:0 0 12px;
+      font-size:13px;
+      font-weight:700;
+      color:#991b1b;
+      line-height:1.4;
+    }
+    .reporte-build-stamp{
+      position:fixed;
+      left:10px;
+      bottom:10px;
+      z-index:199;
+      font-size:10px;
+      font-weight:600;
+      letter-spacing:.03em;
+      color:#94a3b8;
+      opacity:.72;
+      user-select:all;
+      pointer-events:none;
     }
 
     .msg{
@@ -321,6 +364,11 @@
 </head>
 
 <body>
+  <span class="reporte-build-stamp" id="reporteBuildStamp" aria-hidden="true"></span>
+  <div class="session-bar-top" id="sessionBarTop">
+    <button class="btn btn-logout" id="btnSalir" type="button">Cerrar sesión</button>
+  </div>
+
   <div class="page">
 
     <div class="brand-logo">
@@ -353,10 +401,6 @@
           <button class="btn" id="btnEntrar">Validar contraseña</button>
         </div>
       </section>
-
-      <div style="display:flex; justify-content:flex-end; margin-top:-6px; margin-bottom:10px;">
-        <button class="btn btn-logout" id="btnSalir" type="button" style="display:none;">Cerrar sesión</button>
-      </div>
 
       <section id="menu" class="menu">
         <div class="catalog">
@@ -547,12 +591,24 @@
       </section>
     </main>
 
+    <div class="session-bar-bottom" id="sessionBarBottom">
+      <p>Al terminar, cierra la sesión para que nadie más use tu acceso en este equipo.</p>
+      <button class="btn btn-logout" id="btnSalirBottom" type="button">Cerrar sesión</button>
+    </div>
+
     <footer class="footer">
       Plataforma de Evaluaciones · Uso Institucional
     </footer>
   </div>
 
 <script>
+  /* Señal interna. Formato: UP + DD + MM + AA + HHMM */
+  const REPORTE_BUILD_ID = "UP0106261905";
+  (function(){
+    const el = document.getElementById("reporteBuildStamp");
+    if (el) el.textContent = "· " + REPORTE_BUILD_ID;
+  })();
+
   const ACCESS_SESSION_KEY = "adal_access_session";
   /** Pruebas 1–7: 1 Socioemocional, 2 Valores, 3 Liderazgo, 4 Hábitos, 5 Aprendizaje, 6 Vocacional, 7 Intelectual */
   const ALL_BLOCKS = [1, 2, 3, 4, 5, 6, 7];
@@ -618,21 +674,36 @@
   const passInput  = $("#passInput");
   const btnEntrar  = $("#btnEntrar");
   const btnSalir   = $("#btnSalir");
+  const btnSalirBottom = $("#btnSalirBottom");
+  const sessionBarTop = $("#sessionBarTop");
+  const sessionBarBottom = $("#sessionBarBottom");
   const msg        = $("#msg");
   const menu       = $("#menu");
   const loginBlock = $("#loginBlock");
   const introText  = $("#introText");
 
+  function cerrarSesion(){
+    clearAccessSession();
+    if(passInput) passInput.value = "";
+    if(msg){
+      msg.textContent = "Sesión cerrada.";
+      msg.className = "msg";
+    }
+    hideMenu();
+  }
+
   function showMenu(){
     menu.style.display = "block";
-    btnSalir.style.display = "inline-block";
+    if (sessionBarTop) sessionBarTop.style.display = "block";
+    if (sessionBarBottom) sessionBarBottom.style.display = "block";
     if (loginBlock) loginBlock.style.display = "none";
     if (introText) introText.style.display = "none";
     applyBlockLocks();
   }
   function hideMenu(){
     menu.style.display = "none";
-    btnSalir.style.display = "none";
+    if (sessionBarTop) sessionBarTop.style.display = "none";
+    if (sessionBarBottom) sessionBarBottom.style.display = "none";
     if (loginBlock) loginBlock.style.display = "flex";
     if (introText) introText.style.display = "block";
   }
@@ -666,15 +737,8 @@
     }
   });
 
-  btnSalir.addEventListener("click", ()=>{
-    clearAccessSession();
-    if(passInput) passInput.value = "";
-    if(msg){
-      msg.textContent = "Sesión cerrada.";
-      msg.className = "msg";
-    }
-    hideMenu();
-  });
+  if (btnSalir) btnSalir.addEventListener("click", cerrarSesion);
+  if (btnSalirBottom) btnSalirBottom.addEventListener("click", cerrarSesion);
 
   window.addEventListener("DOMContentLoaded", ()=>{
     if(hasValidAccessSession()){
