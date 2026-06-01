@@ -76,6 +76,14 @@ h1{margin-top:14px !important;}
 .badge.mid{background:#fffbeb;border-color:#fde68a;color:#92400e}
 .badge.low{background:#fef2f2;border-color:#fecaca;color:#991b1b}
 .smallnote{font-size:12px;color:#475569}
+.reporte-pie-adalam{
+  margin-top:16px;
+  padding-top:10px;
+  border-top:1px solid var(--line);
+  text-align:right;
+  font-size:12px;
+  color:var(--muted);
+}
 
 </style></head>
 <body><div class="wrap">
@@ -374,16 +382,49 @@ function userFields(persona){
     </table>
   `;
 }
-  function marker(score){
-  const img=$("curveImg"), mk=$("marker"), wrap=$("curveWrap"); if(!img||!mk||!wrap) return;
-  const place=()=>{
-    const ir=img.getBoundingClientRect(), wr=wrap.getBoundingClientRect(); if(!ir.width||!ir.height) return;
-    const padL=.16, padR=.28; const x=ir.width*(padL+(clamp(score,0,100)/100)*(1-padL-padR));
-    const bottomAt0=76,bottomAt100=44; const bottomPx=ir.height*((bottomAt0+(bottomAt100-bottomAt0)*(clamp(score,0,100)/100))/100);
-    mk.style.left=(x+(ir.left-wr.left))+"px"; mk.style.top=(ir.height-bottomPx+(ir.top-wr.top))+"px";
-  };
-  place(); requestAnimationFrame(place); setTimeout(place,120); img.onload=place; window.addEventListener("resize",place,{once:true});
-}
+  let __curveMarkerScore = null;
+
+  function setCurveMarker(score){
+    const value = clamp(Number(score) || 0, 0, 100);
+    __curveMarkerScore = value;
+    const img=$("curveImg"), mk=$("marker"), wrap=$("curveWrap");
+    if(!img||!mk||!wrap) return;
+
+    const place=()=>{
+      const rW=wrap.getBoundingClientRect(), rI=img.getBoundingClientRect();
+      if(!rW.width||!rI.width) return;
+      const natW=img.naturalWidth||1, natH=img.naturalHeight||1;
+      const scale=Math.min(rI.width/natW, rI.height/natH);
+      const drawnW=natW*scale, drawnH=natH*scale;
+      const offsetX=(rI.width-drawnW)/2, offsetY=(rI.height-drawnH)/2;
+      const leftInWrap=(rI.left-rW.left)+offsetX;
+      const topInWrap=(rI.top-rW.top)+offsetY;
+      const padL=drawnW*0.16, padR=drawnW*0.28;
+      const t=value/100;
+      const minX=leftInWrap+padL, maxX=leftInWrap+drawnW-padR;
+      const x=Math.max(minX, Math.min(maxX, minX+t*(maxX-minX)));
+      const bottomAt0=76, bottomAt100=44;
+      const bottomFrac=(bottomAt0+(bottomAt100-bottomAt0)*t)/100;
+      const yTop=topInWrap+drawnH*(1-bottomFrac);
+      mk.style.left=`${(x/rW.width)*100}%`;
+      mk.style.top=`${(yTop/rW.height)*100}%`;
+      mk.style.bottom="auto";
+    };
+
+    const schedule=()=>{
+      place();
+      requestAnimationFrame(place);
+      setTimeout(place,80);
+      setTimeout(place,200);
+    };
+    if(img.complete) schedule();
+    else img.addEventListener("load", schedule, {once:true});
+  }
+
+  function refreshCurveMarkerForPrint(){
+    if(__curveMarkerScore==null) return;
+    setCurveMarker(__curveMarkerScore);
+  }
 
   // --- Parte 2 (numerada) ---
   function p2HabitBlock(idx, f, globalLowName, isPRO){
@@ -503,7 +544,8 @@ function userFields(persona){
       </div>
     `;
 
-    return sec1 + sec2 + sec3head + habits + sec4 + sec5 + sec6;
+    const secPie = `<p class="reporte-pie-adalam">Adalam — Informe De Hábitos.</p>`;
+    return sec1 + sec2 + sec3head + habits + sec4 + sec5 + sec6 + secPie;
   }
 
 function render(data){
@@ -536,7 +578,7 @@ function render(data){
   $("p2content").innerHTML = buildParte2(persona, factores, igh);
   // Evitar duplicado: ocultar el bloque de datos personales del encabezado de Parte 2 (se mantiene el punto 1)
 
-  marker(igh);
+  setCurveMarker(igh);
   $("p1").style.display="block"; $("p2").style.display="block";
 }
 async function cargar(){
@@ -554,8 +596,23 @@ $("msg").textContent="Reporte cargado."; $("msg").className="msg ok";
   try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){}
   }catch(e){ console.error(e); $("msg").textContent="Error de conexión"; $("msg").className="msg err"; }
 }
-$("ver").onclick=cargar; $("pdf").onclick=()=>window.print();
-window.addEventListener("beforeprint", ()=> { const v=+$("igh").textContent||0; marker(v); });
-const qp = new URLSearchParams(location.search); if(qp.get("codigo")){ $("codigo").value = qp.get("codigo").toUpperCase(); }
+$("ver").onclick=cargar;
+$("pdf").onclick=()=>{
+  refreshCurveMarkerForPrint();
+  requestAnimationFrame(()=>{
+    refreshCurveMarkerForPrint();
+    window.print();
+  });
+};
+window.addEventListener("beforeprint", refreshCurveMarkerForPrint);
+window.addEventListener("resize", refreshCurveMarkerForPrint);
+const qp = new URLSearchParams(location.search);
+if(qp.get("codigo")){ $("codigo").value = qp.get("codigo").toUpperCase(); }
+(function initCurveObserver(){
+  const wrap=$("curveWrap");
+  if(wrap && typeof ResizeObserver!=="undefined"){
+    new ResizeObserver(()=>refreshCurveMarkerForPrint()).observe(wrap);
+  }
+})();
 
 </script>
