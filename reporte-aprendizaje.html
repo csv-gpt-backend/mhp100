@@ -32,6 +32,15 @@
     .rep-mid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
     .card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:10px}
     .curve-gauge{position:relative;width:100%;height:220px;margin-top:6px}
+    #curveMarker{transform:translateX(-50%)}
+    .reporte-pie-adalam{
+      margin-top:16px;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+      text-align:right;
+      font-size:12px;
+      color:var(--muted);
+    }
     .iv-table{width:100%;border-collapse:collapse;font-size:12px}
     .iv-table th,.iv-table td{border:1px solid #111;padding:6px;vertical-align:top}
     .iv-table td.hl{background:var(--yellow)}
@@ -102,7 +111,7 @@
             <div class="curve-gauge">
               <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución" style="width:100%;height:220px;object-fit:contain;display:block;"/>
               <div id="curveMarker" aria-hidden="true"
-                   style="position:absolute; left:50%; bottom:26px; width:0; height:0;
+                   style="position:absolute; left:50%; bottom:12%; width:0; height:0;
                     z-index:3; pointer-events:none;">
    <svg width="30" height="54" viewBox="0 0 18 30"
      style="position:absolute; left:0; bottom:0; transform:translateX(-50%);
@@ -231,6 +240,8 @@
           <h3>5.- Apoyos por contexto</h3>
           <div id="contextosBox"></div>
         </div>
+
+        <p class="reporte-pie-adalam" id="reportePieAdalam">Adalam — Informe De Preferencias De Aprendizaje.</p>
       </section>
     </section>
   </div>
@@ -334,12 +345,16 @@ lenguaje_visual: [
 
   function avgAreaScore(res){ const vals = AREA_ORDER.map(k=>scoreOf(res.areas,k)); return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0; }
 
+  let __curveMarkerScore = null;
+
   function setCurveMarker(score){
     const value = clamp(Number(score) || 0, 1, 100);
+    __curveMarkerScore = value;
     const wrap=document.querySelector('.curve .curve-gauge');
     const img=document.getElementById('freqCurveImg');
     const mk=document.getElementById('curveMarker');
     if(!wrap||!img||!mk) return;
+
     const place = ()=>{
       const rW=wrap.getBoundingClientRect(), rI=img.getBoundingClientRect();
       if(!rW.width||!rI.width) return;
@@ -347,7 +362,6 @@ lenguaje_visual: [
       const natH = img.naturalHeight || 1;
       const scale  = Math.min(rI.width / natW, rI.height / natH);
       const drawnW = natW * scale;
-      const drawnH = natH * scale;
       const offsetXInsideImg = (rI.width - drawnW) / 2;
       const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
       const padL = drawnW * 0.10;
@@ -360,11 +374,24 @@ lenguaje_visual: [
       const bottomAt0 = 98;
       const bottomAt100 = 28;
       const y = bottomAt0 + (bottomAt100 - bottomAt0) * t;
-      mk.style.left = `${x}px`;
-      mk.style.bottom = `${y}px`;
+      mk.style.left = `${(x / rW.width) * 100}%`;
+      mk.style.bottom = `${(y / rW.height) * 100}%`;
     };
-    if(img.complete) place(); else img.addEventListener('load', place, {once:true});
-    requestAnimationFrame(place); setTimeout(place,120);
+
+    const schedule = ()=>{
+      place();
+      requestAnimationFrame(place);
+      setTimeout(place, 80);
+      setTimeout(place, 200);
+    };
+
+    if(img.complete) schedule();
+    else img.addEventListener('load', schedule, {once:true});
+  }
+
+  function refreshCurveMarkerForPrint(){
+    if(__curveMarkerScore == null) return;
+    setCurveMarker(__curveMarkerScore);
   }
 
   function contradictionLevel(res){
@@ -669,9 +696,25 @@ function contextSuggestions(res, esPro){
   }
 
   document.getElementById('btnVer').addEventListener('click',()=>{ const c=document.getElementById('codigoInput').value.trim().toUpperCase(); if(c) cargarReporte(c); });
-  document.getElementById('btnImprimir').addEventListener('click',()=>window.print());
+  document.getElementById('btnImprimir').addEventListener('click',()=>{
+    refreshCurveMarkerForPrint();
+    requestAnimationFrame(()=>{
+      refreshCurveMarkerForPrint();
+      window.print();
+    });
+  });
   document.getElementById('btnExportJSON').addEventListener('click',exportJSON);
-  (function init(){ const qp=new URLSearchParams(location.search); const c=(qp.get('codigo')||'').trim().toUpperCase(); if(c){ document.getElementById('codigoInput').value=c; cargarReporte(c); }})();
+  window.addEventListener('beforeprint', refreshCurveMarkerForPrint);
+  window.addEventListener('resize', refreshCurveMarkerForPrint);
+  (function init(){
+    const qp=new URLSearchParams(location.search);
+    const c=(qp.get('codigo')||'').trim().toUpperCase();
+    if(c){ document.getElementById('codigoInput').value=c; cargarReporte(c); }
+    const wrap=document.querySelector('.curve .curve-gauge');
+    if(wrap && typeof ResizeObserver !== 'undefined'){
+      new ResizeObserver(()=>refreshCurveMarkerForPrint()).observe(wrap);
+    }
+  })();
 </script>
 </body>
 </html>
