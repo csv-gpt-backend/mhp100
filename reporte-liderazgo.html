@@ -53,7 +53,16 @@
   .result th,.result td{border-bottom:1px solid #e5e7eb;padding:6px 8px;font-size:13px;text-align:left}
   .hidden{display:none}
   .small{font-size:12px;color:var(--muted)}
-  @media print {.topbar,#msg,.small{display:none} #page1{page-break-after:always}}
+  @media print{
+    @page{size:A4;margin:8mm}
+    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .topbar,#msg,.small{display:none !important}
+    .wrap{max-width:none;margin:0;padding:0}
+    #reporte{display:block !important}
+    .page{margin-top:0}
+    #page1{page-break-after:always;break-after:page}
+    .reporte-pie-adalam{break-inside:avoid}
+  }
 
 /* --- Parte 2 robusta (numerada) --- */
 .p2sec{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;margin:12px 0}
@@ -104,7 +113,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
   <div class="topbar">
     <input id="codigo" placeholder="Código (ej. LIDER001)"/>
     <button id="btn" class="btn" type="button">Ver reporte</button>
-    <button class="btn alt" type="button" onclick="window.print()">Imprimir / PDF</button>
+    <button class="btn alt" type="button" id="btnImprimir">Imprimir / PDF</button>
   </div>
   <div id="msg" class="msg">Paso 1 (datos reales): conecta /api/report y pinta factores, IA/IB/IC/ID + IFL.</div>
 
@@ -1099,6 +1108,36 @@ async function cargar(){
 $('#btn').addEventListener('click', cargar);
 $('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
 
+function imprimirLiderazgo(){
+  const rep = document.getElementById('reporte');
+  if (!rep || rep.classList.contains('hidden')) {
+    window.print();
+    return;
+  }
+  const iframe = document.createElement('iframe');
+  iframe.setAttribute('aria-hidden', 'true');
+  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+  document.body.appendChild(iframe);
+  const win = iframe.contentWindow;
+  const doc = win.document;
+  const sheet = document.querySelector('style');
+  doc.open();
+  doc.write('<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title> </title>');
+  if (sheet) doc.write(sheet.outerHTML);
+  doc.write('<style>@media print{@page{size:A4;margin:8mm}body{margin:0;padding:0}}</style>');
+  doc.write('</head><body>');
+  doc.write(rep.outerHTML);
+  doc.write('</body></html>');
+  doc.close();
+  const cleanup = () => { try { iframe.remove(); } catch (e) {} };
+  win.addEventListener('afterprint', cleanup, { once: true });
+  setTimeout(cleanup, 60000);
+  win.focus();
+  win.print();
+}
+const btnPrint = document.getElementById('btnImprimir');
+if (btnPrint) btnPrint.addEventListener('click', imprimirLiderazgo);
+
 window.addEventListener('resize', () => {
   const v = window.__liderCurveValue;
   if (v == null || Number.isNaN(Number(v))) return;
@@ -1116,6 +1155,5 @@ window.addEventListener('afterprint', () => {
   requestAnimationFrame(() => setMarker(Number(v)));
 });
 </script>
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.7;z-index:9999;">MARKER REP-LID-RANGOS-20260310</div>
 </body>
 </html>
