@@ -410,42 +410,65 @@
     $(valId).textContent = mbps > 0 ? mbps.toFixed(2) : "0";
   }
 
+  function deployHint(){
+    if (location.protocol === "file:") {
+      return "Abra esta página desde la URL de Vercel (https://…), no como archivo en disco (file://).";
+    }
+    return "Confirme en GitHub que subió api/ping.js, api/tit-echo.js y assets/tit-bandwidth-test.bin, y espere el deploy de Vercel.";
+  }
+
   async function measureLatency(){
-    const t0 = performance.now();
-    const r = await fetch("/api/ping?_=" + Date.now(), { cache: "no-store" });
-    if (!r.ok) throw new Error("No se pudo contactar al servidor ADALAM.");
-    await r.json();
-    return performance.now() - t0;
+    try {
+      const t0 = performance.now();
+      const r = await fetch("/api/ping?_=" + Date.now(), { cache: "no-store" });
+      if (!r.ok) return null;
+      await r.json();
+      return performance.now() - t0;
+    } catch (_e) {
+      return null;
+    }
   }
 
   async function measureDownload(onProgress){
     const url = BANDWIDTH_URL + "?v=" + Date.now();
-    const t0 = performance.now();
-    const r = await fetch(url, { cache: "no-store" });
-    if (!r.ok) throw new Error("No se pudo descargar el archivo de prueba.");
-    const blob = await r.blob();
-    const sec = (performance.now() - t0) / 1000;
-    const bytes = blob.size || BANDWIDTH_BYTES;
-    if (onProgress) onProgress(Math.min(95, 40 + sec * 20));
-    return (bytes * 8) / (sec * 1e6);
+    let r;
+    try {
+      const t0 = performance.now();
+      r = await fetch(url, { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const blob = await r.blob();
+      const sec = (performance.now() - t0) / 1000;
+      const bytes = blob.size || BANDWIDTH_BYTES;
+      if (bytes < 1000) throw new Error("archivo vacío o no encontrado");
+      if (onProgress) onProgress(Math.min(95, 40 + sec * 20));
+      return (bytes * 8) / (sec * 1e6);
+    } catch (e) {
+      throw new Error(
+        "No se pudo medir la descarga desde el servidor ADALAM. " + deployHint()
+      );
+    }
   }
 
   async function measureUpload(onProgress){
-    const chunk = "A".repeat(1024);
-    const parts = UPLOAD_BYTES / 1024;
-    let data = "";
-    for (let i = 0; i < parts; i++) data += chunk;
-    const t0 = performance.now();
-    const r = await fetch("/api/tit-echo", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tit: "upload-test", data })
-    });
-    if (!r.ok) throw new Error("No se pudo completar la prueba de subida.");
-    await r.json();
-    const sec = (performance.now() - t0) / 1000;
-    if (onProgress) onProgress(100);
-    return (UPLOAD_BYTES * 8) / (sec * 1e6);
+    try {
+      const chunk = "A".repeat(1024);
+      const parts = UPLOAD_BYTES / 1024;
+      let data = "";
+      for (let i = 0; i < parts; i++) data += chunk;
+      const t0 = performance.now();
+      const r = await fetch("/api/tit-echo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tit: "upload-test", data })
+      });
+      if (!r.ok) return null;
+      await r.json();
+      const sec = (performance.now() - t0) / 1000;
+      if (onProgress) onProgress(100);
+      return (UPLOAD_BYTES * 8) / (sec * 1e6);
+    } catch (_e) {
+      return null;
+    }
   }
 
   async function runSpeedTest(){
@@ -457,18 +480,25 @@
     testDone = false;
 
     try {
+      $("fillDown").style.width = "8%";
       await measureLatency();
-      setMeter("fillDown", "valDown", 0);
       $("fillDown").style.width = "15%";
 
       downloadMbps = await measureDownload(p => { $("fillDown").style.width = p + "%"; });
       setMeter("fillDown", "valDown", downloadMbps);
 
       uploadMbps = await measureUpload();
-      setMeter("fillUp", "valUp", uploadMbps);
+      if (uploadMbps == null) {
+        uploadMbps = 0;
+        setMeter("fillUp", "valUp", 0);
+      } else {
+        setMeter("fillUp", "valUp", uploadMbps);
+      }
 
       testDone = true;
-      $("testOk").textContent = "Test completado. Puede continuar al diagnóstico.";
+      $("testOk").textContent = uploadMbps > 0
+        ? "Test completado. Puede continuar al diagnóstico."
+        : "Descarga medida correctamente. Subida no disponible (falta api/tit-echo.js en el servidor); el diagnóstico usa la descarga, que es lo principal.";
 
       const payload = {
         at: new Date().toISOString(),
