@@ -79,7 +79,18 @@
     .diag-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
     .diag-table th,.diag-table td{border:1px solid var(--line);padding:10px;text-align:center;vertical-align:middle}
     .diag-table th{background:#f1f5f9;font-weight:800}
-    .diag-table .eval-col{text-align:left;min-width:160px}
+    .diag-table .eval-col{text-align:left;min-width:140px;font-weight:700}
+    .diag-table .num-cell{font-size:22px;font-weight:900;color:#6d28d9;line-height:1.1}
+    .diag-table .speed-once{
+      display:inline-block;margin-bottom:8px;padding:5px 10px;border-radius:8px;
+      font-weight:900;color:#fff;background:#16a34a;font-size:13px;
+    }
+    .diag-table .ref-num{font-size:18px;font-weight:800;color:#475569}
+    @media print{
+      .diag-table{font-size:11px}
+      .diag-table .num-cell{font-size:18px}
+      .diag-table tr{break-inside:avoid;page-break-inside:avoid}
+    }
     .speed-pill{display:inline-block;padding:6px 12px;border-radius:8px;font-weight:900;color:#fff;background:#16a34a}
     .users-box{
       margin-top:8px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);
@@ -87,6 +98,7 @@
     }
     .users-box .num{font-size:32px;line-height:1}
     .users-box .lbl{font-size:12px;font-weight:600;opacity:.95;margin-top:4px}
+    .tech-max{font-size:11px;color:#64748b;margin-top:6px;line-height:1.35}
     .ref-col{color:#64748b;background:#fafafa}
     .eval-picker{display:flex;align-items:center;gap:8px;margin-top:10px}
     .eval-picker select{flex:1;padding:8px 10px;border-radius:10px;border:1px solid #cbd5e1;font-size:13px;font-weight:600}
@@ -136,8 +148,11 @@
       body{background:#fff}
       .topbar,.wizard-foot,.no-print{display:none !important}
       .wizard{box-shadow:none;border:0}
+      .wizard-head .steps{display:none}
       .print-only{display:block;margin-top:12px;font-size:12px}
-      .steps li:not(.active){opacity:.5}
+      .diag-table{font-size:11px}
+      .diag-table .num-cell{font-size:18px}
+      .diag-table tr{break-inside:avoid;page-break-inside:avoid}
     }
   </style>
 </head>
@@ -247,51 +262,25 @@
 
       <!-- Paso 4 -->
       <section class="step" id="step4">
-        <p><strong>Diagnóstico</strong> — capacidad estimada según la conexión medida en este equipo.</p>
-        <div class="eval-picker no-print">
-          <button type="button" id="evalPrev" title="Anterior">▲</button>
-          <select id="evalSelect"></select>
-          <button type="button" id="evalNext" title="Siguiente">▼</button>
-        </div>
+        <p><strong>Diagnóstico</strong> — capacidad <strong>recomendada (50 %)</strong> para las siete evaluaciones ADALAM con la conexión medida en este equipo.</p>
+        <p class="muted" id="diagSpeedLine" style="margin-bottom:10px">Velocidad de descarga medida: —</p>
 
         <table class="diag-table">
           <thead>
             <tr>
               <th class="eval-col">Evaluación</th>
-              <th>Su conexión</th>
+              <th id="thConn">Su conexión</th>
               <th class="ref-col">Referencia 50 Mb/s</th>
               <th class="ref-col">Referencia 100 Mb/s</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td class="eval-col" id="cellEval">—</td>
-              <td>
-                <span class="speed-pill" id="cellSpeed">— Mb/s</span>
-                <div class="users-box">
-                  <div class="num" id="cellUsers">—</div>
-                  <div class="lbl">Usuarios a la vez (estimado)</div>
-                </div>
-              </td>
-              <td class="ref-col">
-                <div class="users-box" style="background:#94a3b8">
-                  <div class="num" id="ref50">—</div>
-                  <div class="lbl">Usuarios a la vez</div>
-                </div>
-              </td>
-              <td class="ref-col">
-                <div class="users-box" style="background:#64748b">
-                  <div class="num" id="ref100">—</div>
-                  <div class="lbl">Usuarios a la vez</div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
+          <tbody id="diagBody"></tbody>
         </table>
 
         <div class="valid-until" id="validUntil"></div>
 
-        <div class="print-only">
+        <div class="print-only" id="printMeta">
+          <p><strong>Velocidad de descarga:</strong> <span id="printDown">—</span> · <strong>Velocidad de subida:</strong> <span id="printUp">—</span></p>
           <p><strong>Persona que realizó el test:</strong> <span id="printNombre">—</span></p>
           <p><strong>Supervisor:</strong> <span id="printSup">—</span></p>
           <p><strong>Fecha:</strong> <span id="printFecha">—</span></p>
@@ -300,7 +289,7 @@
         <div class="faq no-print">
           <details open>
             <summary>¿Qué pasa si no respeto estas recomendaciones?</summary>
-            <div class="faq-body">Las evaluaciones pueden presentar lentitud al cargar páginas, demoras al guardar avance o problemas al finalizar, sobre todo en la evaluación intelectual y cuando muchas personas usan la misma red al mismo tiempo.</div>
+            <div class="faq-body">Las evaluaciones pueden presentar lentitud al cargar páginas, demoras al guardar avance o problemas al finalizar, sobre todo en la evaluación intelectual y cuando muchas personas usan la misma red al mismo tiempo. Use solo el número <strong>recomendado (50 %)</strong> para planificar grupos simultáneos.</div>
           </details>
           <details>
             <summary>¿Para qué me sirve esta información?</summary>
@@ -345,11 +334,11 @@
   const BANDWIDTH_BYTES = 786432;
   const UPLOAD_BYTES = 262144;
   const MAX_MBPS_DISPLAY = 100;
+  const PRUDENT_FACTOR = 0.5;
 
   let step = 1;
   let downloadMbps = 0;
   let uploadMbps = 0;
-  let evalIndex = 0;
   let testDone = false;
 
   const $ = id => document.getElementById(id);
@@ -362,6 +351,10 @@
 
   function usersAt(mbps, factor){
     return Math.max(0, Math.floor(mbps * factor));
+  }
+
+  function usersRecommended(raw){
+    return Math.max(0, Math.floor(raw * PRUDENT_FACTOR));
   }
 
   function setStep(n){
@@ -519,36 +512,48 @@
   }
 
   function renderDiag(){
-    const ev = EVALS[evalIndex];
-    const factor = ev.usersPerMbps;
-    const users = usersAt(downloadMbps, factor);
-    $("cellEval").textContent = ev.name;
-    $("cellSpeed").textContent = downloadMbps.toFixed(2) + " Mb/s";
-    $("cellUsers").textContent = String(users);
-    $("ref50").textContent = String(usersAt(50, factor));
-    $("ref100").textContent = String(usersAt(100, factor));
+    const speedTxt = downloadMbps > 0 ? downloadMbps.toFixed(2) + " Mb/s" : "—";
+    $("diagSpeedLine").textContent = "Velocidad de descarga medida: " + speedTxt +
+      (uploadMbps > 0 ? " · Subida: " + uploadMbps.toFixed(2) + " Mb/s" : "");
+    $("thConn").innerHTML = 'Su conexión<br><span class="speed-once">' + speedTxt + '</span>';
+
+    $("diagBody").innerHTML = EVALS.map(ev => {
+      const raw = usersAt(downloadMbps, ev.usersPerMbps);
+      const rec = usersRecommended(raw);
+      const r50 = usersRecommended(usersAt(50, ev.usersPerMbps));
+      const r100 = usersRecommended(usersAt(100, ev.usersPerMbps));
+      return `
+        <tr>
+          <td class="eval-col">${ev.name}</td>
+          <td>
+            <div class="num-cell">${rec}</div>
+            <div class="tech-max">Usuarios a la vez (50 %)</div>
+            ${raw > 0 ? `<div class="tech-max">Técnico sin margen: ${raw}</div>` : ""}
+          </td>
+          <td class="ref-col">
+            <div class="ref-num">${r50}</div>
+            <div class="tech-max">50 % · 50 Mb/s</div>
+          </td>
+          <td class="ref-col">
+            <div class="ref-num">${r100}</div>
+            <div class="tech-max">50 % · 100 Mb/s</div>
+          </td>
+        </tr>`;
+    }).join("");
 
     const d = new Date();
     const valid = new Date(d);
     valid.setMonth(valid.getMonth() + 6);
     $("validUntil").textContent =
-      "Resultado válido orientativamente hasta " +
+      "Planifique como máximo el 50 % del estimado técnico. Resultado orientativo válido hasta " +
       valid.toLocaleDateString("es-EC", { day: "numeric", month: "long", year: "numeric" }) +
-      ". Imprima o guarde PDF y envíelo al administrador ADALAM.";
+      ". Imprima o guarde PDF y envíelo al administrador ADALAM. Repita el test en el lugar de aplicación.";
 
+    $("printDown").textContent = speedTxt;
+    $("printUp").textContent = uploadMbps > 0 ? uploadMbps.toFixed(2) + " Mb/s" : "No medida";
     $("printNombre").textContent = $("fNombre").value.trim() + " · " + $("fEmail").value.trim();
     $("printSup").textContent = $("fSupNombre").value.trim() + " · " + $("fSupEmail").value.trim();
     $("printFecha").textContent = d.toLocaleString("es-EC");
-
-    $("evalSelect").value = String(evalIndex);
-  }
-
-  function buildEvalSelect(){
-    const sel = $("evalSelect");
-    sel.innerHTML = EVALS.map((e, i) =>
-      `<option value="${i}">${e.name}</option>`
-    ).join("");
-    sel.onchange = () => { evalIndex = +sel.value; renderDiag(); };
   }
 
   $("btnNext").onclick = () => {
@@ -557,14 +562,6 @@
   };
   $("btnPrev").onclick = () => { if (step > 1) setStep(step - 1); };
   $("btnRunTest").onclick = runSpeedTest;
-  $("evalPrev").onclick = () => {
-    evalIndex = (evalIndex - 1 + EVALS.length) % EVALS.length;
-    renderDiag();
-  };
-  $("evalNext").onclick = () => {
-    evalIndex = (evalIndex + 1) % EVALS.length;
-    renderDiag();
-  };
   $("btnPrint").onclick = () => window.print();
   $("btnRedo").onclick = () => {
     testDone = false;
@@ -576,7 +573,6 @@
     setStep(3);
   };
 
-  buildEvalSelect();
   setStep(1);
 })();
 </script>
