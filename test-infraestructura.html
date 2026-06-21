@@ -262,16 +262,16 @@
 
       <!-- Paso 4 -->
       <section class="step" id="step4">
-        <p><strong>Diagnóstico</strong> — capacidad <strong>recomendada (50 %)</strong> para las siete evaluaciones ADALAM con la conexión medida en este equipo.</p>
-        <p class="muted" id="diagSpeedLine" style="margin-bottom:10px">Velocidad de descarga medida: —</p>
+        <p><strong>Resultado:</strong> con la conexión medida en este equipo, estas son las cantidades de personas que pueden evaluarse <strong>al mismo tiempo</strong> por evaluación, con estabilidad en la red del centro.</p>
+        <p class="muted" id="diagSpeedLine" style="margin-bottom:10px">Conexión medida: —</p>
 
         <table class="diag-table">
           <thead>
             <tr>
               <th class="eval-col">Evaluación</th>
-              <th id="thConn">Su conexión</th>
-              <th class="ref-col">Referencia 50 Mb/s</th>
-              <th class="ref-col">Referencia 100 Mb/s</th>
+              <th id="thConn">Con su conexión actual</th>
+              <th class="ref-col">Si tuviera 50 Mb/s</th>
+              <th class="ref-col">Si tuviera 100 Mb/s</th>
             </tr>
           </thead>
           <tbody id="diagBody"></tbody>
@@ -288,12 +288,12 @@
 
         <div class="faq no-print">
           <details open>
-            <summary>¿Qué pasa si no respeto estas recomendaciones?</summary>
-            <div class="faq-body">Las evaluaciones pueden presentar lentitud al cargar páginas, demoras al guardar avance o problemas al finalizar, sobre todo en la evaluación intelectual y cuando muchas personas usan la misma red al mismo tiempo. Use solo el número <strong>recomendado (50 %)</strong> para planificar grupos simultáneos.</div>
+            <summary>¿Qué pasa si aplico más personas de las indicadas?</summary>
+            <div class="faq-body">Pueden aparecer lentitud al cargar las páginas, demoras al guardar el avance o dificultades al finalizar, sobre todo en la evaluación intelectual y cuando muchas personas usan la misma red WiFi al mismo tiempo. Planifique grupos usando los números de esta tabla.</div>
           </details>
           <details>
             <summary>¿Para qué me sirve esta información?</summary>
-            <div class="faq-body">Le permite planificar cuántos estudiantes o participantes pueden evaluarse en simultáneo sin saturar la red del centro. Comparta el resultado impreso con el coordinador ADALAM antes del día de aplicación.</div>
+            <div class="faq-body">Le indica cuántos estudiantes o participantes pueden evaluarse en simultáneo sin saturar la red del centro. Comparta el resultado impreso con el coordinador ADALAM antes del día de aplicación.</div>
           </details>
           <details>
             <summary>¿Cómo aumentar la cantidad de personas que pueden evaluarse a la vez?</summary>
@@ -513,13 +513,15 @@
 
   function renderDiag(){
     const speedTxt = downloadMbps > 0 ? downloadMbps.toFixed(2) + " Mb/s" : "—";
-    $("diagSpeedLine").textContent = "Velocidad de descarga medida: " + speedTxt +
-      (uploadMbps > 0 ? " · Subida: " + uploadMbps.toFixed(2) + " Mb/s" : "");
-    $("thConn").innerHTML = 'Su conexión<br><span class="speed-once">' + speedTxt + '</span>';
+    const upTxt = uploadMbps > 0 ? uploadMbps.toFixed(2) + " Mb/s" : "—";
+    $("diagSpeedLine").textContent =
+      "Conexión medida en este equipo — Descarga: " + speedTxt +
+      (uploadMbps > 0 ? " · Subida: " + upTxt : "");
+    $("thConn").innerHTML =
+      'Con su conexión actual<br><span class="speed-once">' + speedTxt + '</span>';
 
     $("diagBody").innerHTML = EVALS.map(ev => {
-      const raw = usersAt(downloadMbps, ev.usersPerMbps);
-      const rec = usersRecommended(raw);
+      const rec = usersRecommended(usersAt(downloadMbps, ev.usersPerMbps));
       const r50 = usersRecommended(usersAt(50, ev.usersPerMbps));
       const r100 = usersRecommended(usersAt(100, ev.usersPerMbps));
       return `
@@ -527,16 +529,15 @@
           <td class="eval-col">${ev.name}</td>
           <td>
             <div class="num-cell">${rec}</div>
-            <div class="tech-max">Usuarios a la vez (50 %)</div>
-            ${raw > 0 ? `<div class="tech-max">Técnico sin margen: ${raw}</div>` : ""}
+            <div class="tech-max">Puede evaluar hasta <strong>${rec}</strong> usuarios a la vez</div>
           </td>
           <td class="ref-col">
             <div class="ref-num">${r50}</div>
-            <div class="tech-max">50 % · 50 Mb/s</div>
+            <div class="tech-max">usuarios a la vez</div>
           </td>
           <td class="ref-col">
             <div class="ref-num">${r100}</div>
-            <div class="tech-max">50 % · 100 Mb/s</div>
+            <div class="tech-max">usuarios a la vez</div>
           </td>
         </tr>`;
     }).join("");
@@ -545,9 +546,9 @@
     const valid = new Date(d);
     valid.setMonth(valid.getMonth() + 6);
     $("validUntil").textContent =
-      "Planifique como máximo el 50 % del estimado técnico. Resultado orientativo válido hasta " +
+      "Resultado orientativo válido hasta el " +
       valid.toLocaleDateString("es-EC", { day: "numeric", month: "long", year: "numeric" }) +
-      ". Imprima o guarde PDF y envíelo al administrador ADALAM. Repita el test en el lugar de aplicación.";
+      ". Imprima o guarde PDF y envíelo al administrador ADALAM. Repita el test en el lugar donde aplicará la evaluación (misma red WiFi o cable).";
 
     $("printDown").textContent = speedTxt;
     $("printUp").textContent = uploadMbps > 0 ? uploadMbps.toFixed(2) + " Mb/s" : "No medida";
