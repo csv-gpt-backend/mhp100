@@ -1,0 +1,3323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Integrity — Report</title>
+  <style>
+    :root{
+      --ink:#111; --muted:#666; --line:#ddd;
+      --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757;
+    }
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#fff;color:#0f172a;min-height:100vh;}
+    .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
+    h1,h2,h3{margin:0 0 8px 0}
+    .muted{color:var(--muted)}
+    .val-note{
+  margin-top: 10px;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.35;
+}
+
+    .ingreso-panel{max-width:540px;margin:0 auto;padding:0 8px 20px;text-align:center}
+    .intro-logo-wrap{display:flex;justify-content:center;align-items:center;margin:12px 0 10px}
+    .intro-logo{width:256px;max-width:78vw;height:auto;object-fit:contain;display:block}
+    .ingreso-form{margin:0 auto 6px;max-width:100%}
+    .ingreso-row{display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:10px}
+    .ingreso-row input{
+      width:min(260px,58vw);min-width:150px;max-width:260px;
+      padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;text-transform:uppercase;box-sizing:border-box;
+    }
+    .ingreso-form #msg{display:block;width:100%;text-align:center;margin:8px 0 0;font-weight:700;min-height:1.25em}
+    .topbar{display:none}
+    .ingreso-titulo{
+      text-align:center;font-weight:800;font-size:clamp(1.05rem,2.9vw,1.42rem);line-height:1.3;
+      margin:0 0 14px;padding:0 10px;color:#0f172a;text-transform:uppercase;letter-spacing:.03em;
+    }
+    .hint.ingreso-usuario{text-align:center;font-size:12px;line-height:1.45;margin-top:-2px;margin-bottom:14px}
+    .reporte-build-stamp{
+      position:fixed;
+      left:10px;
+      bottom:10px;
+      z-index:9998;
+      font-size:10px;
+      font-weight:600;
+      letter-spacing:.03em;
+      color:#94a3b8;
+      opacity:.72;
+      user-select:all;
+      pointer-events:none;
+    }
+    .btn{padding:9px 14px;border-radius:999px;border:0;background:#1a8f3b;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
+    .msg{font-weight:700}
+    .msg.ok{color:#0a8}
+    .msg.err{color:#c00}
+    .hint{font-size:12px;color:var(--muted);margin-bottom:8px}
+
+    .rep-top{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:6px;}
+    .rep-top-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px;margin-bottom:6px;}
+    .rep-date{justify-self:flex-start;}
+    .rep-top-center{text-align:center;font-weight:700;text-transform:uppercase;}
+    .rep-top-logo{justify-self:flex-end;}
+    .mhp-logo{height:56px !important;width:auto !important;object-fit:contain;display:block;}
+    .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase;}
+    .rep-top-row3{text-align:center;font-size:18px;font-weight:800;}
+
+    .iv-table td.hl{background:var(--yellow)}
+    .iv-key{font-weight:900;color:#000;}
+    .iv-legend{display:flex;gap:14px;justify-content:flex-start;margin-top:6px;font-size:11px;color:#111;flex-wrap:wrap}
+    .iv-legend span b{font-weight:900}
+
+    .page{margin-top:10px}
+    .reporte-pie-adalam{
+      margin-top:16px;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+      text-align:right;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .page-break{break-after:page;page-break-after:always;margin-bottom:18px;}
+    @media print{
+      .page-break{margin-bottom:0;}
+
+      @page{ size:A4; margin:8mm 8mm }
+      .ingreso-panel,.hint,.reporte-build-stamp{display:none !important}
+      body{zoom:0.92;}
+      .wrap{max-width:none;margin:0 auto;padding:0 6px}
+      .page{margin-top:0;break-inside:auto}
+      .page-break{break-after:page;page-break-after:always;margin-bottom:18px;}
+      /* Mantener la PARTE 1 en una sola hoja */
+      #page1{zoom:0.90;}
+      .rep-top{margin-bottom:4px;padding-bottom:4px}
+      .rep-ids{margin-top:4px !important}
+      .rep-mid{margin-top:4px !important}
+      .mhp-logo{height:56px !important;width:auto !important;object-fit:contain;display:block;}
+      .rep-top-row2{font-size:22px !important;margin-bottom:0 !important}
+      .rep-top-row3{font-size:16px !important}
+      .bloque-title{margin:8px 0 4px !important}
+      .scale-section{margin-top:8px !important}
+      /* Compactación para confirmar que la Página 1 quede completa */
+      #page1{page-break-after:always; break-after:page;}
+      #page1 *{break-inside:avoid;}
+      .rep-top{padding-bottom:4px;margin-bottom:4px}
+      .rep-top-row2{font-size:22px;margin-bottom:0}
+      .rep-top-row3{font-size:16px}
+      .mhp-logo{height:56px !important;width:auto !important;object-fit:contain;display:block;}
+      #repHeaderBox{padding:4px !important}
+      .rep-mid{margin-top:6px !important}
+      .bloque-title{margin:8px 0 4px}
+      .iie-row{margin:8px 0 4px}
+      .scale-section{margin-top:8px}
+      .bars-row{margin:6px 0}
+      .bars-slot{height:18px}
+      .bars-slot .tick-label{top:15px}
+      .scale-note-inline{margin-top:2px}
+  /* === FIX PDF: asegurar que la curva (SVG) se imprima === */
+  *{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .curve{
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .curve-caption{
+    background: #fff !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Quitar filtros que suelen "romper" SVG en PDF */
+  .curve-3d{ filter: none !important; }
+  #curveFill{ filter: none !important; }
+
+  /* Parte 2 PDF: una habilidad debajo de otra (mismo texto que en pantalla) */
+  body{ zoom:1 !important; }
+  #page1{ zoom:0.90 !important; }
+  .page, .pagina{
+    max-width:100% !important;
+    width:100% !important;
+    padding:5mm 6mm !important;
+    margin:0 !important;
+    border:0 !important;
+    box-shadow:none !important;
+    border-radius:0 !important;
+  }
+  #page2{
+    overflow:visible !important;
+    box-sizing:border-box !important;
+  }
+  #page2 .interpGrid{
+    grid-template-columns:1fr !important;
+    gap:12px !important;
+    width:100% !important;
+    max-width:100% !important;
+  }
+  #page2 .interpCard{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    break-inside:auto;
+    page-break-inside:auto;
+  }
+  #page2 .interpToggle{ display:none !important; }
+  #page2 .interpBody{ display:block !important; }
+  #page2 .rep-box{
+    grid-template-columns:1fr 1fr !important;
+    gap:4px 10px !important;
+  }
+  #iviBox2 .iviHead .iviTitle{
+    white-space:normal !important;
+  }
+  .iviGuideTable{
+    width:100% !important;
+    max-width:100% !important;
+  }
+  .starNote .iviLevels{
+    margin-left:0 !important;
+    max-width:100% !important;
+  }
+  .iviLevelsNote{ margin-left:0 !important; }
+  .scale-note-inline{ left:0 !important; text-align:center !important; }
+
+    }
+
+
+    .bloque-title{font-weight:800;margin:12px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .bloque-left{display:flex;align-items:center;gap:6px;}
+    .bloque-bullet{width:10px;height:10px;border-radius:999px;background:#f4a338;flex:0 0 auto;}
+    .ih-badge{background:var(--yellow);padding:2px 10px;border-radius:2px;min-width:36px;text-align:center;font-weight:800;}
+    .iie-row{display:flex;justify-content:flex-end;align-items:center;margin:12px 0 6px;font-weight:800;gap:8px;}
+    .iie-badge{background:#1d4ed8;color:#fff;padding:3px 12px;border-radius:2px;min-width:40px;text-align:center;}
+
+    .scale-section{margin-top:14px;}
+    .section-title{display:flex;align-items:center;gap:6px;font-weight:800;margin-bottom:2px;}
+    .section-dot{width:10px;height:10px;border-radius:999px;background:#f4a338;flex:0 0 auto;}
+    .scale-range-header{display:grid;grid-template-columns:220px 1fr 1fr 1fr;font-size:11px;font-weight:700;margin:0 0 2px;align-items:flex-end;}
+    .scale-range-header span{text-align:center;}
+.scale-note-inline{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+  text-align:center;
+  position: relative;
+  left: 4cm;
+}
+
+    .bars-wrap{margin:8px 0}
+    .bars-row{display:grid;grid-template-columns:220px 1fr;align-items:center;gap:8px;margin:10px 0;}
+    .bars-row .label{font-weight:700;font-size:12px}
+    .bars-slot{position:relative;height:22px;border:1px solid #9ca3af;border-radius:4px;background:#f3f4f6}
+    .bars-slot .tick{position:absolute;top:-6px;width:1px;height:24px;background:#9ca3af}
+    .bars-slot .tick-label{position:absolute;top:19px;font-size:10px;transform:translateX(-50%)}
+    .bars-slot .marker{position:absolute;top:-2px;width:10px;height:16px;background:#111;border-radius:2px;transform:translateX(-50%);display:none}
+
+    /* Interpretación larga */
+    .interp-title{margin-top:8px;font-size:18px;font-weight:800;}
+    .interp-legend{font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:4px;}
+    .interp-legend-row{margin-top:3px;margin-bottom:3px;}
+    .interp-bloque{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;font-size:12px;background:#fff;}
+    .interp-bloque-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px;}
+    .interp-bloque-nombre{font-weight:800;text-transform:uppercase;}
+    .interp-bloque-indice{font-weight:800;font-size:12px;}
+    .interp-bloque-indice span{background:var(--yellow);padding:2px 8px;border-radius:2px;min-width:36px;text-align:center;display:inline-block;}
+    .interp-bloque-desc{font-size:12px;color:var(--muted);margin-bottom:6px;}
+    .skill-row{margin:6px 0 10px;}
+    .skill-row-title{font-weight:700;font-size:12px;margin-bottom:2px;}
+    .skill-row-desc{font-size:11px;color:var(--muted);margin-bottom:4px;}
+    .skill-row-alert{color: var(--red);font-weight:600;}
+    .skill-bar{display:flex;align-items:center;gap:6px;}
+    .skill-bar-track{position:relative;flex:1;height:12px;border-radius:999px;overflow:hidden;background:linear-gradient(to right,var(--red) 0%, var(--red) 40%,var(--orange) 40%, var(--orange) 70%,var(--green) 70%, var(--green) 100%);}
+    .skill-bar-marker{position:absolute;top:0;bottom:0;width:2px;background:#111;transform:translateX(-50%);}
+    .skill-bar-value{font-size:11px;font-weight:700;min-width:48px;text-align:right;}
+
+    .recom-subtitle{font-size:12px;color:var(--muted);margin-bottom:4px;}
+    .recom-list{margin:4px 0 0 14px;padding:0;font-size:12px;color:#374151;}
+    .recom-list li{margin-bottom:3px;}
+    .plan-section-title{font-weight:700;font-size:12px;margin-top:4px;margin-bottom:2px;}
+    /* ===== Prioridades (Top 3) ===== */
+    .plan-focus-box{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0 12px;background:#fff;}
+    .plan-focus-item{border-top:1px dashed #e5e7eb;padding-top:10px;margin-top:10px;}
+    .plan-focus-item:first-child{border-top:0;padding-top:0;margin-top:0;}
+    .plan-focus-head{font-size:12px;margin-bottom:6px;}
+    .plan-focus-obj{font-size:12px;margin-bottom:6px;color:#111827;}
+    .plan-focus-meta{font-size:12px;color:#374151;margin-top:4px;}
+
+
+    .p2-title{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+    .p2-title h2{font-size:18px;font-weight:800}
+    .card{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
+    .result-table th,.result-table td{border-bottom:1px solid #e5e5e5;padding:6px 8px;font-size:13px;text-align:left}
+    .result-table th{font-weight:800}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:800;font-size:12px;color:#fff}
+    .b-red{background:var(--red)}
+    .b-orange{background:var(--orange)}
+    .b-green{background:var(--green)}
+  
+    .complementarias{
+      margin-top:14px;
+      border-top:1px solid var(--line);
+      padding-top:10px;
+    }
+    .esc-comp-header{
+      text-align:center;
+      margin-bottom:8px;
+    }
+    .esc-comp-title{
+      font-weight:900;
+      font-size:14px;
+      text-transform:uppercase;
+    }
+    .esc-comp-subtitle{
+      font-weight:800;
+      font-size:12px;
+      text-transform:uppercase;
+      margin-top:2px;
+    }
+    @media print{
+      .page-1{page-break-after:always}
+
+      .complementarias{ page-break-before: always; break-before: page; border-top:0; padding-top:0; }
+    }
+
+  
+    /* ===== Integridad layout ===== */
+    .rep-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .rep-brand{display:flex;align-items:center;gap:12px}
+    .rep-brand img{width:64px;height:64px;object-fit:contain}
+    .rep-title{font-size:20px;font-weight:900;letter-spacing:.2px}
+    .rep-subtitle{font-size:13px}
+    .rep-meta{font-size:12px;white-space:nowrap}
+    .rep-box{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin:10px 0 8px}
+    .row2{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin:6px 0 10px}
+    .mini{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+    .mini-title{font-weight:900;margin-bottom:8px}
+
+    /* Ajuste punto 2: respiración/centrado en Índices de validación */
+    .mini-validacion{display:flex;flex-direction:column;justify-content:center;min-height:100%;}
+    .mini-validacion .mini-title{margin-bottom:10px;}
+    .mini-validacion .ivline{margin:8px 0; line-height:1.35;}
+    .mini-validacion .val-note{margin-top:12px; line-height:1.45;}
+    .mini-validacion #ivNote{margin-top:8px;}
+    
+    /* ===== Curva / gráfica moderna ===== */
+    /* ===== Curva de frecuencias (estilo emocional con curva metálica) ===== */
+.curve{
+  position:relative;
+  border-radius:16px;
+  padding:12px;
+  background:linear-gradient(180deg,#ffffff 0%, #f8fafc 100%);
+  box-shadow:0 12px 28px rgba(0,0,0,.08);
+  overflow:hidden;
+}
+.curve-gauge{position:relative;width:100%;height:220px;margin-top:6px}
+.curve-gauge img{width:100%;height:220px;object-fit:contain;display:block}
+.curve-caption{
+  display:block;
+  font-weight:700;
+  font-size:12px;
+  color:#334155;
+  margin:0 0 4px 0;
+  padding:0;
+  background:none;
+  box-shadow:none;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+.curve-axis{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
+.curve-marker{
+  position:absolute;
+  left:50%;
+  bottom:26px;
+  width:0;height:0;
+  z-index:3;
+  pointer-events:none;
+  transform:none;
+  display:block;
+  transition:left .35s cubic-bezier(.2,.8,.2,1), bottom .35s cubic-bezier(.2,.8,.2,1);
+}
+.curve-marker .halo{display:none}
+.curve-marker .pin{display:none}
+.curve-marker .stem{display:none}
+.curve-svg,.curve-band,.curve-3d,.curve-fill,.curve-line,.curve-hi{display:none !important}
+
+    .ivline{font-size:14px;margin:4px 0}
+    .cards2x2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .cards2x2 .card{border-radius:12px;background:linear-gradient(180deg,#eef2f5 0%, #dfe5ea 55%, #d5dce2 100%);border:1px solid #b8c0c8;display:flex;align-items:center;justify-content:space-between;padding:16px 18px;box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}
+    .cards2x2 .card-label{font-weight:900;font-size:18px}
+    .cards2x2 .card-score{width:56px;height:44px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px}
+.iviRow{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+}
+    /* Título “INDICE DE VALORES E INTEGRIDAD” más grande y centrado */
+/* 🔧 Forzar 1 sola línea: Título + [IVI|xx] */
+.iviLeft{
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:14px !important;
+  flex-wrap:nowrap !important;
+}
+
+/* La caja IVI se mantiene compacta y en línea */
+.iviBox{
+  display:inline-flex !important;
+  flex:0 0 auto !important;
+  margin:0 !important;
+}
+    .iviTag{padding:10px 12px;font-weight:900;display:flex;align-items:center}
+    .iviVal{padding:10px 16px;background:var(--yellow);font-weight:900;font-size:20px;display:flex;align-items:center}
+    /* El título NO debe ocupar todo el ancho */
+.iviCaption{
+  display:inline !important;
+  width:auto !important;
+  margin:0 !important;
+  white-space:nowrap !important;
+  font-weight:900;
+  font-size:16px;
+  letter-spacing:.4px;
+  color:#0f172a;
+}
+    .stars{font-size:30px;letter-spacing:3px}
+    .star{color:#e5e7eb}
+    .star.on{color:#f59e0b}
+    .seals{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.seal{
+  width:22px;       /* ajustable */
+  height:auto;
+  opacity:0.18;     /* difuminado */
+}
+.seal.on{
+  opacity:1;        /* clarito */
+}
+
+    .iviLegend{margin-top:6px;font-size:14px}
+    .interpGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .interpCard{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+    .interpHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .interpTitle{font-weight:900}
+    .interpBadge{border-radius:999px;padding:6px 10px;font-weight:900;background:#eef2ff}
+    .interpTxt{color:#111;font-size:14px;line-height:1.35}
+    .overall{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:14px}
+    .overallRow{display:flex;gap:12px;align-items:flex-start}
+    .overallBadge{border-radius:10px;padding:10px 12px;font-weight:900;background:#111;color:#fff;min-width:56px;text-align:center}
+.interpTxt{color:#111;font-size:14px;line-height:1.35}
+    @media screen and (max-width:720px){
+      .rep-box{grid-template-columns:1fr}
+      .row2{grid-template-columns:1fr}
+      .cards2x2{grid-template-columns:1fr}
+      .interpGrid{grid-template-columns:1fr}
+    }
+
+  
+    .rep-brand img{width:56px;height:56px;object-fit:contain;}
+    .rep-title{line-height:1.1}
+
+
+/* === AFINADOS (overrides) === */
+:root{
+  --page-max-width: 980px;
+  --page-pad-x: 28px;
+  --page-pad-y: 22px;
+}
+
+/* Jerarquía tipográfica */
+h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
+.subtitle, .subtitulo, .report-subtitle{ margin-top:2px; }
+
+/* Header: logo a la derecha más grande */
+.header, .report-header, .topbar, #header, .encabezado{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+}
+.mhp-logo{
+  height:82px !important;
+  width:auto !important;
+  object-fit:contain;
+  display:block;
+  margin-left:auto;
+}
+
+/* Contenedor de página: más aire */
+.page, .pagina{
+  max-width: var(--page-max-width);
+  margin-left:auto;
+  margin-right:auto;
+  padding: var(--page-pad-y) var(--page-pad-x);
+}
+
+/* Separación visual Parte 1 / Parte 2 en pantalla */
+@media screen{
+  body{ background:#fff; }
+  #reporteContainer{ margin-top:16px; }
+  #reporteContainer .page, #reporteContainer .pagina{
+    background:#fff;
+    border:1px solid #e6e8ee;
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.06);
+  }
+  #reporteContainer .page + .page, #reporteContainer .pagina + .pagina{ margin-top:34px; }
+
+  /* Evitar colapso del salto en pantalla */
+  .page-break{
+    height:auto !important;
+    margin:0 !important;
+    border:0 !important;
+    break-after: page;
+    page-break-after: always;
+  }
+}
+
+/* Aire y anti-encimado interno */
+.section-title, .titulo-seccion{ margin:10px 0 8px; }
+.card, .mini-box, .box{ overflow:hidden; }
+.grid2, .two-col, .row2{ gap:18px; }
+
+
+/* Logo (arriba a la derecha) */
+.rep-brand{display:flex;align-items:center;gap:14px;}
+.rep-brand > img{order:2;margin-left:18px;}
+.rep-brand > div{order:1;}
+.mhp-logo{height:175px !important;width:auto !important;object-fit:contain;display:block;margin-left:auto;}
+
+.starNote{margin-top:10px;font-size:12.5px;line-height:1.35;}
+/* Punto nuevo: lista de sellos más visible y desplazada a la derecha */
+.starNote .iviLevels{max-width:420px;margin:14px 0 0 110px;font-size:14.5px;line-height:1.5;}
+
+
+/* (removido) override antiguo de curva */
+
+
+
+/* === LOGO a la derecha (sin tocar colores ni cards) === */
+.rep-head .rep-brand{
+  display:flex !important;
+  align-items:center !important;
+  gap:14px !important;
+  width:100% !important;
+}
+.rep-head .rep-brand > div{
+  flex: 1 1 auto !important;
+  text-align:center !important; /* como te gustó */
+}
+.rep-head .rep-brand #brandLogo{
+  margin-left:auto !important;
+}
+
+
+/* === Interpretación (acordeón) === */
+.interpGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+@media screen and (max-width:860px){.interpGrid{grid-template-columns:1fr}}
+.interpCard{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:16px;padding:16px}
+.interpHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.interpTitle{font-weight:800;font-size:18px;margin:0 0 6px 0}
+.interpBadge{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#1f2937}
+.interpBadge .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-weight:700;font-size:12px;background:rgba(59,130,246,.12);color:#1d4ed8}
+.interpBadge .pct{color:#6b7280;font-weight:600}
+.interpToggle{width:42px;height:42px;border-radius:999px;border:none;background:rgba(59,130,246,.12);color:#1d4ed8;font-weight:900;font-size:22px;cursor:pointer;flex:0 0 auto}
+.interpToggle:hover{filter:brightness(.98)}
+.interpBody{margin-top:12px;font-size:13px;line-height:1.5;color:#111827}
+.interpBody h4{margin:10px 0 6px 0;font-size:13px}
+    .interpBody ul{margin:6px 0 10px 18px}
+.interpBody li{margin:4px 0}
+#repSeals .seal{
+  width: 66px;   /* doble aprox */
+  height: auto;
+}
+.iviSoft{
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #6b7280;
+}
+.iviLevels{
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.iviLevels b{ color:#111827; }
+.iviLevelsNote{
+  margin-top: 6px;
+  margin-left: -110px; /* regresa la nota al margen izquierdo total */
+  font-size: 12px;
+  color:#6b7280;
+}
+    .iviRight{
+  width:100%;
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.iviLegend{
+  margin:0;
+  white-space:nowrap;
+}
+.iviBox .iviTag{
+  padding:10px 14px;
+  font-weight:900;
+  background:#fff;
+}
+.iviBox .iviVal{
+  padding:10px 18px;
+  font-weight:900;
+  background:#ffe76a;
+}
+/* Quitar la nota duplicada solo en Parte 2 (iviBox2) */
+#iviBox2 > .muted{
+  display: none !important;
+}
+
+
+/* ===== Parte 2: cuadro guía (sellos por etapa) ===== */
+#page2 h2{ font-size:22px; }
+
+.iviGuide{ margin-top:12px; padding-top:10px; border-top:1px dashed rgba(0,0,0,.12); }
+.iviGuideIntro{ margin:0 0 10px; font-size:13px; line-height:1.35; }
+.iviGuideTitle{ font-weight:800; font-size:13px; margin:8px 0 8px; text-transform:uppercase; letter-spacing:.4px; }
+.iviGuideTitleRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.iviGuideMiniSeal{width:44px;height:auto;opacity:.95;vertical-align:middle;}
+.iviGuideMiniSealLabel{font-size:12px;color:#4b5563;font-weight:600;}
+
+.iviGuideTable{
+  width:min(860px, 92%);
+  margin:0 auto;
+  border-collapse:separate;
+  border-spacing:0;
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,.12);
+  border-radius:12px;
+  font-size:13px;
+}
+.iviGuideTable th{
+  background:rgba(0,0,0,.04);
+  font-weight:800;
+  text-align:left;
+  padding:10px 12px;
+  border-bottom:1px solid rgba(0,0,0,.10);
+}
+.iviGuideTable td{
+  padding:10px 12px;
+  border-bottom:1px solid rgba(0,0,0,.08);
+  vertical-align:top;
+}
+.iviGuideTable tr:last-child td{ border-bottom:none; }
+.iviGuideTable tr.is-active td{
+  background:rgba(255, 231, 106, .35);
+}
+
+/* Parte 2: unificar títulos 1-4 (misma jerarquía) */
+#page2 h2,
+#page2 .iviTitle,
+#page2 .interp-bloque-nombre{
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .2px;
+  text-transform: none !important;
+  margin: 12px 0 8px;
+}
+
+
+/* ===== Ajuste: 'Lectura global (IVI)' en una sola línea + puntaje a la derecha ===== */
+#iviBox2 .iviHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:6px;
+}
+#iviBox2 .iviTitle{
+  margin: 0;
+  flex:1 1 auto;
+}
+#iviBox2 .iviScore{
+  flex:0 0 auto;
+  min-width:64px;
+  height:44px;
+  border-radius:10px;
+  background: var(--yellow);
+  color:#111;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:22px;
+}
+#iviBox2 .iviRow{
+  display:block;              /* evita centrado por estilos globales */
+  text-align:left;
+}
+#iviBox2 .iviText{
+  margin: 0 0 10px 0;
+}
+#iviBox2 .iviGuide{
+  text-align:left;
+}
+
+/* ===== Fix real: IVI Parte 2 header en una sola fila (evitar estilos globales de .iviBox) ===== */
+#iviBox2{
+  display:block !important;
+  width:100%;
+}
+#iviBox2 .iviHead{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:14px !important;
+  width:100%;
+}
+#iviBox2 .iviHead .iviTitle{
+  display:block !important;
+  width:auto !important;
+  flex:1 1 auto !important;
+  min-width:0;
+  white-space:nowrap !important;
+  line-height:1.15;
+}
+#iviBox2 .iviHead .iviScore{
+  margin-left:auto !important;
+}
+#iviBox2 > .iviRow{
+  display:block !important;
+  width:100%;
+  text-align:left !important;
+  margin-top:8px;
+}
+
+
+/* ===== Afinación: separación entre tarjetas (punto 1) y Lectura global ===== */
+
+#interpSharedNoteBox{
+  margin: 18px 0 18px 0;
+}
+
+/* Caja visual para notas compartidas de las 4 habilidades (Parte 2) */
+.interpSharedBox{
+  background: #f1f3f5;
+  border: 1px solid #d8dde3;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.interpSharedBox .interpSharedLead{
+  margin: 0 0 10px 0;
+  line-height: 1.45;
+  font-size: 13px;
+}
+.interpSharedBox h4{
+  margin: 0 0 6px 0;
+  font-size: 13px;
+}
+.interpSharedBox .muted{
+  line-height: 1.45;
+  font-size: 13px;
+}
+    #iviBox2{
+  margin-top: 14px;
+}
+
+#planAccion.interp-bloque{
+  margin-top: 14px;
+  padding-top: 0;
+}
+/* Bordes blancos SOLO para: curva (primer mini de row2) + validación */
+.row2 > .mini:first-child{ border:1px solid #fff !important; }
+.row2 > .mini.mini-validacion{ border:1px solid #fff !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="ingreso-panel">
+    <div class="intro-logo-wrap">
+      <img src="assets/logo_adalam.webp" alt="Adalam seal" class="intro-logo" width="248" height="99"/>
+    </div>
+    <h1 class="ingreso-titulo">Values and integrity assessment report</h1>
+    <div class="ingreso-form">
+      <div class="ingreso-row">
+        <input id="codigoInput" placeholder="Code (e.g. INTEP203)" maxlength="32" autocomplete="off"/>
+        <button type="button" class="btn" id="btnVer">View report</button>
+      </div>
+      <span id="msg" class="msg"></span>
+    </div>
+    <div class="hint ingreso-usuario">Enter a <strong>valid code</strong>, the same one you <strong>used</strong> to take the Values and Integrity Assessment.</div>
+  </div>
+  <span class="reporte-build-stamp" id="reporteBuildStamp" title="Internal version control (not included in PDF)" aria-hidden="true"></span>
+
+
+    <div id="reporteContainer" style="display:none;">
+  <!-- ===== PAGE 1 ===== -->
+  <section id="page1" class="page page-break">
+    <div class="rep-top">
+      <div class="rep-head">
+        <div class="rep-brand">
+          <img id="brandLogo" alt="ADALAM" src="assets/logo_adalam.webp" onerror="this.style.display='none'" class="mhp-logo"/>
+          <div>
+            <div class="rep-title">VALUES AND INTEGRITY</div>
+            <div class="rep-subtitle muted">SCORE REPORT</div>
+          </div>
+        </div>
+        <div class="rep-meta muted" id="repDateLine">—</div>
+      </div>
+
+      <div class="rep-box" id="repHeaderBox"></div>
+
+      <div class="row2">
+        <div class="mini">
+          <div class="mini-title">Distribution curve</div>
+          <div class="curve">
+  <div class="curve-caption" id="curveCaption">FREQUENCY DISTRIBUTION CURVE.</div>
+
+  <div class="curve-gauge">
+    <img id="freqCurveImg" src="assets/curva_metal.png" alt="Distribution curve"/>
+
+    <div id="curveMarker" class="curve-marker" aria-hidden="true">
+      <svg width="30" height="54" viewBox="0 0 18 30"
+           style="position:absolute; left:0; bottom:0; transform:translateX(-50%); display:block; overflow:visible;">
+        <defs>
+          <linearGradient id="blkMain" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#1a1a1a"/>
+            <stop offset="28%" stop-color="#2b2b2b"/>
+            <stop offset="55%" stop-color="#111111"/>
+            <stop offset="78%" stop-color="#3a3a3a"/>
+            <stop offset="100%" stop-color="#181818"/>
+          </linearGradient>
+          <linearGradient id="blkEdge" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+          <filter id="blkShadow" x="-40%" y="-40%" width="180%" height="200%">
+            <feDropShadow dx="0" dy="1.1" stdDeviation="1.0" flood-color="#000" flood-opacity="0.28"/>
+          </filter>
+        </defs>
+
+        <g filter="url(#blkShadow)">
+          <rect x="6" y="0" width="6" height="16" rx="1.2"
+                fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+          <path d="M6.2 0.6 L8.4 0.6 L8.4 15.4 L6.2 15.4 Z" fill="#ffffff" opacity="0.10"/>
+          <path d="M9.8 0.6 L11.8 0.6 L11.8 15.4 L9.8 15.4 Z" fill="#000000" opacity="0.22"/>
+          <rect x="6.4" y="0.8" width="1.1" height="14.8" rx="0.8" fill="url(#blkEdge)" opacity="0.85"/>
+        </g>
+
+        <g filter="url(#blkShadow)">
+          <path d="M9 30 L2 16 H16 Z" fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+          <path d="M9 30 L2.7 16.3 L8.8 16.3 Z" fill="#ffffff" opacity="0.10"/>
+          <path d="M9 30 L9.2 16.3 L15.3 16.3 Z" fill="#000000" opacity="0.22"/>
+          <path d="M9 28.6 L4.3 16.7 H13.7 Z" fill="url(#blkEdge)" opacity="0.55"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Eje numérico oculto a petición (se deja solo la curva metálica + marcador) -->
+</div>
+        </div>
+
+        <div class="mini mini-validacion">
+          <div class="mini-title">VALIDATION INDICES</div>
+          <div class="ivline"><b>Inconsistency</b>: <span id="repIncoh">0%</span></div>
+          <div class="ivline"><b>Contradiction</b>: <span id="repContra">0%</span></div>
+          <div class="ivline"><b>Time</b>: <span id="repTiempo">—</span></div>
+<div class="val-note">
+  Note: these indicators assess response consistency and time. If you see “Alert,” interpret the results with greater caution.
+</div>
+<div class="muted val-note" id="ivNote" style="display:none">
+  * Indices calculated automatically from the response pattern.
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="cards2x2">
+      <div class="card">
+        <div class="card-label">Uprightness</div>
+        <div class="card-score" id="pctRectitud">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Honesty</div>
+        <div class="card-score" id="pctHonestidad">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Justice</div>
+        <div class="card-score" id="pctJusticia">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Truthfulness</div>
+        <div class="card-score" id="pctVeracidad">—</div>
+      </div>
+    </div>
+
+<div class="iviRow">
+  <div class="iviLeft">
+    <div class="iviCaption">VALUES AND INTEGRITY INDEX</div>
+    <div class="iviBox">
+      <div class="iviTag">IVI</div>
+      <div class="iviVal" id="repIVI">—</div>
+    </div>
+  </div>
+
+  <div class="iviRight">
+    <div class="iviLegend muted" id="iviLegend">This person’s integrity level:</div>
+
+    <div class="seals" id="repSeals" aria-label="seals">
+      <img class="seal" data-i="1" src="/assets/adalam_mini.png" alt="Seal 1">
+      <img class="seal" data-i="2" src="/assets/adalam_mini.png" alt="Seal 2">
+      <img class="seal" data-i="3" src="/assets/adalam_mini.png" alt="Seal 3">
+      <img class="seal" data-i="4" src="/assets/adalam_mini.png" alt="Seal 4">
+    </div>
+  </div>
+</div>
+
+    
+<div class="iviSoft muted" id="iviSoftMsg">
+  This result is an initial reference. Full interpretation depends on the validation index and context (school stage or adult/professional).
+</div>
+
+<div class="starNote muted" id="starNote">
+  <b>Seals:</b> reflect the global level (IVI) and the consistency/coherence of responses (validation indices).
+  More seals indicate a stronger observed profile.
+  <br><br>
+
+  <div class="iviLevels muted" id="iviLevelsSoft">
+  <div><b>1 Seal:</b> Initial level</div>
+  <div><b>2 Seals:</b> Developing level</div>
+  <div><b>3 Seals:</b> Solid level</div>
+  <div><b>4 Seals:</b> Outstanding level</div>
+  <div class="iviLevelsNote">
+    Note: The detailed meaning of each level varies by stage (school or adult/professional).
+  </div>
+</div>
+
+</div>
+
+
+
+  </section>
+
+  <!-- ===== PAGE 2+ (Interpretación) ===== -->
+  <section id="page2" class="page">
+    <div class="rep-top">
+  <div class="rep-head">
+    <div class="rep-brand">
+      <img id="brandLogo2" alt="ADALAM" src="assets/logo_adalam.webp"
+           onerror="this.style.display='none'" class="mhp-logo"/>
+      <div>
+        <div class="rep-title">REPORT AND INTERPRETATION</div>
+        <div class="rep-subtitle muted">INDIVIDUAL INTEGRITY REPORT</div>
+      </div>
+    </div>
+    <div class="rep-meta muted" id="repDateLine2">—</div>
+  </div>
+
+  <div class="rep-box" id="repHeaderBox2"></div>
+</div>
+
+<h2 style="margin-top:10px">1.- Interpretation</h2>
+  <p class="muted" style="margin-top:0">
+    This section describes your Integrity results from your subtest percentiles and the IVI (average of the four subtests).
+  </p>
+
+  <div class="interpGrid">
+    <!-- Honestidad -->
+    <div class="interpCard" data-skill="Honestidad">
+      <div class="interpHead">
+        <div>
+          <div class="interpTitle">Honesty</div>
+          <div id="interpHonBadge" class="interpBadge">—</div>
+        </div>
+        <button class="interpToggle" type="button" aria-label="Expand" data-target="interpHonBody">+</button>
+      </div>
+      <div id="interpHonBody" class="interpBody" style="display:none"></div>
+    </div>
+
+    <!-- Rectitud -->
+    <div class="interpCard" data-skill="Rectitud">
+      <div class="interpHead">
+        <div>
+          <div class="interpTitle">Uprightness</div>
+          <div id="interpRecBadge" class="interpBadge">—</div>
+        </div>
+        <button class="interpToggle" type="button" aria-label="Expand" data-target="interpRecBody">+</button>
+      </div>
+      <div id="interpRecBody" class="interpBody" style="display:none"></div>
+    </div>
+
+    <!-- Justicia -->
+    <div class="interpCard" data-skill="Justicia">
+      <div class="interpHead">
+        <div>
+          <div class="interpTitle">Justice</div>
+          <div id="interpJusBadge" class="interpBadge">—</div>
+        </div>
+        <button class="interpToggle" type="button" aria-label="Expand" data-target="interpJusBody">+</button>
+      </div>
+      <div id="interpJusBody" class="interpBody" style="display:none"></div>
+    </div>
+
+    <!-- Veracidad -->
+    <div class="interpCard" data-skill="Veracidad">
+      <div class="interpHead">
+        <div>
+          <div class="interpTitle">Truthfulness</div>
+          <div id="interpVerBadge" class="interpBadge">—</div>
+        </div>
+        <button class="interpToggle" type="button" aria-label="Expand" data-target="interpVerBody">+</button>
+      </div>
+      <div id="interpVerBody" class="interpBody" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="iviBox" id="iviBox2" style="margin-top:14px">
+    <div class="iviHead">
+      <div class="iviTitle">2.- Global reading — Values and Integrity Index (IVI)</div>
+      <div class="iviScore" id="iviScore2">—</div>
+    </div>
+    <div class="iviRow">
+      <div class="iviText" id="iviText2"></div>
+
+    <div class="iviGuide">
+      <p class="iviGuideIntro"><b>What does this table mean?</b><br>
+        <b>Seals</b> summarize the overall integrity level based on the <b>IVI</b>. The <b>inconsistency</b> and <b>contradiction</b> indicators show how consistent the responses were: if alerts appear, the result can still be interpreted, but <b>with more caution</b>.
+      </p>
+
+      
+      <div class="iviGuideTitle iviGuideTitleRow"><span id="iviGuideTitle">Quick guide by stage (by seals)</span><img class="iviGuideMiniSeal" src="/assets/adalam_mini.png" alt="Reference Adalam seal"><span class="iviGuideMiniSealLabel">.</span></div>
+
+      <div id="guideEscolarWrap">
+        <table class="iviGuideTable" aria-label="School reading guide by seals">
+          <thead>
+            <tr>
+              <th>Seals</th>
+              <th> Elementary / Secondary</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="guideEscS1"><td><b>1 Seal</b></td><td>Needs support</td></tr>
+            <tr id="guideEscS2"><td><b>2 Seals</b></td><td>Developing</td></tr>
+            <tr id="guideEscS3"><td><b>3 Seals</b></td><td>Well established <span class="muted"></span></td></tr>
+            <tr id="guideEscS4"><td><b>4 Seals</b></td><td>Highly established</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="guideAdultoWrap" style="display:none">
+        <table class="iviGuideTable" aria-label="Adult/professional reading guide by seals">
+          <thead>
+            <tr>
+              <th>Seals</th>
+              <th>Adult / Professional</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="guideProS1"><td><b>1 Seal</b></td><td>Not recommended</td></tr>
+            <tr id="guideProS2"><td><b>2 Seals</b></td><td>With reservations</td></tr>
+            <tr id="guideProS3"><td><b>3 Seals</b></td><td>Recommended <span class="muted"></span></td></tr>
+            <tr id="guideProS4"><td><b>4 Seals</b></td><td>Highly recommended</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="muted" style="font-size:12px;margin-top:8px">
+        Note: The light yellow highlighted row / validation indices indicate how much confidence to place in the interpretation.
+      </div>
+    </div>
+    </div>
+    <div class="muted" style="font-size:12px;margin-top:10px">
+      Note: If validation indices are unavailable, the report calculates seals using the IVI only.
+    </div>
+  </div>
+
+  <!-- ===== PARTE 2 (robusta) ===== -->
+  <div id="perfilGlobal" class="interp-bloque" style="margin-top:14px"></div>
+  <div id="recomendaciones" class="interp-bloque"></div>
+  <div id="planAccion" class="interp-bloque"></div>
+
+  <p class="reporte-pie-adalam" id="reportePieAdalam">Adalam — Values and Integrity Report.</p>
+</section>
+</div>
+
+<script>
+  /* Señal interna (no sale en PDF). Formato: UP + DD + MM + AA + HHMM
+     Ej. UP0106261751 = actualizado 01-jun-2026 17:51. Cambia al subir a GitHub/Vercel. */
+  const REPORTE_BUILD_ID = "UP0106261835";
+  (function(){
+    const el = document.getElementById("reporteBuildStamp");
+    if (el) el.textContent = "· " + REPORTE_BUILD_ID;
+  })();
+  const $ = sel => document.querySelector(sel);
+  function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
+  function normalizeName(name){ return (name||"").replace(/\s+/g," ").trim().toLowerCase(); }
+
+  // Alias de nombres de bloques: permite que el reporte muestre los NUEVOS títulos,
+  // pero siga encontrando los datos aunque vengan con nombres anteriores en la BD/API.
+  const BLOQUE_ALIAS = {
+    // Nuevos -> antiguos (normalizados)
+    "desarrollo personal": "habilidades intrapersonales",
+    "vínculos interpersonales": "habilidades interpersonales",
+    "vinculos interpersonales": "habilidades interpersonales",
+    "competencias para la vida": "habilidades para la vida",
+    "comunicación interpersonal": "estilos de comunicación interpersonal",
+    "comunicacion interpersonal": "estilos de comunicación interpersonal",
+    "adaptación al cambio": "propensión al cambio",
+    "adaptacion al cambio": "propensión al cambio"
+  };
+
+  function canonBloque(name){
+    const n = normalizeName(name);
+    return BLOQUE_ALIAS[n] || n;
+  }
+
+
+  const DISPLAY = {
+    bloque: {
+      "desarrollo personal": "DESARROLLO PERSONAL",
+      "vínculos interpersonales": "VINCULOS INTERPERSONALES",
+      "competencias para la vida": "HABILIDADES PARA LA VIDA",
+      "estilos de comunicación interpersonal": "COMUNICACIÓN INTERPERSONAL",
+      "propensión al cambio": "ADAPTACIÓN AL CAMBIO",
+
+      "habilidades intrapersonales": "DESARROLLO PERSONAL",
+    "habilidades interpersonales": "VINCULOS INTERPERSONALES",
+    "habilidades para la vida": "HABILIDADES PARA LA VIDA"
+    },
+    sub: {}
+  };
+  // sub mapping (normalizado, sin tildes) construido en runtime:
+  (function(){
+    const src = {"autoestima": "Autoestima", "manejo de la tension": "Manejo de Estrés", "manejo de la tensión": "Manejo de Estrés", "bienestar fisico": "Hábitos Saludables", "bienestar físico": "Hábitos Saludables", "asertividad": "Expresión Asertiva", "conciencia de los demas": "Percepción de los Demás", "conciencia de los demás": "Percepción de los Demás", "empatia": "Sensibilidad Empática", "empatía": "Sensibilidad Empática", "motivacion": "Motivación Interna", "motivación": "Motivación Interna", "compromiso": "Nivel de Compromiso", "administracion del tiempo": "Organización del Tiempo", "administración del tiempo": "Organización del Tiempo", "toma de decisiones": "Toma de Decisiones", "toma de desiciones": "Toma de Decisiones", "liderazgo": "Liderazgo", "propensión al cambio": "Adaptación al cambio", "propension al cambio": "Adaptación al cambio"};
+    const strip = s => (s||"").normalize("NFD").replace(/\p{Diacritic}/gu,"");
+    for (const [k,v] of Object.entries(src)) {
+      DISPLAY.sub[k] = v;
+    }
+    DISPLAY._strip = strip;
+  })();
+function dispBloque(name){
+  const canon = canonBloque(name);      // convierte lo que venga a nombre canónico (BD)
+  return DISPLAY.bloque[canon] || name; // devuelve el nombre NUEVO si existe
+}
+
+  function dispSub(name){
+    const strip = DISPLAY._strip;
+    const k = strip(normalizeName(name));
+    return DISPLAY.sub[k] || name;
+  }
+
+  /* Ajuste visual -10 (solo visual, no BD) */
+  const SCORE_ADJUST = { ENABLED:true, OFFSET:10, APPLY_TO_RISK:true };
+  function isRiskScale(bloqueNorm, subNorm){
+    const b = canonBloque(bloqueNorm || "");
+    const s = normalizeName(subNorm || "");
+    return (b === normalizeName("estilos de comunicación interpersonal") && (s === "agresión" || s === "timidez"));
+  }
+  function adjScore(v, {bloqueNorm=null, subNorm=null}={}){
+    const n = Number(v);
+    if(!Number.isFinite(n)) return v;
+    if(n<=0) return n;
+    if(!SCORE_ADJUST.ENABLED) return Math.round(n);
+    if(isRiskScale(bloqueNorm||"", subNorm||"") && !SCORE_ADJUST.APPLY_TO_RISK){
+      return clamp(Math.round(n),1,100);
+    }
+    return clamp(Math.round(n - SCORE_ADJUST.OFFSET),1,100);
+  }
+
+  function rangoBadge(p){
+    // Integridad (manual): 0–39 / 40–60 / 61–100
+    if (p<=39) return {txt:"0–39 Needs support", cls:"b-red"};
+    if (p<=60) return {txt:"40–60 Developing", cls:"b-orange"};
+    return {txt:"61–100 Well established", cls:"b-green"};
+  }
+  function rangoBadgeRiesgo(p){
+    if (p<=40) return {txt:"1–40 Low risk", cls:"b-green"};
+    if (p<=70) return {txt:"41–70 Medium risk", cls:"b-orange"};
+    return {txt:"71–100 High risk", cls:"b-red"};
+  }
+
+  function highlightIV(rowId, colIndex){
+    const row = document.getElementById(rowId);
+    if(!row) return;
+    [...row.children].forEach(td=>td.classList.remove("hl"));
+    const idx = Math.max(1, Math.min(3, colIndex|0));
+    const td = row.children[idx];
+    if(td) td.classList.add("hl");
+  }
+
+  function ivToCol(v){
+    if (v === null || v === undefined) return 2;
+    const n = Number(v);
+    if (!Number.isNaN(n)){
+      if (n === 0 || n === 1 || n === 2) return n + 1;
+      if (Number.isInteger(n) && n>=1 && n<=3) return n;
+      if (n >= 0 && n <= 100){
+        if (n >= 71) return 1;
+        if (n >= 41) return 2;
+        return 3;
+      }
+    }
+    const s = String(v).toLowerCase();
+    if (s.includes("no se contradice") || s.includes("tomó el tiempo adecuado") || s.includes("tiempo adecuado")) return 1;
+    if (s.includes("se contradice frecuentemente") || s.includes("demasiado lento")) return 3;
+    return 2;
+  }
+
+  function drawBellCurve(){
+    const path = document.getElementById("bellPath");
+    const fill = document.getElementById("bellFill");
+    if(!path || !fill) return;
+    const left=10, right=510, baseY=100, topY=18;
+    const mid=(left+right)/2, sigma=90;
+    const pts=[];
+    for(let x=left; x<=right; x+=5){
+      const z=(x-mid)/sigma;
+      const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
+      pts.push([x,y]);
+    }
+    let d=`M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+    for(let i=1;i<pts.length;i++) d += ` L${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}`;
+    path.setAttribute("d", d);
+    const df = d + ` L${right} ${baseY} L${left} ${baseY} Z`;
+    fill.setAttribute("d", df);
+  }
+
+  function setCurveMarker(iie){
+    drawBellCurve();
+    const left=10, right=510, baseY=100, topY=18, mid=260, sigma=90;
+    const score = clamp(Number(iie)||0,1,100);
+    const x = left + (score-1)/99*(right-left);
+    const z=(x-mid)/sigma;
+    const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
+    const dot = document.getElementById("curveMarker");
+    if(dot){ dot.setAttribute("cx", x); dot.setAttribute("cy", y); }
+  }
+
+  function addRow(container, name, pct){
+    const row=document.createElement('div');
+    row.style.display='grid';
+    row.style.gridTemplateColumns='220px 1fr 1fr 1fr';
+    row.style.alignItems='center';
+    row.style.gap='6px';
+    row.style.margin='2px 0';
+
+    const nameCell=document.createElement('div');
+    nameCell.textContent=dispSub(name);
+    nameCell.style.fontWeight='700';
+    nameCell.style.fontSize='12px';
+    row.appendChild(nameCell);
+
+    for(let i=0;i<3;i++){ 
+      const track=document.createElement('div');
+      track.style.position='relative';
+      track.style.height='14px';
+      track.style.border='1px solid #aab';
+      track.style.borderRadius='4px';
+      track.style.background='#f3f5f8';
+      track.style.overflow='hidden';
+
+      const fill=document.createElement('div');
+      fill.style.position='absolute';
+      fill.style.left='0';
+      fill.style.top='0';
+      fill.style.bottom='0';
+      fill.style.background='#6b7280';
+
+      let w=0;
+      if(i===0 && pct<=40)  w = Math.max(2, Math.round((pct/40)*100));
+      if(i===1 && pct>40 && pct<=70) w = Math.max(2, Math.round(((pct-40)/30)*100));
+      if(i===2 && pct>70)  w = Math.max(2, Math.round(((pct-70)/30)*100));
+      fill.style.width = w + '%';
+      track.appendChild(fill);
+      row.appendChild(track);
+    }
+    container.appendChild(row);
+  }
+
+  function buildBloque(containerId, subRows, bloqueNombre){
+    const cont = document.getElementById(containerId);
+    if(!cont) return;
+    cont.innerHTML = '';
+
+    const cols = document.createElement('div');
+    cols.style.display='grid';
+    cols.style.gridTemplateColumns='220px 1fr 1fr 1fr';
+    cols.style.gap='6px';
+    cols.style.marginBottom='6px';
+
+    const blank=document.createElement('div');
+    cols.appendChild(blank);
+
+    ['TO DEVELOP','TO STRENGTHEN','TO ENRICH'].forEach(t=>{
+      const d=document.createElement('div');
+      d.style.fontSize='11px';
+      d.style.textAlign='center';
+      d.style.color='#374151';
+      d.textContent=t;
+      cols.appendChild(d);
+    });
+    cont.appendChild(cols);
+
+    const bloqueKey = canonBloque(bloqueNombre);
+    const ordenes = {
+      "desarrollo personal": ["Autoestima","Manejo de Estrés","Hábitos Saludables"],
+      "vínculos interpersonales": ["Expresión Asertiva","Percepción de los Demás","Sensibilidad Empática"],
+      "competencias para la vida": ["Motivación Interna","Nivel de Compromiso","Organización del Tiempo","Toma de Decisiones","Liderazgo"]
+    };
+
+    let rowsFiltradas = (subRows||[]).filter(r=> canonBloque(r.bloque||r.block||"")===bloqueKey);
+
+    const orden = ordenes[bloqueKey];
+    if (orden){
+      rowsFiltradas.sort((a,b)=>{
+        const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
+        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
+        const ia = orden.findIndex(x=> x.toLowerCase()===nameA);
+        const ib = orden.findIndex(x=> x.toLowerCase()===nameB);
+        if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
+        if (ia===-1) return 1;
+        if (ib===-1) return -1;
+        return ia-ib;
+      });
+    }
+
+    rowsFiltradas.forEach(r=>{
+      const sub = r.subhabilidad || r.sub || r.nombre || "";
+      const pctRaw = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
+      const pct = adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeName(sub)});
+      addRow(cont, sub, pct);
+    });
+  }
+
+  function renderBars(containerId, items, showNote){
+    const host = document.getElementById(containerId);
+    if (!host) return;
+    host.innerHTML = "";
+    const wrap = document.createElement("div");
+    wrap.className = "bars-wrap";
+
+    items.forEach(it => {
+      const row = document.createElement("div");
+      row.className = "bars-row";
+
+      // Separación visual entre Agresión y Timidez
+      if (it.label === "TIMIDEZ") {
+        row.style.marginTop = "20px";
+      }
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = it.label + " (10–100)";
+      row.appendChild(label);
+
+      const slot = document.createElement("div");
+      slot.className = "bars-slot";
+
+      [10,40,70,100].forEach(v => {
+        const pct = (v - 10) / 90 * 100;
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        tick.style.left = pct + "%";
+        slot.appendChild(tick);
+
+        const tLabel = document.createElement("div");
+        tLabel.className = "tick-label";
+        tLabel.style.left = pct + "%";
+        tLabel.textContent = v;
+        slot.appendChild(tLabel);
+      });
+
+      const marker = document.createElement("div");
+      marker.className = "marker";
+      marker.id = it.id;
+      marker.style.display = "none";
+      slot.appendChild(marker);
+
+      row.appendChild(slot);
+      wrap.appendChild(row);
+    });
+
+    host.appendChild(wrap);
+
+    // Nota SOLO para la Página 1 (no alertas rojas aquí)
+    if (showNote) {
+      const note = document.createElement("div");
+      note.className = "scale-note-inline";
+      note.textContent = "A lower score indicates better handling in these areas.";
+      host.appendChild(note);
+    }
+  }
+
+  function setMarker(id, val){
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(val==null || isNaN(val)) { el.style.display="none"; return; }
+    const pct = (clamp(val,10,100)-10)/90*100;
+    el.style.left = pct + "%";
+    el.style.display="block";
+  }
+
+  function renderPage2(subRows){
+    const subT = document.querySelector("#subTable tbody");
+    subT.innerHTML = "";
+    (subRows||[]).forEach(r=>{
+      const bloque = r.bloque || r.block || "";
+      const sub = r.subhabilidad || r.sub || "";
+      const items = r.items ?? r.n_items ?? "";
+      const puntos = r.puntos ?? r.points ?? r.pts ?? "";
+      const pctRaw = Math.round(r.percent ?? r.pct ?? 0);
+
+      const bloqueNorm = canonBloque(bloque);
+      const subNorm = normalizeName(sub);
+
+      const pct = adjScore(pctRaw, {bloqueNorm, subNorm});
+
+      let badge;
+      if (isRiskScale(bloqueNorm, subNorm)) badge = rangoBadgeRiesgo(pct);
+      else badge = rangoBadge(pct);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${dispBloque(bloque)}</td>
+        <td>${dispSub(sub)}</td>
+        <td>${items}</td>
+        <td>${puntos}</td>
+        <td><b>${pct}%</b></td>
+        <td><span class="badge ${badge.cls}">${badge.txt}</span></td>
+      `;
+      subT.appendChild(tr);
+    });
+  }
+
+  function findSubPct(subRows, bloqueNombre, subNombre){
+    const bloqueKey = canonBloque(bloqueNombre);
+    const subKey = normalizeName(subNombre);
+    const row = (subRows || []).find(r =>
+      canonBloque(r.bloque || r.block || "") === bloqueKey &&
+      normalizeName(r.subhabilidad || r.sub || r.nombre || "") === subKey
+    );
+    if(!row) return null;
+    const vRaw = Number(row.percent ?? row.pct ?? row.porcentaje ?? row.value);
+    if(Number.isNaN(vRaw)) return null;
+    return adjScore(vRaw, {bloqueNorm: bloqueKey, subNorm: subKey});
+  }
+
+  const BLOQUE_DESCS = {
+    desarrollo: "El desarrollo personal reúne capacidades para comprenderse, regularse y cuidarse. Incluye la forma en que la persona se percibe (autoestima), maneja el estrés y sostiene hábitos de hábitos saludables.",
+    vinculos: "Los vínculos interpersonales agrupan habilidades para relacionarse de manera respetuosa y efectiva. Incluye la capacidad de vincularse, percibir a los demás y responder con sensibilidad empática.",
+    competencias: "Las competencias para la vida son destrezas que favorecen el funcionamiento cotidiano y el logro de metas. Incluye motivación interna, compromiso, organización del tiempo, toma de decisiones y liderazgo.",
+    comunicacion: "La comunicación interpersonal describe estilos de interacción. En Agresión y Timidez la interpretación es inversa: puntajes bajos sugieren mejor manejo, mientras que puntajes altos indican mayor riesgo y requieren observación y apoyo.",
+    adaptacion: "La adaptación al cambio refleja la apertura y flexibilidad para ajustarse a situaciones nuevas, aceptar transformaciones y promover cambios positivos en el entorno."
+  };
+
+  const HABILIDAD_DESCS = {
+    "Autoestima": "Es la percepción que una persona tiene de sí misma: cómo se describe, qué cree que puede lograr y cómo interpreta sus propias capacidades.",
+    "Manejo del Estrés": "Capacidad para reconocer señales de tensión, regular la respuesta emocional y utilizar estrategias saludables para afrontar presión, frustración o incertidumbre.",
+    "Manejo de Estrés": "Capacidad para reconocer señales de tensión, regular la respuesta emocional y utilizar estrategias saludables para afrontar presión, frustración o incertidumbre.",
+    "Hábitos Saludables": "Conjunto de hábitos y decisiones orientadas a cuidar el bienestar físico y mental (sueño, alimentación, movimiento, higiene, descanso y límites saludables).",
+
+    "Expresión Asertiva": "Habilidad para construir relaciones positivas, cooperar, resolver desacuerdos y mantener una convivencia respetuosa.",
+    "Percepción de los Demás": "Capacidad de observar y comprender señales sociales y emocionales en otras personas (gestos, tono, intención) para relacionarse con mayor ajuste.",
+    "Sensibilidad Empática": "Capacidad de ponerse en el lugar del otro, comprender cómo se siente y responder con consideración y apoyo cuando corresponde.",
+
+    "Motivación Interna": "Impulso personal para iniciar y sostener acciones hacia metas, incluso cuando hay dificultad, manteniendo interés y esfuerzo.",
+    "Nivel de Compromiso": "Grado en que la persona asume responsabilidades, cumple acuerdos y mantiene constancia con lo que decide o promete.",
+    "Organización del Tiempo": "Capacidad de planificar, priorizar y distribuir el tiempo para cumplir tareas y objetivos, evitando la postergación excesiva.",
+    "Toma de Decisiones": "Proceso de analizar alternativas, evaluar consecuencias y elegir la opción más adecuada para resolver problemas o alcanzar objetivos.",
+    "Liderazgo": "Capacidad de influir de manera positiva, coordinar esfuerzos, motivar a otros y tomar iniciativa para lograr metas comunes.",
+
+    "Agresión": "Tendencia a responder de forma hostil o impulsiva (verbal, física o emocional) ante conflictos o frustración.",
+    "Timidez": "Tendencia a inhibirse o evitar interacción social por inseguridad, temor a la evaluación o dificultad para expresarse.",
+    "Adaptación al cambio": "Apertura para adaptarse a nuevas condiciones, ideas o rutinas, ajustando conductas y estrategias cuando el contexto lo requiere."
+  };
+
+  const DATA_BLOQUE_POR_TITULO = {
+    "DESARROLLO PERSONAL": "Habilidades intrapersonales",
+    "VINCULOS INTERPERSONALES": "Habilidades interpersonales",
+    "HABILIDADES PARA LA VIDA": "Habilidades para la vida",
+    "COMUNICACIÓN INTERPERSONAL": "Estilos de comunicación interpersonal",
+    "ADAPTACIÓN AL CAMBIO": "Propensión al cambio"
+  };
+
+  const SUB_DISPLAY = {
+    "Autoestima": "Autoestima",
+    "Asertividad": "Expresión Asertiva",
+    "Conciencia de los demás": "Percepción de los Demás",
+    "Empatía": "Sensibilidad Empática",
+    "Compromiso": "Nivel de Compromiso",
+    "Motivación": "Motivación Interna",
+    "Liderazgo": "Liderazgo",
+    "Manejo de la Tensión": "Manejo del Estrés",
+    "Manejo de la tensión": "Manejo del Estrés",
+    "Administración del tiempo": "Organización del Tiempo",
+    "Toma de Decisiones": "Decisión y Elección",
+    "Toma de decisiones": "Decisión y Elección",
+    "Bienestar físico": "Hábitos Saludables",
+    "Propensión al cambio": "Adaptación al cambio",
+    "Agresión": "Agresión",
+    "Timidez": "Timidez"
+  };
+
+  function dispSub(n){
+    const key = (n||"").trim();
+    return SUB_DISPLAY[key] || key;
+  }
+
+  function renderSkillRow(parent, nombre, pct){
+    const row = document.createElement("div");
+    row.className = "skill-row";
+
+    const title = document.createElement("div");
+    title.className = "skill-row-title";
+    const numeric = (pct != null && !Number.isNaN(Number(pct))) ? Math.round(pct) : null;
+    const nombreDisp = dispSub(nombre);
+    title.textContent = numeric != null ? `${nombreDisp} (Score: ${numeric}/100)` : nombreDisp;
+    row.appendChild(title);
+
+    const descTxt =
+  HABILIDAD_DESCS[nombreDisp] ||
+  HABILIDAD_DESCS[nombre] ||
+  HABILIDAD_DESCS[Object.keys(SUB_DISPLAY).find(k => SUB_DISPLAY[k] === nombre)] ||
+  "";
+
+    if(descTxt){
+      const desc = document.createElement("div");
+      desc.className = "skill-row-desc";
+      desc.textContent = descTxt;
+      row.appendChild(desc);
+    }
+
+    const bar = document.createElement("div");
+    bar.className = "skill-bar";
+
+    const track = document.createElement("div");
+    track.className = "skill-bar-track";
+
+    const isAggOrTim = (nombre === "Agresión" || nombre === "Timidez");
+    if (isAggOrTim){
+      track.style.background =
+        "linear-gradient(to right,var(--green) 0%, var(--green) 40%,var(--orange) 40%, var(--orange) 70%,var(--red) 70%, var(--red) 100%)";
+    }
+
+    const marker = document.createElement("div");
+    marker.className = "skill-bar-marker";
+    if(numeric == null) marker.style.display = "none";
+    else marker.style.left = clamp(numeric,1,100) + "%";
+    track.appendChild(marker);
+
+    const value = document.createElement("div");
+    value.className = "skill-bar-value";
+    value.textContent = numeric != null ? `${numeric} / 100` : "—";
+
+    bar.appendChild(track);
+    bar.appendChild(value);
+    row.appendChild(bar);
+
+    parent.appendChild(row);
+  }
+
+  function nivelFromPct(p){
+    if(p == null || Number.isNaN(p)) return "medio";
+    if(p <= 39) return "bajo";
+    if(p <= 60) return "medio";
+    return "alto";
+  }
+
+  const RECOM_BLOQUES = {
+    intra: {
+      bajo: ["Fortalecer rutinas de hábitos saludables y autoconfianza.","Practicar técnicas breves de regulación emocional (respiración, pausas)."],
+      medio: ["Consolidar hábitos de hábitos saludables y reconocer logros alcanzados.","Aplicar estrategias de manejo del estrés en momentos difíciles."],
+      alto: ["Proponer metas personales desafiantes y realistas.","Modelar hábitos positivos de hábitos saludables y regulación emocional."]
+    },
+    inter: {
+      bajo: ["Practicar comunicación asertiva con mensajes en primera persona.","Realizar dinámicas guiadas para desarrollar conciencia social y empatía."],
+      medio: ["Reforzar escucha activa y respeto por turnos de palabra.","Reconocer conductas prosociales y cooperación."],
+      alto: ["Asignar roles de mediación o apoyo entre pares.","Participar en actividades de convivencia y liderazgo positivo."]
+    },
+    vida: {
+      bajo: ["Apoyar planificación diaria con pasos simples y recordatorios.","Acompañar toma de decisiones con análisis de consecuencias."],
+      medio: ["Estimular organización del tiempo y cumplimiento de tareas.","Ofrecer roles pequeños de iniciativa y liderazgo con supervisión."],
+      alto: ["Asignar responsabilidades estables para potenciar liderazgo.","Involucrar en proyectos donde organice y coordine acciones."]
+    }
+  };
+
+  function renderRecomendaciones(extras){
+    const cont = document.getElementById("recomendaciones");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">4.- Recommendations and action plan</div>`;
+    cont.appendChild(header);
+
+    const sub = document.createElement("div");
+    sub.className = "recom-subtitle";
+    sub.textContent = "Las siguientes recomendaciones se generan a partir de los puntajes obtenidos y pueden usarse como guía inicial de acompañamiento.";
+    cont.appendChild(sub);
+
+    const lista = document.createElement("ul");
+    lista.className = "recom-list";
+
+    const nIntra = nivelFromPct(extras.bIntra);
+    const nInter = nivelFromPct(extras.bInter);
+    const nPV    = nivelFromPct(extras.bPV);
+
+    (RECOM_BLOQUES.intra[nIntra] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "DESARROLLO PERSONAL: " + t; lista.appendChild(li); });
+    (RECOM_BLOQUES.inter[nInter] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "VINCULOS INTERPERSONALES: " + t; lista.appendChild(li); });
+    (RECOM_BLOQUES.vida[nPV] || []).forEach(t=>{ const li=document.createElement("li"); li.textContent = "HABILIDADES PARA LA VIDA: " + t; lista.appendChild(li); });
+
+    if(extras.agresionVal != null && extras.agresionVal > 70){
+      const li=document.createElement("li");
+      li.textContent = "COMUNICACIÓN INTERPERSONAL (Agresión): trabajar control de impulsos y alternativas para expresar enojo sin dañar a otros.";
+      lista.appendChild(li);
+    }
+    if(extras.timidezVal != null && extras.timidezVal > 70){
+      const li=document.createElement("li");
+      li.textContent = "COMUNICACIÓN INTERPERSONAL (Timidez): favorecer participación gradual en actividades grupales con apoyo de un adulto.";
+      lista.appendChild(li);
+    }
+    if(extras.propCambioVal != null){
+      if(extras.propCambioVal <= 40){
+        const li=document.createElement("li");
+        li.textContent = "ADAPTACIÓN AL CAMBIO: acompañar procesos de cambio con anticipación y tiempos de adaptación.";
+        lista.appendChild(li);
+      } else if(extras.propCambioVal >= 71){
+        const li=document.createElement("li");
+        li.textContent = "ADAPTACIÓN AL CAMBIO: aprovechar apertura para proyectos innovadores e iniciativas de mejora.";
+        lista.appendChild(li);
+      }
+    }
+
+    cont.appendChild(lista);
+  }
+
+  function renderPlanAccion(extras){
+    const cont = document.getElementById("planAccion");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header=document.createElement("div");
+    header.className="interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">Plan de acción sugerido</div>`;
+    cont.appendChild(header);
+
+    const sub=document.createElement("div");
+    sub.className="recom-subtitle";
+    sub.textContent="Orientaciones generales para acompañar el desarrollo socioemocional. No reemplaza valoración clínica.";
+    cont.appendChild(sub);
+
+    const mkList=(title, items)=>{
+      const t=document.createElement("div"); t.className="plan-section-title"; t.textContent=title; cont.appendChild(t);
+      const ul=document.createElement("ul"); ul.className="recom-list";
+      items.forEach(x=>{ const li=document.createElement("li"); li.textContent=x; ul.appendChild(li); });
+      cont.appendChild(ul);
+    };
+
+    mkList("En el hogar / familia:", [
+      "Conversar diariamente sobre emociones y experiencias del día (validación).",
+      "Reconocer esfuerzos y avances con mensajes concretos.",
+      "Mantener rutinas claras de estudio, descanso y ocio."
+    ]);
+
+    mkList("En el aula / institución educativa:", [
+      "Promover respeto, colaboración y expresión emocional adecuada.",
+      "Observar conductas socioemocionales relevantes y coordinar con la familia.",
+      "Incluir actividades breves de educación emocional."
+    ]);
+
+    mkList("Con apoyo del orientador / psicólogo:", [
+      "Si las dificultades se sostienen o son intensas, considerar evaluación más profunda y acompañamiento especializado.",
+      "Mantener comunicación periódica entre familia y escuela para alinear estrategias."
+    ]);
+
+  }
+
+  function renderPerfilGlobal(extras){
+    const cont = document.getElementById("perfilGlobal");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">3.- Global quantitative profile</div>`;
+    cont.appendChild(header);
+
+    const p = document.createElement("div");
+    p.className = "interp-bloque-desc";
+    const nombre = extras.nombre || "el participante";
+    p.textContent = `Del reporte individual de ${nombre} se desprenden los siguientes índices:`;
+    cont.appendChild(p);
+
+    const ul = document.createElement("ul");
+    ul.className = "recom-list";
+
+    const fmt = v => (v != null && !Number.isNaN(v)) ? Math.round(v) : "—";
+
+    [
+      `Índice de Desarrollo Personal: ${fmt(extras.bIntra)}`,
+      `Índice de Vínculos Interpersonales: ${fmt(extras.bInter)}`,
+      `Índice de Habilidades para la Vida: ${fmt(extras.bPV)}`,
+      `Índice Global de Inteligencia Emocional (IIE): ${fmt(extras.iieFinal)}`
+    ].forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t;
+      ul.appendChild(li);
+    });
+
+    cont.appendChild(ul);
+
+    const subt = document.createElement("div");
+    subt.className = "plan-section-title";
+    subt.textContent = "Comunicación interpersonal (en estas escalas puntajes bajos indican mejor manejo):";
+    cont.appendChild(subt);
+
+    const ul2 = document.createElement("ul");
+    ul2.className = "recom-list";
+
+    const liA = document.createElement("li");
+    liA.textContent = "Agresión: " + fmt(extras.agresionVal);
+    if (extras.agresionVal != null && !Number.isNaN(extras.agresionVal) && extras.agresionVal > 70){
+      liA.classList.add("skill-row-alert");
+      liA.textContent += " (rango alto, requiere atención y acompañamiento).";
+    }
+    ul2.appendChild(liA);
+
+    const liT = document.createElement("li");
+    liT.textContent = "Timidez: " + fmt(extras.timidezVal);
+    if (extras.timidezVal != null && !Number.isNaN(extras.timidezVal) && extras.timidezVal > 70){
+      liT.classList.add("skill-row-alert");
+      liT.textContent += " (rango alto, sugiere inhibición social significativa).";
+    }
+    ul2.appendChild(liT);
+
+    cont.appendChild(ul2);
+
+    const subt2 = document.createElement("div");
+    subt2.className = "plan-section-title";
+    subt2.textContent = "Adaptación al cambio:";
+    cont.appendChild(subt2);
+
+    const ul3 = document.createElement("ul");
+    ul3.className = "recom-list";
+    const liC = document.createElement("li");
+    liC.textContent = "Adaptación al cambio: " + fmt(extras.propCambioVal) + " (a mayor puntaje, mayor apertura al cambio).";
+    ul3.appendChild(liC);
+    cont.appendChild(ul3);
+  }
+
+  function renderBloqueInterpretacion(containerId, tituloDisplay, bloqueKeyOriginal, bloqueDescKey, subRows, pctBloqueVal){
+    const cont=document.getElementById(containerId);
+    if(!cont) return;
+    cont.innerHTML="";
+
+    const idxText=(pctBloqueVal!=null && !Number.isNaN(pctBloqueVal)) ? pctBloqueVal : "—";
+    const header=document.createElement("div");
+    header.className="interp-bloque-header";
+    header.innerHTML=`<div class="interp-bloque-nombre">${tituloDisplay}</div><div class="interp-bloque-indice">Índice: <span>${idxText}</span></div>`;
+    cont.appendChild(header);
+
+    const desc=document.createElement("div");
+    desc.className="interp-bloque-desc";
+    desc.textContent=BLOQUE_DESCS[bloqueDescKey] || "";
+    cont.appendChild(desc);
+
+    const bloqueKey = canonBloque(bloqueKeyOriginal);
+    let rows=(subRows||[]).filter(r=> canonBloque(r.bloque||r.block||"")===bloqueKey);
+
+    rows.forEach(r=>{
+      const sub=r.subhabilidad || r.sub || r.nombre || "";
+      const pctRaw=Number(r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? null);
+      const pct=(pctRaw!=null && !Number.isNaN(pctRaw)) ? adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeName(sub)}) : null;
+      renderSkillRow(cont, dispSub(sub), pct);
+    });
+  }
+
+  function renderInterpretacion(subRows, extras){
+    const date1=document.getElementById("repDateLine");
+    const date2=document.getElementById("repDateLine2");
+    const dateEsc=document.getElementById("repDateLineEsc");
+    if(date1 && date2) date2.textContent = date1.textContent;
+    if(date1 && dateEsc) dateEsc.textContent = date1.textContent;
+
+    const h1=document.getElementById("repHeaderBox");
+    const h2=document.getElementById("repHeaderBox2");
+    if(h1 && h2) h2.innerHTML = h1.innerHTML;
+
+    renderBloqueInterpretacion("interpIntra","DESARROLLO PERSONAL","Desarrollo Personal","desarrollo", subRows, extras.bIntra);
+    renderBloqueInterpretacion("interpInter","VINCULOS INTERPERSONALES","Vínculos Interpersonales","vinculos", subRows, extras.bInter);
+    renderBloqueInterpretacion("interpPV","HABILIDADES PARA LA VIDA","Competencias Para la Vida","competencias", subRows, extras.bPV);
+
+    const estCont=document.getElementById("interpEstilos");
+    if(estCont){
+      estCont.innerHTML="";
+      const header=document.createElement("div");
+      header.className="interp-bloque-header";
+      header.innerHTML=`<div class="interp-bloque-nombre">COMUNICACIÓN INTERPERSONAL</div>`;
+      estCont.appendChild(header);
+
+      const desc=document.createElement("div");
+      desc.className="interp-bloque-desc";
+      desc.textContent=BLOQUE_DESCS.estilos;
+      estCont.appendChild(desc);
+
+      renderSkillRow(estCont, "Agresión", extras.agresionVal);
+      renderSkillRow(estCont, "Timidez", extras.timidezVal);
+    }
+
+    const cambCont=document.getElementById("interpCambio");
+    if(cambCont){
+      cambCont.innerHTML="";
+      const header=document.createElement("div");
+      header.className="interp-bloque-header";
+      header.innerHTML=`<div class="interp-bloque-nombre">ADAPTACIÓN AL CAMBIO</div>`;
+      cambCont.appendChild(header);
+
+      const desc=document.createElement("div");
+      desc.className="interp-bloque-desc";
+      desc.textContent=BLOQUE_DESCS.cambio;
+      cambCont.appendChild(desc);
+
+      renderSkillRow(cambCont, "Adaptación al cambio", extras.propCambioVal);
+    }
+
+    renderPerfilGlobal(extras);
+    renderRecomendaciones(extras);
+    renderPlanAccion(extras);
+  }
+
+  
+
+  // ================================
+  // PARTE 2 (INTEGRIDAD) - robusta
+  // ================================
+
+  function escapeHtml(s){
+    return String(s ?? "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#39;");
+  }
+
+  const INTEGRIDAD_SKILLS = [
+    {key:"Honestidad", idBadge:"interpHonBadge", idBody:"interpHonBody"},
+    {key:"Rectitud",   idBadge:"interpRecBadge", idBody:"interpRecBody"},
+    {key:"Justicia",   idBadge:"interpJusBadge", idBody:"interpJusBody"},
+    {key:"Veracidad",  idBadge:"interpVerBadge", idBody:"interpVerBody"},
+  ];
+
+  const INTEGRIDAD_DESC = {
+    "Honestidad": "Acting with transparency, acknowledging mistakes, and avoiding unfair advantage. It means alignment between what you think, say, and do.",
+    "Rectitud": "Ability to uphold ethical principles even under external pressure. Includes self-control, respect for rules, and behavioral consistency.",
+    "Justicia": "Tendency to decide and act with fairness, clear rules, and impartial treatment. Includes sensitivity to privilege and favoritism.",
+    "Veracidad": "Commitment to truth in communication: accuracy, avoiding exaggeration or relevant omissions, and protecting the trust you build."
+  };
+
+  // Recommendations by level (1–40 / 41–60 / 61–100)
+
+//----NEW BLOCK
+  const INTEGRIDAD_RECOM = {
+  "Honestidad": {
+    bajo: [
+      "For 2 weeks, log each day one real situation where you felt tempted to hide, exaggerate, or avoid a responsibility, and write what the most honest response would have been and what concrete action would have followed.",
+      "If you make a mistake, acknowledge it the same day in a clear sentence without excuses, stating what happened, what you need to own, and what you will do to correct it promptly."
+    ],
+    medio: [
+      "Four days per week, note two concrete commitments for the day and review at the end whether you kept them, rescheduled them, or gave advance notice of a change.",
+      "Once per week, choose a real situation and describe it in three parts: what happened, what you decided, and what you can apply next time to act with greater transparency."
+    ],
+    alto: [
+      "Once per week, take a visible honesty action, such as admitting a mistake, returning something, correcting inaccurate information, or announcing a change before it causes problems.",
+      "At the end of each week, review three commitments you made and check which you met on time, which you rescheduled responsibly, and where you communicated any needed adjustments in a timely way."
+    ]
+  },
+  "Rectitud": {
+    bajo: [
+      "Five days per week, before responding in anger, under pressure, or on impulse, pause for 10 seconds and take two slow breaths to regain control before speaking or acting.",
+      "Define three clear non-negotiable personal rules, for example do not lie, do not take what belongs to others, and do not cheat, and read them twice per week to reinforce them in real situations."
+    ],
+    medio: [
+      "Four days per week, choose one concrete task and complete it start to finish with order and responsibility, without leaving it half done or abandoning it without justification.",
+      "Twice per week, log a pressure or temptation situation and write what you did to stay within the right rule, noting what helped you act firmly."
+    ],
+    alto: [
+      "Take on a fixed responsibility for one week and log each day whether you fulfilled it fully, partially, or left it pending, briefly explaining why when it was not met.",
+      "Once per week, review a norm, agreement, or group commitment and confirm with a concrete example whether it is being respected consistently."
+    ]
+  },
+  "Justicia": {
+    bajo: [
+      "Twice per week, before making a decision, resolving a conflict, or distributing something, write two basic fairness criteria: apply the same rule for everyone and rely on turns, facts, or evidence.",
+      "Once per week, choose a real conflict and write what each person wanted, what they may have felt, and what decision would have been fairest for both sides."
+    ],
+    medio: [
+      "Twice per week, resolve a situation in this order: what happened, which rule or criterion applies, and what agreement would be most balanced for everyone involved.",
+      "Once per week, recognize another person’s positive behavior by stating precisely what they did, why it mattered, and how it helped the group or setting."
+    ],
+    alto: [
+      "Once per week, help two people agree on turns, times, rules, or simple responsibilities, listening to both sides before proposing a solution.",
+      "Once per month, review an important decision and check whether the same rule was applied for everyone involved, without favoritism or unjustified advantages."
+    ]
+  },
+  "Veracidad": {
+    bajo: [
+      "Four days per week, before communicating or sending important information, review three key questions: whether it is true, complete, and whether you can express it clearly and respectfully.",
+      "Twice per week, describe a real situation in three parts: what happened, when it happened, and who was involved, avoiding exaggeration, omissions, or invented details."
+    ],
+    medio: [
+      "Twice per week, communicate a request, update, or report using three basic elements: what happened, what is needed, and by when a response or solution is required.",
+      "Whenever information is not clear enough, ask a specific question before repeating it, sharing it, or acting on it."
+    ],
+    alto: [
+      "Once per week, support an important statement with verifiable data, an example, message, or document that clearly backs what you communicate.",
+      "At the end of the week, review whether information or a response you committed to deliver was communicated on time and, if not, announce the new date before the deadline."
+    ]
+  }
+};
+
+  // Action pack for “Priorities by score”
+  const PLAN_FOCO = {
+"Honestidad": {
+  bajo: {
+    esc: {
+      objetivo: "Strengthen the ability to tell the truth, acknowledge mistakes, and act with transparency in everyday school situations.",
+      acciones: [
+        "For 2 weeks, log each day one real classroom, home, or homework situation where you wanted to hide, exaggerate, or avoid a responsibility. Write what happened, what you did, and what would have been more honest to do or say.",
+        "If you make a mistake in class, at home, or on an assignment, say so the same day in a clear sentence that includes what happened and how you plan to fix it. Then mark ✓ if you actually made the correction.",
+        "Once per week, take on a small verifiable commitment, for example turn in work on time, return materials, give advance notice, or admit a forgetfulness, and log whether you kept it without excuses."
+      ],
+      indicador: "1 daily log for 2 weeks + same-day error acknowledgment + 1 verified weekly commitment.",
+      revision: "10-minute weekly review with teacher, counselor, family member, or supporting adult."
+    },
+    pro: {
+      objetivo: "Build more transparent, responsible behavior when reporting errors, keeping commitments, and acting honestly at work.",
+      acciones: [
+        "For 2 weeks, log each day one real work situation where you felt tempted to hide, soften, exaggerate, or postpone a responsibility. Note what happened, how you responded, and what would have been more honest to communicate or do.",
+        "If you make a mistake on a task, report, deadline, or work communication, report it the same day in a brief message stating what happened, possible impact, and the concrete action you will take to correct it.",
+        "Once per week, take on an observable commitment, for example deliver a progress update, correct data, return pending information, or announce a change on time, and log whether you fulfilled it fully and on time."
+      ],
+      indicador: "1 daily log for 2 weeks + same-day error communication + 1 verified weekly work commitment.",
+      revision: "10–15 minute weekly review with supervisor, mentor, or trusted person in the professional setting."
+    }
+  },
+
+  medio: {
+    esc: {
+      objetivo: "Strengthen alignment between what you say, promise, and deliver in school and family contexts.",
+      acciones: [
+        "Four days per week, note two real daily commitments, for example study, turn in work, arrive on time, or follow instructions, and review at the end whether you kept them, rescheduled them, or announced a change.",
+        "Twice per week, choose a real situation and explain it in three parts: what happened, what you decided, and what you will do next to act with greater clarity and responsibility.",
+        "If you gave incomplete information, a vague excuse, or an unclear version of events, clarify it the same day with the person involved and leave a brief record that you did."
+      ],
+      indicador: "4 days per week with commitment review + 2 weekly reflections + same-day clarifications when needed.",
+      revision: "Biweekly review with concrete examples and progress tracking."
+    },
+    pro: {
+      objetivo: "Maintain alignment between what you communicate, the commitments you make, and the results you deliver at work.",
+      acciones: [
+        "Four days per week, log two real daily commitments, for example deliver updates, reply to key messages, attend meetings, or close tasks, and review whether you kept them, rescheduled them, or announced changes in time.",
+        "Twice per week, take a real work situation and describe it in three parts: what happened, what you decided, and what you will do next to keep communication more transparent.",
+        "If you shared incomplete, imprecise, or confusing data, correct it the same day with the person or team involved and briefly note how you clarified it."
+      ],
+      indicador: "4 days per week with commitment tracking + 2 brief analyses per week + timely clarifications when applicable.",
+      revision: "Review every two weeks focusing on concrete evidence of follow-through and clarity."
+    }
+  },
+
+  alto: {
+    esc: {
+      objetivo: "Sustain a visible example of honesty, coherence, and responsibility with peers, teachers, and family.",
+      acciones: [
+        "Once per week, take a visible honesty action, for example admit a mistake without being asked, return something, correct information, or announce an important change in advance.",
+        "Once per week, anticipate a likely difficult situation, for example unfinished work, a forgetfulness, or peer pressure, and write what you will say and do to respond honestly.",
+        "At the end of the week, review three agreements or commitments and mark which you met on time, which you rescheduled, and whether you announced changes responsibly."
+      ],
+      indicador: "1 visible action per week + 1 advance preparation per week + 1 weekly agreement review.",
+      revision: "Monthly review with a simple log of observable examples and progress."
+    },
+    pro: {
+      objetivo: "Maintain a solid standard of honesty and coherence, even under pressure, high demands, or significant work responsibility.",
+      acciones: [
+        "Once per week, take a visible professional honesty action, for example admit an error, correct data, report a difficulty before the deadline, or disclose a limitation in time.",
+        "Once per week, anticipate a complex work situation and write two concrete steps: what you will communicate and what you will do to keep an honest, responsible response.",
+        "At the end of the week, review three relevant promises, agreements, or deliverables and check whether they were met, whether rescheduling was needed, and whether communication was timely."
+      ],
+      indicador: "1 visible weekly action + 1 anticipation exercise per week + 1 weekly review of relevant commitments.",
+      revision: "Monthly review with brief evidence of actions, follow-through, and transparent communication."
+    }
+  }
+},
+"Rectitud": {
+  bajo: {
+    esc: {
+      objetivo: "Strengthen self-control and respect for clear personal rules in everyday school and family situations.",
+      acciones: [
+        "Five days per week, before responding in anger, under pressure, or on impulse, pause for 10 seconds and take two slow breaths before speaking or acting.",
+        "Write three clear personal rules, for example do not lie, do not take what belongs to others, and do not cheat, and read them twice per week to remember them under pressure.",
+        "Twice per week, when you feel influence or pressure from others, use a concrete exit: ask for time, step away, seek support, or consult a trusted adult."
+      ],
+      indicador: "Pause used 5 days per week + rules read 2 times per week + 2 safe exits per week.",
+      revision: "Weekly review with real examples of self-control and rule keeping."
+    },
+    pro: {
+      objetivo: "Develop stronger self-control and ethical firmness to act with judgment under pressure or demands at work.",
+      acciones: [
+        "Five days per week, before responding in a tense situation, pause for 10 seconds and take two slow breaths to avoid acting on impulse.",
+        "Define three non-negotiable personal rules for work, for example do not hide relevant information, do not take what belongs to others, and do not deliberately break agreements, and review them twice per week.",
+        "Twice per week, in pressure, urgency, or external influence, use a concrete exit: ask for a few minutes, consult before deciding, escalate the issue, or seek a second opinion."
+      ],
+      indicador: "Pause used 5 days per week + rules reviewed 2 times per week + 2 controlled responses to pressure per week.",
+      revision: "Weekly review with concrete examples of self-control and decisions aligned with your principles."
+    }
+  },
+
+  medio: {
+    esc: {
+      objetivo: "Strengthen the ability to fulfill complete responsibilities without acting on impulse or leaving tasks half done.",
+      acciones: [
+        "Four days per week, choose one concrete task and complete it start to finish, logging at the end whether it was complete, partial, or pending.",
+        "Twice per week, note a pressure, distraction, or temptation situation and write what you did to stay within the right conduct.",
+        "Once per week, answer in writing three questions: what I completed, what was hard to sustain, and what I will do differently next week."
+      ],
+      indicador: "4 complete tasks per week + 2 pressure logs per week + 1 weekly improvement reflection.",
+      revision: "Review every two weeks tracking progress and recurring difficulties."
+    },
+    pro: {
+      objetivo: "Maintain responsible, consistent behavior, completing tasks and holding correct decisions in the professional setting.",
+      acciones: [
+        "Four days per week, choose a relevant task and finish it completely, logging whether it closed on time, was partial, or needs follow-up.",
+        "Twice per week, log a pressure, urgency, or work temptation situation and describe what you did to stay within the right decision.",
+        "Once per week, answer in writing three questions: which responsibility I fulfilled well, which situation required the most self-control, and what I will adjust next week."
+      ],
+      indicador: "4 complete tasks per week + 2 professional pressure logs per week + 1 weekly reflective close-out.",
+      revision: "Biweekly review focusing on sustained responsibility, self-control, and execution quality."
+    }
+  },
+
+  alto: {
+    esc: {
+      objetivo: "Sustain responsible conduct and become a positive example of follow-through and respect for agreements.",
+      acciones: [
+        "Take on a fixed responsibility for one week, for example order, support, delivery, or follow-up, and log each day whether it was fully met, partial, or not met.",
+        "Once per week, review a group rule or agreement and confirm with a concrete example whether it is being followed consistently.",
+        "Once per month, propose in writing a simple improvement to a rule, routine, or dynamic, explaining what you would change and why it would help the group."
+      ],
+      indicador: "1 weekly responsibility with daily log + 1 agreement review per week + 1 improvement proposal per month.",
+      revision: "Monthly review with observable examples of consistency, follow-through, and positive leadership."
+    },
+    pro: {
+      objetivo: "Maintain a solid responsibility standard and actively contribute to respect for agreements, rules, and processes at work.",
+      acciones: [
+        "Take on a fixed responsibility for one week and log each day whether it was fully, partially, or not completed, stating the reason when it was not achieved.",
+        "Once per week, review a team agreement, procedure, or rule and confirm with a concrete example whether it is applied consistently.",
+        "Once per month, propose a brief, realistic improvement to a rule, practice, or work process, explaining what you would change and how it would help team order, clarity, or responsibility."
+      ],
+      indicador: "1 weekly responsibility with daily log + 1 weekly agreement check + 1 monthly improvement proposal.",
+      revision: "Monthly review with brief evidence of follow-through, consistency, and contributions to team functioning."
+    }
+  }
+},
+"Justicia": {
+  bajo: {
+    esc: {
+      objetivo: "Develop more balanced decisions by learning to consider the other side, apply equal rules, and act with greater fairness at school.",
+      acciones: [
+        "Twice per week, before deciding, distributing something, or resolving a disagreement, write two basic criteria: use the same rule for everyone and rely on turns, facts, or evidence.",
+        "Once per week, choose a real classroom, home, or group conflict and write: what the other person wanted, what they may have felt, and what would have been fairer for both sides.",
+        "Whenever you distribute materials, time, turns, or tasks, use a visible list or clear order so everyone can see how things are being shared."
+      ],
+      indicador: "2 weekly decisions with written criteria + 1 weekly perspective exercise + visible order or list when distributing.",
+      revision: "Biweekly review with concrete examples of fair decisions and balanced treatment."
+    },
+    pro: {
+      objetivo: "Strengthen more balanced work decisions by applying clear criteria, avoiding favoritism, and considering others more objectively.",
+      acciones: [
+        "Twice per week, before making a decision, assigning tasks, or resolving a difference, write two basic criteria: apply the same rule for everyone and rely on facts, priorities, or verifiable evidence.",
+        "Once per week, choose a real work situation and write: what the other person needed, how they may have interpreted the situation, and what would have been fairer and more balanced to decide.",
+        "When assigning tasks, time, support, or priorities, use a visible or explainable criterion so distribution is clear and not arbitrary."
+      ],
+      indicador: "2 weekly work decisions with written criteria + 1 weekly perspective analysis + visible criteria in assignments.",
+      revision: "Biweekly review focusing on objective decisions, consistent criteria, and equitable treatment."
+    }
+  },
+
+  medio: {
+    esc: {
+      objetivo: "Resolve disagreements with clear rules, equal treatment, and greater ability to recognize what is fair in school life.",
+      acciones: [
+        "Twice per week, resolve a situation in this order: what happened, which rule applies, and what agreement fits everyone involved.",
+        "Before a group activity, recall two treatment and participation rules that apply equally to everyone.",
+        "Once per week, recognize another person’s positive behavior by stating precisely what they did and how it helped the group or community."
+      ],
+      indicador: "2 weekly situations resolved with fact–rule–agreement order + 1 pre-activity rule reminder + 1 concrete recognition per week.",
+      revision: "Biweekly review observing agreements, equitable treatment, and consistent rule application."
+    },
+    pro: {
+      objetivo: "Apply fair, consistent criteria when resolving disagreements, assigning responsibilities, and recognizing contributions at work.",
+      acciones: [
+        "Twice per week, resolve a situation using this order: what happened, which criterion or rule applies, and what agreement or decision would be most balanced for those involved.",
+        "Before a meeting, shared task, or teamwork, recall two clear rules on participation, timing, or responsibilities that apply equally to everyone.",
+        "Once per week, recognize another person’s positive behavior by stating what they did, why it mattered, and how it helped the team function."
+      ],
+      indicador: "2 weekly situations with fact–rule–agreement order + 1 criteria reminder before shared activities + 1 specific recognition per week.",
+      revision: "Biweekly review focusing on criteria clarity, fair treatment, and balanced recognition of contributions."
+    }
+  },
+
+  alto: {
+    esc: {
+      objetivo: "Sustain a positive role in community life by promoting fair agreements, balanced participation, and attention to equity in the group.",
+      acciones: [
+        "Once per week, help two people agree on turns, time, materials, or simple rules, listening to both sides first.",
+        "Once per week, organize or support a brief activity with visible rules for participation, time, and use of materials.",
+        "Once per month, review an important group decision and ask whether the same rule was really applied for everyone."
+      ],
+      indicador: "1 weekly support or mediation + 1 weekly activity with visible rules + 1 monthly equity review of important decisions.",
+      revision: "Monthly review with observable examples of mediation, fair organization, and care for community life."
+    },
+    pro: {
+      objetivo: "Actively contribute to a culture of fairness, clear decisions, and just treatment in the workplace.",
+      acciones: [
+        "Once per week, help two people agree on timing, priorities, turns, or responsibilities, listening to both versions before proposing a way forward.",
+        "Once per week, organize or support a brief work activity with clear rules on participation, timing, responsibilities, or use of resources.",
+        "Once per month, review an important team decision and analyze whether the same criterion was applied for everyone involved."
+      ],
+      indicador: "1 weekly support or mediation + 1 weekly activity with visible criteria + 1 monthly equity review of relevant decisions.",
+      revision: "Monthly review with brief evidence of mediation, criteria clarity, and promotion of fairness on the team."
+    }
+  }
+},
+"Veracidad": {
+  bajo: {
+    esc: {
+      objetivo: "Strengthen the ability to communicate facts with greater precision, clarity, and honesty, avoiding omissions or confusing versions at school.",
+      acciones: [
+        "Four days per week, before telling, explaining, or sending important information, review three key questions: whether it is true, complete, and whether you can say it respectfully.",
+        "Twice per week, write a real situation in three parts: what happened, when it happened, and who was involved, avoiding exaggeration, invented details, or relevant omissions.",
+        "If you gave incorrect or incomplete information, correct it the same day in a clear sentence and record whom you notified and what you clarified."
+      ],
+      indicador: "Pre-check 4 days per week + 2 weekly fact logs + same-day correction when needed.",
+      revision: "Brief weekly review with concrete examples of clarity and timely correction."
+    },
+    pro: {
+      objetivo: "Develop more precise, complete, verifiable communication at work, reducing omissions and quickly correcting any error.",
+      acciones: [
+        "Four days per week, before sharing or sending relevant information, review three key questions: whether it is true, complete, and whether it can be communicated clearly and respectfully.",
+        "Twice per week, log a real work situation in three parts: what happened, when it happened, and who was involved, avoiding confusing interpretations, important omissions, or unconfirmed details.",
+        "If you delivered incorrect, incomplete, or unclear data, correct it the same day in a brief message and record whom you informed and what you clarified."
+      ],
+      indicador: "Pre-check 4 days per week + 2 weekly work fact logs + same-day correction when applicable.",
+      revision: "Brief weekly review focusing on precision, completeness, and timely correction of information."
+    }
+  },
+
+  medio: {
+    esc: {
+      objetivo: "Strengthen clearer, more complete messages and learn to correct quickly when information was not precise enough.",
+      acciones: [
+        "Twice per week, communicate a request, explanation, or notice using three parts: what happened, what is needed, and by when a response or follow-through is required.",
+        "At least once per week, ask a specific question before repeating or sharing information you did not fully understand.",
+        "If you changed a fact or realize you explained something confusingly, correct it within 24 hours and mark ✓ that you notified the right person."
+      ],
+      indicador: "2 clear messages per week + 1 specific question per week + correction within 24 hours when applicable.",
+      revision: "Biweekly review with examples of messages, clarifications, and precision improvements."
+    },
+    pro: {
+      objetivo: "Maintain clear, complete, responsible work communication, quickly correcting any ambiguous or inaccurate information.",
+      acciones: [
+        "Twice per week, communicate a request, update, or report using three parts: what happened, what is needed, and by when a response, action, or delivery is required.",
+        "At least once per week, ask a specific question before forwarding, repeating, or acting on information that is not clear enough.",
+        "If you change a fact or see that a prior communication was incomplete or confusing, correct it within 24 hours and record that you informed the person or team involved."
+      ],
+      indicador: "2 clear communications per week + 1 specific question per week + correction within 24 hours when needed.",
+      revision: "Biweekly review focusing on clarity, timeliness, and precision of professional communication."
+    }
+  },
+
+  alto: {
+    esc: {
+      objetivo: "Sustain reliable, clear, verifiable communication and become a positive example of truthfulness in your setting.",
+      acciones: [
+        "Once per week, support an important statement with data, an example, message, or evidence you can show if needed.",
+        "At the end of the week, review whether what you promised to communicate or explain was done on time and, if not, announce the new date before the deadline.",
+        "Once per month, show someone else a simple clear-communication practice, for example confirm agreements in writing, check a fact before saying it, or correct information in time."
+      ],
+      indicador: "1 supported statement per week + 1 weekly communication commitment review + 1 shared practice per month.",
+      revision: "Monthly review with concrete examples of reliable communication and keeping what was promised."
+    },
+    pro: {
+      objetivo: "Maintain reliable, verifiable, timely professional communication, strengthening trust in your word and how you inform others.",
+      acciones: [
+        "Once per week, support an important statement with verifiable data, an example, message, record, or document that clearly backs what you communicate.",
+        "At the end of the week, review whether information, a response, or a delivery you promised to communicate was sent on time and, if not, announce the new date before it is due.",
+        "Once per month, share with someone at work a brief clear-communication practice, for example confirm agreements in writing, keep a record of decisions, or correct a fact promptly."
+      ],
+      indicador: "1 supported statement per week + 1 weekly communication commitment review + 1 shared professional practice per month.",
+      revision: "Monthly review with brief evidence of clarity, support, and timely delivery of communicated information."
+    }
+  }
+}};
+const INTEGRIDAD_INTERP = {
+  "Honestidad": {
+    bajo: `
+      <p>At this level, the person may have difficulty sustaining honest behavior consistently, especially when feeling pressure, fear of consequences, or a need to justify themselves.</p>
+      <p>They may need more support to acknowledge mistakes clearly, communicate facts fully, and take greater responsibility for their part in everyday situations.</p>
+      <p>As a strength, this result identifies a clear starting point for moving toward more transparent, responsible, and coherent responses.</p>
+    `,
+    medio: `
+      <p>At this level, the person shows a functional base of honesty, though some inconsistency may remain between what they think, communicate, and ultimately do, especially under pressure, hurry, or desire to avoid consequences.</p>
+      <p>They usually recognize the importance of acting transparently and owning mistakes, but need more consistency to sustain that behavior in daily life and keep simple, concrete commitments aligned.</p>
+      <p>As a strength, this result indicates a favorable base for consolidating clearer, more responsible, and more coherent responses in everyday life.</p>
+    `,
+    alto: `
+      <p>At this level, the person shows more stable honest behavior, with greater alignment between what they think, express, and do in daily life.</p>
+      <p>They tend to act with more transparency, acknowledge mistakes more clearly, and keep commitments reliably, even when personal responsibility is required.</p>
+      <p>As a strength, this result reflects a solid base for becoming a reference point of trust, consistency, and responsibility for others.</p>
+    `
+  },
+
+  "Rectitud": {
+    bajo: `
+      <p>At this level, the person may have difficulty controlling impulses and holding clear personal rules when feeling pressure, anger, or influence from others.</p>
+      <p>They may need more support to act with greater firmness in situations that require self-control, personal limits, and correct decisions.</p>
+      <p>As a strength, this result clearly identifies an area to work on for building more stable, responsible conduct aligned with basic principles.</p>
+    `,
+    medio: `
+      <p>At this level, the person shows a functional base of uprightness, though variation may remain in their ability to sustain correct decisions and consistently fulfill what is expected of them.</p>
+      <p>They usually recognize the importance of acting appropriately, but need more consistency to maintain self-control, finish responsibilities, and respond firmly under pressure.</p>
+      <p>As a strength, this result indicates a favorable base for consolidating habits of greater responsibility, personal control, and coherence in daily conduct.</p>
+    `,
+    alto: `
+      <p>At this level, the person shows firmer, more consistent conduct, with greater ability to act responsibly, uphold personal rules, and respond with self-control in demanding situations.</p>
+      <p>They tend to show more stability in fulfilling responsibilities and in how they behave regarding norms, agreements, and everyday decisions.</p>
+      <p>As a strength, this result reflects a solid base for becoming an example of responsibility, self-mastery, and respect for principles that guide conduct.</p>
+    `
+  },
+
+  "Justicia": {
+    bajo: `
+      <p>At this level, the person may have difficulty maintaining balanced criteria when making decisions, resolving disagreements, or sufficiently considering other people’s viewpoints.</p>
+      <p>They may need more support to apply equal rules, avoid rushed decisions, and strengthen a more objective, equitable outlook in everyday situations.</p>
+      <p>As a strength, this result highlights a clear development focus for moving toward fairer, more careful, and more balanced decisions in relationships with others.</p>
+    `,
+    medio: `
+      <p>At this level, the person shows a functional base of justice, though variation may remain when applying consistent criteria, considering different perspectives, and resolving situations with full balance.</p>
+      <p>They usually recognize the importance of fair treatment, but need more consistency to sustain even-handed decisions, avoid bias, and act with clearer rules in shared responsibility or community situations.</p>
+      <p>As a strength, this result indicates a favorable base for consolidating more equitable, objective, and respectful responses toward others.</p>
+    `,
+    alto: `
+      <p>At this level, the person shows greater ability to make balanced decisions, apply more consistent criteria, and consider more fully the impact of their actions on others.</p>
+      <p>They tend to show more willingness to act with fairness, respect shared rules, and uphold agreements with a more objective, orderly perspective.</p>
+      <p>As a strength, this result reflects a solid base for promoting fair community life, respectful treatment, and more balanced decisions in their environment.</p>
+    `
+  },
+
+  "Veracidad": {
+    bajo: `
+      <p>At this level, the person may have difficulty communicating facts with enough precision, clarity, or completeness, especially when explaining sensitive situations or correcting information.</p>
+      <p>They may need more support to verify what they say more carefully, avoid omissions, and sustain clearer, more direct, and more responsible communication in everyday situations.</p>
+      <p>As a strength, this result identifies a concrete opportunity to move toward more precise, reliable, and consistent messages.</p>
+    `,
+    medio: `
+      <p>At this level, the person shows a functional base of truthfulness, though some imprecision, omissions, or difficulty sustaining fully clear messages may remain in some situations.</p>
+      <p>They usually recognize the importance of communicating truthfully and clearly, but need more consistency to verify data, correct in time, and express information more completely and orderly.</p>
+      <p>As a strength, this result indicates a favorable base for consolidating more precise, reliable, and responsible communication in daily life.</p>
+    `,
+    alto: `
+      <p>At this level, the person shows clearer, more precise, and more reliable communication, with greater ability to keep messages aligned with facts and correct promptly when needed.</p>
+      <p>They tend to act with greater responsibility when informing, clarifying, and supporting what they communicate, fostering relationships based on greater trust and clarity.</p>
+      <p>As a strength, this result reflects a solid base for becoming a reference for responsible, precise, and credible communication in their environment.</p>
+    `
+  }
+};  
+  function nivelLabel(p){
+    const n = nivelFromPct(p);
+    if(n==="bajo") return {nivel:"bajo", label:"0–39 Needs support"};
+    if(n==="medio") return {nivel:"medio", label:"40–60 Developing"};
+    return {nivel:"alto", label:"61–100 Well established"};
+  }
+
+  function setInterpCard(skill, pct){
+    const badgeEl = document.getElementById(INTEGRIDAD_SKILLS.find(x=>x.key===skill)?.idBadge || "");
+    const bodyEl  = document.getElementById(INTEGRIDAD_SKILLS.find(x=>x.key===skill)?.idBody  || "");
+    if(!badgeEl || !bodyEl) return;
+
+    const p = (pct==null || Number.isNaN(pct)) ? null : Math.round(Number(pct));
+    const lvl = p==null ? {nivel:"medio", label:"—"} : nivelLabel(p);
+
+    badgeEl.innerHTML = `<span class="pill">${lvl.label}</span> <span class="pct">${p==null ? "—" : (p + "/100")}</span>`;
+
+    const desc = INTEGRIDAD_DESC[skill] || "";
+    const interp = (INTEGRIDAD_INTERP[skill] && INTEGRIDAD_INTERP[skill][lvl.nivel]) ? INTEGRIDAD_INTERP[skill][lvl.nivel] : "";
+
+ bodyEl.innerHTML = `
+  <div class="muted" style="margin-bottom:10px">${escapeHtml(desc)}</div>
+  <div style="font-weight:700; margin:10px 0 8px;">Result interpretation</div>
+  <div class="skill-interpretacion">${interp}</div>
+`;
+}
+  function renderPerfilGlobalIntegridad(extras){
+    const cont = document.getElementById("perfilGlobal");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">3.- Global quantitative profile</div>`;
+    cont.appendChild(header);
+
+    const p = document.createElement("div");
+    p.className = "interp-bloque-desc";
+    p.textContent = "Below are the scores (0–100) and their reading range.";
+    cont.appendChild(p);
+
+    // helper: rango 0-100
+    const rango = (v) => {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return "—";
+      if (n <= 39) return "Needs support";
+      if (n <= 60) return "Developing";
+      return "Well established";
+    };
+
+    const items = [
+      { label: "Honesty", value: extras.honestidad },
+      { label: "Uprightness",   value: extras.rectitud },
+      { label: "Justice",   value: extras.justicia },
+      { label: "Truthfulness",  value: extras.veracidad },
+      { label: "IVI",        value: extras.ivi }
+    ];
+
+    const wrap = document.createElement("div");
+    wrap.className = "bars-wrap";
+
+    items.forEach(it => {
+      const row = document.createElement("div");
+      row.className = "bars-row";
+
+      const v = (it.value!=null && !Number.isNaN(it.value)) ? Math.round(it.value) : null;
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = v==null ? `${it.label}` : `${it.label}: ${v}/100 — ${rango(v)}`;
+      row.appendChild(label);
+
+      const slot = document.createElement("div");
+      slot.className = "bars-slot";
+      // fondo con rangos (0-39 rojo, 40-60 amarillo, 61-100 verde)
+      slot.style.background = "linear-gradient(90deg, var(--red) 0%, var(--red) 39%, var(--orange) 39%, var(--orange) 60%, var(--green) 60%, var(--green) 100%)";
+
+      // ticks 0,39,60,100
+      [0,39,60,100].forEach(vt => {
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        tick.style.left = vt + "%";
+        slot.appendChild(tick);
+
+        const tLabel = document.createElement("div");
+        tLabel.className = "tick-label";
+        tLabel.style.left = vt + "%";
+        tLabel.textContent = vt;
+        slot.appendChild(tLabel);
+      });
+
+      const marker = document.createElement("div");
+      marker.className = "marker";
+      if (v != null){
+        marker.style.left = Math.max(0, Math.min(100, v)) + "%";
+        marker.style.display = "block";
+      }
+      slot.appendChild(marker);
+
+      row.appendChild(slot);
+      wrap.appendChild(row);
+    });
+
+    cont.appendChild(wrap);
+
+    // Nota de cautela (solo por incoherencia/contradicción; PT no cambia sellos)
+    const ivVal = Math.max(extras.incoh || 0, extras.nc || 0);
+    if (ivVal >= 1){
+      const note = document.createElement("div");
+      note.className = "muted";
+      note.style.marginTop = "8px";
+      note.textContent = "Note: Signs of inconsistency were detected in the responses. Interpret these scores with greater caution.";
+      cont.appendChild(note);
+    }
+  }
+
+  const SKILL_EN = {
+    "Honestidad": "Honesty",
+    "Rectitud": "Uprightness",
+    "Justicia": "Justice",
+    "Veracidad": "Truthfulness"
+  };
+  function nivelDisplayEn(n){
+    if(n==="bajo") return "needs support";
+    if(n==="medio") return "developing";
+    return "well established";
+  }
+
+  function renderRecomendacionesIntegridad(extras){
+    const cont = document.getElementById("recomendaciones");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">4.- Recommendations and action plan</div>`;
+    cont.appendChild(header);
+
+    const sub = document.createElement("div");
+    sub.className = "recom-subtitle";
+    sub.textContent = "These recommendations summarize priority areas observed in Honesty, Uprightness, Justice, and Truthfulness. They serve as initial guidance; concrete tasks appear in the Suggested action plan section.";
+    cont.appendChild(sub);
+
+    const items = [
+      {k:"Honestidad", v: extras.honestidad},
+      {k:"Rectitud", v: extras.rectitud},
+      {k:"Justicia", v: extras.justicia},
+      {k:"Veracidad", v: extras.veracidad},
+    ];
+
+    items.forEach(it=>{
+      const p = (it.v==null || Number.isNaN(it.v)) ? null : Math.round(Number(it.v));
+      const n = nivelFromPct(p);
+      const recs = (INTEGRIDAD_RECOM[it.k] && INTEGRIDAD_RECOM[it.k][n]) ? INTEGRIDAD_RECOM[it.k][n] : [];
+
+      const sec = document.createElement("div");
+      sec.style.marginTop = "10px";
+
+      const ttl = document.createElement("div");
+      ttl.className = "plan-section-title";
+      ttl.textContent = `${SKILL_EN[it.k] || it.k} — ${nivelDisplayEn(n)} (${p==null?"—":p}/100)`;
+      sec.appendChild(ttl);
+
+      const ul = document.createElement("ul");
+      ul.className = "recom-list";
+      recs.slice(0,2).forEach(t=>{
+        const li = document.createElement("li");
+        li.textContent = t;
+        ul.appendChild(li);
+      });
+      sec.appendChild(ul);
+      cont.appendChild(sec);
+    });
+  }
+
+  function renderPlanAccionIntegridad(extras){
+    const cont = document.getElementById("planAccion");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const code = getCurrentReportCode((window.__LAST_REPORT__ && (window.__LAST_REPORT__.attempt || window.__LAST_REPORT__)) || {});
+    const isAdult = isAdultCodeByPrefix(code);
+
+    const sub=document.createElement("div");
+    sub.className="recom-subtitle";
+    sub.style.marginTop = "8px";
+    sub.innerHTML="What to do with your results: clear tasks, simple follow-up, and support suited to your context.";
+    cont.appendChild(sub);
+
+    const items = [
+      { key:"Honestidad",  pct: extras.honestidad },
+      { key:"Rectitud",    pct: extras.rectitud },
+      { key:"Justicia",    pct: extras.justicia },
+      { key:"Veracidad",   pct: extras.veracidad },
+    ];
+    items.forEach(it => it.nivel = nivelFromPct(it.pct));
+    const ord = { bajo: 0, medio: 1, alto: 2 };
+    // Prioridad real: primero nivel (bajo→medio→alto) y, dentro del mismo nivel,
+    // menor puntaje primero (más necesidad de acompañamiento). Esto evita el "plan B"
+    // por orden fijo cuando todas las habilidades quedan en nivel alto.
+    items.sort((a,b)=>{
+      const byNivel = (ord[a.nivel]??9) - (ord[b.nivel]??9);
+      if (byNivel !== 0) return byNivel;
+      const pa = Number.isFinite(Number(a.pct)) ? Number(a.pct) : 999;
+      const pb = Number.isFinite(Number(b.pct)) ? Number(b.pct) : 999;
+      return pa - pb;
+    });
+
+    const focos = items.slice(0,3);
+
+    const box = document.createElement("div");
+    box.className = "plan-focus-box";
+    box.innerHTML = `<div class="plan-section-title">Priorities by score (Top 3)</div><div class="recom-subtitle" style="margin-top:2px">Concrete activities to practice for 2–3 weeks, with simple follow-up.</div>`;
+
+    focos.forEach(f=>{
+      const perfilPlan = isAdult ? "pro" : "esc";
+      const pack = PLAN_FOCO[f.key]?.[f.nivel]?.[perfilPlan];
+      if(!pack) return;
+
+      const sec = document.createElement("div");
+      sec.className = "plan-focus-item";
+      sec.innerHTML = `
+        <div class="plan-focus-head"><b>${escapeHtml(SKILL_EN[f.key] || f.key)}</b> — ${escapeHtml(nivelDisplayEn(f.nivel))} (${Math.round(Number(f.pct)||0)}/100)</div>
+        <div class="plan-focus-obj"><b>Goal (2–3 weeks):</b> ${escapeHtml(pack.objetivo)}</div>
+        <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(a)}</li>`).join("")}</ul>
+        <div class="plan-focus-meta"><b>Observable indicator:</b> ${escapeHtml(pack.indicador)}</div>
+        <div class="plan-focus-meta"><b>Review:</b> ${escapeHtml(pack.revision)}</div>
+      `;
+      box.appendChild(sec);
+    });
+    cont.appendChild(box);
+
+    const mkList=(title, items)=>{
+      const t=document.createElement("div");
+      t.className="plan-section-title";
+      t.textContent=title;
+      cont.appendChild(t);
+
+      const ul=document.createElement("ul");
+      ul.className="recom-list";
+      items.forEach(x=>{
+        const li=document.createElement("li");
+        li.textContent=x;
+        ul.appendChild(li);
+      });
+      cont.appendChild(ul);
+    };
+
+    if (isAdult){
+      mkList("At home / personal life:", [
+        "Write 1 or 2 commitments for the week (for example: payment, schedule, household task, or document delivery), set an exact date, and review them over the weekend marking whether they were met.",
+        "If there was an error, say in one sentence what happened and write the same day how you will fix it: notify, correct, return, or complete.",
+        "Note one difficult situation from the week and write three things: what you did, what happened next, and what you will do differently next time."
+      ]);
+
+      mkList("At work / on the team:", [
+        "Define simple work rules (deadline, owner, delivery format, and communication channel) and keep them visible in a message, email, or board.",
+        "Give concrete feedback when you see honesty, follow-through, or repair: say what the person did, when they did it, and how it helped the team.",
+        "Make decisions with three clear supports: facts, evidence, and prior agreements, especially on sensitive topics or conflicts."
+      ]);
+
+      mkList("With mentor / psychologist / HR support:", [
+        "If validation alerts appear or conflicts repeat, have a brief conversation to identify which situations create pressure and what keeps recurring.",
+        "Agree on observable goals: expected behavior, how often it should happen, and how it will be reviewed, among the person, supervisor, and support area."
+      ]);
+    } else {
+      mkList("At home / with family:", [
+        "Model integrity with daily examples: keep agreements, tell the truth in small situations, and acknowledge mistakes without shaming or yelling.",
+        "Set 2 or 3 clear rules at home, post them visibly, and explain in simple words why each one exists.",
+        "Once per week, review one difficult situation and talk through four questions: what happened, what was fair, what was honest, and how to make amends if needed."
+      ]);
+
+      mkList("In the classroom / school:", [
+        "Keep clear community and ethics rules: what is allowed, what is not, and what happens if they are not followed, with visible reminders in class or on a bulletin board.",
+        "Give concrete feedback when you see honesty or repair: name the behavior and say what positive effect it had, without exposing or embarrassing anyone.",
+        "Use clear criteria in decisions and evaluations (turns, evidence, and the same rule for everyone) and recall them before deciding."
+      ]);
+
+      mkList("With school counselor / psychologist support:", [
+        "If validation indices are high or there are risk signs, have a brief conversation with real examples: what happened, when, with whom, and how they responded.",
+        "Agree between family and school on 1 or 2 observable weekly goals (for example: keep agreements, repair mistakes, or communicate truthfully) and review at week’s end whether they were met."
+      ]);
+    }
+
+    const recursos = document.createElement("div");
+    recursos.className = "plan-focus-box";
+    recursos.style.marginTop = "10px";
+    recursos.innerHTML = `<div class="plan-section-title">Support resources (${isAdult ? "Professional" : "School"}) — optional</div>`;
+    const ulRec = document.createElement("ul");
+    ulRec.className = "recom-list";
+    const recLinks = isAdult ? [
+      ["APA: How to Resolve Conflicts", "https://www.apa.org/act/resources/fact-sheets/resolve-conflicts"],
+      ["NIOSH/CDC: Stress at Work", "https://www.cdc.gov/niosh/topics/stress/"],
+      ["APA: Healthy boundaries and communication (psychology resources)", "https://www.apa.org/topics/healthy-boundaries"]
+    ] : [
+      ["UNICEF: Life skills development", "https://www.unicef.org/lac/desarrollo-de-habilidades"],
+      ["UNICEF LAC: Skills for youth", "https://www.unicef.org/lac/habilidades-para-la-juventud"],
+      ["UNICEF: The 12 transferable skills (PDF)", "https://www.unicef.org/lac/media/30756/file/Las%2012%20habilidades%20transferibles.pdf"]
+    ];
+    recLinks.forEach(([label,url])=>{
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
+      ulRec.appendChild(li);
+    });
+    recursos.appendChild(ulRec);
+    cont.appendChild(recursos);
+  }
+
+
+  function renderInterpSharedNote(){
+    const grid = document.querySelector(".interpGrid");
+    if (!grid) return;
+    let box = document.getElementById("interpSharedNoteBox");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "interpSharedNoteBox";
+      box.className = "interpSharedBox";
+      box.innerHTML = `
+        <p class="interpSharedLead">These guidelines help you understand your results. Detailed actions appear in <b>Suggested action plan</b>.</p>
+        <h4>Progress indicator</h4>
+        <div class="muted">Simple evidence: keeping agreements, coherent decisions, and communication quality (precise and complete).</div>
+      `;
+      grid.insertAdjacentElement("afterend", box);
+    }
+  }
+
+  function renderParte2Integridad(extras){
+    // tarjetas (acordeón)
+    setInterpCard("Honestidad", extras.honestidad);
+    setInterpCard("Rectitud",   extras.rectitud);
+    setInterpCard("Justicia",   extras.justicia);
+    setInterpCard("Veracidad",  extras.veracidad);
+
+    renderInterpSharedNote();
+
+    // global IVI (parte superior de página 2)
+    const s2 = document.getElementById("iviScore2");
+    const t2 = document.getElementById("iviText2");
+    if (s2) s2.textContent = extras.ivi != null ? Math.round(extras.ivi) : "—";
+    if (t2) t2.textContent = interpGlobal(extras.ivi, extras.stars);
+
+    // bloques 3 y 4 + plan
+    renderPerfilGlobalIntegridad(extras);
+    renderRecomendacionesIntegridad(extras);
+    renderPlanAccionIntegridad(extras);
+  }
+function renderAll(data){
+  window.__LAST_REPORT__ = data;
+  const attempt = data.attempt || data;
+  const snap = attempt.snapshot || attempt.snap || attempt;
+
+  const resultados = attempt.resultados || attempt.resultados_json || attempt.result || {};
+  const subRows = attempt.subhabilidades || resultados.subhabilidades || attempt.subRows || attempt.sub || [];
+  const fechaRaw = attempt.created_at || attempt.creado_en || attempt.fecha_intento;
+  const fechaObj = fechaRaw ? new Date(fechaRaw) : null;
+  const ahora = new Date();
+  document.getElementById("repDateLine").textContent = ahora.toLocaleString("en-US", { dateStyle:"short", timeStyle:"short" });
+
+  const fechaTexto = fechaObj ? fechaObj.toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" }) : "—";
+  const nombre = snap.nombre || attempt.nombre || "—";
+  const codigoActual =
+  snap.codigo ||
+  attempt.codigo ||
+  resultados.codigo ||
+  document.getElementById("codigoInput")?.value ||
+  "—";
+const labelCurso = String(codigoActual || "").toUpperCase().startsWith("PRO") ? "Level" : "Grade/Course";
+document.getElementById("repHeaderBox").innerHTML = `
+  <div><b>Name:</b> ${nombre}</div>
+<div><b>${labelCurso}:</b> ${snap.curso || attempt.curso || "—"}</div>
+  <div><b>Country:</b> ${snap.grupo || attempt.grupo || "—"}</div>
+  <div><b>Institution:</b> ${snap.institucion || attempt.institucion || "—"}</div>
+  <div><b>Date:</b> ${fechaTexto}</div>
+  <div><b>Code:</b> ${codigoActual}</div>
+`;
+  const d1 = document.getElementById("repDateLine");
+const d2 = document.getElementById("repDateLine2");
+if (d1 && d2) d2.textContent = d1.textContent;
+
+const h1 = document.getElementById("repHeaderBox");
+const h2 = document.getElementById("repHeaderBox2");
+if (h1 && h2) h2.innerHTML = h1.innerHTML;
+
+  function normalizeName(s){ return (s||"").toString().trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
+
+  function pctSub(nombreSub){
+    const target = normalizeName(nombreSub);
+    let raw = null;
+    if(Array.isArray(subRows)){
+      const f = subRows.find(r => normalizeName(r.sub || r.subhabilidad || r.nombre || "") === target);
+      if (f) raw = (f.pctLex ?? f.pct ?? f.percent ?? f.porcentaje ?? null);
+    }
+    if (raw == null && resultados && resultados.subhabilidades && Array.isArray(resultados.subhabilidades)){
+      const f = resultados.subhabilidades.find(r => normalizeName(r.sub || r.subhabilidad || r.nombre || "") === target);
+      if (f) raw = (f.pctLex ?? f.pct ?? f.percent ?? f.porcentaje ?? null);
+    }
+    if (raw == null) return 0;
+    return Math.round(Number(raw) || 0);
+  }
+
+  const pHon = pctSub("Honestidad");
+  const pRec = pctSub("Rectitud");
+  const pJus = pctSub("Justicia");
+  const pVer = pctSub("Veracidad");
+
+  document.getElementById("pctHonestidad").textContent = pHon || "—";
+  document.getElementById("pctRectitud").textContent = pRec || "—";
+  document.getElementById("pctJusticia").textContent = pJus || "—";
+  document.getElementById("pctVeracidad").textContent = pVer || "—";
+
+  const vals = [pHon,pRec,pJus,pVer].filter(v => typeof v === "number" && v >= 0);
+  const iviFromData = resultados && resultados.globales && (resultados.globales.IVI ?? resultados.globales.ivi ?? null);
+  const ivi = (iviFromData != null) ? Math.round(Number(iviFromData)||0) : (vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0);
+  document.getElementById("repIVI").textContent = ivi || "—";
+  buildCurveSvg();
+  setCurveMarker(ivi || 0);
+
+  
+  const incoh = attempt.incoherencia ?? attempt.incoherencia_pct ?? attempt.incoherenciaPct ?? (resultados.validacion && (resultados.validacion.incoherencia ?? resultados.validacion.incoherencia_pct));
+  const contra = attempt.contradiccion ?? attempt.contradiccion_pct ?? attempt.contradiccionPct ?? (resultados.validacion && (resultados.validacion.contradiccion ?? resultados.validacion.contradiccion_pct));
+
+  let incohN = (incoh == null || incoh === "") ? null : Math.round(Number(incoh));
+  let contraN = (contra == null || contra === "") ? null : Math.round(Number(contra));
+
+  if ((incohN == null || Number.isNaN(incohN)) && (contraN == null || Number.isNaN(contraN))) {
+    const est = estimateValidation(attempt);
+    if (est){
+      incohN = est.incoh;
+      contraN = est.contra;
+      const note = document.getElementById("ivNote");
+      if (note) note.style.display = "block";
+    }
+  }
+
+
+  // No dejamos N/D: si no hay datos suficientes, mostramos 0% como estimación conservadora.
+const incohFromBackend =
+  resultados?.globales?.IV1 ??
+  null;
+
+let incohSafe = 0;
+
+if (Number.isFinite(Number(incohFromBackend))) {
+  incohSafe = Number(incohFromBackend);
+} else {
+  incohSafe = null;
+}
+const iv1Val = (incohSafe == null ? null : Number(incohSafe));
+const iv1Txt = (iv1Val == null || Number.isNaN(iv1Val))
+  ? "—"
+  : `${iv1Val} ${iv1Val === 1 ? "pt" : "pts"}${iv1Val >= 1 ? " — Alert" : " — Normal"}`;
+
+document.getElementById("repIncoh").textContent = iv1Txt;
+
+  
+const g = (resultados && resultados.globales) ? resultados.globales : {};
+const nc = (g.IV2 == null ? null : Math.round(Number(g.IV2) || 0));
+const iv2Val = (nc == null ? null : Number(nc));
+const iv2Txt = (iv2Val == null || Number.isNaN(iv2Val))
+  ? "—"
+  : `${iv2Val} ${iv2Val === 1 ? "pt" : "pts"}${iv2Val >= 1 ? " — Alert" : " — Normal"}`;
+
+document.getElementById("repContra").textContent = iv2Txt;
+
+  
+// Tiempo (PT) desde BD: resultados.globales.IV3 (0/1/2) con rango 20–30 min
+const pt = (g.IV3 == null || g.IV3 === "") ? null : Math.round(Number(g.IV3) || 0);
+const ptVal = (pt == null ? null : Number(pt));
+const ptPrefix = (ptVal == null || Number.isNaN(ptVal))
+  ? "—"
+  : `${ptVal} ${ptVal === 1 ? "pt" : "pts"}`;
+
+const PT_LABEL = {
+  0: "Adequate time (20–30 min)",
+  1: "Too brief (<20 min)",
+  2: "Too slow (>30 min)"
+};
+const elPT = document.getElementById("repTiempo");
+if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} ${pt === 1 ? "pt" : "pts"} — ${PT_LABEL[pt] || ""}`);
+
+  const validIdx = (incohN == null || Number.isNaN(incohN)) && (contraN == null || Number.isNaN(contraN))
+    ? null
+    : Math.max(incohN || 0, contraN || 0);
+
+const sellos = calcSellos(ivi, incohSafe, nc);
+paintSellos(sellos);
+  toggleGuideByCode(getCurrentReportCode(attempt));
+updateGuideBySellos(sellos);
+  
+
+const stars = sellos; // compatibilidad: el resto del reporte aún usa "stars"
+
+
+  setInterp(pHon, "interpHonBadge", "interpHonBody", "Honestidad");
+  setInterp(pRec, "interpRecBadge", "interpRecBody", "Rectitud");
+  setInterp(pJus, "interpJusBadge", "interpJusBody", "Justicia");
+  setInterp(pVer, "interpVerBadge", "interpVerBody", "Veracidad");
+  wireInterpToggles();
+
+  const elBIVI = document.getElementById("bIVI") || document.getElementById("repIVI") || document.getElementById("iviScore2"); if (elBIVI) elBIVI.textContent = ivi || "—";
+  const elTIVI = document.getElementById("tIVI") || document.getElementById("iviText2"); if (elTIVI) elTIVI.textContent = interpGlobal(ivi, sellos);
+  const s2 = document.getElementById("iviScore2");
+  const t2 = document.getElementById("iviText2");
+  if (s2) s2.textContent = ivi || "—";
+  if (t2) t2.textContent = interpGlobal(ivi, sellos);
+
+  // ===== PARTE 2 robusta (perfil + recomendaciones + plan) =====
+  const ptLabel = (pt == null) ? "—" : `${pt} pts — ${PT_LABEL[pt] || ""}`.trim();
+  renderParte2Integridad({
+    honestidad: pHon,
+    rectitud: pRec,
+    justicia: pJus,
+    veracidad: pVer,
+    ivi: ivi,
+sellos: sellos,
+    incoh: incohSafe,
+    nc: nc,
+    ptLabel: ptLabel
+  });
+
+
+
+
+  document.getElementById("reporteContainer").style.display = "block";
+}
+
+
+function buildCurveSvg(){
+  // Curva metálica fija (imagen). No se dibuja SVG dinámico.
+}
+
+function setCurveMarker(pct){
+  const score = clamp(Number(pct) || 0, 1, 100);
+  const wrap = document.querySelector(".curve .curve-gauge");
+  const img  = document.getElementById("freqCurveImg");
+  const mk   = document.getElementById("curveMarker");
+  const cap  = document.getElementById("curveCaption");
+  if (cap) cap.textContent = " VALUES AND INTEGRITY INDEX (IVI). " + Math.round(score) + " / 100";
+  if(!wrap || !img || !mk) return;
+
+  const place = () => {
+    const rW = wrap.getBoundingClientRect();
+    const rI = img.getBoundingClientRect();
+
+    const natW = img.naturalWidth  || 1;
+    const natH = img.naturalHeight || 1;
+    const scale  = Math.min(rI.width / natW, rI.height / natH);
+    const drawnW = natW * scale;
+    const offsetXInsideImg = (rI.width - drawnW) / 2;
+    const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+
+    // Calibración igual al reporte emocional (curva metálica)
+    const padL = drawnW * 0.08;
+    const padR = drawnW * 0.24;
+
+    const minX = leftInWrap + padL;
+    const maxX = leftInWrap + drawnW - padR;
+
+    const t = (score - 1) / 99;
+    let x = minX + t * (maxX - minX);
+    x = Math.max(minX, Math.min(maxX, x));
+    mk.style.left = `${x}px`;
+
+    const bottomAt0 = 94;
+    const bottomAt100 = 26;
+    const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+    mk.style.bottom = `${y}px`;
+  };
+
+  if (img.complete) {
+    requestAnimationFrame(place);
+  } else {
+    img.addEventListener("load", () => requestAnimationFrame(place), { once:true });
+  }
+}
+window.addEventListener("resize", () => {
+  const iviEl = document.getElementById("repIVI");
+  if (!iviEl) return;
+  const v = parseFloat((iviEl.textContent || "").replace(",", "."));
+  if (Number.isFinite(v)) setCurveMarker(v);
+});
+
+function extractAnswers(attempt){
+  const cand = attempt.answers ?? attempt.respuestas ?? attempt.respuestas_json ?? attempt.payload?.answers ?? attempt.data?.answers;
+  if (!cand) return null;
+  try{
+    if (Array.isArray(cand)) return cand;
+    if (typeof cand === "string") return JSON.parse(cand);
+    if (typeof cand === "object") return cand;
+  }catch(e){ return null; }
+  return null;
+}
+
+// Estimación automática (proxy) cuando no existen pares de incoherencia/contradicción.
+// - Incoherencia: variabilidad global de respuestas (más variabilidad -> más incoherencia).
+// - Contradicción: alternancia entre respuestas consecutivas (más cambios bruscos -> más contradicción).
+function estimateValidation(attempt){
+  const a = extractAnswers(attempt);
+  // esperamos 96 respuestas en escala 1-3
+  //const arr = Array.isArray(a) ? a : (a && Array.isArray(a.items) ? a.items : null);
+  let arr = null;
+
+// Caso 1: array directo
+if (Array.isArray(a)) {
+  arr = a;
+}
+// Caso 2: {items:[...]}
+else if (a && Array.isArray(a.items)) {
+  arr = a.items;
+}
+// Caso 3: {"1":3,"2":2,...}  (objeto con llaves numéricas)
+else if (a && typeof a === "object") {
+  const keys = Object.keys(a).filter(k => /^\d+$/.test(k));
+  if (keys.length) {
+    keys.sort((x,y)=>Number(x)-Number(y));
+    arr = keys.map(k => a[k]);
+  }
+}
+
+  
+  if (!arr || !arr.length) return null;
+
+const vals = [];
+for (const it of arr){
+  let n;
+
+  // Si viene como número o string ("1","2","3")
+  if (typeof it === "number" || typeof it === "string") {
+    n = Number(it);
+  } else {
+    // Si viene como objeto {value:...} o {respuesta:...}
+    n = Number(it?.value ?? it?.v ?? it?.respuesta ?? it?.answer);
+  }
+
+  if (n >= 1 && n <= 3) vals.push(n);
+}
+
+  if (vals.length < 20) return null;
+
+  const mean = vals.reduce((s,x)=>s+x,0)/vals.length;
+  const varr = vals.reduce((s,x)=>s+Math.pow(x-mean,2),0)/vals.length;
+  const sd = Math.sqrt(varr);
+
+  // max sd for {1,3} split is 1.0; but in 1-3 with middle, practical max ~1.0
+  const incoh = Math.round(Math.max(0, Math.min(100, (sd/1.0)*100)));
+
+  let switches = 0;
+  for (let i=1;i<vals.length;i++){
+    if (vals[i] !== vals[i-1]) switches++;
+  }
+  const contra = Math.round(Math.max(0, Math.min(100, (switches/Math.max(1, vals.length-1))*100)));
+
+  return { incoh, contra };
+}
+
+
+function calcSellos(ivi, incohPts, contradPts){
+  const v = Number(ivi) || 0;
+
+  // 1) Base por IVI (manual)
+  if (v <= 39) return 1;       // requiere acompañamiento / no recomendado
+  if (v <= 60) return 2;       // en formación / con reserva
+
+  // 2) IVI 61–100: "muy íntegro" solo si la validación no es alta
+  // En BD IV1/IV2 se guardan como 0, 1 o 2 (puntos, no %). Usamos el peor caso.
+  const incoh = Number(incohPts) || 0;
+  const contra = Number(contradPts) || 0;
+  const validacion = Math.max(incoh, contra);
+
+  // Regla intermedia:
+  // - validación 0 o 1 -> 4 sellos
+  // - validación 2      -> 3 sellos
+  if (validacion <= 1) return 4;
+  return 3;
+}
+
+
+
+
+function paintSellos(n){
+  const root = document.getElementById("repSeals");
+  if (!root) return; // evita que rompa
+
+  const seals = root.querySelectorAll(".seal");
+  if (!seals || seals.length === 0) return;
+
+  seals.forEach((img, idx) => {
+    img.classList.toggle("on", idx < n);
+  });
+}
+
+
+function isAdultCodeByPrefix(code){
+  const c = String(code || "").trim().toUpperCase();
+  return c.startsWith("PRO");
+}
+
+function getCurrentReportCode(attempt){
+  return (
+    attempt?.codigo ||
+    attempt?.code ||
+    attempt?.folio ||
+    attempt?.clave ||
+    attempt?.snapshot?.codigo ||
+    attempt?.snapshot?.code ||
+    document.getElementById("codigoInput")?.value ||
+    ""
+  );
+}
+
+function toggleGuideByCode(code){
+  const isAdult = isAdultCodeByPrefix(code);
+  const esc = document.getElementById("guideEscolarWrap");
+  const pro = document.getElementById("guideAdultoWrap");
+  const title = document.getElementById("iviGuideTitle");
+  if (esc) esc.style.display = isAdult ? "none" : "";
+  if (pro) pro.style.display = isAdult ? "" : "none";
+  if (title){
+    title.textContent = isAdult
+      ? "Quick guide — Adult / Professional (by seals)"
+      : "Quick guide — Elementary / Secondary (by seals)";
+  }
+}
+
+function updateGuideBySellos(n){
+  const groups = [
+    ["guideEscS1","guideEscS2","guideEscS3","guideEscS4"],
+    ["guideProS1","guideProS2","guideProS3","guideProS4"]
+  ];
+
+  groups.forEach(ids => {
+    ids.forEach(id => {
+      const tr = document.getElementById(id);
+      if (tr) tr.classList.remove("is-active");
+    });
+    const active = document.getElementById(ids[Math.max(1, Math.min(4, Number(n)||1)) - 1]);
+    if (active) active.classList.add("is-active");
+  });
+}
+
+
+
+
+function interpBand(pct){
+  const p = Number(pct)||0;
+  if (p <= 39) return {tag:"Needs support", txt:"This result suggests the value is not yet well established. Concrete habits and support can help strengthen it consistently."};
+  if (p <= 60) return {tag:"Developing", txt:"This result suggests progress with room to grow. It helps to reinforce value-aligned decisions and actions in everyday situations."};
+  return {tag:"Well established", txt:"This result suggests a consistent experience of this value. Keep practices that sustain it and seek challenges where you can model and strengthen it further."};
+}
+
+// Subtest interpretation (ranges: <=39, <=60, >60)
+function interpBandSkill(skillName, pct){
+  const p = Number(pct);
+  const v = Number.isFinite(p) ? p : 0;
+
+  if (v <= 39) return { key: "low",  label: "Needs support" };
+  if (v <= 60) return { key: "mid",  label: "Developing" };
+  return { key: "high", label: "Well established" };
+}
+
+const INTERP_CONTENT = {
+  "Honestidad": {
+    low: {
+      idea: "Your result suggests that in everyday situations there may be inconsistencies when acting transparently or upholding the truth when it feels uncomfortable.",
+      risks: [
+        "Difficulty acknowledging mistakes or taking responsibility.",
+        "Tendency to justify omissions, half-truths, or “adjustments” to reality to avoid consequences.",
+        "Risk of lost trust among teams, family, or close circles."
+      ],
+      actions: [
+        "Practice “fact vs. interpretation”: describe what happened without adjectives or assumptions.",
+        "If you are wrong, name it and propose a concrete repair (what you will do and when).",
+        "Before speaking, check: is what I will say accurate, complete, and necessary?"
+      ]
+    },
+    mid: {
+      idea: "Your result reflects an adequate base of transparency, with room to sustain it more consistently under pressure, conflict, or stress.",
+      risks: [
+        "In tense situations, you might soften relevant information or postpone difficult conversations.",
+        "You might be selective with the truth to protect your image or avoid arguments."
+      ],
+      actions: [
+        "Build a clarity habit: communicate the essentials first, then the detail.",
+        "Agree on expectations: what information matters to share and how often.",
+        "Practice difficult conversations: prepare 3 key points and a proposed solution."
+      ]
+    },
+    high: {
+      idea: "Your result suggests a consistent experience of honesty: you tend to communicate clearly, acknowledge mistakes, and uphold the truth even when it takes courage.",
+      risks: [
+        "Balance frankness and tact so you do not sound rigid or confrontational."
+      ],
+      actions: [
+        "Lead by example: acknowledge wins and mistakes with the same ease.",
+        "Give feedback with empathy: what happened, impact, expectation, and agreement.",
+        "Keep your standard in small details too: that is where trust is built."
+      ]
+    }
+  },
+
+  "Rectitud": {
+    low: {
+      idea: "Your result suggests you may bend rules or principles when they feel limiting, or when “no one is watching.”",
+      risks: [
+        "Mismatch between what is considered right and what is done.",
+        "Greater vulnerability to external pressure or impulsive decisions.",
+        "Signs of double standards (for yourself vs. for others)."
+      ],
+      actions: [
+        "Define 3 non-negotiable principles and translate them into observable behaviors.",
+        "When you are about to “give in,” ask: would I do this if it were public?",
+        "Create reminders: simple personal rules for repeated decisions."
+      ]
+    },
+    mid: {
+      idea: "Your result reflects functional ethical judgment, with variation when there is urgency, convenience, or social pressure.",
+      risks: [
+        "When rushed, you might prioritize outcomes over process.",
+        "You might normalize small exceptions that later become habit."
+      ],
+      actions: [
+        "Use a quick check: legal, fair, aligned with my values, sustainable.",
+        "Standardize decisions: if the situation repeats, define a general rule.",
+        "Find an “integrity ally” to validate complex decisions."
+      ]
+    },
+    high: {
+      idea: "Your result suggests solid uprightness: you act with alignment between values, rules, and decisions, even when it takes effort.",
+      risks: [
+        "Avoid rigidity: uprightness also means listening and adjusting without betraying principles."
+      ],
+      actions: [
+        "Share your criteria: it shows transparency and helps align the team.",
+        "Separate principle vs. preference: negotiate without losing your center.",
+        "Recognize improvements: it reinforces a culture of coherence."
+      ]
+    }
+  },
+
+  "Justicia": {
+    low: {
+      idea: "Your result suggests you may see fair treatment as relative, or prioritize personal benefit over equity in some decisions.",
+      risks: [
+        "Conflict from favoritism or decisions perceived as unbalanced.",
+        "Difficulty taking responsibility when it reflects your own mistakes.",
+        "Resistance to shared rules when they do not favor you."
+      ],
+      actions: [
+        "Before deciding, ask: is this the same for everyone in this situation?",
+        "Separate the person from the behavior: evaluate facts and criteria, not likability.",
+        "If someone is affected, explain the criterion and offer alternatives."
+      ]
+    },
+    mid: {
+      idea: "Your result reflects a reasonable orientation toward fairness, with room to strengthen consistency and transparency in decisions.",
+      risks: [
+        "In ambiguous situations, you might use different criteria without noticing.",
+        "Tendency to “compensate” with special treatment instead of fixing the system."
+      ],
+      actions: [
+        "Define written criteria for recurring decisions (assignments, turns, support).",
+        "Practice active listening before concluding: summarize what you understood and validate.",
+        "Review consequences: does the decision create resentment or clarity?"
+      ]
+    },
+    high: {
+      idea: "Your result suggests a consistent sense of justice: you tend to evaluate impartially, explain criteria, and protect equity in treatment.",
+      risks: [
+        "Avoid overloading yourself trying to “be fair to everyone” without clear limits."
+      ],
+      actions: [
+        "Facilitate agreements: set clear, measurable rules for the group.",
+        "Promote repair: when there is a mistake, focus on correcting and learning.",
+        "Reinforce what is fair: recognizing it makes it repeat."
+      ]
+    }
+  },
+
+  "Veracidad": {
+    low: {
+      idea: "Your result suggests that at times you may omit, distort, or adjust information to avoid consequences, look good, or reduce conflict.",
+      risks: [
+        "Loss of credibility when inconsistencies are noticed.",
+        "Confusion and errors from incomplete information.",
+        "Greater interpersonal tension from distrust."
+      ],
+      actions: [
+        "Train precision: answer with concrete data (what, when, how much).",
+        "If you do not know something, say so and commit to follow up.",
+        "Avoid assumptions: ask before stating."
+      ]
+    },
+    mid: {
+      idea: "Your result reflects adequate truthfulness, with space to strengthen consistency under pressure, fear of judgment, or conflict.",
+      risks: [
+        "You might postpone hard truths or soften important facts.",
+        "In tense contexts, you might communicate ambiguously."
+      ],
+      actions: [
+        "Communicate with structure: situation → fact → impact → proposal.",
+        "Ensure understanding: ask others to repeat the essentials or summarize at the end.",
+        "Practice gradual transparency: sharing what matters early prevents crises later."
+      ]
+    },
+    high: {
+      idea: "Your result suggests solid truthfulness: you tend to communicate with precision and consistency, supporting trust and clarity in your relationships.",
+      risks: [
+        "Mind your tone: truth lands better when communicated respectfully."
+      ],
+      actions: [
+        "Model clarity: share facts and criteria, not rumors.",
+        "Close loops: when you promise to inform, follow through.",
+        "Help others express themselves: open questions and listening without judgment."
+      ]
+    }
+  }
+};
+
+function buildInterpHTML(skillName, bandKey){
+  const s = INTERP_CONTENT[String(skillName)] || null;
+  const b = s ? s[bandKey] : null;
+  if (!b) return `<div class="muted">Information not available.</div>`;
+
+  const ul = (arr) => `<ul>${arr.map(x => `<li>${x}</li>`).join("")}</ul>`;
+
+  return `
+    <div><strong>Reading:</strong> ${b.idea}</div>
+    <h4>Possible risks if not addressed</h4>
+    ${ul(b.risks)}
+    <h4>Practical recommendations</h4>
+    ${ul(b.actions)}
+  `;
+}
+
+function setInterp(pct, badgeId, bodyId, skillName){
+  const p = Number(pct);
+  const v = Number.isFinite(p) ? p : 0;
+
+  const band = interpBandSkill(skillName, v);
+
+  const badgeEl = document.getElementById(badgeId);
+  const bodyEl  = document.getElementById(bodyId);
+  if (!badgeEl || !bodyEl) return;
+
+  badgeEl.innerHTML = `<span class="pill">${band.label}</span> <span class="pct">${v}%</span>`;
+  bodyEl.innerHTML  = buildInterpHTML(skillName, band.key);
+
+  // abrir por defecto si está "Requiere acompañamiento"
+  if (band.key === "low") {
+    bodyEl.style.display = "block";
+    const btn = document.querySelector(`.interpToggle[data-target="${bodyId}"]`);
+    if (btn) btn.textContent = "−";
+  }
+}
+
+function wireInterpToggles(){
+  document.querySelectorAll(".interpToggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.getAttribute("data-target");
+      const el = document.getElementById(target);
+      if (!el) return;
+      const open = el.style.display !== "none";
+      el.style.display = open ? "none" : "block";
+      btn.textContent = open ? "+" : "−";
+    });
+  });
+}
+function interpGlobal(ivi, sellos){
+  const b = interpBand(ivi);
+  const sTxt = sellos === 4 ? "High response consistency."
+  : (sellos === 3 ? "Acceptable response consistency." : "");
+  return `${b.txt} Global level: ${b.tag}. ${sTxt}`.trim();
+}
+
+
+  async function cargarReporte(codigo){
+    document.getElementById("msg").textContent = "Searching...";
+    document.getElementById("msg").className = "msg";
+    document.getElementById("reporteContainer").style.display = "none";
+    try{
+      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const data = await r.json();
+      if(!r.ok || data.error){
+        document.getElementById("msg").textContent = data.error || "Not found";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
+      if (!data || !data.attempt) {
+        document.getElementById("msg").textContent = "No registered attempt was found for this code.";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
+      if (data.puede_ver_resultado !== true) {
+        document.getElementById("msg").textContent = "This code is not enabled to view its report. Contact your coordinator.";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
+      document.getElementById("msg").textContent = "Report loaded.";
+      document.getElementById("msg").className = "msg ok";
+      renderAll(data);
+      window.scrollTo({top:0,behavior:"smooth"});
+    }catch(e){
+      console.error(e);
+      document.getElementById("msg").textContent="Connection error";
+      document.getElementById("msg").className="msg err";
+    }
+  }
+
+  
+  const btnVer = document.getElementById("btnVer");
+  if (btnVer) {
+    btnVer.addEventListener("click", () => {
+      const c = (document.getElementById("codigoInput").value || "").trim().toUpperCase();
+      if (!c) return;
+      cargarReporte(c);
+    });
+  }
+function exportJSON(){
+    const payload = window.__LAST_REPORT__ || {};
+    const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "reporte-integridad.json";
+    a.click();
+  }
+
+  (()=>{const __el=document.getElementById("btnImprimir"); if(__el) __el.addEventListener("click", ()=>window.print());})();
+  (()=>{const __el=document.getElementById("btnExportJSON"); if(__el) __el.addEventListener("click", exportJSON);})();
+  (()=>{const __el=document.getElementById("btnPDF"); if(__el) __el.addEventListener("click", ()=>window.print());})();
+  (()=>{const __el=document.getElementById("btnJSON"); if(__el) __el.addEventListener("click", exportJSON);})();
+
+  (function init(){
+    const qp = new URLSearchParams(location.search);
+    const c = (qp.get("codigo")||"").trim().toUpperCase();
+    if(c){
+      document.getElementById("codigoInput").value=c;
+      cargarReporte(c);
+    }
+  })();
+  // === FIX PDF: Chrome a veces NO imprime SVG con filtros (feDropShadow) ===
+(function fixCurveForPrint(){
+  const fill = document.getElementById("curveFill");
+  if (!fill) return;
+
+  let prevFilterAttr = null;
+
+  window.addEventListener("beforeprint", () => {
+    prevFilterAttr = fill.getAttribute("filter");
+    fill.removeAttribute("filter"); // quita url(#softShadow)
+  });
+
+  window.addEventListener("afterprint", () => {
+    if (prevFilterAttr) fill.setAttribute("filter", prevFilterAttr);
+  });
+})();
+// === FIX PDF: Chrome a veces NO imprime SVG con filtros (feDropShadow) ===
+(function fixCurveForPrint(){
+  const fill = document.getElementById("curveFill");
+  if (!fill) return;
+
+  let prevFilterAttr = null;
+
+  window.addEventListener("beforeprint", () => {
+    prevFilterAttr = fill.getAttribute("filter");
+    fill.removeAttribute("filter"); // quita url(#softShadow)
+  });
+
+  window.addEventListener("afterprint", () => {
+    if (prevFilterAttr) fill.setAttribute("filter", prevFilterAttr);
+  });
+})();
+
+</script>
+</body>
+</html>

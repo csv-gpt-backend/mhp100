@@ -1,0 +1,1146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- BUILD: CORREGIDO_V5 pct10 visual+parte2+3+avg0safe 2026-03-04 -->
+
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Leadership Report</title>
+<style>
+  :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--yellow:#ffe36a;--blue:#1d4ed8;--bg:#f8fafc}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#fff}
+  .wrap{max-width:980px;margin:14px auto;padding:0 12px}
+  .topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  input{padding:9px 10px;border:1px solid #bbb;border-radius:8px;min-width:220px}
+  .btn{padding:9px 14px;border:0;border-radius:999px;background:#2563eb;color:#fff;font-weight:800;cursor:pointer}
+  .btn.alt{background:#6b7280}
+  .msg{padding:8px 10px;border-radius:8px;background:#f3f4f6;color:#374151;font-size:13px}
+  .msg.err{background:#fee2e2;color:#991b1b}
+  .msg.ok{background:#ecfdf5;color:#065f46}
+  .header{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
+  .r1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px}
+  .center{text-align:center;font-weight:800}
+  .logo{text-align:right;color:#9ca3af;font-weight:700}
+  .logo img{height:120px;max-width:220px;object-fit:contain;display:inline-block}
+  .r2{text-align:center;font-weight:900;font-size:24px;margin-top:4px}
+  .r3{text-align:center;font-weight:800;font-size:17px}
+  .box{border:1px solid #000;padding:6px;font-size:12px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .curveBox{position:relative;height:220px;border:1px solid #dbe1ea;border-radius:8px;padding:8px;background:linear-gradient(180deg,#f8fafc,#fff)}
+.curveGauge{position:relative;width:100%;height:100%}
+.curveGauge img{width:100%;height:100%;object-fit:contain;display:block}
+.curveMarker{position:absolute;left:50%;bottom:26px;width:0;height:0;z-index:3;pointer-events:none}
+  .iv th,.iv td{border:1px solid #111;padding:6px;font-size:12px}
+  .iv{width:100%;border-collapse:collapse}
+  .hl{background:var(--yellow)}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;margin-top:6px}
+  .blk-title{display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px;font-weight:800}
+  .badgeY{background:var(--yellow);padding:2px 10px;border-radius:2px;min-width:36px;display:inline-block;text-align:center}
+  .badgeB{background:var(--blue);color:#fff;padding:3px 12px;border-radius:2px;min-width:40px;display:inline-block;text-align:center}
+  .bar-head,.bar-row{display:grid;grid-template-columns:240px 1fr 1fr 1fr;gap:6px;align-items:center}
+  .bar-head{font-size:11px;color:#475569;margin-bottom:4px}
+  .bar-row{margin:4px 0}
+  .slot{height:16px;border:1px solid #aab;border-radius:4px;background:#f3f5f8;position:relative;overflow:hidden}
+  .fill{position:absolute;left:0;top:0;bottom:0;background:#94a3b8}
+  .slot.mid .fill{background:#f59e0b}
+  .slot.high .fill{background:#22c55e}
+  .pctTag{font-size:11px;color:#475569;text-align:right}
+  .iie{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:10px;font-weight:800}
+  .page{margin-top:12px}
+  .card{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
+  table{width:100%;border-collapse:collapse}
+  .result th,.result td{border-bottom:1px solid #e5e7eb;padding:6px 8px;font-size:13px;text-align:left}
+  .hidden{display:none}
+  .small{font-size:12px;color:var(--muted)}
+  @media print{
+    @page{size:A4;margin:8mm}
+    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .topbar,#msg,.small{display:none !important}
+    .wrap{max-width:none;margin:0;padding:0}
+    #reporte{display:block !important}
+    .page{margin-top:0}
+    #page1{page-break-after:always;break-after:page}
+    .reporte-pie-adalam{break-inside:avoid}
+  }
+
+/* --- Part 2 robust (numbered) --- */
+.p2sec{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;margin:12px 0}
+.p2sec h4{margin:0 0 8px;font-size:15px}
+.p2sec h5{margin:10px 0 6px;font-size:13.5px}
+.p2sec p{margin:0 0 8px;color:#334155;line-height:1.45}
+.p2sec ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.35;color:#334155}
+.p2chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 8px}
+.p2chip{padding:4px 10px;border-radius:999px;border:1px solid #dbe2ea;font-size:12px;font-weight:800;background:#fff}
+.p2chip.low{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.p2chip.mid{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.p2chip.high{background:#ecfdf5;border-color:#bbf7d0;color:#166534}
+.p2note{font-size:12px;color:#475569}
+
+/* --- Part 2 typography (psychometric report only) --- */
+.page2 h3{margin:10px 0 8px;font-size:16px}
+.page2 .card{font-size:13px}
+.page2 .card div,#nivelGlobal{font-size:13px;line-height:1.45;color:#334155}
+.page2 .p2sec h4{margin:0 0 8px;font-size:16px}
+.page2 .p2sec h5{margin:10px 0 6px;font-size:13px}
+.page2 .p2sec p{font-size:13px}
+.page2 .p2sec ul{font-size:13px}
+.reporte-pie-adalam{
+  margin-top:16px;
+  padding-top:10px;
+  border-top:1px solid var(--line);
+  text-align:right;
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* Range colors (Leadership: 0–39 / 40–60 / 61–100) */
+td.rangoCell{font-weight:700;border-radius:10px;padding:6px 10px;display:inline-block;line-height:1.1}
+td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700}
+.rangoPill.low{background:#ffe7e7;color:#8a1f1f;border:1px solid #f3b1b1}
+.rangoPill.mid{background:#fff3d6;color:#7a4a00;border:1px solid #f1d18a}
+.rangoPill.high{background:#e6f7ea;color:#145a25;border:1px solid #a9dfb4}
+/* Full row by range */
+.result tbody tr.row-low > td{background:#fff0f0}
+.result tbody tr.row-mid > td{background:#fff8e6}
+.result tbody tr.row-high > td{background:#eefaf0}
+
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <input id="codigo" placeholder="Code (e.g. LIDER001)"/>
+    <button id="btn" class="btn" type="button">View report</button>
+    <button class="btn alt" type="button" id="btnImprimir">Print / PDF</button>
+  </div>
+  <div id="msg" class="msg">Step 1 (live data): connects to /api/report and renders factors, IA/IB/IC/ID + IFL.</div>
+
+  <div id="reporte" class="hidden">
+    <section id="page1" class="page">
+      <div class="header">
+        <div class="r1"><div id="fechaGenTop">—</div><div class="center">INDIVIDUAL CHART</div><div class="logo"><img src="assets/logo_adalam.webp" alt="Adalam logo"></div></div>
+        <div class="r2">SCORE REPORT</div>
+        <div class="r3">LEADERSHIP</div>
+      </div>
+
+      <div id="headerBox1" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
+
+      <div class="grid2" style="margin-top:8px">
+        <div>
+          <div style="font-weight:700"><span>FREQUENCY DISTRIBUTION CURVE: (IFL) = <span id="iflCurveInline">—</span></span></div>
+          <div class="curveBox">
+            <div class="curveGauge">
+              <img id="freqCurveImg" src="assets/curva_metal.png" alt="Distribution curve"/>
+              <div id="curveMarker" class="curveMarker" aria-hidden="true">
+                <svg width="30" height="54" viewBox="0 0 18 30" style="position:absolute;left:0;bottom:0;transform:translateX(-50%);display:block;overflow:visible;">
+                  <defs>
+                    <linearGradient id="blkMain" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#1a1a1a"/><stop offset="28%" stop-color="#2b2b2b"/><stop offset="55%" stop-color="#111"/><stop offset="78%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="6" y="0" width="6" height="16" rx="1.2" fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+                  <path d="M9 30 L2 16 H16 Z" fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:24px">
+          <div style="font-weight:700;text-align:center;margin-bottom:8px">VALIDATION INDICES</div>
+          <table class="iv">
+            <tr><th>NA</th><td id="na0">High level of self-awareness</td><td id="na1">Moderate level of self-awareness</td><td id="na2">Low self-awareness; support recommended</td></tr>
+            <tr><th>NC</th><td id="nc0">No contradiction</td><td id="nc1">Some contradictions</td><td id="nc2">Frequent contradiction</td></tr>
+            <tr><th>PT</th><td id="pt0">Adequate time</td><td id="pt1">Too brief</td><td id="pt2">Too slow</td></tr>
+          </table>
+          <div class="legend"><span><b>NA</b> Level of Self-Awareness</span><span><b>NC</b> Level of Contradiction</span><span><b>PT</b> Average Time</span></div>
+          <div class="small" id="contestadasLine" style="margin-top:8px">Answered: —</div>
+        </div>
+      </div>
+
+      <div class="blk-title"><span>INTERPERSONAL RELATIONSHIPS</span><span>IVI: <span class="badgeY" id="idxA">—</span></span></div>
+      <div class="bar-head"><div></div><div style="text-align:center">TO DEVELOP</div><div style="text-align:center">TO STRENGTHEN</div><div style="text-align:center">TO ENRICH</div></div>
+      <div id="bloqueA"></div>
+
+      <div class="blk-title"><span>SITUATIONAL ENVIRONMENT</span><span>IES: <span class="badgeY" id="idxB">—</span></span></div>
+      <div id="bloqueB"></div>
+
+      <div class="blk-title"><span>PERFORMANCE</span><span>IPR: <span class="badgeY" id="idxC">—</span></span></div>
+      <div id="bloqueC"></div>
+
+      <div class="blk-title"><span>JUDGMENT</span><span>IJI: <span class="badgeY" id="idxD">—</span></span></div>
+      <div id="bloqueD"></div>
+
+      <div class="iie">GLOBAL LEADERSHIP FACTORS INDEX (IFL): <span class="badgeB" id="iflBadge">—</span></div>
+    </section>
+
+    <section class="page page2">
+      <div class="header">
+        <div class="r1"><div id="fechaGenTop2">—</div><div class="center">PSYCHOMETRIC REPORT</div><div class="logo"><img src="assets/logo_adalam.webp" alt="Adalam logo"></div></div>
+        <div class="r2" style="font-size:20px">PSYCHOMETRIC REPORT</div>
+        <div class="r3" style="font-size:15px">LEADERSHIP FACTORS – INTERPRETATION</div>
+      </div>
+      <h3>1. Personal information</h3>
+      <div id="headerBox2" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
+
+      <h3>2. Interpretation by factors and global profile</h3>
+      <div class="card">
+        <div><b>IFL:</b> <span id="iflText">—</span>/100</div>
+        <div id="nivelGlobal" style="margin-top:6px">Final copy pending (visual and interpretation step).</div>
+      </div>
+
+      <div class="card">
+        <div><b>Assessment factors:</b></div>
+        <table class="result">
+          <thead><tr><th>Factor</th><th>Result</th><th>Range</th></tr></thead>
+          <tbody id="tbodyFactores"></tbody>
+        </table>
+      </div>
+
+      <div id="p2detail"></div>
+
+      <p class="reporte-pie-adalam" id="reportePieAdalam">Adalam — Leadership Factors Report.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+const $ = (s)=>document.querySelector(s);
+const norm = (s='') => (s||'').toString().toLowerCase()
+  .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  .replace(/\s+/g,' ').trim();
+const esc = (s='') => (s??'').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const pctSel = (f) => (f && f.pct10 !== undefined && f.pct10 !== null) ? Number(f.pct10) : (Number(f?.pct)||0);
+
+const FACTOR_ORDER = [
+  'Contacto personal','Pertenencia','Asertividad',
+  'Atención','Control','Influencia',
+  'Apertura','Ritmo de trabajo','Desempeño',
+  'Juicio','Visión','Enfoque estratégico'
+];
+
+const FACTOR_TO_BLOQUE = {
+  'contacto personal':'A','pertenencia':'A','asertividad':'A',
+  'atencion':'B','control':'B','influencia':'B',
+  'apertura':'C','ritmo de trabajo':'C','desempeno':'C',
+  'juicio':'D','vision':'D','enfoque estrategico':'D'
+};
+
+function canonFactor(s){
+  const t = norm(s).replace(/[^a-z0-9 ]+/g,' ');
+  if (t.includes('contacto')) return 'contacto personal';
+  if (t.includes('pertenencia')) return 'pertenencia';
+  if (t.includes('asert')) return 'asertividad';
+  if (t.includes('atencion')) return 'atencion';
+  if (t.includes('control')) return 'control';
+  if (t.includes('influencia')) return 'influencia';
+  if (t.includes('apertura')) return 'apertura';
+  if (t.includes('ritmo')) return 'ritmo de trabajo';
+  if (t.includes('desempen')) return 'desempeno';
+  if (t.includes('juicio')) return 'juicio';
+  if (t.includes('vision')) return 'vision';
+  if (t.includes('enfoque')) return 'enfoque estrategico';
+  return t;
+}
+function displayFactorFromCanon(c){
+  const map = {
+    'contacto personal':'Personal contact','pertenencia':'Belonging','asertividad':'Assertiveness',
+    'atencion':'Attention','control':'Self-control','influencia':'Influence',
+    'apertura':'Openness','ritmo de trabajo':'Work pace','desempeno':'Performance',
+    'juicio':'Judgment','vision':'Vision','enfoque estrategico':'Strategic focus'
+  };
+  return map[c] || c;
+}
+
+/* --- Part 2 (actionable, school/professional) --- */
+const FACTOR_DEF = {
+  "Personal contact":"Ability to connect with others, build rapport, and communicate effectively.",
+  "Belonging":"Tendency to integrate, collaborate, and commit to the group or organization.",
+  "Assertiveness":"Ability to express ideas and boundaries with respect, confidence, and clarity.",
+  "Attention":"Capacity for focus, follow-through, and attention to detail in tasks or responsibilities.",
+  "Self-control":"Management of impulses, self-regulation, and consistency in upholding norms and agreements.",
+  "Influence":"Ability to persuade, mobilize, and guide others ethically and effectively.",
+  "Openness":"Willingness to learn, hear other perspectives, and adapt to change.",
+  "Work pace":"Level of steadiness and sustained speed in executing tasks and advancing toward goals.",
+  "Performance":"Effectiveness in achieving results, meeting goals, and maintaining quality in what is done.",
+  "Judgment":"Capacity to make decisions, anticipate consequences, and evaluate alternatives.",
+  "Vision":"Ability to project goals, understand purpose, and orient actions toward the future.",
+  "Strategic focus":"Ability to prioritize, plan, and coordinate actions aligned with objectives."
+};
+
+function p2Rango(p){
+  const n = Number(p)||0;
+  // Official ranges: 0–39 / 40–60 / 61–100
+  if(n <= 39) return {lab:"To develop", cls:"low"};
+  if(n <= 60) return {lab:"To strengthen", cls:"mid"};
+  return {lab:"To enrich", cls:"high"};
+}
+function isProfesional(codigo){
+  const c = String(codigo||"").trim().toUpperCase();
+  return c.startsWith("PRO");
+}
+
+/* Per-factor templates (specific actions + context) */
+const P2 = {
+  "Personal contact": {
+  seePRO: [
+    "Sometimes you jump straight to the topic and miss a chance to build a brief connection with the other person.",
+    "In some meetings or calls, you find it hard to start a short conversation that helps build trust.",
+    "Your personal contact improves when you greet people, ask a simple question, and listen for a few seconds before getting to the topic."
+  ],
+  doPRO: [
+    {a:"When starting a meeting, call, or conversation, greet the person and ask something brief, for example: ‘Hi, how are you today?’ or ‘How did yesterday go?’. Then listen without interrupting for 20 to 30 seconds.", w:"When starting a meeting, call, or conversation", t:"1 min"},
+    {a:"When someone shares an idea, name it and acknowledge a useful part before giving your point, for example: ‘Ana, that helps because it organizes the topic. I would add this step...’.", w:"When someone presents or proposes something", t:"1–2 min"},
+    {a:"Before closing the conversation, ask a brief support question, for example: ‘Do you need anything from me to keep going on this?’ or ‘Is there something I should have ready for you today?’.", w:"At the end of the interaction", t:"1 min"}
+  ],
+  indPRO:"I succeeded if this week I started 4 conversations with a greeting and brief question, validated at least 2 ideas before responding, and closed 3 interactions by asking if the other person needed anything else.",
+  avoidPRO:"Avoid sounding automatic or friendly out of obligation; use brief, natural phrases tied to the situation.",
+  seeSCH: [
+    "Sometimes you find it hard to approach classmates or join group work naturally.",
+    "In some activities you prefer to stay quiet unless someone asks you directly.",
+    "Your personal contact improves when you greet people, ask a simple question, and say something useful within the group."
+  ],
+  doSCH: [
+    {a:"When you arrive in class or at group work, greet someone by name and ask a brief question, for example: ‘Hi, Ana, what are we doing today?’ or ‘Where are you at?’.", w:"When arriving in class or at the group", t:"1 min"},
+    {a:"During group work, repeat a useful idea from a classmate and add a short proposal, for example: ‘What Luis said works; I suggest adding an example.’", w:"During group work", t:"1–2 min"},
+    {a:"Before the activity ends, confirm what comes next, for example: ‘So tomorrow we start with this, right?’.", w:"At the end of class or the activity", t:"1 min"}
+  ],
+  indSCH:"I succeeded if this week I greeted and asked a brief question at least 3 times, contributed a useful phrase in 3 group activities, and confirmed what would follow the next day before closing 2 activities.",
+  avoidSCH:"Avoid staying quiet waiting to be included; say at least one question or useful phrase in every group activity."
+},
+ "Belonging": {
+  seePRO:[
+    "Sometimes you struggle to stay aligned with team agreements when several tasks are due at once.",
+    "In some activities you work on your own and do not always report progress or changes in time.",
+    "Your team integration improves when you make visible what you finished, what is left, and whether you need support."
+  ],
+  doPRO:[
+    {a:"Choose 1 team agreement and follow it without exception, for example: arrive on time, reply to a pending message, send a progress update, or deliver your part on the agreed date.", w:"Every day", t:"1 min"},
+    {a:"At the end of the day, send a short message with 3 lines: 1) what you finished, 2) what you are still doing, and 3) what you are missing or what is blocking you.", w:"End of day or brief team check-in", t:"2 min"},
+    {a:"Once a week, offer specific help on a small task, for example: review a short text, organize materials, remind the team of an agreement, or confirm a date.", w:"Once a week", t:"5–10 min"}
+  ],
+  indPRO:"I succeeded if this week I kept 1 agreement without a reminder, sent 3 short updates, and offered 1 concrete help to the team.",
+  avoidPRO:"Avoid running late or changing something without telling the team the same day.",
+  seeSCH:[
+    "Sometimes you struggle to follow class or group rules when several tasks are due at once.",
+    "In group work you do not always say in time what part you finished and what part you still owe.",
+    "Your participation improves when you complete your part, report progress, and ask what still needs to be done."
+  ],
+  doSCH:[
+    {a:"Choose 1 class rule and follow it always, for example: arrive on time, bring materials, stay quiet when appropriate, or turn in an assignment on the agreed date.", w:"Every day", t:"1 min"},
+    {a:"When group work starts, write in your notebook or on a sheet what part is yours and when it is due.", w:"At the start of the assignment", t:"3 min"},
+    {a:"In each group activity, ask: ‘What still needs to be done?’ and take 1 small task, for example: write a section, read instructions, organize materials, or remember a date.", w:"In each group", t:"5 min"}
+  ],
+  indSCH:"I succeeded if this week I followed 1 class rule without a reminder, finished my part on time in 1 assignment, and took 1 small task in the group.",
+  avoidSCH:"Avoid leaving your part until the last day or staying quiet without saying you still have work to do."
+},
+
+"Assertiveness": {
+  seePRO:["You find it hard to say ‘no’ and end up overloaded.","You avoid difficult conversations and the problem grows.","Your message comes out ambiguous and confusion follows."],
+  doPRO:[
+    {a:"Reply with two clear options: ‘I can give you a short version today at 5:00 p.m., or the full version tomorrow at 10:00 a.m.’", w:"When asked for something extra (chat/email)", t:"20–30 sec"},
+    {a:"If they push, repeat once: ‘To do this well, I can only do one of those two options.’", w:"In the same conversation", t:"10–15 sec"},
+    {a:"Confirm in writing: ‘Confirming: today 5:00 p.m. short version / tomorrow 10:00 a.m. full version.’", w:"Right after (brief message)", t:"30–40 sec"}
+  ],
+  indPRO:"I succeeded if I set 1 boundary with 2 options and confirmed in writing at least 2 times this week.",
+  avoidPRO:"Avoid over-explaining; say the line and repeat it once if they pressure you.",
+  seeSCH:["You find it hard to ask for help or say you do not understand.","Sometimes you respond with anger or stay silent.","You find it hard to stand up for your idea respectfully."],
+  doSCH:[
+    {a:"In class, raise your hand and say exactly: ‘Teacher, I did not understand the instructions. Could you repeat them, please?’", w:"The moment you do not understand", t:"10–15 sec"},
+    {a:"In group work, say exactly: ‘I can write the summary in 5 lines. I cannot do everything.’", w:"When tasks are assigned", t:"15–20 sec"},
+    {a:"If the group debates an idea, say exactly: ‘I suggest we start with point 1 because that way we move faster.’", w:"During work or debate", t:"15–20 sec"}
+  ],
+  indSCH:"I succeeded if I used 2 assertive phrases this week (1 to ask for clarity and 1 to set a limit) without arguing.",
+  avoidSCH:"Avoid yelling or going silent; use short phrases in a calm tone."
+},
+  "Attention": {
+  seePRO:[
+    "Sometimes important details slip by when you do several things at once, for example: a date, a name, or a specific instruction.",
+    "On some tasks you move fast but leave parts unchecked, which forces you to go back later.",
+    "Your attention improves when you work in short blocks and review before submitting."
+  ],
+  doPRO:[
+    {a:"Work on one item for 25 minutes without opening another task. When done, rest 5 minutes before starting the next.", w:"When starting an important task", t:"30 min"},
+    {a:"Before sending a message, file, or task, check 3 things: 1) correct name, 2) correct date, and 3) complete request.", w:"Before submitting or sending", t:"2 min"},
+    {a:"At the end of the day, write a short list of 3 pending items and note an approximate time for each the next day.", w:"End of day", t:"3 min"}
+  ],
+  indPRO:"I succeeded if this week I worked at least 4 times in 25-minute blocks, reviewed 5 submissions before sending, and ended 3 days with a pending list.",
+  avoidPRO:"Avoid multitasking; finish one, review it, and only then start another.",
+  seeSCH:[
+    "Sometimes you get distracted in class and miss instructions, dates, or activity steps.",
+    "Some days you forget materials, assignments, or important parts because you do not write them down right away.",
+    "Your attention improves when you write down what matters and study for a short stretch without your phone nearby."
+  ],
+  doSCH:[
+    {a:"During class, write 3 keywords from what the teacher explained, for example: topic, assignment, and date.", w:"During class", t:"10–15 sec"},
+    {a:"Before leaving the room, note in one line the assignment and due date in your notebook, sheet, or phone.", w:"At the end of class", t:"30 sec"},
+    {a:"At home, study or review an assignment for 20 minutes with your phone off the desk or in another room.", w:"At home", t:"20 min"}
+  ],
+  indSCH:"I succeeded if this week I noted assignments or dates in 4 classes and studied 3 times for 20 minutes without my phone beside me.",
+  avoidSCH:"Avoid studying with your phone nearby or starting a task without first writing what you need to do."
+},
+"Self-control": {
+  seePRO:[
+    "Sometimes you respond too quickly when something bothers you and later notice it would have been better to wait a few seconds.",
+    "On stressful days you struggle to keep simple rules like order, punctuality, or replying on time.",
+    "Your self-control improves when you pause briefly before responding and stick to one daily rule consistently."
+  ],
+  doPRO:[
+    {a:"When something bothers you, do not reply immediately. Count 10 seconds silently before speaking or writing.", w:"When you feel anger or pressure", t:"10 sec"},
+    {a:"Choose 1 personal rule for the whole week, for example: reply to pending messages before 5:00 p.m., arrive on time, or leave your space tidy when you finish.", w:"Every day", t:"1 min"},
+    {a:"If you make a mistake or react poorly, correct it in one sentence and one action, for example: ‘I was wrong; I will fix it now’ and do the right step immediately.", w:"When you notice the error", t:"30 sec"}
+  ],
+  indPRO:"I succeeded if this week I took 5 mindful pauses before responding and kept 1 personal rule for 5 days.",
+  avoidPRO:"Avoid replying by chat or speaking while you are still upset.",
+  seeSCH:[
+    "Sometimes you react quickly when something bothers you and later notice you could have said it better.",
+    "Some days you struggle to follow simple rules like being on time, bringing materials, or staying quiet when appropriate.",
+    "Your self-control improves when you take a short pause before speaking and keep one rule consistently."
+  ],
+  doSCH:[
+    {a:"When you get angry or feel like responding fast, breathe 3 times and count to 5 before speaking.", w:"When something bothers you", t:"15 sec"},
+    {a:"Choose 1 rule for the day and follow it without exception, for example: arrive on time, bring your notebook, stay quiet when appropriate, or finish one activity before talking about another.", w:"Every day", t:"1 min"},
+    {a:"If you make a mistake, repair it right away with a short phrase and action, for example: ‘Sorry, I will do it right now’ and fix it in that moment.", w:"After the error", t:"20 sec"}
+  ],
+  indSCH:"I succeeded if this week I avoided 3 impulsive reactions and followed 1 rule for 5 days.",
+  avoidSCH:"Avoid arguing to win or keep responding when you are already upset; pause, correct, and move on."
+},
+"Influence": {
+  seePRO:[
+    "Sometimes you struggle to get others on board with an idea without feeling you have to push too hard.",
+    "When you explain a proposal without saying what it is for, the team has trouble seeing its value.",
+    "Your influence improves when you ask for a concrete action, with clear timing and an easy-to-check result."
+  ],
+  doPRO:[
+    {a:"When you propose an idea, say in one sentence what it is for, for example: ‘This helps us close this part today and avoid delays tomorrow.’", w:"When presenting an idea", t:"20 sec"},
+    {a:"When you need support, ask for a small, concrete commitment, for example: ‘Before 5:00 p.m., send me 3 points: progress, blocker, and next step.’", w:"When you need collaboration", t:"30 sec"},
+    {a:"Once a week, acknowledge aloud or by message one specific progress from someone else, for example: ‘Thanks for sending that today; it helped us close this part on time.’", w:"Once a week", t:"30 sec"}
+  ],
+  indPRO:"I succeeded if this week I explained 2 benefits clearly, got 2 small commitments, and recognized 1 progress from someone else.",
+  avoidPRO:"Avoid asking for support with vague phrases or giving orders without explaining what the action is for.",
+  seeSCH:[
+    "Sometimes you struggle to get classmates to follow an idea when you do not clearly explain what to do.",
+    "In some groups your proposal gets lost if you do not state the goal and order of steps.",
+    "Your influence improves when you organize a concrete action, ask for a small task, and recognize what was done."
+  ],
+  doSCH:[
+    {a:"When group work starts, say aloud the goal and 3 steps, for example: ‘First we find the information, then we write, and finally we review.’", w:"When starting the group", t:"20 sec"},
+    {a:"Assign tasks using name + task + time, for example: ‘Ana finds the information in 5 minutes; Luis writes the title in 3 minutes.’", w:"When organizing the group", t:"2 min"},
+    {a:"At the end, thank a classmate for a concrete action and repeat the group goal, for example: ‘Thanks for finishing that part; now we only need to review and submit.’", w:"At the end of the activity", t:"30 sec"}
+  ],
+  indSCH:"I succeeded if this week I organized 1 group by stating goal and steps, assigned tasks with clear timing, and recognized 1 classmate’s progress.",
+  avoidSCH:"Avoid giving random orders or getting angry when people do not follow; first explain what will be done, in what order, and by when."
+},
+
+"Openness": {
+  seePRO:[
+    "Sometimes you struggle to change plans even when new information appears that you should consider.",
+    "When you receive feedback or a correction, at first you may shut down or defend yourself before checking if something is useful.",
+    "Your openness improves when you ask a concrete question, try a small improvement, and use that idea in a real task."
+  ],
+  doPRO:[
+    {a:"Before closing a decision, ask yourself and write if needed: ‘What information am I missing to decide better today?’. Then find only 1 additional fact before deciding.", w:"Before closing a decision", t:"1–2 min"},
+    {a:"Once a week, write 3 lines about a task or meeting: 1) what I did, 2) what went better than expected, and 3) what I will do differently next time.", w:"Once a week", t:"5 min"},
+    {a:"Twice a week, read or watch a short piece related to your work and that same day use 1 concrete idea, for example: change task order, improve a message, or try a different way to explain something.", w:"Twice a week", t:"10–15 min"}
+  ],
+  indPRO:"I succeeded if this week I asked for 1 clear comment, tried 1 concrete change, and applied 1 new idea in a real task.",
+  avoidPRO:"Avoid replying immediately to defend yourself; first listen, summarize in one sentence, then decide what is useful.",
+  seeSCH:[
+    "Sometimes you struggle to change how you study even when your current method is not helping enough.",
+    "When corrected, you may get frustrated quickly and leave the exercise before trying another approach.",
+    "Your openness improves when you try a different method, ask for concrete guidance, and fix an error the same day."
+  ],
+  doSCH:[
+    {a:"When studying, try a method different from your usual one, for example: a short summary, a simple map, or 3 questions with answers.", w:"When studying", t:"20 min"},
+    {a:"After a grade or correction, ask exactly: ‘What should I improve first?’. Write the answer in one line.", w:"After a correction or grade", t:"2 min"},
+    {a:"That same day, fix 1 concrete error and repeat the exercise or question once more to see if it goes better.", w:"That same day", t:"10 min"}
+  ],
+  indSCH:"I succeeded if this week I tried 1 new method, asked for 1 clear direction, and fixed 1 concrete error the same day.",
+  avoidSCH:"Avoid saying ‘I can’t’ and stopping there; change one thing about the method and try again."
+},
+"Performance": {
+  seePRO:[
+    "Sometimes you start a task without making clear how you will know it is done well.",
+    "On some assignments you fix things at the end because you did not check the most important points earlier.",
+    "Your performance improves when you define from the start what to deliver, by when, and at what quality level."
+  ],
+  doPRO:[
+    {a:"Before starting a task, write 3 ‘done’ criteria, for example: 1) due today at 5:00 p.m., 2) correct format, and 3) no visible errors in names, dates, or data.", w:"Before starting", t:"3 min"},
+    {a:"When the task is halfway done, send a short draft or advanced part for timely feedback, for example: a message, slide, chart, or summary.", w:"Midway through the work", t:"10 min"},
+    {a:"Before submitting, check 3 typical errors: 1) name or recipient, 2) date or key data, and 3) whether you answered exactly what was requested.", w:"Before submitting", t:"4 min"}
+  ],
+  indPRO:"I succeeded if this week I defined 3 times when a task was truly done, sent 1 draft before finishing, and submitted without redoing for simple errors.",
+  avoidPRO:"Avoid starting work without first defining what to deliver, by when, and what it must include.",
+  seeSCH:[
+    "Sometimes you do an assignment without reading the prompt carefully and forget important parts.",
+    "On some work you submit fast but with simple errors that could have been fixed earlier.",
+    "Your performance improves when you read the requirements first, draft, and review before submitting."
+  ],
+  doSCH:[
+    {a:"Before starting, read the prompt and underline 3 things: what to do, how to submit, and the due date.", w:"Before starting", t:"3 min"},
+    {a:"Make a short draft and check it with a simple list: 1) I answered what was asked, 2) it is organized, and 3) no important parts are missing.", w:"Before submitting", t:"10 min"},
+    {a:"If you can, ask someone to review one specific thing, for example: spelling, order, or clarity of one idea.", w:"Before submitting", t:"5 min"}
+  ],
+  indSCH:"I succeeded if this week I used a review checklist on 2 tasks and had fewer corrections for simple errors or missing parts.",
+  avoidSCH:"Avoid submitting as soon as you finish; review the prompt once more and your work once more before handing it in."
+},
+  "Work pace": {
+  seePRO:[
+    "Sometimes you start the day with energy but struggle to keep the same pace when several small tasks appear at once.",
+    "Sometimes you postpone short tasks and end up rushing them at the end of the day.",
+    "Your work pace improves when you choose few tasks, close one before opening another, and mark what you finished."
+  ],
+  doPRO:[
+    {a:"At the start of the day, write 3 small, concrete tasks, for example: reply to an email, review a file, and send a progress update. Finish one before starting the next.", w:"At the start of the day", t:"5 min"},
+    {a:"If a task takes less than 2 minutes, do it immediately. For example: reply to a short message, confirm a date, or file a document.", w:"During the day", t:"Up to 2 min"},
+    {a:"Each time you finish a task, write ‘done’ or mark a ✓ on your list to see what you closed.", w:"When finishing each task", t:"10 sec"}
+  ],
+  indPRO:"I succeeded if this week I finished at least 8 small tasks, closed one before opening another, and marked ✓ on each finished task.",
+  avoidPRO:"Avoid opening several tasks at once and leaving them all started; pick one, finish it, then move to the next.",
+  seeSCH:[
+    "Sometimes you leave tasks until the last minute and then study or work in a rush.",
+    "Some days you struggle to keep a study rhythm because you start something and leave it half done.",
+    "Your pace improves when you break tasks into short steps, study for a set time, and prepare materials for the next day."
+  ],
+  doSCH:[
+    {a:"When you get home, split one task into 3 steps and do only step 1 that day. For example: 1) read the prompt, 2) do the first part, 3) review.", w:"When you get home", t:"15 min"},
+    {a:"Use a timer to study 20 minutes straight then rest 5. During those 20 minutes, keep your phone away or off the desk.", w:"When studying", t:"25 min"},
+    {a:"Before bed, prepare your notebook, materials, or next-day assignment so you do not start the morning disorganized.", w:"At night", t:"3 min"}
+  ],
+  indSCH:"I succeeded if this week I studied 3 days in 20-minute blocks and advanced step 1 on at least 2 tasks.",
+  avoidSCH:"Avoid waiting until you feel like it; use the timer and start with step 1."
+},
+
+  "Judgment": {
+  seePRO:[
+    "Sometimes you decide quickly and later notice you did not review an important consequence.",
+    "In some situations you change options several times because you did not compare from the start what you gained and risked with each one.",
+    "Your judgment improves when you look at two options, identify one risk for each, and leave a simple plan if things do not go as expected."
+  ],
+  doPRO:[
+    {a:"Before an important decision, write 2 possible options and under each note 1 concrete risk. For example: ‘Option A: send today — risk: incomplete. Option B: send tomorrow — risk: delayed response.’", w:"Before an important decision", t:"3 min"},
+    {a:"Before closing the decision, ask 1 trusted person: ‘What am I not seeing?’ or ‘What risk do you see here?’. Listen to one answer and note it in one line.", w:"Before closing a decision", t:"2 min"},
+    {a:"When you decide, write a plan B in one sentence, for example: ‘If they do not reply today, tomorrow at 9:00 a.m. I call and close by phone.’", w:"When making the decision", t:"2 min"}
+  ],
+  indPRO:"I succeeded if this week I used the 2-options-and-1-risk list on 2 decisions, asked for 1 outside view, and wrote 1 plan B.",
+  avoidPRO:"Avoid deciding when you are very tired, upset, or rushed; wait a few minutes and review options first.",
+  seeSCH:[
+    "Sometimes you choose quickly and later regret it because you did not think about what could happen.",
+    "In some situations you go along with moment pressure, friends, or the first idea that appears.",
+    "Your judgment improves when you compare two options, think through one consequence, and ask for guidance if you are still unsure."
+  ],
+  doSCH:[
+    {a:"Before acting or responding, pause a few seconds and ask: ‘What happens if I do this now?’. Think of one good and one bad consequence.", w:"Before deciding", t:"10–15 sec"},
+    {a:"If you have two options, pick one and write in one line why it suits you better than the other.", w:"When you must choose", t:"1 min"},
+    {a:"If you are still unsure, ask an adult, teacher, or counselor exactly: ‘I have these two options and I am not sure which is better for me. What should I look at first?’", w:"When it is unclear what to do", t:"2 min"}
+  ],
+  indSCH:"I succeeded if this week I thought through consequences before acting in 3 moments, wrote 1 choice with its reason, and asked for guidance once when still unsure.",
+  avoidSCH:"Avoid deciding just to please others or to escape the moment quickly; think first about which outcome suits you best."
+},
+
+  "Vision": {
+  seePRO:[
+    "Sometimes you focus so much on the day’s urgencies that you lose sight of why you are doing a task.",
+    "In some periods you work a lot but without a short, clear goal to measure whether you are advancing.",
+    "Your vision improves when you define a goal for a few weeks and each day choose one small action that moves you toward it."
+  ],
+  doPRO:[
+    {a:"At the start of the week, write a 2-week goal in one sentence. For example: ‘In 2 weeks I will have the first draft of the report ready’ or ‘In 2 weeks I will have the client follow-up process organized.’", w:"Start of week", t:"3 min"},
+    {a:"Each morning, choose one action that moves you toward that goal. For example: review a database, write part of the report, call a key person, or close a related pending task.", w:"Start of day", t:"2 min"},
+    {a:"At the end of the work week, write 3 lines: 1) what did advance, 2) what is still pending, and 3) what the next step will be next week.", w:"End of work week", t:"5 min"}
+  ],
+  indPRO:"I succeeded if I wrote 1 two-week goal and for 5 days did 1 concrete action to move toward it.",
+  avoidPRO:"Avoid huge or vague goals; use a short, clear goal with a visible next step.",
+  seeSCH:[
+    "Sometimes you do tasks or study without being clear how it helps you in the coming weeks.",
+    "Sometimes you lose motivation because you think about very big goals and not short steps you can actually complete.",
+    "Your vision improves when you write a short goal and each day do one small action that moves you toward it."
+  ],
+  doSCH:[
+    {a:"At the start of the week, write a 2-week goal in one sentence. For example: ‘In 2 weeks I will raise my Math grade’ or ‘In 2 weeks I will submit all pending assignments on time.’", w:"Sunday or Monday", t:"3 min"},
+    {a:"Before studying, choose one small action for that goal. For example: solve 3 problems, read 2 pages, write a short summary, or finish part of the assignment.", w:"Before studying", t:"2 min"},
+    {a:"On Friday, review in 3 lines: 1) what improved, 2) what is still missing, and 3) what you will do first next week to keep advancing.", w:"Friday", t:"5 min"}
+  ],
+  indSCH:"I succeeded if I wrote 1 two-week goal and worked toward it at least 4 days with small actions.",
+  avoidSCH:"Avoid thinking about the whole year or distant goals; think in 2-week chunks and one small action per day."
+},
+  "Strategic focus": {
+  seePRO:[
+    "Sometimes you have several open tasks and struggle to decide which really should come first.",
+    "Some days you start with what is easiest or most urgent for others and leave for later what has the most impact.",
+    "Your strategic focus improves when you choose few priorities, define the exact next step, and check once a day whether you are still on what matters."
+  ],
+  doPRO:[
+    {a:"At the start of the day, choose 3 real priorities and mark which is number 1. Then block time to start with that one, for example: 9:00–9:30 only for the main priority.", w:"Start of day", t:"5 min"},
+    {a:"Before working, write the exact next step for priority 1, for example: ‘open the file and write the title’, ‘call the client and confirm the date’, or ‘review 5 records in the database’.", w:"Before working on priority 1", t:"1 min"},
+    {a:"Midday, stop for 1 minute and ask: ‘Am I still working on today’s most important thing or did I drift?’. If you drifted, return to priority 1 in the next block.", w:"Midday", t:"1 min"}
+  ],
+  indPRO:"I succeeded if this week I chose 3 priorities per day, reserved time for priority number 1 at least 4 days, and wrote the exact next step before starting.",
+  avoidPRO:"Avoid filling the day only with other people’s urgencies; advance your priority 1 first, then handle the rest.",
+  seeSCH:[
+    "Sometimes tasks pile up because you do not decide which to start first.",
+    "Some days you stay on what is easiest and leave for later the task you most need to advance.",
+    "Your strategic focus improves when you choose few tasks, start with the most important, and take a clear first step that same day."
+  ],
+  doSCH:[
+    {a:"When you get home, choose 3 real tasks for the day and mark the most important. Start with that before moving to another.", w:"When you get home", t:"5 min"},
+    {a:"Break that important task into small steps and do step 1 immediately, for example: read the prompt, solve the first problem, or write the first paragraph.", w:"Start of study or assignment", t:"10 min"},
+    {a:"Mid-study, check in 1 minute whether you are still on the important task or switched to something easier. If you drifted, return to the step you left pending.", w:"Mid-study", t:"1 min"}
+  ],
+  indSCH:"I succeeded if this week I chose 3 tasks for the day, started with the most important at least 3 days, and immediately advanced step 1.",
+  avoidSCH:"Avoid saying ‘I will start tomorrow’; start today with one small step on the most important task."
+}
+};
+
+function actionListHTML(actions){
+  return actions.map(x => `
+    <li><b>Action:</b> ${esc(x.a)}<br>
+        <b>When:</b> ${esc(x.w)} · <b>Duration:</b> ${esc(x.t)}</li>
+  `).join("");
+}
+
+function plan14HTML(factorName, isPRO){
+  const lab = isPRO ? "PROFESSIONAL" : "SCHOOL";
+
+  const wk1 = isPRO ? [
+    "Day 1: Read the 3 tasks or actions listed above under ‘Specific tasks’ and choose only 1 to practice over these 2 weeks. Write it in your calendar or in a phone note.",
+    "Days 2–6: Do that same task or action every day or whenever the situation comes up. Do not switch tasks yet. The goal is to repeat it until it feels easier.",
+    "Day 7: Review these 3 questions and write a short answer for each: 1) Did I do it? 2) What got in the way? 3) What will I adjust for week 2?"
+  ] : [
+    "Day 1: Read the 3 tasks or actions listed above under ‘Specific tasks’ and choose only 1 to practice over these 2 weeks. Write it in your notebook, on a sheet, or in a phone note.",
+    "Days 2–6: Do that same task or action every day or whenever the situation comes up. Do not switch tasks yet. The goal is to repeat it until it feels easier.",
+    "Day 7: Review these 3 questions and write a short answer for each: 1) Did I do it? 2) What distracted or slowed me down? 3) What will I adjust for week 2?"
+  ];
+
+  const wk2 = isPRO ? [
+    "Days 8–13: Repeat the same task or action and use it in a slightly harder situation, for example: with more people, with less time, or with a task that carries more responsibility.",
+    "Day 14: Write 3 lines: 1) what I did over these 2 weeks, 2) what went better, and 3) what I will keep doing starting tomorrow. Then note one goal for the next 2 weeks."
+  ] : [
+    "Days 8–13: Repeat the same task or action and use it in a slightly harder situation, for example: in a longer group project, in a subject that is harder for you, or with less help.",
+    "Day 14: Write 3 lines: 1) what I did over these 2 weeks, 2) what went better, and 3) what I will keep doing starting tomorrow. Then note one goal for the next 2 weeks."
+  ];
+
+  return `
+    <h5>14-day plan (Main priority)</h5>
+    <p class="p2note">Setting: <b>${lab}</b>. Choose a single task or action from those listed above under <b>Specific tasks</b>. Practice that same task for 14 days before moving to another. If you miss a day, pick up the next day without starting over.</p>
+    <ul>
+      <li><b>Week 1:</b><ul>${wk1.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></li>
+      <li><b>Week 2:</b><ul>${wk2.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></li>
+    </ul>
+  `;
+}
+function factorDetail(idx, f, isPRO, isMain){
+  const psel = pctSel(f);
+  const r = p2Rango(psel);
+  const pack = P2[f.name] || {};
+  const see = isPRO ? (pack.seePRO||[]) : (pack.seeSCH||[]);
+  const actions = isPRO ? (pack.doPRO||[]) : (pack.doSCH||[]);
+  const ind = isPRO ? (pack.indPRO||"") : (pack.indSCH||"");
+  const avoid = isPRO ? (pack.avoidPRO||"") : (pack.avoidSCH||"");
+  const def = FACTOR_DEF[f.name] || "Factor description.";
+
+  const rangoNota = (r.lab==="To develop")
+    ? "Start with one small action. Do not aim for perfect—aim to repeat it."
+    : (r.lab==="To strengthen")
+      ? "You already have a base. Now repeat it with more consistency."
+      : "This is already a strength. Keep the habit and use it to support others.";
+
+  return `
+    <div class="p2sec">
+      <h4>3.${idx} ${esc(f.name)} ${isMain ? "— MAIN PRIORITY" : ""}</h4>
+      <div class="p2chips">
+        <span class="p2chip ${r.cls}">Range: ${r.lab}</span>
+        <span class="p2chip">Score: ${Math.round(psel)}</span>
+      </div>
+
+      <p><b>What it means:</b> ${esc(def)}</p>
+      <p class="p2note">${esc(rangoNota)}</p>
+
+      <h5>How it shows up day to day</h5>
+      <ul>${see.slice(0,3).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+
+      <h5>Specific tasks (what to do and when)</h5>
+      <ul>${actionListHTML(actions.slice(0,3))}</ul>
+
+      <h5>Progress indicator</h5>
+      <p>${esc(ind)}</p>
+
+      <h5>Typical mistake to avoid</h5>
+      <ul><li>${esc(avoid)}</li></ul>
+
+      ${isMain ? plan14HTML(f.name, isPRO) : ""}
+    </div>
+  `;
+}
+
+function buildParte2Detalle({header, ifl, ordered}){
+  const r = p2Rango(ifl);
+  const pro = isProfesional(header?.codigo);
+
+  const valid = [...ordered].filter(x=>!x.missing).sort((a,b)=>pctSel(a)-pctSel(b));
+  const foco = valid[0];
+  const apoyo1 = valid[1];
+  const apoyo2 = valid[2];
+
+  const sec2 = `
+    <div class="p2sec">
+      <h4>2.1 Profile summary — Global Leadership Factors Index (IFL)</h4>
+      <div class="p2chips">
+        <span class="p2chip ${r.cls}">IFL: ${Math.round(ifl)} — ${r.lab}</span>
+        <span class="p2chip">Setting: ${pro ? "Professional/Adult" : "School"}</span>
+      </div>
+      <p>Read the <b>Main priority</b> below first under <b>practical interpretation</b>.</p>
+    </div>
+  `;
+
+const sec2b = pro ? `
+  <div class="p2sec">
+    <h4>4. Achieving the objective</h4>
+    <p>This section summarizes the professional outcomes a person could begin to consolidate by applying the guidance in this report consistently. It refers not to immediate changes but to visible, measurable progress in how they relate to others, respond to their environment, perform their work, and make decisions.</p>
+
+    <h5>4.1 Interpersonal area</h5>
+    <p>The goal in this area is to build clearer, more stable, and more functional work relationships with others. That means communicating better, integrating more easily into joint work, expressing ideas with respect, and honoring agreements that support cooperation and trust within the team.</p>
+    <p>This objective shows up when the person interacts with more confidence and balance, reducing misunderstandings and making coordination easier. It appears in how they ask for support, share opinions, set appropriate limits, and become someone others find easier to work with and move forward with.</p>
+
+    <h5>4.2 Situational environment</h5>
+    <p>The goal in this area is to respond with greater stability and judgment to changing job demands. That means adapting better to new conditions, managing pressure with more control, and responding more flexibly to changes, mistakes, or unexpected situations.</p>
+    <p>This objective shows up when the person can face shifting priorities, feedback, or new demands without shutting down or reacting impulsively. It appears in their ability to reorganize, stay focused, and sustain more stable performance even in demanding or uncertain contexts.</p>
+
+    <h5>4.3 Performance</h5>
+    <p>The goal in this area is to strengthen how the person organizes, carries out, and completes their work. That means improving consistency, managing time better, prioritizing more clearly, and sustaining a more orderly, effective pace of execution.</p>
+    <p>This objective shows up when the person delivers with more consistency, closes tasks with better quality, and responds more reliably to their responsibilities. It appears in greater continuity in daily work, less scatter, and a clearer, steadier way of executing.</p>
+
+    <h5>4.4 Judgment</h5>
+    <p>The goal in this area is to strengthen the ability to decide with more clarity, practical sense, and awareness of consequences. That means analyzing options better, distinguishing urgent from important, and avoiding decisions driven only by impulse or pressure.</p>
+    <p>This objective shows up when the person begins to make more consistent decisions better aligned with work goals. It appears in their ability to prioritize with more judgment, maintain a clearer direction, and adjust actions more intelligently based on the results they obtain.</p>
+
+    <h5>Integrating summary</h5>
+    <p>When these four areas are strengthened consistently, the person can show progressive improvement in overall professional performance. That shows up in more functional work relationships, better response to demanding situations, greater order in execution, and clearer decisions to move forward.</p>
+    <p>Together, achieving the objective is not limited to improving one isolated task but to developing a more solid, conscious, and sustainable way of working over time. The expected result is someone who not only performs better but also adapts better, relates better, and directs their effort with greater clarity.</p>
+  </div>
+` : ``;
+  const sec3head = `
+    <div class="p2sec">
+      <h4>3. Practical interpretation (with tasks)</h4>
+      <p class="p2note">Here are clear actions to apply in your routine. The goal is to move forward with small, measurable steps.</p>
+    </div>
+  `;
+
+  const picked = [foco, apoyo1, apoyo2].filter(Boolean);
+  const details = picked.map((f,i)=>factorDetail(i+1, f, pro, i===0)).join("");
+
+  const sec4 = foco ? `
+    <div class="p2sec">
+      <h4>4. Quick close</h4>
+      <ul>
+        <li><b>14-day priority:</b> ${esc(foco.name)} (${Math.round(foco.pct)}%).</li>
+        ${apoyo1 ? `<li><b>Support 1:</b> ${esc(apoyo1.name)} (${Math.round(apoyo1.pct)}%).</li>` : ""}
+        ${apoyo2 ? `<li><b>Support 2:</b> ${esc(apoyo2.name)} (${Math.round(apoyo2.pct)}%).</li>` : ""}
+        <li><b>Rule:</b> if you miss a day, pick up the next one. What matters is repetition.</li>
+      </ul>
+    </div>
+  ` : "";
+
+  const sec5 = `
+    <div class="p2sec">
+      <h4>5. Support links</h4>
+      ${pro ? `
+        <ul>
+          <li><a href="https://www.who.int/teams/mental-health-and-substance-use/mental-health-in-the-workplace" target="_blank" rel="noopener">WHO / Mental health in the workplace</a></li>
+          <li><a href="https://www.apa.org/topics/stress" target="_blank" rel="noopener">APA / Practical stress management</a></li>
+          <li><a href="https://www.cdc.gov/niosh/topics/stress/" target="_blank" rel="noopener">CDC-NIOSH / Workplace stress and prevention</a></li>
+        </ul>
+      ` : `
+        <ul>
+          <li><a href="https://www.unicef.org/parenting/es/salud-mental" target="_blank" rel="noopener">UNICEF / Well-being and emotional support</a></li>
+          <li><a href="https://www.apa.org/topics/children/healthy-emotions" target="_blank" rel="noopener">APA / Emotional skills and communication</a></li>
+          <li><a href="https://www.commonsensemedia.org/articles/social-emotional-learning-resources-for-parents" target="_blank" rel="noopener">Common Sense / Social-emotional learning resources for parents</a></li>
+        </ul>
+      `}
+    </div>
+  `;
+return sec2 + sec3head + details + sec2b + sec5;
+}
+function rangoFromPct(p){
+  const n = Number(p)||0;
+  if (n <= 39) return 'To develop';
+  if (n <= 60) return 'To strengthen';
+  return 'To enrich';
+}
+function categoriaClass(p){
+  const n = Number(p)||0;
+  if (n <= 39) return '';
+  if (n <= 60) return 'mid';
+  return 'high';
+}
+function setMarker(p){
+  const s = Math.max(0, Math.min(100, Number(p)||0));
+  window.__liderCurveValue = s;
+  const wrap = document.querySelector('.curveGauge');
+  const img  = document.getElementById('freqCurveImg');
+  const mk   = document.getElementById('curveMarker');
+  if(!wrap || !img || !mk) return;
+
+  const place = () => {
+    const rW = wrap.getBoundingClientRect();
+    const rI = img.getBoundingClientRect();
+    const natW = img.naturalWidth || 1;
+    const natH = img.naturalHeight || 1;
+
+    // object-fit: contain
+    const scale = Math.min(rI.width/natW, rI.height/natH);
+    const drawnW = natW * scale;
+    const offsetXInsideImg = (rI.width - drawnW)/2;
+
+    const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+
+    // Calibración acordada (reutilizable)
+    const padL = drawnW * 0.10;
+    const padR = drawnW * 0.22;
+    const minX = leftInWrap + padL;
+    const maxX = leftInWrap + drawnW - padR;
+
+    const t = s / 100;
+    const x = minX + t * (maxX - minX);
+
+    // Inclinación visual de la curva (base del marcador)
+    const bottomAt0 = 94;
+    const bottomAt100 = 28;
+    const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+
+    // % respecto al gauge: en PDF/print el layout cambia; px fijos se desalinean.
+    const w = rW.width || 1;
+    const h = rW.height || 1;
+    mk.style.left = `${(x / w) * 100}%`;
+    mk.style.bottom = `${(y / h) * 100}%`;
+  };
+
+  if (img.complete) requestAnimationFrame(place);
+  else img.addEventListener('load', () => requestAnimationFrame(place), {once:true});
+}
+function highlightIV(prefix, idx){
+  for (let i=0;i<3;i++){
+    const el = document.getElementById(prefix + i);
+    if (!el) continue;
+    el.classList.toggle('hl', Number(idx) === i);
+  }
+}
+function parseFechaHuman(fechaBase){
+  const d = fechaBase ? new Date(fechaBase) : new Date();
+  try{
+    return {
+      top: d.toLocaleString('en-US', { dateStyle:'short', timeStyle:'short' }),
+      box: d.toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' })
+    };
+  }catch(e){
+    return { top: d.toISOString(), box: d.toISOString().slice(0,10) };
+  }
+}
+function buildHeaderHTML({nombre,curso,grupo,inst,fecha,codigo}){
+  return `
+    <div><b>Name:</b> ${esc(nombre||'—')}</div>
+    <div><b>${String(codigo||'').toUpperCase().startsWith('PRO') ? 'Level' : 'Grade/Course'}:</b> ${esc(curso||'—')}</div>
+    
+    <div><b>Country:</b> ${esc(grupo||'—')}</div>
+    <div><b>Institution:</b> ${esc(inst||'—')}</div>
+    <div><b>Date:</b> ${esc(fecha||'—')}</div>
+    <div><b>Code:</b> ${esc(codigo||'—')}</div>`;
+}
+function adaptData(data){
+  const attempt = data.attempt || {};
+  const autosave = data.autosave || data.auto || {};
+  const participant = data.participant || data.participants || {};
+  const snap = data.snapshot || attempt.snapshot || autosave.snapshot || participant.snapshot || {};
+
+  const resultados = data.resultados || data.results || attempt.resultados || snap.resultados || {};
+  let subRows =
+    (Array.isArray(data.subhabilidades) && data.subhabilidades) ||
+    (Array.isArray(resultados?.subhabilidades) && resultados.subhabilidades) ||
+    (Array.isArray(data.factores) && data.factores) ||
+    (Array.isArray(data.subpruebas) && data.subpruebas) ||
+    [];
+  let bloques = Array.isArray(resultados?.bloques) ? resultados.bloques : [];
+  const globales = data.globales || resultados?.globales || {};
+
+  const canonRows = subRows.map((r)=> {
+    const rawName = r.sub || r.name || r.factor || r.nombre || '';
+    const c = canonFactor(rawName);
+    return (() => {
+      const p10raw = (r.pct10 ?? r.pct_10 ?? r.pctNorm ?? r.pct_norm ?? r.pct10Norm ?? r.pctLex10);
+      const pct10 = (p10raw === undefined || p10raw === null || p10raw === "") ? null : Number(p10raw);
+      return {
+        name: displayFactorFromCanon(c),
+        canon: c,
+        bloque: FACTOR_TO_BLOQUE[c] || (r.bloque || r.conjunto || '—'),
+        items: Number(r.items ?? r.n_items ?? r.items_count ?? 11) || 11,
+        pts: Number(r.pts ?? r.puntos ?? r.score ?? r.suma ?? 0) || 0,
+        pct: Number(r.pct ?? r.percent ?? r.porcentaje ?? 0) || 0,
+        pct10: Number.isFinite(pct10) ? pct10 : null
+      };
+    })();
+  });
+
+  // Orden canónico de 12 factores
+  const rowsByCanon = new Map(canonRows.map(r => [r.canon, r]));
+  const ordered = FACTOR_ORDER.map(name => {
+    const c = canonFactor(name);
+    return rowsByCanon.get(c) || { name, canon:c, bloque: FACTOR_TO_BLOQUE[c], items:11, pts:0, pct:0, missing:true };
+  });
+
+  const bloqueRows = {
+    A: ordered.filter(r=>r.bloque==='A'),
+    B: ordered.filter(r=>r.bloque==='B'),
+    C: ordered.filter(r=>r.bloque==='C'),
+    D: ordered.filter(r=>r.bloque==='D'),
+  };
+  // Índices por bloque: prioridad al JSON real de liderazgo (bloqPercents)
+  const bloqPercents = data.bloqPercents || resultados.bloqPercents || {};
+
+  const avg = arr => arr.length
+    ? Math.round(arr.reduce((a,b)=>a+(((b.pct10!==undefined && b.pct10!==null)?Number(b.pct10):(Number(b.pct)||0))||0),0)/arr.length)
+    : null;
+
+  const idxA = Number(
+    bloqPercents.A ??
+    data.idxA ??
+    resultados.idxA ??
+    avg(bloqueRows.A) ??
+    0
+  ) || 0;
+
+  const idxB = Number(
+    bloqPercents.B ??
+    data.idxB ??
+    resultados.idxB ??
+    avg(bloqueRows.B) ??
+    0
+  ) || 0;
+
+  const idxC = Number(
+    bloqPercents.C ??
+    data.idxC ??
+    resultados.idxC ??
+    avg(bloqueRows.C) ??
+    0
+  ) || 0;
+
+  const idxD = Number(
+    bloqPercents.D ??
+    data.idxD ??
+    resultados.idxD ??
+    avg(bloqueRows.D) ??
+    0
+  ) || 0;
+
+  // IFL (NO usar IIE heredado)
+  const iflCandidates = [
+    data.ifl,
+    data.IFL,
+    resultados.ifl,
+    resultados.IFL,
+    globales.IFL,
+    attempt.ifl,
+    snap.ifl
+  ];
+
+  let ifl = Number(iflCandidates.find(v => v !== undefined && v !== null && v !== '')) || 0;
+
+  // Fallback: promedio de índices A/B/C/D
+  if (!ifl) {
+    ifl = Math.round((idxA + idxB + idxC + idxD) / 4);
+  }
+
+    const iv1 = Number(globales.IV1 ?? data.iv1 ?? attempt.iv1 ?? 0); // NA
+  const iv2 = Number(globales.IV2 ?? data.iv2 ?? attempt.iv2 ?? 0); // NC
+
+  // =============================================================
+  // PT (Promedio del Tiempo)
+  // Usar IV3 real desde base de datos / backend cuando exista:
+  //   iv3 = 0 -> Tiempo adecuado
+  //   iv3 = 1 -> Demasiado breve
+  //   iv3 = 2 -> Demasiado lento
+  // Si IV3 NO viene, aplicar fallback temporal (corte vs no corte).
+  // =============================================================
+  const iv3Raw = (globales.IV3 ?? data.iv3 ?? attempt.iv3 ?? null);
+  let iv3 = null;
+  const iv3Num = Number(iv3Raw);
+  if (iv3Raw !== null && iv3Raw !== undefined && iv3Raw !== '' && !Number.isNaN(iv3Num)) {
+    iv3 = iv3Num;
+  } else {
+    // =============================================================
+    // NOTA (TEMPORAL) — fallback por corte
+    // =============================================================
+    const TOTAL_LID_ITEMS = 132;
+    const inferAnswered = () => {
+      const c = attempt.contestadas || attempt.n_respondidas || data.contestadas || snap.contestadas || null;
+      if (typeof c === 'number') return c;
+      if (typeof c === 'string') {
+        const mm = c.match(/(\d+)\s*de\s*(\d+)/i);
+        if (mm) return Number(mm[1]);
+        const m1 = c.match(/\d+/);
+        if (m1) return Number(m1[0]);
+      }
+      if (attempt.responses && typeof attempt.responses === 'object') return Object.keys(attempt.responses).length;
+      return null;
+    };
+    const answered = inferAnswered();
+    const isCut = (answered !== null && answered < TOTAL_LID_ITEMS) || Boolean(attempt.incompleto || attempt.incomplete || attempt.aborted || attempt.cancelled || attempt.cortado);
+    iv3 = isCut ? 2 : 0;
+  }
+  const aSnap = autosave.snapshot || {};
+  const fechaBase = attempt.created_at || attempt.fecha || snap.fecha || aSnap.fecha || null;
+  const f = parseFechaHuman(fechaBase);
+
+  const header = {
+    nombre: snap.nombre || attempt.nombre || aSnap.nombre || participant.nombre || participant.full_name || '—',
+    curso: snap.curso || attempt.curso || aSnap.curso || participant.curso || participant.grado || '—',
+    grupo: snap.grupo || attempt.grupo || aSnap.grupo || participant.grupo || '—',
+    inst: snap.institucion || attempt.institucion || aSnap.institucion || participant.institucion || '—',
+    fecha: f.box,
+    codigo: attempt.codigo || data.codigo || $('#codigo').value.trim().toUpperCase() || '—'
+  };
+
+  const contestadas = attempt.contestadas || attempt.n_respondidas || data.contestadas || snap.contestadas || (attempt.responses ? Object.keys(attempt.responses).length : null) || '132 of 132';
+  return {attempt, autosave, participant, snap, ordered, bloqueRows, idxA, idxB, idxC, idxD, ifl, iv1, iv2, iv3, header, fechaTop:f.top, contestadas};
+}
+function makeBarRow(r){
+  const pRaw = Math.max(0, Math.min(100, Number(r.pct)||0));
+  const p = (r.pct10 !== undefined && r.pct10 !== null) ? Math.max(0, Math.min(100, Number(r.pct10)||0)) : pRaw;
+  const c = categoriaClass(p);
+  const slot = w => `<div class="slot ${c}"><div class="fill" style="width:${w}%"></div></div>`;
+  let a=0,b=0,d=0;
+  // Rangos oficiales: 0–39 (desarrollar), 40–60 (fortalecer), 61–100 (enriquecer)
+  if (p<=39){ a = Math.round((p/39)*100); }
+  else if (p<=60){ a = 100; b = Math.round(((p-40)/20)*100); }
+  else { a = 100; b = 100; d = Math.round(((p-61)/39)*100); }
+  return `<div class="bar-row">
+    <div>${esc(r.name)}</div>
+    ${slot(a)} ${slot(b)} ${slot(d)}
+  </div>`;
+}
+function renderBloque(elId, rows){
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.innerHTML = rows.map(makeBarRow).join('') || '<div class="small">No data</div>';
+}
+function renderTable(rows){
+  const tb = $('#tbodyFactores');
+  tb.innerHTML = rows.map(r => {
+    // Regla visual del reporte normado: si existe pct10 usarlo (aunque sea 0), si no usar pct
+    const p = pctSel(r);
+    const rg = p2Rango(p);
+    const cls = r.missing ? '' : ('row-' + rg.cls);
+    return `<tr class="${cls}">
+      <td>${esc(r.name)}</td>
+      
+      <td>${r.missing ? '—' : p}</td>
+      <td>${r.missing ? '—' : ('<span class="rangoPill ' + rg.cls + '\">' + rg.lab + '</span>')}</td>
+    </tr>`;
+  }).join('');
+}
+function renderHeader(header, fechaTop){
+  $('#fechaGenTop').textContent = fechaTop;
+  $('#fechaGenTop2').textContent = fechaTop;
+  const html = buildHeaderHTML(header);
+  $('#headerBox1').innerHTML = html;
+  $('#headerBox2').innerHTML = html;
+}
+function setBadge(id, v){ const el = document.getElementById(id); if (el) el.textContent = (v ?? '—'); }
+
+async function cargar(){
+  const codigo = $('#codigo').value.trim().toUpperCase();
+  if (!codigo){ $('#msg').textContent = 'Enter a code.'; $('#msg').className='msg err'; return; }
+  $('#msg').textContent = 'Loading...'; $('#msg').className='msg';
+  $('#reporte').classList.add('hidden');
+  try{
+    const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+    const data = await r.json();
+    if (!r.ok || data.error) throw new Error(data.error || 'Not found');
+    const m = adaptData(data);
+
+    renderHeader(m.header, m.fechaTop);
+    $('#contestadasLine').textContent = 'Answered: ' + m.contestadas;
+
+    setBadge('idxA', m.idxA ?? '—'); setBadge('idxB', m.idxB ?? '—');
+    setBadge('idxC', m.idxC ?? '—'); setBadge('idxD', m.idxD ?? '—');
+    setBadge('iflBadge', m.ifl ?? '—'); $('#iflText').textContent = m.ifl ?? '—';
+    try{ const el=document.getElementById('iflCurveInline'); if(el) el.textContent = (m.ifl ?? '—'); }catch(_e){}
+
+    highlightIV('na', m.iv1); highlightIV('nc', m.iv2); highlightIV('pt', m.iv3);
+    setMarker(m.ifl || 0);
+
+    renderBloque('bloqueA', m.bloqueRows.A);
+    renderBloque('bloqueB', m.bloqueRows.B);
+    renderBloque('bloqueC', m.bloqueRows.C);
+    renderBloque('bloqueD', m.bloqueRows.D);
+    renderTable(m.ordered);
+
+    // Part 2 robust (numbered)
+    try{
+      const det = document.getElementById('p2detail');
+      if(det){ det.innerHTML = buildParte2Detalle({header:m.header, ifl:(m.ifl||0), ordered:m.ordered}); }
+    }catch(e){ console.error(e); }
+
+    const n = m.ifl || 0;
+    $('#nivelGlobal').textContent = n<=39 ? 'Global profile with important areas to develop.' :
+      (n<=60 ? 'Global profile present at this time with areas to strengthen.' : 'Global profile with consolidated strengths and opportunities to enrich.');
+    $('#reporte').classList.remove('hidden');
+    $('#msg').textContent = 'OK: data loaded (Step 1).'; $('#msg').className='msg ok';
+  }catch(e){
+    $('#msg').textContent = 'Error: ' + (e.message || e);
+    $('#msg').className='msg err';
+  }
+}
+$('#btn').addEventListener('click', cargar);
+$('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
+
+function imprimirLiderazgo(){
+  const rep = document.getElementById('reporte');
+  if (!rep || rep.classList.contains('hidden')) {
+    window.print();
+    return;
+  }
+  const iframe = document.createElement('iframe');
+  iframe.setAttribute('aria-hidden', 'true');
+  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+  document.body.appendChild(iframe);
+  const win = iframe.contentWindow;
+  const doc = win.document;
+  const sheet = document.querySelector('style');
+  doc.open();
+  doc.write('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title> </title>');
+  if (sheet) doc.write(sheet.outerHTML);
+  doc.write('<style>@media print{@page{size:A4;margin:8mm}body{margin:0;padding:0}}</style>');
+  doc.write('</head><body>');
+  doc.write(rep.outerHTML);
+  doc.write('</body></html>');
+  doc.close();
+  const cleanup = () => { try { iframe.remove(); } catch (e) {} };
+  win.addEventListener('afterprint', cleanup, { once: true });
+  setTimeout(cleanup, 60000);
+  win.focus();
+  win.print();
+}
+const btnPrint = document.getElementById('btnImprimir');
+if (btnPrint) btnPrint.addEventListener('click', imprimirLiderazgo);
+
+window.addEventListener('resize', () => {
+  const v = window.__liderCurveValue;
+  if (v == null || Number.isNaN(Number(v))) return;
+  setMarker(Number(v));
+}, { passive: true });
+
+window.addEventListener('beforeprint', () => {
+  const v = window.__liderCurveValue;
+  if (v == null || Number.isNaN(Number(v))) return;
+  requestAnimationFrame(() => setMarker(Number(v)));
+});
+window.addEventListener('afterprint', () => {
+  const v = window.__liderCurveValue;
+  if (v == null || Number.isNaN(Number(v))) return;
+  requestAnimationFrame(() => setMarker(Number(v)));
+});
+</script>
+</body>
+</html>

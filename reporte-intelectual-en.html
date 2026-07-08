@@ -1,0 +1,1723 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Intellectual Assessment – Report</title>
+  <style>
+    :root{
+      --ink:#111; --muted:#4b5563; --line:#ddd;
+      --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757;
+      --blue:#1d4ed8;
+    }
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#fff;color:#0f172a;min-height:100vh;}
+    .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
+    h1,h2,h3{margin:0 0 8px 0}
+    .muted{color:var(--muted)}
+    .topbar{display:flex;gap:12px;align-items:center;margin-bottom:8px;justify-content:center;flex-wrap:wrap}
+    .topbar input{flex:1;max-width:220px;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;text-transform:uppercase}
+    .btn{padding:9px 14px;border-radius:999px;border:0;background:#1a8f3b;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
+    .msg{margin-left:8px;font-weight:700}
+    .msg.ok{color:#0a8}
+    .msg.err{color:#c00}
+    /* Texto principal del informe algo mayor que el topbar para lectura en portátil */
+    #reporteContainer{font-size:15px;line-height:1.52;}
+    .hint{font-size:13px;color:var(--muted);margin-bottom:8px}
+    .hint.ingreso-usuario{text-align:center;font-size:12px;line-height:1.45;margin-top:-2px;margin-bottom:14px}
+    .intro-logo-wrap{display:flex;justify-content:center;align-items:center;margin:28px 0 14px;}
+    .intro-logo{width:256px;max-width:78vw;height:auto;object-fit:contain}
+    .ingreso-titulo{
+      text-align:center;font-weight:800;font-size:clamp(1.05rem,2.9vw,1.42rem);line-height:1.3;margin:0 0 14px;padding:0 10px;color:#0f172a;text-transform:uppercase;letter-spacing:.03em;
+    }
+
+    .rep-top{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:6px;}
+    .rep-top-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:13px;margin-bottom:6px;}
+    .rep-date{justify-self:flex-start;}
+    .rep-top-center{text-align:center;font-weight:700;text-transform:uppercase;}
+    .rep-top-logo{justify-self:flex-end;}
+    .mhp-logo{height:200px;margin-left:12px;margin-top:-4px;object-fit:contain;}
+    .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase;}
+    .rep-top-row3{text-align:center;font-size:17px;font-weight:800;line-height:1.25;padding:0 8px;}
+
+    .iv-table td.hl{background:var(--yellow)}
+    .iv-key{font-weight:900;color:#000;}
+
+    .page{margin-top:10px}
+    .page-break{height:0;margin:0;border:0}
+    @media print{
+      @page{ size:A4; margin:5mm 6mm }
+      .topbar,.hint,.intro-logo-wrap,.ingreso-titulo,.no-print{display:none !important}
+      body{zoom:0.93;}
+      .wrap{max-width:none;margin:0 auto;padding:0 4px}
+      #page1{zoom:0.92;page-break-after:always;break-after:page;margin-top:0 !important;padding-top:0 !important;}
+      /* Evitar sólo bloques claros; el * { avoid } anterior forzaba demasiado salto a 2ª hoja */
+      #page1 .rep-top,
+      #page1 .tres-grupos-promedio-row,
+      #page1 .ci-sim-wrap{break-inside:avoid;}
+      .mhp-logo{height:130px !important;margin-top:0 !important}
+      #page1 .rep-top{padding-bottom:2px !important;margin-bottom:4px !important;}
+      #page1 .rep-top-row1{margin-bottom:2px !important;}
+      #page1 .mhp-logo{height:92px !important;max-height:92px !important;margin-left:6px !important;margin-top:0 !important;}
+      #page1 .rep-top-row2{font-size:19px !important;margin-bottom:0 !important;}
+      #page1 .rep-top-row3{font-size:13px !important;line-height:1.2 !important;padding:0 6px !important;}
+      #page1 .rep-ids{margin-top:4px !important;padding:4px 6px !important;}
+      #page1 .rep-mid{margin-top:5px !important;gap:8px !important;}
+      #page1 .curve-gauge,
+      #page1 #freqCurveImg{height:168px !important;max-height:168px !important;}
+      #page1 .curve .curve-gauge{margin-top:3px !important;}
+      #page1 .rep-iv{margin-top:8px !important;}
+      #page1 .chc-wrap-factores{padding:7px 9px 10px !important;margin-top:2px !important;}
+      #page1 .bloque-title{margin:7px 0 3px !important;font-size:14px !important;}
+      #page1 .tres-grupos-promedio-row{margin:7px 0 5px !important;padding:8px 10px !important;}
+      #page1 .chc-wrap-indice-global{margin-top:10px !important;padding:9px 9px 4px !important;}
+      #page1 .scale-section{margin-top:6px !important;}
+      #page1 .iie-row{margin:8px 0 4px !important;}
+      #page1 .ci-sim-wrap{margin-top:7px !important;padding:8px !important;}
+      .rep-top-row2{font-size:22px !important;margin-bottom:0 !important}
+      .rep-top-row3{font-size:15px !important}
+      #pageInterp{margin-top:0 !important;padding-top:0 !important;}
+      #pageResultadosGlobales{page-break-before:always;break-before:page;margin-top:0;padding-top:0;}
+      .chc-wrap-factores,.chc-wrap-indice-global,.ci-sim-wrap,.tres-grupos-promedio-row{break-inside:avoid;}
+      /* Los div.page-break duplicaban saltos (#page1 y #pageResultadosGlobales ya los definen) */
+      .page-break{display:none !important;}
+      /* Interpretación: permitir partir secciones largas (evita hueco en blanco antes de §3) */
+      #pageInterp .interp-prio-wrap,
+      #pageInterp .interp-bloque,
+      #pageInterp .prio-factor-box{
+        break-inside:auto;
+        page-break-inside:auto;
+      }
+      #pageInterp .prio-intro-note,
+      #pageInterp .interp-bloque-header{
+        break-inside:avoid;
+        page-break-inside:avoid;
+      }
+      #pageInterp .mhp-logo{height:88px !important;max-height:88px !important;margin-top:0 !important;}
+      #pageInterp .rep-top{padding-bottom:2px !important;margin-bottom:4px !important;}
+      #pageInterp .rep-top-row2{font-size:19px !important;margin-bottom:0 !important;}
+      #pageInterp .rep-top-row3{font-size:13px !important;line-height:1.2 !important;}
+      #pageInterp .interp-title{margin-top:6px !important;margin-bottom:4px !important;font-size:16px !important;}
+      #pageInterp .interp-bloque{padding:8px 9px !important;margin-top:6px !important;font-size:13px !important;}
+      #pageInterp .interp-legend-row{margin-top:2px !important;margin-bottom:2px !important;}
+      #pageInterp .prio-factor-box{margin-top:8px !important;padding:8px 10px !important;}
+      #pageInterp .prio-intro-note{margin-bottom:6px !important;padding:6px 8px !important;}
+    }
+
+    .interp-bloque-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px;}
+    .interp-bloque-nombre{margin-top:8px;font-size:18px;font-weight:800;text-transform:none;}
+    .interp-bloque-indice{font-weight:800;font-size:13px;}
+    .interp-bloque-indice span{background:var(--yellow);padding:2px 8px;border-radius:2px;min-width:36px;text-align:center;display:inline-block;}
+    .interp-bloque-desc{font-size:14px;color:var(--muted);margin-bottom:6px;}
+    .skill-row{margin:6px 0 10px;}
+    .skill-row-title{font-weight:700;font-size:13px;margin-bottom:2px;}
+    .skill-row-desc{font-size:13px;color:var(--muted);margin-bottom:4px;}
+    .skill-row-alert{color:var(--red);font-weight:600;}
+    .skill-bar{display:flex;align-items:center;gap:6px;}
+    .skill-bar-track{position:relative;flex:1;height:14px;border-radius:999px;overflow:hidden;background:linear-gradient(to right,var(--red) 0%, var(--red) 40%,var(--orange) 40%, var(--orange) 70%,var(--green) 70%, var(--green) 100%);}
+    .skill-bar-marker{position:absolute;top:-4px;bottom:-4px;width:5px;background:#000;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.78),0 1px 4px rgba(0,0,0,.35);transform:translateX(-50%);z-index:4;}
+    .skill-bar-value{font-size:13px;font-weight:700;min-width:56px;text-align:right;}
+    .recom-subtitle{font-size:13px;color:var(--muted);margin-bottom:4px;}
+    .recom-list{margin:4px 0 0 14px;padding:0;font-size:14px;color:#374151;}
+    .recom-list li{margin-bottom:3px;}
+    .plan-section-title{font-weight:700;font-size:13px;margin-top:8px;margin-bottom:4px;}
+    .p2-title{display:flex;justify-content:space-between;align-items:center;margin-top:6px;margin-bottom:4px;}
+    .p2-title h2{font-size:18px;font-weight:800;margin:0;}
+    .card{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;font-size:14px;}
+    .result-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px;}
+    .result-table th,.result-table td{border-bottom:1px solid #e5e5e5;padding:6px 8px;text-align:left;}
+    .result-table th{font-weight:800;}
+    .result-table .num{text-align:right;font-variant-numeric:tabular-nums;}
+    .perfil-iie{font-weight:900;font-size:15px;margin-top:8px;}
+    .interp-legend-row{margin-top:3px;margin-bottom:3px;}
+
+    .bloque-title{font-weight:800;font-size:15px;margin:12px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .bloque-left{display:flex;align-items:center;gap:6px;}
+    .bloque-bullet{width:10px;height:10px;border-radius:999px;background:#f4a338;flex:0 0 auto;}
+    .ih-badge{background:var(--yellow);padding:2px 10px;border-radius:2px;min-width:36px;text-align:center;font-weight:800;font-size:15px;}
+    .tres-grupos-promedio-row{font-size:13px;margin:14px 0 10px;padding:12px 14px;background:#f0fdfa;border:1px solid #99f6e4;border-radius:10px;align-items:center;width:100%;box-sizing:border-box;}
+    .tres-grupos-promedio-label{flex:1 1 auto;min-width:0;text-align:left;font-weight:800;line-height:1.35;max-width:min(100%,560px);color:#134e4a;font-size:14px;}
+    .tres-grupos-promedio-foot{font-size:14px;line-height:1.5;color:#52748b;margin:0 0 12px !important;padding-left:2px;}
+    .ih-badge-tres-grupos{
+      background:linear-gradient(180deg,#0f766e 0%, #0d9488 58%, #0f766e 100%);
+      color:#fff;padding:6px 14px;border-radius:10px;min-width:44px;text-align:center;
+      font-weight:800;font-size:17px;letter-spacing:.02em;box-shadow:0 2px 6px rgba(15,118,110,.35);
+      border:1px solid #0f766e;flex-shrink:0;
+    }
+    .iie-row{display:flex;justify-content:flex-start;align-items:center;margin:12px 0 6px;font-weight:800;font-size:15px;gap:8px;flex-wrap:wrap;line-height:1.35;width:100%;box-sizing:border-box;}
+    .iie-row > :last-child{flex-shrink:0;margin-left:auto;}
+    .iie-row > span:first-child{flex:1 1 auto;min-width:0;text-align:left;}
+    .iie-badge{background:var(--blue);color:#fff;padding:3px 12px;border-radius:2px;min-width:40px;text-align:center;font-size:16px;}
+
+    .scale-section{margin-top:14px;}
+    .section-title{display:flex;align-items:center;gap:6px;font-weight:800;font-size:15px;margin-bottom:6px;}
+    .section-dot{width:10px;height:10px;border-radius:999px;background:#f4a338;flex:0 0 auto;}
+    .scale-range-header{display:grid;grid-template-columns:minmax(180px,1fr) 1fr 1fr 1fr;font-size:13px;font-weight:700;margin:0 0 4px;align-items:flex-end;}
+    .scale-range-header span{text-align:center;}
+
+    .interp-title{margin-top:8px;font-size:18px;font-weight:800;}
+    .interp-legend{font-size:14px;color:var(--muted);margin-top:4px;margin-bottom:4px;}
+    .interp-bloque{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;font-size:14px;background:#fff;}
+    .interp-prio-wrap{border-color:#fcd34d;background:linear-gradient(180deg,#fffbeb 0%,#fff 18px);}
+    .prio-intro-note{font-size:13px;line-height:1.5;color:#92400e;margin:0 0 10px;padding:8px 10px;background:#fef3c7;border-radius:8px;border:1px dashed #f59e0b;}
+    .prio-factor-box{border-left:4px solid #dc2626;margin:12px 0 0;padding:10px 12px;background:#fef2f2;border-radius:0 10px 10px 0;}
+    .prio-factor-box.prio-tier-2{border-left-color:#ea580c;background:#fff7ed;}
+    .prio-factor-box.prio-tier-3{border-left-color:#ca8a04;background:#fefce8;}
+    .prio-factor-title{font-weight:800;font-size:14px;color:#991b1b;margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+    .prio-factor-tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px;}
+    .prio-factor-desc{font-size:13px;color:#475569;line-height:1.45;margin:0 0 8px;}
+    .prio-actions-title{font-weight:700;font-size:12px;color:#92400e;margin:8px 0 4px;}
+    .prio-actions-list{margin:0;padding-left:18px;font-size:13px;line-height:1.5;color:#1e293b;}
+    .prio-actions-list li{margin-bottom:4px;}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:800;font-size:13px;color:#fff}
+    .b-red{background:var(--red)}
+    .b-orange{background:var(--orange)}
+    .b-green{background:var(--green)}
+    .b-slate{background:#64748b}
+    .iv-title{font-weight:700;font-size:14px;text-transform:uppercase;text-align:center;margin:0 0 10px;}
+
+    .chc-wrap-factores{
+      border:1px solid #e2e8f0;
+      border-radius:12px;
+      padding:10px 12px 14px;
+      margin-top:4px;
+      background:#fafbfc;
+    }
+    .chc-wrap-indice-global{
+      margin-top:22px;
+      padding:14px 12px 6px;
+      border-top:3px solid #2563eb;
+      border-radius:0 0 10px 10px;
+      background:linear-gradient(180deg,#f1f5f9 0%,#fff 28px);
+    }
+    .ci-sim-wrap{
+      margin-top:14px;padding:12px;border:1px solid #c7d2fe;border-radius:10px;
+      background:linear-gradient(180deg,#f5f3ff 0%,#fff 52%);
+    }
+    .ci-sim-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;font-weight:800;margin-bottom:8px;}
+    .ci-sim-row-lead{margin-right:auto;font-size:16px;font-weight:800;color:#312e81;max-width:min(100%,520px);line-height:1.35;text-transform:none;}
+    .ci-sim-num{background:#5b21b6;color:#fff;padding:4px 14px;border-radius:4px;font-size:17px;min-width:44px;text-align:center;font-variant-numeric:tabular-nums;}
+    .ci-sim-nivel-badge{display:inline-block;padding:3px 12px;border-radius:999px;font-weight:800;font-size:13px;color:#fff;}
+    .ci-lvl-muybajo{background:#991b1b;}
+    .ci-lvl-bajo{background:#e45757;}
+    .ci-lvl-prombajo{background:#ea580c;}
+    .ci-lvl-adecuado{background:#2563eb;}
+    .ci-lvl-promalto{background:#16a34a;}
+    .ci-lvl-alto{background:#15803d;}
+    .ci-lvl-muyalto{background:#6b21a8;}
+    .ci-sim-leyenda{font-size:13px;color:#475569;line-height:1.5;margin:8px 0 0;padding-top:8px;border-top:1px dashed #c7d2fe;}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="intro-logo-wrap no-print">
+    <img src="assets/logo_adalam.webp" alt="Adalam" class="intro-logo" width="248" height="99"/>
+  </div>
+  <h1 class="ingreso-titulo no-print">Intellectual assessment report</h1>
+  <div class="topbar">
+    <input id="codigoInput" placeholder="Attempt code (e.g. EVAL001)" maxlength="32"/>
+    <button type="button" class="btn" id="btnVer">View report</button>
+    <span id="msg" class="msg"></span>
+  </div>
+  <div class="hint ingreso-usuario">Enter a <strong>valid code</strong>, the same one you <strong>used</strong> when taking the Intellectual Assessment.</div>
+
+  <div id="reporteContainer" style="display:none">
+
+    <section id="page1" class="page">
+      <div class="rep-top">
+        <div class="rep-top-row1">
+          <div id="repDateLine" class="rep-date"></div>
+          <div class="rep-top-center">SCORE REPORT</div>
+          <div class="rep-top-logo">
+            <img src="assets/logo_adalam.webp" alt="Logo" class="mhp-logo" width="200" height="80">
+          </div>
+        </div>
+        <div class="rep-top-row2"><span>REPORT</span></div>
+        <div class="rep-top-row3">SCHOOL INTELLECTUAL ASSESSMENT</div>
+      </div>
+
+      <div class="rep-ids" id="repHeaderBox"
+           style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:14px;margin-top:8px"></div>
+
+      <div class="rep-mid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+        <div class="curve">
+          <div id="tituloCurvaFrecuencias" style="font-weight:700">FREQUENCY DISTRIBUTION CURVE.</div>
+          <div class="curve-gauge" style="position:relative;width:100%;height:220px;margin-top:6px;">
+            <img id="freqCurveImg" src="assets/curva_metal.png" alt="Distribution curve"
+                 style="width:100%;height:220px;object-fit:contain;display:block;">
+            <div id="curveMarker" aria-hidden="true" style="position:absolute;left:50%;bottom:26px;width:0;height:0;z-index:3;pointer-events:none;">
+              <svg width="30" height="54" viewBox="0 0 18 30"
+                   style="position:absolute;left:0;bottom:0;transform:translateX(-50%);display:block;overflow:visible;">
+                <defs>
+                  <linearGradient id="blkMainChc" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#1a1a1a"/><stop offset="28%" stop-color="#2b2b2b"/>
+                    <stop offset="55%" stop-color="#111111"/><stop offset="78%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/>
+                  </linearGradient>
+                  <filter id="blkShadowChc" x="-40%" y="-40%" width="180%" height="200%">
+                    <feDropShadow dx="0" dy="1.1" stdDeviation="1.0" flood-color="#000" flood-opacity="0.28"/>
+                  </filter>
+                </defs>
+                <g filter="url(#blkShadowChc)">
+                  <rect x="6" y="0" width="6" height="16" rx="1.2" fill="url(#blkMainChc)" stroke="#050505" stroke-width="0.55"/>
+                  <path d="M9 30 L2 16 H16 Z" fill="url(#blkMainChc)" stroke="#050505" stroke-width="0.55"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="rep-iv" style="margin-top:26px;">
+          <div class="iv-title">SESSION TIME</div>
+          <p id="ivMinutosValor" style="margin:0 0 10px;font-size:13px;font-weight:700"></p>
+          <table class="iv-table" style="width:100%;border-collapse:collapse;font-size:13px">
+            <tbody>
+            <tr id="ivMeta2">
+              <th class="iv-key" style="border:1px solid #111;padding:6px">MN</th>
+              <td style="border:1px solid #111;padding:6px">Session time adequate for administering this battery.</td>
+              <td style="border:1px solid #111;padding:6px">Brief or partial session (possible technical review of the attempt).</td>
+              <td style="border:1px solid #111;padding:6px">Extended session · review if atypical for this format</td>
+            </tr>
+            </tbody>
+          </table>
+          <div class="iv-legend" style="margin-top:6px;font-size:13px;line-height:1.5;color:#374151;">
+            <span><b>MN</b> Time indicator: ADEQUATE, BRIEF, or EXTENDED for the assessment.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chc-wrap-factores">
+      <div class="bloque-title">
+        <div class="bloque-left"><span class="bloque-bullet"></span><span>REASONING BLOCK</span></div>
+        <div>IRZ: <span class="ih-badge" id="ihRazon">—</span></div>
+      </div>
+      <p class="muted" style="font-size:12px;margin:0 0 8px;line-height:1.45;color:#475569;"><strong>Includes:</strong> fluid reasoning · quantitative reasoning.</p>
+      <div class="rep-bloque" id="bloqueRazon"></div>
+
+      <div class="bloque-title">
+        <div class="bloque-left"><span class="bloque-bullet" style="background:#0d9488"></span><span>MEMORY AND COGNITIVE EFFICIENCY BLOCK</span></div>
+        <div>IME: <span class="ih-badge" id="ihMemEf">—</span></div>
+      </div>
+      <p class="muted" style="font-size:12px;margin:0 0 8px;line-height:1.45;color:#475569;"><strong>Includes:</strong> working memory · processing speed · associative memory / long-term retrieval.</p>
+      <div class="rep-bloque" id="bloqueMemEf"></div>
+
+      <div class="bloque-title">
+        <div class="bloque-left"><span class="bloque-bullet" style="background:#4f46e5"></span><span>COMPREHENSION AND REPRESENTATION BLOCK</span></div>
+        <div>ICR: <span class="ih-badge" id="ihCompRep">—</span></div>
+      </div>
+      <p class="muted" style="font-size:12px;margin:0 0 8px;line-height:1.45;color:#475569;"><strong>Includes:</strong> verbal comprehension · visual-spatial processing.</p>
+      <div class="rep-bloque" id="bloqueCompRep"></div>
+      </div>
+
+      <div class="iie-row tres-grupos-promedio-row" role="note" aria-label="Average of IRZ IME ICR">
+        <span class="tres-grupos-promedio-label">Average of the three group indices (<strong>IRZ</strong> · <strong>IME</strong> · <strong>ICR</strong>):</span>
+        <span class="ih-badge-tres-grupos" id="ihPromedioGrupos" title="Rounded arithmetic mean of IRZ + IME + ICR (these three indices on the same page)">—</span>
+      </div>
+      <p class="muted tres-grupos-promedio-foot">Distinct from the Global Index (G.I.) and the Intelligence Quotient (IQ).</p>
+
+      <div class="chc-wrap-indice-global">
+      <div class="iie-row">
+        <span>GLOBAL INDEX (G.I. · % Correct on the Bank):</span>
+        <span class="iie-badge" id="repIGlobal">—</span>
+      </div>
+
+      <div class="scale-section" style="margin-top:10px;">
+        <div class="section-title">
+          <div class="section-dot"></div>
+          <div>INTEGRATED READING</div>
+        </div>
+        <div class="scale-range-header">
+          <span></span>
+          <span>LOW (1–40 %)</span>
+          <span>AVERAGE (41–70 %)</span>
+          <span>HIGH (71–100 %)</span>
+        </div>
+        <div class="rep-scale" id="resumenGlobal"></div>
+      </div>
+
+      <div class="ci-sim-wrap" id="ciSimWrap" aria-labelledby="ciSimTitulo">
+        <div class="ci-sim-row">
+          <span class="ci-sim-row-lead" id="ciSimTitulo"><strong>Intelligence Quotient:</strong></span>
+          <span class="ci-sim-num" id="repCISimValor" title="Illustrative value">—</span>
+          <span class="ci-sim-nivel-badge" id="repCISimNivel" title="Guidance label">—</span>
+        </div>
+        <div class="ci-sim-leyenda" role="doc-footnote"><strong>I.Q. label ranges:</strong> <span id="repCISimLeyenda">—</span></div>
+      </div>
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap" class="no-print">
+        <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Print / PDF</button>
+        <button type="button" id="btnExportJSON" class="btn" style="background:#6b7280">Export JSON</button>
+      </div>
+    </section>
+
+    <div class="page-break"></div>
+
+    <section class="page" id="pageInterp">
+      <div class="rep-top">
+        <div class="rep-top-row1">
+          <div id="repDateLine2" class="rep-date"></div>
+          <div class="rep-top-center">Psychometric report</div>
+          <div class="rep-top-logo">
+            <img src="assets/logo_adalam.webp" alt="Logo" class="mhp-logo" width="200" height="80">
+          </div>
+        </div>
+        <div class="rep-top-row2"><span>Results report</span></div>
+        <div class="rep-top-row3">SCHOOL INTELLECTUAL ASSESSMENT – INTERPRETATION</div>
+      </div>
+
+      <h2 class="interp-title">1.- Personal information</h2>
+      <div id="repHeaderBox2" class="rep-ids"
+           style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:14px;margin-top:4px"></div>
+
+      <h2 class="interp-title">2.- Instrument description and interpretation criteria</h2>
+      <div class="interp-bloque">
+        <div class="interp-legend">
+          <p class="interp-legend-row">This item bank measures <b>seven domains</b> grouped into three institutional clusters. Each value is the <b>% correct</b> for that subtopic within the attempt. On page 1 (Psychology criterion): <b>IRZ</b> is the average of the percentages for <b>fluid reasoning</b> and <b>quantitative reasoning</b>; <b>IME</b> groups the mean of <b>working memory</b>, <b>processing speed</b>, and <b>associative memory / retrieval</b>; <b>ICR</b> groups the mean of <b>verbal comprehension</b> and <b>visual-spatial processing</b>. <b>G.I.</b> is accuracy across <b>all</b> items in the bank — it does not sum the three group indices or average them. <strong>Below</strong> those three blocks on the first page appears the <strong>arithmetic mean of IRZ, IME, and ICR</strong>; it differs from <b>G.I.</b> and from the IQ number.</p>
+          <div class="interp-legend-row">
+            <span class="badge b-red">1–40 · Low</span>
+            <span class="badge b-orange">41–70 · Medium</span>
+            <span class="badge b-green">71–100 · High</span>
+          </div>
+          <div class="interp-legend-row">On charts and bars: <b>higher</b> = more correct responses (no inverted scale).</div>
+          <div class="interp-legend-row muted">Report for <b>school use</b>.</div>
+          <div class="interp-legend-row muted">The next block highlights domains with <b>relatively lower performance</b> on this attempt and suggests targeted reinforcement.</div>
+        </div>
+      </div>
+
+      <div id="interpPrioridades" class="interp-bloque interp-prio-wrap"><!-- priorización factorial vía JS --></div>
+
+      <div id="interpDetRazon" class="interp-bloque"></div>
+      <div id="interpDetMemEf" class="interp-bloque"></div>
+      <div id="interpDetCompRep" class="interp-bloque"></div>
+      <div id="interpDetGlobo" class="interp-bloque"></div>
+
+      <div id="perfilGlobal" class="interp-bloque"></div>
+      <div id="recomendacionesCHC" class="interp-bloque"></div>
+      <div id="planAccionCHC" class="interp-bloque"></div>
+    </section>
+
+    <div class="page-break"></div>
+
+    <section id="pageResultadosGlobales" class="page">
+      <div class="p2-title">
+        <h2>OVERALL RESULTS</h2>
+        <div class="no-print" style="display:flex;gap:8px;">
+          <button type="button" id="btnImprimirDup" class="btn" style="background:#2563eb">Print / PDF</button>
+          <button type="button" id="btnExportJSONDup" class="btn" style="background:#6b7280">Export JSON</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div><b>Answered:</b> <span id="contestadasLine">—</span></div>
+
+        <h3 style="margin-top:10px;font-size:16px;font-weight:800;">By domain</h3>
+        <p role="note" style="margin:6px 0 10px;font-size:13px;line-height:1.5;color:#334155;padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;"><strong>Quick read:</strong> each % applies <strong>only</strong> to that domain in the row. Row percentages <strong>do not add</strong> together. The <strong>Combined total for the bank</strong> row matches G.I. on the first page (total correct ÷ total items in the administered bank). Sections <strong>3 · 5 and 6</strong> show <strong>priorities and routines with suggested times</strong>; the <strong>First</strong> subsection in section 5 lists executable steps for each prioritized line.</p>
+        <table class="result-table" id="subTableCHC">
+          <thead>
+            <tr>
+              <th>Domain</th><th class="num">Items</th><th class="num">Points</th><th class="num">%</th><th>Range</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <div class="hint" style="margin-top:8px;font-size:13px;color:#475569;">
+          Ranges: <span class="badge b-red">1–40</span>
+          <span class="badge b-orange">41–70</span>
+          <span class="badge b-green">71–100</span>
+          · Guidance interpretation relative to the bank.
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const STORAGE_PREFIX = "eval_chc_state_";
+
+  function clamp(n, a, b) {
+    return Math.max(a, Math.min(b, n));
+  }
+
+  /** CI sólo ilustrativo: lineal desde % de entrada (approx. 60–130 cuando el % está 0–100); la entrada efectiva viene de `pctEntradaCISimulado` (media factorial o respaldo I.G.). */
+  function simulatedCIFromPctGlobal(pct) {
+    var p = clamp(Number(pct) || 0, 0, 100);
+    return Math.round(60 + p * 0.7);
+  }
+
+  function nivelCISimFromIQ(iq) {
+    var x = Number(iq) || 0;
+    if (x >= 130) return { text: "VERY HIGH", cls: "ci-lvl-muyalto" };
+    if (x >= 120) return { text: "HIGH", cls: "ci-lvl-alto" };
+    if (x >= 110) return { text: "HIGH AVERAGE", cls: "ci-lvl-promalto" };
+    if (x >= 90) return { text: "ADEQUATE", cls: "ci-lvl-adecuado" };
+    if (x >= 80) return { text: "LOW AVERAGE", cls: "ci-lvl-prombajo" };
+    if (x >= 70) return { text: "LOW", cls: "ci-lvl-bajo" };
+    return { text: "VERY LOW", cls: "ci-lvl-muybajo" };
+  }
+
+  var CI_SIM_LEYENDA_TXT =
+    "VERY LOW (\u226469) · LOW (70–79) · LOW AVERAGE (80–89) · ADEQUATE (90–109) · HIGH AVERAGE (110–119) · HIGH (120–129) · VERY HIGH (\u2265130).";
+
+  function applyCISimulatedDOM(rows, totalFallback) {
+    var pct = pctEntradaCISimulado(rows || [], totalFallback || null);
+    var iq = simulatedCIFromPctGlobal(pct);
+    var nv = nivelCISimFromIQ(iq);
+    var elV = document.getElementById("repCISimValor");
+    var elN = document.getElementById("repCISimNivel");
+    var elL = document.getElementById("repCISimLeyenda");
+    if (elV) elV.textContent = String(iq);
+    if (elN) {
+      elN.textContent = nv.text;
+      elN.className = "ci-sim-nivel-badge " + nv.cls;
+    }
+    if (elL) elL.textContent = CI_SIM_LEYENDA_TXT;
+  }
+
+  function setCurveMarker(score) {
+    const s = clamp(Number(score) || 0, 1, 100);
+    const wrap = document.querySelector(".curve .curve-gauge");
+    const img = document.getElementById("freqCurveImg");
+    const mk = document.getElementById("curveMarker");
+    if (!wrap || !img || !mk) return;
+
+    const place = function () {
+      const rW = wrap.getBoundingClientRect();
+      const rI = img.getBoundingClientRect();
+      const natW = img.naturalWidth || 1;
+      const natH = img.naturalHeight || 1;
+      const scale = Math.min(rI.width / natW, rI.height / natH);
+      const drawnW = natW * scale;
+      const offsetXInsideImg = (rI.width - drawnW) / 2;
+      const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+      const padL = drawnW * 0.12;
+      const padR = drawnW * 0.22;
+      const minX = leftInWrap + padL;
+      const maxX = leftInWrap + drawnW - padR;
+      const t = (s - 1) / 99;
+      let x = minX + t * (maxX - minX);
+      x = Math.max(minX, Math.min(maxX, x));
+      const bottomAt0 = 94;
+      const bottomAt100 = 30;
+      const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+      const w = rW.width || 1;
+      const h = rW.height || 1;
+      mk.style.left = (x / w) * 100 + "%";
+      mk.style.bottom = (y / h) * 100 + "%";
+    };
+
+    if (img.complete) requestAnimationFrame(place);
+    else img.addEventListener("load", function () { requestAnimationFrame(place); }, { once: true });
+  }
+
+  function highlightIV(rowId, colIndex) {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    [].forEach.call(row.children, function (td) { td.classList.remove("hl"); });
+    const idx = Math.max(1, Math.min(3, colIndex | 0));
+    const td = row.children[idx];
+    if (td) td.classList.add("hl");
+  }
+
+  function addFactorRow(container, label, pct) {
+    const row = document.createElement("div");
+    row.style.display = "grid";
+    row.style.gridTemplateColumns = "minmax(12em, 248px) 1fr 1fr 1fr";
+    row.style.alignItems = "center";
+    row.style.gap = "6px";
+    row.style.margin = "2px 0";
+
+    const nameCell = document.createElement("div");
+    nameCell.textContent = label;
+    nameCell.style.fontWeight = "700";
+    nameCell.style.fontSize = "14px";
+    row.appendChild(nameCell);
+
+    for (let i = 0; i < 3; i++) {
+      const track = document.createElement("div");
+      track.style.position = "relative";
+      track.style.height = "14px";
+      track.style.border = "1px solid #aab";
+      track.style.borderRadius = "4px";
+      track.style.background = "#f3f5f8";
+      track.style.overflow = "hidden";
+      const fill = document.createElement("div");
+      fill.style.position = "absolute";
+      fill.style.left = "0";
+      fill.style.top = "0";
+      fill.style.bottom = "0";
+      fill.style.background = "#6b7280";
+      let w = 0;
+      const pctNum = pct != null && !isNaN(Number(pct)) ? Number(pct) : null;
+      if (pctNum != null) {
+        if (i === 0 && pctNum <= 40) w = Math.max(2, Math.round((pctNum / 40) * 100));
+        if (i === 1 && pctNum > 40 && pctNum <= 70) w = Math.max(2, Math.round(((pctNum - 40) / 30) * 100));
+        if (i === 2 && pctNum > 70) w = Math.max(2, Math.round(((pctNum - 70) / 30) * 100));
+      }
+      fill.style.width = w + "%";
+      track.appendChild(fill);
+      row.appendChild(track);
+    }
+    container.appendChild(row);
+  }
+
+  function buildBloqueHost(hostId, items) {
+    const cont = document.getElementById(hostId);
+    if (!cont) return;
+    cont.innerHTML = "";
+    const cols = document.createElement("div");
+    cols.style.display = "grid";
+    cols.style.gridTemplateColumns = "minmax(12em, 248px) 1fr 1fr 1fr";
+    cols.style.gap = "6px";
+    cols.style.marginBottom = "6px";
+    const blank = document.createElement("div");
+    cols.appendChild(blank);
+    [
+      "TO DEVELOP · 1–40 %",
+      "TO STRENGTHEN · 41–70 %",
+      "TO ENRICH · 71–100 %"
+    ].forEach(function (t) {
+      const d = document.createElement("div");
+      d.style.fontSize = "13px";
+      d.style.textAlign = "center";
+      d.style.color = "#374151";
+      d.textContent = t;
+      cols.appendChild(d);
+    });
+    cont.appendChild(cols);
+    items.forEach(function (it) {
+      var lbl = etiquetaAmbitoUsuario(it);
+      if (it._pendiente || it.pct == null) lbl += " · (no items in this bank version)";
+      addFactorRow(cont, lbl, it.pct);
+    });
+  }
+
+  function avgPct(rows, codes) {
+    const list = rows.filter(function (r) { return codes.indexOf(r.code) >= 0 && r.pct != null && !isNaN(Number(r.pct)); });
+    if (!list.length) return 0;
+    return Math.round(list.reduce(function (s, r) { return s + Number(r.pct); }, 0) / list.length);
+  }
+
+  /** Asegura fila Gq para el reporte aunque el banco aún no publique ítems en la evaluación. */
+  function ensureFactoresConGq(rows) {
+    var list = (rows || []).slice();
+    var has = list.some(function (r) { return r && String(r.code) === "Gq"; });
+    if (!has) {
+      list.push({
+        code: "Gq",
+        label: "Quantitative reasoning",
+        score: 0,
+        max: 0,
+        pct: null,
+        _pendiente: true
+      });
+    }
+    return list;
+  }
+
+  function esFactorConPuntajeValido(r) {
+    return r && r.pct != null && !isNaN(Number(r.pct)) && !r._pendiente;
+  }
+
+  /** Hasta `lim` factores con menor % válido en este intento (orden estable por código si empatan). */
+  function obtenerFactoresDebilesOrden(rows, lim) {
+    var L = typeof lim === "number" ? lim : 3;
+    var arr = rows
+      .filter(esFactorConPuntajeValido)
+      .slice()
+      .sort(function (a, b) {
+        var pa = Number(a.pct) || 0;
+        var pb = Number(b.pct) || 0;
+        if (pa !== pb) return pa - pb;
+        return String(a.code).localeCompare(String(b.code));
+      });
+    return arr.slice(0, Math.min(L, arr.length));
+  }
+
+  function tipEscolarFactor(code, pct) {
+    var o = FACT_ESC_TIPS[code];
+    if (!o) return null;
+    var nk = nivelDeFranja(pct);
+    return o[nk] || o.medio || o.bajo || null;
+  }
+
+  function siguientePasoRefuerzo(code, pct) {
+    var o = FACT_ESC_TIPS[code];
+    if (!o) return null;
+    var nk = nivelDeFranja(pct);
+    if (nk === "bajo" && o.medio) return "After 1–2 weeks with the previous task, move on to: " + o.medio;
+    if (nk === "medio" && o.alto) return "If pace is solid, raise the level with: " + o.alto;
+    return null;
+  }
+
+  function etiquetaPrioridadFactoresIntro(pct) {
+    var nk = nivelDeFranja(pct);
+    if (nk === "bajo") return "Exercise (low band on this report · 1–40 %)";
+    if (nk === "medio") return "Exercise (medium band · 41–70 %)";
+    return "Exercise (high band · above 70 %)";
+  }
+
+  function renderBloquePrioridadFactores(rows) {
+    var host = document.getElementById("interpPrioridades");
+    if (!host) return;
+    host.innerHTML = "";
+    host.className = "interp-bloque interp-prio-wrap";
+    var weakest = obtenerFactoresDebilesOrden(rows, 3);
+    var hdr = document.createElement("div");
+    hdr.className = "interp-bloque-header";
+    hdr.innerHTML =
+      "<div class='interp-bloque-nombre'>3.- Domains with relatively lower proportional score · prioritization and reinforcement</div>";
+    host.appendChild(hdr);
+
+    var note = document.createElement("p");
+    note.className = "prio-intro-note";
+    note.innerHTML =
+      "Qualitative ranges match <strong>section 2</strong>. Here only domains are listed <strong>from lowest to highest relative score</strong> on this attempt, to decide first reinforcement actions at school.";
+    host.appendChild(note);
+
+    if (!weakest.length) {
+      var fb = document.createElement("div");
+      fb.className = "interp-bloque-desc";
+      fb.textContent =
+        "No domains have a complete enough score to prioritize (e.g. incomplete bank or unanswered blocks). When all items are present, up to three highlighted lines will appear by lowest relative % within the same attempt.";
+      host.appendChild(fb);
+      return;
+    }
+
+    var expl = document.createElement("div");
+    expl.className = "interp-bloque-desc";
+    expl.textContent =
+      "Up to three relatively lower axes (" +
+      weakest.length +
+      "). Detail by block, recommendations, and plan follow later (sections 4 through 6).";
+
+    host.appendChild(expl);
+
+    var accionesCab = document.createElement("div");
+    accionesCab.className = "interp-bloque-desc";
+    accionesCab.style.marginTop = "8px";
+    accionesCab.style.fontWeight = "700";
+    accionesCab.style.fontSize = "13px";
+    accionesCab.textContent =
+      "Targeted suggestions by domain — complementary to sections 5 and 6.";
+    host.appendChild(accionesCab);
+    weakest.forEach(function (w, idx) {
+      var tierExtra = idx === 1 ? " prio-tier-2" : idx === 2 ? " prio-tier-3" : "";
+      var box = document.createElement("div");
+      box.className = "prio-factor-box" + tierExtra;
+
+      var title = document.createElement("div");
+      title.className = "prio-factor-title";
+      title.textContent =
+        "Priority " + (idx + 1) + " · " + etiquetaAmbitoUsuario(w);
+      box.appendChild(title);
+
+      var tags = document.createElement("div");
+      tags.className = "prio-factor-tags";
+      var br = rangoFranjaBadge(w.pct);
+      var pctNum = Math.round(Number(w.pct) || 0);
+      tags.innerHTML =
+        "<span class=\"badge " + br.cls + "\">" + escHtml(br.texto) + "</span>" +
+        "<span style=\"font-size:13px;font-weight:800;color:#0f172a\">" +
+        pctNum +
+        "% correct on this subtopic in this attempt</span>";
+      box.appendChild(tags);
+
+      var descTxt = FACTOR_CHC_DESC[w.code] || "";
+      if (descTxt) {
+        var d = document.createElement("div");
+        d.className = "prio-factor-desc";
+        d.textContent = descTxt;
+        box.appendChild(d);
+      }
+
+      var actTit = document.createElement("div");
+      actTit.className = "prio-actions-title";
+      actTit.textContent = "Classroom-adjacent focus:";
+      box.appendChild(actTit);
+
+      var ul = document.createElement("ul");
+      ul.className = "prio-actions-list";
+      function addLi(t) {
+        if (!t || !String(t).trim()) return;
+        var li = document.createElement("li");
+        li.textContent = String(t).trim();
+        ul.appendChild(li);
+      }
+
+      var pr = tipEscolarFactor(w.code, w.pct);
+      if (pr) addLi(etiquetaPrioridadFactoresIntro(w.pct) + ": " + pr);
+      var sig = siguientePasoRefuerzo(w.code, w.pct);
+      if (sig) addLi(sig);
+
+      box.appendChild(ul);
+      host.appendChild(box);
+    });
+
+    var postComun = document.createElement("div");
+    postComun.className = "interp-bloque-desc";
+    postComun.style.marginTop = "12px";
+    postComun.style.padding = "8px 10px";
+    postComun.style.background = "#f8fafc";
+    postComun.style.borderRadius = "8px";
+    postComun.style.border = "1px solid #e2e8f0";
+    postComun.style.fontSize = "13px";
+    postComun.style.lineHeight = "1.45";
+    postComun.innerHTML =
+      "<strong>Before repeating the same format:</strong> with a <strong>low</strong> band, after each 15–22 min micro-session write <em>one</em> line: error type (without labeling the person). With a <strong>medium</strong> band, use those notes only after three consecutive days on the short routine. " +
+      "<strong>At school:</strong> align that week’s subject/objectives with the teacher or counselor before large projects.";
+
+    host.appendChild(postComun);
+
+    var cierre = document.createElement("div");
+    cierre.className = "interp-bloque-desc";
+    cierre.style.marginTop = "10px";
+    cierre.textContent =
+      "A high global index can coexist with a low domain: G.I. blends the whole bank; each bar is proportion within its block (see page 1).";
+
+    host.appendChild(cierre);
+  }
+
+  function escHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  var FACTOR_LABEL_EN = {
+    Gf: "Fluid reasoning",
+    Gq: "Quantitative reasoning",
+    Gc: "Verbal comprehension",
+    Gwm: "Working memory",
+    Gs: "Processing speed",
+    Gv: "Visual-spatial processing",
+    Glr: "Associative memory / long-term retrieval"
+  };
+
+  /** Visible domain name (English labels by code; falls back to attempt data). */
+  function etiquetaAmbitoUsuario(rw) {
+    if (rw && rw.code && FACTOR_LABEL_EN[rw.code]) return FACTOR_LABEL_EN[rw.code];
+    return rw && rw.label ? String(rw.label).trim() : "—";
+  }
+
+  function nivelDeFranja(pct) {
+    var p = Number(pct) || 0;
+    if (p <= 40) return "bajo";
+    if (p <= 70) return "medio";
+    return "alto";
+  }
+
+  function rangoFranjaBadge(pct) {
+    var p = Number(pct) || 0;
+    if (p <= 40) return { texto: "1–40 Low · to develop", cls: "b-red" };
+    if (p <= 70) return { texto: "41–70 Medium · to strengthen", cls: "b-orange" };
+    return { texto: "71–100 High · to enrich", cls: "b-green" };
+  }
+
+  var FACTOR_CHC_DESC = {
+    Gf: "Find patterns or rules in non-memorized exercises (series, highly guided proportions, related figures). Trains best with one or two short problems after class rather than long theory-only reading.",
+    Gc: "Bring school vocabulary alive in course texts and written tasks. Editable list: 5 new words at the end of the school day and review them the next day (10 min same time, student only).",
+    Gwm: "Hold a few facts in mind while executing the next step (e.g. numbers or conditions in the prompt). If it fails, repeat aloud or jot on scratch paper before ruling out a new option.",
+    Gs: "Work quickly with purpose using reasonable time limits and correcting errors afterward.",
+    Gv: "Read simple maps, school charts, and figures well before clicking. Concrete help: cut paper to match the book figure for 1–2 min to see size and rotation before answering.",
+    Glr: "Let studied material resurface days later; spaced review beats cramming the night before. Brief cards on days 1, 3, and 7 are enough at first.",
+    Gq: "On paper, order the data and operation before using a calculator or marking multiple choice; verify once with a different method (e.g. quick proportion or minimal sketch) to catch errors."
+  };
+
+  var CHC_GRUPO_RAZON = ["Gf", "Gq"];
+  var CHC_GRUPO_MEM_EF = ["Gwm", "Gs", "Glr"];
+  var CHC_GRUPO_COMP_REP = ["Gc", "Gv"];
+  /** Siete ámbitos del banco  para la media simple (entrada CI  · criterio Psicología). */
+  var CHC_CODIGOS_SIETE = CHC_GRUPO_RAZON.concat(CHC_GRUPO_MEM_EF).concat(CHC_GRUPO_COMP_REP);
+
+  /** Media aritmética de los % de cada factor válido (`null` si ningún factor con dato). */
+  function pctMediaSimpleFactoresCHC(rows) {
+    var list = (rows || []).filter(function (r) {
+      return (
+        r &&
+        CHC_CODIGOS_SIETE.indexOf(r.code) >= 0 &&
+        r.pct != null &&
+        !isNaN(Number(r.pct)) &&
+        !r._pendiente
+      );
+    });
+    if (!list.length) return null;
+    return list.reduce(function (s, x) { return s + Number(x.pct); }, 0) / list.length;
+  }
+
+  /** % que alimenta el CI simulado: primero media de factores; si no hay datos, I.G. del banco. */
+  function pctEntradaCISimulado(rows, totalFallback) {
+    var m = pctMediaSimpleFactoresCHC(rows);
+    if (m != null) return clamp(m, 0, 100);
+    if (totalFallback && totalFallback.pct != null) return clamp(Number(totalFallback.pct), 0, 100);
+    return 0;
+  }
+
+  var BLOQUE_CHC_TEXTO = {
+    razon:
+      "Per the institutional reading defined with Psychology, it integrates fluid reasoning and quantitative reasoning: solving with new or weakly automated rules and quantitative relationships in school format. In class or guided work it appears as figure series, highly guided proportions, or texts with numbers: ordering steps on paper or scratch work before marking the closed option helps.",
+    memEf:
+      "Groups working memory, processing speed, and associative memory / long-term retrieval: transient retention during performance, fluency under time limits, and associative verbal recall. Tasks show it when several facts must be held while executing the next step, timed series, and review spread across days rather than one night.",
+    compRep:
+      "Groups verbal comprehension and visual-spatial processing: vocabulary and reading tied to curriculum, and spatial organization of figures and 2D representations. In class it shows in texts with new vocabulary, orally explained sentences, and figures with scale or direction to trace in the notebook before marking on screen.",
+    global:
+      "Synthesizes approximate accuracy across all items in the attempt. Always read alongside domain-by-domain detail because very different profiles can show similar global numbers. Concrete reinforcement actions are in the metrics table below and in sections 3, 5, and 6."
+  };
+
+  function rowBy(rows, code) {
+    var i;
+    for (i = 0; i < rows.length; i++) {
+      if (rows[i].code === code) return rows[i];
+    }
+    return null;
+  }
+
+  function renderSkillRowCHC(cont, etiquetaTitulo, descripcionTxt, pct) {
+    var row = document.createElement("div");
+    row.className = "skill-row";
+    var title = document.createElement("div");
+    title.className = "skill-row-title";
+    var n = pct != null && !isNaN(Number(pct)) ? Math.round(Number(pct)) : null;
+    title.textContent = n != null ? etiquetaTitulo + " (Relative score in this subtopic: " + n + "/100)" : etiquetaTitulo + " (No data in this bank version)";
+    row.appendChild(title);
+
+    var descTxt = descripcionTxt || "";
+    if (descTxt) {
+      var desc = document.createElement("div");
+      desc.className = "skill-row-desc";
+      desc.textContent = descTxt;
+      row.appendChild(desc);
+    }
+
+    if (n != null && n <= 40) {
+      var alerta = document.createElement("div");
+      alerta.className = "skill-row-alert";
+      alerta.textContent = "This domain falls in the low band on this attempt · reinforce with close observation.";
+      row.appendChild(alerta);
+    }
+
+    var bar = document.createElement("div");
+    bar.className = "skill-bar";
+    var track = document.createElement("div");
+    track.className = "skill-bar-track";
+    var marker = document.createElement("div");
+    marker.className = "skill-bar-marker";
+    if (n == null) marker.style.display = "none";
+    else marker.style.left = clamp(n, 1, 100) + "%";
+    track.appendChild(marker);
+    var val = document.createElement("div");
+    val.className = "skill-bar-value";
+    val.textContent = n != null ? n + "/100" : "—";
+    bar.appendChild(track);
+    bar.appendChild(val);
+    row.appendChild(bar);
+    cont.appendChild(row);
+  }
+
+  function renderBloqueDetalleCHC(domId, titulo, parrafo, rowsOrden, codesOrden, indiceValor, ocultarIndiceGrupo) {
+    var cont = document.getElementById(domId);
+    if (!cont) return;
+    cont.innerHTML = "";
+    var hdr = document.createElement("div");
+    hdr.className = "interp-bloque-header";
+    if (ocultarIndiceGrupo) {
+      hdr.innerHTML = "<div class='interp-bloque-nombre'>" + escHtml(titulo) + "</div>";
+    } else {
+      var idxTxt = indiceValor != null && !isNaN(Number(indiceValor)) ? Math.round(Number(indiceValor)) + "%" : "—";
+      hdr.innerHTML = "<div class='interp-bloque-nombre'>" + escHtml(titulo) + "</div><div class='interp-bloque-indice'>Group index: <span>" + idxTxt + "</span></div>";
+    }
+    cont.appendChild(hdr);
+    var p = document.createElement("div");
+    p.className = "interp-bloque-desc";
+    p.textContent = parrafo;
+    cont.appendChild(p);
+    var ci;
+    for (ci = 0; ci < codesOrden.length; ci++) {
+      var fk = codesOrden[ci];
+      var rw = rowBy(rowsOrden, fk);
+      if (!rw) continue;
+      renderSkillRowCHC(cont, etiquetaAmbitoUsuario(rw), FACTOR_CHC_DESC[fk], rw.pct);
+    }
+  }
+
+  function renderLecturaGlobalCHC(igRounded) {
+    var cont = document.getElementById("interpDetGlobo");
+    if (!cont) return;
+    cont.innerHTML = "";
+    var hdr = document.createElement("div");
+    hdr.className = "interp-bloque-header";
+    hdr.innerHTML = "<div class='interp-bloque-nombre'>INTEGRATED READING · GLOBAL PERFORMANCE </div><div class='interp-bloque-indice'>G.I.: <span>" + igRounded + "%</span></div>";
+    cont.appendChild(hdr);
+    var p = document.createElement("div");
+    p.className = "interp-bloque-desc";
+    p.textContent = BLOQUE_CHC_TEXTO.global;
+    cont.appendChild(p);
+    renderSkillRowCHC(
+      cont,
+      "Approximate global index for the bank (all domains combined)",
+      "Reflects percent correct weighted by total active items; do not interpret in isolation from the final table or domain detail.",
+      igRounded
+    );
+  }
+
+  function renderPerfilCuantitativoGlobalCHC(ctx, irz, ime, icr, ig, rows) {
+    var host = document.getElementById("perfilGlobal");
+    if (!host) return;
+    host.innerHTML = "";
+    var h = document.createElement("div");
+    h.className = "interp-bloque-header";
+    h.innerHTML = "<div class='interp-bloque-nombre'>4.- Global quantitative profile</div>";
+    host.appendChild(h);
+    var p = document.createElement("div");
+    p.className = "interp-bloque-desc";
+    p.textContent = "From the school evaluative report for " + (ctx.nombre || "the assessed person").trim() + ", the following indicators support institutional communication:";
+    host.appendChild(p);
+    var ul = document.createElement("ul");
+    ul.className = "recom-list";
+    function liTxt(t, destacarIg) {
+      var li = document.createElement("li");
+      li.textContent = t;
+      if (destacarIg) li.classList.add("perfil-iie");
+      ul.appendChild(li);
+    }
+    liTxt("IRZ · reasoning block — average of fluid reasoning · quantitative reasoning: " + Math.round(Number(irz) || 0) + "%");
+    liTxt("IME · memory and cognitive efficiency — average of working memory · processing speed · associative memory: " + Math.round(Number(ime) || 0) + "%");
+    liTxt("ICR · comprehension and representation — average of verbal comprehension · visual-spatial processing: " + Math.round(Number(icr) || 0) + "%");
+    liTxt("G.I. · approximate percent correct across the full bank: " + Math.round(Number(ig) || 0) + "%", true);
+    var pctCi = pctEntradaCISimulado(rows, ctx && ctx.resultados ? ctx.resultados.total : null);
+    var pctCiRounded = Math.round(Number(pctCi) || 0);
+    var iqSim = simulatedCIFromPctGlobal(pctCi);
+    var nvSim = nivelCISimFromIQ(iqSim);
+    liTxt(
+      "Intelligence Quotient (IQ): " +
+        iqSim +
+        " (\"" +
+        nvSim.text +
+        "\"). Per Psychology criterion: input is the arithmetic mean of percentages for the seven assessed domains with valid data (rounded to nearest integer: " +
+        pctCiRounded +
+        " %). The bank G.I. above (" +
+        Math.round(Number(ig) || 0) +
+        " %) is global accuracy across all items and is not used in this simulation."
+    );
+    host.appendChild(ul);
+
+    var subt = document.createElement("div");
+    subt.className = "plan-section-title";
+    subt.textContent = "Detail by domain (% within each subtask of the administered bank)";
+    subt.style.marginTop = "10px";
+    host.appendChild(subt);
+
+    var ul2 = document.createElement("ul");
+    ul2.className = "recom-list";
+    rows.forEach(function (rw) {
+      var li = document.createElement("li");
+      var pv = rw.pct != null && !isNaN(Number(rw.pct)) ? Math.round(Number(rw.pct)) : null;
+      li.textContent = etiquetaAmbitoUsuario(rw) + ": " + (pv != null ? pv + "%" : "— (in preparation)");
+      ul2.appendChild(li);
+    });
+    host.appendChild(ul2);
+
+    var sortedValid = rows.filter(esFactorConPuntajeValido).slice().sort(function (a, b) {
+      var pa = Number(a.pct) || 0;
+      var pb = Number(b.pct) || 0;
+      if (pa !== pb) return pa - pb;
+      return String(a.code).localeCompare(String(b.code));
+    });
+    var subt2 = document.createElement("div");
+    subt2.className = "plan-section-title";
+    subt2.textContent = "Profile order (lowest to highest percent by domain when data exists; same criterion as section 3, relative prioritization)";
+    subt2.style.marginTop = "10px";
+    host.appendChild(subt2);
+    var ulOrd = document.createElement("ul");
+    ulOrd.className = "recom-list";
+    var priorSet = {};
+    obtenerFactoresDebilesOrden(rows, 3).forEach(function (x) {
+      priorSet[x.code] = true;
+    });
+    sortedValid.forEach(function (rw) {
+      var lio = document.createElement("li");
+      var pv = Math.round(Number(rw.pct) || 0);
+      lio.textContent =
+        (priorSet[rw.code] ? "★ Relative priority · " : "") +
+        etiquetaAmbitoUsuario(rw) +
+        ": " +
+        pv +
+        "%";
+      ulOrd.appendChild(lio);
+    });
+    host.appendChild(ulOrd);
+  }
+
+  function nivelFranjaDisplay(nk) {
+    if (nk === "bajo") return "low";
+    if (nk === "medio") return "medium";
+    return "high";
+  }
+
+  var REC_ESC_IRZ = {
+    bajo: [
+      "After class, same desk, 18 min, 4 nights/week: on paper briefly order each step then mark 2 problems in the book (very simple pattern plus small proportions from the same paragraph worked in class). Student only; if the same error on day 3 of the same format, quick meeting with teacher on a different method only—no immediate new summative.",
+      "Notebook: before a similar set, one line with the repeated error type (series, proportion, figure)."
+    ],
+    medio: [
+      "Home session (~20 min, same time/place): half time on new pattern/figure items from the topic; half highly guided proportion like class. Student only; if the same error type three days in a row, one minute with the teacher (strategy only) before another round of the same exercise type.",
+      "Before marking in the book write on scratch paper: what does this question literally ask? Then mark the option in the book (~12 min) · student only."
+    ],
+    alto: [
+      "Combine a day of small drawings/tables and the next day only a number list on the same core; avoid identical copies only. · ~22 min · three nights/week · same desk · student only."
+    ]
+  };
+
+  var REC_ESC_IME = {
+    bajo: [
+      "New information with many steps: use numbered lists on board or guide (supports working memory). Suggestion: 15 min at the start of that week’s topic, in class with teacher.",
+      "Timed short tasks (processing speed): when the concept is solid, ~8 min blocks with a gentle timer, prioritize accuracy before speed. · 3 nights/week · same time at home · student only.",
+      "Associative memory — spaced over time: 5 cards the study day, very brief review day 3 and day 7 (10 min each) · same desk · student only."
+    ],
+    medio: [
+      "Review same content: first aloud (~5 min), then in writing (~5 min) before a new unit · same time at home.",
+      "One session two ~8 min rounds with the same exercise type: correct errors after the first round. · home · student only."
+    ],
+    alto: [
+      "Keep alternating format (oral, written, outline) and note specific errors even if the block index stays high. · ~22 min · 3 nights/week same place · student only."
+    ]
+  };
+
+  var REC_ESC_ICR = {
+    bajo: [
+      "Verbal comprehension — in the subject notebook margin, 5 new words with a one-line definition; review them the next day for 12 min same time; student only (family as listener if needed).",
+      "Visual-spatial processing before clicking on screen: cut paper the real size of the book figure, rotate it 1–2 min on the table. · 10 min · same time at home · student only.",
+      "Brief close class or home: make a new sentence with a term from that day (~8 min same time) · may be with family listening without answering for the student."
+    ],
+    medio: [
+      "Ask teacher or family using 1 new term from the day (~10 min) · same evening time · bring a short list prepared in class that day.",
+      "Same subtopic: read short paragraph ~5 min see mini map drawn on paper ~5 min before a large project · student only."
+    ],
+    alto: [
+      "~10 min aloud explaining a closed topic without written support · then 10 min point on paper only to labels/axes of the book chart · usual time · student only."
+    ]
+  };
+
+  var REC_ESC_IG = {
+    bajo: [
+      "At home three nights/week (~20 min, same desk after class, student only; family listens if needed): review repeated errors tied to scores marked as priorities before raising demands across all subjects at once.",
+      "With teacher: agree on a short objective list and layers before the next summative (quick talk ~10 min)."
+    ],
+    medio: [
+      "Weekly table with three fixed blocks (~20 min) for lagging lines from the report without dropping habits in other subjects · same time student only."
+    ],
+    alto: [
+      "Before adding new extracurriculars write on a visible poster the brief schedule for the following week (5 min each Sunday night) · review the same schedule with family."
+    ]
+  };
+
+  var FACT_ESC_TIPS = {
+    Gf: {
+      bajo: "What to do: mark the element that breaks a very simple series or figure and say why first. · How long? 14 min · When? 4 nights/week after class, same quiet desk · Who? student only; nearby adult repeats book instructions if still stuck after two tries.",
+      medio: "Same home session (~20 min, same place): half new pattern/figure problems from the guide, half mini proportions from the same class paragraph · student only · if same error three times in the week, ask teacher for method on Friday.",
+      alto: "Same core problem two nights in a row: night 1 with drawing or short table · night 2 numbers only · 18 min each · 3 nights/week same place · do not raise difficulty until that pattern is secure · student only."
+    },
+    Gc: {
+      bajo: "5 cards (front: word · back: example sentence) at end of school day · review next day · 12 min · same desk and time · student only · family may listen, not answer for the student.",
+      medio: "Each day 1 short question to teacher or family using a new term from class · 10 min · usual evening space · student asks; adult clarifies definition only.",
+      alto: "Close a small topic: explain aloud ~10 min without written support that day · student only; family listens without interrupting."
+    },
+    Gwm: {
+      bajo: "What to do: read the problem, say aloud three key data points in order (amounts, conditions, request), put them on scratch paper, run first operation, only then mark in the book. · 12–14 min · 4 nights/week after class same time · same quiet desk · student first; family repeats prompts if a second try is needed, without solving.",
+      medio: "Before marking book: intermediate data as columns on scratch + prompts reviewed once more · ~15 min · tasks in subjects with steps · student only same table.",
+      alto: "Short two-step problems with 5 min pause between steps (recall second half when returning) · ~18 min session · 3 nights/week · same quiet desk · student only."
+    },
+    Gs: {
+      bajo: "Two runs (~8 min each, gentle timer) with same book type: fix errors before second run · focus on accuracy, not speed only · 3 nights/week same desk after class · student only.",
+      medio: "Two 10 min rounds same night with same exercise type: between rounds note repeated errors · student only on scratch paper.",
+      alto: "Even if class rarely uses a timer daily, at home do three ~12 min sessions prioritizing stable accuracy before speed only. · same quiet desk · 3 nights/week same time after class · student only."
+    },
+    Gv: {
+      bajo: "Before marking on screen: cut figure from book to similar size, rotate on table 2 min, then 10 min mini visual questions on same page · same evening time · student only.",
+      medio: "Mark rotation center in pencil on figures before marking book (~10 min) · 3 nights/week same place · student only.",
+      alto: "Per session, two items with scale or dates and legend on same chart (~15 min each same book or guide) · 3 nights/week same quiet desk · student only."
+    },
+    Glr: {
+      bajo: "Cards (5): day 1 new study 10 min, day 3 quick review, day 7 second review · 10 min each agreed night · same time · same quiet desk · student only.",
+      medio: "Summary without open book: one line of what was learned that day (~10 min) before new class · same time · student only.",
+      alto: "Three mini reviews in the week (same topic order) · 15 min each · fixed times · same place · student only."
+    },
+    Gq: {
+      bajo: "On scratch: minimum data and allowed operations only; calculator and multiple choice at the end · 15 min · 3 nights/week · same desk and fixed times · student only.",
+      medio: "~12 min same night: mix open numeric questions with verification using closed-choice items; then compare results with a peer (each own notebook, no copying) · agreed time and place (e.g. recess or table at home).",
+      alto: "With same quantitative relationships, solve in two different formats (very brief table · simple proportions or bars) · 15 min · 3 nights/week · may be in pairs with separate notebooks."
+    }
+  };
+
+  function renderRecomEscolar(rows, irz, ime, icr, ig) {
+    var host = document.getElementById("recomendacionesCHC");
+    if (!host) return;
+    host.innerHTML = "";
+    var head = document.createElement("div");
+    head.className = "interp-bloque-header";
+    head.innerHTML = "<div class='interp-bloque-nombre'>5.- School-oriented recommendations</div>";
+    host.appendChild(head);
+    var sub = document.createElement("div");
+    sub.className = "recom-subtitle";
+    sub.textContent =
+      "This report is school context only (not occupations or careers). Below, \"First\" lists executable steps where section 3 marks the relatively lowest score, plus IRZ · IME · ICR · G.I. groups; pick a few lines per two weeks and repeat them at the same time.";
+    host.appendChild(sub);
+
+    function addGroup(titulo, arr) {
+      if (!arr || !arr.length) return;
+      var h = document.createElement("div");
+      h.className = "plan-section-title";
+      h.textContent = titulo + ":";
+      host.appendChild(h);
+      var ul = document.createElement("ul");
+      ul.className = "recom-list";
+      arr.forEach(function (x) {
+        var li = document.createElement("li");
+        li.textContent = x;
+        ul.appendChild(li);
+      });
+      host.appendChild(ul);
+    }
+
+    var nirz = nivelDeFranja(irz);
+    var nime = nivelDeFranja(ime);
+    var nicr = nivelDeFranja(icr);
+    var nig = nivelDeFranja(ig);
+
+    var weakest3 = obtenerFactoresDebilesOrden(rows, 3);
+    var enfocados = weakest3.map(function (w, ix) {
+      var tips = FACT_ESC_TIPS[w.code];
+      var line = tips ? tips[nivelDeFranja(w.pct)] : null;
+      var pctR = Math.round(Number(w.pct) || 0);
+      var fr = nivelDeFranja(w.pct);
+      var frAdj = fr === "bajo" ? "low" : fr === "medio" ? "medium" : "high";
+      return (
+        (ix + 1) +
+        ") · " +
+        etiquetaAmbitoUsuario(w) +
+        " · " +
+        pctR +
+        "% — " +
+        frAdj +
+        " band (per report criteria) · " +
+        (line ||
+          "Two items from the class guide aligned to this line this week, 15–20 min same time, student only; no extra summative until two sessions are done this way.")
+      );
+    });
+    addGroup(
+      "First — focused reinforcement aligned with section 3 (the three lowest relative scores that apply)",
+      enfocados
+    );
+
+    addGroup("By IRZ (reasoning) — " + nivelFranjaDisplay(nirz), REC_ESC_IRZ[nirz] || []);
+    addGroup("By IME (memory and efficiency) — " + nivelFranjaDisplay(nime), REC_ESC_IME[nime] || []);
+    addGroup("By ICR (comprehension and representation) — " + nivelFranjaDisplay(nicr), REC_ESC_ICR[nicr] || []);
+    addGroup("By global G.I. — " + nivelFranjaDisplay(nig), REC_ESC_IG[nig] || []);
+
+    var notaRef = document.createElement("div");
+    notaRef.className = "interp-bloque-desc";
+    notaRef.style.marginTop = "8px";
+    notaRef.textContent =
+      "IRZ · IME · ICR · G.I. lines summarize institutional blocks on page 1 and the bank total. \"First\" gives bullets with time, place, and format; the others group ideas by global indices when extra institutional context is needed.";
+    host.appendChild(notaRef);
+
+    var nota = document.createElement("div");
+    nota.className = "interp-bloque-desc";
+    nota.style.marginTop = "10px";
+    nota.textContent = "This block does not replace individual clinical–educational criteria from the school technical or teaching staff.";
+    host.appendChild(nota);
+  }
+
+  function renderPlanEscolar(rows) {
+    var host = document.getElementById("planAccionCHC");
+    if (!host) return;
+    host.innerHTML = "";
+    var head = document.createElement("div");
+    head.className = "interp-bloque-header";
+    head.innerHTML = "<div class='interp-bloque-nombre'>6.- Suggested action plan (school context only)</div>";
+    host.appendChild(head);
+    var sub = document.createElement("div");
+    sub.className = "recom-subtitle";
+    sub.textContent =
+      "Three columns (student · home · classroom) with the same relative focuses as sections 3 and 5. Each bullet is a concrete action; for the relatively lowest score also use the \"First\" row in section 5. Does not guide careers or occupations.";
+    host.appendChild(sub);
+
+    var weakest = obtenerFactoresDebilesOrden(rows, 3);
+    var codeW = weakest[0] ? weakest[0].code : "";
+    var w1 = weakest[0];
+    var w2 = weakest[1];
+    var w3 = weakest[2];
+
+    function bloqueTitulo(txt) {
+      var d = document.createElement("div");
+      d.className = "plan-section-title";
+      d.textContent = txt;
+      host.appendChild(d);
+    }
+    function lista(items) {
+      var ul = document.createElement("ul");
+      ul.className = "recom-list";
+      items.filter(function (it) {
+        return it && String(it).trim().length > 0;
+      }).forEach(function (it) {
+        var li = document.createElement("li");
+        li.textContent = it;
+        ul.appendChild(li);
+      });
+      host.appendChild(ul);
+    }
+
+    bloqueTitulo("For the student");
+    lista([
+      "Agree on 3 blocks per week, always short (15–25 min), and write them in a visible place (family planner, fridge calendar). Goal: complete them at the same time without skipping days.",
+      w1
+        ? "This period: in those blocks do 2–3 exercises from the class guide aligned to \"" +
+            etiquetaAmbitoUsuario(w1) +
+            "\" (" +
+            Math.round(Number(w1.pct) || 0) +
+            "% on this attempt). Follow the matching steps in the \"First\" row of section 5 literally. Do not add large new extracurriculars until this mini routine is easy to repeat alone."
+        : "In those same blocks start with what section 3 indicates using material tied to the current class topic.",
+      w2
+        ? "Only when the previous routine works well, dedicate a second weekly micro-session focused on \"" +
+            etiquetaAmbitoUsuario(w2) +
+            "\": same rule — short and repeatable each week."
+        : "",
+      w3
+        ? "Quick triad ✓ yes · partial · no three nights/week after practice linked to \"" +
+            etiquetaAmbitoUsuario(w3) +
+            "\". Keep only the agreed short time: if stretching it only adds distraction, close anyway and note it."
+        : "",
+      "Mark as \"useful practice\" only when items were completed without aids unavailable on test day (beeps, cheat sheets outside the exam).",
+      ""
+    ]);
+
+    bloqueTitulo("At home / family");
+    lista([
+      "After class, 10 min talk before new homework the same day: \"What moment of class or homework felt heaviest today?\" without labeling the student (\"you're lazy,\" etc.).",
+      "If the school day had many timed tests, that night at home prioritize rest and one brief review; avoid a second timed marathon at home.",
+      w1
+        ? "Short poster on fridge or bedroom door: one biweekly goal tied to \"" +
+            etiquetaAmbitoUsuario(w1) +
+            "\" and its anchor subject (one-line text); do not list five new goals at once."
+        : "",
+      w2
+        ? "If \"" +
+            etiquetaAmbitoUsuario(w2) +
+            "\" remains among relatively lower scores: offer a visual resource or keyword from the current unit (not a new generic workbook)."
+        : "",
+      w3
+        ? "If the next topic will require substantial work on \"" +
+            etiquetaAmbitoUsuario(w3) +
+            "\": one oral question \"Do you remember a key idea from the last class on this?\" (2 min, ungraded)."
+        : "",
+      ""
+    ]);
+
+    bloqueTitulo("In the classroom and teacher or counselor support");
+    lista([
+      "When correcting, name first the error type that fits the relatively lowest line in section 3 (e.g. skipped prompt data · confused scale) before opening a new topic in parallel.",
+      "If several students repeat the same error in the same unit, schedule 5 min of a different but simple format (e.g. brief oral answer vs. written only).",
+      w1
+        ? "Checklist before a new summative related to \"" +
+            etiquetaAmbitoUsuario(w1) +
+            "\": confirm at least two short practice rounds that month (not lecture only)."
+        : "",
+      w2
+        ? "If part of the class shows a similar gap in \"" +
+            etiquetaAmbitoUsuario(w2) +
+            "\": micro-demonstrations on the board with visible structure, reused in three different classes on the same topic."
+        : "",
+      codeW === "Gwm"
+        ? "When introducing a new procedure, number steps on the board and stress before solving: intermediate data on scratch first, then operate."
+        : codeW === "Gq"
+          ? "Before a new set of numeric exercises, show an example on the board with a minimal data table, allowed operations, and quick verification with a second simple method (brief proportion or minimal sketch)."
+          : "",
+      ""
+    ]);
+
+    var foot = document.createElement("div");
+    foot.className = "interp-bloque-desc";
+    foot.style.marginTop = "12px";
+    foot.style.textAlign = "right";
+    foot.style.fontSize = "12px";
+    foot.textContent = "ADALAM — School intellectual assessment report.";
+    host.appendChild(foot);
+  }
+
+  function fillTablaGlobales(rows, totals, resultadosObj) {
+    var line = document.getElementById("contestadasLine");
+    var meta = resultadosObj && resultadosObj.meta ? resultadosObj.meta : {};
+    if (line && totals) {
+      line.textContent = totals.puntos + " of " + totals.max + " administered items were scored validly.";
+    }
+    else if (line && typeof meta.items_total === "number") line.textContent = "Reference up to " + meta.items_total + " items in the format declared by the registered attempt.";
+    else if (line) line.textContent = "—";
+
+    var tb = document.querySelector("#subTableCHC tbody");
+    if (!tb) return;
+    tb.innerHTML = "";
+    rows.forEach(function (rw) {
+      var pend = rw._pendiente === true || (rw.pct == null && (!rw.max || Number(rw.max) === 0));
+      var br = pend ? { texto: "In preparation", cls: "b-slate" } : rangoFranjaBadge(rw.pct);
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td><strong>" + escHtml(etiquetaAmbitoUsuario(rw)) + "</strong></td>" +
+        "<td class='num'>" + (pend ? "—" : rw.max) + "</td>" +
+        "<td class='num'>" + (pend ? "—" : rw.score) + "</td>" +
+        "<td class='num'><strong>" + (pend ? "—" : rw.pct + "%") + "</strong></td>" +
+        "<td><span class='badge " + br.cls + "'>" + escHtml(br.texto) + "</span></td>";
+      tb.appendChild(tr);
+    });
+
+    if (totals) {
+      var brT = rangoFranjaBadge(totals.pct);
+      var trtot = document.createElement("tr");
+      trtot.innerHTML =
+        "<td colspan='1'><strong>Combined total for administered bank</strong></td>" +
+        "<td class='num'>" + totals.max + "</td>" +
+        "<td class='num'>" + totals.puntos + "</td>" +
+        "<td class='num'><strong>" + totals.pct + "%</strong></td>" +
+        "<td><span class='badge " + brT.cls + "'>" + escHtml(brT.texto) + "</span></td>";
+      tb.appendChild(trtot);
+    }
+  }
+
+  function renderInterpretacionExtendida(ctx, rows, extras) {
+    var irz = extras.irz;
+    var ime = extras.ime;
+    var icr = extras.icr;
+    var ig = extras.ig;
+    var igR = Math.round(Number(ig) || 0);
+
+    renderBloquePrioridadFactores(rows);
+
+    renderBloqueDetalleCHC(
+      "interpDetRazon",
+      "REASONING BLOCK",
+      BLOQUE_CHC_TEXTO.razon,
+      rows,
+      CHC_GRUPO_RAZON,
+      irz
+    );
+    renderBloqueDetalleCHC(
+      "interpDetMemEf",
+      "MEMORY AND COGNITIVE EFFICIENCY BLOCK",
+      BLOQUE_CHC_TEXTO.memEf,
+      rows,
+      CHC_GRUPO_MEM_EF,
+      ime
+    );
+    renderBloqueDetalleCHC(
+      "interpDetCompRep",
+      "COMPREHENSION AND REPRESENTATION BLOCK",
+      BLOQUE_CHC_TEXTO.compRep,
+      rows,
+      CHC_GRUPO_COMP_REP,
+      icr
+    );
+    renderLecturaGlobalCHC(igR);
+    renderPerfilCuantitativoGlobalCHC(ctx, irz, ime, icr, ig, rows);
+    renderRecomEscolar(rows, irz, ime, icr, ig);
+    renderPlanEscolar(rows);
+    fillTablaGlobales(rows, extras.totales, extras.resultados);
+  }
+
+  function fillHeader(box, ctx) {
+    const codigo = ctx.codigo || "—";
+    box.innerHTML =
+      "<div><b>Name:</b> " + escHtml(ctx.nombre || "—") + "</div>" +
+      "<div><b>Grade/Course:</b> " + escHtml(ctx.curso || "—") + "</div>" +
+      "<div><b>Country:</b> " + escHtml(ctx.grupo || "—") + "</div>" +
+      "<div><b>Institution:</b> " + escHtml(ctx.institucion || "—") + "</div>" +
+      "<div><b>Code:</b> " + escHtml(codigo) + "</div>" +
+      "<div><b>Date:</b> " + escHtml(ctx.fecha || "—") + "</div>";
+  }
+
+  function renderResumenLine(hostId, label, pct) {
+    const host = document.getElementById(hostId);
+    if (!host) return;
+    host.innerHTML = "";
+    addFactorRow(host, label, pct);
+  }
+
+  function applyMetaHighlights(resultados) {
+    const r = resultados;
+    const meta = r.meta || {};
+    const mins = meta.minutos_aprox;
+
+    var linea = document.getElementById("ivMinutosValor");
+    if (linea) {
+      if (typeof mins === "number" && !isNaN(mins)) {
+        linea.textContent = "Recorded: " + mins + " minutes.";
+        linea.style.color = "#0f172a";
+      } else {
+        linea.textContent = "No minutes recorded for this attempt.";
+        linea.style.color = "var(--muted)";
+      }
+    }
+
+    let colTime = 2;
+    if (typeof mins === "number" && !isNaN(mins)) {
+      if (mins >= 12 && mins <= 120) colTime = 1;
+      else if (mins < 8) colTime = 2;
+      else colTime = 3;
+    }
+    highlightIV("ivMeta2", colTime);
+  }
+
+  function renderAll(ctx) {
+    window.__LAST_CHC_REPORT__ = ctx;
+    const r = ctx.resultados;
+    const rows = ensureFactoresConGq(r.factores || []);
+    const ig = clamp(r.total && r.total.pct != null ? Number(r.total.pct) : 0, 1, 100);
+
+    const d1 = document.getElementById("repDateLine");
+    const d2 = document.getElementById("repDateLine2");
+    const now = new Date().toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" });
+    if (d1) d1.textContent = now;
+    if (d2) d2.textContent = now;
+
+    fillHeader(document.getElementById("repHeaderBox"), ctx);
+    fillHeader(document.getElementById("repHeaderBox2"), ctx);
+
+    const tituloCurva = document.getElementById("tituloCurvaFrecuencias");
+    if (tituloCurva) tituloCurva.textContent = "FREQUENCY DISTRIBUTION CURVE: (G.I. = " + Math.round(ig) + " %).";
+
+    window.__curveCHCValue = ig;
+    setCurveMarker(ig);
+    requestAnimationFrame(function () { setCurveMarker(ig); });
+    setTimeout(function () { setCurveMarker(ig); }, 120);
+
+    const razonFilas = rows.filter(function (x) { return CHC_GRUPO_RAZON.indexOf(x.code) >= 0; });
+    const memEfFilas = rows.filter(function (x) { return CHC_GRUPO_MEM_EF.indexOf(x.code) >= 0; });
+    const compRepFilas = rows.filter(function (x) { return CHC_GRUPO_COMP_REP.indexOf(x.code) >= 0; });
+
+    var irzVal = avgPct(rows, CHC_GRUPO_RAZON);
+    var imeVal = avgPct(rows, CHC_GRUPO_MEM_EF);
+    var icrVal = avgPct(rows, CHC_GRUPO_COMP_REP);
+
+    var elRZ = document.getElementById("ihRazon");
+    if (elRZ) elRZ.textContent = String(irzVal) + "%";
+    var elME = document.getElementById("ihMemEf");
+    if (elME) elME.textContent = String(imeVal) + "%";
+    var elCR = document.getElementById("ihCompRep");
+    if (elCR) elCR.textContent = String(icrVal) + "%";
+    var promTresIdx = Math.round((Number(irzVal) + Number(imeVal) + Number(icrVal)) / 3);
+    var elPG = document.getElementById("ihPromedioGrupos");
+    if (elPG) elPG.textContent = isNaN(promTresIdx) ? "—" : String(promTresIdx) + "%";
+    document.getElementById("repIGlobal").textContent = String(Math.round(ig)) + "%";
+    applyCISimulatedDOM(rows, r.total || null);
+
+    buildBloqueHost("bloqueRazon", razonFilas);
+    buildBloqueHost("bloqueMemEf", memEfFilas);
+    buildBloqueHost("bloqueCompRep", compRepFilas);
+
+    renderResumenLine("resumenGlobal", "GLOBAL PERFORMANCE ON THE BANK ", Math.round(ig));
+
+    applyMetaHighlights(r);
+
+    renderInterpretacionExtendida(ctx, rows, {
+      irz: irzVal,
+      ime: imeVal,
+      icr: icrVal,
+      ig: ig,
+      totals: r.total || null,
+      resultados: r
+    });
+
+    document.getElementById("reporteContainer").style.display = "block";
+  }
+
+  function parseResultados(raw) {
+    if (raw == null) return null;
+    if (typeof raw === "string") {
+      try { return JSON.parse(raw); } catch (e) { return null; }
+    }
+    return raw;
+  }
+
+  function tryLocalStorage(codigo) {
+    const key = STORAGE_PREFIX + codigo;
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function esInformeIntelAceptable(res) {
+    if (!res || !Array.isArray(res.factores) || res.factores.length === 0) return false;
+    if (res.prueba && res.prueba !== "Intelectual_CHC") return false;
+    return true;
+  }
+
+  async function tryServer(codigo) {
+    const url =
+      "/api/report?codigo=" +
+      encodeURIComponent(codigo) +
+      "&tipo=chc";
+    let r;
+    try {
+      r = await fetch(url);
+    } catch (net) {
+      const esFile = location.protocol === "file:";
+      throw new Error(
+        esFile ?
+          "No server: open this page from the same site where the API runs (e.g. http://localhost:3000/reporte-intelectual-en.html), not as a disk file (file:///)."
+          : ("No connection to the server (" +
+            String(net.message || net) +
+            "). Check that `/api/report` is published from the same origin.")
+      );
+    }
+    let data = {};
+    try {
+      data = await r.json();
+    } catch (e) {
+      throw new Error("Invalid server response.");
+    }
+    if (!r.ok) {
+      throw new Error(data.error || "Not found (HTTP " + r.status + ").");
+    }
+    if (data.error && !data.attempt) {
+      throw new Error(String(data.error).replace(/\*\*/g, ""));
+    }
+    if (data.puede_ver_resultado === false) {
+      throw new Error(
+        "This code has report viewing disabled (puede_ver_resultado). A coordinator can enable it on the participant record."
+      );
+    }
+    const att = data.attempt;
+    if (!att) throw new Error("No attempt registered on the server for this code.");
+    const part = data.participant || {};
+    const resParsed = parseResultados(att.resultados);
+    if (!esInformeIntelAceptable(resParsed)) {
+      throw new Error(
+        "Saved data appear incomplete or the attempt has no scores by domain (empty list). Check the code entered or finalize the assessment again from the application."
+      );
+    }
+    const fechaRaw =
+      att.created_at || att.creado_en || att.fecha_intento || null;
+    const fechaTxt = fechaRaw
+      ? new Date(fechaRaw).toLocaleDateString("en-US")
+      : "—";
+    const snap = {
+      nombre: String(att.nombre || part.nombre || "").trim() || "",
+      institucion: String(att.institucion || part.institucion || "").trim() || "",
+      grupo: String(att.grupo || part.grupo || "").trim() || "",
+      curso: String(att.curso || part.curso || "").trim() || "",
+      fecha: fechaTxt
+    };
+    return { codigo: codigo, snapshot: snap, resultados: resParsed, source: "server" };
+  }
+
+  function ctxFromLocalState(st, codigo) {
+    const res = st.resultados;
+    if (!esInformeIntelAceptable(res)) return null;
+    return {
+      codigo: codigo,
+      nombre: st.nombre || "",
+      institucion: st.institucion || "",
+      grupo: st.grupo || "",
+      curso: st.curso || "",
+      fecha: st.fecha || "—",
+      resultados: res,
+      source: "local"
+    };
+  }
+
+  async function cargar(codigo) {
+    const msg = document.getElementById("msg");
+    document.getElementById("reporteContainer").style.display = "none";
+    msg.textContent = "Searching...";
+    msg.className = "msg";
+
+    const st = tryLocalStorage(codigo);
+    if (st) {
+      const ctx = ctxFromLocalState(st, codigo);
+      if (ctx) {
+        msg.textContent = "Report loaded (local device).";
+        msg.className = "msg ok";
+        renderAll(ctx);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      // Local puede estar incompleto (ej. finalized con versión vieja sin resultados): seguir intentando servidor.
+    }
+
+    try {
+      const ctx = await tryServer(codigo);
+      msg.textContent = "Report loaded (server).";
+      msg.className = "msg ok";
+      const merged = {
+        codigo: ctx.codigo,
+        nombre: ctx.snapshot.nombre,
+        institucion: ctx.snapshot.institucion,
+        grupo: ctx.snapshot.grupo,
+        curso: ctx.snapshot.curso,
+        fecha: ctx.snapshot.fecha,
+        resultados: ctx.resultados
+      };
+      renderAll(merged);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (e) {
+      console.warn(e);
+      var txt = st ? (e.message || "No data on server.") : (e.message || "No data. Complete the assessment or verify the code.");
+      if (st && st.completed && (!st.resultados || !esInformeIntelAceptable(parseResultados(st.resultados)))) {
+        txt += " This device has an incomplete browser draft; if you already finished successfully, delete the key eval_chc_state_" + codigo + " in localStorage or tap Finish again in evaluacion-intelectual.html.";
+      }
+      msg.textContent = txt;
+      msg.className = "msg err";
+    }
+  }
+
+  document.getElementById("btnVer").addEventListener("click", function () {
+    const c = document.getElementById("codigoInput").value.trim().toUpperCase();
+    if (!c) return;
+    cargar(c);
+  });
+
+  document.getElementById("btnImprimir").addEventListener("click", function () { window.print(); });
+  var btnPrint2 = document.getElementById("btnImprimirDup");
+  if (btnPrint2) btnPrint2.addEventListener("click", function () { window.print(); });
+  function exportInformeIntelJson() {
+    const p = window.__LAST_CHC_REPORT__ || {};
+    const blob = new Blob([JSON.stringify(p, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "reporte-intelectual-chc.json";
+    a.click();
+  }
+
+  document.getElementById("btnExportJSON").addEventListener("click", exportInformeIntelJson);
+  var btnExport2 = document.getElementById("btnExportJSONDup");
+  if (btnExport2) btnExport2.addEventListener("click", exportInformeIntelJson);
+
+  window.addEventListener("beforeprint", function () {
+    const v = window.__curveCHCValue;
+    if (v == null || isNaN(Number(v))) return;
+    requestAnimationFrame(function () { setCurveMarker(Number(v)); });
+  });
+  window.addEventListener("afterprint", function () {
+    const v = window.__curveCHCValue;
+    if (v == null || isNaN(Number(v))) return;
+    requestAnimationFrame(function () { setCurveMarker(Number(v)); });
+  });
+
+  (function init() {
+    const qp = new URLSearchParams(location.search);
+    const c = (qp.get("codigo") || "").trim().toUpperCase();
+    if (c) {
+      document.getElementById("codigoInput").value = c;
+      cargar(c);
+    }
+  })();
+})();
+</script>
+</body>
+</html>
