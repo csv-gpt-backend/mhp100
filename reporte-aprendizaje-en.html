@@ -342,8 +342,14 @@ lenguaje_visual: [
   function fmtDate(iso){ if(!iso) return '—'; try { return new Date(iso).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'2-digit'});} catch{return '—';}}
   function parseMaybeJSON(v){ if(!v) return null; if(typeof v==='object') return v; try{return JSON.parse(v);}catch{return null;} }
   function scoreOf(obj, key){ return obj && obj[key] ? Number(obj[key].pct ?? obj[key].raw ?? 0) : 0; }
-  function compData(res,key){ return res.componentes && res.componentes[key] ? res.componentes[key] : {label:COMPONENT_LABELS[key]||key,pct:0,raw:0}; }
-  function areaData(res,key){ return res.areas && res.areas[key] ? res.areas[key] : {label:AREA_LABELS[key]||key,pct:0,raw:0}; }
+  function compData(res,key){
+    const c = res.componentes && res.componentes[key] ? res.componentes[key] : { pct: 0, raw: 0 };
+    return { ...c, label: COMPONENT_LABELS[key] || key };
+  }
+  function areaData(res,key){
+    const a = res.areas && res.areas[key] ? res.areas[key] : { pct: 0, raw: 0 };
+    return { ...a, label: AREA_LABELS[key] || key };
+  }
 
   function avgAreaScore(res){ const vals = AREA_ORDER.map(k=>scoreOf(res.areas,k)); return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0; }
 
