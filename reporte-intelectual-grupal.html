@@ -29,10 +29,14 @@
     th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;font-size:14px;}
     th{background:#eef2f7;font-size:12px;}
     .num{text-align:right;font-variant-numeric:tabular-nums;}
+    th.hab,td.hab{font-size:12px;min-width:72px;}
+    th.hab{white-space:normal;line-height:1.25;vertical-align:bottom;}
+    .card.scroll{overflow:auto;}
     @media print{
       .no-print{display:none !important;}
       .wrap{max-width:none;margin:0;}
-      body{zoom:0.92;}
+      body{zoom:0.88;}
+      th.hab,td.hab{font-size:9px;min-width:48px;padding:4px;}
     }
   </style>
 </head>
@@ -78,10 +82,10 @@
         </div>
       </div>
 
-      <div class="card" style="background:#fff;padding:0;overflow:auto;">
+      <div class="card scroll" style="background:#fff;padding:0;">
         <table>
           <thead>
-            <tr>
+            <tr id="theadRow">
               <th>#</th>
               <th>Nombre</th>
               <th>Código</th>
@@ -90,9 +94,10 @@
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
+          <tfoot id="tfoot"></tfoot>
         </table>
       </div>
-      <p class="muted">I.G. = índice global del banco intelectual (% de aciertos del intento). Si aparece “—”, el JSON de resultados no trae total.pct.</p>
+      <p class="muted">Columnas de habilidades = ámbitos del banco intelectual (Gf, Gq, Gwm, Gs, Glr, Gc, Gv) con su nombre. I.G. = % global del banco. “—” = sin dato en ese ámbito.</p>
     </div>
   </div>
 
@@ -266,16 +271,40 @@
         data.promedio_ig != null ? data.promedio_ig + "%" : "—";
       document.getElementById("metaPref").textContent = prefijo;
 
+      const columnas = data.columnas || [];
+      const thead = document.getElementById("theadRow");
+      thead.innerHTML =
+        "<th>#</th><th>Nombre</th><th>Código</th>" +
+        columnas.map(c => "<th class='num hab' title='" + esc(c.code) + "'>" + esc(c.label) + "</th>").join("") +
+        "<th class='num'>I.G. %</th><th>Fecha</th>";
+
       const tb = document.getElementById("tbody");
       tb.innerHTML = data.miembros.map((m, i) =>
         "<tr>" +
           "<td>" + (i + 1) + "</td>" +
           "<td>" + esc(m.nombre) + "</td>" +
           "<td>" + esc(m.codigo) + "</td>" +
+          columnas.map(c => {
+            const v = m.scores && m.scores[c.code];
+            return "<td class='num hab'>" + (v != null ? v + "%" : "—") + "</td>";
+          }).join("") +
           "<td class='num'>" + (m.ig_pct != null ? m.ig_pct + "%" : "—") + "</td>" +
           "<td>" + esc(fmtDate(m.created_at)) + "</td>" +
         "</tr>"
       ).join("");
+
+      const tf = document.getElementById("tfoot");
+      const prom = data.promedios || {};
+      tf.innerHTML =
+        "<tr>" +
+          "<td colspan='3'><b>Promedio del grupo</b></td>" +
+          columnas.map(c => {
+            const v = prom[c.code];
+            return "<td class='num hab'><b>" + (v != null ? v + "%" : "—") + "</b></td>";
+          }).join("") +
+          "<td class='num'><b>" + (data.promedio_ig != null ? data.promedio_ig + "%" : "—") + "</b></td>" +
+          "<td></td>" +
+        "</tr>";
 
       document.getElementById("resultado").style.display = "block";
       msg.textContent = "Grupo cargado (" + data.total + ").";

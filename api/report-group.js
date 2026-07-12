@@ -1,5 +1,16 @@
 const { sql } = require("@vercel/postgres");
 
+const CHC_ORDER = ["Gf", "Gq", "Gwm", "Gs", "Glr", "Gc", "Gv"];
+const CHC_LABELS = {
+  Gf: "Razonamiento fluido",
+  Gq: "Razonamiento cuantitativo",
+  Gwm: "Memoria de trabajo",
+  Gs: "Velocidad de procesamiento",
+  Glr: "Memoria asociativa / recuperación",
+  Gc: "Comprensión verbal",
+  Gv: "Procesamiento visual-espacial"
+};
+
 function parseResultados(raw) {
   if (!raw) return null;
   if (typeof raw === "object") return raw;
@@ -18,6 +29,34 @@ function igFromResultados(raw) {
   return Math.round(Math.max(0, Math.min(100, pct)));
 }
 
+function habilidadesFromResultados(raw) {
+  const r = parseResultados(raw);
+  const list = Array.isArray(r && r.factores) ? r.factores : [];
+  const byCode = {};
+  list.forEach((f) => {
+    if (!f || f.pct == null || f._pendiente) return;
+    const code = String(f.code || "").trim();
+    if (!code) return;
+    const pct = Number(f.pct);
+    if (Number.isNaN(pct)) return;
+    byCode[code] = {
+      code,
+      label: String(f.label || CHC_LABELS[code] || code).trim(),
+      pct: Math.round(Math.max(0, Math.min(100, pct)))
+    };
+  });
+
+  const ordered = [];
+  CHC_ORDER.forEach((code) => {
+    if (byCode[code]) ordered.push(byCode[code]);
+    delete byCode[code];
+  });
+  Object.keys(byCode)
+    .sort()
+    .forEach((code) => ordered.push(byCode[code]));
+  return ordered;
+}
+
 function norm(v) {
   return String(v ?? "").trim();
 }
@@ -28,7 +67,6 @@ module.exports = async function handler(req, res) {
       return res.status(405).json({ error: "Solo GET" });
     }
 
-    // Listas para selectores (desde attempts)
     if (String(req.query.lista || "") === "1") {
       const aRes = await sql`
         SELECT DISTINCT ON (UPPER(codigo))
@@ -87,15 +125,53 @@ module.exports = async function handler(req, res) {
       ORDER BY UPPER(codigo), created_at DESC
     `;
 
-    const rows = (aRes.rows || []).map((row) => ({
-      codigo: row.codigo,
-      nombre: row.nombre || "—",
-      institucion: row.institucion || "—",
-      grupo: row.grupo || "—",
-      curso: row.curso || "—",
-      created_at: row.created_at || null,
-      ig_pct: igFromResultados(row.resultados)
-    }));
+    const columnsMap = new Map();
+    CHC_ORDER.forEach((code) => {
+      columnsMap.set(code, CHC_LABELS[code] || code);
+    });
+
+    const rows = (aRes.rows || []).map((row) => {
+      const habilidades = habilidadesFromResultados(row.resultados);
+      const scores = {};
+      habilidades.forEach((h) => {
+        scores[h.code] = h.pct;
+        if (!columnsMap.has(h.code)) columnsMap.set(h.code, h.label);
+        else if (h.label) columnsMap.set(h.code, h.label);
+      });
+      return {
+        codigo: row.codigo,
+        nombre: row.nombre || "—",
+        institucion: row.institucion || "—",
+        grupo: row.grupo || "—",
+        curso: row.curso || "—",
+        created_at: row.created_at || null,
+        ig_pct: igFromResultados(row.resultados),
+        scores,
+        habilidades
+      };
+    });
+
+    const columnas = [];
+    CHC_ORDER.forEach((code) => {
+      if (columnsMap.has(code)) {
+        columnas.push({ code, label: columnsMap.get(code) });
+        columnsMap.delete(code);
+      }
+    });
+    [...columnsMap.entries()].forEach(([code, label]) => {
+      columnas.push({ code, label });
+    });
+
+    const promedios = {};
+    columnas.forEach((col) => {
+      const vals = rows
+        .map((r) => r.scores[col.code])
+        .filter((v) => v != null && !Number.isNaN(v));
+      promedios[col.code] =
+        vals.length > 0
+          ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length)
+          : null;
+    });
 
     const conIg = rows.filter((r) => r.ig_pct != null);
     const promedio_ig =
@@ -108,6 +184,8 @@ module.exports = async function handler(req, res) {
       filtro: { institucion, grupo, curso, codigo_prefijo: prefijo },
       total: rows.length,
       promedio_ig,
+      columnas,
+      promedios,
       miembros: rows
     });
   } catch (e) {
