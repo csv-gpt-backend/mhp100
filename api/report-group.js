@@ -36,9 +36,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    if (!prefijo.endsWith("%") && !prefijo.endsWith("-")) {
-      prefijo = prefijo + "-";
-    }
+    // LIKE libre: lo que escriba el usuario + % (sin forzar guion)
     if (!prefijo.endsWith("%")) {
       prefijo = prefijo + "%";
     }
