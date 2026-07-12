@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ADALAM — Reporte grupal intelectual (demo)</title>
+  <style>
+    :root{ --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --soft:#f8fafc; --ok:#15803d; --err:#b91c1c; }
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#fff;color:var(--ink);}
+    .wrap{max-width:920px;margin:18px auto 40px;padding:0 14px;}
+    h1{font-size:1.35rem;margin:0 0 6px;}
+    .muted{color:var(--muted);font-size:13px;line-height:1.45;}
+    .card{border:1px solid var(--line);border-radius:12px;background:var(--soft);padding:12px;margin:12px 0;}
+    .filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    @media (max-width:700px){ .filters{grid-template-columns:1fr;} }
+    label{display:block;font-size:12px;font-weight:700;margin-bottom:4px;}
+    input{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px;}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center;}
+    .btn{padding:9px 14px;border:0;border-radius:999px;background:#1a8f3b;color:#fff;font-weight:700;cursor:pointer;font-size:15px;}
+    .btn.secondary{background:#2563eb;}
+    .msg{font-weight:700;font-size:13px;}
+    .msg.ok{color:var(--ok);} .msg.err{color:var(--err);}
+    .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+    @media (max-width:700px){ .meta{grid-template-columns:1fr;} }
+    .meta div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;}
+    .meta b{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
+    .meta span{font-size:1.25rem;font-weight:800;}
+    table{width:100%;border-collapse:collapse;background:#fff;margin-top:10px;}
+    th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;font-size:14px;}
+    th{background:#eef2f7;font-size:12px;}
+    .num{text-align:right;font-variant-numeric:tabular-nums;}
+    @media print{
+      .no-print{display:none !important;}
+      .wrap{max-width:none;margin:0;}
+      body{zoom:0.92;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Reporte grupal · Evaluación intelectual</h1>
+    <p class="muted">Demo: agrupa intentos con misma institución, país (grupo), curso y prefijo de código. Datos solo desde <b>attempts</b>.</p>
+
+    <div class="card no-print">
+      <div class="filters">
+        <div>
+          <label for="institucion">Institución</label>
+          <input id="institucion" value="COLEGIO TEST"/>
+        </div>
+        <div>
+          <label for="grupo">País (grupo)</label>
+          <input id="grupo" value="ECUADOR"/>
+        </div>
+        <div>
+          <label for="curso">Curso / grado</label>
+          <input id="curso" value="SEGUNDO B"/>
+        </div>
+        <div>
+          <label for="prefijo">Prefijo de código</label>
+          <input id="prefijo" value="ESC-INTELECTUAL-"/>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn" id="btnCargar">Ver grupo</button>
+        <button type="button" class="btn secondary" id="btnPrint">Imprimir / PDF</button>
+        <span id="msg" class="msg"></span>
+      </div>
+    </div>
+
+    <div id="resultado" style="display:none">
+      <div class="card">
+        <div style="font-weight:800;margin-bottom:4px;">Contexto del grupo</div>
+        <div class="muted" id="contextoTxt"></div>
+        <div class="meta">
+          <div><b>Integrantes</b><span id="metaTotal">—</span></div>
+          <div><b>Promedio I.G.</b><span id="metaProm">—</span></div>
+          <div><b>Evaluación</b><span style="font-size:1rem" id="metaPref">—</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="background:#fff;padding:0;overflow:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Código</th>
+              <th class="num">I.G. %</th>
+              <th>Fecha intento</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <p class="muted">I.G. = índice global del banco intelectual (% de aciertos del intento). Si aparece “—”, el JSON de resultados no trae total.pct.</p>
+    </div>
+  </div>
+
+<script>
+  function esc(s){
+    return String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function fmtDate(iso){
+    if(!iso) return "—";
+    try{
+      return new Date(iso).toLocaleDateString("es-EC",{year:"numeric",month:"long",day:"2-digit"});
+    }catch{ return "—"; }
+  }
+
+  async function cargar(){
+    const msg = document.getElementById("msg");
+    const institucion = document.getElementById("institucion").value.trim();
+    const grupo = document.getElementById("grupo").value.trim();
+    const curso = document.getElementById("curso").value.trim();
+    const prefijo = document.getElementById("prefijo").value.trim();
+    msg.className = "msg";
+    msg.textContent = "Buscando...";
+    document.getElementById("resultado").style.display = "none";
+
+    const qs = new URLSearchParams({ institucion, grupo, curso, codigo_prefijo: prefijo });
+    try{
+      const r = await fetch("/api/report-group?" + qs.toString());
+      const data = await r.json();
+      if(!r.ok || data.valid === false){
+        msg.textContent = data.error || "No se pudo cargar el grupo";
+        msg.className = "msg err";
+        return;
+      }
+      if(!data.miembros || data.miembros.length < 1){
+        msg.textContent = "No hay intentos con ese filtro.";
+        msg.className = "msg err";
+        return;
+      }
+
+      document.getElementById("contextoTxt").textContent =
+        institucion + " · " + grupo + " · " + curso;
+      document.getElementById("metaTotal").textContent = String(data.total);
+      document.getElementById("metaProm").textContent =
+        data.promedio_ig != null ? data.promedio_ig + "%" : "—";
+      document.getElementById("metaPref").textContent = prefijo;
+
+      const tb = document.getElementById("tbody");
+      tb.innerHTML = data.miembros.map((m, i) =>
+        "<tr>" +
+          "<td>" + (i + 1) + "</td>" +
+          "<td>" + esc(m.nombre) + "</td>" +
+          "<td>" + esc(m.codigo) + "</td>" +
+          "<td class='num'>" + (m.ig_pct != null ? m.ig_pct + "%" : "—") + "</td>" +
+          "<td>" + esc(fmtDate(m.created_at)) + "</td>" +
+        "</tr>"
+      ).join("");
+
+      document.getElementById("resultado").style.display = "block";
+      msg.textContent = "Grupo cargado (" + data.total + ").";
+      msg.className = "msg ok";
+    }catch(e){
+      console.error(e);
+      msg.textContent = "Error de conexión";
+      msg.className = "msg err";
+    }
+  }
+
+  document.getElementById("btnCargar").addEventListener("click", cargar);
+  document.getElementById("btnPrint").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
