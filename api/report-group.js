@@ -18,16 +18,46 @@ function igFromResultados(raw) {
   return Math.round(Math.max(0, Math.min(100, pct)));
 }
 
+function norm(v) {
+  return String(v ?? "").trim();
+}
+
 module.exports = async function handler(req, res) {
   try {
     if (req.method !== "GET") {
       return res.status(405).json({ error: "Solo GET" });
     }
 
-    const institucion = String(req.query.institucion || "").trim();
-    const grupo = String(req.query.grupo || "").trim();
-    const curso = String(req.query.curso || "").trim();
-    let prefijo = String(req.query.codigo_prefijo || "").trim().toUpperCase();
+    // Listas para selectores (desde attempts)
+    if (String(req.query.lista || "") === "1") {
+      const aRes = await sql`
+        SELECT DISTINCT ON (UPPER(codigo))
+          codigo,
+          institucion,
+          grupo,
+          curso
+        FROM attempts
+        WHERE institucion IS NOT NULL AND TRIM(institucion) <> ''
+          AND grupo IS NOT NULL AND TRIM(grupo) <> ''
+          AND curso IS NOT NULL AND TRIM(curso) <> ''
+          AND codigo IS NOT NULL AND TRIM(codigo) <> ''
+        ORDER BY UPPER(codigo), created_at DESC
+      `;
+
+      const filas = (aRes.rows || []).map((row) => ({
+        codigo: norm(row.codigo).toUpperCase(),
+        institucion: norm(row.institucion),
+        grupo: norm(row.grupo),
+        curso: norm(row.curso)
+      }));
+
+      return res.status(200).json({ valid: true, filas });
+    }
+
+    const institucion = norm(req.query.institucion);
+    const grupo = norm(req.query.grupo);
+    const curso = norm(req.query.curso);
+    let prefijo = norm(req.query.codigo_prefijo).toUpperCase();
 
     if (!institucion || !grupo || !curso || !prefijo) {
       return res.status(400).json({
@@ -36,7 +66,6 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // LIKE libre: lo que escriba el usuario + % (sin forzar guion)
     if (!prefijo.endsWith("%")) {
       prefijo = prefijo + "%";
     }

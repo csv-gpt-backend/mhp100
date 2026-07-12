@@ -14,7 +14,7 @@
     .filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     @media (max-width:700px){ .filters{grid-template-columns:1fr;} }
     label{display:block;font-size:12px;font-weight:700;margin-bottom:4px;}
-    input{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px;}
+    select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px;background:#fff;}
     .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center;}
     .btn{padding:9px 14px;border:0;border-radius:999px;background:#1a8f3b;color:#fff;font-weight:700;cursor:pointer;font-size:15px;}
     .btn.secondary{background:#2563eb;}
@@ -39,25 +39,25 @@
 <body>
   <div class="wrap">
     <h1>Reporte grupal · Evaluación intelectual</h1>
-    <p class="muted">Demo: agrupa intentos con misma institución, país (grupo), curso y prefijo de código. Datos solo desde <b>attempts</b>.</p>
+    <p class="muted">Demo: selectores desde <b>attempts</b> (institución → país → curso → código/prefijo).</p>
 
     <div class="card no-print">
       <div class="filters">
         <div>
           <label for="institucion">Institución</label>
-          <input id="institucion" value="COLEGIO TEST"/>
+          <select id="institucion"><option value="">Cargando…</option></select>
         </div>
         <div>
           <label for="grupo">País (grupo)</label>
-          <input id="grupo" value="ECUADOR"/>
+          <select id="grupo" disabled><option value="">—</option></select>
         </div>
         <div>
           <label for="curso">Curso / grado</label>
-          <input id="curso" value="SEGUNDO B"/>
+          <select id="curso" disabled><option value="">—</option></select>
         </div>
         <div>
-          <label for="prefijo">Prefijo o código (ej. ESC-INTELECTUAL- · INTEL204 · INTEL)</label>
-          <input id="prefijo" value="ESC-INTELECTUAL-"/>
+          <label for="prefijo">Código o prefijo de grupo</label>
+          <select id="prefijo" disabled><option value="">—</option></select>
         </div>
       </div>
       <div class="actions">
@@ -74,7 +74,7 @@
         <div class="meta">
           <div><b>Integrantes</b><span id="metaTotal">—</span></div>
           <div><b>Promedio I.G.</b><span id="metaProm">—</span></div>
-          <div><b>Evaluación</b><span style="font-size:1rem" id="metaPref">—</span></div>
+          <div><b>Filtro código</b><span style="font-size:1rem" id="metaPref">—</span></div>
         </div>
       </div>
 
@@ -97,6 +97,8 @@
   </div>
 
 <script>
+  let FILAS = [];
+
   function esc(s){
     return String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
@@ -106,6 +108,126 @@
       return new Date(iso).toLocaleDateString("es-EC",{year:"numeric",month:"long",day:"2-digit"});
     }catch{ return "—"; }
   }
+  function uniq(arr){
+    return [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es",{sensitivity:"base"}));
+  }
+  function fillSelect(sel, values, placeholder){
+    const cur = sel.value;
+    sel.innerHTML = "";
+    const ph = document.createElement("option");
+    ph.value = "";
+    ph.textContent = placeholder || "Seleccione…";
+    sel.appendChild(ph);
+    values.forEach(v=>{
+      const o = document.createElement("option");
+      o.value = v;
+      o.textContent = v;
+      sel.appendChild(o);
+    });
+    if (values.includes(cur)) sel.value = cur;
+    else sel.value = "";
+  }
+
+  /** Prefijos útiles: código completo + tramo antes del último bloque numérico (ESC-INTELECTUAL-) */
+  function opcionesCodigo(filas){
+    const codigos = uniq(filas.map(f => f.codigo));
+    const prefs = new Set();
+    codigos.forEach(c=>{
+      prefs.add(c);
+      const m = c.match(/^(.*-)\d+$/);
+      if (m && m[1].length >= 3) prefs.add(m[1]);
+      const m2 = c.match(/^([A-Z]+)/);
+      if (m2 && m2[1].length >= 3 && m2[1] !== c) prefs.add(m2[1]);
+    });
+    return uniq([...prefs]);
+  }
+
+  function onInstitucion(){
+    const inst = document.getElementById("institucion").value;
+    const grupos = uniq(FILAS.filter(f => f.institucion === inst).map(f => f.grupo));
+    fillSelect(document.getElementById("grupo"), grupos, "Seleccione país…");
+    document.getElementById("grupo").disabled = !inst;
+    fillSelect(document.getElementById("curso"), [], "—");
+    document.getElementById("curso").disabled = true;
+    fillSelect(document.getElementById("prefijo"), [], "—");
+    document.getElementById("prefijo").disabled = true;
+  }
+
+  function onGrupo(){
+    const inst = document.getElementById("institucion").value;
+    const grupo = document.getElementById("grupo").value;
+    const cursos = uniq(
+      FILAS.filter(f => f.institucion === inst && f.grupo === grupo).map(f => f.curso)
+    );
+    fillSelect(document.getElementById("curso"), cursos, "Seleccione curso…");
+    document.getElementById("curso").disabled = !grupo;
+    fillSelect(document.getElementById("prefijo"), [], "—");
+    document.getElementById("prefijo").disabled = true;
+  }
+
+  function onCurso(){
+    const inst = document.getElementById("institucion").value;
+    const grupo = document.getElementById("grupo").value;
+    const curso = document.getElementById("curso").value;
+    const subset = FILAS.filter(
+      f => f.institucion === inst && f.grupo === grupo && f.curso === curso
+    );
+    const opts = opcionesCodigo(subset);
+    fillSelect(document.getElementById("prefijo"), opts, "Seleccione código/prefijo…");
+    document.getElementById("prefijo").disabled = !curso || opts.length === 0;
+
+    // Preferir prefijo de grupo si hay varios ESC-INTELECTUAL-*
+    const groupPref = opts.find(o => /-$/.test(o) && subset.filter(f => f.codigo.startsWith(o)).length >= 2);
+    if (groupPref) document.getElementById("prefijo").value = groupPref;
+  }
+
+  async function cargarListas(){
+    const msg = document.getElementById("msg");
+    msg.className = "msg";
+    msg.textContent = "Cargando listas…";
+    try{
+      const r = await fetch("/api/report-group?lista=1");
+      const data = await r.json();
+      if(!r.ok || data.valid === false){
+        msg.textContent = data.error || "No se pudieron cargar las listas";
+        msg.className = "msg err";
+        return;
+      }
+      FILAS = data.filas || [];
+      const instituciones = uniq(FILAS.map(f => f.institucion));
+      fillSelect(document.getElementById("institucion"), instituciones, "Seleccione institución…");
+      document.getElementById("institucion").disabled = instituciones.length === 0;
+      fillSelect(document.getElementById("grupo"), [], "—");
+      fillSelect(document.getElementById("curso"), [], "—");
+      fillSelect(document.getElementById("prefijo"), [], "—");
+      document.getElementById("grupo").disabled = true;
+      document.getElementById("curso").disabled = true;
+      document.getElementById("prefijo").disabled = true;
+
+      // Demo: precargar Colegio Test si existe
+      if (instituciones.includes("COLEGIO TEST")) {
+        document.getElementById("institucion").value = "COLEGIO TEST";
+        onInstitucion();
+        if ([...document.getElementById("grupo").options].some(o => o.value === "ECUADOR")) {
+          document.getElementById("grupo").value = "ECUADOR";
+          onGrupo();
+          if ([...document.getElementById("curso").options].some(o => o.value === "SEGUNDO B")) {
+            document.getElementById("curso").value = "SEGUNDO B";
+            onCurso();
+          }
+        }
+      }
+
+      msg.textContent = instituciones.length
+        ? "Listas listas. Elija el grupo y pulse Ver grupo."
+        : "No hay intentos con institución/país/curso.";
+      msg.className = instituciones.length ? "msg ok" : "msg err";
+    }catch(e){
+      console.error(e);
+      msg.textContent = "Error de conexión al cargar listas";
+      msg.className = "msg err";
+    }
+  }
 
   async function cargar(){
     const msg = document.getElementById("msg");
@@ -113,6 +235,11 @@
     const grupo = document.getElementById("grupo").value.trim();
     const curso = document.getElementById("curso").value.trim();
     const prefijo = document.getElementById("prefijo").value.trim();
+    if(!institucion || !grupo || !curso || !prefijo){
+      msg.textContent = "Complete los cuatro selectores.";
+      msg.className = "msg err";
+      return;
+    }
     msg.className = "msg";
     msg.textContent = "Buscando...";
     document.getElementById("resultado").style.display = "none";
@@ -160,8 +287,12 @@
     }
   }
 
+  document.getElementById("institucion").addEventListener("change", onInstitucion);
+  document.getElementById("grupo").addEventListener("change", onGrupo);
+  document.getElementById("curso").addEventListener("change", onCurso);
   document.getElementById("btnCargar").addEventListener("click", cargar);
   document.getElementById("btnPrint").addEventListener("click", () => window.print());
+  cargarListas();
 </script>
 </body>
 </html>
