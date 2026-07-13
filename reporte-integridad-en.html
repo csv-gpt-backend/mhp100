@@ -88,6 +88,7 @@
       .wrap{max-width:none;margin:0 auto;padding:0 6px}
       .page{margin-top:0;break-inside:auto}
       .page-break{break-after:page;page-break-after:always;margin-bottom:18px;}
+      #curveCaption,.curve-caption{font-size:11px !important;white-space:nowrap;letter-spacing:0}
       /* Mantener la PARTE 1 en una sola hoja */
       #page1{zoom:0.90;}
       .rep-top{margin-bottom:4px;padding-bottom:4px}
@@ -130,6 +131,9 @@
     box-shadow: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    font-size:11px !important;
+    white-space:nowrap;
+    letter-spacing:0;
   }
 
   /* Quitar filtros que suelen "romper" SVG en PDF */
@@ -137,8 +141,9 @@
   #curveFill{ filter: none !important; }
 
   /* Parte 2 PDF: una habilidad debajo de otra (mismo texto que en pantalla) */
-  body{ zoom:1 !important; }
+  body{ zoom:0.92 !important; }
   #page1{ zoom:0.90 !important; }
+  #btnImprimir,#btnPDF{display:none !important;}
   .page, .pagina{
     max-width:100% !important;
     width:100% !important;
@@ -908,7 +913,9 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 
 </div>
 
-
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Print / PDF</button>
+      </div>
 
   </section>
 
@@ -926,6 +933,9 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
     </div>
     <div class="rep-meta muted" id="repDateLine2">—</div>
   </div>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" id="btnPDF" class="btn" style="background:#2563eb">Print / PDF</button>
+      </div>
 
   <div class="rep-box" id="repHeaderBox2"></div>
 </div>
@@ -3263,19 +3273,8 @@ function interpGlobal(ivi, sellos){
       cargarReporte(c);
     });
   }
-function exportJSON(){
-    const payload = window.__LAST_REPORT__ || {};
-    const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "reporte-integridad.json";
-    a.click();
-  }
-
   (()=>{const __el=document.getElementById("btnImprimir"); if(__el) __el.addEventListener("click", ()=>window.print());})();
-  (()=>{const __el=document.getElementById("btnExportJSON"); if(__el) __el.addEventListener("click", exportJSON);})();
   (()=>{const __el=document.getElementById("btnPDF"); if(__el) __el.addEventListener("click", ()=>window.print());})();
-  (()=>{const __el=document.getElementById("btnJSON"); if(__el) __el.addEventListener("click", exportJSON);})();
 
   (function init(){
     const qp = new URLSearchParams(location.search);
