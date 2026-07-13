@@ -4,9 +4,26 @@
 <style>
 :root{--ink:#0f172a;--muted:#64748b;--line:#dbe2ea;--bg:#f8fafc}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-.wrap{max-width:980px;margin:18px auto 40px;padding:0 12px}.topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.wrap{max-width:980px;margin:18px auto 40px;padding:0 12px}
+.ingreso-panel{max-width:540px;margin:0 auto;padding:0 8px 20px;text-align:center}
+.intro-logo-wrap{display:flex;justify-content:center;align-items:center;margin:12px 0 10px}
+.intro-logo{width:256px;max-width:78vw;height:auto;object-fit:contain;display:block}
+.ingreso-form{margin:0 auto 6px;max-width:100%}
+.ingreso-row{display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:10px}
+.ingreso-row input{
+  width:min(260px,58vw);min-width:150px;max-width:260px;
+  padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;text-transform:uppercase;box-sizing:border-box;
+}
+.ingreso-form #msg{display:block;width:100%;text-align:center;margin:8px 0 0;font-weight:700;min-height:1.25em}
+.ingreso-titulo{
+  text-align:center;font-weight:800;font-size:clamp(1.05rem,2.9vw,1.42rem);line-height:1.3;
+  margin:0 0 14px;padding:0 10px;color:#0f172a;text-transform:uppercase;letter-spacing:.03em;
+}
+.hint{font-size:12px;color:var(--muted);margin-bottom:8px}
+.hint.ingreso-usuario{text-align:center;font-size:12px;line-height:1.45;margin-top:-2px;margin-bottom:14px}
 input{padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;width:190px;text-transform:uppercase}
 button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:pointer}.primary{background:#15803d;color:#fff}.ghost{background:#fff;border:1px solid #cbd5e1}
+.btn{padding:9px 14px;border:0;border-radius:999px;background:#1a8f3b;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
 .msg{font-weight:700}.ok{color:#15803d}.err{color:#dc2626}
 .sheet{display:none;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 8px 26px rgba(0,0,0,.05);margin-bottom:16px}
 .header{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:8px}
@@ -54,13 +71,14 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
 @media (max-width:860px){.row-top{grid-template-columns:1fr}.grid-user{grid-template-columns:1fr}.quick{grid-template-columns:1fr}.micro{grid-template-columns:1fr}.factor .head{grid-template-columns:1fr}.factor .left{border-right:0;border-bottom:1px solid var(--line)}}
 @media print{
   @page{size:A4;margin:8mm}
-  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff;zoom:0.92;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .wrap{max-width:none;margin:0;padding:0}
-  .topbar{display:none}
+  .ingreso-panel,.hint,#msg,#btnImprimir,#btnPDF{display:none !important}
   .sheet{display:block !important;border:0;box-shadow:none;border-radius:0;margin:0;padding:6mm}
   /* #p1 ya fuerza salto; evitar doble page-break que deja hoja en blanco */
   .sheet + .sheet{page-break-before:auto}
   #p1{page-break-after:always}
+  #curveTitle{font-size:11px !important;white-space:nowrap;letter-spacing:0}
   .userTbl{display:table !important;width:100% !important;table-layout:fixed}
   .userTbl tr{display:table-row !important}
   .userTbl td{display:table-cell !important;width:33.33% !important;vertical-align:top}
@@ -68,7 +86,7 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
   .grid-user{grid-template-columns:repeat(2,1fr) !important}
   .quick{grid-template-columns:repeat(3,1fr) !important}
   .micro{grid-template-columns:1fr 1fr !important}
-  .curve-wrap{height:158px !important}
+  .curve-wrap{height:200px !important}
   .logo{height:78px !important;margin-top:0 !important}
   .title h1{font-size:22px !important;margin-top:10px !important}
   .title h2{font-size:13px !important}
@@ -124,7 +142,20 @@ h1{margin-top:14px !important;}
 
 </style></head>
 <body><div class="wrap">
-<div class="topbar"><input id="codigo" placeholder="Código"><button class="primary" id="ver">Ver reporte</button><button class="ghost" id="pdf">Imprimir / PDF</button><span id="msg" class="msg"></span></div>
+<div class="ingreso-panel">
+  <div class="intro-logo-wrap">
+    <img src="assets/logo_adalam.webp" alt="Sello Adalam" class="intro-logo" width="248" height="99"/>
+  </div>
+  <h1 class="ingreso-titulo">Reporte evaluación de hábitos</h1>
+  <div class="ingreso-form">
+    <div class="ingreso-row">
+      <input id="codigo" placeholder="Código (ej. HAB001)" maxlength="32" autocomplete="off"/>
+      <button type="button" class="btn primary" id="ver">Ver reporte</button>
+    </div>
+    <span id="msg" class="msg"></span>
+  </div>
+  <div class="hint ingreso-usuario">Ingrese un <strong>código válido</strong>, el mismo que <strong>utilizó</strong> para realizar la Evaluación de Hábitos.</div>
+</div>
 
 <section id="p1" class="sheet">
   <div class="header"><div id="fechaTop">—</div><div class="center"></div><div class="right"><img class="logo" src="assets/logo_adalam.webp" onerror="this.style.display='none'"></div></div>
@@ -208,6 +239,9 @@ h1{margin-top:14px !important;}
     <div class="card"><div class="h3">Referencia breve de habilidades</div><div class="micro" id="micro"></div></div>
   </div>
   <div class="note">Síntesis visual del Índice General de Hábitos (IGH) y de los cuatro hábitos evaluados.</div>
+  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+    <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
+  </div>
 </section>
 
 <section id="p2" class="sheet">
@@ -219,6 +253,9 @@ h1{margin-top:14px !important;}
   <div class="title"><h1>HÁBITOS</h1><h2>INTERPRETACIÓN DE RESULTADOS</h2></div>
   <div class="part2top"><h3>Interpretación de Resultados</h3><div class="pill">Prueba: HÁBITOS</div></div>
   <div id="p2content"></div>
+  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+    <button type="button" id="btnPDF" class="btn" style="background:#2563eb">Imprimir / PDF</button>
+  </div>
 </section>
 </div>
 
@@ -643,7 +680,7 @@ $("msg").textContent="Reporte cargado."; $("msg").className="msg ok";
   }catch(e){ console.error(e); $("msg").textContent="Error de conexión"; $("msg").className="msg err"; }
 }
 $("ver").onclick=cargar;
-$("pdf").onclick=()=>{
+function imprimirHabitos(){
   refreshCurveMarkerForPrint();
   requestAnimationFrame(()=>{
     refreshCurveMarkerForPrint();
@@ -652,7 +689,9 @@ $("pdf").onclick=()=>{
       window.print();
     },120);
   });
-};
+}
+const btnImprimir=$("btnImprimir"); if(btnImprimir) btnImprimir.onclick=imprimirHabitos;
+const btnPDF=$("btnPDF"); if(btnPDF) btnPDF.onclick=imprimirHabitos;
 window.addEventListener("beforeprint", refreshCurveMarkerForPrint);
 window.addEventListener("resize", refreshCurveMarkerForPrint);
 const qp = new URLSearchParams(location.search);
