@@ -1125,31 +1125,11 @@ $('#btn').addEventListener('click', cargar);
 $('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
 
 function imprimirLiderazgo(){
-  const rep = document.getElementById('reporte');
-  if (!rep || rep.classList.contains('hidden')) {
-    window.print();
-    return;
+  const v = window.__liderCurveValue;
+  if (v != null && !Number.isNaN(Number(v))) {
+    try { setMarker(Number(v)); } catch (_e) {}
   }
-  const iframe = document.createElement('iframe');
-  iframe.setAttribute('aria-hidden', 'true');
-  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
-  document.body.appendChild(iframe);
-  const win = iframe.contentWindow;
-  const doc = win.document;
-  const sheet = document.querySelector('style');
-  doc.open();
-  doc.write('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title> </title>');
-  if (sheet) doc.write(sheet.outerHTML);
-  doc.write('<style>@media print{@page{size:A4;margin:8mm}body{margin:0;padding:0}}</style>');
-  doc.write('</head><body>');
-  doc.write(rep.outerHTML);
-  doc.write('</body></html>');
-  doc.close();
-  const cleanup = () => { try { iframe.remove(); } catch (e) {} };
-  win.addEventListener('afterprint', cleanup, { once: true });
-  setTimeout(cleanup, 60000);
-  win.focus();
-  win.print();
+  requestAnimationFrame(() => window.print());
 }
 const btnPrint = document.getElementById('btnImprimir');
 if (btnPrint) btnPrint.addEventListener('click', imprimirLiderazgo);
