@@ -365,7 +365,8 @@ lenguaje_visual: [
   function pct(n){return Math.round(Number(n)||0);}
   function prefLabel(v){ const p=pct(v); if(p<=40) return 'Preferencia menos marcada'; if(p<=70) return 'Preferencia moderada'; return 'Preferencia más marcada'; }
   function prefClass(v){ const p=pct(v); if(p<=40) return 'pref-low'; if(p<=70) return 'pref-med'; return 'pref-high'; }
-  function fmtDate(iso){ if(!iso) return '—'; try { return new Date(iso).toLocaleDateString('es-EC',{year:'numeric',month:'long',day:'2-digit'});} catch{return '—';}}
+  function fmtDate(iso){ if(!iso) return '—'; try { return new Date(iso).toLocaleDateString('es-EC',{year:'numeric',month:'long',day:'numeric'});} catch{return '—';}}
+  function fmtFechaGeneracion(){ return new Date().toLocaleString('es-EC',{dateStyle:'short',timeStyle:'short'}); }
   function parseMaybeJSON(v){ if(!v) return null; if(typeof v==='object') return v; try{return JSON.parse(v);}catch{return null;} }
   function scoreOf(obj, key){ return obj && obj[key] ? Number(obj[key].pct ?? obj[key].raw ?? 0) : 0; }
   function compData(res,key){ return res.componentes && res.componentes[key] ? res.componentes[key] : {label:COMPONENT_LABELS[key]||key,pct:0,raw:0}; }
@@ -669,7 +670,7 @@ function contextSuggestions(res, esPro){
     window.__ESPRO__ = esProfesional;
     const labelCurso = esProfesional ? 'Nivel' : 'Grado/Curso';
     const nombre = attempt.nombre || '—';
-    const fechaTexto = fmtDate(attempt.created_at || new Date().toISOString());
+    const fechaTexto = fmtDate(attempt.created_at);
     const headerHtml = `
       <div><b>Nombre:</b> ${escapeHtml(nombre)}</div>
       <div><b>${labelCurso}:</b> ${escapeHtml(attempt.curso || '—')}</div>
@@ -681,8 +682,9 @@ function contextSuggestions(res, esPro){
     if (header) header.innerHTML = headerHtml;
     const header2 = document.getElementById('repHeaderBox2');
     if (header2) header2.innerHTML = headerHtml;
-    document.getElementById('repDateLine1').textContent = fechaTexto;
-    document.getElementById('repDateLine2').textContent = fechaTexto;
+    const fechaGen = fmtFechaGeneracion();
+    document.getElementById('repDateLine1').textContent = fechaGen;
+    document.getElementById('repDateLine2').textContent = fechaGen;
 
     const overall = avgAreaScore(resultados);
     document.getElementById('tituloCurvaFrecuencias').textContent = `CURVA DE DISTRIBUCIÓN DE FRECUENCIAS: (IPA = ${overall}).`;

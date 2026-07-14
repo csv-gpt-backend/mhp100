@@ -400,7 +400,8 @@
     };
     return pro ? profesional[axis] : escolar[axis];
   }
-  function fmtDate(iso){ if(!iso) return '—'; try { return new Date(iso).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'2-digit'});} catch{return '—';}}
+  function fmtDate(iso){ if(!iso) return '—'; try { return new Date(iso).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});} catch{return '—';}}
+  function fmtFechaGeneracion(){ return new Date().toLocaleString('en-US',{dateStyle:'short',timeStyle:'short'}); }
   function parseMaybeJSON(v){ if(!v) return null; if(typeof v==='object') return v; try{return JSON.parse(v);}catch{return null;} }
 
   let __curveMarkerScore = null;
@@ -495,7 +496,7 @@
     const esProfesional = codigoActual.startsWith('PRO');
     window.__ESPRO__ = esProfesional;
     const labelCurso = esProfesional ? 'Level' : 'Grade/Course';
-    const fechaTexto = fmtDate(attempt.created_at || new Date().toISOString());
+    const fechaTexto = fmtDate(attempt.created_at);
     const headerHtml = `
       <div><b>Name:</b> ${escapeHtml(attempt.nombre || '—')}</div>
       <div><b>${labelCurso}:</b> ${escapeHtml(attempt.curso || '—')}</div>
@@ -507,8 +508,9 @@
     if (header) header.innerHTML = headerHtml;
     const header2 = document.getElementById('repHeaderBox2');
     if (header2) header2.innerHTML = headerHtml;
-    document.getElementById('repDateLine1').textContent = fechaTexto;
-    document.getElementById('repDateLine2').textContent = fechaTexto;
+    const fechaGen = fmtFechaGeneracion();
+    document.getElementById('repDateLine1').textContent = fechaGen;
+    document.getElementById('repDateLine2').textContent = fechaGen;
   }
 
   function buildSummary(resultados){

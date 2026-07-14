@@ -856,14 +856,15 @@ function highlightIV(prefix, idx){
   }
 }
 function parseFechaHuman(fechaBase){
-  const d = fechaBase ? new Date(fechaBase) : new Date();
+  const ahora = new Date();
+  const dEval = fechaBase ? new Date(fechaBase) : null;
   try{
     return {
-      top: d.toLocaleString('en-US', { dateStyle:'short', timeStyle:'short' }),
-      box: d.toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' })
+      top: ahora.toLocaleString('en-US', { dateStyle:'short', timeStyle:'short' }),
+      box: (dEval && !isNaN(dEval.getTime())) ? dEval.toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' }) : '—'
     };
   }catch(e){
-    return { top: d.toISOString(), box: d.toISOString().slice(0,10) };
+    return { top: ahora.toISOString(), box: '—' };
   }
 }
 function buildHeaderHTML({nombre,curso,grupo,inst,fecha,codigo}){

@@ -409,7 +409,8 @@ function habitoLinks(isPRO){
   ];
 }
 function j(v){if(!v)return null; if(typeof v==="object") return v; try{return JSON.parse(v)}catch{return null}}
-function fmtDate(raw){if(!raw) return "—"; const d=new Date(raw); return isNaN(d)?String(raw):d.toLocaleDateString("es-EC");}
+function fmtDate(raw){if(!raw) return "—"; const d=new Date(raw); return isNaN(d)?String(raw):d.toLocaleDateString("es-EC",{year:"numeric",month:"long",day:"numeric"});}
+function fmtFechaGeneracion(){ return new Date().toLocaleString("es-EC",{dateStyle:"short",timeStyle:"short"}); }
 function parsePayload(data){
   const attempt=data?.attempt||data||{};
   const res=j(attempt.resultados)||attempt.resultados||{};
@@ -633,8 +634,9 @@ function userFields(persona){
 function render(data){
   const {persona,factores,igh}=parsePayload(data);
   if($("user1")) $("user1").innerHTML=userFields(persona);
-  if($("fechaTop")) $("fechaTop").textContent="Fecha: "+persona.fecha;
-  if($("fechaTop2")) $("fechaTop2").textContent="Fecha: "+persona.fecha;
+  const fechaGen = fmtFechaGeneracion();
+  if($("fechaTop")) $("fechaTop").textContent=fechaGen;
+  if($("fechaTop2")) $("fechaTop2").textContent=fechaGen;
   const [rl]=rango(igh); $("igh").textContent=igh; $("rango").textContent=rl; $("curveTitle").textContent=`Curva de distribución de frecuencias (IGH = ${igh})`;
   const sorted=[...factores].sort((a,b)=>b.pct-a.pct), alto=sorted[0], bajo=sorted[sorted.length-1], seg=sorted[1];
   $("r1").textContent=`Índice General de Hábitos (IGH): ${igh} (${rl}).`;
