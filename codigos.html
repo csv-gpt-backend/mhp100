@@ -127,7 +127,7 @@
     <header class="brand">
       <img src="assets/logo_adalam.webp" alt="Sello ADALAM" width="220" height="88"/>
       <h1>Códigos de acceso</h1>
-      <p>Consulta de códigos creados · Escolar (ESC) y Profesional (PRO)</p>
+      <p>Consulta ESC / PRO · estándar <b>ÁMBITO-EEEEEE-sufijo</b> (6 letras) · también formatos de prueba legacy</p>
     </header>
 
     <div class="tabs" role="tablist" aria-label="Momento del código">
@@ -210,14 +210,15 @@
   </div>
 
 <script>
+  // Estándar oficial: 6 letras. aliases = nombres largos + legacy de prueba.
   const EVAL_KEYS = [
-    { key: "INTEGRIDAD", label: "Integridad", aliases: ["VALORES"] },
-    { key: "SOCIOEMOCIONAL", label: "Socioemocional", aliases: ["SOCIO"] },
-    { key: "LIDERAZGO", label: "Liderazgo", aliases: ["LIDER"] },
-    { key: "HABITOS", label: "Hábitos", aliases: ["HABITO"] },
-    { key: "APRENDIZAJE", label: "Aprendizaje", aliases: ["APREN"] },
-    { key: "VOCACIONAL", label: "Vocacional", aliases: ["VOC"] },
-    { key: "INTELECTUAL", label: "Intelectual", aliases: ["INTE"] }
+    { key: "INTELC", label: "Intelectual", aliases: ["INTELECTUAL", "INTEL", "INTE"] },
+    { key: "INTEGR", label: "Integridad", aliases: ["INTEGRIDAD", "VALORES", "INTG"] },
+    { key: "SOCIOE", label: "Socioemocional", aliases: ["SOCIOEMOCIONAL", "SOCIO", "SOC"] },
+    { key: "LIDERA", label: "Liderazgo", aliases: ["LIDERAZGO", "LIDER", "LIDE", "LID"] },
+    { key: "HABITO", label: "Hábitos", aliases: ["HABITOS", "HABIT", "HAB"] },
+    { key: "APREND", label: "Aprendizaje", aliases: ["APRENDIZAJE", "APREN", "APR"] },
+    { key: "VOCACI", label: "Vocacional", aliases: ["VOCACIONAL", "VOCAC", "VOC"] }
   ];
 
   let FILAS = [];
@@ -233,6 +234,29 @@
     return [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es",{sensitivity:"base"}));
   }
 
+  function matchEvalToken(token){
+    const t = String(token || "").toUpperCase();
+    if (!t) return null;
+    for (const e of EVAL_KEYS) {
+      if (t === e.key || e.aliases.includes(t)) return e;
+    }
+    return null;
+  }
+
+  function matchEvalInCodigo(codigo){
+    // Preferir coincidencias más largas (INTELECTUAL antes que INTE)
+    const needles = [];
+    EVAL_KEYS.forEach(e => {
+      needles.push({ key: e.key, label: e.label, token: e.key });
+      e.aliases.forEach(a => needles.push({ key: e.key, label: e.label, token: a }));
+    });
+    needles.sort((a, b) => b.token.length - a.token.length);
+    for (const n of needles) {
+      if (codigo.includes(n.token)) return n;
+    }
+    return null;
+  }
+
   function parseCodigo(codigoRaw){
     const codigo = String(codigoRaw || "").trim().toUpperCase();
     let ambito = "";
@@ -243,31 +267,26 @@
     let evaluacionLabel = "";
     const parts = codigo.split("-").filter(Boolean);
 
-    // Formato nuevo: ESC-INTEGRIDAD-6GDT54 / PRO-VOCACIONAL-500
-    if (parts.length >= 2) {
+    // Estándar: ESC-XXXXXX-XXXXX / PRO-XXXXXX-XXXXX
+    if (parts.length >= 2 && (parts[0] === "ESC" || parts[0] === "PRO")) {
       const mid = parts[1];
-      for (const e of EVAL_KEYS) {
-        if (mid === e.key || e.aliases.includes(mid)) {
-          evaluacionKey = e.key;
-          evaluacionLabel = e.label;
-          break;
-        }
-      }
-      if (!evaluacionKey && mid && mid !== "ESC" && mid !== "PRO") {
+      const hit = matchEvalToken(mid);
+      if (hit) {
+        evaluacionKey = hit.key;
+        evaluacionLabel = hit.label;
+      } else if (/^[A-Z]{4,8}$/.test(mid)) {
+        // Token tipo evaluación desconocido / futuro
         evaluacionKey = mid;
-        evaluacionLabel = mid.charAt(0) + mid.slice(1).toLowerCase();
+        evaluacionLabel = mid;
       }
     }
 
-    // Formatos cortos legacy (ESCVOC101, etc.)
+    // Legacy con guiones no estándar o sin guiones (ESCVOC4007, ESCCOLINTE…)
     if (!evaluacionKey) {
-      for (const e of EVAL_KEYS) {
-        const needles = [e.key, ...e.aliases];
-        if (needles.some(n => codigo.includes(n))) {
-          evaluacionKey = e.key;
-          evaluacionLabel = e.label;
-          break;
-        }
+      const hit = matchEvalInCodigo(codigo);
+      if (hit) {
+        evaluacionKey = hit.key;
+        evaluacionLabel = hit.label;
       }
     }
 

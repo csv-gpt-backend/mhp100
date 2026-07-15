@@ -43,7 +43,11 @@
 <body>
   <div class="wrap">
     <h1>Reporte grupal · Evaluación intelectual</h1>
-    <p class="muted">Demo: selectores desde <b>attempts</b> (institución → país → curso → código/prefijo).</p>
+    <p class="muted">
+      Selectores desde <b>attempts</b> (institución → país → curso → código/prefijo).
+      Estándar de códigos: <b>ESC|PRO-XXXXXX-sufijo</b> (6 letras, ej. <b>ESC-INTELC-UJ45</b>).
+      También admite códigos de prueba legacy.
+    </p>
 
     <div class="card no-print">
       <div class="filters">
@@ -133,18 +137,42 @@
     else sel.value = "";
   }
 
-  /** Prefijos útiles: código completo + tramo antes del último bloque numérico (ESC-INTELECTUAL-) */
+  /** Prefijos: estándar ESC|PRO-XXXXXX- + legacy (completo, numérico, sin guiones) */
   function opcionesCodigo(filas){
-    const codigos = uniq(filas.map(f => f.codigo));
+    const codigos = uniq(filas.map(f => String(f.codigo || "").trim().toUpperCase()));
     const prefs = new Set();
-    codigos.forEach(c=>{
+    codigos.forEach(c => {
+      if (!c) return;
       prefs.add(c);
-      const m = c.match(/^(.*-)\d+$/);
-      if (m && m[1].length >= 3) prefs.add(m[1]);
-      const m2 = c.match(/^([A-Z]+)/);
-      if (m2 && m2[1].length >= 3 && m2[1] !== c) prefs.add(m2[1]);
+
+      // Estándar / con guiones: ESC-INTELC-UJ45 → ESC-INTELC-
+      const mStd = c.match(/^(ESC|PRO)-([A-Z0-9]{4,12})-(.+)$/);
+      if (mStd) {
+        prefs.add(mStd[1] + "-" + mStd[2] + "-");
+      }
+
+      // Sufijo solo dígitos: ESC-INTELECTUAL-500 → ESC-INTELECTUAL-
+      const mNum = c.match(/^(.*-)\d+$/);
+      if (mNum && mNum[1].length >= 3) prefs.add(mNum[1]);
+
+      // Legacy sin guiones: ESCCOLINTE → bloque inicial de letras
+      const mLegacy = c.match(/^([A-Z]{4,})/);
+      if (mLegacy && mLegacy[1] !== c) prefs.add(mLegacy[1]);
     });
     return uniq([...prefs]);
+  }
+
+  function preferPrefijoIntelectual(opts, subset){
+    const intelRe = /(^|-)(INTELC|INTELECTUAL|INTEL|INTE)(-|$)/;
+    const groupLike = opts.filter(o => /-$/.test(o));
+    const intelPref = groupLike.find(o =>
+      intelRe.test(o) &&
+      subset.filter(f => String(f.codigo || "").toUpperCase().startsWith(o)).length >= 1
+    );
+    if (intelPref) return intelPref;
+    return groupLike.find(o =>
+      subset.filter(f => String(f.codigo || "").toUpperCase().startsWith(o)).length >= 2
+    ) || "";
   }
 
   function onInstitucion(){
@@ -181,9 +209,8 @@
     fillSelect(document.getElementById("prefijo"), opts, "Seleccione código/prefijo…");
     document.getElementById("prefijo").disabled = !curso || opts.length === 0;
 
-    // Preferir prefijo de grupo si hay varios ESC-INTELECTUAL-*
-    const groupPref = opts.find(o => /-$/.test(o) && subset.filter(f => f.codigo.startsWith(o)).length >= 2);
-    if (groupPref) document.getElementById("prefijo").value = groupPref;
+    const prefer = preferPrefijoIntelectual(opts, subset);
+    if (prefer) document.getElementById("prefijo").value = prefer;
   }
 
   async function cargarListas(){
