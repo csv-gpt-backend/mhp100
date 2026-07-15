@@ -515,12 +515,14 @@
       msg.textContent = "";
       msg.className = "msg";
       try{
-        const r = await fetch("/api/codigos?codigo=" + encodeURIComponent(code), {
-          method: "DELETE"
+        const r = await fetch("/api/codigos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "eliminar", codigo: code })
         });
         const data = await r.json().catch(() => ({}));
         if (!r.ok || !data.ok) {
-          throw new Error(data.error || "No se pudo eliminar");
+          throw new Error(data.error || data.detail || "No se pudo eliminar");
         }
         FILAS = FILAS.filter(f => f.codigo !== code);
         rebuildDependentSelects();

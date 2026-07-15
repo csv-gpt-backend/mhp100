@@ -4,6 +4,19 @@ function norm(v) {
   return String(v ?? "").trim();
 }
 
+function readBody(req) {
+  const b = req.body;
+  if (!b) return {};
+  if (typeof b === "string") {
+    try {
+      return JSON.parse(b);
+    } catch {
+      return {};
+    }
+  }
+  return b;
+}
+
 async function listarCodigos(res) {
   const pRes = await sql`
     SELECT
@@ -54,15 +67,31 @@ async function listarCodigos(res) {
 }
 
 async function eliminarCodigo(req, res) {
-  const codigo = norm(req.query.codigo || (req.body && req.body.codigo) || "").toUpperCase();
+  const body = readBody(req);
+  const codigo = norm(
+    req.query.codigo || body.codigo || ""
+  ).toUpperCase();
+
   if (!codigo) {
     return res.status(400).json({ ok: false, error: "Falta código" });
   }
 
+  const pRes = await sql`
+    SELECT codigo
+    FROM participants
+    WHERE UPPER(TRIM(codigo)) = ${codigo}
+    LIMIT 1
+  `;
+  if (!pRes.rows.length) {
+    return res.status(404).json({ ok: false, error: "Código no encontrado en participants" });
+  }
+
+  const codigoDb = pRes.rows[0].codigo;
+
   const aRes = await sql`
     SELECT COUNT(*)::int AS n
     FROM attempts
-    WHERE UPPER(TRIM(codigo)) = UPPER(${codigo})
+    WHERE UPPER(TRIM(codigo)) = ${codigo}
   `;
   const intentos = Number(aRes.rows[0]?.n) || 0;
   if (intentos > 0) {
@@ -72,31 +101,21 @@ async function eliminarCodigo(req, res) {
     });
   }
 
-  const pRes = await sql`
-    SELECT codigo
-    FROM participants
-    WHERE UPPER(TRIM(codigo)) = UPPER(${codigo})
-    LIMIT 1
-  `;
-  if (!pRes.rows.length) {
-    return res.status(404).json({ ok: false, error: "Código no encontrado" });
-  }
-
   await sql`
     DELETE FROM participants
-    WHERE UPPER(TRIM(codigo)) = UPPER(${codigo})
+    WHERE codigo = ${codigoDb}
   `;
 
   try {
     await sql`
       DELETE FROM autosave_eval
-      WHERE UPPER(TRIM(codigo)) = UPPER(${codigo})
+      WHERE UPPER(TRIM(codigo)) = ${codigo}
     `;
   } catch (_) {
-    // la tabla de autosave puede no existir en todos los entornos
+    // autosave opcional
   }
 
-  return res.status(200).json({ ok: true, codigo });
+  return res.status(200).json({ ok: true, codigo: norm(codigoDb).toUpperCase() });
 }
 
 module.exports = async function handler(req, res) {
@@ -104,16 +123,28 @@ module.exports = async function handler(req, res) {
     if (req.method === "GET") {
       return await listarCodigos(res);
     }
+
+    if (req.method === "POST") {
+      const body = readBody(req);
+      const action = norm(body.action || req.query.action).toLowerCase();
+      if (action === "eliminar" || action === "delete") {
+        return await eliminarCodigo(req, res);
+      }
+      return res.status(400).json({ ok: false, error: "Acción no válida" });
+    }
+
     if (req.method === "DELETE") {
       return await eliminarCodigo(req, res);
     }
-    return res.status(405).json({ error: "Solo GET o DELETE" });
+
+    return res.status(405).json({ error: "Solo GET, POST o DELETE" });
   } catch (e) {
     console.error("codigos error", e);
     return res.status(500).json({
       valid: false,
       ok: false,
-      error: "Error en códigos"
+      error: "Error en códigos",
+      detail: String(e && e.message ? e.message : e)
     });
   }
 };
