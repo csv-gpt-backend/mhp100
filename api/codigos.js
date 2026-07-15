@@ -48,6 +48,7 @@ async function listarCodigos(res) {
     const intentos = Number(row.intentos) || 0;
     return {
       codigo,
+      codigo_db: row.codigo,
       nombre: norm(row.nombre) || null,
       institucion: norm(row.institucion) || "",
       pais: norm(row.grupo) || "",
@@ -66,32 +67,60 @@ async function listarCodigos(res) {
   });
 }
 
+async function buscarParticipante(codigoBuscado) {
+  const codigo = norm(codigoBuscado);
+  if (!codigo) return null;
+
+  // Mismo patrón que lookup.js (probado en producción)
+  let pRes = await sql`
+    SELECT codigo
+    FROM participants
+    WHERE UPPER(codigo) = UPPER(${codigo})
+    LIMIT 1
+  `;
+  if (pRes.rows.length) return pRes.rows[0];
+
+  pRes = await sql`
+    SELECT codigo
+    FROM participants
+    WHERE TRIM(codigo) ILIKE ${codigo}
+    LIMIT 1
+  `;
+  if (pRes.rows.length) return pRes.rows[0];
+
+  pRes = await sql`
+    SELECT codigo
+    FROM participants
+    WHERE UPPER(TRIM(codigo)) = UPPER(TRIM(${codigo}))
+    LIMIT 1
+  `;
+  if (pRes.rows.length) return pRes.rows[0];
+
+  return null;
+}
+
 async function eliminarCodigo(req, res) {
   const body = readBody(req);
-  const codigo = norm(
-    req.query.codigo || body.codigo || ""
-  ).toUpperCase();
-
-  if (!codigo) {
+  const codigoRaw = norm(req.query.codigo || body.codigo || body.codigo_db || "");
+  if (!codigoRaw) {
     return res.status(400).json({ ok: false, error: "Falta código" });
   }
 
-  const pRes = await sql`
-    SELECT codigo
-    FROM participants
-    WHERE UPPER(TRIM(codigo)) = ${codigo}
-    LIMIT 1
-  `;
-  if (!pRes.rows.length) {
-    return res.status(404).json({ ok: false, error: "Código no encontrado en participants" });
+  const participante = await buscarParticipante(codigoRaw);
+  if (!participante) {
+    return res.status(404).json({
+      ok: false,
+      error: "Código no encontrado en participants",
+      buscado: codigoRaw
+    });
   }
 
-  const codigoDb = pRes.rows[0].codigo;
+  const codigoDb = participante.codigo;
 
   const aRes = await sql`
     SELECT COUNT(*)::int AS n
     FROM attempts
-    WHERE UPPER(TRIM(codigo)) = ${codigo}
+    WHERE UPPER(codigo) = UPPER(${codigoDb})
   `;
   const intentos = Number(aRes.rows[0]?.n) || 0;
   if (intentos > 0) {
@@ -101,6 +130,7 @@ async function eliminarCodigo(req, res) {
     });
   }
 
+  // Borrar por el valor exacto que está en la tabla
   await sql`
     DELETE FROM participants
     WHERE codigo = ${codigoDb}
@@ -109,13 +139,17 @@ async function eliminarCodigo(req, res) {
   try {
     await sql`
       DELETE FROM autosave_eval
-      WHERE UPPER(TRIM(codigo)) = ${codigo}
+      WHERE UPPER(codigo) = UPPER(${codigoDb})
     `;
   } catch (_) {
     // autosave opcional
   }
 
-  return res.status(200).json({ ok: true, codigo: norm(codigoDb).toUpperCase() });
+  return res.status(200).json({
+    ok: true,
+    codigo: norm(codigoDb).toUpperCase(),
+    codigo_db: codigoDb
+  });
 }
 
 module.exports = async function handler(req, res) {

@@ -435,7 +435,7 @@
         <td class="row-actions">
           <button type="button" class="copy" data-code="${esc(r.codigo)}">Copiar</button>
           ${r.estado === "activo"
-            ? `<button type="button" class="del" data-code="${esc(r.codigo)}">Eliminar</button>`
+            ? `<button type="button" class="del" data-code="${esc(r.codigo)}" data-codigo-db="${esc(r.codigo_db != null ? r.codigo_db : r.codigo)}">Eliminar</button>`
             : ""}
         </td>
       </tr>`;
@@ -505,9 +505,10 @@
     const del = ev.target.closest(".del");
     if (del) {
       const code = del.getAttribute("data-code") || "";
-      if (!code) return;
+      const codeDb = del.getAttribute("data-codigo-db") || code;
+      if (!code && !codeDb) return;
       const ok = window.confirm(
-        "¿Eliminar el código " + code + "?\n\nSolo se borra si aún no tiene evaluación."
+        "¿Eliminar el código " + (code || codeDb) + "?\n\nSolo se borra si aún no tiene evaluación."
       );
       if (!ok) return;
       del.disabled = true;
@@ -518,16 +519,22 @@
         const r = await fetch("/api/codigos", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "eliminar", codigo: code })
+          body: JSON.stringify({
+            action: "eliminar",
+            codigo: codeDb || code,
+            codigo_db: codeDb || code
+          })
         });
         const data = await r.json().catch(() => ({}));
         if (!r.ok || !data.ok) {
-          throw new Error(data.error || data.detail || "No se pudo eliminar");
+          const extra = data.buscado ? (" (buscado: " + data.buscado + ")") : "";
+          throw new Error((data.error || data.detail || "No se pudo eliminar") + extra);
         }
-        FILAS = FILAS.filter(f => f.codigo !== code);
+        const gone = String(data.codigo || code || "").toUpperCase();
+        FILAS = FILAS.filter(f => String(f.codigo).toUpperCase() !== gone);
         rebuildDependentSelects();
         render();
-        msg.textContent = "Eliminado: " + code;
+        msg.textContent = "Eliminado: " + gone;
       }catch(e){
         msg.textContent = e.message || "Error al eliminar";
         msg.className = "msg err";
