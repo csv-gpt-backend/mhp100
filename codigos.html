@@ -94,6 +94,22 @@
       font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink);
     }
     .copy:hover{border-color:#9fbfab}
+    .tabs{
+      display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;
+    }
+    .tab{
+      border:1px solid var(--line);background:rgba(255,255,255,.78);color:var(--ink);
+      border-radius:999px;padding:9px 14px;font-weight:700;font-size:13px;
+      cursor:pointer;font-family:inherit;
+    }
+    .tab:hover{border-color:#9fbfab}
+    .tab.active{
+      background:var(--green);border-color:var(--green);color:#fff;
+    }
+    .tab .n{
+      display:inline-block;margin-left:6px;font-size:11px;font-weight:700;
+      opacity:.85;
+    }
     footer{margin-top:22px;text-align:center;font-size:12px;color:var(--muted)}
   </style>
 </head>
@@ -105,6 +121,18 @@
       <h1>Códigos de acceso</h1>
       <p>Consulta de códigos creados · Escolar (ESC) y Profesional (PRO)</p>
     </header>
+
+    <div class="tabs" role="tablist" aria-label="Momento del código">
+      <button type="button" class="tab active" role="tab" data-estado="" aria-selected="true">
+        Todos <span class="n" id="nTodos">0</span>
+      </button>
+      <button type="button" class="tab" role="tab" data-estado="activo" aria-selected="false">
+        Antes de evaluación <span class="n" id="nActivo">0</span>
+      </button>
+      <button type="button" class="tab" role="tab" data-estado="completado" aria-selected="false">
+        Después de evaluación <span class="n" id="nCompletado">0</span>
+      </button>
+    </div>
 
     <section class="panel">
       <div class="filters">
@@ -185,6 +213,7 @@
   ];
 
   let FILAS = [];
+  let ESTADO_VISTA = ""; // "" | "activo" | "completado"
 
   function esc(s){
     return String(s ?? "").replace(/[&<>"']/g, c => ({
@@ -286,6 +315,7 @@
     const q = String(document.getElementById("buscar").value || "").trim().toUpperCase();
 
     return FILAS.filter(r=>{
+      if (ESTADO_VISTA && r.estado !== ESTADO_VISTA) return false;
       if (ambito && r.ambito !== ambito) return false;
       if (evaluacion && r.evaluacionKey !== evaluacion) return false;
       if (pais && r.pais !== pais) return false;
@@ -299,6 +329,21 @@
       }
       if (q && !String(r.codigo).includes(q)) return false;
       return true;
+    });
+  }
+
+  function actualizarTabs(){
+    const nTodos = FILAS.length;
+    const nActivo = FILAS.filter(r => r.estado === "activo").length;
+    const nCompletado = FILAS.filter(r => r.estado === "completado").length;
+    document.getElementById("nTodos").textContent = nTodos;
+    document.getElementById("nActivo").textContent = nActivo;
+    document.getElementById("nCompletado").textContent = nCompletado;
+
+    document.querySelectorAll(".tab").forEach(tab=>{
+      const on = (tab.getAttribute("data-estado") || "") === ESTADO_VISTA;
+      tab.classList.toggle("active", on);
+      tab.setAttribute("aria-selected", on ? "true" : "false");
     });
   }
 
@@ -347,11 +392,19 @@
     }catch{ return "—"; }
   }
 
+  function vistaLabel(){
+    if (ESTADO_VISTA === "activo") return "antes de evaluación";
+    if (ESTADO_VISTA === "completado") return "después de evaluación";
+    return "todos";
+  }
+
   function render(){
+    actualizarTabs();
     const rows = filteredBase();
     const tbody = document.getElementById("tbody");
     document.getElementById("meta").textContent =
-      rows.length + " de " + FILAS.length + " código" + (FILAS.length === 1 ? "" : "s");
+      rows.length + " mostrados · vista: " + vistaLabel() +
+      " · total " + FILAS.length;
 
     if (!rows.length) {
       tbody.innerHTML = '<tr><td colspan="9" class="empty">No hay códigos con esos filtros.</td></tr>';
@@ -361,6 +414,7 @@
     tbody.innerHTML = rows.map(r=>{
       const ambitoClass = r.ambito === "PRO" ? "pro" : (r.ambito === "ESC" ? "esc" : "");
       const estadoClass = r.estado === "completado" ? "completado" : "activo";
+      const estadoTxt = r.estado === "completado" ? "después" : "antes";
       return `<tr>
         <td class="code">${esc(r.codigo)}</td>
         <td><span class="badge ${ambitoClass}">${esc(r.ambitoLabel)}</span></td>
@@ -368,7 +422,7 @@
         <td>${esc(r.pais || "—")}</td>
         <td>${esc(r.institucion || "—")}</td>
         <td>${esc(r.curso || "—")}</td>
-        <td><span class="badge ${estadoClass}">${esc(r.estado)}</span></td>
+        <td><span class="badge ${estadoClass}">${esc(estadoTxt)}</span></td>
         <td>${esc(fmtDate(r.fecha_intento))}</td>
         <td><button type="button" class="copy" data-code="${esc(r.codigo)}">Copiar</button></td>
       </tr>`;
@@ -376,6 +430,7 @@
   }
 
   function resetFiltros(){
+    ESTADO_VISTA = "";
     document.getElementById("ambito").value = "";
     document.getElementById("evaluacion").value = "";
     document.getElementById("pais").value = "";
@@ -425,6 +480,13 @@
   document.getElementById("buscar").addEventListener("input", render);
   document.getElementById("btnAplicar").addEventListener("click", render);
   document.getElementById("btnTodos").addEventListener("click", resetFiltros);
+
+  document.querySelector(".tabs").addEventListener("click", (ev)=>{
+    const tab = ev.target.closest(".tab");
+    if (!tab) return;
+    ESTADO_VISTA = tab.getAttribute("data-estado") || "";
+    render();
+  });
 
   document.getElementById("tbody").addEventListener("click", async (ev)=>{
     const btn = ev.target.closest(".copy");
