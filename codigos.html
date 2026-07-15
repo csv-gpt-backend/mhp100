@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Códigos · ADALAM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,700;1,9..40,500&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --ink:#0c1a14;
+      --muted:#5a6b62;
+      --line:#c8d4cc;
+      --green:#1a8f3b;
+      --green-deep:#14632b;
+      --paper:#f4f8f5;
+      --warn:#92400e;
+      --warn-bg:#fef3c7;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;min-height:100%}
+    body{
+      font-family:"DM Sans",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(26,143,59,.16), transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, rgba(20,99,43,.10), transparent 50%),
+        linear-gradient(180deg, #f7fbf8 0%, var(--paper) 45%, #eef5f0 100%);
+    }
+    .wrap{width:min(1100px,100%);margin:0 auto;padding:28px 18px 48px}
+    .back{
+      display:inline-block;margin-bottom:10px;font-size:13px;font-weight:700;
+      color:var(--green-deep);text-decoration:none;
+    }
+    .back:hover{text-decoration:underline}
+    .brand{text-align:center;margin:8px 0 22px}
+    .brand img{
+      width:min(220px,70vw);height:auto;display:block;margin:0 auto 12px;
+      filter:drop-shadow(0 14px 28px rgba(12,26,20,.18));
+    }
+    .brand h1{
+      font-family:Fraunces,Georgia,serif;font-size:clamp(1.45rem,4vw,1.95rem);
+      font-weight:700;letter-spacing:.02em;margin:0 0 6px;
+    }
+    .brand p{margin:0;font-size:14px;color:var(--muted);line-height:1.45}
+    .panel{
+      background:rgba(255,255,255,.82);border:1px solid var(--line);
+      border-radius:14px;padding:14px 14px 10px;margin-bottom:14px;
+      box-shadow:0 8px 22px rgba(12,26,20,.05);
+    }
+    .filters{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px 12px;
+    }
+    @media (max-width:800px){ .filters{grid-template-columns:1fr 1fr} }
+    @media (max-width:520px){ .filters{grid-template-columns:1fr} }
+    label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+    select,input[type="date"],input[type="search"]{
+      width:100%;padding:9px 10px;border:1px solid #b7c7bc;border-radius:10px;
+      font-size:15px;font-family:inherit;background:#fff;color:var(--ink);
+    }
+    .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+    .btn{
+      border:0;border-radius:999px;padding:9px 14px;font-weight:700;font-size:14px;
+      cursor:pointer;font-family:inherit;background:var(--green);color:#fff;
+    }
+    .btn:hover{background:var(--green-deep)}
+    .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+    .meta{font-size:13px;color:var(--muted);font-weight:600}
+    .msg{font-size:13px;font-weight:700}
+    .msg.err{color:#b91c1c}
+    .table-wrap{
+      overflow:auto;background:rgba(255,255,255,.9);border:1px solid var(--line);
+      border-radius:14px;box-shadow:0 8px 22px rgba(12,26,20,.05);
+    }
+    table{width:100%;border-collapse:collapse;min-width:780px}
+    th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;vertical-align:middle}
+    th{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:#eef5f0;position:sticky;top:0}
+    tbody tr:hover{background:#f3faf5}
+    td.code{font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em;white-space:nowrap}
+    .badge{
+      display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;
+      letter-spacing:.03em;
+    }
+    .badge.esc{background:#dcfce7;color:#166534}
+    .badge.pro{background:#dbeafe;color:#1e40af}
+    .badge.activo{background:#ecfdf5;color:#047857}
+    .badge.completado{background:var(--warn-bg);color:var(--warn)}
+    .empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:14px}
+    .copy{
+      border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 8px;
+      font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink);
+    }
+    .copy:hover{border-color:#9fbfab}
+    footer{margin-top:22px;text-align:center;font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="menu.html">← Menú ADALAM</a>
+    <header class="brand">
+      <img src="assets/logo_adalam.webp" alt="Sello ADALAM" width="220" height="88"/>
+      <h1>Códigos de acceso</h1>
+      <p>Consulta de códigos creados · Escolar (ESC) y Profesional (PRO)</p>
+    </header>
+
+    <section class="panel">
+      <div class="filters">
+        <div>
+          <label for="ambito">Ámbito</label>
+          <select id="ambito">
+            <option value="">Todos</option>
+            <option value="ESC">Escolar (ESC)</option>
+            <option value="PRO">Profesional (PRO)</option>
+          </select>
+        </div>
+        <div>
+          <label for="evaluacion">Evaluación</label>
+          <select id="evaluacion"><option value="">Todas</option></select>
+        </div>
+        <div>
+          <label for="pais">País</label>
+          <select id="pais"><option value="">Todos</option></select>
+        </div>
+        <div>
+          <label for="institucion">Institución</label>
+          <select id="institucion"><option value="">Todas</option></select>
+        </div>
+        <div>
+          <label for="desde">Desde</label>
+          <input type="date" id="desde"/>
+        </div>
+        <div>
+          <label for="hasta">Hasta</label>
+          <input type="date" id="hasta"/>
+        </div>
+        <div style="grid-column:1/-1">
+          <label for="buscar">Buscar código</label>
+          <input type="search" id="buscar" placeholder="Ej. ESC-INTEGRIDAD-6GDT54 o 6GDT54" autocomplete="off"/>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn" id="btnAplicar">Aplicar filtros</button>
+        <button type="button" class="btn ghost" id="btnTodos">Todos</button>
+        <span class="meta" id="meta">Cargando…</span>
+        <span class="msg" id="msg"></span>
+      </div>
+    </section>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Ámbito</th>
+            <th>Evaluación</th>
+            <th>País</th>
+            <th>Institución</th>
+            <th>Curso</th>
+            <th>Estado</th>
+            <th>Fecha intento</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="9" class="empty">Cargando códigos…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer>ADALAM · uso interno / institucional</footer>
+  </div>
+
+<script>
+  const EVAL_KEYS = [
+    { key: "INTEGRIDAD", label: "Integridad", aliases: ["VALORES"] },
+    { key: "SOCIOEMOCIONAL", label: "Socioemocional", aliases: ["SOCIO"] },
+    { key: "LIDERAZGO", label: "Liderazgo", aliases: ["LIDER"] },
+    { key: "HABITOS", label: "Hábitos", aliases: ["HABITO"] },
+    { key: "APRENDIZAJE", label: "Aprendizaje", aliases: ["APREN"] },
+    { key: "VOCACIONAL", label: "Vocacional", aliases: ["VOC"] },
+    { key: "INTELECTUAL", label: "Intelectual", aliases: ["INTE"] }
+  ];
+
+  let FILAS = [];
+
+  function esc(s){
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  function uniq(arr){
+    return [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es",{sensitivity:"base"}));
+  }
+
+  function parseCodigo(codigoRaw){
+    const codigo = String(codigoRaw || "").trim().toUpperCase();
+    let ambito = "";
+    if (codigo.startsWith("ESC")) ambito = "ESC";
+    else if (codigo.startsWith("PRO")) ambito = "PRO";
+
+    let evaluacionKey = "";
+    let evaluacionLabel = "";
+    const parts = codigo.split("-").filter(Boolean);
+
+    // Formato nuevo: ESC-INTEGRIDAD-6GDT54 / PRO-VOCACIONAL-500
+    if (parts.length >= 2) {
+      const mid = parts[1];
+      for (const e of EVAL_KEYS) {
+        if (mid === e.key || e.aliases.includes(mid)) {
+          evaluacionKey = e.key;
+          evaluacionLabel = e.label;
+          break;
+        }
+      }
+      if (!evaluacionKey && mid && mid !== "ESC" && mid !== "PRO") {
+        evaluacionKey = mid;
+        evaluacionLabel = mid.charAt(0) + mid.slice(1).toLowerCase();
+      }
+    }
+
+    // Formatos cortos legacy (ESCVOC101, etc.)
+    if (!evaluacionKey) {
+      for (const e of EVAL_KEYS) {
+        const needles = [e.key, ...e.aliases];
+        if (needles.some(n => codigo.includes(n))) {
+          evaluacionKey = e.key;
+          evaluacionLabel = e.label;
+          break;
+        }
+      }
+    }
+
+    return {
+      codigo,
+      ambito,
+      ambitoLabel: ambito === "ESC" ? "Escolar" : (ambito === "PRO" ? "Profesional" : "—"),
+      evaluacionKey,
+      evaluacionLabel: evaluacionLabel || "—"
+    };
+  }
+
+  function enrich(row){
+    const p = parseCodigo(row.codigo);
+    return { ...row, ...p };
+  }
+
+  function fillSelect(sel, values, allLabel){
+    const cur = sel.value;
+    sel.innerHTML = "";
+    const ph = document.createElement("option");
+    ph.value = "";
+    ph.textContent = allLabel;
+    sel.appendChild(ph);
+    values.forEach(v=>{
+      const o = document.createElement("option");
+      o.value = v.value != null ? v.value : v;
+      o.textContent = v.label != null ? v.label : v;
+      sel.appendChild(o);
+    });
+    const exists = values.some(v => (v.value != null ? v.value : v) === cur);
+    sel.value = exists ? cur : "";
+  }
+
+  function dayStart(isoDate){
+    if (!isoDate) return null;
+    const d = new Date(isoDate + "T00:00:00");
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  function dayEnd(isoDate){
+    if (!isoDate) return null;
+    const d = new Date(isoDate + "T23:59:59.999");
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  function filteredBase(){
+    const ambito = document.getElementById("ambito").value;
+    const evaluacion = document.getElementById("evaluacion").value;
+    const pais = document.getElementById("pais").value;
+    const institucion = document.getElementById("institucion").value;
+    const desde = dayStart(document.getElementById("desde").value);
+    const hasta = dayEnd(document.getElementById("hasta").value);
+    const q = String(document.getElementById("buscar").value || "").trim().toUpperCase();
+
+    return FILAS.filter(r=>{
+      if (ambito && r.ambito !== ambito) return false;
+      if (evaluacion && r.evaluacionKey !== evaluacion) return false;
+      if (pais && r.pais !== pais) return false;
+      if (institucion && r.institucion !== institucion) return false;
+      if (desde || hasta) {
+        if (!r.fecha_intento) return false;
+        const t = new Date(r.fecha_intento).getTime();
+        if (Number.isNaN(t)) return false;
+        if (desde && t < desde.getTime()) return false;
+        if (hasta && t > hasta.getTime()) return false;
+      }
+      if (q && !String(r.codigo).includes(q)) return false;
+      return true;
+    });
+  }
+
+  function rebuildDependentSelects(){
+    const ambito = document.getElementById("ambito").value;
+    const evaluacion = document.getElementById("evaluacion").value;
+    const pais = document.getElementById("pais").value;
+
+    let pool = FILAS.slice();
+    if (ambito) pool = pool.filter(r => r.ambito === ambito);
+    if (evaluacion) pool = pool.filter(r => r.evaluacionKey === evaluacion);
+    if (pais) pool = pool.filter(r => r.pais === pais);
+
+    const evalOpts = uniq(pool.map(r => r.evaluacionKey).filter(Boolean)).map(k=>{
+      const found = EVAL_KEYS.find(e => e.key === k);
+      return { value: k, label: found ? found.label : k };
+    });
+
+    // Para evaluación, el pool ignora el propio filtro de evaluación
+    let poolEval = FILAS.slice();
+    if (ambito) poolEval = poolEval.filter(r => r.ambito === ambito);
+    const evalOptsFull = uniq(poolEval.map(r => r.evaluacionKey).filter(Boolean)).map(k=>{
+      const found = EVAL_KEYS.find(e => e.key === k);
+      return { value: k, label: found ? found.label : k };
+    });
+    fillSelect(document.getElementById("evaluacion"), evalOptsFull, "Todas");
+
+    let poolPais = FILAS.slice();
+    if (ambito) poolPais = poolPais.filter(r => r.ambito === ambito);
+    if (evaluacion) poolPais = poolPais.filter(r => r.evaluacionKey === evaluacion);
+    fillSelect(document.getElementById("pais"), uniq(poolPais.map(r => r.pais)), "Todos");
+
+    let poolInst = FILAS.slice();
+    if (ambito) poolInst = poolInst.filter(r => r.ambito === ambito);
+    if (evaluacion) poolInst = poolInst.filter(r => r.evaluacionKey === evaluacion);
+    if (pais) poolInst = poolInst.filter(r => r.pais === pais);
+    fillSelect(document.getElementById("institucion"), uniq(poolInst.map(r => r.institucion)), "Todas");
+  }
+
+  function fmtDate(iso){
+    if (!iso) return "—";
+    try{
+      return new Date(iso).toLocaleDateString("es-EC",{
+        year:"numeric", month:"short", day:"2-digit"
+      });
+    }catch{ return "—"; }
+  }
+
+  function render(){
+    const rows = filteredBase();
+    const tbody = document.getElementById("tbody");
+    document.getElementById("meta").textContent =
+      rows.length + " de " + FILAS.length + " código" + (FILAS.length === 1 ? "" : "s");
+
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="9" class="empty">No hay códigos con esos filtros.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = rows.map(r=>{
+      const ambitoClass = r.ambito === "PRO" ? "pro" : (r.ambito === "ESC" ? "esc" : "");
+      const estadoClass = r.estado === "completado" ? "completado" : "activo";
+      return `<tr>
+        <td class="code">${esc(r.codigo)}</td>
+        <td><span class="badge ${ambitoClass}">${esc(r.ambitoLabel)}</span></td>
+        <td>${esc(r.evaluacionLabel)}</td>
+        <td>${esc(r.pais || "—")}</td>
+        <td>${esc(r.institucion || "—")}</td>
+        <td>${esc(r.curso || "—")}</td>
+        <td><span class="badge ${estadoClass}">${esc(r.estado)}</span></td>
+        <td>${esc(fmtDate(r.fecha_intento))}</td>
+        <td><button type="button" class="copy" data-code="${esc(r.codigo)}">Copiar</button></td>
+      </tr>`;
+    }).join("");
+  }
+
+  function resetFiltros(){
+    document.getElementById("ambito").value = "";
+    document.getElementById("evaluacion").value = "";
+    document.getElementById("pais").value = "";
+    document.getElementById("institucion").value = "";
+    document.getElementById("desde").value = "";
+    document.getElementById("hasta").value = "";
+    document.getElementById("buscar").value = "";
+    rebuildDependentSelects();
+    render();
+  }
+
+  async function cargar(){
+    const msg = document.getElementById("msg");
+    msg.textContent = "";
+    msg.className = "msg";
+    try{
+      const r = await fetch("/api/codigos");
+      const data = await r.json();
+      if (!r.ok || !data.valid) throw new Error(data.error || "No se pudo cargar");
+      FILAS = (data.filas || []).map(enrich);
+      rebuildDependentSelects();
+      render();
+    }catch(e){
+      document.getElementById("tbody").innerHTML =
+        '<tr><td colspan="9" class="empty">Error al cargar códigos.</td></tr>';
+      document.getElementById("meta").textContent = "—";
+      msg.textContent = e.message || "Error";
+      msg.className = "msg err";
+    }
+  }
+
+  document.getElementById("ambito").addEventListener("change", ()=>{
+    rebuildDependentSelects();
+    render();
+  });
+  document.getElementById("evaluacion").addEventListener("change", ()=>{
+    rebuildDependentSelects();
+    render();
+  });
+  document.getElementById("pais").addEventListener("change", ()=>{
+    rebuildDependentSelects();
+    render();
+  });
+  document.getElementById("institucion").addEventListener("change", render);
+  document.getElementById("desde").addEventListener("change", render);
+  document.getElementById("hasta").addEventListener("change", render);
+  document.getElementById("buscar").addEventListener("input", render);
+  document.getElementById("btnAplicar").addEventListener("click", render);
+  document.getElementById("btnTodos").addEventListener("click", resetFiltros);
+
+  document.getElementById("tbody").addEventListener("click", async (ev)=>{
+    const btn = ev.target.closest(".copy");
+    if (!btn) return;
+    const code = btn.getAttribute("data-code") || "";
+    try{
+      await navigator.clipboard.writeText(code);
+      btn.textContent = "Listo";
+      setTimeout(()=>{ btn.textContent = "Copiar"; }, 900);
+    }catch{
+      btn.textContent = "Error";
+      setTimeout(()=>{ btn.textContent = "Copiar"; }, 900);
+    }
+  });
+
+  cargar();
+</script>
+</body>
+</html>
