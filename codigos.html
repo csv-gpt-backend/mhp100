@@ -94,6 +94,14 @@
       font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink);
     }
     .copy:hover{border-color:#9fbfab}
+    .del{
+      border:1px solid #fecaca;background:#fff;border-radius:8px;padding:5px 8px;
+      font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:#b91c1c;
+      margin-left:6px;
+    }
+    .del:hover{background:#fef2f2;border-color:#f87171}
+    .del:disabled{opacity:.55;cursor:not-allowed}
+    .row-actions{white-space:nowrap}
     .tabs{
       display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;
     }
@@ -424,7 +432,12 @@
         <td>${esc(r.curso || "—")}</td>
         <td><span class="badge ${estadoClass}">${esc(estadoTxt)}</span></td>
         <td>${esc(fmtDate(r.fecha_intento))}</td>
-        <td><button type="button" class="copy" data-code="${esc(r.codigo)}">Copiar</button></td>
+        <td class="row-actions">
+          <button type="button" class="copy" data-code="${esc(r.codigo)}">Copiar</button>
+          ${r.estado === "activo"
+            ? `<button type="button" class="del" data-code="${esc(r.codigo)}">Eliminar</button>`
+            : ""}
+        </td>
       </tr>`;
     }).join("");
   }
@@ -489,6 +502,38 @@
   });
 
   document.getElementById("tbody").addEventListener("click", async (ev)=>{
+    const del = ev.target.closest(".del");
+    if (del) {
+      const code = del.getAttribute("data-code") || "";
+      if (!code) return;
+      const ok = window.confirm(
+        "¿Eliminar el código " + code + "?\n\nSolo se borra si aún no tiene evaluación."
+      );
+      if (!ok) return;
+      del.disabled = true;
+      const msg = document.getElementById("msg");
+      msg.textContent = "";
+      msg.className = "msg";
+      try{
+        const r = await fetch("/api/codigos?codigo=" + encodeURIComponent(code), {
+          method: "DELETE"
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok || !data.ok) {
+          throw new Error(data.error || "No se pudo eliminar");
+        }
+        FILAS = FILAS.filter(f => f.codigo !== code);
+        rebuildDependentSelects();
+        render();
+        msg.textContent = "Eliminado: " + code;
+      }catch(e){
+        msg.textContent = e.message || "Error al eliminar";
+        msg.className = "msg err";
+        del.disabled = false;
+      }
+      return;
+    }
+
     const btn = ev.target.closest(".copy");
     if (!btn) return;
     const code = btn.getAttribute("data-code") || "";
