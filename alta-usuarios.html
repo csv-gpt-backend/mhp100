@@ -42,27 +42,20 @@
       font-weight:700;margin:0 0 6px;
     }
     .brand p{margin:0;font-size:14px;color:var(--muted);line-height:1.45}
-    .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
-    .tab{
-      border:1px solid var(--line);background:rgba(255,255,255,.78);color:var(--ink);
-      border-radius:999px;padding:9px 14px;font-weight:700;font-size:13px;
-      cursor:pointer;font-family:inherit;
-    }
-    .tab.active{background:var(--green);border-color:var(--green);color:#fff}
     .panel{
       background:rgba(255,255,255,.85);border:1px solid var(--line);
       border-radius:14px;padding:16px;margin-bottom:14px;
       box-shadow:0 8px 22px rgba(12,26,20,.05);
     }
-    .grid{
-      display:grid;grid-template-columns:1fr 1fr;gap:12px;
-    }
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     @media (max-width:640px){ .grid{grid-template-columns:1fr} }
     label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
     input,select{
       width:100%;padding:9px 10px;border:1px solid #b7c7bc;border-radius:10px;
       font-size:15px;font-family:inherit;background:#fff;color:var(--ink);
     }
+    .nuevo{display:none;margin-top:6px}
+    .nuevo.show{display:block}
     .hint{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4}
     .preview{
       margin-top:12px;padding:10px 12px;border-radius:10px;background:#eef5f0;
@@ -103,13 +96,8 @@
     <header class="brand">
       <img src="assets/logo_adalam.webp" alt="Sello ADALAM" width="220" height="88"/>
       <h1>Crear códigos de acceso</h1>
-      <p>Estándar <b>ESC|PRO-XXXXXX-sufijo</b> · se guardan en <b>participants</b> con periodo</p>
+      <p>Un solo formulario · elige lo existente o escribe uno nuevo · cantidad con selector</p>
     </header>
-
-    <div class="tabs" role="tablist">
-      <button type="button" class="tab active" data-modo="uno">Uno / pocos</button>
-      <button type="button" class="tab" data-modo="lote">Lote (curso completo)</button>
-    </div>
 
     <section class="panel">
       <div class="grid">
@@ -132,33 +120,54 @@
             <option value="VOCACI">VOCACI — Vocacional</option>
           </select>
         </div>
+
         <div>
-          <label for="institucion">Institución</label>
-          <input id="institucion" type="text" placeholder="Ej. COLEGIO QUITO" autocomplete="organization"/>
+          <label for="institucionSel">Institución</label>
+          <select id="institucionSel"></select>
+          <input id="institucionNuevo" class="nuevo" type="text" placeholder="Escriba la institución nueva"/>
         </div>
         <div>
-          <label for="pais">País</label>
-          <input id="pais" type="text" placeholder="Ej. ECUADOR" autocomplete="country-name"/>
+          <label for="paisSel">País</label>
+          <select id="paisSel"></select>
+          <input id="paisNuevo" class="nuevo" type="text" placeholder="Escriba el país nuevo"/>
         </div>
         <div>
-          <label for="curso">Curso / grado</label>
-          <input id="curso" type="text" placeholder="Ej. TERCERO BACHILLERATO B"/>
+          <label for="cursoSel">Curso / grado</label>
+          <select id="cursoSel"></select>
+          <input id="cursoNuevo" class="nuevo" type="text" placeholder="Escriba el curso nuevo"/>
         </div>
         <div>
-          <label for="periodo">Periodo</label>
-          <input id="periodo" type="text" placeholder="2026-2027" value="2026-2027"/>
+          <label for="periodoSel">Periodo</label>
+          <select id="periodoSel"></select>
+          <input id="periodoNuevo" class="nuevo" type="text" placeholder="Ej. 2026-2027"/>
           <div class="hint">Formato fijo AAAA-AAAA</div>
         </div>
         <div>
-          <label for="cantidad">Cantidad</label>
-          <input id="cantidad" type="number" min="1" max="200" value="1"/>
-          <div class="hint" id="hintCantidad">Uno / pocos: normalmente 1 a 5</div>
+          <label for="cantidad">Cantidad de códigos</label>
+          <select id="cantidad">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20" selected>20</option>
+            <option value="25">25</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+            <option value="75">75</option>
+            <option value="100">100</option>
+            <option value="150">150</option>
+            <option value="200">200</option>
+          </select>
+          <div class="hint">1 = un código · 20/30/50 = curso completo</div>
         </div>
       </div>
 
       <label class="check">
         <input type="checkbox" id="puedeVer" checked/>
-        Puede ver resultado al terminar (`puede_ver_resultado`)
+        Puede ver resultado al terminar
       </label>
 
       <div class="preview" id="preview">Vista previa: ESC-INTELC-XXXX</div>
@@ -178,8 +187,8 @@
       </div>
 
       <p class="note">
-        Antes de la primera generación, en Neon ejecute una vez:<br/>
-        <code>ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT;</code>
+        Elija un valor de la lista para no equivocarse en letras.
+        Use <b>Otro / nuevo…</b> solo la primera vez que carga esa institución, país, curso o periodo.
       </p>
     </section>
 
@@ -187,8 +196,9 @@
   </div>
 
 <script>
-  let MODO = "uno";
+  const NUEVO = "__NUEVO__";
   let ULTIMOS = [];
+  let CATALOGO = { instituciones: [], paises: [], cursos: [], periodos: [] };
 
   function esc(s){
     return String(s ?? "").replace(/[&<>"']/g, c => ({
@@ -196,28 +206,96 @@
     }[c]));
   }
 
-  function actualizarModo(){
-    document.querySelectorAll(".tab").forEach(t=>{
-      const on = t.getAttribute("data-modo") === MODO;
-      t.classList.toggle("active", on);
+  function uniq(arr){
+    return [...new Set(arr.filter(Boolean).map(v => String(v).trim()).filter(Boolean))]
+      .sort((a,b)=>a.localeCompare(b,"es",{sensitivity:"base"}));
+  }
+
+  function fillHybrid(selId, values, placeholder, defaultValue){
+    const sel = document.getElementById(selId);
+    const cur = sel.value;
+    sel.innerHTML = "";
+    const ph = document.createElement("option");
+    ph.value = "";
+    ph.textContent = placeholder;
+    sel.appendChild(ph);
+    values.forEach(v=>{
+      const o = document.createElement("option");
+      o.value = v;
+      o.textContent = v;
+      sel.appendChild(o);
     });
-    const cant = document.getElementById("cantidad");
-    const hint = document.getElementById("hintCantidad");
-    if (MODO === "lote") {
-      if (Number(cant.value) < 2) cant.value = "20";
-      hint.textContent = "Lote: ej. 20 estudiantes del mismo curso (máx. 200)";
-    } else {
-      if (Number(cant.value) > 10) cant.value = "1";
-      hint.textContent = "Uno / pocos: normalmente 1 a 5";
-    }
-    actualizarPreview();
+    const otro = document.createElement("option");
+    otro.value = NUEVO;
+    otro.textContent = "Otro / nuevo…";
+    sel.appendChild(otro);
+    if (values.includes(cur)) sel.value = cur;
+    else if (defaultValue && values.includes(defaultValue)) sel.value = defaultValue;
+    else if (cur === NUEVO) sel.value = NUEVO;
+    else sel.value = "";
+    syncNuevo(selId);
+  }
+
+  function syncNuevo(selId){
+    const map = {
+      institucionSel: "institucionNuevo",
+      paisSel: "paisNuevo",
+      cursoSel: "cursoNuevo",
+      periodoSel: "periodoNuevo"
+    };
+    const inputId = map[selId];
+    if (!inputId) return;
+    const sel = document.getElementById(selId);
+    const inp = document.getElementById(inputId);
+    const show = sel.value === NUEVO;
+    inp.classList.toggle("show", show);
+    if (!show) inp.value = "";
+  }
+
+  function valorCampo(selId, inputId){
+    const sel = document.getElementById(selId);
+    if (sel.value === NUEVO) return document.getElementById(inputId).value.trim();
+    return String(sel.value || "").trim();
   }
 
   function actualizarPreview(){
-    const ambito = document.getElementById("ambito").value;
-    const evaluacion = document.getElementById("evaluacion").value;
     document.getElementById("preview").textContent =
-      "Vista previa: " + ambito + "-" + evaluacion + "-XXXX";
+      "Vista previa: " +
+      document.getElementById("ambito").value + "-" +
+      document.getElementById("evaluacion").value + "-XXXX";
+  }
+
+  function pintarCatalogo(){
+    fillHybrid("institucionSel", CATALOGO.instituciones, "Seleccione institución…");
+    fillHybrid("paisSel", CATALOGO.paises, "Seleccione país…");
+    fillHybrid("cursoSel", CATALOGO.cursos, "Seleccione curso…");
+    fillHybrid(
+      "periodoSel",
+      CATALOGO.periodos.length ? CATALOGO.periodos : ["2026-2027"],
+      "Seleccione periodo…",
+      "2026-2027"
+    );
+  }
+
+  async function cargarCatalogo(){
+    const msg = document.getElementById("msg");
+    try{
+      const r = await fetch("/api/codigos");
+      const data = await r.json();
+      const filas = (data && data.filas) || [];
+      CATALOGO = {
+        instituciones: uniq(filas.map(f => f.institucion)),
+        paises: uniq(filas.map(f => f.pais)),
+        cursos: uniq(filas.map(f => f.curso)),
+        periodos: uniq(filas.map(f => f.periodo))
+      };
+      pintarCatalogo();
+    }catch(e){
+      CATALOGO = { instituciones: [], paises: [], cursos: [], periodos: ["2026-2027"] };
+      pintarCatalogo();
+      msg.textContent = "No se pudo cargar listas existentes; puede escribir con Otro / nuevo…";
+      msg.className = "msg err";
+    }
   }
 
   async function generar(){
@@ -229,10 +307,10 @@
     const payload = {
       ambito: document.getElementById("ambito").value,
       evaluacion: document.getElementById("evaluacion").value,
-      institucion: document.getElementById("institucion").value.trim(),
-      pais: document.getElementById("pais").value.trim(),
-      curso: document.getElementById("curso").value.trim(),
-      periodo: document.getElementById("periodo").value.trim(),
+      institucion: valorCampo("institucionSel", "institucionNuevo"),
+      pais: valorCampo("paisSel", "paisNuevo"),
+      curso: valorCampo("cursoSel", "cursoNuevo"),
+      periodo: valorCampo("periodoSel", "periodoNuevo"),
       cantidad: Number(document.getElementById("cantidad").value) || 1,
       puede_ver_resultado: document.getElementById("puedeVer").checked
     };
@@ -275,6 +353,26 @@
       document.getElementById("result").classList.add("show");
       msg.textContent = "Listo: " + ULTIMOS.length + " en participants.";
       msg.className = "msg ok";
+
+      // refrescar listas con lo recién creado
+      await cargarCatalogo();
+      // re-seleccionar valores usados
+      if (CATALOGO.instituciones.includes(payload.institucion)) {
+        document.getElementById("institucionSel").value = payload.institucion;
+        syncNuevo("institucionSel");
+      }
+      if (CATALOGO.paises.includes(payload.pais)) {
+        document.getElementById("paisSel").value = payload.pais;
+        syncNuevo("paisSel");
+      }
+      if (CATALOGO.cursos.includes(payload.curso)) {
+        document.getElementById("cursoSel").value = payload.curso;
+        syncNuevo("cursoSel");
+      }
+      if (CATALOGO.periodos.includes(payload.periodo)) {
+        document.getElementById("periodoSel").value = payload.periodo;
+        syncNuevo("periodoSel");
+      }
     }catch(e){
       msg.textContent = e.message || "Error";
       msg.className = "msg err";
@@ -283,14 +381,11 @@
     }
   }
 
-  document.querySelector(".tabs").addEventListener("click", (ev)=>{
-    const tab = ev.target.closest(".tab");
-    if (!tab) return;
-    MODO = tab.getAttribute("data-modo") || "uno";
-    actualizarModo();
-  });
   ["ambito","evaluacion"].forEach(id=>{
     document.getElementById(id).addEventListener("change", actualizarPreview);
+  });
+  ["institucionSel","paisSel","cursoSel","periodoSel"].forEach(id=>{
+    document.getElementById(id).addEventListener("change", () => syncNuevo(id));
   });
   document.getElementById("btnGenerar").addEventListener("click", generar);
   document.getElementById("btnCopiarTodos").addEventListener("click", async ()=>{
@@ -305,7 +400,8 @@
     }
   });
 
-  actualizarModo();
+  actualizarPreview();
+  cargarCatalogo();
 </script>
 </body>
 </html>
