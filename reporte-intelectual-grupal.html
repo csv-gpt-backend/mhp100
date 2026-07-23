@@ -44,9 +44,9 @@
   <div class="wrap">
     <h1>Reporte grupal · Evaluación intelectual</h1>
     <p class="muted">
-      Selectores desde <b>attempts</b> (institución → país → curso → código/prefijo).
-      Estándar de códigos: <b>ESC|PRO-XXXXXX-sufijo</b> (6 letras, ej. <b>ESC-INTELC-UJ45</b>).
-      También admite códigos de prueba legacy.
+      Selectores desde <b>attempts</b> + periodo de <b>participants</b>
+      (institución → país → curso → periodo → código/prefijo).
+      Estándar: <b>ESC|PRO-XXXXXX-sufijo</b> (ej. <b>ESC-INTELC-UJ45</b>). También legacy de prueba.
     </p>
 
     <div class="card no-print">
@@ -62,6 +62,10 @@
         <div>
           <label for="curso">Curso / grado</label>
           <select id="curso" disabled><option value="">—</option></select>
+        </div>
+        <div>
+          <label for="periodo">Periodo</label>
+          <select id="periodo" disabled><option value="">—</option></select>
         </div>
         <div>
           <label for="prefijo">Código o prefijo de grupo</label>
@@ -182,6 +186,8 @@
     document.getElementById("grupo").disabled = !inst;
     fillSelect(document.getElementById("curso"), [], "—");
     document.getElementById("curso").disabled = true;
+    fillSelect(document.getElementById("periodo"), [], "—");
+    document.getElementById("periodo").disabled = true;
     fillSelect(document.getElementById("prefijo"), [], "—");
     document.getElementById("prefijo").disabled = true;
   }
@@ -194,6 +200,8 @@
     );
     fillSelect(document.getElementById("curso"), cursos, "Seleccione curso…");
     document.getElementById("curso").disabled = !grupo;
+    fillSelect(document.getElementById("periodo"), [], "—");
+    document.getElementById("periodo").disabled = true;
     fillSelect(document.getElementById("prefijo"), [], "—");
     document.getElementById("prefijo").disabled = true;
   }
@@ -202,9 +210,31 @@
     const inst = document.getElementById("institucion").value;
     const grupo = document.getElementById("grupo").value;
     const curso = document.getElementById("curso").value;
-    const subset = FILAS.filter(
+    const periodos = uniq(
+      FILAS.filter(f => f.institucion === inst && f.grupo === grupo && f.curso === curso)
+        .map(f => f.periodo)
+        .filter(Boolean)
+    );
+    fillSelect(document.getElementById("periodo"), periodos, periodos.length ? "Seleccione periodo…" : "Sin periodo (legacy)");
+    document.getElementById("periodo").disabled = !curso;
+    // Si no hay periodos, permitir seguir con prefijos (códigos viejos)
+    if (!periodos.length && curso) {
+      onPeriodo();
+    } else {
+      fillSelect(document.getElementById("prefijo"), [], "—");
+      document.getElementById("prefijo").disabled = true;
+    }
+  }
+
+  function onPeriodo(){
+    const inst = document.getElementById("institucion").value;
+    const grupo = document.getElementById("grupo").value;
+    const curso = document.getElementById("curso").value;
+    const periodo = document.getElementById("periodo").value;
+    let subset = FILAS.filter(
       f => f.institucion === inst && f.grupo === grupo && f.curso === curso
     );
+    if (periodo) subset = subset.filter(f => f.periodo === periodo);
     const opts = opcionesCodigo(subset);
     fillSelect(document.getElementById("prefijo"), opts, "Seleccione código/prefijo…");
     document.getElementById("prefijo").disabled = !curso || opts.length === 0;
@@ -231,9 +261,11 @@
       document.getElementById("institucion").disabled = instituciones.length === 0;
       fillSelect(document.getElementById("grupo"), [], "—");
       fillSelect(document.getElementById("curso"), [], "—");
+      fillSelect(document.getElementById("periodo"), [], "—");
       fillSelect(document.getElementById("prefijo"), [], "—");
       document.getElementById("grupo").disabled = true;
       document.getElementById("curso").disabled = true;
+      document.getElementById("periodo").disabled = true;
       document.getElementById("prefijo").disabled = true;
 
       // Demo: precargar Colegio Test si existe
@@ -266,9 +298,10 @@
     const institucion = document.getElementById("institucion").value.trim();
     const grupo = document.getElementById("grupo").value.trim();
     const curso = document.getElementById("curso").value.trim();
+    const periodo = document.getElementById("periodo").value.trim();
     const prefijo = document.getElementById("prefijo").value.trim();
     if(!institucion || !grupo || !curso || !prefijo){
-      msg.textContent = "Complete los cuatro selectores.";
+      msg.textContent = "Complete institución, país, curso y prefijo.";
       msg.className = "msg err";
       return;
     }
@@ -277,6 +310,7 @@
     document.getElementById("resultado").style.display = "none";
 
     const qs = new URLSearchParams({ institucion, grupo, curso, codigo_prefijo: prefijo });
+    if (periodo) qs.set("periodo", periodo);
     try{
       const r = await fetch("/api/report-group?" + qs.toString());
       const data = await r.json();
@@ -292,7 +326,8 @@
       }
 
       document.getElementById("contextoTxt").textContent =
-        institucion + " · " + grupo + " · " + curso;
+        institucion + " · " + grupo + " · " + curso +
+        (periodo ? (" · " + periodo) : "");
       document.getElementById("metaTotal").textContent = String(data.total);
       document.getElementById("metaProm").textContent =
         data.promedio_ig != null ? data.promedio_ig + "%" : "—";
@@ -346,6 +381,7 @@
   document.getElementById("institucion").addEventListener("change", onInstitucion);
   document.getElementById("grupo").addEventListener("change", onGrupo);
   document.getElementById("curso").addEventListener("change", onCurso);
+  document.getElementById("periodo").addEventListener("change", onPeriodo);
   document.getElementById("btnCargar").addEventListener("click", cargar);
   document.getElementById("btnPrint").addEventListener("click", () => window.print());
   cargarListas();

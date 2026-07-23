@@ -68,26 +68,55 @@ module.exports = async function handler(req, res) {
     }
 
     if (String(req.query.lista || "") === "1") {
-      const aRes = await sql`
-        SELECT DISTINCT ON (UPPER(codigo))
-          codigo,
-          institucion,
-          grupo,
-          curso
-        FROM attempts
-        WHERE institucion IS NOT NULL AND TRIM(institucion) <> ''
-          AND grupo IS NOT NULL AND TRIM(grupo) <> ''
-          AND curso IS NOT NULL AND TRIM(curso) <> ''
-          AND codigo IS NOT NULL AND TRIM(codigo) <> ''
-        ORDER BY UPPER(codigo), created_at DESC
-      `;
-
-      const filas = (aRes.rows || []).map((row) => ({
-        codigo: norm(row.codigo).toUpperCase(),
-        institucion: norm(row.institucion),
-        grupo: norm(row.grupo),
-        curso: norm(row.curso)
-      }));
+      let filas = [];
+      try {
+        const aRes = await sql`
+          SELECT DISTINCT ON (UPPER(a.codigo))
+            a.codigo,
+            a.institucion,
+            a.grupo,
+            a.curso,
+            p.periodo
+          FROM attempts a
+          LEFT JOIN participants p
+            ON UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+          WHERE a.institucion IS NOT NULL AND TRIM(a.institucion) <> ''
+            AND a.grupo IS NOT NULL AND TRIM(a.grupo) <> ''
+            AND a.curso IS NOT NULL AND TRIM(a.curso) <> ''
+            AND a.codigo IS NOT NULL AND TRIM(a.codigo) <> ''
+          ORDER BY UPPER(a.codigo), a.created_at DESC
+        `;
+        filas = (aRes.rows || []).map((row) => ({
+          codigo: norm(row.codigo).toUpperCase(),
+          institucion: norm(row.institucion),
+          grupo: norm(row.grupo),
+          curso: norm(row.curso),
+          periodo: norm(row.periodo)
+        }));
+      } catch (e) {
+        const msg = String(e && e.message ? e.message : e);
+        if (!/periodo/i.test(msg) && !/column/i.test(msg)) throw e;
+        const aRes = await sql`
+          SELECT DISTINCT ON (UPPER(codigo))
+            codigo,
+            institucion,
+            grupo,
+            curso
+          FROM attempts
+          WHERE institucion IS NOT NULL AND TRIM(institucion) <> ''
+            AND grupo IS NOT NULL AND TRIM(grupo) <> ''
+            AND curso IS NOT NULL AND TRIM(curso) <> ''
+            AND codigo IS NOT NULL AND TRIM(codigo) <> ''
+          ORDER BY UPPER(codigo), created_at DESC
+        `;
+        filas = (aRes.rows || []).map((row) => ({
+          codigo: norm(row.codigo).toUpperCase(),
+          institucion: norm(row.institucion),
+          grupo: norm(row.grupo),
+          curso: norm(row.curso),
+          periodo: ""
+        }));
+      }
 
       return res.status(200).json({ valid: true, filas });
     }
@@ -95,6 +124,7 @@ module.exports = async function handler(req, res) {
     const institucion = norm(req.query.institucion);
     const grupo = norm(req.query.grupo);
     const curso = norm(req.query.curso);
+    const periodo = norm(req.query.periodo);
     let prefijo = norm(req.query.codigo_prefijo).toUpperCase();
 
     if (!institucion || !grupo || !curso || !prefijo) {
@@ -108,22 +138,82 @@ module.exports = async function handler(req, res) {
       prefijo = prefijo + "%";
     }
 
-    const aRes = await sql`
-      SELECT DISTINCT ON (UPPER(codigo))
-        codigo,
-        nombre,
-        institucion,
-        grupo,
-        curso,
-        created_at,
-        resultados
-      FROM attempts
-      WHERE UPPER(TRIM(institucion)) = UPPER(TRIM(${institucion}))
-        AND UPPER(TRIM(grupo)) = UPPER(TRIM(${grupo}))
-        AND UPPER(TRIM(curso)) = UPPER(TRIM(${curso}))
-        AND UPPER(codigo) LIKE ${prefijo}
-      ORDER BY UPPER(codigo), created_at DESC
-    `;
+    let aRes;
+    if (periodo) {
+      try {
+        aRes = await sql`
+          SELECT DISTINCT ON (UPPER(a.codigo))
+            a.codigo,
+            a.nombre,
+            a.institucion,
+            a.grupo,
+            a.curso,
+            a.created_at,
+            a.resultados,
+            p.periodo
+          FROM attempts a
+          LEFT JOIN participants p
+            ON UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+          WHERE UPPER(TRIM(a.institucion)) = UPPER(TRIM(${institucion}))
+            AND UPPER(TRIM(a.grupo)) = UPPER(TRIM(${grupo}))
+            AND UPPER(TRIM(a.curso)) = UPPER(TRIM(${curso}))
+            AND UPPER(a.codigo) LIKE ${prefijo}
+            AND UPPER(TRIM(COALESCE(p.periodo, ''))) = UPPER(TRIM(${periodo}))
+          ORDER BY UPPER(a.codigo), a.created_at DESC
+        `;
+      } catch (e) {
+        const msg = String(e && e.message ? e.message : e);
+        if (/periodo/i.test(msg) || /column/i.test(msg)) {
+          return res.status(500).json({
+            valid: false,
+            error:
+              "Falta la columna periodo en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT;"
+          });
+        }
+        throw e;
+      }
+    } else {
+      try {
+        aRes = await sql`
+          SELECT DISTINCT ON (UPPER(a.codigo))
+            a.codigo,
+            a.nombre,
+            a.institucion,
+            a.grupo,
+            a.curso,
+            a.created_at,
+            a.resultados,
+            p.periodo
+          FROM attempts a
+          LEFT JOIN participants p
+            ON UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+          WHERE UPPER(TRIM(a.institucion)) = UPPER(TRIM(${institucion}))
+            AND UPPER(TRIM(a.grupo)) = UPPER(TRIM(${grupo}))
+            AND UPPER(TRIM(a.curso)) = UPPER(TRIM(${curso}))
+            AND UPPER(a.codigo) LIKE ${prefijo}
+          ORDER BY UPPER(a.codigo), a.created_at DESC
+        `;
+      } catch (e) {
+        const msg = String(e && e.message ? e.message : e);
+        if (!/periodo/i.test(msg) && !/column/i.test(msg)) throw e;
+        aRes = await sql`
+          SELECT DISTINCT ON (UPPER(codigo))
+            codigo,
+            nombre,
+            institucion,
+            grupo,
+            curso,
+            created_at,
+            resultados
+          FROM attempts
+          WHERE UPPER(TRIM(institucion)) = UPPER(TRIM(${institucion}))
+            AND UPPER(TRIM(grupo)) = UPPER(TRIM(${grupo}))
+            AND UPPER(TRIM(curso)) = UPPER(TRIM(${curso}))
+            AND UPPER(codigo) LIKE ${prefijo}
+          ORDER BY UPPER(codigo), created_at DESC
+        `;
+      }
+    }
 
     const columnsMap = new Map();
     CHC_ORDER.forEach((code) => {
@@ -144,6 +234,7 @@ module.exports = async function handler(req, res) {
         institucion: row.institucion || "—",
         grupo: row.grupo || "—",
         curso: row.curso || "—",
+        periodo: norm(row.periodo) || "—",
         created_at: row.created_at || null,
         ig_pct: igFromResultados(row.resultados),
         scores,
@@ -181,7 +272,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       valid: true,
-      filtro: { institucion, grupo, curso, codigo_prefijo: prefijo },
+      filtro: { institucion, grupo, curso, periodo: periodo || null, codigo_prefijo: prefijo },
       total: rows.length,
       promedio_ig,
       columnas,

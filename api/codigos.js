@@ -18,32 +18,67 @@ function readBody(req) {
 }
 
 async function listarCodigos(res) {
-  const pRes = await sql`
-    SELECT
-      p.codigo,
-      p.nombre,
-      p.institucion,
-      p.grupo,
-      p.curso,
-      p.puede_ver_resultado,
-      (
-        SELECT a.created_at
-        FROM attempts a
-        WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
-        ORDER BY a.created_at DESC
-        LIMIT 1
-      ) AS fecha_intento,
-      (
-        SELECT COUNT(*)::int
-        FROM attempts a
-        WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
-      ) AS intentos
-    FROM participants p
-    WHERE p.codigo IS NOT NULL AND TRIM(p.codigo) <> ''
-    ORDER BY UPPER(TRIM(p.codigo))
-  `;
+  let rows = [];
+  let tienePeriodo = true;
+  try {
+    const pRes = await sql`
+      SELECT
+        p.codigo,
+        p.nombre,
+        p.institucion,
+        p.grupo,
+        p.curso,
+        p.periodo,
+        p.puede_ver_resultado,
+        (
+          SELECT a.created_at
+          FROM attempts a
+          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+          ORDER BY a.created_at DESC
+          LIMIT 1
+        ) AS fecha_intento,
+        (
+          SELECT COUNT(*)::int
+          FROM attempts a
+          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+        ) AS intentos
+      FROM participants p
+      WHERE p.codigo IS NOT NULL AND TRIM(p.codigo) <> ''
+      ORDER BY UPPER(TRIM(p.codigo))
+    `;
+    rows = pRes.rows || [];
+  } catch (e) {
+    const msg = String(e && e.message ? e.message : e);
+    if (!/periodo/i.test(msg) && !/column/i.test(msg)) throw e;
+    tienePeriodo = false;
+    const pRes = await sql`
+      SELECT
+        p.codigo,
+        p.nombre,
+        p.institucion,
+        p.grupo,
+        p.curso,
+        p.puede_ver_resultado,
+        (
+          SELECT a.created_at
+          FROM attempts a
+          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+          ORDER BY a.created_at DESC
+          LIMIT 1
+        ) AS fecha_intento,
+        (
+          SELECT COUNT(*)::int
+          FROM attempts a
+          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+        ) AS intentos
+      FROM participants p
+      WHERE p.codigo IS NOT NULL AND TRIM(p.codigo) <> ''
+      ORDER BY UPPER(TRIM(p.codigo))
+    `;
+    rows = pRes.rows || [];
+  }
 
-  const filas = (pRes.rows || []).map((row) => {
+  const filas = rows.map((row) => {
     const codigo = norm(row.codigo).toUpperCase();
     const intentos = Number(row.intentos) || 0;
     return {
@@ -53,6 +88,7 @@ async function listarCodigos(res) {
       institucion: norm(row.institucion) || "",
       pais: norm(row.grupo) || "",
       curso: norm(row.curso) || "",
+      periodo: tienePeriodo ? norm(row.periodo) || "" : "",
       puede_ver_resultado: !!row.puede_ver_resultado,
       fecha_intento: row.fecha_intento || null,
       intentos,
@@ -63,6 +99,7 @@ async function listarCodigos(res) {
   return res.status(200).json({
     valid: true,
     total: filas.length,
+    tiene_periodo: tienePeriodo,
     filas
   });
 }
@@ -71,7 +108,6 @@ async function buscarParticipante(codigoBuscado) {
   const codigo = norm(codigoBuscado);
   if (!codigo) return null;
 
-  // Mismo patrón que lookup.js (probado en producción)
   let pRes = await sql`
     SELECT codigo
     FROM participants
@@ -130,7 +166,6 @@ async function eliminarCodigo(req, res) {
     });
   }
 
-  // Borrar por el valor exacto que está en la tabla
   await sql`
     DELETE FROM participants
     WHERE codigo = ${codigoDb}

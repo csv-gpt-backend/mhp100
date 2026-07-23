@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Crear códigos · ADALAM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,700;1,9..40,500&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --ink:#0c1a14;
+      --muted:#5a6b62;
+      --line:#c8d4cc;
+      --green:#1a8f3b;
+      --green-deep:#14632b;
+      --paper:#f4f8f5;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;min-height:100%}
+    body{
+      font-family:"DM Sans",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(26,143,59,.16), transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, rgba(20,99,43,.10), transparent 50%),
+        linear-gradient(180deg, #f7fbf8 0%, var(--paper) 45%, #eef5f0 100%);
+    }
+    .wrap{width:min(820px,100%);margin:0 auto;padding:28px 18px 48px}
+    .back{
+      display:inline-block;margin-bottom:10px;font-size:13px;font-weight:700;
+      color:var(--green-deep);text-decoration:none;
+    }
+    .back:hover{text-decoration:underline}
+    .brand{text-align:center;margin:8px 0 22px}
+    .brand img{
+      width:min(220px,70vw);height:auto;display:block;margin:0 auto 12px;
+      filter:drop-shadow(0 14px 28px rgba(12,26,20,.18));
+    }
+    .brand h1{
+      font-family:Fraunces,Georgia,serif;font-size:clamp(1.45rem,4vw,1.95rem);
+      font-weight:700;margin:0 0 6px;
+    }
+    .brand p{margin:0;font-size:14px;color:var(--muted);line-height:1.45}
+    .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+    .tab{
+      border:1px solid var(--line);background:rgba(255,255,255,.78);color:var(--ink);
+      border-radius:999px;padding:9px 14px;font-weight:700;font-size:13px;
+      cursor:pointer;font-family:inherit;
+    }
+    .tab.active{background:var(--green);border-color:var(--green);color:#fff}
+    .panel{
+      background:rgba(255,255,255,.85);border:1px solid var(--line);
+      border-radius:14px;padding:16px;margin-bottom:14px;
+      box-shadow:0 8px 22px rgba(12,26,20,.05);
+    }
+    .grid{
+      display:grid;grid-template-columns:1fr 1fr;gap:12px;
+    }
+    @media (max-width:640px){ .grid{grid-template-columns:1fr} }
+    label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+    input,select{
+      width:100%;padding:9px 10px;border:1px solid #b7c7bc;border-radius:10px;
+      font-size:15px;font-family:inherit;background:#fff;color:var(--ink);
+    }
+    .hint{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4}
+    .preview{
+      margin-top:12px;padding:10px 12px;border-radius:10px;background:#eef5f0;
+      border:1px solid var(--line);font-weight:700;font-size:14px;letter-spacing:.02em;
+    }
+    .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+    .btn{
+      border:0;border-radius:999px;padding:10px 16px;font-weight:700;font-size:14px;
+      cursor:pointer;font-family:inherit;background:var(--green);color:#fff;
+    }
+    .btn:hover{background:var(--green-deep)}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+    .msg{font-size:13px;font-weight:700}
+    .msg.ok{color:#047857}
+    .msg.err{color:#b91c1c}
+    .check{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:14px}
+    .check input{width:auto}
+    .result{
+      display:none;margin-top:14px;background:#fff;border:1px solid var(--line);
+      border-radius:12px;padding:12px;max-height:280px;overflow:auto;
+    }
+    .result.show{display:block}
+    .result h3{margin:0 0 8px;font-size:14px}
+    .result code{
+      display:block;font-size:13px;padding:3px 0;font-family:ui-monospace,Consolas,monospace;
+    }
+    .note{
+      font-size:12px;color:var(--muted);margin-top:10px;line-height:1.45;
+      padding:10px 12px;border-left:3px solid var(--green);background:rgba(255,255,255,.6);
+    }
+    footer{margin-top:22px;text-align:center;font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="menu.html">← Menú ADALAM</a>
+    <header class="brand">
+      <img src="assets/logo_adalam.webp" alt="Sello ADALAM" width="220" height="88"/>
+      <h1>Crear códigos de acceso</h1>
+      <p>Estándar <b>ESC|PRO-XXXXXX-sufijo</b> · se guardan en <b>participants</b> con periodo</p>
+    </header>
+
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab active" data-modo="uno">Uno / pocos</button>
+      <button type="button" class="tab" data-modo="lote">Lote (curso completo)</button>
+    </div>
+
+    <section class="panel">
+      <div class="grid">
+        <div>
+          <label for="ambito">Ámbito</label>
+          <select id="ambito">
+            <option value="ESC">Escolar (ESC)</option>
+            <option value="PRO">Profesional (PRO)</option>
+          </select>
+        </div>
+        <div>
+          <label for="evaluacion">Evaluación (6 letras)</label>
+          <select id="evaluacion">
+            <option value="INTELC">INTELC — Intelectual</option>
+            <option value="INTEGR">INTEGR — Integridad</option>
+            <option value="SOCIOE">SOCIOE — Socioemocional</option>
+            <option value="LIDERA">LIDERA — Liderazgo</option>
+            <option value="HABITO">HABITO — Hábitos</option>
+            <option value="APREND">APREND — Aprendizaje</option>
+            <option value="VOCACI">VOCACI — Vocacional</option>
+          </select>
+        </div>
+        <div>
+          <label for="institucion">Institución</label>
+          <input id="institucion" type="text" placeholder="Ej. COLEGIO QUITO" autocomplete="organization"/>
+        </div>
+        <div>
+          <label for="pais">País</label>
+          <input id="pais" type="text" placeholder="Ej. ECUADOR" autocomplete="country-name"/>
+        </div>
+        <div>
+          <label for="curso">Curso / grado</label>
+          <input id="curso" type="text" placeholder="Ej. TERCERO BACHILLERATO B"/>
+        </div>
+        <div>
+          <label for="periodo">Periodo</label>
+          <input id="periodo" type="text" placeholder="2026-2027" value="2026-2027"/>
+          <div class="hint">Formato fijo AAAA-AAAA</div>
+        </div>
+        <div>
+          <label for="cantidad">Cantidad</label>
+          <input id="cantidad" type="number" min="1" max="200" value="1"/>
+          <div class="hint" id="hintCantidad">Uno / pocos: normalmente 1 a 5</div>
+        </div>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" id="puedeVer" checked/>
+        Puede ver resultado al terminar (`puede_ver_resultado`)
+      </label>
+
+      <div class="preview" id="preview">Vista previa: ESC-INTELC-XXXX</div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="btnGenerar">Generar y guardar</button>
+        <a class="btn ghost" href="codigos.html" style="text-decoration:none;display:inline-block">Ver códigos</a>
+        <span class="msg" id="msg"></span>
+      </div>
+
+      <div class="result" id="result">
+        <h3 id="resultTitle">Códigos creados</h3>
+        <div id="resultList"></div>
+        <div class="actions" style="margin-top:10px">
+          <button type="button" class="btn ghost" id="btnCopiarTodos">Copiar todos</button>
+        </div>
+      </div>
+
+      <p class="note">
+        Antes de la primera generación, en Neon ejecute una vez:<br/>
+        <code>ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT;</code>
+      </p>
+    </section>
+
+    <footer>ADALAM · uso interno / institucional</footer>
+  </div>
+
+<script>
+  let MODO = "uno";
+  let ULTIMOS = [];
+
+  function esc(s){
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  function actualizarModo(){
+    document.querySelectorAll(".tab").forEach(t=>{
+      const on = t.getAttribute("data-modo") === MODO;
+      t.classList.toggle("active", on);
+    });
+    const cant = document.getElementById("cantidad");
+    const hint = document.getElementById("hintCantidad");
+    if (MODO === "lote") {
+      if (Number(cant.value) < 2) cant.value = "20";
+      hint.textContent = "Lote: ej. 20 estudiantes del mismo curso (máx. 200)";
+    } else {
+      if (Number(cant.value) > 10) cant.value = "1";
+      hint.textContent = "Uno / pocos: normalmente 1 a 5";
+    }
+    actualizarPreview();
+  }
+
+  function actualizarPreview(){
+    const ambito = document.getElementById("ambito").value;
+    const evaluacion = document.getElementById("evaluacion").value;
+    document.getElementById("preview").textContent =
+      "Vista previa: " + ambito + "-" + evaluacion + "-XXXX";
+  }
+
+  async function generar(){
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("btnGenerar");
+    msg.textContent = "";
+    msg.className = "msg";
+
+    const payload = {
+      ambito: document.getElementById("ambito").value,
+      evaluacion: document.getElementById("evaluacion").value,
+      institucion: document.getElementById("institucion").value.trim(),
+      pais: document.getElementById("pais").value.trim(),
+      curso: document.getElementById("curso").value.trim(),
+      periodo: document.getElementById("periodo").value.trim(),
+      cantidad: Number(document.getElementById("cantidad").value) || 1,
+      puede_ver_resultado: document.getElementById("puedeVer").checked
+    };
+
+    if (!payload.institucion || !payload.pais || !payload.curso || !payload.periodo) {
+      msg.textContent = "Complete institución, país, curso y periodo.";
+      msg.className = "msg err";
+      return;
+    }
+    if (!/^\d{4}-\d{4}$/.test(payload.periodo)) {
+      msg.textContent = "Periodo debe ser AAAA-AAAA (ej. 2026-2027).";
+      msg.className = "msg err";
+      return;
+    }
+
+    const ok = window.confirm(
+      "¿Generar " + payload.cantidad + " código(s)?\n\n" +
+      payload.ambito + "-" + payload.evaluacion + "-…\n" +
+      payload.institucion + " · " + payload.pais + " · " + payload.curso + " · " + payload.periodo
+    );
+    if (!ok) return;
+
+    btn.disabled = true;
+    msg.textContent = "Generando…";
+    try{
+      const r = await fetch("/api/alta-codigos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.ok) {
+        throw new Error(data.error || data.detail || "No se pudo crear");
+      }
+      ULTIMOS = data.codigos || [];
+      document.getElementById("resultTitle").textContent =
+        "Códigos creados (" + ULTIMOS.length + ")";
+      document.getElementById("resultList").innerHTML =
+        ULTIMOS.map(c => "<code>" + esc(c) + "</code>").join("");
+      document.getElementById("result").classList.add("show");
+      msg.textContent = "Listo: " + ULTIMOS.length + " en participants.";
+      msg.className = "msg ok";
+    }catch(e){
+      msg.textContent = e.message || "Error";
+      msg.className = "msg err";
+    }finally{
+      btn.disabled = false;
+    }
+  }
+
+  document.querySelector(".tabs").addEventListener("click", (ev)=>{
+    const tab = ev.target.closest(".tab");
+    if (!tab) return;
+    MODO = tab.getAttribute("data-modo") || "uno";
+    actualizarModo();
+  });
+  ["ambito","evaluacion"].forEach(id=>{
+    document.getElementById(id).addEventListener("change", actualizarPreview);
+  });
+  document.getElementById("btnGenerar").addEventListener("click", generar);
+  document.getElementById("btnCopiarTodos").addEventListener("click", async ()=>{
+    if (!ULTIMOS.length) return;
+    try{
+      await navigator.clipboard.writeText(ULTIMOS.join("\n"));
+      document.getElementById("msg").textContent = "Códigos copiados.";
+      document.getElementById("msg").className = "msg ok";
+    }catch{
+      document.getElementById("msg").textContent = "No se pudo copiar.";
+      document.getElementById("msg").className = "msg err";
+    }
+  });
+
+  actualizarModo();
+</script>
+</body>
+</html>
