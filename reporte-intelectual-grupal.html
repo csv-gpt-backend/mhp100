@@ -44,9 +44,9 @@
   <div class="wrap">
     <h1>Reporte grupal · Evaluación intelectual</h1>
     <p class="muted">
-      Selectores desde <b>attempts</b> + periodo de <b>participants</b>
-      (institución → país → curso → periodo → código/prefijo).
-      Estándar: <b>ESC|PRO-XXXXXX-sufijo</b> (ej. <b>ESC-INTELC-UJ45</b>). También legacy de prueba.
+      Selectores: institución → país → curso → periodo → <b>lote</b> → código/prefijo.
+      El <b>lote</b> separa tandas (ej. 1ª vs 2ª evaluación del mismo grupo).
+      Estándar: <b>ESC|PRO-XXXXXX-sufijo</b>. También legacy de prueba.
     </p>
 
     <div class="card no-print">
@@ -66,6 +66,10 @@
         <div>
           <label for="periodo">Periodo</label>
           <select id="periodo" disabled><option value="">—</option></select>
+        </div>
+        <div>
+          <label for="lote">Lote</label>
+          <select id="lote" disabled><option value="">—</option></select>
         </div>
         <div>
           <label for="prefijo">Código o prefijo de grupo</label>
@@ -188,6 +192,8 @@
     document.getElementById("curso").disabled = true;
     fillSelect(document.getElementById("periodo"), [], "—");
     document.getElementById("periodo").disabled = true;
+    fillSelect(document.getElementById("lote"), [], "—");
+    document.getElementById("lote").disabled = true;
     fillSelect(document.getElementById("prefijo"), [], "—");
     document.getElementById("prefijo").disabled = true;
   }
@@ -202,6 +208,8 @@
     document.getElementById("curso").disabled = !grupo;
     fillSelect(document.getElementById("periodo"), [], "—");
     document.getElementById("periodo").disabled = true;
+    fillSelect(document.getElementById("lote"), [], "—");
+    document.getElementById("lote").disabled = true;
     fillSelect(document.getElementById("prefijo"), [], "—");
     document.getElementById("prefijo").disabled = true;
   }
@@ -217,13 +225,11 @@
     );
     fillSelect(document.getElementById("periodo"), periodos, periodos.length ? "Seleccione periodo…" : "Sin periodo (legacy)");
     document.getElementById("periodo").disabled = !curso;
-    // Si no hay periodos, permitir seguir con prefijos (códigos viejos)
-    if (!periodos.length && curso) {
-      onPeriodo();
-    } else {
-      fillSelect(document.getElementById("prefijo"), [], "—");
-      document.getElementById("prefijo").disabled = true;
-    }
+    fillSelect(document.getElementById("lote"), [], "—");
+    document.getElementById("lote").disabled = true;
+    fillSelect(document.getElementById("prefijo"), [], "—");
+    document.getElementById("prefijo").disabled = true;
+    if (!periodos.length && curso) onPeriodo();
   }
 
   function onPeriodo(){
@@ -235,6 +241,29 @@
       f => f.institucion === inst && f.grupo === grupo && f.curso === curso
     );
     if (periodo) subset = subset.filter(f => f.periodo === periodo);
+    const lotes = uniq(subset.map(f => f.lote).filter(Boolean));
+    fillSelect(
+      document.getElementById("lote"),
+      lotes,
+      lotes.length ? "Seleccione lote…" : "Sin lote (legacy) / Todos"
+    );
+    document.getElementById("lote").disabled = !curso;
+    fillSelect(document.getElementById("prefijo"), [], "—");
+    document.getElementById("prefijo").disabled = true;
+    if (!lotes.length && curso) onLote();
+  }
+
+  function onLote(){
+    const inst = document.getElementById("institucion").value;
+    const grupo = document.getElementById("grupo").value;
+    const curso = document.getElementById("curso").value;
+    const periodo = document.getElementById("periodo").value;
+    const lote = document.getElementById("lote").value;
+    let subset = FILAS.filter(
+      f => f.institucion === inst && f.grupo === grupo && f.curso === curso
+    );
+    if (periodo) subset = subset.filter(f => f.periodo === periodo);
+    if (lote) subset = subset.filter(f => f.lote === lote);
     const opts = opcionesCodigo(subset);
     fillSelect(document.getElementById("prefijo"), opts, "Seleccione código/prefijo…");
     document.getElementById("prefijo").disabled = !curso || opts.length === 0;
@@ -262,10 +291,12 @@
       fillSelect(document.getElementById("grupo"), [], "—");
       fillSelect(document.getElementById("curso"), [], "—");
       fillSelect(document.getElementById("periodo"), [], "—");
+      fillSelect(document.getElementById("lote"), [], "—");
       fillSelect(document.getElementById("prefijo"), [], "—");
       document.getElementById("grupo").disabled = true;
       document.getElementById("curso").disabled = true;
       document.getElementById("periodo").disabled = true;
+      document.getElementById("lote").disabled = true;
       document.getElementById("prefijo").disabled = true;
 
       // Demo: precargar Colegio Test si existe
@@ -299,6 +330,7 @@
     const grupo = document.getElementById("grupo").value.trim();
     const curso = document.getElementById("curso").value.trim();
     const periodo = document.getElementById("periodo").value.trim();
+    const lote = document.getElementById("lote").value.trim();
     const prefijo = document.getElementById("prefijo").value.trim();
     if(!institucion || !grupo || !curso || !prefijo){
       msg.textContent = "Complete institución, país, curso y prefijo.";
@@ -311,6 +343,7 @@
 
     const qs = new URLSearchParams({ institucion, grupo, curso, codigo_prefijo: prefijo });
     if (periodo) qs.set("periodo", periodo);
+    if (lote) qs.set("lote", lote);
     try{
       const r = await fetch("/api/report-group?" + qs.toString());
       const data = await r.json();
@@ -327,7 +360,8 @@
 
       document.getElementById("contextoTxt").textContent =
         institucion + " · " + grupo + " · " + curso +
-        (periodo ? (" · " + periodo) : "");
+        (periodo ? (" · " + periodo) : "") +
+        (lote ? (" · " + lote) : "");
       document.getElementById("metaTotal").textContent = String(data.total);
       document.getElementById("metaProm").textContent =
         data.promedio_ig != null ? data.promedio_ig + "%" : "—";
@@ -382,6 +416,7 @@
   document.getElementById("grupo").addEventListener("change", onGrupo);
   document.getElementById("curso").addEventListener("change", onCurso);
   document.getElementById("periodo").addEventListener("change", onPeriodo);
+  document.getElementById("lote").addEventListener("change", onLote);
   document.getElementById("btnCargar").addEventListener("click", cargar);
   document.getElementById("btnPrint").addEventListener("click", () => window.print());
   cargarListas();
