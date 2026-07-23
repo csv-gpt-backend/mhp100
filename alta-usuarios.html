@@ -205,6 +205,7 @@
   const NUEVO = "__NUEVO__";
   let ULTIMOS = [];
   let ULTIMA_FICHA = null;
+  let ULTIMO_SNAP = "";
   let CATALOGO = { instituciones: [], paises: [], cursos: [], periodos: [] };
 
   function esc(s){
@@ -306,6 +307,42 @@
       return Number(document.getElementById("cantidadNuevo").value) || 0;
     }
     return Number(sel.value) || 0;
+  }
+
+  function formSnapshot(){
+    return JSON.stringify({
+      ambito: document.getElementById("ambito").value,
+      evaluacion: document.getElementById("evaluacion").value,
+      institucion: valorCampo("institucionSel", "institucionNuevo"),
+      pais: valorCampo("paisSel", "paisNuevo"),
+      curso: valorCampo("cursoSel", "cursoNuevo"),
+      periodo: valorCampo("periodoSel", "periodoNuevo"),
+      cantidad: valorCantidad(),
+      puede_ver_resultado: document.getElementById("puedeVer").checked
+    });
+  }
+
+  function bloquearGenerarTrasExito(){
+    ULTIMO_SNAP = formSnapshot();
+    const btn = document.getElementById("btnGenerar");
+    btn.disabled = true;
+    btn.title = "Cambie algún dato de arriba para generar otro lote";
+  }
+
+  function revisarDesbloqueoGenerar(){
+    const btn = document.getElementById("btnGenerar");
+    if (!ULTIMO_SNAP) {
+      btn.disabled = false;
+      btn.title = "";
+      return;
+    }
+    if (formSnapshot() !== ULTIMO_SNAP) {
+      btn.disabled = false;
+      btn.title = "";
+    } else {
+      btn.disabled = true;
+      btn.title = "Cambie algún dato de arriba para generar otro lote";
+    }
   }
 
   function actualizarPreview(){
@@ -431,20 +468,31 @@
         document.getElementById("periodoSel").value = payload.periodo;
         syncNuevo("periodoSel");
       }
+      bloquearGenerarTrasExito();
     }catch(e){
       msg.textContent = e.message || "Error";
       msg.className = "msg err";
-    }finally{
       btn.disabled = false;
+      btn.title = "";
     }
   }
 
   ["ambito","evaluacion"].forEach(id=>{
-    document.getElementById(id).addEventListener("change", actualizarPreview);
+    document.getElementById(id).addEventListener("change", ()=>{
+      actualizarPreview();
+      revisarDesbloqueoGenerar();
+    });
   });
   ["institucionSel","paisSel","cursoSel","periodoSel","cantidad"].forEach(id=>{
-    document.getElementById(id).addEventListener("change", () => syncNuevo(id));
+    document.getElementById(id).addEventListener("change", ()=>{
+      syncNuevo(id);
+      revisarDesbloqueoGenerar();
+    });
   });
+  ["institucionNuevo","paisNuevo","cursoNuevo","periodoNuevo","cantidadNuevo"].forEach(id=>{
+    document.getElementById(id).addEventListener("input", revisarDesbloqueoGenerar);
+  });
+  document.getElementById("puedeVer").addEventListener("change", revisarDesbloqueoGenerar);
   document.getElementById("btnGenerar").addEventListener("click", generar);
   document.getElementById("btnCopiarTodos").addEventListener("click", async ()=>{
     if (!ULTIMOS.length) return;
