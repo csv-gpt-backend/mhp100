@@ -160,8 +160,10 @@
             <option value="100">100</option>
             <option value="150">150</option>
             <option value="200">200</option>
+            <option value="__NUEVO__">Otro número…</option>
           </select>
-          <div class="hint">1 = un código · 20/30/50 = curso completo</div>
+          <input id="cantidadNuevo" class="nuevo" type="number" min="1" max="200" placeholder="Ej. 33"/>
+          <div class="hint">Elija un valor o “Otro número…” (1 a 200)</div>
         </div>
       </div>
 
@@ -180,15 +182,19 @@
 
       <div class="result" id="result">
         <h3 id="resultTitle">Códigos creados</h3>
+        <p class="hint" id="loteLine" style="margin:0 0 8px;font-weight:700;color:var(--ink)"></p>
         <div id="resultList"></div>
         <div class="actions" style="margin-top:10px">
           <button type="button" class="btn ghost" id="btnCopiarTodos">Copiar todos</button>
+          <button type="button" class="btn ghost" id="btnExcel">Descargar Excel</button>
         </div>
       </div>
 
       <p class="note">
-        Elija un valor de la lista para no equivocarse en letras.
-        Use <b>Otro / nuevo…</b> solo la primera vez que carga esa institución, país, curso o periodo.
+        Cada generación crea un <b>lote</b> (ej. LOTE-20260723-A3F9) para reenviar o filtrar esa lista exacta después.
+        En Neon (una vez):
+        <code>ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT;</code>
+        <code>ALTER TABLE participants ADD COLUMN IF NOT EXISTS lote TEXT;</code>
       </p>
     </section>
 
@@ -198,12 +204,47 @@
 <script>
   const NUEVO = "__NUEVO__";
   let ULTIMOS = [];
+  let ULTIMA_FICHA = null;
   let CATALOGO = { instituciones: [], paises: [], cursos: [], periodos: [] };
 
   function esc(s){
     return String(s ?? "").replace(/[&<>"']/g, c => ({
       "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
     }[c]));
+  }
+
+  function csvCell(v){
+    const s = String(v ?? "");
+    if (/[;"\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function descargarExcelLote(){
+    if (!ULTIMOS.length || !ULTIMA_FICHA) return;
+    const f = ULTIMA_FICHA;
+    const lines = [
+      ["codigo","lote","ambito","evaluacion","institucion","pais","curso","periodo","puede_ver_resultado"].join(";")
+    ];
+    ULTIMOS.forEach(codigo=>{
+      lines.push([
+        csvCell(codigo),
+        csvCell(f.lote),
+        csvCell(f.ambito),
+        csvCell(f.evaluacion),
+        csvCell(f.institucion),
+        csvCell(f.pais),
+        csvCell(f.curso),
+        csvCell(f.periodo),
+        csvCell(f.puede_ver_resultado ? "SI" : "NO")
+      ].join(";"));
+    });
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    const safeLote = String(f.lote || "lote").replace(/[^\w.-]+/g, "_");
+    a.href = URL.createObjectURL(blob);
+    a.download = safeLote + "_codigos.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
   }
 
   function uniq(arr){
@@ -241,7 +282,8 @@
       institucionSel: "institucionNuevo",
       paisSel: "paisNuevo",
       cursoSel: "cursoNuevo",
-      periodoSel: "periodoNuevo"
+      periodoSel: "periodoNuevo",
+      cantidad: "cantidadNuevo"
     };
     const inputId = map[selId];
     if (!inputId) return;
@@ -256,6 +298,14 @@
     const sel = document.getElementById(selId);
     if (sel.value === NUEVO) return document.getElementById(inputId).value.trim();
     return String(sel.value || "").trim();
+  }
+
+  function valorCantidad(){
+    const sel = document.getElementById("cantidad");
+    if (sel.value === NUEVO) {
+      return Number(document.getElementById("cantidadNuevo").value) || 0;
+    }
+    return Number(sel.value) || 0;
   }
 
   function actualizarPreview(){
@@ -311,12 +361,17 @@
       pais: valorCampo("paisSel", "paisNuevo"),
       curso: valorCampo("cursoSel", "cursoNuevo"),
       periodo: valorCampo("periodoSel", "periodoNuevo"),
-      cantidad: Number(document.getElementById("cantidad").value) || 1,
+      cantidad: valorCantidad(),
       puede_ver_resultado: document.getElementById("puedeVer").checked
     };
 
     if (!payload.institucion || !payload.pais || !payload.curso || !payload.periodo) {
       msg.textContent = "Complete institución, país, curso y periodo.";
+      msg.className = "msg err";
+      return;
+    }
+    if (!payload.cantidad || payload.cantidad < 1 || payload.cantidad > 200) {
+      msg.textContent = "Cantidad debe ser un número entre 1 y 200.";
       msg.className = "msg err";
       return;
     }
@@ -346,12 +401,15 @@
         throw new Error(data.error || data.detail || "No se pudo crear");
       }
       ULTIMOS = data.codigos || [];
+      ULTIMA_FICHA = data.ficha || null;
       document.getElementById("resultTitle").textContent =
         "Códigos creados (" + ULTIMOS.length + ")";
+      document.getElementById("loteLine").textContent =
+        data.lote ? ("Lote: " + data.lote) : "";
       document.getElementById("resultList").innerHTML =
         ULTIMOS.map(c => "<code>" + esc(c) + "</code>").join("");
       document.getElementById("result").classList.add("show");
-      msg.textContent = "Listo: " + ULTIMOS.length + " en participants.";
+      msg.textContent = "Listo: " + ULTIMOS.length + " · lote " + (data.lote || "—");
       msg.className = "msg ok";
 
       // refrescar listas con lo recién creado
@@ -384,7 +442,7 @@
   ["ambito","evaluacion"].forEach(id=>{
     document.getElementById(id).addEventListener("change", actualizarPreview);
   });
-  ["institucionSel","paisSel","cursoSel","periodoSel"].forEach(id=>{
+  ["institucionSel","paisSel","cursoSel","periodoSel","cantidad"].forEach(id=>{
     document.getElementById(id).addEventListener("change", () => syncNuevo(id));
   });
   document.getElementById("btnGenerar").addEventListener("click", generar);
@@ -398,6 +456,12 @@
       document.getElementById("msg").textContent = "No se pudo copiar.";
       document.getElementById("msg").className = "msg err";
     }
+  });
+  document.getElementById("btnExcel").addEventListener("click", ()=>{
+    if (!ULTIMOS.length) return;
+    descargarExcelLote();
+    document.getElementById("msg").textContent = "Excel/CSV descargado.";
+    document.getElementById("msg").className = "msg ok";
   });
 
   actualizarPreview();

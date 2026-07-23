@@ -42,6 +42,14 @@ function periodoValido(p) {
   return /^\d{4}-\d{4}$/.test(p);
 }
 
+function nuevoLoteId() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `LOTE-${y}${m}${day}-${randomSuffix(4)}`;
+}
+
 async function codigoExiste(codigo) {
   const r = await sql`
     SELECT 1 AS ok
@@ -59,6 +67,19 @@ async function generarCodigoUnico(ambito, evalKey) {
     if (!(await codigoExiste(codigo))) return codigo;
   }
   throw new Error("No se pudo generar un código único; reintente");
+}
+
+function errorColumna(msg) {
+  if (/lote/i.test(msg)) {
+    return "Falta la columna lote en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS lote TEXT;";
+  }
+  if (/periodo/i.test(msg)) {
+    return "Falta la columna periodo en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT;";
+  }
+  if (/column/i.test(msg)) {
+    return "Falta una columna en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT; ALTER TABLE participants ADD COLUMN IF NOT EXISTS lote TEXT;";
+  }
+  return null;
 }
 
 module.exports = async function handler(req, res) {
@@ -111,13 +132,15 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    const lote = nuevoLoteId();
     const creados = [];
+
     try {
       for (let i = 0; i < cantidad; i++) {
         const codigo = await generarCodigoUnico(ambito, evaluacion);
         await sql`
           INSERT INTO participants (
-            codigo, nombre, institucion, grupo, curso, puede_ver_resultado, periodo
+            codigo, nombre, institucion, grupo, curso, puede_ver_resultado, periodo, lote
           )
           VALUES (
             ${codigo},
@@ -126,20 +149,22 @@ module.exports = async function handler(req, res) {
             ${pais},
             ${curso},
             ${puedeVer},
-            ${periodo}
+            ${periodo},
+            ${lote}
           )
         `;
         creados.push(codigo);
       }
     } catch (e) {
       const msg = String(e && e.message ? e.message : e);
-      if (/periodo/i.test(msg) || /column/i.test(msg)) {
+      const hint = errorColumna(msg);
+      if (hint) {
         return res.status(500).json({
           ok: false,
-          error:
-            "Falta la columna periodo en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT;",
+          error: hint,
           detail: msg,
-          creados_parcial: creados
+          creados_parcial: creados,
+          lote
         });
       }
       throw e;
@@ -148,6 +173,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       total: creados.length,
+      lote,
       codigos: creados,
       ficha: {
         ambito,
@@ -156,6 +182,7 @@ module.exports = async function handler(req, res) {
         pais,
         curso,
         periodo,
+        lote,
         puede_ver_resultado: puedeVer
       }
     });

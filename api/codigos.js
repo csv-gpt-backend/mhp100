@@ -17,68 +17,9 @@ function readBody(req) {
   return b;
 }
 
-async function listarCodigos(res) {
-  let rows = [];
-  let tienePeriodo = true;
-  try {
-    const pRes = await sql`
-      SELECT
-        p.codigo,
-        p.nombre,
-        p.institucion,
-        p.grupo,
-        p.curso,
-        p.periodo,
-        p.puede_ver_resultado,
-        (
-          SELECT a.created_at
-          FROM attempts a
-          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
-          ORDER BY a.created_at DESC
-          LIMIT 1
-        ) AS fecha_intento,
-        (
-          SELECT COUNT(*)::int
-          FROM attempts a
-          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
-        ) AS intentos
-      FROM participants p
-      WHERE p.codigo IS NOT NULL AND TRIM(p.codigo) <> ''
-      ORDER BY UPPER(TRIM(p.codigo))
-    `;
-    rows = pRes.rows || [];
-  } catch (e) {
-    const msg = String(e && e.message ? e.message : e);
-    if (!/periodo/i.test(msg) && !/column/i.test(msg)) throw e;
-    tienePeriodo = false;
-    const pRes = await sql`
-      SELECT
-        p.codigo,
-        p.nombre,
-        p.institucion,
-        p.grupo,
-        p.curso,
-        p.puede_ver_resultado,
-        (
-          SELECT a.created_at
-          FROM attempts a
-          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
-          ORDER BY a.created_at DESC
-          LIMIT 1
-        ) AS fecha_intento,
-        (
-          SELECT COUNT(*)::int
-          FROM attempts a
-          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
-        ) AS intentos
-      FROM participants p
-      WHERE p.codigo IS NOT NULL AND TRIM(p.codigo) <> ''
-      ORDER BY UPPER(TRIM(p.codigo))
-    `;
-    rows = pRes.rows || [];
-  }
-
-  const filas = rows.map((row) => {
+function mapFilas(rows, opts) {
+  const { tienePeriodo, tieneLote } = opts;
+  return (rows || []).map((row) => {
     const codigo = norm(row.codigo).toUpperCase();
     const intentos = Number(row.intentos) || 0;
     return {
@@ -89,19 +30,127 @@ async function listarCodigos(res) {
       pais: norm(row.grupo) || "",
       curso: norm(row.curso) || "",
       periodo: tienePeriodo ? norm(row.periodo) || "" : "",
+      lote: tieneLote ? norm(row.lote) || "" : "",
       puede_ver_resultado: !!row.puede_ver_resultado,
       fecha_intento: row.fecha_intento || null,
       intentos,
       estado: intentos > 0 ? "completado" : "activo"
     };
   });
+}
 
-  return res.status(200).json({
-    valid: true,
-    total: filas.length,
-    tiene_periodo: tienePeriodo,
-    filas
-  });
+async function listarCodigos(res) {
+  try {
+    const pRes = await sql`
+      SELECT
+        p.codigo,
+        p.nombre,
+        p.institucion,
+        p.grupo,
+        p.curso,
+        p.periodo,
+        p.lote,
+        p.puede_ver_resultado,
+        (
+          SELECT a.created_at
+          FROM attempts a
+          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+          ORDER BY a.created_at DESC
+          LIMIT 1
+        ) AS fecha_intento,
+        (
+          SELECT COUNT(*)::int
+          FROM attempts a
+          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+        ) AS intentos
+      FROM participants p
+      WHERE p.codigo IS NOT NULL AND TRIM(p.codigo) <> ''
+      ORDER BY UPPER(TRIM(p.codigo))
+    `;
+    const filas = mapFilas(pRes.rows, { tienePeriodo: true, tieneLote: true });
+    return res.status(200).json({
+      valid: true,
+      total: filas.length,
+      tiene_periodo: true,
+      tiene_lote: true,
+      filas
+    });
+  } catch (e) {
+    const msg = String(e && e.message ? e.message : e);
+    // sin lote, con periodo
+    if (/lote/i.test(msg)) {
+      try {
+        const pRes = await sql`
+          SELECT
+            p.codigo,
+            p.nombre,
+            p.institucion,
+            p.grupo,
+            p.curso,
+            p.periodo,
+            p.puede_ver_resultado,
+            (
+              SELECT a.created_at
+              FROM attempts a
+              WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+              ORDER BY a.created_at DESC
+              LIMIT 1
+            ) AS fecha_intento,
+            (
+              SELECT COUNT(*)::int
+              FROM attempts a
+              WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+            ) AS intentos
+          FROM participants p
+          WHERE p.codigo IS NOT NULL AND TRIM(p.codigo) <> ''
+          ORDER BY UPPER(TRIM(p.codigo))
+        `;
+        const filas = mapFilas(pRes.rows, { tienePeriodo: true, tieneLote: false });
+        return res.status(200).json({
+          valid: true,
+          total: filas.length,
+          tiene_periodo: true,
+          tiene_lote: false,
+          filas
+        });
+      } catch (e2) {
+        // fallthrough
+      }
+    }
+    // sin periodo ni lote
+    const pRes = await sql`
+      SELECT
+        p.codigo,
+        p.nombre,
+        p.institucion,
+        p.grupo,
+        p.curso,
+        p.puede_ver_resultado,
+        (
+          SELECT a.created_at
+          FROM attempts a
+          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+          ORDER BY a.created_at DESC
+          LIMIT 1
+        ) AS fecha_intento,
+        (
+          SELECT COUNT(*)::int
+          FROM attempts a
+          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+        ) AS intentos
+      FROM participants p
+      WHERE p.codigo IS NOT NULL AND TRIM(p.codigo) <> ''
+      ORDER BY UPPER(TRIM(p.codigo))
+    `;
+    const filas = mapFilas(pRes.rows, { tienePeriodo: false, tieneLote: false });
+    return res.status(200).json({
+      valid: true,
+      total: filas.length,
+      tiene_periodo: false,
+      tiene_lote: false,
+      filas
+    });
+  }
 }
 
 async function buscarParticipante(codigoBuscado) {

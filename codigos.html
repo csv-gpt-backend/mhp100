@@ -169,6 +169,10 @@
           <select id="periodo"><option value="">Todos</option></select>
         </div>
         <div>
+          <label for="lote">Lote</label>
+          <select id="lote"><option value="">Todos</option></select>
+        </div>
+        <div>
           <label for="desde">Desde</label>
           <input type="date" id="desde"/>
         </div>
@@ -184,6 +188,7 @@
       <div class="actions">
         <button type="button" class="btn" id="btnAplicar">Aplicar filtros</button>
         <button type="button" class="btn ghost" id="btnTodos">Todos</button>
+        <button type="button" class="btn ghost" id="btnExcel">Exportar Excel</button>
         <span class="meta" id="meta">Cargando…</span>
         <span class="msg" id="msg"></span>
       </div>
@@ -197,6 +202,7 @@
             <th>Ámbito</th>
             <th>Evaluación</th>
             <th>Periodo</th>
+            <th>Lote</th>
             <th>País</th>
             <th>Institución</th>
             <th>Curso</th>
@@ -206,7 +212,7 @@
           </tr>
         </thead>
         <tbody id="tbody">
-          <tr><td colspan="10" class="empty">Cargando códigos…</td></tr>
+          <tr><td colspan="11" class="empty">Cargando códigos…</td></tr>
         </tbody>
       </table>
     </div>
@@ -343,6 +349,7 @@
     const pais = document.getElementById("pais").value;
     const institucion = document.getElementById("institucion").value;
     const periodo = document.getElementById("periodo").value;
+    const lote = document.getElementById("lote").value;
     const desde = dayStart(document.getElementById("desde").value);
     const hasta = dayEnd(document.getElementById("hasta").value);
     const q = String(document.getElementById("buscar").value || "").trim().toUpperCase();
@@ -354,6 +361,7 @@
       if (pais && r.pais !== pais) return false;
       if (institucion && r.institucion !== institucion) return false;
       if (periodo && r.periodo !== periodo) return false;
+      if (lote && r.lote !== lote) return false;
       if (desde || hasta) {
         if (!r.fecha_intento) return false;
         const t = new Date(r.fecha_intento).getTime();
@@ -386,6 +394,7 @@
     const evaluacion = document.getElementById("evaluacion").value;
     const pais = document.getElementById("pais").value;
     const institucion = document.getElementById("institucion").value;
+    const periodo = document.getElementById("periodo").value;
 
     let poolEval = FILAS.slice();
     if (ambito) poolEval = poolEval.filter(r => r.ambito === ambito);
@@ -412,6 +421,14 @@
     if (pais) poolPer = poolPer.filter(r => r.pais === pais);
     if (institucion) poolPer = poolPer.filter(r => r.institucion === institucion);
     fillSelect(document.getElementById("periodo"), uniq(poolPer.map(r => r.periodo).filter(Boolean)), "Todos");
+
+    let poolLote = FILAS.slice();
+    if (ambito) poolLote = poolLote.filter(r => r.ambito === ambito);
+    if (evaluacion) poolLote = poolLote.filter(r => r.evaluacionKey === evaluacion);
+    if (pais) poolLote = poolLote.filter(r => r.pais === pais);
+    if (institucion) poolLote = poolLote.filter(r => r.institucion === institucion);
+    if (periodo) poolLote = poolLote.filter(r => r.periodo === periodo);
+    fillSelect(document.getElementById("lote"), uniq(poolLote.map(r => r.lote).filter(Boolean)), "Todos");
   }
 
   function fmtDate(iso){
@@ -438,7 +455,7 @@
       " · total " + FILAS.length;
 
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="10" class="empty">No hay códigos con esos filtros.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11" class="empty">No hay códigos con esos filtros.</td></tr>';
       return;
     }
 
@@ -451,6 +468,7 @@
         <td><span class="badge ${ambitoClass}">${esc(r.ambitoLabel)}</span></td>
         <td>${esc(r.evaluacionLabel)}</td>
         <td>${esc(r.periodo || "—")}</td>
+        <td>${esc(r.lote || "—")}</td>
         <td>${esc(r.pais || "—")}</td>
         <td>${esc(r.institucion || "—")}</td>
         <td>${esc(r.curso || "—")}</td>
@@ -473,11 +491,54 @@
     document.getElementById("pais").value = "";
     document.getElementById("institucion").value = "";
     document.getElementById("periodo").value = "";
+    document.getElementById("lote").value = "";
     document.getElementById("desde").value = "";
     document.getElementById("hasta").value = "";
     document.getElementById("buscar").value = "";
     rebuildDependentSelects();
     render();
+  }
+
+  function csvCell(v){
+    const s = String(v ?? "");
+    if (/[;"\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function exportarExcel(){
+    const rows = filteredBase();
+    const msg = document.getElementById("msg");
+    if (!rows.length) {
+      msg.textContent = "No hay filas para exportar.";
+      msg.className = "msg err";
+      return;
+    }
+    const lines = [
+      ["codigo","lote","ambito","evaluacion","periodo","pais","institucion","curso","estado","fecha_intento"].join(";")
+    ];
+    rows.forEach(r=>{
+      lines.push([
+        csvCell(r.codigo),
+        csvCell(r.lote),
+        csvCell(r.ambito),
+        csvCell(r.evaluacionKey || r.evaluacionLabel),
+        csvCell(r.periodo),
+        csvCell(r.pais),
+        csvCell(r.institucion),
+        csvCell(r.curso),
+        csvCell(r.estado),
+        csvCell(r.fecha_intento || "")
+      ].join(";"));
+    });
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    const lote = document.getElementById("lote").value || "filtrado";
+    a.href = URL.createObjectURL(blob);
+    a.download = String(lote).replace(/[^\w.-]+/g, "_") + "_codigos.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    msg.textContent = "Excel/CSV exportado (" + rows.length + ").";
+    msg.className = "msg";
   }
 
   async function cargar(){
@@ -493,7 +554,7 @@
       render();
     }catch(e){
       document.getElementById("tbody").innerHTML =
-        '<tr><td colspan="10" class="empty">Error al cargar códigos.</td></tr>';
+        '<tr><td colspan="11" class="empty">Error al cargar códigos.</td></tr>';
       document.getElementById("meta").textContent = "—";
       msg.textContent = e.message || "Error";
       msg.className = "msg err";
@@ -516,12 +577,17 @@
     rebuildDependentSelects();
     render();
   });
-  document.getElementById("periodo").addEventListener("change", render);
+  document.getElementById("periodo").addEventListener("change", ()=>{
+    rebuildDependentSelects();
+    render();
+  });
+  document.getElementById("lote").addEventListener("change", render);
   document.getElementById("desde").addEventListener("change", render);
   document.getElementById("hasta").addEventListener("change", render);
   document.getElementById("buscar").addEventListener("input", render);
   document.getElementById("btnAplicar").addEventListener("click", render);
   document.getElementById("btnTodos").addEventListener("click", resetFiltros);
+  document.getElementById("btnExcel").addEventListener("click", exportarExcel);
 
   document.querySelector(".tabs").addEventListener("click", (ev)=>{
     const tab = ev.target.closest(".tab");
