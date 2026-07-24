@@ -165,13 +165,12 @@
             <th>Mod.</th>
             <th>Descarga</th>
             <th>Subida</th>
-            <th>Quién / supervisor</th>
+            <th>Quién</th>
             <th>Cupos</th>
-            <th>Válido hasta</th>
           </tr>
         </thead>
         <tbody id="tbody">
-          <tr><td colspan="11" class="empty">Cargando…</td></tr>
+          <tr><td colspan="10" class="empty">Cargando…</td></tr>
         </tbody>
       </table>
     </div>
@@ -371,7 +370,7 @@
     $("meta").textContent = rows.length + " de " + filas.length + " registros";
     const tb = $("tbody");
     if (!rows.length) {
-      tb.innerHTML = '<tr><td colspan="11" class="empty">Sin resultados con estos filtros.</td></tr>';
+      tb.innerHTML = '<tr><td colspan="10" class="empty">Sin resultados con estos filtros.</td></tr>';
       return;
     }
     tb.innerHTML = rows.map(r => {
@@ -380,11 +379,7 @@
         ? '<span class="badge ' + mod + '">' + (mod === "cable" ? "Cable" : "WiFi") + "</span>"
         : "—";
       const quien =
-        (r.nombre || "—") + "<br><span style=\"color:#5a6b62;font-size:12px\">" + (r.email || "") + "</span>" +
-        (r.supervisor_nombre
-          ? "<br><span style=\"font-size:12px\">Sup: " + r.supervisor_nombre +
-            (r.supervisor_email ? " · " + r.supervisor_email : "") + "</span>"
-          : "");
+        (r.nombre || "—") + "<br><span style=\"color:#5a6b62;font-size:12px\">" + (r.email || "") + "</span>";
       const down = r.download_mbps != null ? Number(r.download_mbps).toFixed(2) + " Mb/s" : "—";
       const up = r.upload_mbps != null && Number(r.upload_mbps) > 0
         ? Number(r.upload_mbps).toFixed(2) + " Mb/s" : "—";
@@ -399,7 +394,6 @@
         '<td class="num">' + up + "</td>" +
         "<td>" + quien + "</td>" +
         '<td class="cupos">' + cuposTxt(r.cupos) + "</td>" +
-        "<td>" + fmtDay(r.valido_hasta) + "</td>" +
         "</tr>";
     }).join("");
   }
@@ -474,7 +468,7 @@
     const msg = $("msg");
     msg.textContent = "";
     msg.className = "msg";
-    $("tbody").innerHTML = '<tr><td colspan="11" class="empty">Cargando…</td></tr>';
+    $("tbody").innerHTML = '<tr><td colspan="10" class="empty">Cargando…</td></tr>';
     try {
       const r = await fetch("/api/tit-resultados");
       const data = await r.json();
@@ -483,7 +477,7 @@
       fillPaises();
       render();
     } catch (e) {
-      $("tbody").innerHTML = '<tr><td colspan="11" class="empty">Error al cargar.</td></tr>';
+      $("tbody").innerHTML = '<tr><td colspan="10" class="empty">Error al cargar.</td></tr>';
       msg.textContent = e.message || String(e);
       msg.className = "msg err";
     }

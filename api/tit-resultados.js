@@ -422,8 +422,8 @@ async function guardar(req, res) {
   const modalidad = norm(body.modalidad).toLowerCase();
   const nombre = norm(body.nombre);
   const email = norm(body.email);
-  const supervisor_nombre = norm(body.supervisor_nombre || body.supNombre);
-  const supervisor_email = norm(body.supervisor_email || body.supEmail);
+  const supervisor_nombre = null;
+  const supervisor_email = null;
   const download_mbps = Number(body.download_mbps ?? body.downloadMbps);
   const upload_mbps = Number(body.upload_mbps ?? body.uploadMbps);
   const cupos = body.cupos && typeof body.cupos === "object" ? body.cupos : {};
@@ -465,11 +465,6 @@ async function guardar(req, res) {
   const downStore = downOk ? download_mbps : 0;
 
   let validoHasta = null;
-  if (test_valido) {
-    const valido = new Date();
-    valido.setMonth(valido.getMonth() + 6);
-    validoHasta = valido.toISOString().slice(0, 10);
-  }
 
   const geo = await lookupGeo(clientIp(req), req);
   const rev = hasGps ? await reverseGps(gps_lat, gps_lon) : {
