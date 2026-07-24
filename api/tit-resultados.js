@@ -246,6 +246,7 @@ async function ensureTable() {
       created_at TIMESTAMPTZ DEFAULT NOW(),
       institucion TEXT,
       pais TEXT,
+      ciudad TEXT,
       modalidad TEXT,
       nombre TEXT,
       email TEXT,
@@ -279,6 +280,7 @@ async function ensureTable() {
     )
   `;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS client_ip TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS ciudad TEXT`;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_city TEXT`;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_region TEXT`;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_country TEXT`;
@@ -342,6 +344,7 @@ async function listar(res) {
       created_at,
       institucion,
       pais,
+      ciudad,
       modalidad,
       nombre,
       email,
@@ -381,6 +384,7 @@ async function listar(res) {
     created_at: row.created_at,
     institucion: norm(row.institucion),
     pais: norm(row.pais),
+    ciudad: norm(row.ciudad),
     modalidad: norm(row.modalidad),
     nombre: norm(row.nombre),
     email: norm(row.email),
@@ -419,6 +423,7 @@ async function guardar(req, res) {
   const body = readBody(req);
   const institucion = norm(body.institucion).toUpperCase();
   const pais = norm(body.pais).toUpperCase();
+  const ciudad = norm(body.ciudad).toUpperCase();
   const modalidad = norm(body.modalidad).toLowerCase();
   const nombre = norm(body.nombre);
   const email = norm(body.email);
@@ -442,8 +447,8 @@ async function guardar(req, res) {
     Number.isFinite(gps_lat) &&
     Number.isFinite(gps_lon);
 
-  if (!institucion || !pais) {
-    return res.status(400).json({ ok: false, error: "Faltan institución o país" });
+  if (!institucion || !pais || !ciudad) {
+    return res.status(400).json({ ok: false, error: "Faltan institución, país o ciudad" });
   }
   if (modalidad !== "cable" && modalidad !== "wifi") {
     return res.status(400).json({ ok: false, error: "Modalidad debe ser cable o wifi" });
@@ -479,7 +484,7 @@ async function guardar(req, res) {
 
   const ins = await sql`
     INSERT INTO tit_resultados (
-      institucion, pais, modalidad,
+      institucion, pais, ciudad, modalidad,
       nombre, email, supervisor_nombre, supervisor_email,
       download_mbps, upload_mbps, cupos, valido_hasta, user_agent,
       client_ip, geo_city, geo_region, geo_country, geo_country_code,
@@ -490,6 +495,7 @@ async function guardar(req, res) {
     VALUES (
       ${institucion},
       ${pais},
+      ${ciudad},
       ${modalidad},
       ${nombre},
       ${email},
