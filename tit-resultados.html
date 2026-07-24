@@ -101,7 +101,7 @@
     <header class="brand">
       <img src="assets/logo_adalam.webp" alt="Sello ADALAM" width="220" height="88"/>
       <h1>Resultados TIT</h1>
-      <p>Test de infraestructura · país por IP fiable · ciudad solo si hay consenso entre fuentes</p>
+      <p>Test de infraestructura · GPS (prioridad) + IP · denegado se registra igual</p>
     </header>
 
     <div class="panel">
@@ -140,6 +140,8 @@
             <option value="">Todas</option>
             <option value="alerta">Solo alerta país ≠ IP</option>
             <option value="sin">Sin dato IP</option>
+            <option value="gps_ok">GPS obtenido</option>
+            <option value="gps_no">GPS denegado / no obtenido</option>
           </select>
         </div>
       </div>
@@ -158,6 +160,7 @@
             <th>Fecha</th>
             <th>Institución</th>
             <th>País declarado</th>
+            <th>GPS</th>
             <th>Estimado por IP</th>
             <th>Mod.</th>
             <th>Descarga</th>
@@ -168,7 +171,7 @@
           </tr>
         </thead>
         <tbody id="tbody">
-          <tr><td colspan="10" class="empty">Cargando…</td></tr>
+          <tr><td colspan="11" class="empty">Cargando…</td></tr>
         </tbody>
       </table>
     </div>
@@ -291,6 +294,33 @@
     return '<div class="geo"><strong>' + loc + "</strong>" + ip + isp + altsHtml + flag + "</div>";
   }
 
+  function gpsCell(r){
+    const st = (r.gps_status || "").toLowerCase();
+    if (st === "ok" && (r.gps_lat != null || r.gps_city)) {
+      const parts = [r.gps_city, r.gps_region, r.gps_country].filter(Boolean);
+      const loc = parts.length ? parts.join(", ") : "Coordenadas GPS";
+      const acc = r.gps_accuracy != null
+        ? '<div class="ip">±' + Math.round(Number(r.gps_accuracy)) + " m</div>"
+        : "";
+      const map = (r.gps_lat != null && r.gps_lon != null)
+        ? '<div class="ip"><a href="https://maps.google.com/?q=' +
+          encodeURIComponent(r.gps_lat + "," + r.gps_lon) +
+          '" target="_blank" rel="noopener">Ver mapa</a></div>'
+        : "";
+      return '<div class="geo"><strong>' + loc + '</strong>' +
+        '<div><span class="badge ok">GPS OK</span></div>' + acc + map + "</div>";
+    }
+    if (st === "denied") {
+      return '<div class="geo"><span class="badge warn">GPS denegado</span>' +
+        (r.gps_error ? '<div class="alts">' + r.gps_error + "</div>" : "") + "</div>";
+    }
+    if (st === "unavailable" || st === "timeout" || st === "error") {
+      return '<div class="geo"><span class="badge baja">GPS ' + st + "</span>" +
+        (r.gps_error ? '<div class="alts">' + r.gps_error + "</div>" : "") + "</div>";
+    }
+    return '<div class="geo"><span class="badge">Sin GPS</span></div>';
+  }
+
   function filtered(){
     const inst = ($("qInst").value || "").trim().toUpperCase();
     const pais = ($("qPais").value || "").trim().toUpperCase();
@@ -306,10 +336,12 @@
       if (mod && (r.modalidad || "").toLowerCase() !== mod) return false;
       if (geo === "alerta" && !countryMismatch(r)) return false;
       if (geo === "sin" && (r.client_ip || r.geo_city || r.geo_country)) return false;
+      if (geo === "gps_ok" && (r.gps_status || "").toLowerCase() !== "ok") return false;
+      if (geo === "gps_no" && (r.gps_status || "").toLowerCase() === "ok") return false;
       if (txt) {
         const blob = ((r.nombre || "") + " " + (r.email || "") + " " +
           (r.supervisor_nombre || "") + " " + (r.supervisor_email || "") + " " +
-          (r.geo_city || "") + " " + (r.client_ip || "")).toLowerCase();
+          (r.geo_city || "") + " " + (r.gps_city || "") + " " + (r.client_ip || "")).toLowerCase();
         if (!blob.includes(txt)) return false;
       }
       const dk = dayKey(r.created_at);
@@ -333,7 +365,7 @@
     $("meta").textContent = rows.length + " de " + filas.length + " registros";
     const tb = $("tbody");
     if (!rows.length) {
-      tb.innerHTML = '<tr><td colspan="10" class="empty">Sin resultados con estos filtros.</td></tr>';
+      tb.innerHTML = '<tr><td colspan="11" class="empty">Sin resultados con estos filtros.</td></tr>';
       return;
     }
     tb.innerHTML = rows.map(r => {
@@ -354,6 +386,7 @@
         "<td>" + fmtDate(r.created_at) + "</td>" +
         "<td>" + (r.institucion || "—") + "</td>" +
         "<td>" + (r.pais || "—") + "</td>" +
+        "<td>" + gpsCell(r) + "</td>" +
         "<td>" + geoCell(r) + "</td>" +
         "<td>" + badge + "</td>" +
         '<td class="num">' + down + "</td>" +
@@ -381,6 +414,7 @@
     }
     const lines = [[
       "id","fecha","institucion","pais_declarado",
+      "gps_status","gps_city","gps_region","gps_country","gps_lat","gps_lon","gps_accuracy",
       "geo_city","geo_region","geo_country","geo_country_code","geo_isp","geo_confidence",
       "client_ip","alerta_pais","client_timezone",
       "modalidad","download_mbps","upload_mbps","nombre","email",
@@ -392,6 +426,13 @@
         csvCell(r.created_at),
         csvCell(r.institucion),
         csvCell(r.pais),
+        csvCell(r.gps_status),
+        csvCell(r.gps_city),
+        csvCell(r.gps_region),
+        csvCell(r.gps_country),
+        csvCell(r.gps_lat),
+        csvCell(r.gps_lon),
+        csvCell(r.gps_accuracy),
         csvCell(r.geo_city),
         csvCell(r.geo_region),
         csvCell(r.geo_country),
@@ -426,7 +467,7 @@
     const msg = $("msg");
     msg.textContent = "";
     msg.className = "msg";
-    $("tbody").innerHTML = '<tr><td colspan="10" class="empty">Cargando…</td></tr>';
+    $("tbody").innerHTML = '<tr><td colspan="11" class="empty">Cargando…</td></tr>';
     try {
       const r = await fetch("/api/tit-resultados");
       const data = await r.json();
@@ -435,7 +476,7 @@
       fillPaises();
       render();
     } catch (e) {
-      $("tbody").innerHTML = '<tr><td colspan="10" class="empty">Error al cargar.</td></tr>';
+      $("tbody").innerHTML = '<tr><td colspan="11" class="empty">Error al cargar.</td></tr>';
       msg.textContent = e.message || String(e);
       msg.className = "msg err";
     }

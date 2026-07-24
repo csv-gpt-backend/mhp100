@@ -247,7 +247,7 @@
             <input type="email" id="fSupEmail">
           </div>
         </div>
-        <p class="muted" style="margin-top:10px">El resultado se registra automáticamente en ADALAM. También puede imprimir PDF para el centro.</p>
+        <p class="muted" style="margin-top:10px">El resultado se registra automáticamente en ADALAM. Al iniciar el test el navegador pedirá <strong>ubicación GPS</strong> (más precisa que la IP). Si la deniega, verá un aviso y el resultado se guarda igual. También puede imprimir PDF para el centro.</p>
 
         <div class="speed-panel">
           <button type="button" class="btn-run" id="btnRunTest">Iniciar test / Dar clic</button>
@@ -377,6 +377,13 @@
   let uploadMbps = 0;
   let testDone = false;
   let titSaved = false;
+  let gpsInfo = {
+    status: "pending",
+    lat: null,
+    lon: null,
+    accuracy: null,
+    error: null
+  };
 
   const $ = id => document.getElementById(id);
   const titles = [
@@ -445,6 +452,60 @@
     return cupos;
   }
 
+  function requestGps(){
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve({
+          status: "unavailable",
+          lat: null,
+          lon: null,
+          accuracy: null,
+          error: "Este navegador no soporta geolocalización"
+        });
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          resolve({
+            status: "ok",
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            error: null
+          });
+        },
+        (err) => {
+          let status = "error";
+          if (err && err.code === 1) status = "denied";
+          else if (err && err.code === 2) status = "unavailable";
+          else if (err && err.code === 3) status = "timeout";
+          resolve({
+            status,
+            lat: null,
+            lon: null,
+            accuracy: null,
+            error: (err && err.message) || "No se obtuvo GPS"
+          });
+        },
+        { enableHighAccuracy: true, timeout: 18000, maximumAge: 0 }
+      );
+    });
+  }
+
+  function gpsErrorMessage(info){
+    if (!info || info.status === "ok") return "";
+    if (info.status === "denied") {
+      return "Ubicación GPS denegada. Active el permiso de ubicación en el navegador para validar mejor el lugar del test. El resultado se registrará igual.";
+    }
+    if (info.status === "timeout") {
+      return "No se obtuvo GPS a tiempo. El test continúa y se registrará igual (sin coordenadas).";
+    }
+    if (info.status === "unavailable") {
+      return "GPS no disponible en este equipo. El test continúa y se registrará igual.";
+    }
+    return "Error al obtener GPS. El test continúa y se registrará igual.";
+  }
+
   async function saveTitResult(){
     const msg = $("saveMsg");
     if (titSaved) {
@@ -468,7 +529,12 @@
           upload_mbps: uploadMbps,
           cupos: buildCupos(),
           user_agent: navigator.userAgent || "",
-          client_timezone: (Intl.DateTimeFormat().resolvedOptions().timeZone) || ""
+          client_timezone: (Intl.DateTimeFormat().resolvedOptions().timeZone) || "",
+          gps_status: gpsInfo.status || "pending",
+          gps_lat: gpsInfo.lat,
+          gps_lon: gpsInfo.lon,
+          gps_accuracy: gpsInfo.accuracy,
+          gps_error: gpsInfo.error || ""
         })
       });
       const data = await r.json().catch(() => ({}));
@@ -477,8 +543,14 @@
       }
       titSaved = true;
       if (msg) {
-        msg.textContent = "Resultado registrado en ADALAM (id " + data.id + "). El PDF es copia opcional para el centro.";
-        msg.style.color = "#14632b";
+        let extra = "";
+        if (data.gps_status === "ok" && data.gps_city) {
+          extra = " GPS: " + data.gps_city + (data.gps_region ? ", " + data.gps_region : "") + ".";
+        } else if (gpsInfo.status !== "ok") {
+          extra = " GPS no obtenido (" + (gpsInfo.status || "error") + ").";
+        }
+        msg.textContent = "Resultado registrado en ADALAM (id " + data.id + ")." + extra + " El PDF es copia opcional para el centro.";
+        msg.style.color = gpsInfo.status === "ok" ? "#14632b" : "#92400e";
       }
     } catch (e) {
       if (msg) {
@@ -558,12 +630,21 @@
   async function runSpeedTest(){
     $("btnRunTest").disabled = true;
     $("testErr").textContent = "";
-    $("testOk").textContent = "Midiendo… espere unos segundos.";
+    $("testOk").textContent = "Solicitando ubicación GPS… permita el acceso en el navegador.";
     setMeter("fillDown", "valDown", 0);
     setMeter("fillUp", "valUp", 0);
     testDone = false;
 
     try {
+      gpsInfo = await requestGps();
+      const gpsMsg = gpsErrorMessage(gpsInfo);
+      if (gpsMsg) {
+        $("testErr").textContent = gpsMsg;
+      } else {
+        $("testErr").textContent = "";
+        $("testOk").textContent = "Ubicación GPS obtenida. Midiendo velocidad…";
+      }
+
       $("fillDown").style.width = "8%";
       await measureLatency();
       $("fillDown").style.width = "15%";
@@ -580,9 +661,12 @@
       }
 
       testDone = true;
-      $("testOk").textContent = uploadMbps > 0
+      const baseOk = uploadMbps > 0
         ? "Test completado. Puede continuar al diagnóstico."
         : "Descarga medida correctamente. Subida no disponible (falta api/tit-echo.js en el servidor); el diagnóstico usa la descarga, que es lo principal.";
+      $("testOk").textContent = gpsInfo.status === "ok"
+        ? baseOk + " GPS activo."
+        : baseOk + " GPS no obtenido.";
 
       const payload = {
         at: new Date().toISOString(),
@@ -594,7 +678,8 @@
         nombre: $("fNombre").value.trim(),
         email: $("fEmail").value.trim(),
         supNombre: $("fSupNombre").value.trim(),
-        supEmail: $("fSupEmail").value.trim()
+        supEmail: $("fSupEmail").value.trim(),
+        gps: gpsInfo
       };
       try { localStorage.setItem("adalam_tit_last", JSON.stringify(payload)); } catch(_e){}
     } catch (e) {
@@ -669,11 +754,13 @@
   $("btnRedo").onclick = () => {
     testDone = false;
     titSaved = false;
+    gpsInfo = { status: "pending", lat: null, lon: null, accuracy: null, error: null };
     downloadMbps = 0;
     uploadMbps = 0;
     setMeter("fillDown", "valDown", 0);
     setMeter("fillUp", "valUp", 0);
     $("testOk").textContent = "";
+    $("testErr").textContent = "";
     if ($("saveMsg")) $("saveMsg").textContent = "";
     setStep(3);
   };

@@ -266,7 +266,15 @@ async function ensureTable() {
       geo_lat DOUBLE PRECISION,
       geo_lon DOUBLE PRECISION,
       geo_sources JSONB,
-      client_timezone TEXT
+      client_timezone TEXT,
+      gps_status TEXT,
+      gps_lat DOUBLE PRECISION,
+      gps_lon DOUBLE PRECISION,
+      gps_accuracy DOUBLE PRECISION,
+      gps_city TEXT,
+      gps_region TEXT,
+      gps_country TEXT,
+      gps_error TEXT
     )
   `;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS client_ip TEXT`;
@@ -280,6 +288,48 @@ async function ensureTable() {
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_lon DOUBLE PRECISION`;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_sources JSONB`;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS client_timezone TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS gps_status TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS gps_lat DOUBLE PRECISION`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS gps_lon DOUBLE PRECISION`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS gps_accuracy DOUBLE PRECISION`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS gps_city TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS gps_region TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS gps_country TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS gps_error TEXT`;
+}
+
+async function reverseGps(lat, lon) {
+  const out = { gps_city: null, gps_region: null, gps_country: null };
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return out;
+  try {
+    const url =
+      "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" +
+      encodeURIComponent(lat) +
+      "&lon=" +
+      encodeURIComponent(lon) +
+      "&accept-language=es";
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 4000);
+    const r = await fetch(url, {
+      signal: ctrl.signal,
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "ADALAM-TIT/1.0 (infraestructura; contacto@adalam)"
+      }
+    });
+    clearTimeout(t);
+    if (!r.ok) return out;
+    const j = await r.json();
+    const a = j && j.address ? j.address : {};
+    out.gps_city =
+      norm(a.city || a.town || a.village || a.municipality || a.county) || null;
+    out.gps_region = norm(a.state || a.region || a.province) || null;
+    out.gps_country = norm(a.country) || null;
+    return out;
+  } catch (e) {
+    console.warn("tit gps reverse failed", e && e.message ? e.message : e);
+    return out;
+  }
 }
 
 async function listar(res) {
@@ -310,7 +360,15 @@ async function listar(res) {
       geo_lat,
       geo_lon,
       geo_sources,
-      client_timezone
+      client_timezone,
+      gps_status,
+      gps_lat,
+      gps_lon,
+      gps_accuracy,
+      gps_city,
+      gps_region,
+      gps_country,
+      gps_error
     FROM tit_resultados
     ORDER BY created_at DESC
     LIMIT 500
@@ -340,7 +398,15 @@ async function listar(res) {
     geo_lat: row.geo_lat != null ? Number(row.geo_lat) : null,
     geo_lon: row.geo_lon != null ? Number(row.geo_lon) : null,
     geo_sources: row.geo_sources || [],
-    client_timezone: norm(row.client_timezone)
+    client_timezone: norm(row.client_timezone),
+    gps_status: norm(row.gps_status),
+    gps_lat: row.gps_lat != null ? Number(row.gps_lat) : null,
+    gps_lon: row.gps_lon != null ? Number(row.gps_lon) : null,
+    gps_accuracy: row.gps_accuracy != null ? Number(row.gps_accuracy) : null,
+    gps_city: norm(row.gps_city),
+    gps_region: norm(row.gps_region),
+    gps_country: norm(row.gps_country),
+    gps_error: norm(row.gps_error)
   }));
   return res.status(200).json({ ok: true, total: filas.length, filas });
 }
@@ -359,6 +425,18 @@ async function guardar(req, res) {
   const cupos = body.cupos && typeof body.cupos === "object" ? body.cupos : {};
   const user_agent = norm(body.user_agent || req.headers["user-agent"] || "");
   const client_timezone = norm(body.client_timezone || body.timezone);
+
+  let gps_status = norm(body.gps_status || body.gpsStatus).toLowerCase() || "pending";
+  const allowedGps = new Set(["ok", "denied", "unavailable", "timeout", "error", "pending"]);
+  if (!allowedGps.has(gps_status)) gps_status = "error";
+  const gps_lat = Number(body.gps_lat ?? body.gpsLat);
+  const gps_lon = Number(body.gps_lon ?? body.gpsLon);
+  const gps_accuracy = Number(body.gps_accuracy ?? body.gpsAccuracy);
+  const gps_error = norm(body.gps_error || body.gpsError) || null;
+  const hasGps =
+    gps_status === "ok" &&
+    Number.isFinite(gps_lat) &&
+    Number.isFinite(gps_lon);
 
   if (!institucion || !pais) {
     return res.status(400).json({ ok: false, error: "Faltan institución o país" });
@@ -381,6 +459,11 @@ async function guardar(req, res) {
   const validoHasta = valido.toISOString().slice(0, 10);
 
   const geo = await lookupGeo(clientIp(req), req);
+  const rev = hasGps ? await reverseGps(gps_lat, gps_lon) : {
+    gps_city: null,
+    gps_region: null,
+    gps_country: null
+  };
 
   await ensureTable();
 
@@ -390,7 +473,8 @@ async function guardar(req, res) {
       nombre, email, supervisor_nombre, supervisor_email,
       download_mbps, upload_mbps, cupos, valido_hasta, user_agent,
       client_ip, geo_city, geo_region, geo_country, geo_country_code,
-      geo_isp, geo_confidence, geo_lat, geo_lon, geo_sources, client_timezone
+      geo_isp, geo_confidence, geo_lat, geo_lon, geo_sources, client_timezone,
+      gps_status, gps_lat, gps_lon, gps_accuracy, gps_city, gps_region, gps_country, gps_error
     )
     VALUES (
       ${institucion},
@@ -415,9 +499,17 @@ async function guardar(req, res) {
       ${geo.geo_lat},
       ${geo.geo_lon},
       ${JSON.stringify(geo.geo_sources || [])}::jsonb,
-      ${client_timezone || null}
+      ${client_timezone || null},
+      ${gps_status},
+      ${hasGps ? gps_lat : null},
+      ${hasGps ? gps_lon : null},
+      ${hasGps && Number.isFinite(gps_accuracy) ? gps_accuracy : null},
+      ${rev.gps_city || null},
+      ${rev.gps_region || null},
+      ${rev.gps_country || null},
+      ${gps_error || null}
     )
-    RETURNING id, created_at, valido_hasta, client_ip, geo_city, geo_region, geo_country, geo_confidence
+    RETURNING id, created_at, valido_hasta, client_ip, geo_city, geo_region, geo_country, geo_confidence, gps_status, gps_city, gps_region
   `;
 
   const row = ins.rows[0];
@@ -430,7 +522,10 @@ async function guardar(req, res) {
     geo_city: row.geo_city || null,
     geo_region: row.geo_region || null,
     geo_country: row.geo_country || null,
-    geo_confidence: row.geo_confidence || null
+    geo_confidence: row.geo_confidence || null,
+    gps_status: row.gps_status || null,
+    gps_city: row.gps_city || null,
+    gps_region: row.gps_region || null
   });
 }
 
