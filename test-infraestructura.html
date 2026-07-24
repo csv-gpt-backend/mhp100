@@ -262,7 +262,7 @@
 
         <div class="speed-panel">
           <button type="button" class="btn-run" id="btnRunTest">Iniciar test / Dar clic</button>
-          <button type="button" class="btn-run" id="btnRetryGps" style="display:none;margin-top:10px;background:#92400e">Volver a pedir ubicación GPS</button>
+          <button type="button" class="btn-run" id="btnRetryGps" style="display:none;margin-top:10px;background:#92400e">Clic para ver cómo activar el GPS</button>
           <div class="meter">
             <div>
               <div class="meter-row">
@@ -458,7 +458,7 @@
     if (!validateFormFields()) return false;
     if (!gpsInfo || gpsInfo.status !== "ok"){
       $("testErr").textContent =
-        "Sin GPS el test no puede completarse. Acepte la ubicación del navegador (use «Volver a pedir ubicación GPS»).";
+        "Sin GPS el test no puede completarse. Acepte la ubicación del navegador o pulse «Clic para ver cómo activar el GPS».";
       return false;
     }
     if (!testDone || downloadMbps <= 0){
@@ -548,7 +548,7 @@
       "<li>Busque <strong>Ubicación</strong> / Location.</li>" +
       "<li>Cámbielo a <strong>Permitir</strong>.</li>" +
       "<li>Si no aparece, vaya a Configuración del sitio → Permisos → Ubicación → Permitir.</li>" +
-      "<li>Pulse otra vez <strong>Volver a pedir ubicación GPS</strong> (o recargue la página).</li>" +
+      "<li>Cuando diga <strong>Permitir</strong>, pulse <strong>Iniciar test / Dar clic</strong>.</li>" +
       "</ol>";
   }
 
@@ -556,15 +556,15 @@
     if (!info || info.status === "ok") return "";
     const blocked = permState === "denied" || info.status === "denied";
     if (blocked) {
-      return "GPS bloqueado en el navegador. No saldrá el aviso otra vez hasta que active «Permitir» en el candado de la barra de dirección (instrucciones abajo). Sin ubicación el test NO podrá completarse. El intento quedó registrado en ADALAM.";
+      return "GPS bloqueado en el navegador. Use el botón «Clic para ver cómo activar el GPS» y siga los pasos del candado. Sin ubicación el test NO podrá completarse. El intento quedó registrado en ADALAM.";
     }
     if (info.status === "timeout") {
-      return "No se obtuvo GPS a tiempo. Pulse «Volver a pedir ubicación GPS». Sin ubicación el test NO podrá completarse.";
+      return "No se obtuvo GPS a tiempo. Pulse «Iniciar test» de nuevo o «Clic para ver cómo activar el GPS». Sin ubicación el test NO podrá completarse.";
     }
     if (info.status === "unavailable") {
       return "GPS no disponible en este equipo. Sin ubicación el test NO podrá completarse. El intento se registra en ADALAM.";
     }
-    return "Error al obtener GPS. Pulse «Volver a pedir ubicación GPS».";
+    return "Error al obtener GPS. Pulse «Clic para ver cómo activar el GPS» si necesita ayuda.";
   }
 
   function setRetryGpsVisible(show){
@@ -727,7 +727,7 @@
       if (permBefore === "denied") {
         $("testOk").textContent = "";
         $("testErr").textContent =
-          "La ubicación ya está bloqueada para este sitio. Siga los pasos de abajo, luego pulse otra vez «Volver a pedir ubicación GPS».";
+          "La ubicación ya está bloqueada para este sitio. Pulse «Clic para ver cómo activar el GPS» y siga los pasos; luego «Iniciar test».";
         showGpsHelp(true);
         setRetryGpsVisible(true);
         gpsInfo = {
@@ -861,7 +861,28 @@
   };
   $("btnPrev").onclick = () => { if (step > 1) setStep(step - 1); };
   $("btnRunTest").onclick = runSpeedTest;
-  $("btnRetryGps").onclick = runSpeedTest;
+  $("btnRetryGps").onclick = async () => {
+    showGpsHelp(true);
+    const help = $("gpsHelp");
+    if (help) help.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const perm = await queryGeoPermission();
+    if (perm === "denied") {
+      $("testErr").textContent =
+        "Siga los pasos de abajo (candado → Ubicación → Permitir). Cuando lo active, pulse «Iniciar test / Dar clic».";
+      $("testOk").textContent = "";
+      return;
+    }
+    if (perm === "granted") {
+      $("testOk").textContent = "Permiso de ubicación activo. Iniciando test…";
+      $("testErr").textContent = "";
+      showGpsHelp(false);
+      runSpeedTest();
+      return;
+    }
+    // prompt / unknown: intentar de nuevo (puede salir el aviso del navegador)
+    $("testOk").textContent = "Intentando solicitar ubicación…";
+    runSpeedTest();
+  };
   $("btnPrint").onclick = () => window.print();
   $("btnRedo").onclick = () => {
     testDone = false;
