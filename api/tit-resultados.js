@@ -4,6 +4,13 @@ function norm(v) {
   return String(v ?? "").trim();
 }
 
+function fold(v) {
+  return norm(v)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 function readBody(req) {
   const b = req.body;
   if (!b) return {};
@@ -39,38 +46,197 @@ function isPrivateIp(ip) {
   return false;
 }
 
-async function lookupGeo(ip) {
+function headerDecoded(req, name) {
+  const raw = req.headers[name];
+  if (raw == null || raw === "") return null;
+  try {
+    return decodeURIComponent(String(raw));
+  } catch {
+    return String(raw);
+  }
+}
+
+function fetchJson(url, ms) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, {
+    signal: ctrl.signal,
+    headers: { Accept: "application/json" }
+  })
+    .then(async (r) => {
+      clearTimeout(t);
+      if (!r.ok) return null;
+      return r.json();
+    })
+    .catch(() => {
+      clearTimeout(t);
+      return null;
+    });
+}
+
+function majorityLabel(values) {
+  const map = new Map();
+  for (const v of values) {
+    const label = norm(v);
+    if (!label) continue;
+    const k = fold(label);
+    const cur = map.get(k) || { n: 0, label };
+    cur.n += 1;
+    map.set(k, cur);
+  }
+  let best = null;
+  for (const cur of map.values()) {
+    if (!best || cur.n > best.n) best = cur;
+  }
+  return best;
+}
+
+function uniqueLabels(values) {
+  const out = [];
+  const seen = new Set();
+  for (const v of values) {
+    const label = norm(v);
+    if (!label) continue;
+    const k = fold(label);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(label);
+  }
+  return out;
+}
+
+async function lookupGeo(ip, req) {
   const empty = {
     client_ip: ip || null,
     geo_city: null,
     geo_region: null,
     geo_country: null,
-    geo_country_code: null
+    geo_country_code: null,
+    geo_isp: null,
+    geo_confidence: null,
+    geo_lat: null,
+    geo_lon: null,
+    geo_sources: []
   };
   if (!ip || isPrivateIp(ip)) return empty;
 
-  try {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 3500);
-    const r = await fetch("https://ipwho.is/" + encodeURIComponent(ip), {
-      signal: ctrl.signal,
-      headers: { Accept: "application/json" }
+  const sources = [];
+
+  const vCity = headerDecoded(req, "x-vercel-ip-city");
+  const vRegion = headerDecoded(req, "x-vercel-ip-country-region");
+  const vCountry = headerDecoded(req, "x-vercel-ip-country");
+  const vLat = Number(headerDecoded(req, "x-vercel-ip-latitude"));
+  const vLon = Number(headerDecoded(req, "x-vercel-ip-longitude"));
+  if (vCity || vRegion || vCountry) {
+    sources.push({
+      src: "vercel",
+      city: norm(vCity) || null,
+      region: norm(vRegion) || null,
+      country: null,
+      country_code: norm(vCountry).toUpperCase() || null,
+      lat: Number.isFinite(vLat) ? vLat : null,
+      lon: Number.isFinite(vLon) ? vLon : null,
+      isp: null
     });
-    clearTimeout(t);
-    if (!r.ok) return empty;
-    const j = await r.json();
-    if (!j || j.success === false) return empty;
-    return {
-      client_ip: ip,
-      geo_city: norm(j.city) || null,
-      geo_region: norm(j.region) || null,
-      geo_country: norm(j.country) || null,
-      geo_country_code: norm(j.country_code).toUpperCase() || null
-    };
-  } catch (e) {
-    console.warn("tit geo-ip lookup failed", e && e.message ? e.message : e);
-    return empty;
   }
+
+  const [who, api] = await Promise.all([
+    fetchJson("https://ipwho.is/" + encodeURIComponent(ip), 3500),
+    fetchJson(
+      "http://ip-api.com/json/" +
+        encodeURIComponent(ip) +
+        "?fields=status,message,country,countryCode,regionName,city,lat,lon,isp,org,query",
+      3500
+    )
+  ]);
+
+  if (who && who.success !== false) {
+    sources.push({
+      src: "ipwho",
+      city: norm(who.city) || null,
+      region: norm(who.region) || null,
+      country: norm(who.country) || null,
+      country_code: norm(who.country_code).toUpperCase() || null,
+      lat: Number.isFinite(Number(who.latitude)) ? Number(who.latitude) : null,
+      lon: Number.isFinite(Number(who.longitude)) ? Number(who.longitude) : null,
+      isp:
+        norm((who.connection && (who.connection.isp || who.connection.org)) || "") ||
+        null
+    });
+  }
+
+  if (api && api.status === "success") {
+    sources.push({
+      src: "ip-api",
+      city: norm(api.city) || null,
+      region: norm(api.regionName) || null,
+      country: norm(api.country) || null,
+      country_code: norm(api.countryCode).toUpperCase() || null,
+      lat: Number.isFinite(Number(api.lat)) ? Number(api.lat) : null,
+      lon: Number.isFinite(Number(api.lon)) ? Number(api.lon) : null,
+      isp: norm(api.isp || api.org) || null
+    });
+  }
+
+  if (!sources.length) {
+    return { ...empty, client_ip: ip };
+  }
+
+  const cityMaj = majorityLabel(sources.map((s) => s.city));
+  const regionMaj = majorityLabel(sources.map((s) => s.region));
+  const codeMaj = majorityLabel(sources.map((s) => s.country_code));
+  const countryMaj = majorityLabel(sources.map((s) => s.country));
+  const ispMaj = majorityLabel(sources.map((s) => s.isp));
+
+  let confidence = "baja";
+  let geo_city = null;
+  let geo_region = regionMaj ? regionMaj.label : null;
+
+  if (cityMaj && cityMaj.n >= 2) {
+    confidence = "alta";
+    geo_city = cityMaj.label;
+  } else if (regionMaj && regionMaj.n >= 2) {
+    confidence = "media";
+    geo_city = cityMaj && cityMaj.n === 1 ? null : cityMaj ? cityMaj.label : null;
+    // Si hay ciudades distintas, no afirmar una sola ciudad
+    if (uniqueLabels(sources.map((s) => s.city)).length > 1) {
+      geo_city = null;
+    } else if (cityMaj) {
+      geo_city = cityMaj.label;
+    }
+  } else if (cityMaj) {
+    confidence = "baja";
+    geo_city = null; // una sola fuente: no afirmar ciudad
+  }
+
+  // Coordenadas: promedio de fuentes que coinciden en ciudad/región elegida
+  const coordSrc = sources.filter((s) => {
+    if (s.lat == null || s.lon == null) return false;
+    if (geo_city) return fold(s.city) === fold(geo_city);
+    if (geo_region) return fold(s.region) === fold(geo_region);
+    return true;
+  });
+  let geo_lat = null;
+  let geo_lon = null;
+  if (coordSrc.length) {
+    geo_lat =
+      coordSrc.reduce((a, s) => a + s.lat, 0) / coordSrc.length;
+    geo_lon =
+      coordSrc.reduce((a, s) => a + s.lon, 0) / coordSrc.length;
+  }
+
+  return {
+    client_ip: ip,
+    geo_city,
+    geo_region,
+    geo_country: countryMaj ? countryMaj.label : null,
+    geo_country_code: codeMaj ? codeMaj.label : null,
+    geo_isp: ispMaj ? ispMaj.label : null,
+    geo_confidence: confidence,
+    geo_lat,
+    geo_lon,
+    geo_sources: sources
+  };
 }
 
 async function ensureTable() {
@@ -94,7 +260,13 @@ async function ensureTable() {
       geo_city TEXT,
       geo_region TEXT,
       geo_country TEXT,
-      geo_country_code TEXT
+      geo_country_code TEXT,
+      geo_isp TEXT,
+      geo_confidence TEXT,
+      geo_lat DOUBLE PRECISION,
+      geo_lon DOUBLE PRECISION,
+      geo_sources JSONB,
+      client_timezone TEXT
     )
   `;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS client_ip TEXT`;
@@ -102,6 +274,12 @@ async function ensureTable() {
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_region TEXT`;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_country TEXT`;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_country_code TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_isp TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_confidence TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_lat DOUBLE PRECISION`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_lon DOUBLE PRECISION`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_sources JSONB`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS client_timezone TEXT`;
 }
 
 async function listar(res) {
@@ -126,7 +304,13 @@ async function listar(res) {
       geo_city,
       geo_region,
       geo_country,
-      geo_country_code
+      geo_country_code,
+      geo_isp,
+      geo_confidence,
+      geo_lat,
+      geo_lon,
+      geo_sources,
+      client_timezone
     FROM tit_resultados
     ORDER BY created_at DESC
     LIMIT 500
@@ -150,7 +334,13 @@ async function listar(res) {
     geo_city: norm(row.geo_city),
     geo_region: norm(row.geo_region),
     geo_country: norm(row.geo_country),
-    geo_country_code: norm(row.geo_country_code)
+    geo_country_code: norm(row.geo_country_code),
+    geo_isp: norm(row.geo_isp),
+    geo_confidence: norm(row.geo_confidence),
+    geo_lat: row.geo_lat != null ? Number(row.geo_lat) : null,
+    geo_lon: row.geo_lon != null ? Number(row.geo_lon) : null,
+    geo_sources: row.geo_sources || [],
+    client_timezone: norm(row.client_timezone)
   }));
   return res.status(200).json({ ok: true, total: filas.length, filas });
 }
@@ -168,6 +358,7 @@ async function guardar(req, res) {
   const upload_mbps = Number(body.upload_mbps ?? body.uploadMbps);
   const cupos = body.cupos && typeof body.cupos === "object" ? body.cupos : {};
   const user_agent = norm(body.user_agent || req.headers["user-agent"] || "");
+  const client_timezone = norm(body.client_timezone || body.timezone);
 
   if (!institucion || !pais) {
     return res.status(400).json({ ok: false, error: "Faltan institución o país" });
@@ -189,7 +380,7 @@ async function guardar(req, res) {
   valido.setMonth(valido.getMonth() + 6);
   const validoHasta = valido.toISOString().slice(0, 10);
 
-  const geo = await lookupGeo(clientIp(req));
+  const geo = await lookupGeo(clientIp(req), req);
 
   await ensureTable();
 
@@ -198,7 +389,8 @@ async function guardar(req, res) {
       institucion, pais, modalidad,
       nombre, email, supervisor_nombre, supervisor_email,
       download_mbps, upload_mbps, cupos, valido_hasta, user_agent,
-      client_ip, geo_city, geo_region, geo_country, geo_country_code
+      client_ip, geo_city, geo_region, geo_country, geo_country_code,
+      geo_isp, geo_confidence, geo_lat, geo_lon, geo_sources, client_timezone
     )
     VALUES (
       ${institucion},
@@ -217,9 +409,15 @@ async function guardar(req, res) {
       ${geo.geo_city || null},
       ${geo.geo_region || null},
       ${geo.geo_country || null},
-      ${geo.geo_country_code || null}
+      ${geo.geo_country_code || null},
+      ${geo.geo_isp || null},
+      ${geo.geo_confidence || null},
+      ${geo.geo_lat},
+      ${geo.geo_lon},
+      ${JSON.stringify(geo.geo_sources || [])}::jsonb,
+      ${client_timezone || null}
     )
-    RETURNING id, created_at, valido_hasta, client_ip, geo_city, geo_region, geo_country
+    RETURNING id, created_at, valido_hasta, client_ip, geo_city, geo_region, geo_country, geo_confidence
   `;
 
   const row = ins.rows[0];
@@ -231,7 +429,8 @@ async function guardar(req, res) {
     client_ip: row.client_ip || null,
     geo_city: row.geo_city || null,
     geo_region: row.geo_region || null,
-    geo_country: row.geo_country || null
+    geo_country: row.geo_country || null,
+    geo_confidence: row.geo_confidence || null
   });
 }
 

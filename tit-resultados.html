@@ -84,10 +84,14 @@
     .badge.wifi{background:#fef3c7;color:#92400e}
     .badge.warn{background:#fee2e2;color:#991b1b}
     .badge.ok{background:#ecfdf5;color:#047857}
+    .badge.alta{background:#dcfce7;color:#166534}
+    .badge.media{background:#ffedd5;color:#9a3412}
+    .badge.baja{background:#f1f5f9;color:#475569}
     .num{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
     .cupos{font-size:11px;color:var(--muted);line-height:1.35;max-width:220px}
-    .geo{font-size:12px;line-height:1.35;max-width:200px}
+    .geo{font-size:12px;line-height:1.35;max-width:240px}
     .geo .ip{color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+    .geo .alts{color:var(--muted);font-size:11px;margin-top:2px}
     .empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:14px}
   </style>
 </head>
@@ -97,7 +101,7 @@
     <header class="brand">
       <img src="assets/logo_adalam.webp" alt="Sello ADALAM" width="220" height="88"/>
       <h1>Resultados TIT</h1>
-      <p>Test de infraestructura registrados · fuente interna ADALAM</p>
+      <p>Test de infraestructura · país por IP fiable · ciudad solo si hay consenso entre fuentes</p>
     </header>
 
     <div class="panel">
@@ -247,9 +251,31 @@
   }
 
   function geoCell(r){
-    const parts = [r.geo_city, r.geo_region, r.geo_country].filter(Boolean);
+    const conf = (r.geo_confidence || "").toLowerCase();
+    const parts = [];
+    if (r.geo_city) parts.push(r.geo_city);
+    else if (conf === "baja" || conf === "media") parts.push("Ciudad no confirmada");
+    if (r.geo_region) parts.push(r.geo_region);
+    if (r.geo_country) parts.push(r.geo_country);
     const loc = parts.length ? parts.join(", ") : "—";
     const ip = r.client_ip ? '<div class="ip">' + r.client_ip + "</div>" : "";
+    const isp = r.geo_isp ? '<div class="ip">ISP: ' + r.geo_isp + "</div>" : "";
+
+    const srcs = Array.isArray(r.geo_sources) ? r.geo_sources : [];
+    const alts = [];
+    const seen = new Set();
+    srcs.forEach(s => {
+      const bit = [s.city, s.region].filter(Boolean).join(", ");
+      if (!bit) return;
+      const k = bit.toLowerCase();
+      if (seen.has(k)) return;
+      seen.add(k);
+      alts.push(bit);
+    });
+    const altsHtml = alts.length > 1
+      ? '<div class="alts">Fuentes: ' + alts.join(" · ") + "</div>"
+      : "";
+
     let flag = "";
     if (!r.client_ip && !r.geo_city && !r.geo_country) {
       flag = '<div><span class="badge">Sin IP</span></div>';
@@ -258,7 +284,11 @@
     } else if (r.geo_country || r.geo_country_code) {
       flag = '<div><span class="badge ok">País OK</span></div>';
     }
-    return '<div class="geo"><strong>' + loc + "</strong>" + ip + flag + "</div>";
+    if (conf === "alta" || conf === "media" || conf === "baja") {
+      const label = conf === "alta" ? "Confianza alta" : (conf === "media" ? "Confianza media" : "Confianza baja");
+      flag += '<div><span class="badge ' + conf + '">' + label + "</span></div>";
+    }
+    return '<div class="geo"><strong>' + loc + "</strong>" + ip + isp + altsHtml + flag + "</div>";
   }
 
   function filtered(){
@@ -351,7 +381,8 @@
     }
     const lines = [[
       "id","fecha","institucion","pais_declarado",
-      "geo_city","geo_region","geo_country","geo_country_code","client_ip","alerta_pais",
+      "geo_city","geo_region","geo_country","geo_country_code","geo_isp","geo_confidence",
+      "client_ip","alerta_pais","client_timezone",
       "modalidad","download_mbps","upload_mbps","nombre","email",
       "supervisor","supervisor_email","cupos","valido_hasta"
     ].join(";")];
@@ -365,8 +396,11 @@
         csvCell(r.geo_region),
         csvCell(r.geo_country),
         csvCell(r.geo_country_code),
+        csvCell(r.geo_isp),
+        csvCell(r.geo_confidence),
         csvCell(r.client_ip),
         csvCell(countryMismatch(r) ? "SI" : ""),
+        csvCell(r.client_timezone),
         csvCell(r.modalidad),
         csvCell(r.download_mbps),
         csvCell(r.upload_mbps),
