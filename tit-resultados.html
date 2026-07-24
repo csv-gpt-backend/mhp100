@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Resultados TIT · ADALAM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,700;1,9..40,500&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --ink:#0c1a14;
+      --muted:#5a6b62;
+      --line:#c8d4cc;
+      --green:#1a8f3b;
+      --green-deep:#14632b;
+      --paper:#f4f8f5;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;min-height:100%}
+    body{
+      font-family:"DM Sans",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(26,143,59,.16), transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, rgba(20,99,43,.10), transparent 50%),
+        linear-gradient(180deg, #f7fbf8 0%, var(--paper) 45%, #eef5f0 100%);
+    }
+    .wrap{width:min(1180px,100%);margin:0 auto;padding:28px 18px 48px}
+    .back{
+      display:inline-block;margin-bottom:10px;font-size:13px;font-weight:700;
+      color:var(--green-deep);text-decoration:none;
+    }
+    .back:hover{text-decoration:underline}
+    .brand{text-align:center;margin:8px 0 22px}
+    .brand img{
+      width:min(220px,70vw);height:auto;display:block;margin:0 auto 12px;
+      filter:drop-shadow(0 14px 28px rgba(12,26,20,.18));
+    }
+    .brand h1{
+      font-family:Fraunces,Georgia,serif;font-size:clamp(1.45rem,4vw,1.95rem);
+      font-weight:700;letter-spacing:.02em;margin:0 0 6px;
+    }
+    .brand p{margin:0;font-size:14px;color:var(--muted);line-height:1.45}
+    .panel{
+      background:rgba(255,255,255,.82);border:1px solid var(--line);
+      border-radius:14px;padding:14px 14px 10px;margin-bottom:14px;
+      box-shadow:0 8px 22px rgba(12,26,20,.05);
+    }
+    .filters{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px 12px;
+    }
+    @media (max-width:800px){ .filters{grid-template-columns:1fr 1fr} }
+    @media (max-width:520px){ .filters{grid-template-columns:1fr} }
+    label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+    select,input[type="date"],input[type="search"]{
+      width:100%;padding:9px 10px;border:1px solid #b7c7bc;border-radius:10px;
+      font-size:15px;font-family:inherit;background:#fff;color:var(--ink);
+    }
+    .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+    .btn{
+      border:0;border-radius:999px;padding:9px 14px;font-weight:700;font-size:14px;
+      cursor:pointer;font-family:inherit;background:var(--green);color:#fff;
+    }
+    .btn:hover{background:var(--green-deep)}
+    .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+    .meta{font-size:13px;color:var(--muted);font-weight:600}
+    .msg{font-size:13px;font-weight:700}
+    .msg.err{color:#b91c1c}
+    .table-wrap{
+      overflow:auto;background:rgba(255,255,255,.9);border:1px solid var(--line);
+      border-radius:14px;box-shadow:0 8px 22px rgba(12,26,20,.05);
+    }
+    table{width:100%;border-collapse:collapse;min-width:980px}
+    th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}
+    th{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:#eef5f0;position:sticky;top:0}
+    tbody tr:hover{background:#f3faf5}
+    .badge{
+      display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;
+    }
+    .badge.cable{background:#dbeafe;color:#1e40af}
+    .badge.wifi{background:#fef3c7;color:#92400e}
+    .num{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+    .cupos{font-size:11px;color:var(--muted);line-height:1.35;max-width:220px}
+    .empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="menu.html">← Menú ADALAM</a>
+    <header class="brand">
+      <img src="assets/logo_adalam.webp" alt="Sello ADALAM" width="220" height="88"/>
+      <h1>Resultados TIT</h1>
+      <p>Test de infraestructura registrados · fuente interna ADALAM</p>
+    </header>
+
+    <div class="panel">
+      <div class="filters">
+        <div>
+          <label for="qInst">Institución</label>
+          <input type="search" id="qInst" placeholder="Filtrar…"/>
+        </div>
+        <div>
+          <label for="qPais">País</label>
+          <select id="qPais"><option value="">Todos</option></select>
+        </div>
+        <div>
+          <label for="qMod">Modalidad</label>
+          <select id="qMod">
+            <option value="">Todas</option>
+            <option value="cable">Cable</option>
+            <option value="wifi">WiFi</option>
+          </select>
+        </div>
+        <div>
+          <label for="desde">Desde</label>
+          <input type="date" id="desde"/>
+        </div>
+        <div>
+          <label for="hasta">Hasta</label>
+          <input type="date" id="hasta"/>
+        </div>
+        <div>
+          <label for="qTxt">Buscar (nombre / correo)</label>
+          <input type="search" id="qTxt" placeholder="Filtrar…"/>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn" id="btnReload">Actualizar</button>
+        <button type="button" class="btn ghost" id="btnExcel">Exportar Excel</button>
+        <span class="meta" id="meta"></span>
+        <span class="msg" id="msg"></span>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Institución</th>
+            <th>País</th>
+            <th>Mod.</th>
+            <th>Descarga</th>
+            <th>Subida</th>
+            <th>Quién / supervisor</th>
+            <th>Cupos</th>
+            <th>Válido hasta</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="9" class="empty">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const EVAL_LABELS = {
+    socioemocional: "Socioemocional",
+    integridad: "Integridad",
+    liderazgo: "Liderazgo",
+    habitos: "Hábitos",
+    aprendizaje: "Aprendizaje",
+    vocacional: "Vocacional",
+    intelectual: "Intelectual"
+  };
+
+  let filas = [];
+
+  function $(id){ return document.getElementById(id); }
+
+  function fmtDate(v){
+    if (!v) return "—";
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return String(v).slice(0, 10);
+    return d.toLocaleString("es-EC", {
+      day: "2-digit", month: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit"
+    });
+  }
+
+  function fmtDay(v){
+    if (!v) return "—";
+    const s = String(v).slice(0, 10);
+    const d = new Date(s + "T12:00:00");
+    if (Number.isNaN(d.getTime())) return s;
+    return d.toLocaleDateString("es-EC");
+  }
+
+  function cuposTxt(cupos){
+    if (!cupos || typeof cupos !== "object") return "—";
+    return Object.keys(EVAL_LABELS).map(k => {
+      if (cupos[k] == null) return null;
+      return EVAL_LABELS[k] + ": " + cupos[k];
+    }).filter(Boolean).join(" · ") || "—";
+  }
+
+  function dayKey(iso){
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return String(iso).slice(0, 10);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + day;
+  }
+
+  function filtered(){
+    const inst = ($("qInst").value || "").trim().toUpperCase();
+    const pais = ($("qPais").value || "").trim().toUpperCase();
+    const mod = ($("qMod").value || "").trim().toLowerCase();
+    const txt = ($("qTxt").value || "").trim().toLowerCase();
+    const desde = ($("desde").value || "").trim();
+    const hasta = ($("hasta").value || "").trim();
+
+    return filas.filter(r => {
+      if (inst && !(r.institucion || "").toUpperCase().includes(inst)) return false;
+      if (pais && (r.pais || "").toUpperCase() !== pais) return false;
+      if (mod && (r.modalidad || "").toLowerCase() !== mod) return false;
+      if (txt) {
+        const blob = ((r.nombre || "") + " " + (r.email || "") + " " +
+          (r.supervisor_nombre || "") + " " + (r.supervisor_email || "")).toLowerCase();
+        if (!blob.includes(txt)) return false;
+      }
+      const dk = dayKey(r.created_at);
+      if (desde && dk && dk < desde) return false;
+      if (hasta && dk && dk > hasta) return false;
+      return true;
+    });
+  }
+
+  function fillPaises(){
+    const set = new Set();
+    filas.forEach(r => { if (r.pais) set.add(r.pais); });
+    const cur = $("qPais").value;
+    $("qPais").innerHTML = '<option value="">Todos</option>' +
+      Array.from(set).sort().map(p => '<option value="' + p + '">' + p + "</option>").join("");
+    if (cur) $("qPais").value = cur;
+  }
+
+  function render(){
+    const rows = filtered();
+    $("meta").textContent = rows.length + " de " + filas.length + " registros";
+    const tb = $("tbody");
+    if (!rows.length) {
+      tb.innerHTML = '<tr><td colspan="9" class="empty">Sin resultados con estos filtros.</td></tr>';
+      return;
+    }
+    tb.innerHTML = rows.map(r => {
+      const mod = (r.modalidad || "").toLowerCase();
+      const badge = mod === "cable" || mod === "wifi"
+        ? '<span class="badge ' + mod + '">' + (mod === "cable" ? "Cable" : "WiFi") + "</span>"
+        : "—";
+      const quien =
+        (r.nombre || "—") + "<br><span style=\"color:#5a6b62;font-size:12px\">" + (r.email || "") + "</span>" +
+        (r.supervisor_nombre
+          ? "<br><span style=\"font-size:12px\">Sup: " + r.supervisor_nombre +
+            (r.supervisor_email ? " · " + r.supervisor_email : "") + "</span>"
+          : "");
+      const down = r.download_mbps != null ? Number(r.download_mbps).toFixed(2) + " Mb/s" : "—";
+      const up = r.upload_mbps != null && Number(r.upload_mbps) > 0
+        ? Number(r.upload_mbps).toFixed(2) + " Mb/s" : "—";
+      return "<tr>" +
+        "<td>" + fmtDate(r.created_at) + "</td>" +
+        "<td>" + (r.institucion || "—") + "</td>" +
+        "<td>" + (r.pais || "—") + "</td>" +
+        "<td>" + badge + "</td>" +
+        '<td class="num">' + down + "</td>" +
+        '<td class="num">' + up + "</td>" +
+        "<td>" + quien + "</td>" +
+        '<td class="cupos">' + cuposTxt(r.cupos) + "</td>" +
+        "<td>" + fmtDay(r.valido_hasta) + "</td>" +
+        "</tr>";
+    }).join("");
+  }
+
+  function csvCell(v){
+    const s = String(v ?? "");
+    if (/[;"\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function exportarExcel(){
+    const rows = filtered();
+    const msg = $("msg");
+    if (!rows.length) {
+      msg.textContent = "No hay filas para exportar.";
+      msg.className = "msg err";
+      return;
+    }
+    const lines = [[
+      "id","fecha","institucion","pais","modalidad",
+      "download_mbps","upload_mbps","nombre","email",
+      "supervisor","supervisor_email","cupos","valido_hasta"
+    ].join(";")];
+    rows.forEach(r => {
+      lines.push([
+        csvCell(r.id),
+        csvCell(r.created_at),
+        csvCell(r.institucion),
+        csvCell(r.pais),
+        csvCell(r.modalidad),
+        csvCell(r.download_mbps),
+        csvCell(r.upload_mbps),
+        csvCell(r.nombre),
+        csvCell(r.email),
+        csvCell(r.supervisor_nombre),
+        csvCell(r.supervisor_email),
+        csvCell(cuposTxt(r.cupos)),
+        csvCell(r.valido_hasta)
+      ].join(";"));
+    });
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "tit_resultados.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    msg.textContent = "Excel/CSV exportado (" + rows.length + ").";
+    msg.className = "msg";
+  }
+
+  async function cargar(){
+    const msg = $("msg");
+    msg.textContent = "";
+    msg.className = "msg";
+    $("tbody").innerHTML = '<tr><td colspan="9" class="empty">Cargando…</td></tr>';
+    try {
+      const r = await fetch("/api/tit-resultados");
+      const data = await r.json();
+      if (!r.ok || !data.ok) throw new Error(data.error || ("HTTP " + r.status));
+      filas = data.filas || [];
+      fillPaises();
+      render();
+    } catch (e) {
+      $("tbody").innerHTML = '<tr><td colspan="9" class="empty">Error al cargar.</td></tr>';
+      msg.textContent = e.message || String(e);
+      msg.className = "msg err";
+    }
+  }
+
+  ["qInst","qPais","qMod","qTxt","desde","hasta"].forEach(id => {
+    $(id).addEventListener("input", render);
+    $(id).addEventListener("change", render);
+  });
+  $("btnReload").addEventListener("click", cargar);
+  $("btnExcel").addEventListener("click", exportarExcel);
+  cargar();
+})();
+</script>
+</body>
+</html>

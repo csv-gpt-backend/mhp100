@@ -215,6 +215,22 @@
       <section class="step" id="step3">
         <div class="form-grid">
           <div>
+            <label for="fInstitucion">Institución / centro</label>
+            <input type="text" id="fInstitucion" placeholder="Ej. COLEGIO INTIYAN" autocomplete="organization">
+          </div>
+          <div>
+            <label for="fPais">País</label>
+            <input type="text" id="fPais" placeholder="Ej. ECUADOR" autocomplete="country-name">
+          </div>
+          <div>
+            <label for="fModalidad">Modalidad de red del test</label>
+            <select id="fModalidad" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;background:#fff">
+              <option value="">Seleccione…</option>
+              <option value="cable">Cable (todos por cable)</option>
+              <option value="wifi">WiFi</option>
+            </select>
+          </div>
+          <div>
             <label for="fNombre">Nombre de la persona que realiza el test</label>
             <input type="text" id="fNombre" autocomplete="name">
           </div>
@@ -231,7 +247,7 @@
             <input type="email" id="fSupEmail">
           </div>
         </div>
-        <p class="muted" style="margin-top:10px">Coordinación ADALAM: use el canal de contacto acordado con su institución.</p>
+        <p class="muted" style="margin-top:10px">El resultado se registra automáticamente en ADALAM. También puede imprimir PDF para el centro.</p>
 
         <div class="speed-panel">
           <button type="button" class="btn-run" id="btnRunTest">Iniciar test / Dar clic</button>
@@ -284,8 +300,10 @@
         </table>
 
         <div class="valid-until" id="validUntil"></div>
+        <p class="muted no-print" id="saveMsg" style="margin-top:8px;font-weight:700"></p>
 
         <div class="print-only" id="printMeta">
+          <p><strong>Institución:</strong> <span id="printInst">—</span> · <strong>País:</strong> <span id="printPais">—</span> · <strong>Modalidad:</strong> <span id="printMod">—</span></p>
           <p><strong>Velocidad de descarga:</strong> <span id="printDown">—</span> · <strong>Velocidad de subida:</strong> <span id="printUp">—</span></p>
           <p><strong>Persona que realizó el test:</strong> <span id="printNombre">—</span></p>
           <p><strong>Supervisor:</strong> <span id="printSup">—</span></p>
@@ -358,6 +376,7 @@
   let downloadMbps = 0;
   let uploadMbps = 0;
   let testDone = false;
+  let titSaved = false;
 
   const $ = id => document.getElementById(id);
   const titles = [
@@ -395,6 +414,9 @@
 
   function validateStep3(){
     const fields = [
+      ["fInstitucion", "Indique la institución o centro."],
+      ["fPais", "Indique el país."],
+      ["fModalidad", "Seleccione modalidad de red (cable o WiFi)."],
       ["fNombre", "Indique quién realiza el test."],
       ["fEmail", "Indique un correo válido."],
       ["fSupNombre", "Indique quién supervisa el test."],
@@ -413,6 +435,56 @@
     }
     $("testErr").textContent = "";
     return true;
+  }
+
+  function buildCupos(){
+    const cupos = {};
+    EVALS.forEach(ev => {
+      cupos[ev.id] = usersRecommended(usersAt(downloadMbps, ev.usersPerMbps));
+    });
+    return cupos;
+  }
+
+  async function saveTitResult(){
+    const msg = $("saveMsg");
+    if (titSaved) {
+      if (msg) msg.textContent = "Resultado ya registrado en ADALAM.";
+      return;
+    }
+    if (msg) msg.textContent = "Registrando resultado en ADALAM…";
+    try {
+      const r = await fetch("/api/tit-resultados", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          institucion: $("fInstitucion").value.trim(),
+          pais: $("fPais").value.trim(),
+          modalidad: $("fModalidad").value.trim(),
+          nombre: $("fNombre").value.trim(),
+          email: $("fEmail").value.trim(),
+          supervisor_nombre: $("fSupNombre").value.trim(),
+          supervisor_email: $("fSupEmail").value.trim(),
+          download_mbps: downloadMbps,
+          upload_mbps: uploadMbps,
+          cupos: buildCupos(),
+          user_agent: navigator.userAgent || ""
+        })
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.ok) {
+        throw new Error(data.error || ("HTTP " + r.status));
+      }
+      titSaved = true;
+      if (msg) {
+        msg.textContent = "Resultado registrado en ADALAM (id " + data.id + "). El PDF es copia opcional para el centro.";
+        msg.style.color = "#14632b";
+      }
+    } catch (e) {
+      if (msg) {
+        msg.textContent = "No se pudo registrar en ADALAM: " + (e.message || e) + ". Puede reintentar con «Repetir test» o imprimir PDF.";
+        msg.style.color = "#b91c1c";
+      }
+    }
   }
 
   function setMeter(fillId, valId, mbps){
@@ -515,6 +587,9 @@
         at: new Date().toISOString(),
         downloadMbps,
         uploadMbps,
+        institucion: $("fInstitucion").value.trim(),
+        pais: $("fPais").value.trim(),
+        modalidad: $("fModalidad").value.trim(),
         nombre: $("fNombre").value.trim(),
         email: $("fEmail").value.trim(),
         supNombre: $("fSupNombre").value.trim(),
@@ -532,8 +607,10 @@
   function renderDiag(){
     const speedTxt = downloadMbps > 0 ? downloadMbps.toFixed(2) + " Mb/s" : "—";
     const upTxt = uploadMbps > 0 ? uploadMbps.toFixed(2) + " Mb/s" : "—";
+    const modLabel = $("fModalidad").value === "cable" ? "Cable" :
+      ($("fModalidad").value === "wifi" ? "WiFi" : "—");
     $("diagSpeedLine").textContent =
-      "Conexión medida en este equipo — Descarga: " + speedTxt +
+      "Conexión medida en este equipo (" + modLabel + ") — Descarga: " + speedTxt +
       (uploadMbps > 0 ? " · Subida: " + upTxt : "");
     $("thConn").innerHTML =
       'Con su conexión actual<br><span class="speed-once">' + speedTxt + '</span>';
@@ -566,8 +643,11 @@
     $("validUntil").textContent =
       "Resultado orientativo válido hasta el " +
       valid.toLocaleDateString("es-EC", { day: "numeric", month: "long", year: "numeric" }) +
-      ". Imprima o guarde PDF y envíelo al administrador ADALAM. Repita el test en el lugar donde aplicará la evaluación (misma red WiFi o cable).";
+      ". Queda registrado en ADALAM. El PDF es opcional para el centro. Repita el test en el lugar de aplicación (misma red cable o WiFi).";
 
+    $("printInst").textContent = $("fInstitucion").value.trim() || "—";
+    $("printPais").textContent = $("fPais").value.trim() || "—";
+    $("printMod").textContent = modLabel;
     $("printDown").textContent = speedTxt;
     $("printUp").textContent = uploadMbps > 0 ? uploadMbps.toFixed(2) + " Mb/s" : "No medida";
     $("printNombre").textContent = $("fNombre").value.trim() + " · " + $("fEmail").value.trim();
@@ -575,20 +655,25 @@
     $("printFecha").textContent = d.toLocaleString("es-EC");
   }
 
-  $("btnNext").onclick = () => {
+  $("btnNext").onclick = async () => {
     if (step === 3 && !validateStep3()) return;
-    if (step < 4) setStep(step + 1);
+    if (step < 4) {
+      setStep(step + 1);
+      if (step === 4) await saveTitResult();
+    }
   };
   $("btnPrev").onclick = () => { if (step > 1) setStep(step - 1); };
   $("btnRunTest").onclick = runSpeedTest;
   $("btnPrint").onclick = () => window.print();
   $("btnRedo").onclick = () => {
     testDone = false;
+    titSaved = false;
     downloadMbps = 0;
     uploadMbps = 0;
     setMeter("fillDown", "valDown", 0);
     setMeter("fillUp", "valUp", 0);
     $("testOk").textContent = "";
+    if ($("saveMsg")) $("saveMsg").textContent = "";
     setStep(3);
   };
 
