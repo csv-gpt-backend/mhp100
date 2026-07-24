@@ -82,8 +82,12 @@
     }
     .badge.cable{background:#dbeafe;color:#1e40af}
     .badge.wifi{background:#fef3c7;color:#92400e}
+    .badge.warn{background:#fee2e2;color:#991b1b}
+    .badge.ok{background:#ecfdf5;color:#047857}
     .num{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
     .cupos{font-size:11px;color:var(--muted);line-height:1.35;max-width:220px}
+    .geo{font-size:12px;line-height:1.35;max-width:200px}
+    .geo .ip{color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
     .empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:14px}
   </style>
 </head>
@@ -126,6 +130,14 @@
           <label for="qTxt">Buscar (nombre / correo)</label>
           <input type="search" id="qTxt" placeholder="Filtrar…"/>
         </div>
+        <div>
+          <label for="qGeo">Ubicación IP</label>
+          <select id="qGeo">
+            <option value="">Todas</option>
+            <option value="alerta">Solo alerta país ≠ IP</option>
+            <option value="sin">Sin dato IP</option>
+          </select>
+        </div>
       </div>
       <div class="actions">
         <button type="button" class="btn" id="btnReload">Actualizar</button>
@@ -141,7 +153,8 @@
           <tr>
             <th>Fecha</th>
             <th>Institución</th>
-            <th>País</th>
+            <th>País declarado</th>
+            <th>Estimado por IP</th>
             <th>Mod.</th>
             <th>Descarga</th>
             <th>Subida</th>
@@ -151,7 +164,7 @@
           </tr>
         </thead>
         <tbody id="tbody">
-          <tr><td colspan="9" class="empty">Cargando…</td></tr>
+          <tr><td colspan="10" class="empty">Cargando…</td></tr>
         </tbody>
       </table>
     </div>
@@ -209,11 +222,51 @@
     return y + "-" + m + "-" + day;
   }
 
+  const COUNTRY_ALIASES = {
+    EC: ["ECUADOR", "EC"],
+    CO: ["COLOMBIA", "CO"],
+    PE: ["PERU", "PERÚ", "PE"],
+    MX: ["MEXICO", "MÉXICO", "MX"],
+    CL: ["CHILE", "CL"],
+    AR: ["ARGENTINA", "AR"],
+    US: ["ESTADOS UNIDOS", "UNITED STATES", "USA", "US"],
+    ES: ["ESPANA", "ESPAÑA", "SPAIN", "ES"]
+  };
+
+  function countryMismatch(r){
+    const declared = (r.pais || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const code = (r.geo_country_code || "").toUpperCase();
+    const geoName = (r.geo_country || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (!declared) return false;
+    if (!code && !geoName) return false;
+    const aliases = COUNTRY_ALIASES[code] || [];
+    const ok =
+      (code && (declared === code || aliases.some(a => declared.includes(a) || a.includes(declared)))) ||
+      (geoName && (declared.includes(geoName) || geoName.includes(declared)));
+    return !ok;
+  }
+
+  function geoCell(r){
+    const parts = [r.geo_city, r.geo_region, r.geo_country].filter(Boolean);
+    const loc = parts.length ? parts.join(", ") : "—";
+    const ip = r.client_ip ? '<div class="ip">' + r.client_ip + "</div>" : "";
+    let flag = "";
+    if (!r.client_ip && !r.geo_city && !r.geo_country) {
+      flag = '<div><span class="badge">Sin IP</span></div>';
+    } else if (countryMismatch(r)) {
+      flag = '<div><span class="badge warn">Alerta país ≠ IP</span></div>';
+    } else if (r.geo_country || r.geo_country_code) {
+      flag = '<div><span class="badge ok">País OK</span></div>';
+    }
+    return '<div class="geo"><strong>' + loc + "</strong>" + ip + flag + "</div>";
+  }
+
   function filtered(){
     const inst = ($("qInst").value || "").trim().toUpperCase();
     const pais = ($("qPais").value || "").trim().toUpperCase();
     const mod = ($("qMod").value || "").trim().toLowerCase();
     const txt = ($("qTxt").value || "").trim().toLowerCase();
+    const geo = ($("qGeo").value || "").trim();
     const desde = ($("desde").value || "").trim();
     const hasta = ($("hasta").value || "").trim();
 
@@ -221,9 +274,12 @@
       if (inst && !(r.institucion || "").toUpperCase().includes(inst)) return false;
       if (pais && (r.pais || "").toUpperCase() !== pais) return false;
       if (mod && (r.modalidad || "").toLowerCase() !== mod) return false;
+      if (geo === "alerta" && !countryMismatch(r)) return false;
+      if (geo === "sin" && (r.client_ip || r.geo_city || r.geo_country)) return false;
       if (txt) {
         const blob = ((r.nombre || "") + " " + (r.email || "") + " " +
-          (r.supervisor_nombre || "") + " " + (r.supervisor_email || "")).toLowerCase();
+          (r.supervisor_nombre || "") + " " + (r.supervisor_email || "") + " " +
+          (r.geo_city || "") + " " + (r.client_ip || "")).toLowerCase();
         if (!blob.includes(txt)) return false;
       }
       const dk = dayKey(r.created_at);
@@ -247,7 +303,7 @@
     $("meta").textContent = rows.length + " de " + filas.length + " registros";
     const tb = $("tbody");
     if (!rows.length) {
-      tb.innerHTML = '<tr><td colspan="9" class="empty">Sin resultados con estos filtros.</td></tr>';
+      tb.innerHTML = '<tr><td colspan="10" class="empty">Sin resultados con estos filtros.</td></tr>';
       return;
     }
     tb.innerHTML = rows.map(r => {
@@ -268,6 +324,7 @@
         "<td>" + fmtDate(r.created_at) + "</td>" +
         "<td>" + (r.institucion || "—") + "</td>" +
         "<td>" + (r.pais || "—") + "</td>" +
+        "<td>" + geoCell(r) + "</td>" +
         "<td>" + badge + "</td>" +
         '<td class="num">' + down + "</td>" +
         '<td class="num">' + up + "</td>" +
@@ -293,8 +350,9 @@
       return;
     }
     const lines = [[
-      "id","fecha","institucion","pais","modalidad",
-      "download_mbps","upload_mbps","nombre","email",
+      "id","fecha","institucion","pais_declarado",
+      "geo_city","geo_region","geo_country","geo_country_code","client_ip","alerta_pais",
+      "modalidad","download_mbps","upload_mbps","nombre","email",
       "supervisor","supervisor_email","cupos","valido_hasta"
     ].join(";")];
     rows.forEach(r => {
@@ -303,6 +361,12 @@
         csvCell(r.created_at),
         csvCell(r.institucion),
         csvCell(r.pais),
+        csvCell(r.geo_city),
+        csvCell(r.geo_region),
+        csvCell(r.geo_country),
+        csvCell(r.geo_country_code),
+        csvCell(r.client_ip),
+        csvCell(countryMismatch(r) ? "SI" : ""),
         csvCell(r.modalidad),
         csvCell(r.download_mbps),
         csvCell(r.upload_mbps),
@@ -328,7 +392,7 @@
     const msg = $("msg");
     msg.textContent = "";
     msg.className = "msg";
-    $("tbody").innerHTML = '<tr><td colspan="9" class="empty">Cargando…</td></tr>';
+    $("tbody").innerHTML = '<tr><td colspan="10" class="empty">Cargando…</td></tr>';
     try {
       const r = await fetch("/api/tit-resultados");
       const data = await r.json();
@@ -337,13 +401,13 @@
       fillPaises();
       render();
     } catch (e) {
-      $("tbody").innerHTML = '<tr><td colspan="9" class="empty">Error al cargar.</td></tr>';
+      $("tbody").innerHTML = '<tr><td colspan="10" class="empty">Error al cargar.</td></tr>';
       msg.textContent = e.message || String(e);
       msg.className = "msg err";
     }
   }
 
-  ["qInst","qPais","qMod","qTxt","desde","hasta"].forEach(id => {
+  ["qInst","qPais","qMod","qTxt","qGeo","desde","hasta"].forEach(id => {
     $(id).addEventListener("input", render);
     $(id).addEventListener("change", render);
   });

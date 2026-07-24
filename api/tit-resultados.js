@@ -17,6 +17,62 @@ function readBody(req) {
   return b;
 }
 
+function clientIp(req) {
+  const xf = req.headers["x-forwarded-for"];
+  if (xf) {
+    const first = String(xf).split(",")[0].trim();
+    if (first) return first;
+  }
+  const real = norm(req.headers["x-real-ip"]);
+  if (real) return real;
+  const vercel = norm(req.headers["x-vercel-forwarded-for"]);
+  if (vercel) return String(vercel).split(",")[0].trim();
+  return "";
+}
+
+function isPrivateIp(ip) {
+  const s = String(ip || "");
+  if (!s || s === "::1" || s === "127.0.0.1") return true;
+  if (s.startsWith("10.") || s.startsWith("192.168.") || s.startsWith("127.")) return true;
+  if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(s)) return true;
+  if (s.startsWith("fc") || s.startsWith("fd") || s.startsWith("fe80")) return true;
+  return false;
+}
+
+async function lookupGeo(ip) {
+  const empty = {
+    client_ip: ip || null,
+    geo_city: null,
+    geo_region: null,
+    geo_country: null,
+    geo_country_code: null
+  };
+  if (!ip || isPrivateIp(ip)) return empty;
+
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 3500);
+    const r = await fetch("https://ipwho.is/" + encodeURIComponent(ip), {
+      signal: ctrl.signal,
+      headers: { Accept: "application/json" }
+    });
+    clearTimeout(t);
+    if (!r.ok) return empty;
+    const j = await r.json();
+    if (!j || j.success === false) return empty;
+    return {
+      client_ip: ip,
+      geo_city: norm(j.city) || null,
+      geo_region: norm(j.region) || null,
+      geo_country: norm(j.country) || null,
+      geo_country_code: norm(j.country_code).toUpperCase() || null
+    };
+  } catch (e) {
+    console.warn("tit geo-ip lookup failed", e && e.message ? e.message : e);
+    return empty;
+  }
+}
+
 async function ensureTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS tit_resultados (
@@ -33,9 +89,19 @@ async function ensureTable() {
       upload_mbps DOUBLE PRECISION,
       cupos JSONB,
       valido_hasta DATE,
-      user_agent TEXT
+      user_agent TEXT,
+      client_ip TEXT,
+      geo_city TEXT,
+      geo_region TEXT,
+      geo_country TEXT,
+      geo_country_code TEXT
     )
   `;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS client_ip TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_city TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_region TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_country TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS geo_country_code TEXT`;
 }
 
 async function listar(res) {
@@ -55,7 +121,12 @@ async function listar(res) {
       upload_mbps,
       cupos,
       valido_hasta,
-      user_agent
+      user_agent,
+      client_ip,
+      geo_city,
+      geo_region,
+      geo_country,
+      geo_country_code
     FROM tit_resultados
     ORDER BY created_at DESC
     LIMIT 500
@@ -74,7 +145,12 @@ async function listar(res) {
     upload_mbps: row.upload_mbps != null ? Number(row.upload_mbps) : null,
     cupos: row.cupos || {},
     valido_hasta: row.valido_hasta || null,
-    user_agent: norm(row.user_agent)
+    user_agent: norm(row.user_agent),
+    client_ip: norm(row.client_ip),
+    geo_city: norm(row.geo_city),
+    geo_region: norm(row.geo_region),
+    geo_country: norm(row.geo_country),
+    geo_country_code: norm(row.geo_country_code)
   }));
   return res.status(200).json({ ok: true, total: filas.length, filas });
 }
@@ -113,13 +189,16 @@ async function guardar(req, res) {
   valido.setMonth(valido.getMonth() + 6);
   const validoHasta = valido.toISOString().slice(0, 10);
 
+  const geo = await lookupGeo(clientIp(req));
+
   await ensureTable();
 
   const ins = await sql`
     INSERT INTO tit_resultados (
       institucion, pais, modalidad,
       nombre, email, supervisor_nombre, supervisor_email,
-      download_mbps, upload_mbps, cupos, valido_hasta, user_agent
+      download_mbps, upload_mbps, cupos, valido_hasta, user_agent,
+      client_ip, geo_city, geo_region, geo_country, geo_country_code
     )
     VALUES (
       ${institucion},
@@ -133,9 +212,14 @@ async function guardar(req, res) {
       ${up},
       ${JSON.stringify(cupos)}::jsonb,
       ${validoHasta},
-      ${user_agent || null}
+      ${user_agent || null},
+      ${geo.client_ip || null},
+      ${geo.geo_city || null},
+      ${geo.geo_region || null},
+      ${geo.geo_country || null},
+      ${geo.geo_country_code || null}
     )
-    RETURNING id, created_at, valido_hasta
+    RETURNING id, created_at, valido_hasta, client_ip, geo_city, geo_region, geo_country
   `;
 
   const row = ins.rows[0];
@@ -143,7 +227,11 @@ async function guardar(req, res) {
     ok: true,
     id: row.id,
     created_at: row.created_at,
-    valido_hasta: row.valido_hasta
+    valido_hasta: row.valido_hasta,
+    client_ip: row.client_ip || null,
+    geo_city: row.geo_city || null,
+    geo_region: row.geo_region || null,
+    geo_country: row.geo_country || null
   });
 }
 
