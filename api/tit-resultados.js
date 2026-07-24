@@ -274,7 +274,8 @@ async function ensureTable() {
       gps_city TEXT,
       gps_region TEXT,
       gps_country TEXT,
-      gps_error TEXT
+      gps_error TEXT,
+      test_valido BOOLEAN DEFAULT FALSE
     )
   `;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS client_ip TEXT`;
@@ -296,6 +297,7 @@ async function ensureTable() {
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS gps_region TEXT`;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS gps_country TEXT`;
   await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS gps_error TEXT`;
+  await sql`ALTER TABLE tit_resultados ADD COLUMN IF NOT EXISTS test_valido BOOLEAN DEFAULT FALSE`;
 }
 
 async function reverseGps(lat, lon) {
@@ -368,7 +370,8 @@ async function listar(res) {
       gps_city,
       gps_region,
       gps_country,
-      gps_error
+      gps_error,
+      test_valido
     FROM tit_resultados
     ORDER BY created_at DESC
     LIMIT 500
@@ -406,7 +409,8 @@ async function listar(res) {
     gps_city: norm(row.gps_city),
     gps_region: norm(row.gps_region),
     gps_country: norm(row.gps_country),
-    gps_error: norm(row.gps_error)
+    gps_error: norm(row.gps_error),
+    test_valido: row.test_valido === true
   }));
   return res.status(200).json({ ok: true, total: filas.length, filas });
 }
@@ -447,16 +451,25 @@ async function guardar(req, res) {
   if (!nombre || !email) {
     return res.status(400).json({ ok: false, error: "Faltan nombre o correo de quien realiza el test" });
   }
-  if (!Number.isFinite(download_mbps) || download_mbps <= 0) {
+
+  const downOk = Number.isFinite(download_mbps) && download_mbps > 0;
+  const test_valido = hasGps && downOk;
+  // Sin GPS: se guarda el intento (sin velocidad) para seguimiento.
+  // Con GPS: exige medición de descarga.
+  if (hasGps && !downOk) {
     return res.status(400).json({ ok: false, error: "Falta velocidad de descarga válida" });
   }
 
   const up =
     Number.isFinite(upload_mbps) && upload_mbps >= 0 ? upload_mbps : 0;
+  const downStore = downOk ? download_mbps : 0;
 
-  const valido = new Date();
-  valido.setMonth(valido.getMonth() + 6);
-  const validoHasta = valido.toISOString().slice(0, 10);
+  let validoHasta = null;
+  if (test_valido) {
+    const valido = new Date();
+    valido.setMonth(valido.getMonth() + 6);
+    validoHasta = valido.toISOString().slice(0, 10);
+  }
 
   const geo = await lookupGeo(clientIp(req), req);
   const rev = hasGps ? await reverseGps(gps_lat, gps_lon) : {
@@ -467,6 +480,8 @@ async function guardar(req, res) {
 
   await ensureTable();
 
+  const cuposStore = test_valido ? cupos : {};
+
   const ins = await sql`
     INSERT INTO tit_resultados (
       institucion, pais, modalidad,
@@ -474,7 +489,8 @@ async function guardar(req, res) {
       download_mbps, upload_mbps, cupos, valido_hasta, user_agent,
       client_ip, geo_city, geo_region, geo_country, geo_country_code,
       geo_isp, geo_confidence, geo_lat, geo_lon, geo_sources, client_timezone,
-      gps_status, gps_lat, gps_lon, gps_accuracy, gps_city, gps_region, gps_country, gps_error
+      gps_status, gps_lat, gps_lon, gps_accuracy, gps_city, gps_region, gps_country, gps_error,
+      test_valido
     )
     VALUES (
       ${institucion},
@@ -484,9 +500,9 @@ async function guardar(req, res) {
       ${email},
       ${supervisor_nombre || null},
       ${supervisor_email || null},
-      ${download_mbps},
-      ${up},
-      ${JSON.stringify(cupos)}::jsonb,
+      ${downStore},
+      ${test_valido ? up : 0},
+      ${JSON.stringify(cuposStore)}::jsonb,
       ${validoHasta},
       ${user_agent || null},
       ${geo.client_ip || null},
@@ -507,9 +523,10 @@ async function guardar(req, res) {
       ${rev.gps_city || null},
       ${rev.gps_region || null},
       ${rev.gps_country || null},
-      ${gps_error || null}
+      ${gps_error || null},
+      ${test_valido}
     )
-    RETURNING id, created_at, valido_hasta, client_ip, geo_city, geo_region, geo_country, geo_confidence, gps_status, gps_city, gps_region
+    RETURNING id, created_at, valido_hasta, client_ip, geo_city, geo_region, geo_country, geo_confidence, gps_status, gps_city, gps_region, test_valido
   `;
 
   const row = ins.rows[0];
@@ -525,7 +542,8 @@ async function guardar(req, res) {
     geo_confidence: row.geo_confidence || null,
     gps_status: row.gps_status || null,
     gps_city: row.gps_city || null,
-    gps_region: row.gps_region || null
+    gps_region: row.gps_region || null,
+    test_valido: row.test_valido === true
   });
 }
 

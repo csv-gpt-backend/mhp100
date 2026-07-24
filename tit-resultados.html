@@ -101,7 +101,7 @@
     <header class="brand">
       <img src="assets/logo_adalam.webp" alt="Sello ADALAM" width="220" height="88"/>
       <h1>Resultados TIT</h1>
-      <p>Test de infraestructura · GPS (prioridad) + IP · denegado se registra igual</p>
+      <p>Test de infraestructura · sin GPS = no válido (se registra para contactar)</p>
     </header>
 
     <div class="panel">
@@ -140,8 +140,8 @@
             <option value="">Todas</option>
             <option value="alerta">Solo alerta país ≠ IP</option>
             <option value="sin">Sin dato IP</option>
-            <option value="gps_ok">GPS obtenido</option>
-            <option value="gps_no">GPS denegado / no obtenido</option>
+            <option value="gps_ok">GPS / test válido</option>
+            <option value="gps_no">No válido (sin GPS)</option>
           </select>
         </div>
       </div>
@@ -296,6 +296,7 @@
 
   function gpsCell(r){
     const st = (r.gps_status || "").toLowerCase();
+    const valido = r.test_valido === true;
     if (st === "ok" && (r.gps_lat != null || r.gps_city)) {
       const parts = [r.gps_city, r.gps_region, r.gps_country].filter(Boolean);
       const loc = parts.length ? parts.join(", ") : "Coordenadas GPS";
@@ -307,18 +308,23 @@
           encodeURIComponent(r.gps_lat + "," + r.gps_lon) +
           '" target="_blank" rel="noopener">Ver mapa</a></div>'
         : "";
+      const badge = valido
+        ? '<span class="badge ok">Test válido</span>'
+        : '<span class="badge ok">GPS OK</span>';
       return '<div class="geo"><strong>' + loc + '</strong>' +
-        '<div><span class="badge ok">GPS OK</span></div>' + acc + map + "</div>";
+        '<div>' + badge + "</div>" + acc + map + "</div>";
     }
     if (st === "denied") {
-      return '<div class="geo"><span class="badge warn">GPS denegado</span>' +
-        (r.gps_error ? '<div class="alts">' + r.gps_error + "</div>" : "") + "</div>";
+      return '<div class="geo"><span class="badge warn">No válido · GPS denegado</span>' +
+        (r.gps_error ? '<div class="alts">' + r.gps_error + "</div>" : "") +
+        '<div class="alts">Contactar para repetir el test</div></div>';
     }
     if (st === "unavailable" || st === "timeout" || st === "error") {
-      return '<div class="geo"><span class="badge baja">GPS ' + st + "</span>" +
-        (r.gps_error ? '<div class="alts">' + r.gps_error + "</div>" : "") + "</div>";
+      return '<div class="geo"><span class="badge warn">No válido · GPS ' + st + "</span>" +
+        (r.gps_error ? '<div class="alts">' + r.gps_error + "</div>" : "") +
+        '<div class="alts">Contactar para repetir el test</div></div>';
     }
-    return '<div class="geo"><span class="badge">Sin GPS</span></div>';
+    return '<div class="geo"><span class="badge warn">No válido · Sin GPS</span></div>';
   }
 
   function filtered(){
@@ -336,8 +342,8 @@
       if (mod && (r.modalidad || "").toLowerCase() !== mod) return false;
       if (geo === "alerta" && !countryMismatch(r)) return false;
       if (geo === "sin" && (r.client_ip || r.geo_city || r.geo_country)) return false;
-      if (geo === "gps_ok" && (r.gps_status || "").toLowerCase() !== "ok") return false;
-      if (geo === "gps_no" && (r.gps_status || "").toLowerCase() === "ok") return false;
+      if (geo === "gps_ok" && r.test_valido !== true) return false;
+      if (geo === "gps_no" && r.test_valido === true) return false;
       if (txt) {
         const blob = ((r.nombre || "") + " " + (r.email || "") + " " +
           (r.supervisor_nombre || "") + " " + (r.supervisor_email || "") + " " +
@@ -414,7 +420,7 @@
     }
     const lines = [[
       "id","fecha","institucion","pais_declarado",
-      "gps_status","gps_city","gps_region","gps_country","gps_lat","gps_lon","gps_accuracy",
+      "gps_status","gps_city","gps_region","gps_country","gps_lat","gps_lon","gps_accuracy","test_valido",
       "geo_city","geo_region","geo_country","geo_country_code","geo_isp","geo_confidence",
       "client_ip","alerta_pais","client_timezone",
       "modalidad","download_mbps","upload_mbps","nombre","email",
@@ -433,6 +439,7 @@
         csvCell(r.gps_lat),
         csvCell(r.gps_lon),
         csvCell(r.gps_accuracy),
+        csvCell(r.test_valido ? "SI" : "NO"),
         csvCell(r.geo_city),
         csvCell(r.geo_region),
         csvCell(r.geo_country),
