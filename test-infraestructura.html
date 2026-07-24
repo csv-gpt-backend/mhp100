@@ -496,13 +496,11 @@
   async function updateGpsAlert(){
     const el = $("gpsAlert");
     if (!el) return;
-    // Ya tenemos GPS en esta corrida → no mostrar aviso de PERMITIR
     if (gpsInfo && gpsInfo.status === "ok") {
       el.style.display = "none";
       return;
     }
     const perm = await queryGeoPermission();
-    // Solo si aún puede salir el aviso o está bloqueado (hay que actuar)
     if (perm === "granted") {
       el.style.display = "none";
       return;
@@ -510,8 +508,8 @@
     el.style.display = "block";
     if (perm === "denied") {
       el.innerHTML =
-        "La ubicación GPS está <strong>bloqueada</strong> en este navegador." +
-        "<span>Pulse «Clic para ver cómo activar el GPS» y active Permitir en el candado. Sin GPS el test NO se completará.</span>";
+        "La ubicación está <strong>bloqueada</strong> o el permiso aún no aplica." +
+        "<span>En el candado active Ubicación. Si Chrome pide <strong>Volver a cargar</strong>, acéptelo (no cancele). Luego complete el formulario y pulse <strong>Iniciar test</strong>.</span>";
     } else {
       el.innerHTML =
         "Debe pulsar <strong>PERMITIR</strong> en el mensaje del navegador (ubicación GPS)." +
@@ -529,15 +527,13 @@
     }
     el.style.display = "block";
     el.innerHTML =
-      "<strong>El navegador ya bloqueó la ubicación en este sitio</strong>" +
-      "Por seguridad, Chrome/Edge <em>no vuelven a mostrar</em> el aviso si usted eligió Bloquear. " +
-      "Hay que activarlo a mano y luego pulsar de nuevo el botón." +
+      "<strong>Cómo activar el GPS en Chrome</strong>" +
       "<ol>" +
-      "<li>Haga clic en el ícono de <strong>candado</strong> (o información del sitio) a la izquierda de la barra de dirección.</li>" +
-      "<li>Busque <strong>Ubicación</strong> / Location.</li>" +
-      "<li>Cámbielo a <strong>Permitir</strong>.</li>" +
-      "<li>Si no aparece, vaya a Configuración del sitio → Permisos → Ubicación → Permitir.</li>" +
-      "<li>Cuando diga <strong>Permitir</strong>, pulse <strong>Iniciar test / Dar clic</strong>.</li>" +
+      "<li>Clic en el ícono a la izquierda de la dirección (candado / ajustes del sitio).</li>" +
+      "<li><strong>Ubicación</strong> → activar / <strong>Permitir</strong>.</li>" +
+      "<li>Si aparece <strong>Volver a cargar</strong>, pulse ese botón. <em>No cancele</em>: si cancela, el permiso no aplica y el test seguirá bloqueado.</li>" +
+      "<li>Tras recargar, vuelva a llenar el formulario y pulse <strong>Iniciar test</strong>.</li>" +
+      "<li>Si sigue fallando: en Windows active Ubicación (Configuración → Privacidad → Ubicación).</li>" +
       "</ol>";
   }
 
@@ -545,15 +541,15 @@
     if (!info || info.status === "ok") return "";
     const blocked = permState === "denied" || info.status === "denied";
     if (blocked) {
-      return "GPS bloqueado en el navegador. Use el botón «Clic para ver cómo activar el GPS» y siga los pasos del candado. Sin ubicación el test NO podrá completarse. El intento quedó registrado en ADALAM.";
+      return "No se obtuvo GPS. Active Ubicación en el candado y, si Chrome pide «Volver a cargar», acéptelo. Luego pulse Iniciar test. Sin GPS el test NO se completa.";
     }
     if (info.status === "timeout") {
-      return "No se obtuvo GPS a tiempo. Pulse «Iniciar test» de nuevo o «Clic para ver cómo activar el GPS». Sin ubicación el test NO podrá completarse.";
+      return "No se obtuvo GPS a tiempo. Pulse Iniciar test de nuevo.";
     }
     if (info.status === "unavailable") {
-      return "GPS no disponible en este equipo. Sin ubicación el test NO podrá completarse. El intento se registra en ADALAM.";
+      return "GPS no disponible. Active la ubicación del equipo (Windows) y del sitio, recargue e intente de nuevo.";
     }
-    return "Error al obtener GPS. Pulse «Clic para ver cómo activar el GPS» si necesita ayuda.";
+    return "Error al obtener GPS. Revise el permiso de ubicación y pulse Iniciar test.";
   }
 
   function setRetryGpsVisible(show){
@@ -709,35 +705,16 @@
         return;
       }
 
-      $("testOk").textContent =
-        "Acepte el mensaje del navegador para que la medición sea real…";
-      const permBefore = await queryGeoPermission();
-      if (permBefore === "denied") {
-        $("testOk").textContent = "";
-        $("testErr").textContent =
-          "GPS bloqueado. Pulse «Clic para ver cómo activar el GPS» y siga los pasos; luego «Iniciar test».";
-        showGpsHelp(false);
-        setRetryGpsVisible(true);
-        gpsInfo = {
-          status: "denied",
-          lat: null,
-          lon: null,
-          accuracy: null,
-          error: "Permission blocked in browser site settings",
-          perm: "denied"
-        };
-        await saveTitResult({ asDenied: true });
-        await updateGpsAlert();
-        return;
-      }
-
+      $("testOk").textContent = "Obteniendo ubicación GPS…";
+      // Siempre intentar GPS real (no confiar solo en Permissions API: en Chrome
+      // tras activar el interruptor hace falta recargar; si no, puede seguir "denied").
       gpsInfo = await requestGps();
       const permAfter = await queryGeoPermission();
 
       if (gpsInfo.status !== "ok") {
         $("testErr").textContent = gpsBlockMessage(gpsInfo, permAfter);
         $("testOk").textContent = "";
-        showGpsHelp(false);
+        showGpsHelp(true);
         setRetryGpsVisible(true);
         await saveTitResult({ asDenied: true });
         await updateGpsAlert();
@@ -848,21 +825,19 @@
     const help = $("gpsHelp");
     if (help) help.scrollIntoView({ behavior: "smooth", block: "nearest" });
     const perm = await queryGeoPermission();
-    if (perm === "denied") {
-      $("testErr").textContent =
-        "Siga los pasos de abajo (candado → Ubicación → Permitir). Cuando lo active, pulse «Iniciar test / Dar clic».";
-      $("testOk").textContent = "";
-      return;
-    }
     if (perm === "granted") {
-      $("testOk").textContent = "Permiso de ubicación activo. Iniciando test…";
+      $("testOk").textContent = "Permiso activo. Iniciando test…";
       $("testErr").textContent = "";
       showGpsHelp(false);
       runSpeedTest();
       return;
     }
-    // prompt / unknown: intentar de nuevo (puede salir el aviso del navegador)
-    $("testOk").textContent = "Intentando solicitar ubicación…";
+    // Aunque Permissions diga denied, intentar: tras recargar suele funcionar.
+    $("testOk").textContent = "Intentando obtener GPS…";
+    $("testErr").textContent =
+      perm === "denied"
+        ? "Si acaba de activar Ubicación, Chrome debe recargar la página. Si canceló, pulse F5, complete el formulario e Iniciar test."
+        : "";
     runSpeedTest();
   };
   $("btnPrint").onclick = () => window.print();
@@ -885,6 +860,14 @@
   };
 
   setStep(1);
+  // Si el usuario cambia el permiso en el candado, actualizar aviso
+  try {
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: "geolocation" }).then((p) => {
+        p.onchange = () => { updateGpsAlert(); };
+      }).catch(() => {});
+    }
+  } catch (_e) {}
 })();
 </script>
 </body>
