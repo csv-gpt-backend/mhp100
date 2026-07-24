@@ -139,8 +139,15 @@
 
     .step{display:none}
     .step.active{display:block}
-    .err{color:#dc2626;font-size:12px;font-weight:700;margin-top:8px;min-height:16px}
+    .err{color:#dc2626;font-size:12px;font-weight:700;margin-top:8px;min-height:16px;line-height:1.45}
     .ok-msg{color:#16a34a;font-size:12px;font-weight:700;margin-top:8px}
+    .gps-help{
+      display:none;margin-top:12px;padding:12px 14px;border-radius:12px;
+      border:1px solid #fcd34d;background:#fffbeb;color:#78350f;font-size:13px;line-height:1.5;
+    }
+    .gps-help strong{display:block;margin-bottom:6px;font-size:14px}
+    .gps-help ol{margin:8px 0 0;padding-left:18px}
+    .gps-help li{margin:4px 0}
     .valid-until{margin-top:10px;padding:10px 12px;border-radius:10px;background:#ecfdf5;border:1px solid #bbf7d0;font-size:12px;color:#166534}
 
     .print-only{display:none}
@@ -284,6 +291,7 @@
           </div>
         </div>
         <div class="err" id="testErr"></div>
+        <div class="gps-help" id="gpsHelp"></div>
         <div class="ok-msg" id="testOk"></div>
       </section>
 
@@ -477,7 +485,8 @@
           lat: null,
           lon: null,
           accuracy: null,
-          error: "Este navegador no soporta geolocalización"
+          error: "Este navegador no soporta geolocalización",
+          perm: "unavailable"
         });
         return;
       }
@@ -488,7 +497,8 @@
             lat: pos.coords.latitude,
             lon: pos.coords.longitude,
             accuracy: pos.coords.accuracy,
-            error: null
+            error: null,
+            perm: "granted"
           });
         },
         (err) => {
@@ -501,7 +511,8 @@
             lat: null,
             lon: null,
             accuracy: null,
-            error: (err && err.message) || "No se obtuvo GPS"
+            error: (err && err.message) || "No se obtuvo GPS",
+            perm: status === "denied" ? "denied" : "prompt"
           });
         },
         { enableHighAccuracy: true, timeout: 18000, maximumAge: 0 }
@@ -509,18 +520,51 @@
     });
   }
 
-  function gpsBlockMessage(info){
+  async function queryGeoPermission(){
+    try {
+      if (!navigator.permissions || !navigator.permissions.query) return "unknown";
+      const r = await navigator.permissions.query({ name: "geolocation" });
+      return r && r.state ? r.state : "unknown"; // granted | denied | prompt
+    } catch (_e) {
+      return "unknown";
+    }
+  }
+
+  function showGpsHelp(blocked){
+    const el = $("gpsHelp");
+    if (!el) return;
+    if (!blocked) {
+      el.style.display = "none";
+      el.innerHTML = "";
+      return;
+    }
+    el.style.display = "block";
+    el.innerHTML =
+      "<strong>El navegador ya bloqueó la ubicación en este sitio</strong>" +
+      "Por seguridad, Chrome/Edge <em>no vuelven a mostrar</em> el aviso si usted eligió Bloquear. " +
+      "Hay que activarlo a mano y luego pulsar de nuevo el botón." +
+      "<ol>" +
+      "<li>Haga clic en el ícono de <strong>candado</strong> (o información del sitio) a la izquierda de la barra de dirección.</li>" +
+      "<li>Busque <strong>Ubicación</strong> / Location.</li>" +
+      "<li>Cámbielo a <strong>Permitir</strong>.</li>" +
+      "<li>Si no aparece, vaya a Configuración del sitio → Permisos → Ubicación → Permitir.</li>" +
+      "<li>Pulse otra vez <strong>Volver a pedir ubicación GPS</strong> (o recargue la página).</li>" +
+      "</ol>";
+  }
+
+  function gpsBlockMessage(info, permState){
     if (!info || info.status === "ok") return "";
-    if (info.status === "denied") {
-      return "GPS denegado. Acepte el mensaje del navegador para que la medición sea real. Sin ubicación el test de infraestructura NO podrá completarse. El intento quedó registrado en ADALAM; nos contactaremos si hace falta.";
+    const blocked = permState === "denied" || info.status === "denied";
+    if (blocked) {
+      return "GPS bloqueado en el navegador. No saldrá el aviso otra vez hasta que active «Permitir» en el candado de la barra de dirección (instrucciones abajo). Sin ubicación el test NO podrá completarse. El intento quedó registrado en ADALAM.";
     }
     if (info.status === "timeout") {
-      return "No se obtuvo GPS a tiempo. Sin ubicación el test NO podrá completarse. Pulse «Volver a pedir ubicación GPS». El intento se registra en ADALAM.";
+      return "No se obtuvo GPS a tiempo. Pulse «Volver a pedir ubicación GPS». Sin ubicación el test NO podrá completarse.";
     }
     if (info.status === "unavailable") {
       return "GPS no disponible en este equipo. Sin ubicación el test NO podrá completarse. El intento se registra en ADALAM.";
     }
-    return "Error al obtener GPS. Sin ubicación el test NO podrá completarse. Pulse «Volver a pedir ubicación GPS».";
+    return "Error al obtener GPS. Pulse «Volver a pedir ubicación GPS».";
   }
 
   function setRetryGpsVisible(show){
@@ -667,6 +711,7 @@
     setRetryGpsVisible(false);
     $("testErr").textContent = "";
     $("testOk").textContent = "";
+    showGpsHelp(false);
     setMeter("fillDown", "valDown", 0);
     setMeter("fillUp", "valUp", 0);
     testDone = false;
@@ -678,16 +723,38 @@
 
       $("testOk").textContent =
         "Acepte el mensaje del navegador para que la medición sea real…";
+      const permBefore = await queryGeoPermission();
+      if (permBefore === "denied") {
+        $("testOk").textContent = "";
+        $("testErr").textContent =
+          "La ubicación ya está bloqueada para este sitio. Siga los pasos de abajo, luego pulse otra vez «Volver a pedir ubicación GPS».";
+        showGpsHelp(true);
+        setRetryGpsVisible(true);
+        gpsInfo = {
+          status: "denied",
+          lat: null,
+          lon: null,
+          accuracy: null,
+          error: "Permission blocked in browser site settings",
+          perm: "denied"
+        };
+        await saveTitResult({ asDenied: true });
+        return;
+      }
+
       gpsInfo = await requestGps();
+      const permAfter = await queryGeoPermission();
 
       if (gpsInfo.status !== "ok") {
-        $("testErr").textContent = gpsBlockMessage(gpsInfo);
+        $("testErr").textContent = gpsBlockMessage(gpsInfo, permAfter);
         $("testOk").textContent = "";
+        showGpsHelp(gpsInfo.status === "denied" || permAfter === "denied");
         setRetryGpsVisible(true);
         await saveTitResult({ asDenied: true });
         return;
       }
 
+      showGpsHelp(false);
       setRetryGpsVisible(false);
       $("testErr").textContent = "";
       $("testOk").textContent = "Ubicación GPS obtenida. Midiendo velocidad…";
@@ -808,6 +875,7 @@
     $("testOk").textContent = "";
     $("testErr").textContent = "";
     setRetryGpsVisible(false);
+    showGpsHelp(false);
     if ($("saveMsg")) $("saveMsg").textContent = "";
     setStep(3);
   };
