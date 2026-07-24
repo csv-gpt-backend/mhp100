@@ -238,7 +238,7 @@
             <input type="email" id="fEmail" autocomplete="email">
           </div>
         </div>
-        <div class="gps-alert">
+        <div class="gps-alert" id="gpsAlert">
           Debe pulsar <strong>PERMITIR</strong> en el mensaje del navegador (ubicación GPS).
           <span>Si bloquea o deniega, el test NO se completará. El intento sí se registra en ADALAM.</span>
         </div>
@@ -394,6 +394,7 @@
     $("btnPrint").style.display = n === 4 ? "" : "none";
     $("btnRedo").style.display = n === 4 ? "" : "none";
     if (n === 4) renderDiag();
+    if (n === 3) updateGpsAlert();
   }
 
   function validateFormFields(){
@@ -489,6 +490,32 @@
       return r && r.state ? r.state : "unknown"; // granted | denied | prompt
     } catch (_e) {
       return "unknown";
+    }
+  }
+
+  async function updateGpsAlert(){
+    const el = $("gpsAlert");
+    if (!el) return;
+    // Ya tenemos GPS en esta corrida → no mostrar aviso de PERMITIR
+    if (gpsInfo && gpsInfo.status === "ok") {
+      el.style.display = "none";
+      return;
+    }
+    const perm = await queryGeoPermission();
+    // Solo si aún puede salir el aviso o está bloqueado (hay que actuar)
+    if (perm === "granted") {
+      el.style.display = "none";
+      return;
+    }
+    el.style.display = "block";
+    if (perm === "denied") {
+      el.innerHTML =
+        "La ubicación GPS está <strong>bloqueada</strong> en este navegador." +
+        "<span>Pulse «Clic para ver cómo activar el GPS» y active Permitir en el candado. Sin GPS el test NO se completará.</span>";
+    } else {
+      el.innerHTML =
+        "Debe pulsar <strong>PERMITIR</strong> en el mensaje del navegador (ubicación GPS)." +
+        "<span>Si bloquea o deniega, el test NO se completará. El intento sí se registra en ADALAM.</span>";
     }
   }
 
@@ -700,6 +727,7 @@
           perm: "denied"
         };
         await saveTitResult({ asDenied: true });
+        await updateGpsAlert();
         return;
       }
 
@@ -712,11 +740,13 @@
         showGpsHelp(false);
         setRetryGpsVisible(true);
         await saveTitResult({ asDenied: true });
+        await updateGpsAlert();
         return;
       }
 
       showGpsHelp(false);
       setRetryGpsVisible(false);
+      await updateGpsAlert();
       $("testErr").textContent = "";
       $("testOk").textContent = "Ubicación GPS obtenida. Midiendo velocidad…";
 
@@ -736,6 +766,7 @@
       }
 
       testDone = true;
+      await updateGpsAlert();
       $("testOk").textContent = uploadMbps > 0
         ? "Test completado con GPS. Puede continuar al diagnóstico."
         : "Descarga medida con GPS. Subida no disponible; el diagnóstico usa la descarga.";
@@ -848,6 +879,7 @@
     $("testErr").textContent = "";
     setRetryGpsVisible(false);
     showGpsHelp(false);
+    updateGpsAlert();
     if ($("saveMsg")) $("saveMsg").textContent = "";
     setStep(3);
   };
