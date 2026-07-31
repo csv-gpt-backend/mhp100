@@ -129,20 +129,20 @@
     .iv-table{width:100%;border-collapse:collapse;font-size:12px}
     .iv-table th,.iv-table td{border:1px solid #111;padding:6px;vertical-align:top}
     .iv-table td.hl{background:var(--yellow)}
-    .iv-table td.iv-ok{color:#15803d}
-    .iv-table td.iv-warn{color:#a16207}
-    .iv-table td.iv-bad{color:#b91c1c}
     .iv-key{font-weight:900;color:#000}
     .iv-legend{display:flex;gap:14px;justify-content:flex-start;margin-top:6px;font-size:11px;color:#111;flex-wrap:wrap}
     .area-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .area-card{border:1px solid var(--line);border-radius:14px;background:var(--soft);padding:10px}
     .area-card h3{font-size:15px;margin:0 0 6px 0}
     .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:800;border:1px solid var(--silver-3)}
-    .badge.pref-low{background:linear-gradient(180deg,#fafbfc,#eceff2);color:#4b5563;border-color:#d9dde2;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
-    .badge.pref-med{background:linear-gradient(180deg,#edf0f3,#d8dde3);color:#374151;border-color:#c6ccd3;box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
-    .badge.pref-high{background:linear-gradient(180deg,#e5e8ed,#bcc4ce);color:#111827;border-color:#aab3be;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+    .badge.pref-low{background:linear-gradient(180deg,#fafbfc,#eceff2);color:#b91c1c;border-color:#d9dde2;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+    .badge.pref-med{background:linear-gradient(180deg,#edf0f3,#d8dde3);color:#a16207;border-color:#c6ccd3;box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+    .badge.pref-high{background:linear-gradient(180deg,#e5e8ed,#bcc4ce);color:#15803d;border-color:#aab3be;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
     .bar{margin:10px 0}
     .bar .head{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;margin-bottom:4px}
+    .bar .head .pref-txt.pref-low{color:#b91c1c}
+    .bar .head .pref-txt.pref-med{color:#a16207}
+    .bar .head .pref-txt.pref-high{color:#15803d}
     .track{height:14px;border-radius:999px;background:#edf1f4;position:relative;overflow:hidden;border:1px solid #d9dee4}
     .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#d6dbe1,#7a8593)}
     .fill.pref-low{background:linear-gradient(90deg,#edf0f3,#c4cbd4)}
@@ -187,9 +187,12 @@
       #page1 .bar{margin:8px 0 !important;break-inside:avoid;page-break-inside:avoid}
       #page1 .bar .head{margin-bottom:3px !important}
       #page1 .track{height:13px !important}
-      #page1 .iv-table td.iv-ok{color:#15803d !important}
-      #page1 .iv-table td.iv-warn{color:#a16207 !important}
-      #page1 .iv-table td.iv-bad{color:#b91c1c !important}
+      #page1 .bar .head .pref-txt.pref-low{color:#b91c1c !important}
+      #page1 .bar .head .pref-txt.pref-med{color:#a16207 !important}
+      #page1 .bar .head .pref-txt.pref-high{color:#15803d !important}
+      #page1 .badge.pref-low{color:#b91c1c !important}
+      #page1 .badge.pref-med{color:#a16207 !important}
+      #page1 .badge.pref-high{color:#15803d !important}
       #page1 .area-card .badge{
         font-size:9.5px !important;
         padding:1px 6px !important;
@@ -298,21 +301,21 @@
             <table class="iv-table">
               <tr id="iv1Row">
                 <th class="iv-key">CO</th>
-                <td class="iv-ok">Perfil consistente</td>
-                <td class="iv-warn">Consistencia intermedia</td>
-                <td class="iv-bad">Consistencia baja</td>
+                <td>Perfil consistente</td>
+                <td>Consistencia intermedia</td>
+                <td>Consistencia baja</td>
               </tr>
               <tr id="iv2Row">
                 <th class="iv-key">NC</th>
-                <td class="iv-ok">Sin contradicciones relevantes</td>
-                <td class="iv-warn">Con algunas contradicciones</td>
-                <td class="iv-bad">Contradicción frecuente</td>
+                <td>Sin contradicciones relevantes</td>
+                <td>Con algunas contradicciones</td>
+                <td>Contradicción frecuente</td>
               </tr>
               <tr id="iv3Row">
                 <th class="iv-key">PT</th>
-                <td class="iv-ok">Tiempo adecuado</td>
-                <td class="iv-warn">Demasiado breve</td>
-                <td class="iv-bad">Demasiado extenso</td>
+                <td>Tiempo adecuado</td>
+                <td>Demasiado breve</td>
+                <td>Demasiado extenso</td>
               </tr>
             </table>
             <div class="iv-legend">
@@ -677,7 +680,7 @@ function componentInterpretation(key,p){
         const c=compData(res,compKey);
         const div=document.createElement('div'); div.className='bar';
         const cls=prefClass(c.pct);
-div.innerHTML=`<div class="head"><span>${escapeHtml(COMPONENT_LABELS[compKey] || c.label)}</span><span>${pct(c.pct)} · ${escapeHtml(prefLabel(c.pct))}</span></div><div class="track"><div class="fill ${cls}" style="width:${clamp(pct(c.pct),0,100)}%"></div></div>`;
+div.innerHTML=`<div class="head"><span>${escapeHtml(COMPONENT_LABELS[compKey] || c.label)}</span><span class="pref-txt ${cls}">${pct(c.pct)} · ${escapeHtml(prefLabel(c.pct))}</span></div><div class="track"><div class="fill ${cls}" style="width:${clamp(pct(c.pct),0,100)}%"></div></div>`;
         wrap.appendChild(div);
       });
       box.appendChild(wrap);
