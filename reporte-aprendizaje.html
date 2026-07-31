@@ -170,7 +170,7 @@
     @media print{
       @page{size:A4; margin:4mm 8mm 6mm 8mm}
       body{zoom:0.925;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-      .ingreso-panel,.hint,#btnImprimir,#btnPDF{display:none !important}
+      .ingreso-panel,.hint,#btnImprimir,#btnPDF,#btnOtroCodigo{display:none !important}
       .wrap{max-width:none;margin:0 auto;padding:0 6px}
       .page{break-inside:auto;margin-top:0;padding-top:0}
       .page-break{display:none !important;height:0;page-break-before:auto;break-before:auto}
@@ -332,8 +332,9 @@
         <div class="section-title"><span class="section-dot"></span><span>Perfil por componentes</span></div>
         <div id="componentesBox"></div>
 
-        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
+          <button type="button" id="btnOtroCodigo" class="btn" style="background:#64748b">Buscar otro código</button>
         </div>
       </section>
 
@@ -816,24 +817,40 @@ function contextSuggestions(res, esPro){
     buildStrategies(resultados);
     buildContexts(resultados, esProfesional);
     document.getElementById('reporteContainer').style.display='block';
+    const ingreso=document.querySelector('.ingreso-panel');
+    if(ingreso) ingreso.style.display='none';
   }
 
   async function cargarReporte(codigo){
     document.getElementById('msg').textContent='Buscando...';
     document.getElementById('msg').className='msg';
     document.getElementById('reporteContainer').style.display='none';
+    const ingreso=document.querySelector('.ingreso-panel');
+    if(ingreso) ingreso.style.display='';
     try{
       const r=await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
       const data=await r.json();
       if(!r.ok || data.error){ document.getElementById('msg').textContent=data.error || 'No encontrado'; document.getElementById('msg').className='msg err'; return; }
       if(!data || !data.attempt){ document.getElementById('msg').textContent='No se encontró un intento registrado para este código.'; document.getElementById('msg').className='msg err'; return; }
       if(data.puede_ver_resultado !== true){ document.getElementById('msg').textContent='Este código no está habilitado para ver su reporte. Contacta a la coordinación.'; document.getElementById('msg').className='msg err'; return; }
-      document.getElementById('msg').textContent='Reporte cargado.'; document.getElementById('msg').className='msg ok';
+      document.getElementById('msg').textContent='';
+      document.getElementById('msg').className='msg';
       renderAll(data); window.scrollTo({top:0,behavior:'smooth'});
     }catch(e){ console.error(e); document.getElementById('msg').textContent='Error de conexión'; document.getElementById('msg').className='msg err'; }
   }
 
   document.getElementById('btnVer').addEventListener('click',()=>{ const c=document.getElementById('codigoInput').value.trim().toUpperCase(); if(c) cargarReporte(c); });
+  function mostrarBusquedaCodigo(){
+    const ingreso=document.querySelector('.ingreso-panel');
+    if(ingreso) ingreso.style.display='';
+    document.getElementById('reporteContainer').style.display='none';
+    document.getElementById('msg').textContent='';
+    document.getElementById('msg').className='msg';
+    const input=document.getElementById('codigoInput');
+    if(input){ input.focus(); input.select(); }
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.getElementById('btnOtroCodigo').addEventListener('click', mostrarBusquedaCodigo);
   function imprimirAprendizaje(){
     refreshCurveMarkerForPrint();
     requestAnimationFrame(()=>{
@@ -842,7 +859,8 @@ function contextSuggestions(res, esPro){
     });
   }
   document.getElementById('btnImprimir').addEventListener('click', imprimirAprendizaje);
-  document.getElementById('btnPDF').addEventListener('click', imprimirAprendizaje);
+  const btnPdf=document.getElementById('btnPDF');
+  if(btnPdf) btnPdf.addEventListener('click', imprimirAprendizaje);
   window.addEventListener('beforeprint', refreshCurveMarkerForPrint);
   window.addEventListener('resize', refreshCurveMarkerForPrint);
   (function init(){
