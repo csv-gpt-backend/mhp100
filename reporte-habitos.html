@@ -57,7 +57,9 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
 .track{position:relative;height:18px;border-radius:999px;background:linear-gradient(90deg,#fee2e2 0 50%, #fef3c7 50% 80%, #dcfce7 80% 100%);border:1px solid #e5e7eb}
 .fill{position:absolute;left:0;top:0;bottom:0;background:rgba(29,78,216,.18);border-radius:999px}.dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:#1d4ed8;border:2px solid #fff;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(29,78,216,.35)}
 .scale{display:flex;justify-content:space-between;font-size:10px;color:#64748b;font-weight:700;margin-top:4px}
-.micro{display:grid;grid-template-columns:1fr 1fr;gap:8px}.m{border:1px solid #e7edf4;border-radius:10px;background:#fcfdff;padding:8px}.m b{display:block;font-size:12px;margin-bottom:3px}.m p{margin:0;font-size:11px;color:#475569;line-height:1.25}
+.micro{display:grid;grid-template-columns:1fr 1fr;gap:8px}.m{border:1px solid #e7edf4;border-radius:10px;background:#fcfdff;padding:8px}.m .m-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;flex-wrap:wrap}.m .m-head b{display:inline;font-size:12px;margin:0}.m .m-head .badge{font-size:10px;padding:2px 8px}.m p{margin:0;font-size:11px;color:#475569;line-height:1.25}
+.bh .badge{font-size:11px;padding:2px 8px;font-weight:800}
+.micro-note{font-size:11px;color:#64748b;margin:0 0 8px;line-height:1.35}
 .note{text-align:center;font-size:11px;color:#64748b;margin-top:6px}
 .part2top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid var(--line);padding-bottom:6px}
 .part2top h3{margin:0;font-size:18px}
@@ -73,7 +75,7 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
   @page{size:A4;margin:8mm}
   body{background:#fff;zoom:0.92;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .wrap{max-width:none;margin:0;padding:0}
-  .ingreso-panel,.hint,#msg,#btnImprimir,#btnPDF{display:none !important}
+  .ingreso-panel,.hint,#msg,#btnImprimir,#btnPDF,#btnOtroCodigo{display:none !important}
   .sheet{display:block !important;border:0;box-shadow:none;border-radius:0;margin:0 !important;padding:5mm 6mm;margin-bottom:0 !important}
   /* Un solo salto: al inicio de Parte 2 (evita hoja en blanco tras la principal) */
   .sheet + .sheet{page-break-before:auto;break-before:auto}
@@ -237,11 +239,16 @@ h1{margin-top:14px !important;}
       </div>
     </div>
     <div class="card bars"><div class="h3">Índices por hábito</div><div id="bars"></div></div>
-    <div class="card"><div class="h3">Referencia breve de habilidades</div><div class="micro" id="micro"></div></div>
+    <div class="card">
+      <div class="h3">Referencia breve de habilidades</div>
+      <p class="micro-note">Cada texto se elige automáticamente según el rango del hábito (Bajo / Promedio / Alto), igual que los colores de las barras.</p>
+      <div class="micro" id="micro"></div>
+    </div>
   </div>
   <div class="note">Síntesis visual del Índice General de Hábitos (IGH) y de los cuatro hábitos evaluados.</div>
-  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
     <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
+    <button type="button" id="btnOtroCodigo" class="btn" style="background:#64748b;color:#fff">Buscar otro código</button>
   </div>
 </section>
 
@@ -645,17 +652,17 @@ function render(data){
   $("qPerfil").textContent=`${rl} (${igh})`; $("qAlto").textContent=`${dn(alto.name)} (${alto.pct})`; $("qBajo").textContent=`${dn(bajo.name)} (${bajo.pct})`;
 
   $("bars").innerHTML=factores.map(f=>{
-    const [lab]=rango(f.pct);
-    return `<div class="bar"><div class="bh"><span>${dn(f.name).toUpperCase()}</span><span>${f.pct} · ${lab}</span></div><div class="track"><div class="fill" style="width:${f.pct}%"></div><div class="dot" style="left:${f.pct}%"></div></div><div class="scale"><span>BAJO</span><span>PROMEDIO</span><span>ALTO</span></div></div>`;
+    const [lab,cls]=rango(f.pct);
+    return `<div class="bar"><div class="bh"><span>${dn(f.name).toUpperCase()}</span><span class="badge ${cls}">${f.pct} · ${lab}</span></div><div class="track"><div class="fill" style="width:${f.pct}%"></div><div class="dot" style="left:${f.pct}%"></div></div><div class="scale"><span>BAJO</span><span>PROMEDIO</span><span>ALTO</span></div></div>`;
   }).join("");
 
   $("micro").innerHTML=ORDER.map(name=>{
     const f = factores.find(x=>x.name===name);
     const pct = f ? f.pct : 0;
-    const [lab] = rango(pct);
+    const [lab,cls] = rango(pct);
     const t = TEXTS[name];
     const txt = (lab==="BAJO" ? t.p1.bajo : (lab==="ALTO" ? t.p1.alto : t.p1.prom));
-    return `<div class="m"><b>${dn(name)}</b><p>${txt}</p></div>`;
+    return `<div class="m"><div class="m-head"><b>${dn(name)}</b><span class="badge ${cls}">${lab}</span></div><p>${txt}</p></div>`;
   }).join("");
 
   
@@ -666,23 +673,44 @@ function render(data){
 
   setCurveMarker(igh);
   $("p1").style.display="block"; $("p2").style.display="block";
+  const ingreso=document.querySelector(".ingreso-panel");
+  if(ingreso) ingreso.style.display="none";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function mostrarBusquedaCodigo(){
+  const ingreso=document.querySelector(".ingreso-panel");
+  if(ingreso) ingreso.style.display="";
+  $("p1").style.display="none";
+  $("p2").style.display="none";
+  $("msg").textContent="";
+  $("msg").className="msg";
+  const input=$("codigo");
+  if(input){ input.focus(); input.select(); }
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 async function cargar(){
   const c=($("codigo").value||"").trim().toUpperCase(); if(!c) return;
   $("msg").textContent="Buscando...";
+  $("msg").className="msg";
+  const ingreso=document.querySelector(".ingreso-panel");
+  if(ingreso) ingreso.style.display="";
+  $("p1").style.display="none";
+  $("p2").style.display="none";
   try{$("ver").disabled=true; $("ver").style.opacity="0.6"; $("ver").style.cursor="not-allowed";}catch(_e){}
   try{
     const r=await fetch(`/api/report?codigo=${encodeURIComponent(c)}`); const data=await r.json();
     if(!r.ok || data?.error){ $("msg").textContent=data?.error||"No encontrado"; $("msg").className="msg err";
   try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){} return; }
     const hasRes = (j(data?.attempt?.resultados)||data?.attempt?.resultados);
-    if(!hasRes){ $("msg").textContent="Este código no tiene resultados guardados."; $("msg").className="msg err"; return; }
+    if(!hasRes){ $("msg").textContent="Este código no tiene resultados guardados."; $("msg").className="msg err"; try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){} return; }
+    $("msg").textContent="";
+    $("msg").className="msg";
     render(data);
-$("msg").textContent="Reporte cargado."; $("msg").className="msg ok";
   try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){}
-  }catch(e){ console.error(e); $("msg").textContent="Error de conexión"; $("msg").className="msg err"; }
+  }catch(e){ console.error(e); $("msg").textContent="Error de conexión"; $("msg").className="msg err"; try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){} }
 }
 $("ver").onclick=cargar;
+const btnOtro=$("btnOtroCodigo"); if(btnOtro) btnOtro.onclick=mostrarBusquedaCodigo;
 function imprimirHabitos(){
   refreshCurveMarkerForPrint();
   requestAnimationFrame(()=>{
