@@ -36,36 +36,39 @@
     .rep-top-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px;margin-bottom:6px}
     .rep-date{justify-self:flex-start}.rep-top-center{text-align:center;font-weight:700;text-transform:uppercase}.rep-top-logo{justify-self:flex-end}
     .mhp-logo{height:170px;margin-left:12px;margin-top:-4px;object-fit:contain}
-    /* Solo página 1: logo al lado de los títulos (no en la franja de fecha). */
+    /* Solo página 1: logo al lado de títulos, centrados en la hoja (no descuadrados). */
     #page1{margin-top:0}
-    #page1 .mhp-logo{height:68px;margin-left:8px;margin-top:0}
+    #page1 .mhp-logo{height:64px;margin-left:0;margin-top:0;max-width:72px}
     #page1 .rep-top{padding-bottom:2px;margin-bottom:4px}
     #page1 .rep-top-row1{
-      display:flex;
-      justify-content:space-between;
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
       align-items:baseline;
-      gap:8px;
-      margin-bottom:2px;
+      margin-bottom:4px;
     }
-    #page1 .rep-top-row1 .rep-top-center{flex:1;text-align:center}
+    #page1 .rep-top-row1 .rep-date{justify-self:start}
+    #page1 .rep-top-row1 .rep-top-center{justify-self:center;text-align:center}
     #page1 .rep-top-titles-logo{
       display:grid;
-      grid-template-columns:1fr auto;
+      grid-template-columns:72px 1fr 72px;
       align-items:center;
-      gap:10px;
+      column-gap:8px;
     }
+    #page1 .rep-top-logo-spacer{width:72px;height:1px}
+    #page1 .rep-top-titles{grid-column:2;text-align:center}
     #page1 .rep-top-titles-logo .rep-top-row2{
       justify-content:center;
       margin-bottom:0;
-      font-size:24px;
+      font-size:20px;
       line-height:1.15;
     }
     #page1 .rep-top-titles-logo .rep-top-row3{
       text-align:center;
       line-height:1.2;
       margin-top:2px;
+      font-size:16px;
     }
-    #page1 .rep-top-titles-logo .rep-top-logo{justify-self:end}
+    #page1 .rep-top-titles-logo .rep-top-logo{grid-column:3;justify-self:end}
     .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase}
     .rep-top-row3{text-align:center;font-size:18px;font-weight:800}
     .rep-ids{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;border:1px solid var(--line);padding:8px;border-radius:12px;background:#fff}
@@ -133,6 +136,27 @@
     .fill.pref-high{background:linear-gradient(90deg,#d7dce3,#737d8b)}
     .comp-group{border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:10px;background:#fff}
     .comp-group h3{margin:0 0 8px 0;font-size:16px}
+    /* Página 1: componentes separados por línea, sin tantos cuadros */
+    #page1 .comp-group{
+      border:none;
+      border-radius:0;
+      border-top:1px solid var(--line);
+      padding:10px 0 2px;
+      margin-top:8px;
+      background:transparent;
+    }
+    #page1 .comp-group:first-child{border-top:none;margin-top:0;padding-top:0}
+    .reporte-fin-informe{
+      margin:22px 0 8px;
+      padding-top:12px;
+      border-top:1px solid var(--line);
+      text-align:center;
+      font-weight:800;
+      font-size:14px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#1e3a8a;
+    }
     .interp-box,.recom-box,.ctx-box{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;margin-top:10px}
     .interp-box h3,.recom-box h3,.ctx-box h3{margin:0 0 8px 0;font-size:17px}
     .subblock{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
@@ -193,6 +217,7 @@
             <div class="rep-top-center">Informe individual de preferencias de aprendizaje</div>
           </div>
           <div class="rep-top-titles-logo">
+            <div class="rep-top-logo-spacer" aria-hidden="true"></div>
             <div class="rep-top-titles">
               <div class="rep-top-row2"><span>Preferencias de aprendizaje</span></div>
               <div class="rep-top-row3">Resumen general</div>
@@ -340,6 +365,7 @@
           <div id="contextosBox"></div>
         </div>
 
+        <p class="reporte-fin-informe">FIN DEL INFORME</p>
         <p class="reporte-pie-adalam" id="reportePieAdalam">Adalam — Informe De Preferencias De Aprendizaje.</p>
         <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
           <button type="button" id="btnPDF" class="btn" style="background:#2563eb">Imprimir / PDF</button>
@@ -629,7 +655,7 @@ function componentInterpretation(key,p){
       const a=areaData(res,k);
       const card=document.createElement('div'); card.className='area-card';
       const cls=prefClass(a.pct);
-      card.innerHTML=`<h3>${escapeHtml(a.label)}</h3><div class="badge ${cls}">${prefLabel(a.pct)}</div><div class="bar"><div class="head"><span>Índice</span><span>${pct(a.pct)}</span></div><div class="track"><div class="fill ${cls}" style="width:${clamp(pct(a.pct),0,100)}%"></div></div></div><div class="muted" style="font-size:12px">Promedio del área: ${Number(a.raw||0).toFixed(1)}</div>`;
+      card.innerHTML=`<h3>${escapeHtml(a.label)}</h3><div class="badge ${cls}">${prefLabel(a.pct)}</div><div class="bar"><div class="head"><span>Índice</span><span>${pct(a.pct)}</span></div><div class="track"><div class="fill ${cls}" style="width:${clamp(pct(a.pct),0,100)}%"></div></div></div>`;
       grid.appendChild(card);
     });
   }
