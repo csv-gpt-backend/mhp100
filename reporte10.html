@@ -33,7 +33,7 @@
     .rep-date{justify-self:flex-start;}
     .rep-top-center{text-align:center;font-weight:700;text-transform:uppercase;}
     .rep-top-logo{justify-self:flex-end;}
-    .mhp-logo{height:200px;margin-left:12px;margin-top:-4px;object-fit:contain;}
+    .mhp-logo{height:170px;margin-left:12px;margin-top:-4px;object-fit:contain;}
     .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase;}
     .rep-top-row3{text-align:center;font-size:18px;font-weight:800;}
 
@@ -45,40 +45,31 @@
     .page{margin-top:10px}
     .page-break{height:0;margin:0;border:0}
     @media print{
-      @page{ size:A4; margin:8mm 8mm }
-      .topbar,.hint,.intro-logo-wrap,.ingreso-titulo{display:none !important}
+      @page{ size:A4; margin:5mm 8mm }
+      .topbar,.hint,.intro-logo-wrap,.ingreso-titulo,.ingreso-panel,#btnImprimir,#btnPDF{display:none !important}
       body{zoom:0.92;}
       .wrap{max-width:none;margin:0 auto;padding:0 6px}
       .page{margin-top:0;break-inside:auto}
       .page-break{page-break-before:always}
-      /* Mantener la PARTE 1 en una sola hoja */
+      /* Mantener la PARTE 1 en una sola hoja — compactación solo vertical */
       #page1{zoom:0.90;}
       #tituloCurvaFrecuencias{font-size:12px !important;white-space:nowrap;letter-spacing:0}
-      .rep-top{margin-bottom:4px;padding-bottom:4px}
-      .rep-ids{margin-top:4px !important}
-      .rep-mid{margin-top:4px !important}
-      .mhp-logo{height:130px !important;margin-top:0 !important}
+      .rep-top{margin-bottom:2px;padding-bottom:2px}
+      .rep-ids{margin-top:2px !important}
+      .rep-mid{margin-top:2px !important}
+      .mhp-logo{height:105px !important;margin-top:-8px !important}
       .rep-top-row2{font-size:22px !important;margin-bottom:0 !important}
       .rep-top-row3{font-size:16px !important}
-      .bloque-title{margin:8px 0 4px !important}
-      .scale-section{margin-top:8px !important}
-      /* Compactación para confirmar que la Página 1 quede completa */
+      .bloque-title{margin:5px 0 2px !important}
+      .scale-section{margin-top:5px !important}
       #page1{page-break-after:always; break-after:page;}
       #page1 *{break-inside:avoid;}
-      .rep-top{padding-bottom:4px;margin-bottom:4px}
-      .rep-top-row2{font-size:22px;margin-bottom:0}
-      .rep-top-row3{font-size:16px}
-      .mhp-logo{height:140px;margin-top:-14px}
-      #repHeaderBox{padding:4px !important}
-      .rep-mid{margin-top:6px !important}
-      .bloque-title{margin:8px 0 4px}
-      .iie-row{margin:8px 0 4px}
-      .scale-section{margin-top:8px}
-      .bars-row{margin:6px 0}
+      #repHeaderBox{padding:3px !important}
+      .iie-row{margin:5px 0 2px}
+      .bars-row{margin:4px 0}
       .bars-slot{height:18px}
       .bars-slot .tick-label{top:15px}
-      .scale-note-inline{margin-top:2px}
-
+      .scale-note-inline{margin-top:1px}
     }
 
 
@@ -200,16 +191,18 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="intro-logo-wrap">
-    <img src="assets/logo_adalam.webp" alt="Sello Adalam" class="intro-logo" width="248" height="99"/>
+  <div id="ingresoPanel" class="ingreso-panel">
+    <div class="intro-logo-wrap">
+      <img src="assets/logo_adalam.webp" alt="Sello Adalam" class="intro-logo" width="248" height="99"/>
+    </div>
+    <h1 class="ingreso-titulo">Reporte evaluación socioemocional</h1>
+    <div class="topbar">
+      <input id="codigoInput" placeholder="Código del intento (ej. COD001)" maxlength="32"/>
+      <button type="button" class="btn" id="btnVer">Ver reporte</button>
+      <span id="msg" class="msg"></span>
+    </div>
+    <div class="hint ingreso-usuario">Ingrese un <strong>código válido</strong>, el mismo que <strong>utilizó</strong> para realizar la Evaluación Socioemocional.</div>
   </div>
-  <h1 class="ingreso-titulo">Reporte evaluación socioemocional</h1>
-  <div class="topbar">
-    <input id="codigoInput" placeholder="Código del intento (ej. COD001)" maxlength="32"/>
-    <button type="button" class="btn" id="btnVer">Ver reporte</button>
-    <span id="msg" class="msg"></span>
-  </div>
-  <div class="hint ingreso-usuario">Ingrese un <strong>código válido</strong>, el mismo que <strong>utilizó</strong> para realizar la Evaluación Socioemocional.</div>
 
   <div id="reporteContainer" style="display:none">
     <!-- ===== PAGE 1 ===== -->
@@ -2716,12 +2709,16 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
     });
 
     document.getElementById("reporteContainer").style.display="block";
+    const ingreso = document.getElementById("ingresoPanel");
+    if (ingreso) ingreso.style.display = "none";
   }
 
   async function cargarReporte(codigo){
     document.getElementById("msg").textContent = "Buscando...";
     document.getElementById("msg").className = "msg";
     document.getElementById("reporteContainer").style.display = "none";
+    const ingreso = document.getElementById("ingresoPanel");
+    if (ingreso) ingreso.style.display = "";
     try{
       const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
       const data = await r.json();
@@ -2740,8 +2737,6 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
         document.getElementById("msg").className = "msg err";
         return;
       }
-      document.getElementById("msg").textContent = "Reporte cargado.";
-      document.getElementById("msg").className = "msg ok";
       renderAll(data);
       window.scrollTo({top:0,behavior:"smooth"});
     }catch(e){
