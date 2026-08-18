@@ -1,4 +1,9 @@
 const { sql } = require("@vercel/postgres");
+const {
+  resolveEvalKey,
+  validateCodigoEval,
+  mismatchErrorMessage,
+} = require("./eval-codigo");
 
 module.exports = async function handler(req, res) {
   try {
@@ -8,12 +13,12 @@ module.exports = async function handler(req, res) {
 
     const codigoRaw = (req.query.codigo || "").trim();
     const codigo = codigoRaw.toUpperCase();
+    const evalEsperada = req.query.eval || req.query.evaluacion || "";
 
     if (!codigo) {
       return res.status(400).json({ error: "Falta el código" });
     }
 
-    // 1) Buscar participante por código (case-insensitive)
     const pRes = await sql`
       SELECT *
       FROM participants
@@ -22,45 +27,54 @@ module.exports = async function handler(req, res) {
     `;
 
     if (!pRes.rows.length) {
-      // No existe el código en la tabla de participantes
       return res.status(404).json({ error: "Código no encontrado" });
     }
 
     const participante = pRes.rows[0];
+    const evalKey = resolveEvalKey(codigo, participante);
 
-    // 2) Contar intentos registrados para este código
+    if (evalEsperada) {
+      const check = validateCodigoEval(codigo, evalEsperada, participante);
+      if (!check.ok) {
+        return res.status(403).json({
+          error: mismatchErrorMessage(check),
+          eval_mismatch: true,
+          eval_codigo: check.eval_codigo,
+          eval_esperada: check.eval_esperada,
+          eval_label_codigo: check.eval_label_codigo,
+          eval_label_esperada: check.eval_label_esperada,
+        });
+      }
+    }
+
     const aRes = await sql`
       SELECT COUNT(*)::int AS n
       FROM attempts
       WHERE UPPER(codigo) = UPPER(${codigo})
     `;
     const intentosUsados = aRes.rows[0]?.n || 0;
-    const intentosMax = 1; // un intento por código
+    const intentosMax = 1;
 
     const usado = intentosUsados >= intentosMax;
     const disponible = !usado;
     const estado = usado ? "completado" : "activo";
 
-    // 3) Respuesta en formato plano para el frontend de evaluacion.html
     return res.status(200).json({
-      // datos básicos que ya usas
       codigo: participante.codigo,
       nombre: participante.nombre,
       institucion: participante.institucion,
       grupo: participante.grupo,
       curso: participante.curso,
-
-      // este campo ya lo usas en el reporte
       puede_ver_resultado: participante.puede_ver_resultado,
+      eval_key: evalKey || null,
+      evaluacion: evalKey || null,
 
-      // campos para la lógica de "código usado" en el frontend
       intentos_max: intentosMax,
       intentos_usados: intentosUsados,
-      usado,          // true / false
-      disponible,     // true / false
-      estado          // "activo" o "completado"
+      usado,
+      disponible,
+      estado,
     });
-
   } catch (e) {
     console.error("lookup error", e);
     return res.status(500).json({ error: "Error interno" });

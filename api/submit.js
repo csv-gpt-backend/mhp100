@@ -1,4 +1,5 @@
 const { sql } = require("@vercel/postgres");
+const { validateCodigoEval, mismatchErrorMessage } = require("./eval-codigo");
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
@@ -14,19 +15,42 @@ module.exports = async function handler(req, res) {
     }
 
     const codigo = String(codigoRaw).trim().toUpperCase();
-
     const snapshot = body.snapshot || {};
+    const evalEsperada =
+      body.evaluacion || body.eval || snapshot.evaluacion || snapshot.eval || "";
+
+    const pRes = await sql`
+      SELECT *
+      FROM participants
+      WHERE UPPER(codigo) = UPPER(${codigo})
+      LIMIT 1
+    `;
+
+    if (!pRes.rows.length) {
+      return res.status(404).json({ error: "Código no encontrado" });
+    }
+
+    if (evalEsperada) {
+      const check = validateCodigoEval(codigo, evalEsperada, pRes.rows[0]);
+      if (!check.ok) {
+        return res.status(403).json({
+          error: mismatchErrorMessage(check),
+          eval_mismatch: true,
+          eval_codigo: check.eval_codigo,
+          eval_esperada: check.eval_esperada,
+        });
+      }
+    }
+
     const resultados = body.resultados || {};
     const responses = body.responses || null;
 
-    // --- snapshot ---
     const nombre = snapshot.nombre || null;
     const edad = snapshot.edad_anios ?? null;
     const institucion = snapshot.institucion || null;
     const grupo = snapshot.grupo || null;
     const curso = snapshot.curso || null;
 
-    // --- globales / bloques desde resultados ---
     const g = resultados.globales || {};
     const b = resultados.bloques || {};
 

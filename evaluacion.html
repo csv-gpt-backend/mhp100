@@ -632,6 +632,7 @@ font-size: 13px;
 
     let __startTime = Date.now();
 
+    const EVAL_PRODUCT_KEY = "SOCIOE";
     let CODIGO_ACTUAL = null;
     const STORAGE_PREFIX = "eval_ie_state_";
 
@@ -784,7 +785,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
         return;
       }
       try {
-        const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}`);
+        const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}&eval=${encodeURIComponent(EVAL_PRODUCT_KEY)}`);
         const data = await r.json();
         if (!r.ok) throw new Error(data.error || 'Código no válido');
 
@@ -1415,6 +1416,7 @@ actualizarLabelCurso(codigoInput.value);
 
       const payload = {
         codigo: CODIGO_ACTUAL,
+        evaluacion: EVAL_PRODUCT_KEY,
         snapshot: {
           nombre,
           institucion: document.getElementById("institucion").value,

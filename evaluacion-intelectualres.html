@@ -1475,7 +1475,8 @@
   })();
 
   let __startTime = Date.now();
-  let CODIGO_ACTUAL = null;
+  const EVAL_PRODUCT_KEY = "INTELC";
+    let CODIGO_ACTUAL = null;
   const STORAGE_PREFIX = "eval_chc_state_";
 
   const codigoInput = document.getElementById("codigo");
@@ -1647,7 +1648,7 @@
       return;
     }
     try {
-      const r = await fetch("/api/lookup?codigo=" + encodeURIComponent(codigo));
+      const r = await fetch("/api/lookup?codigo=" + encodeURIComponent(codigo) + "&eval=" + encodeURIComponent(EVAL_PRODUCT_KEY));
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || "Código no válido");
 
@@ -1696,7 +1697,7 @@
       instInput.value = grupoInput.value = cursoInput.value = "";
       CODIGO_ACTUAL = null;
       if (codigoMsg) {
-        codigoMsg.textContent = "Código no encontrado.";
+        codigoMsg.textContent = (e && e.message) ? e.message : "Código no encontrado.";
         codigoMsg.className = "err";
       }
     }
@@ -3796,6 +3797,7 @@
     const resultados = buildResultados();
     const payload = {
       codigo: CODIGO_ACTUAL,
+        evaluacion: EVAL_PRODUCT_KEY,
       snapshot: {
         nombre: nombre,
         institucion: document.getElementById("institucion").value,

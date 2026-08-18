@@ -76,8 +76,11 @@ function errorColumna(msg) {
   if (/periodo/i.test(msg)) {
     return "Falta la columna periodo en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT;";
   }
+  if (/evaluacion/i.test(msg)) {
+    return "Falta la columna evaluacion en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS evaluacion VARCHAR(8);";
+  }
   if (/column/i.test(msg)) {
-    return "Falta una columna en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT; ALTER TABLE participants ADD COLUMN IF NOT EXISTS lote TEXT;";
+    return "Falta una columna en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT; ALTER TABLE participants ADD COLUMN IF NOT EXISTS lote TEXT; ALTER TABLE participants ADD COLUMN IF NOT EXISTS evaluacion VARCHAR(8);";
   }
   return null;
 }
@@ -140,7 +143,7 @@ module.exports = async function handler(req, res) {
         const codigo = await generarCodigoUnico(ambito, evaluacion);
         await sql`
           INSERT INTO participants (
-            codigo, nombre, institucion, grupo, curso, puede_ver_resultado, periodo, lote
+            codigo, nombre, institucion, grupo, curso, puede_ver_resultado, periodo, lote, evaluacion
           )
           VALUES (
             ${codigo},
@@ -150,7 +153,8 @@ module.exports = async function handler(req, res) {
             ${curso},
             ${puedeVer},
             ${periodo},
-            ${lote}
+            ${lote},
+            ${evaluacion}
           )
         `;
         creados.push(codigo);
