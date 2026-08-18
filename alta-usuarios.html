@@ -120,6 +120,13 @@
             <option value="VOCACI">VOCACI — Vocacional</option>
           </select>
         </div>
+        <div>
+          <label for="idioma">Idioma del código</label>
+          <select id="idioma">
+            <option value="ES">ES — Español (portal actual)</option>
+            <option value="EN">EN — English (portal inglés)</option>
+          </select>
+        </div>
 
         <div>
           <label for="institucionSel">Institución</label>
@@ -196,6 +203,7 @@
         <code>ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT;</code>
         <code>ALTER TABLE participants ADD COLUMN IF NOT EXISTS lote TEXT;</code>
         <code>ALTER TABLE participants ADD COLUMN IF NOT EXISTS evaluacion VARCHAR(8);</code>
+        <code>ALTER TABLE participants ADD COLUMN IF NOT EXISTS idioma VARCHAR(2) DEFAULT 'ES';</code>
       </p>
     </section>
 
@@ -225,7 +233,7 @@
     if (!ULTIMOS.length || !ULTIMA_FICHA) return;
     const f = ULTIMA_FICHA;
     const lines = [
-      ["codigo","lote","ambito","evaluacion","institucion","pais","curso","periodo","puede_ver_resultado"].join(";")
+      ["codigo","lote","ambito","evaluacion","idioma","institucion","pais","curso","periodo","puede_ver_resultado"].join(";")
     ];
     ULTIMOS.forEach(codigo=>{
       lines.push([
@@ -233,6 +241,7 @@
         csvCell(f.lote),
         csvCell(f.ambito),
         csvCell(f.evaluacion),
+        csvCell(f.idioma || "ES"),
         csvCell(f.institucion),
         csvCell(f.pais),
         csvCell(f.curso),
@@ -314,6 +323,7 @@
     return JSON.stringify({
       ambito: document.getElementById("ambito").value,
       evaluacion: document.getElementById("evaluacion").value,
+      idioma: document.getElementById("idioma").value,
       institucion: valorCampo("institucionSel", "institucionNuevo"),
       pais: valorCampo("paisSel", "paisNuevo"),
       curso: valorCampo("cursoSel", "cursoNuevo"),
@@ -350,7 +360,9 @@
     document.getElementById("preview").textContent =
       "Vista previa: " +
       document.getElementById("ambito").value + "-" +
-      document.getElementById("evaluacion").value + "-XXXX";
+      document.getElementById("evaluacion").value +
+      (document.getElementById("idioma").value === "EN" ? "-EN" : "") +
+      "-XXXX";
   }
 
   function pintarCatalogo(){
@@ -395,6 +407,7 @@
     const payload = {
       ambito: document.getElementById("ambito").value,
       evaluacion: document.getElementById("evaluacion").value,
+      idioma: document.getElementById("idioma").value,
       institucion: valorCampo("institucionSel", "institucionNuevo"),
       pais: valorCampo("paisSel", "paisNuevo"),
       curso: valorCampo("cursoSel", "cursoNuevo"),
@@ -421,7 +434,7 @@
 
     const ok = window.confirm(
       "¿Generar " + payload.cantidad + " código(s)?\n\n" +
-      payload.ambito + "-" + payload.evaluacion + "-…\n" +
+      payload.ambito + "-" + payload.evaluacion + (payload.idioma === "EN" ? "-EN" : "") + "-…\n" +
       payload.institucion + " · " + payload.pais + " · " + payload.curso + " · " + payload.periodo
     );
     if (!ok) return;
@@ -478,7 +491,7 @@
     }
   }
 
-  ["ambito","evaluacion"].forEach(id=>{
+  ["ambito","evaluacion","idioma"].forEach(id=>{
     document.getElementById(id).addEventListener("change", ()=>{
       actualizarPreview();
       revisarDesbloqueoGenerar();

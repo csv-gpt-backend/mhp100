@@ -1,8 +1,12 @@
 const { sql } = require("@vercel/postgres");
 const {
   resolveEvalKey,
+  resolveIdioma,
   validateCodigoEval,
+  validateCodigoIdioma,
   mismatchErrorMessage,
+  idiomaMismatchMessage,
+  normalizeIdioma,
 } = require("./eval-codigo");
 
 module.exports = async function handler(req, res) {
@@ -14,9 +18,13 @@ module.exports = async function handler(req, res) {
     const codigoRaw = (req.query.codigo || "").trim();
     const codigo = codigoRaw.toUpperCase();
     const evalEsperada = req.query.eval || req.query.evaluacion || "";
+    const idiomaEsperado = req.query.idioma || req.query.lang || "";
+    const uiLang = normalizeIdioma(idiomaEsperado) || "ES";
 
     if (!codigo) {
-      return res.status(400).json({ error: "Falta el código" });
+      return res.status(400).json({
+        error: uiLang === "EN" ? "Missing code" : "Falta el código",
+      });
     }
 
     const pRes = await sql`
@@ -27,22 +35,37 @@ module.exports = async function handler(req, res) {
     `;
 
     if (!pRes.rows.length) {
-      return res.status(404).json({ error: "Código no encontrado" });
+      return res.status(404).json({
+        error: uiLang === "EN" ? "Code not found" : "Código no encontrado",
+      });
     }
 
     const participante = pRes.rows[0];
     const evalKey = resolveEvalKey(codigo, participante);
+    const idioma = resolveIdioma(codigo, participante);
 
     if (evalEsperada) {
       const check = validateCodigoEval(codigo, evalEsperada, participante);
       if (!check.ok) {
         return res.status(403).json({
-          error: mismatchErrorMessage(check),
+          error: mismatchErrorMessage(check, uiLang),
           eval_mismatch: true,
           eval_codigo: check.eval_codigo,
           eval_esperada: check.eval_esperada,
           eval_label_codigo: check.eval_label_codigo,
           eval_label_esperada: check.eval_label_esperada,
+        });
+      }
+    }
+
+    if (idiomaEsperado) {
+      const checkI = validateCodigoIdioma(codigo, idiomaEsperado, participante);
+      if (!checkI.ok) {
+        return res.status(403).json({
+          error: idiomaMismatchMessage(checkI, uiLang),
+          idioma_mismatch: true,
+          idioma_codigo: checkI.idioma_codigo,
+          idioma_esperada: checkI.idioma_esperada,
         });
       }
     }
@@ -68,6 +91,7 @@ module.exports = async function handler(req, res) {
       puede_ver_resultado: participante.puede_ver_resultado,
       eval_key: evalKey || null,
       evaluacion: evalKey || null,
+      idioma: idioma || "ES",
 
       intentos_max: intentosMax,
       intentos_usados: intentosUsados,

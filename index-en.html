@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ADALAM Assessments — English</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root{
+      --ink:#0f172a;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#16a34a;
+      --primary-dark:#15803d;
+      --accent:#2563eb;
+      --danger:#dc2626;
+      --bg:#ffffff;
+      --card:#ffffff;
+    }
+    *{box-sizing:border-box;}
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      min-height:100%;
+    }
+    body{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+    .page{
+      width:100%;
+      max-width:1100px;
+      padding:20px 16px 32px;
+    }
+
+    .brand-logo{
+      display:flex;
+      justify-content:center;
+      margin-bottom:8px;
+      margin-top:4px;
+    }
+    .brand-logo img{
+      max-width:320px;
+      height:auto;
+      display:block;
+      filter:drop-shadow(0 8px 22px rgba(15,23,42,0.28));
+    }
+
+    .header{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:18px;
+      margin-top:0;
+      justify-content:center;
+      text-align:center;
+    }
+    .header-text h1{
+      margin:0;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+    }
+    .header-text span{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:22px;
+      border:1px solid rgba(148,163,184,0.4);
+      box-shadow:0 24px 60px rgba(15,23,42,0.10);
+      padding:22px 22px 20px;
+      margin:0 auto;
+      max-width:960px;
+    }
+    .card-subtitle{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:14px;
+      max-width:720px;
+    }
+
+    .login-block{
+      border-radius:14px;
+      background:#f9fafb;
+      border:1px dashed var(--line);
+      padding:10px 12px 12px;
+      margin-bottom:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px 12px;
+      align-items:flex-start;
+    }
+    .login-left{
+      flex:1 1 210px;
+      min-width:0;
+    }
+    .login-right{
+      flex:0 0 200px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      align-items:stretch;
+    }
+    .login-label{
+      font-size:12px;
+      font-weight:600;
+      margin-bottom:3px;
+    }
+    .login-hint{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:3px;
+    }
+    input[type="password"]{
+      width:100%;
+      padding:7px 10px;
+      font-size:13px;
+      border-radius:999px;
+      border:1px solid #cbd5f5;
+      outline:none;
+      transition:border-color .15s, box-shadow .15s;
+    }
+    input[type="password"]:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(37,99,235,0.18);
+    }
+
+    .btn{
+      padding:8px 12px;
+      font-size:13px;
+      font-weight:700;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      background:var(--primary);
+      color:#fff;
+      box-shadow:0 10px 18px rgba(22,163,74,0.25);
+      transition:background .15s, transform .05s, box-shadow .1s;
+    }
+    .btn:hover{
+      background:var(--primary-dark);
+      transform:translateY(-1px);
+      box-shadow:0 14px 26px rgba(22,163,74,0.35);
+    }
+    .btn:active{
+      transform:translateY(0);
+      box-shadow:0 8px 16px rgba(22,163,74,0.22);
+    }
+    .btn-logout{
+      background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%);
+      color:#fff;
+      border:2px solid #b91c1c;
+      font-weight:800;
+      font-size:15px;
+      padding:11px 20px;
+      border-radius:999px;
+      box-shadow:0 8px 22px rgba(220,38,38,0.38);
+      letter-spacing:.02em;
+    }
+    .btn-logout:hover{
+      background:linear-gradient(180deg,#dc2626 0%,#b91c1c 100%);
+      transform:translateY(-2px);
+      box-shadow:0 12px 28px rgba(220,38,38,0.45);
+    }
+    .session-bar-top{
+      position:fixed;
+      top:14px;
+      right:14px;
+      z-index:200;
+      display:none;
+    }
+    .session-bar-bottom{
+      display:none;
+      max-width:960px;
+      margin:22px auto 10px;
+      padding:18px 16px;
+      text-align:center;
+      border-radius:16px;
+      background:linear-gradient(180deg,#fef2f2 0%,#ffffff 72%);
+      border:2px solid #fecaca;
+      box-shadow:0 10px 28px rgba(220,38,38,0.12);
+    }
+    .session-bar-bottom p{
+      margin:0 0 12px;
+      font-size:13px;
+      font-weight:700;
+      color:#991b1b;
+      line-height:1.4;
+    }
+    .reporte-build-stamp{
+      position:fixed;
+      left:10px;
+      bottom:10px;
+      z-index:199;
+      font-size:10px;
+      font-weight:600;
+      letter-spacing:.03em;
+      color:#94a3b8;
+      opacity:.72;
+      user-select:all;
+      pointer-events:none;
+    }
+
+    .msg{
+      font-size:12px;
+      min-height:16px;
+      margin-top:2px;
+    }
+    .msg.err{color:#dc2626;}
+    .msg.ok{color:#16a34a;}
+
+    .menu{
+      margin-top:10px;
+      display:none;
+    }
+    /* Bloques no incluidos en la clave: visibles pero no clicables */
+    .catalog-section.is-block-off{
+      opacity: 0.48;
+      filter: grayscale(0.45);
+      pointer-events: none;
+      user-select: none;
+      position: relative;
+    }
+    .catalog-section.is-block-off::after{
+      content: "Bloqueado";
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #64748b;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+    .catalog{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .catalog-section{
+      border-top:1px solid rgba(229,231,235,0.9);
+      padding-top:12px;
+      margin-top:6px;
+    }
+    .catalog-section:first-child{
+      border-top:none;
+      padding-top:0;
+      margin-top:0;
+    }
+    .catalog-title{
+      margin:0 0 10px;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+      color:#0b1220;
+    }
+
+    .menu-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+    }
+    @media (min-width:720px){
+      .menu-grid{
+        grid-template-columns:1fr 1fr;
+      }
+    }
+
+    .pane{
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#f9fafb;
+      padding:14px 14px 12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .pane h2{
+      margin:0;
+      font-size:14px;
+      font-weight:800;
+    }
+    .pane-tag{
+      display:inline-block;
+      margin-left:6px;
+      padding:1px 8px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:600;
+      background:#dcfce7;
+      color:#166534;
+      vertical-align:middle;
+    }
+    .pane-tag.alt{
+      background:#dbeafe;
+      color:#1d4ed8;
+    }
+    .pane-tag.gold{
+      background:#fef9c3;
+      color:#854d0e;
+    }
+    .pane p{
+      margin:6px 0 10px;
+      font-size:12px;
+      color:var(--muted);
+      max-width:520px;
+    }
+    .pane-button{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 14px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      font-size:13px;
+      font-weight:700;
+      background:#16a34a;
+      color:#fff;
+      text-decoration:none;
+      box-shadow:0 10px 20px rgba(22,163,74,0.30);
+      transition:background .15s, transform .05s, box-shadow .1s;
+    }
+    .pane-button:hover{
+      background:#15803d;
+      transform:translateY(-1px);
+      box-shadow:0 14px 26px rgba(22,163,74,0.35);
+    }
+    .pane-button:active{
+      transform:translateY(0);
+      box-shadow:0 8px 16px rgba(22,163,74,0.24);
+    }
+    .btn-secondary{
+      background:#2563eb;
+      box-shadow:0 10px 20px rgba(37,99,235,0.30);
+    }
+    .btn-secondary:hover{
+      background:#1d4ed8;
+      box-shadow:0 14px 26px rgba(37,99,235,0.35);
+    }
+    .pane-button span.icon{ font-size:14px; }
+
+    .footer{
+      text-align:center;
+      font-size:11px;
+      color:var(--muted);
+      margin-top:18px;
+    }
+
+    .tit-banner{
+      margin-bottom:16px;
+      padding:14px 16px;
+      border-radius:16px;
+      border:1px solid #bfdbfe;
+      background:linear-gradient(135deg,#eff6ff 0%,#f0fdf4 100%);
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .tit-banner-text{
+      flex:1 1 220px;
+      min-width:0;
+    }
+    .tit-banner-text strong{
+      display:block;
+      font-size:14px;
+      font-weight:800;
+      color:#0f172a;
+      margin-bottom:4px;
+    }
+    .tit-banner-text span{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+    .tit-banner-link{
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 16px;
+      border-radius:999px;
+      background:var(--accent);
+      color:#fff !important;
+      font-size:13px;
+      font-weight:800;
+      text-decoration:none;
+      box-shadow:0 8px 20px rgba(37,99,235,.22);
+    }
+    .tit-banner-link:hover{
+      background:#1d4ed8;
+      transform:translateY(-1px);
+    }
+  </style>
+</head>
+
+<body>
+  <span class="reporte-build-stamp" id="reporteBuildStamp" aria-hidden="true"></span>
+  <div class="session-bar-top" id="sessionBarTop">
+    <button class="btn btn-logout" id="btnSalir" type="button">Sign out</button>
+  </div>
+
+  <div class="page">
+
+    <div class="brand-logo">
+      <img src="assets/logo_adalam.webp" alt="ADALAM">
+    </div>
+
+    <header class="header">
+      <div class="header-text">
+        <h1>ADALAM ASSESSMENT PLATFORM</h1>
+        <span>English portal — take assessments and view individual reports</span>
+      </div>
+    </header>
+
+    <main class="card">
+      <section class="tit-banner" aria-label="Test de infraestructura tecnológica">
+        <div class="tit-banner-text">
+          <strong>Technology infrastructure test (TIT)</strong>
+          <span>Check from the school or center network how many simultaneous assessments your connection can support. Open access — portal password not required.</span>
+        </div>
+        <a href="test-infraestructura.html" class="tit-banner-link">
+          <span aria-hidden="true">📶</span>
+          <span>Start connection test</span>
+        </a>
+      </section>
+
+      <p id="introText" class="card-subtitle">
+        Enter the access password provided by the administrator.
+        After it is validated you can take an assessment or open an individual report.
+      </p>
+
+      <section id="loginBlock" class="login-block">
+        <div class="login-left">
+          <div class="login-label">Access password</div>
+          <input type="password" id="passInput" autocomplete="off" placeholder="••••••••">
+          <div id="msg" class="msg"></div>
+          <div class="login-hint">
+            Restricted access. <strong></strong> ENTER THE PROVIDED PASSWORD EXACTLY <strong>for example ADALAM13</strong> (If you forgot it, contact the site administrator).
+          </div>
+        </div>
+        <div class="login-right">
+          <button class="btn" id="btnEntrar">Validate password</button>
+        </div>
+      </section>
+
+      <section id="menu" class="menu">
+        <div class="catalog">
+
+          <section class="catalog-section" data-block="1">
+            <h2 class="catalog-title">SOCIAL-EMOTIONAL ASSESSMENT</h2>
+            <div class="menu-grid">
+              <article class="pane">
+                <h2>Assessment <span class="pane-tag">Participant</span></h2>
+                <p>English questionnaire coming next. The report in English is available now.</p>
+                <a href="#soon" class="pane-button">
+                  <span class="icon">▶</span>
+                  <span>Coming next</span>
+                </a>
+              </article>
+
+              <article class="pane">
+                <h2>View report <span class="pane-tag alt">Individual</span></h2>
+                <p>
+                  Enter the assessment code to view the individual social-emotional report in English.
+                </p>
+                <a href="reporte10-en.html" class="pane-button btn-secondary">
+                  <span class="icon">📊</span>
+                  <span>View report</span>
+                </a>
+              </article>
+            </div>
+          </section>
+
+          <section class="catalog-section" data-block="2">
+            <h2 class="catalog-title">VALUES AND INTEGRITY ASSESSMENT</h2>
+            <div class="menu-grid">
+              <article class="pane">
+                <h2>Assessment <span class="pane-tag gold">New</span></h2>
+                <p>English questionnaire coming next. The report in English is available now.</p>
+                <a href="#soon" class="pane-button">
+                  <span class="icon">▶</span>
+                  <span>Coming next</span>
+                </a>
+              </article>
+
+              <article class="pane">
+                <h2>View report <span class="pane-tag alt">Individual</span></h2>
+                <p>
+                  Enter the assessment code to view the individual values and integrity report in English.
+                </p>
+                <a href="reporte-integridad-en.html" class="pane-button btn-secondary">
+                  <span class="icon">📊</span>
+                  <span>View report</span>
+                </a>
+              </article>
+            </div>
+          </section>
+
+          <section class="catalog-section" data-block="3">
+            <h2 class="catalog-title">LEADERSHIP FACTORS ASSESSMENT</h2>
+            <div class="menu-grid">
+              <article class="pane">
+                <h2>Assessment <span class="pane-tag gold">New</span></h2>
+                <p>English questionnaire coming next. The report in English is available now.</p>
+                <a href="#soon" class="pane-button">
+                  <span class="icon">▶</span>
+                  <span>Coming next</span>
+                </a>
+              </article>
+
+              <article class="pane">
+                <h2>View report <span class="pane-tag alt">Individual</span></h2>
+                <p>
+                  Enter the assessment code to view the individual leadership report in English.
+                </p>
+                <a href="reporte-liderazgo-en.html" class="pane-button btn-secondary">
+                  <span class="icon">📊</span>
+                  <span>View report</span>
+                </a>
+              </article>
+            </div>
+          </section>
+
+          <section class="catalog-section" data-block="4">
+            <h2 class="catalog-title">HABITS ASSESSMENT</h2>
+            <div class="menu-grid">
+              <article class="pane">
+                <h2>Assessment <span class="pane-tag gold">New</span></h2>
+                <p>English questionnaire coming next. The report in English is available now.</p>
+                <a href="#soon" class="pane-button">
+                  <span class="icon">▶</span>
+                  <span>Coming next</span>
+                </a>
+              </article>
+
+              <article class="pane">
+                <h2>View report <span class="pane-tag alt">Individual</span></h2>
+                <p>
+                  Enter the assessment code to view the individual habits report in English.
+                </p>
+                <a href="reporte-habitos-en.html" class="pane-button btn-secondary">
+                  <span class="icon">📊</span>
+                  <span>View report</span>
+                </a>
+              </article>
+            </div>
+          </section>
+
+          <section class="catalog-section" data-block="5">
+            <h2 class="catalog-title">LEARNING PREFERENCES</h2>
+            <div class="menu-grid">
+              <article class="pane">
+                <h2>Assessment <span class="pane-tag gold">New</span></h2>
+                <p>Start the Learning Preferences questionnaire (English).</p>
+                <a href="evaluacion-aprendizaje-en.html" class="pane-button">
+                  <span class="icon">▶</span>
+                  <span>Start assessment</span>
+                </a>
+              </article>
+
+              <article class="pane">
+                <h2>View report <span class="pane-tag alt">Individual</span></h2>
+                <p>
+                  Enter the assessment code to view the individual learning-preferences report in English.
+                </p>
+                <a href="reporte-aprendizaje-en.html" class="pane-button btn-secondary">
+                  <span class="icon">📊</span>
+                  <span>View report</span>
+                </a>
+              </article>
+            </div>
+          </section>
+
+          <section class="catalog-section" data-block="6">
+            <h2 class="catalog-title">CAREER ORIENTATION ASSESSMENT</h2>
+            <div class="menu-grid">
+              <article class="pane">
+                <h2>Assessment <span class="pane-tag gold">New</span></h2>
+                <p>English questionnaire coming next. The report in English is available now.</p>
+                <a href="#soon" class="pane-button">
+                  <span class="icon">▶</span>
+                  <span>Coming next</span>
+                </a>
+              </article>
+
+              <article class="pane">
+                <h2>View report <span class="pane-tag alt">Individual</span></h2>
+                <p>
+                  Enter the assessment code to view the individual career report in English.
+                </p>
+                <a href="reporte-vocacional-en.html" class="pane-button btn-secondary">
+                  <span class="icon">📊</span>
+                  <span>View report</span>
+                </a>
+              </article>
+            </div>
+          </section>
+
+          <section class="catalog-section" data-block="7">
+            <h2 class="catalog-title">INTELLECTUAL ASSESSMENT</h2>
+            <div class="menu-grid">
+              <article class="pane">
+                <h2>Assessment <span class="pane-tag gold">Participant</span></h2>
+                <p>
+                  English questionnaire coming next. The report in English is available now.
+                </p>
+                <a href="#soon" class="pane-button">
+                  <span class="icon">▶</span>
+                  <span>Coming next</span>
+                </a>
+              </article>
+
+              <article class="pane">
+                <h2>View report <span class="pane-tag alt">Individual</span></h2>
+                <p>
+                  Report with the reference curve and breakdown by domains. Use the same assessment code.
+                </p>
+                <a href="reporte-intelectual-en.html" class="pane-button btn-secondary">
+                  <span class="icon">📊</span>
+                  <span>View report</span>
+                </a>
+              </article>
+            </div>
+          </section>
+
+        </div>
+      </section>
+    </main>
+
+    <div class="session-bar-bottom" id="sessionBarBottom">
+      <p>When you finish, sign out so nobody else uses this access on this device.</p>
+      <button class="btn btn-logout" id="btnSalirBottom" type="button">Sign out</button>
+    </div>
+
+    <footer class="footer">
+      Assessment platform · Institutional use
+    </footer>
+  </div>
+
+<script>
+  /* Señal interna. Formato: UP + DD + MM + AA + HHMM */
+  const REPORTE_BUILD_ID = "UP0106261905";
+  (function(){
+    const el = document.getElementById("reporteBuildStamp");
+    if (el) el.textContent = "· " + REPORTE_BUILD_ID;
+  })();
+
+  const ACCESS_SESSION_KEY = "adal_access_session";
+  /** Pruebas 1–7: 1 Socioemocional, 2 Valores, 3 Liderazgo, 4 Hábitos, 5 Aprendizaje, 6 Vocacional, 7 Intelectual */
+  const ALL_BLOCKS = [1, 2, 3, 4, 5, 6, 7];
+
+  /**
+   * ADALAM → todas las pruebas.
+   * ADALAM135 → solo pruebas 1, 3 y 5 (cada dígito 1–7 activa ese bloque; se ignoran otros caracteres).
+   */
+  function parseAccessPassword(raw) {
+    const value = (raw || "").trim().toUpperCase();
+    if (!value.startsWith("ADALAM")) return null;
+    if (value === "ADALAM") return { ok: true, blocks: ALL_BLOCKS.slice() };
+    const suffix = value.slice(6);
+    if (!suffix) return { ok: true, blocks: ALL_BLOCKS.slice() };
+    const set = new Set();
+    for (const ch of suffix) {
+      if (ch >= "1" && ch <= "7") set.add(Number(ch));
+    }
+    if (set.size === 0) return null;
+    return { ok: true, blocks: Array.from(set).sort((a, b) => a - b) };
+  }
+
+  function setAccessSession(blocks) {
+    const payload = { ok: true, blocks: blocks || ALL_BLOCKS.slice(), createdAt: Date.now() };
+    try { sessionStorage.setItem(ACCESS_SESSION_KEY, JSON.stringify(payload)); } catch {}
+  }
+
+  function getAccessSession() {
+    try {
+      const raw = sessionStorage.getItem(ACCESS_SESSION_KEY);
+      if (!raw) return null;
+      const s = JSON.parse(raw);
+      if (!s || !s.ok) return null;
+      if (!Array.isArray(s.blocks) || s.blocks.length === 0) {
+        s.blocks = ALL_BLOCKS.slice();
+      }
+      return s;
+    } catch {
+      return null;
+    }
+  }
+
+  function hasValidAccessSession() {
+    return !!getAccessSession();
+  }
+
+  function clearAccessSession() {
+    try { sessionStorage.removeItem(ACCESS_SESSION_KEY); } catch {}
+  }
+
+  function applyBlockLocks() {
+    const session = getAccessSession();
+    const allowed = new Set(session && session.blocks ? session.blocks : ALL_BLOCKS);
+    document.querySelectorAll(".catalog-section[data-block]").forEach(el => {
+      const n = Number(el.getAttribute("data-block"));
+      if (Number.isFinite(n) && allowed.has(n)) el.classList.remove("is-block-off");
+      else el.classList.add("is-block-off");
+    });
+  }
+
+  const $ = sel => document.querySelector(sel);
+
+  const passInput  = $("#passInput");
+  const btnEntrar  = $("#btnEntrar");
+  const btnSalir   = $("#btnSalir");
+  const btnSalirBottom = $("#btnSalirBottom");
+  const sessionBarTop = $("#sessionBarTop");
+  const sessionBarBottom = $("#sessionBarBottom");
+  const msg        = $("#msg");
+  const menu       = $("#menu");
+  const loginBlock = $("#loginBlock");
+  const introText  = $("#introText");
+
+  function cerrarSesion(){
+    clearAccessSession();
+    if(passInput) passInput.value = "";
+    if(msg){
+      msg.textContent = "Signed out.";
+      msg.className = "msg";
+    }
+    hideMenu();
+  }
+
+  function showMenu(){
+    menu.style.display = "block";
+    if (sessionBarTop) sessionBarTop.style.display = "block";
+    if (sessionBarBottom) sessionBarBottom.style.display = "block";
+    if (loginBlock) loginBlock.style.display = "none";
+    if (introText) introText.style.display = "none";
+    applyBlockLocks();
+  }
+  function hideMenu(){
+    menu.style.display = "none";
+    if (sessionBarTop) sessionBarTop.style.display = "none";
+    if (sessionBarBottom) sessionBarBottom.style.display = "none";
+    if (loginBlock) loginBlock.style.display = "flex";
+    if (introText) introText.style.display = "block";
+  }
+
+  function checkPassword(){
+    const value = (passInput.value || "").trim();
+    if(!value){
+      msg.textContent = "Enter the password.";
+      msg.className = "msg err";
+      hideMenu();
+      return;
+    }
+    const parsed = parseAccessPassword(value);
+    if (parsed && parsed.ok) {
+      setAccessSession(parsed.blocks);
+      const list = parsed.blocks.join(", ");
+      msg.textContent = "Access granted (assessments: " + list + ").";
+      msg.className = "msg ok";
+      showMenu();
+    } else {
+      msg.textContent = "Incorrect password. Use ADALAM or ADALAM plus numbers 1 to 7 (e.g. ADALAM135).";
+      msg.className = "msg err";
+      hideMenu();
+    }
+  }
+
+  btnEntrar.addEventListener("click", checkPassword);
+  passInput.addEventListener("keydown", e=>{
+    if(e.key === "Enter"){
+      checkPassword();
+    }
+  });
+
+  if (btnSalir) btnSalir.addEventListener("click", cerrarSesion);
+  if (btnSalirBottom) btnSalirBottom.addEventListener("click", cerrarSesion);
+
+  window.addEventListener("DOMContentLoaded", ()=>{
+    if(hasValidAccessSession()){
+      if(msg){
+        const s = getAccessSession();
+        const list = s && s.blocks ? s.blocks.join(", ") : ALL_BLOCKS.join(", ");
+        msg.textContent = "Access active (assessments: " + list + ").";
+        msg.className = "msg ok";
+      }
+      showMenu();
+    }else{
+      hideMenu();
+    }
+  });
+</script>
+</body>
+</html>

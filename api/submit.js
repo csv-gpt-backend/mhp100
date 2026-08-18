@@ -1,5 +1,11 @@
 const { sql } = require("@vercel/postgres");
-const { validateCodigoEval, mismatchErrorMessage } = require("./eval-codigo");
+const {
+  validateCodigoEval,
+  validateCodigoIdioma,
+  mismatchErrorMessage,
+  idiomaMismatchMessage,
+  normalizeIdioma,
+} = require("./eval-codigo");
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
@@ -18,6 +24,9 @@ module.exports = async function handler(req, res) {
     const snapshot = body.snapshot || {};
     const evalEsperada =
       body.evaluacion || body.eval || snapshot.evaluacion || snapshot.eval || "";
+    const idiomaEsperado =
+      body.idioma || body.lang || snapshot.idioma || snapshot.lang || "";
+    const uiLang = normalizeIdioma(idiomaEsperado) || "ES";
 
     const pRes = await sql`
       SELECT *
@@ -27,17 +36,31 @@ module.exports = async function handler(req, res) {
     `;
 
     if (!pRes.rows.length) {
-      return res.status(404).json({ error: "Código no encontrado" });
+      return res.status(404).json({
+        error: uiLang === "EN" ? "Code not found" : "Código no encontrado",
+      });
     }
 
     if (evalEsperada) {
       const check = validateCodigoEval(codigo, evalEsperada, pRes.rows[0]);
       if (!check.ok) {
         return res.status(403).json({
-          error: mismatchErrorMessage(check),
+          error: mismatchErrorMessage(check, uiLang),
           eval_mismatch: true,
           eval_codigo: check.eval_codigo,
           eval_esperada: check.eval_esperada,
+        });
+      }
+    }
+
+    if (idiomaEsperado) {
+      const checkI = validateCodigoIdioma(codigo, idiomaEsperado, pRes.rows[0]);
+      if (!checkI.ok) {
+        return res.status(403).json({
+          error: idiomaMismatchMessage(checkI, uiLang),
+          idioma_mismatch: true,
+          idioma_codigo: checkI.idioma_codigo,
+          idioma_esperada: checkI.idioma_esperada,
         });
       }
     }

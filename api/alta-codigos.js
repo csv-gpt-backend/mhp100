@@ -60,8 +60,11 @@ async function codigoExiste(codigo) {
   return r.rows.length > 0;
 }
 
-async function generarCodigoUnico(ambito, evalKey) {
-  const prefijo = `${ambito}-${evalKey}-`;
+async function generarCodigoUnico(ambito, evalKey, idioma) {
+  const prefijo =
+    idioma === "EN"
+      ? `${ambito}-${evalKey}-EN-`
+      : `${ambito}-${evalKey}-`;
   for (let intento = 0; intento < 40; intento++) {
     const codigo = prefijo + randomSuffix(4);
     if (!(await codigoExiste(codigo))) return codigo;
@@ -76,11 +79,14 @@ function errorColumna(msg) {
   if (/periodo/i.test(msg)) {
     return "Falta la columna periodo en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT;";
   }
+  if (/idioma/i.test(msg)) {
+    return "Falta la columna idioma en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS idioma VARCHAR(2) DEFAULT 'ES';";
+  }
   if (/evaluacion/i.test(msg)) {
     return "Falta la columna evaluacion en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS evaluacion VARCHAR(8);";
   }
   if (/column/i.test(msg)) {
-    return "Falta una columna en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT; ALTER TABLE participants ADD COLUMN IF NOT EXISTS lote TEXT; ALTER TABLE participants ADD COLUMN IF NOT EXISTS evaluacion VARCHAR(8);";
+    return "Falta una columna en participants. Ejecute en Neon: ALTER TABLE participants ADD COLUMN IF NOT EXISTS periodo TEXT; ALTER TABLE participants ADD COLUMN IF NOT EXISTS lote TEXT; ALTER TABLE participants ADD COLUMN IF NOT EXISTS evaluacion VARCHAR(8); ALTER TABLE participants ADD COLUMN IF NOT EXISTS idioma VARCHAR(2) DEFAULT 'ES';";
   }
   return null;
 }
@@ -98,6 +104,9 @@ module.exports = async function handler(req, res) {
     const pais = norm(body.pais || body.grupo || "").toUpperCase();
     const curso = norm(body.curso || "").toUpperCase();
     const periodo = norm(body.periodo || "");
+    let idioma = String(body.idioma || body.lang || "ES").trim().toUpperCase();
+    if (idioma === "ENG" || idioma === "ENGLISH" || idioma === "US") idioma = "EN";
+    if (idioma !== "EN") idioma = "ES";
     let cantidad = Number(body.cantidad);
     if (!Number.isFinite(cantidad) || cantidad < 1) cantidad = 1;
     cantidad = Math.min(MAX_LOTE, Math.floor(cantidad));
@@ -140,10 +149,10 @@ module.exports = async function handler(req, res) {
 
     try {
       for (let i = 0; i < cantidad; i++) {
-        const codigo = await generarCodigoUnico(ambito, evaluacion);
+        const codigo = await generarCodigoUnico(ambito, evaluacion, idioma);
         await sql`
           INSERT INTO participants (
-            codigo, nombre, institucion, grupo, curso, puede_ver_resultado, periodo, lote, evaluacion
+            codigo, nombre, institucion, grupo, curso, puede_ver_resultado, periodo, lote, evaluacion, idioma
           )
           VALUES (
             ${codigo},
@@ -154,7 +163,8 @@ module.exports = async function handler(req, res) {
             ${puedeVer},
             ${periodo},
             ${lote},
-            ${evaluacion}
+            ${evaluacion},
+            ${idioma}
           )
         `;
         creados.push(codigo);
@@ -182,6 +192,7 @@ module.exports = async function handler(req, res) {
       ficha: {
         ambito,
         evaluacion,
+        idioma,
         institucion,
         pais,
         curso,
