@@ -873,7 +873,7 @@ function contextSuggestions(res, esPro){
       const q=new URLSearchParams({ codigo, eval: REPORT_PRODUCT_KEY, idioma: REPORT_UI_LANG });
       const r=await fetch(`/api/report?${q.toString()}`);
       const data=await r.json();
-      if(r.status===403 && data.eval_mismatch){
+      if(r.status===403 && (data.eval_mismatch || data.idioma_mismatch)){
         document.getElementById('msg').textContent=data.error || 'This code does not belong to this report.';
         document.getElementById('msg').className='msg err';
         return;

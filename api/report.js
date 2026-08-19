@@ -1,9 +1,16 @@
 const { sql } = require("@vercel/postgres");
 const {
   validateCodigoEval,
+  validateCodigoIdioma,
   mismatchErrorMessage,
+  idiomaMismatchMessage,
   normalizeIdioma,
 } = require("./eval-codigo");
+
+function isAprendizajeReportEval(raw) {
+  const t = String(raw || "").trim().toUpperCase();
+  return t === "APREND" || t === "APRENDIZAJE" || t === "APREN" || t === "APR";
+}
 
 module.exports = async function handler(req, res) {
   try {
@@ -57,6 +64,18 @@ module.exports = async function handler(req, res) {
           eval_codigo: check.eval_codigo,
           eval_esperada: check.eval_esperada,
         });
+      }
+      if (isAprendizajeReportEval(evalEsperada)) {
+        const checkI = validateCodigoIdioma(codigo, uiLang, participant);
+        if (!checkI.ok) {
+          return res.status(403).json({
+            valid: false,
+            error: idiomaMismatchMessage(checkI, uiLang),
+            idioma_mismatch: true,
+            idioma_codigo: checkI.idioma_codigo,
+            idioma_esperada: checkI.idioma_esperada,
+          });
+        }
       }
     }
 
