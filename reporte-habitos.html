@@ -84,7 +84,7 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
   @page{size:A4;margin:8mm}
   body{background:#fff;zoom:0.92;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .wrap{max-width:none;margin:0;padding:0}
-  .ingreso-panel,.hint,#msg,#btnImprimir,#btnPDF{display:none !important}
+  .ingreso-panel,.hint,#msg,#btnImprimir,#btnPDF,.reporte-acciones-pantalla{display:none !important}
   .sheet{display:block !important;border:0;box-shadow:none;border-radius:0;margin:0 !important;padding:5mm 6mm;margin-bottom:0 !important}
   /* Un solo salto: al inicio de Parte 2 (evita hoja en blanco tras la principal) */
   .sheet + .sheet{page-break-before:auto;break-before:auto}
@@ -123,6 +123,33 @@ button{padding:10px 14px;border:0;border-radius:999px;font-weight:800;cursor:poi
     page-break-inside:avoid;
   }
   #p2 .logo{height:72px !important}
+  #p1 .page1-sheet{
+    display:flex;
+    flex-direction:column;
+    min-height:268mm;
+    box-sizing:border-box;
+  }
+  #p1 .reporte-pie-page1{
+    margin-top:auto;
+    padding-top:8px;
+    border-top:1px solid #e5e7eb;
+    text-align:center;
+    font-size:10.5px;
+    break-inside:avoid;
+    page-break-inside:avoid;
+    break-before:avoid;
+    page-break-before:avoid;
+  }
+  #p1 .part1 .card.bars:last-of-type,
+  #p1 .note{
+    break-after:avoid;
+    page-break-after:avoid;
+  }
+  #p2 .reporte-pie-page2{
+    margin-top:18px;
+    text-align:center;
+    font-size:10.5px;
+  }
 }
 
 /* --- Curva limpia --- */
@@ -152,10 +179,14 @@ h1{margin-top:0 !important;}
   margin-top:16px;
   padding-top:10px;
   border-top:1px solid var(--line);
-  text-align:right;
-  font-size:12px;
+  text-align:center;
+  font-size:11px;
   color:var(--muted);
+  letter-spacing:.02em;
 }
+#p1 .page1-sheet{display:flex;flex-direction:column}
+#p1 .reporte-pie-page1{margin-top:14px}
+.reporte-acciones-pantalla{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 
 </style></head>
 <body><div class="wrap">
@@ -175,6 +206,7 @@ h1{margin-top:0 !important;}
 </div>
 
 <section id="p1" class="sheet">
+  <div class="page1-sheet">
   <div class="title-row">
     <div id="fechaTop">—</div>
     <div class="title"><h1>HÁBITOS</h1><h2>SCORE REPORT</h2></div>
@@ -251,7 +283,7 @@ h1{margin-top:0 !important;}
         <div class="quick">
           <div class="q"><b>Perfil general</b><span id="qPerfil">—</span></div>
           <div class="q"><b>Hábito destacado</b><span id="qAlto">—</span></div>
-          <div class="q"><b>área prioritaria de desarrollo</b><span id="qBajo">—</span></div>
+          <div class="q"><b>Área prioritaria de desarrollo</b><span id="qBajo">—</span></div>
         </div>
       </div>
     </div>
@@ -262,7 +294,9 @@ h1{margin-top:0 !important;}
     </div>
   </div>
   <div class="note">Síntesis visual del Índice General de Hábitos (IGH) y de los cuatro hábitos evaluados.</div>
-  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+  <p class="reporte-pie-adalam reporte-pie-page1">Adalam — Reporte de Hábitos</p>
+  </div>
+  <div class="reporte-acciones-pantalla">
     <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
   </div>
 </section>
@@ -275,13 +309,15 @@ h1{margin-top:0 !important;}
   </div>
   <div class="part2top"><h3>Interpretación de Resultados</h3><div class="pill">Prueba: HÁBITOS</div></div>
   <div id="p2content"></div>
-  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+  <div class="reporte-acciones-pantalla">
     <button type="button" id="btnPDF" class="btn" style="background:#2563eb">Imprimir / PDF</button>
   </div>
 </section>
 </div>
 
 <script>
+const REPORT_PRODUCT_KEY = "HABITO";
+const REPORT_UI_LANG = "ES";
   const TEXTS={
  "Consistencia":{p2:{bajo:{perfil:"En este rango, la coherencia puede mostrarse de forma inestable. La persona puede tener buenas intenciones para cumplir rutinas o compromisos, pero le cuesta sostenerlos con la misma constancia a lo largo del tiempo. Por eso, suele necesitar estructura externa, recordatorios visibles o seguimiento cercano para mantener continuidad en lo que empieza.",mani:["Puede cambiar rutinas o formas de hacer las cosas según el contexto, sin mantener un mismo criterio por varios días.","Le cuesta sostener seguimiento constante en tareas repetitivas o de mantenimiento, especialmente cuando no hay control externo.","Puede dejar actividades a medias, postergar cierres o retomar tarde compromisos que ya había iniciado."],fort:["Tiene flexibilidad para ajustarse a cambios cuando la situación lo exige.","Puede modificar una rutina o forma de trabajo si detecta que no está funcionando bien."],ries:["Riesgo de inconsistencia en compromisos, tiempos o seguimiento de tareas.","Dificultad para sostener hábitos útiles por varios días o semanas si no hay estructura clara."],rec:["Definir 2 rutinas clave durante 2 semanas, por ejemplo: una de inicio y una de cierre del día.","Usar recordatorios simples y visibles, como agenda, alarma o una nota breve, y hacer una verificación diaria de 2 minutos.","Registrar una evidencia concreta al final del día: “¿qué hice hoy para sostener esta rutina?”"]},prom:{perfil:"En este rango, la coherencia suele estar presente en lo importante. La persona normalmente logra mantener rutinas, criterios y seguimiento básico, aunque puede tener variaciones en momentos de presión, cansancio o cambios de contexto. Funciona mejor cuando tiene prioridades claras y una organización sencilla.",mani:["Mantiene estabilidad en lo esencial, aunque puede presentar variaciones puntuales en días de mayor carga.","Suele cumplir rutinas cuando tiene claro qué es prioritario y qué debe cerrar primero.","Puede aflojar el ritmo en periodos exigentes, pero retoma con guía o con una pequeña reorganización."],fort:["Capacidad de sostener hábitos funcionales en la mayoría de situaciones habituales.","Buen equilibrio entre adaptación al contexto y consistencia en lo importante."],ries:["Puede presentar variaciones cuando se acumulan tareas o aumenta el estrés.","Riesgo de dejar cierres pendientes si no existe una planificación mínima."],rec:["Hacer un plan semanal breve con 3 prioridades y 2 rutinas fijas.","Realizar una revisión a mitad de semana para ajustar sin abandonar lo ya iniciado.","Cerrar el día con una lista corta de verificación, de máximo 5 ítems."]},alto:{perfil:"En este rango, la coherencia se observa con alta regularidad. La persona suele actuar con criterios claros, mantener rutinas con constancia y sostener acuerdos con continuidad. Esto favorece el orden, la previsibilidad y la confianza en su forma de responder, aunque conviene cuidar que esta estabilidad no se vuelva rigidez.",mani:["Su conducta suele ser predecible y alineada a criterios claros en distintos contextos.","Da seguimiento constante a tareas, compromisos y rutinas, con buen nivel de cierre.","Mantiene estabilidad en horarios, acuerdos y formas de trabajo durante periodos prolongados."],fort:["Alta confiabilidad y orden en la ejecución de tareas y compromisos.","Capacidad sólida para sostener hábitos útiles a mediano plazo."],ries:["Riesgo de rigidez o frustración cuando hay cambios inesperados.","Posible tendencia a la autoexigencia o a querer mantener el control de todo."],rec:["Mantener las rutinas que funcionan y agregar un pequeño espacio de ajuste para cambios no previstos.","Definir con anticipación criterios simples para priorizar cuando algo cambie.","Cuidar el equilibrio entre constancia y descanso, incluyendo pausas programadas."]}},p1:{bajo:"Puede mostrar variaciones en sus rutinas y criterios según el contexto; le cuesta sostener hábitos y dar seguimiento continuo. Le ayuda trabajar con recordatorios, compromisos concretos y una estructura simple.",prom:"Suele mantener estabilidad en lo esencial; muestra coherencia general y capacidad de sostener rutinas, con variaciones puntuales en momentos de mayor carga.",alto:"Presenta alta consistencia: actúa con criterios claros y previsibles, sostiene rutinas y cumple acuerdos con regularidad. Conviene cuidar que esta fortaleza no se vuelva rigidez."},micro:"Uniformidad y coherencia en la conducta que exhibe.",def:"Presenta uniformidad en el comportamiento que exhibe.",car:"Estabilidad, coherencia, previsibilidad en lo esencial y capacidad de sostener rutinas.",sug:"Definir 2 o 3 rutinas clave de inicio, seguimiento y cierre, y mantenerlas durante varias semanas."},
  "Persistencia":{p2:{bajo:{perfil:"En este rango, la perseverancia puede bajar cuando aparecen obstáculos, demora en los resultados o cansancio. La persona puede comenzar con intención, pero le cuesta sostener el esfuerzo cuando la tarea se complica o exige continuidad. Por eso, necesita metas cortas, pasos visibles y señales claras de avance.",mani:["Puede abandonar tareas cuando aparecen dificultades, errores o lentitud en los resultados.","Le cuesta mantener esfuerzo continuo si baja la motivación o si la tarea se vuelve repetitiva.","Tiende a evitar actividades largas, pesadas o cuyos resultados se ven después de varios días."],fort:["Puede cambiar de estrategia con rapidez cuando detecta que algo no está funcionando.","Suele identificar pronto cuándo una tarea está mal planteada o es poco realista."],ries:["Riesgo de dejar procesos sin cierre o de abandonar tareas antes de completarlas.","Menor tolerancia a la frustración en actividades complejas, largas o exigentes."],rec:["Dividir los objetivos en micro-metas que puedan cerrarse entre 24 y 72 horas.","Medir el avance con evidencia concreta, por ejemplo: tareas terminadas, pasos cerrados o partes revisadas.","Reconocer el progreso logrado y ajustar la meta sin abandonar el proceso."]},prom:{perfil:"En este rango, la perseverancia suele ser adecuada. La persona mantiene el empeño en la mayor parte de sus tareas y puede retomar después de errores o contratiempos, especialmente cuando cuenta con un método sencillo o con seguimiento mínimo. Su continuidad es funcional, aunque puede verse afectada si la carga crece demasiado.",mani:["Mantiene el esfuerzo la mayor parte del tiempo en tareas habituales.","Retoma una actividad después de errores, pausas o contratiempos, especialmente si tiene una guía clara.","Suele completar objetivos frecuentes con una constancia razonable."],fort:["Resiliencia funcional y capacidad de continuidad en metas habituales.","Capacidad de finalizar tareas frecuentes sin depender siempre de presión externa."],ries:["Puede requerir más apoyo en proyectos largos, complejos o de varios pasos.","Riesgo de postergar actividades cuando la carga aumenta o se acumulan pendientes."],rec:["Trabajar con planes por etapas y fechas cortas de revisión.","Hacer una revisión semanal: qué se completó, qué sigue y qué se necesita ajustar.","Buscar apoyo o retroalimentación en momentos críticos del proceso, antes de desmotivarse."]},alto:{perfil:"En este rango, la perseverancia se observa con fuerza. La persona suele sostener el esfuerzo incluso cuando surgen obstáculos, presión o demora en los resultados. Tiene buena capacidad para continuar y cerrar procesos exigentes, aunque necesita vigilar que esta fortaleza no se convierta en sobrecarga o insistencia excesiva.",mani:["Muestra alta tolerancia a la frustración y capacidad para seguir intentando.","Suele finalizar lo que inicia y mantener constancia durante periodos más largos.","Persiste ante dificultades sin perder de vista el objetivo principal."],fort:["Determinación, continuidad y alto compromiso con lo que se propone.","Capacidad para sostener proyectos exigentes o procesos de mayor duración."],ries:["Riesgo de sobrecarga, cansancio acumulado o autoexigencia excesiva.","Puede insistir demasiado en una estrategia sin recalibrarla a tiempo."],rec:["Mantener la constancia, pero incorporando pausas planificadas y recuperación.","Definir señales de recalibración: cuándo conviene seguir igual y cuándo cambiar el enfoque.","Cuidar el balance entre esfuerzo, descanso, límites y apoyo."]}},p1:{bajo:"Puede abandonar tareas ante obstáculos o cuando baja la motivación; le cuesta mantener el esfuerzo continuo. Le beneficia dividir metas, cerrar pasos cortos y reconocer avances concretos.",prom:"Mantiene el empeño la mayor parte del tiempo; suele retomar cuando hay dificultades y completar objetivos habituales con continuidad razonable.",alto:"Sostiene el esfuerzo con constancia; afronta obstáculos y finaliza lo que inicia, incluso a mediano plazo. Conviene vigilar la sobrecarga o la autoexigencia."},micro:"Perseverancia y empeño para el logro de objetivos y compromisos.",def:"Tiene perseverancia y empeño para el logro de objetivos y compromisos.",car:"Responsabilidad, esfuerzo sostenido, prioridad en metas, aprendizaje de errores y cierre de tareas.",sug:"Usar metas semanales pequeñas, claras y verificables; revisar avance y cierre con regularidad."},
@@ -648,7 +684,7 @@ function userFields(persona){
       </div>
     `;
 
-    const secPie = `<p class="reporte-pie-adalam">Adalam — Informe De Hábitos.</p>`;
+    const secPie = `<p class="reporte-pie-adalam reporte-pie-page2">Adalam — Interpretación de Hábitos</p>`;
     return sec1 + sec2 + sec3head + habits + sec4 + sec5 + sec6 + secPie;
   }
 
@@ -703,11 +739,24 @@ async function cargar(){
   $("p2").style.display="none";
   try{$("ver").disabled=true; $("ver").style.opacity="0.6"; $("ver").style.cursor="not-allowed";}catch(_e){}
   try{
-    const r=await fetch(`/api/report?codigo=${encodeURIComponent(c)}`); const data=await r.json();
+    const q=new URLSearchParams({ codigo:c, eval:REPORT_PRODUCT_KEY, idioma:REPORT_UI_LANG });
+    const r=await fetch(`/api/report?${q.toString()}`); const data=await r.json();
+    if(r.status===403 && data.eval_mismatch){
+      $("msg").textContent=data.error||"Este código no corresponde a este reporte.";
+      $("msg").className="msg err";
+      try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){}
+      return;
+    }
     if(!r.ok || data?.error){ $("msg").textContent=data?.error||"No encontrado"; $("msg").className="msg err";
   try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){} return; }
     const hasRes = (j(data?.attempt?.resultados)||data?.attempt?.resultados);
     if(!hasRes){ $("msg").textContent="Este código no tiene resultados guardados."; $("msg").className="msg err"; try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){} return; }
+    if(data.puede_ver_resultado !== true){
+      $("msg").textContent="Este código no está habilitado para ver su reporte. Contacta a la coordinación.";
+      $("msg").className="msg err";
+      try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){}
+      return;
+    }
     $("msg").textContent="";
     $("msg").className="msg";
     render(data);
