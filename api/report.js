@@ -1,4 +1,9 @@
 const { sql } = require("@vercel/postgres");
+const {
+  validateCodigoEval,
+  mismatchErrorMessage,
+  normalizeIdioma,
+} = require("./eval-codigo");
 
 module.exports = async function handler(req, res) {
   try {
@@ -37,6 +42,23 @@ module.exports = async function handler(req, res) {
     }
 
     const participant = pRes.rows[0];
+
+    const evalEsperada = req.query.eval || req.query.evaluacion || "";
+    const uiLang =
+      normalizeIdioma(req.query.idioma || req.query.lang || "") || "ES";
+
+    if (evalEsperada) {
+      const check = validateCodigoEval(codigo, evalEsperada, participant);
+      if (!check.ok) {
+        return res.status(403).json({
+          valid: false,
+          error: mismatchErrorMessage(check, uiLang),
+          eval_mismatch: true,
+          eval_codigo: check.eval_codigo,
+          eval_esperada: check.eval_esperada,
+        });
+      }
+    }
 
     // 2) Último intento para ese código (con filtro opcional por bank)
     let aRes;

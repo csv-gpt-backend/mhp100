@@ -275,6 +275,9 @@
   </div>
 
 <script>
+  const REPORT_PRODUCT_KEY = "APREND";
+  const REPORT_UI_LANG = "EN";
+
   const AREA_ORDER = ["perceptuales","interaccion","comunicacion"];
   const AREA_LABELS = {
     perceptuales: "Perceptual preferences",
@@ -718,8 +721,14 @@ function contextSuggestions(res, esPro){
     document.getElementById('msg').className='msg';
     document.getElementById('reporteContainer').style.display='none';
     try{
-      const r=await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const q=new URLSearchParams({ codigo, eval: REPORT_PRODUCT_KEY, idioma: REPORT_UI_LANG });
+      const r=await fetch(`/api/report?${q.toString()}`);
       const data=await r.json();
+      if(r.status===403 && data.eval_mismatch){
+        document.getElementById('msg').textContent=data.error || 'This code does not belong to this report.';
+        document.getElementById('msg').className='msg err';
+        return;
+      }
       if(!r.ok || data.error){ document.getElementById('msg').textContent=data.error || 'Not found'; document.getElementById('msg').className='msg err'; return; }
       if(!data || !data.attempt){ document.getElementById('msg').textContent='No registered attempt was found for this code.'; document.getElementById('msg').className='msg err'; return; }
       if(data.puede_ver_resultado !== true){ document.getElementById('msg').textContent='This code is not enabled to view its report. Contact the coordinator.'; document.getElementById('msg').className='msg err'; return; }

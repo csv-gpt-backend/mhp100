@@ -386,6 +386,9 @@
   </div>
 
 <script>
+  const REPORT_PRODUCT_KEY = "APREND";
+  const REPORT_UI_LANG = "ES";
+
   const AREA_ORDER = ["perceptuales","interaccion","comunicacion"];
   const AREA_LABELS = {
     perceptuales: "Preferencias perceptuales",
@@ -827,8 +830,14 @@ function contextSuggestions(res, esPro){
     const ingreso=document.querySelector('.ingreso-panel');
     if(ingreso) ingreso.style.display='';
     try{
-      const r=await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const q=new URLSearchParams({ codigo, eval: REPORT_PRODUCT_KEY, idioma: REPORT_UI_LANG });
+      const r=await fetch(`/api/report?${q.toString()}`);
       const data=await r.json();
+      if(r.status===403 && data.eval_mismatch){
+        document.getElementById('msg').textContent=data.error || 'Este código no corresponde a este reporte.';
+        document.getElementById('msg').className='msg err';
+        return;
+      }
       if(!r.ok || data.error){ document.getElementById('msg').textContent=data.error || 'No encontrado'; document.getElementById('msg').className='msg err'; return; }
       if(!data || !data.attempt){ document.getElementById('msg').textContent='No se encontró un intento registrado para este código.'; document.getElementById('msg').className='msg err'; return; }
       if(data.puede_ver_resultado !== true){ document.getElementById('msg').textContent='Este código no está habilitado para ver su reporte. Contacta a la coordinación.'; document.getElementById('msg').className='msg err'; return; }
