@@ -33,7 +33,21 @@
     .rep-date{justify-self:flex-start;}
     .rep-top-center{text-align:center;font-weight:700;text-transform:uppercase;}
     .rep-top-logo{justify-self:flex-end;}
-    .mhp-logo{height:72px;margin-left:8px;margin-top:0;object-fit:contain;}
+    .mhp-logo{height:90px;margin-left:8px;margin-top:0;object-fit:contain;}
+    #page1 .mhp-logo,
+    #pageInterpretacion .mhp-logo{height:90px;margin-left:8px;margin-top:0;}
+    .reporte-pie-adalam{
+      margin-top:16px;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+      text-align:center;
+      font-size:11px;
+      color:var(--muted);
+      letter-spacing:.02em;
+    }
+    #page1 .page1-sheet{display:flex;flex-direction:column}
+    #page1 .reporte-pie-page1{margin-top:14px}
+    .reporte-acciones-pantalla{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase;}
     .rep-top-row3{text-align:center;font-size:18px;font-weight:800;}
 
@@ -46,7 +60,7 @@
     .page-break{height:0;margin:0;border:0}
     @media print{
       @page{ size:A4; margin:8mm 8mm }
-      .topbar,.hint,.intro-logo-wrap,.ingreso-titulo,.ingreso-panel,#btnImprimir,#btnPDF{display:none !important}
+      .topbar,.hint,.intro-logo-wrap,.ingreso-titulo,.ingreso-panel,#btnImprimir,#btnPDF,.reporte-acciones-pantalla{display:none !important}
       body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
       .wrap{max-width:none;margin:0 auto;padding:0 6px}
       .page{margin-top:0;break-inside:auto}
@@ -55,7 +69,33 @@
       #page1{page-break-after:always; break-after:page;}
       #page1 *{break-inside:avoid;}
       #tituloCurvaFrecuencias{font-size:12px !important;white-space:nowrap;letter-spacing:0}
-      .mhp-logo{height:56px !important;margin-top:0 !important;margin-left:4px !important}
+      .mhp-logo{height:72px !important;margin-top:0 !important;margin-left:4px !important}
+      #page1 .mhp-logo,
+      #pageInterpretacion .mhp-logo{height:72px !important}
+      #page1 .page1-sheet{
+        display:flex;
+        flex-direction:column;
+        min-height:268mm;
+        box-sizing:border-box;
+      }
+      #page1 .reporte-pie-page1{
+        margin-top:auto;
+        padding-top:8px;
+        border-top:1px solid #e5e7eb;
+        text-align:center;
+        font-size:10.5px;
+        break-inside:avoid;
+        page-break-inside:avoid;
+        break-before:avoid;
+        page-break-before:avoid;
+      }
+      #pageInterpretacion .reporte-pie-page2{
+        margin-top:18px;
+        text-align:center;
+        font-size:10.5px;
+        break-inside:avoid;
+        page-break-inside:avoid;
+      }
       .rep-top{margin-bottom:12px;padding-bottom:10px}
       .rep-top-row1{margin-bottom:12px;align-items:flex-start}
       .rep-top-row2{font-size:24px !important;margin-bottom:6px !important}
@@ -211,6 +251,7 @@
   <div id="reporteContainer" style="display:none">
     <!-- ===== PAGE 1 ===== -->
     <section id="page1" class="page page-1">
+      <div class="page1-sheet">
       <div class="rep-top">
         <div class="rep-top-row1">
           <div id="repDateLine" class="rep-date"></div>
@@ -378,8 +419,10 @@
         <div class="scale-note-inline">      Menor adaptación al cambio       —        Mayor adaptación al cambio</div>
       </div>
 
-      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-        <button id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
+      <p class="reporte-pie-adalam reporte-pie-page1">Adalam — Reporte de Evaluación Socioemocional</p>
+      </div>
+      <div class="reporte-acciones-pantalla">
+        <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
       </div>
     </section>
 
@@ -435,6 +478,7 @@
       <div id="perfilGlobal" class="interp-bloque"></div>
       <div id="recomendaciones" class="interp-bloque"></div>
       <div id="planAccion" class="interp-bloque"></div>
+      <p class="reporte-pie-adalam reporte-pie-page2">Adalam — Interpretación de Evaluación Socioemocional</p>
     </section>
 
     <div class="page-break"></div>
@@ -464,7 +508,7 @@
           <span class="badge b-green">71–100</span>
         </div>
       </div>
-      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <div class="reporte-acciones-pantalla">
         <button type="button" class="btn" id="btnPDF" style="background:#2563eb">Imprimir / PDF</button>
       </div>
     </section>
@@ -472,6 +516,8 @@
 </div>
 
 <script>
+  const REPORT_PRODUCT_KEY = "SOCIOE";
+  const REPORT_UI_LANG = "ES";
   const $ = sel => document.querySelector(sel);
   function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
   function normalizeName(name){ return (name||"").replace(/\s+/g," ").trim().toLowerCase(); }
@@ -2423,13 +2469,7 @@ const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
       ]);
     }
 
-    const foot=document.createElement("div");
-    foot.style.textAlign="right";
-    foot.style.fontSize="10px";
-    foot.style.color="var(--muted)";
-    foot.style.marginTop="8px";
-    foot.textContent="ADALAM — Informe evaluación socioemocional.";
-    cont.appendChild(foot);
+    // Pie de interpretación: HTML fijo (reporte-pie-page2). No duplicar aquí.
   }
 
   function renderPerfilGlobal(extras){
@@ -2724,8 +2764,14 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
     const ingreso = document.getElementById("ingresoPanel");
     if (ingreso) ingreso.style.display = "";
     try{
-      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const q = new URLSearchParams({ codigo, eval: REPORT_PRODUCT_KEY, idioma: REPORT_UI_LANG });
+      const r = await fetch(`/api/report?${q.toString()}`);
       const data = await r.json();
+      if (r.status === 403 && (data.eval_mismatch || data.idioma_mismatch)) {
+        document.getElementById("msg").textContent = data.error || "Este código no corresponde a este reporte.";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
       if(!r.ok || data.error){
         document.getElementById("msg").textContent = data.error || "No encontrado";
         document.getElementById("msg").className = "msg err";
@@ -2741,6 +2787,8 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
         document.getElementById("msg").className = "msg err";
         return;
       }
+      document.getElementById("msg").textContent = "";
+      document.getElementById("msg").className = "msg";
       renderAll(data);
       window.scrollTo({top:0,behavior:"smooth"});
     }catch(e){
