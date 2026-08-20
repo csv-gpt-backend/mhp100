@@ -1,0 +1,1520 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Emotional Intelligence Assessment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #111827;
+      background: #ffffff;
+      --sbw: 0px;
+    }
+
+    /* ===== FIX #1: evita que el ancho “salte” por aparición/desaparición del scroll ===== */
+  html{
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+  padding-right: var(--sbw);
+}
+
+    /* ===== FIX #2: letra un poquito más grande (suave) ===== */
+    body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      font-size: 16px;
+      overflow-y: scroll;      
+
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+.side-strip {
+  background: #e5e7eb;
+  border-right: 1px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.side-strip span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  font-size: 24px; /* un poco más compacto para caber bien */
+  text-align: center;
+
+  color: #6b7280; /* plata/metal oscuro (se lee bien) */
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.8),
+    0 -1px 0 rgba(0,0,0,.18);
+}
+
+    .page {
+  max-width: 1000px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+  
+    h1 {
+      font-size: 19px;
+      margin: 0 0 4px;
+    }
+    h2 {
+      font-size: 16px;
+      margin: 16px 0 8px;
+    }
+    .muted {
+      color: #6b7280;
+      font-size: 13px;
+    }
+    .ok {
+      color: #16a34a;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .err {
+      color: #dc2626;
+      font-size: 13px;
+      font-weight: 600;
+    }
+   #pantalla-preguntas .card {
+       min-height: 420px;
+       overflow-x: hidden;
+      max-width: 100%;
+
+}
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 13px;
+    }
+    .field label {
+      font-weight: 600;
+    }
+    .field input {
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+    .field input[readonly] {
+      background: #f9fafb;
+      color: #4b5563;
+    }
+    .instructions p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    .instructions ul {
+      margin: 4px 0 0 18px;
+      padding: 0;
+    }
+    .instructions li {
+      margin-bottom: 2px;
+      font-size: 14px;
+    }
+    .instructions-header {
+      font-weight: 700;
+      text-align: center;
+      margin: 8px 0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #1d4ed8;
+      color: #ffffff;
+      font-size: 13px;
+    }
+
+    /* ===== Sticky header (opción 2) ===== */
+
+.sticky-wrap{
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: #ffffff;
+  padding-top: 8px;
+  margin-top: 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+    .progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .progress .bar {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: width 0.2s ease-out;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+      background: #f9fafb;
+    }
+    .panel-note {
+      font-size: 12px;
+      color: #6b7280;
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    .questions-header {
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
+      gap: 4px;
+      align-items: center;
+      font-size: 13px;
+      margin-top: 8px;
+      padding: 4px 0;
+      border-bottom: 1px solid #e5e7eb;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .questions-header div {
+      text-align: center;
+    }
+    .questions-header div:first-child,
+    .questions-header div:nth-child(2) {
+      text-align: left;
+    }
+
+    /* ===== FIX: permite que la columna del texto se encoja sin romper el grid ===== */
+    .questions-header > div:nth-child(2),
+    .question > div:nth-child(2){
+      min-width: 0;
+    }
+
+    #questions {
+      margin-top: 4px;
+      width: 100%;
+    }
+
+    .question {
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
+      gap: 4px;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 15px; /* un poquito más grande */
+      width: 100%;
+      box-sizing: border-box;
+    }
+    /* Color suave alternado */
+    .question:nth-child(even){
+      background: #f8fafc;
+    }
+    /* Color “bonito” cuando se responde */
+    .question.answered{
+      background: #ecfdf5 !important;
+      outline: 1px solid #bbf7d0;
+      outline-offset: -1px;
+      border-bottom-color: #bbf7d0;
+    }
+
+    .q-no {
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    /* ===== FIX: textos largos NO deben deformar el ancho ===== */
+    .q-text {
+      display: block;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .q-cell {
+      text-align: center;
+    }
+    .q-cell input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    /* Botón SIGUIENTE (bonito) */
+#btnSiguiente{
+  border: none;
+  border-radius: 999px;
+  padding: 9px 20px;
+font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #16a34a;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(22,163,74,.25);
+}
+
+#btnSiguiente:hover{
+  filter: brightness(0.95);
+}
+
+#btnSiguiente:active{
+  transform: translateY(1px);
+}
+
+#btnSiguiente:disabled{
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
+}
+/* Botón INICIAR (mismo estilo que SIGUIENTE, pero controlando el disabled para que no quede “lavado”) */
+#btnIniciar{
+  border: none;
+  border-radius: 999px;
+  padding: 9px 20px;     /* un poquito más chico */
+  font-size: 13px;       /* un poquito más chico */
+  font-weight: 800;
+  cursor: pointer;
+  background: #16a34a;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(22,163,74,.25);
+}
+
+#btnIniciar:hover{ filter: brightness(0.95); }
+#btnIniciar:active{ transform: translateY(1px); }
+
+/* Clave: en disabled NO usamos opacity, lo dejamos “gris prolijo” */
+#btnIniciar:disabled{
+  background: #9ca3af;      /* gris lindo */
+  color: #ffffff;
+  opacity: 1;               /* evita “lavado” */
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+    /* ===== FIX: barra inferior fija (sticky) para que SIGUIENTE no quede perdido ===== */
+/*#pantalla-preguntas .footer-actions{*/
+ /* position: sticky;*/
+/* bottom: 0;*/
+/*  z-index: 998;*/
+/*  background: #ffffff;*/
+/*  padding: 10px 0 0;*/
+/*  border-top: 1px solid #e5e7eb;*/
+/*}*/
+
+/* espacio para que el contenido no quede tapado por la barra sticky */
+/*#pantalla-preguntas #questions{*/
+ /* padding-bottom: 70px;*/
+/*}*/
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #16a34a;
+      color: #ffffff;
+    }
+    button.primary {
+      background: #16a34a;
+    }
+    button.secondary {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    #pantalla-final {
+      margin-top: 32px;
+      padding: 24px 18px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: #fefce8;
+      text-align: center;
+      display: none;
+    }
+    #pantalla-final h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    .check-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 2px solid #16a34a;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #16a34a;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    /* ===== Escala naranjas alineadas con columnas 1/2/3 ===== */
+    .scale-banner {
+      margin-top: 6px;
+      margin-bottom: 2px;
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
+      gap: 10px;
+      align-items: end;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .scale-spacer { height: 1px; }
+    .scale-badge {
+      background: #f97316;
+      color: #ffffff;
+      padding: 2px 8px 4px;
+      border-radius: 4px 4px 0 0;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      position: relative;
+      min-width: 72px;
+      justify-self: center; /* clave: centrado exacto */
+      width: 72px;          /* mismo ancho de columna */
+    }
+    .scale-badge::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -4px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 4px solid #f97316;
+    }
+    .scale-num {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 1px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 840px) {
+      .layout {
+        grid-template-columns: 56px minmax(0, 1fr);
+      }
+      .side-strip span {
+        font-size: 18px;
+      }
+    }
+    @media (max-width: 720px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .questions-header,
+      .question,
+      .scale-banner {
+        grid-template-columns: 32px 1fr repeat(3, 64px);
+      }
+      .scale-badge{
+        min-width: 56px;
+        width: 56px;
+      }
+      .scale-banner { gap: 8px; }
+    }
+ 
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="side-strip">
+      <span>EMOTIONAL INTELLIGENCE</span>
+    </aside>
+
+    <main class="page">
+      <header>
+        <h1>Emotional Intelligence Assessment</h1>
+      </header>
+
+      <!-- Datos del participante -->
+      <section id="datos-participante" class="card">
+        <div class="grid-2">
+          <div class="field">
+            <label for="codigo">Code</label>
+            <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
+            <small id="codigoMsg" class="muted"></small>
+          </div>
+
+          <div class="field">
+            <label for="nombre">Name</label>
+            <input id="nombre" type="text" autocomplete="name" />
+          </div>
+
+          <div class="field">
+<label for="curso" id="labelCurso">Grade/Course/Level</label>
+            <input id="curso" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="institucion">Institution</label>
+            <input id="institucion" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="grupo">Country</label>
+            <input id="grupo" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="fecha">Date</label>
+            <input id="fecha" type="text" readonly />
+          </div>
+        </div>
+      </section>
+
+      <!-- Pantalla de instrucciones -->
+      <section id="pantalla-inicio" class="card instructions">
+        <h2>Emotional Intelligence Assessment</h2>
+        <p>
+          Effective management of emotions is a key factor for personal and professional success.
+          This assessment is designed so that adults can evaluate their development level
+          in certain key emotional skills.
+        </p>
+        <p>
+          The instrument identifies 12 emotional skills and 2 areas related
+          to interpersonal communication style.
+        </p>
+        <p>
+          The assessment includes 244 questions and can provide a diagnosis
+          of emotional intelligence management across four areas:
+        </p>
+        <ul>
+          <li>Personal Development.</li>
+          <li>Interpersonal Relationships.</li>
+          <li>Life Skills.</li>
+          <li>Interpersonal Communication.</li>
+        </ul>
+        <div class="instructions-header">
+          INSTRUCTIONS FOR COMPLETING THE ASSESSMENT
+        </div>
+        <p>1. Read each statement carefully.</p>
+        <p>2. Reflect on how much it matches what you usually do or feel.</p>
+        <p>
+          3. Select the option that matches your answer using the following criteria:
+        </p>
+        <p style="margin-left: 12px; margin-top: 4px;">
+          1 = <strong>Always</strong> ·
+          2 = <strong>Sometimes</strong> ·
+          3 = <strong>Rarely</strong>
+        </p>
+        <p style="margin-top: 6px;">
+          <strong>IMPORTANT:</strong> Once you start the assessment, you cannot go back to previous pages.
+        </p>
+        <div style="margin-top: 12px; text-align: right;">
+          <button id="btnIniciar" class="primary" disabled>START</button>
+        </div>
+      </section>
+
+      <!-- Pantalla de preguntas -->
+      <section id="pantalla-preguntas" class="hidden">
+        <div class="card">
+
+          <div class="sticky-wrap">
+            <h2 style="margin:0 0 6px;">Answer the following questions</h2>
+            <p class="muted" id="nota-genero" style="margin:0 0 6px;">
+              Note: Statements may use masculine wording but apply to all genders.
+            </p>
+
+            <div class="scale-banner" aria-label="Scale">
+              <div class="scale-spacer"></div>
+              <div class="scale-spacer"></div>
+              <div class="scale-badge">
+                  ALWAYS
+              </div>
+              <div class="scale-badge">
+                  SOMETIMES
+              </div>
+              <div class="scale-badge">
+                  RARELY
+              </div>
+            </div>
+            <div class="progress" aria-label="Progreso">
+              <div class="bar" id="bar"></div>
+            </div>
+            <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
+              <small id="metaInfo" class="muted"></small>
+            </div>
+            <div class="questions-header">
+              <div>#</div>
+              <div>Question</div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+
+          <div id="questions"></div>
+
+          <div class="footer-actions">
+            <div>
+              <small id="pageIndicator" class="muted"></small>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+              <small id="notaContinuar" class="panel-note">
+                NOTE: You must answer all questions to continue. Answered: 0/0.
+              </small>
+              <button id="btnSiguiente" class="primary">NEXT</button>
+            </div>
+          </div>
+          </div>
+      </section>
+
+      <!-- Pantalla final -->
+      <section id="pantalla-final">
+        <div class="check-icon">✔</div>
+        <h2>Assessment complete</h2>
+        <p>Congratulations, you have completed your emotional intelligence assessment.</p>
+        <button id="btnRegresarMenu" class="secondary">BACK TO MENU</button>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    console.log("ready!");
+    (function lockScrollbarWidth(){
+  function setSBW(){
+    const sbw = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.setProperty("--sbw", (sbw > 0 ? sbw : 0) + "px");
+  }
+  setSBW();
+  window.addEventListener("resize", setSBW);
+})();
+
+
+    let __startTime = Date.now();
+
+    const EVAL_PRODUCT_KEY = "SOCIOE";
+    const EVAL_LANG = "EN";
+    let CODIGO_ACTUAL = null;
+    const STORAGE_PREFIX = "eval_ie_en_state_";
+
+    const codigoInput = document.getElementById('codigo');
+const instInput   = document.getElementById('institucion');
+const grupoInput  = document.getElementById('grupo');
+const cursoInput  = document.getElementById('curso');
+const labelCurso  = document.getElementById('labelCurso');
+const btnIniciar  = document.getElementById('btnIniciar');
+const codigoMsg   = document.getElementById('codigoMsg');
+    function actualizarLabelCurso(codigo = '') {
+  const limpio = String(codigo || '').trim().toUpperCase();
+  if (!labelCurso) return;
+
+  if (!limpio) {
+    labelCurso.textContent = 'Grade/Course/Level';
+    return;
+  }
+
+  labelCurso.textContent = limpio.startsWith('PRO') ? 'Level' : 'Grade/Course';
+}
+
+    function getStorageKey() {
+      const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+      return codigo ? STORAGE_PREFIX + codigo : null;
+    }
+
+    function loadStateForCurrentCode() {
+      const key = getStorageKey();
+      if (!key) return null;
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        console.warn("No se pudo leer el estado local:", e);
+        return null;
+      }
+    }
+
+    function clearState() {
+      const key = getStorageKey();
+      if (!key) return;
+      try { localStorage.removeItem(key); }
+      catch (e) { console.warn("No se pudo borrar el estado local:", e); }
+    }
+
+    function isStateCompleted(state) {
+      if (!state) return false;
+      if (state.completed) return true;
+      const resp = state.responses || {};
+      return ITEMS.length > 0 && Object.keys(resp).length >= ITEMS.length;
+    }
+
+    async function syncAutosaveToServer(state) {
+      try {
+        const codigo = state.codigo;
+        if (!codigo) return;
+
+        const payload = {
+          codigo,
+          currentPage: state.currentPage || 0,
+          responses: state.responses || {},
+          snapshot: {
+            nombre: state.nombre || "",
+            institucion: state.institucion || "",
+            grupo: state.grupo || "",
+            curso: state.curso || "",
+            fecha: state.fecha || "",
+            startTime: state.startTime || null
+          }
+        };
+
+        await fetch("/api/autosave", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {
+        console.warn("No se pudo sincronizar autosave servidor:", e);
+      }
+    }
+
+    async function cargarAutosaveServidor(codigo) {
+      if (!codigo) return null;
+      try {
+        const r = await fetch(`/api/autosave?codigo=${encodeURIComponent(codigo)}`);
+        const data = await r.json();
+        if (!r.ok || !data.ok || !data.autosave) return null;
+
+        const row = data.autosave;
+        const snap = row.snapshot || {};
+        return {
+          codigo: row.codigo || codigo,
+          nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+          institucion: snap.institucion || DATOS_FIJOS.institucion,
+          grupo: snap.grupo || DATOS_FIJOS.grupo,
+          curso: snap.curso || DATOS_FIJOS.curso,
+          fecha: snap.fecha || document.getElementById("fecha").value,
+          currentPage: typeof row.current_page === "number" ? row.current_page : 0,
+          responses: row.responses || {},
+          startTime: snap.startTime || Date.now(),
+          completed: false
+        };
+      } catch (e) {
+        console.warn("No se pudo cargar autosave servidor:", e);
+        return null;
+      }
+    }
+
+    function saveState(completedFlag) {
+      const key = getStorageKey();
+      if (!key) return;
+
+      try {
+        const prev = loadStateForCurrentCode() || {};
+        const state = {
+          ...prev,
+          codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
+          nombre: document.getElementById("nombre").value.trim(),
+          institucion: document.getElementById("institucion").value,
+          grupo: document.getElementById("grupo").value,
+          curso: document.getElementById("curso").value,
+          fecha: document.getElementById("fecha").value,
+          currentPage,
+          responses: obtenerRespuestasCrudas(),
+          startTime: __startTime || Date.now(),
+          completed: (typeof completedFlag === "boolean") ? completedFlag : !!prev.completed
+        };
+
+        localStorage.setItem(key, JSON.stringify(state));
+        syncAutosaveToServer(state);
+      } catch (e) {
+        console.warn("No se pudo guardar el progreso local:", e);
+      }
+    }
+
+    async function lookupCodigo() {
+      const codigo = codigoInput.value.trim().toUpperCase();
+      codigoInput.value = codigo;
+      actualizarLabelCurso(codigo);
+      CODIGO_ACTUAL = null;
+      btnIniciar.disabled = true;
+
+      if (codigoMsg) {
+        codigoMsg.textContent = codigo ? 'Searching...' : 'Enter a code.';
+        codigoMsg.className = codigo ? 'muted' : 'err';
+      }
+      if (!codigo) {
+        instInput.value = grupoInput.value = cursoInput.value = '';
+        return;
+      }
+      try {
+        const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}&eval=${encodeURIComponent(EVAL_PRODUCT_KEY)}&idioma=${encodeURIComponent(EVAL_LANG)}`);
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Invalid code');
+
+        const codigoUsado =
+          data.usado === true ||
+          data.usado === "true" ||
+          (typeof data.disponible === "boolean" && data.disponible === false) ||
+          (data.estado && String(data.estado).toLowerCase() !== "activo") ||
+          (typeof data.intentos_max === "number" &&
+           typeof data.intentos_usados === "number" &&
+           data.intentos_usados >= data.intentos_max);
+
+        if (codigoUsado) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "This code has already been used or is not available.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
+
+        CODIGO_ACTUAL = data.codigo || codigo;
+
+        const localState = loadStateForCurrentCode();
+        if (isStateCompleted(localState)) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "This code was already used to complete an assessment on this device.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
+
+        instInput.value  = data.institucion || '';
+        grupoInput.value = data.grupo || '';
+        cursoInput.value = data.curso || '';
+        btnIniciar.disabled = false;
+
+        if (codigoMsg) {
+          codigoMsg.textContent = 'Valid code.';
+          codigoMsg.className = 'ok';
+        }
+      } catch (e) {
+        instInput.value = grupoInput.value = cursoInput.value = '';
+        if (codigoMsg) {
+          codigoMsg.textContent = (e && e.message) ? e.message : 'Code not found.';
+          codigoMsg.className = 'err';
+        }
+      }
+    }
+
+    codigoInput.addEventListener('input', () => {
+      codigoInput.value = codigoInput.value.toUpperCase();
+      actualizarLabelCurso(codigoInput.value);
+    });
+    codigoInput.addEventListener('blur', lookupCodigo);
+    codigoInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); lookupCodigo(); }
+    });
+actualizarLabelCurso(codigoInput.value);
+    const DATOS_FIJOS = {
+      institucion: "",
+      grupo: "",
+      curso: ""
+    };
+
+    const PAGE_SIZE = 10;
+    let currentPage = 0;
+
+    const PREGUNTAS_CSV = `
+1;When I am truly angry with someone, I feel tense, but comfortable for having expressed exactly what I was thinking.;Estilos de comunicación interpersonal;Agresión;Sí
+2;When I am truly angry with someone, I feel anxious and confused about what I should say.;Estilos de comunicación interpersonal;Agresión;Sí
+3;When I am truly angry with someone, I feel hostile and want to confront them verbally.;Estilos de comunicación interpersonal;Agresión;Sí
+4;When I am truly angry with someone, I think I should not express my anger directly.;Estilos de comunicación interpersonal;Agresión;Sí
+5;When I am truly angry with someone, I think: "well, I am angry, but I should handle this constructively.";Estilos de comunicación interpersonal;Agresión;Sí
+6;When I am truly angry with someone, I think I should confront them and forcefully show my anger.;Estilos de comunicación interpersonal;Agresión;Sí
+7;When I am truly angry with someone, I behave by telling them what bothered me and trying to reach a constructive solution.;Estilos de comunicación interpersonal;Agresión;Sí
+8;When I am truly angry with someone, I behave by expressing my anger and getting into an argument.;Estilos de comunicación interpersonal;Agresión;Sí
+9;When I am truly angry with someone, I say nothing so as not to hurt their feelings.;Estilos de comunicación interpersonal;Agresión;Sí
+10;When someone is truly angry with me, I feel tense and entitled to understand the cause of the anger, responding to them directly.;Estilos de comunicación interpersonal;Agresión;Sí
+11;When someone is truly angry with me, I feel angry, hostile, and want to strike back.;Estilos de comunicación interpersonal;Agresión;Sí
+12;When someone is truly angry with me, I feel confused, afraid, and want to withdraw.;Habilidades para la vida;Motivación;Sí
+13;When someone is truly angry with me, I think I probably did something wrong and that person does not like me.;Estilos de comunicación interpersonal;Timidez;Sí
+14;When someone is truly angry with me, I think I have to respond even more forcefully so I do not end up defeated.;Estilos de comunicación interpersonal;Agresión;Sí
+15;When someone is truly angry with me, I think I should understand the reason for their anger and respond to them directly to resolve the conflict.;Estilos de comunicación interpersonal;Agresión;Sí
+16;When someone is truly angry with me, I behave by expressing my anger and intensifying the argument.;Estilos de comunicación interpersonal;Agresión;Sí
+17;When someone is truly angry with me, I behave by asking for an explanation of the anger and dealing frankly with the feelings.;Estilos de comunicación interpersonal;Agresión;Sí
+18;When someone is truly angry with me, I behave by backing down, offering excuses, and not expressing what I really feel.;Habilidades interpersonales;Asertividad;No
+19;When I communicate with a person who has "authority," I feel I have to be on the defensive and try to find the right strategy to approach them.;Habilidades interpersonales;Asertividad;No
+20;When I communicate with a person who has "authority," I feel comfortable and approach them directly.;Habilidades interpersonales;Asertividad;No
+21;When I communicate with a person who has "authority," I feel nervous and unsure about how to approach them.;Habilidades interpersonales;Asertividad;Sí
+22;When I communicate with a person who has "authority," I think I really should not bother them or take up their time.;Habilidades interpersonales;Asertividad;No
+23;When I communicate with a person who has "authority," I think what I want or need is so important that I can impose my point of view.;Habilidades interpersonales;Asertividad;No
+24;When I communicate with a person who has "authority," I think my needs are legitimate and that it is right for me to express them frankly.;Habilidades interpersonales;Asertividad;No
+25;When I communicate with a person who has "authority," I behave awkwardly and offer excuses.;Habilidades interpersonales;Asertividad;No
+26;When I communicate with a person who has "authority," I behave comfortably and calmly.;Habilidades interpersonales;Asertividad;No
+27;When I communicate with a person who has "authority," I behave defensively and even somewhat aggressively.;Habilidades interpersonales;Asertividad;Sí
+28;When someone asks me for something important, I feel nervous and anxious not to give the impression that I want to refuse.;Habilidades intrapersonales;Manejo de la tensión;Sí
+29;When someone asks me for something important, I feel comfortable saying "yes" or "no.";Habilidades interpersonales;Empatía;No
+30;When someone asks me for something important, I feel annoyed that they expect me to agree.;Habilidades para la vida;Liderazgo;No
+31;When someone asks me for something important, I think I have the right to say "yes" or "no" and I feel comfortable with either option.;Habilidades para la vida;Toma de decisiones;No
+32;When someone asks me for something important, I think I do not want anything imposed on me and so I refuse, even if that is not how I really feel.;Estilos de comunicación interpersonal;Timidez;No
+33;When someone asks me for something important, I say "yes" even though I should say "no.";Estilos de comunicación interpersonal;Timidez;No
+34;When someone asks me for something important, I behave defensively and refuse, or I make it clear that I disliked their request and then carry it out reluctantly.;Habilidades interpersonales;Asertividad;Sí
+35;When someone asks me for something important, I behave according to my true feelings and frankly tell them "yes" or "no.";Estilos de comunicación interpersonal;Agresión;No
+36;When someone asks me for something important, I react by agreeing to what they ask even though I do not want to.;Estilos de comunicación interpersonal;Agresión;No
+37;When I ask someone for something important, I feel anxious or reluctant to approach them.;Habilidades para la vida;Motivación;No
+38;When I ask someone for something important, I am more inclined to do what suits me than to respect the other person's feelings.;Estilos de comunicación interpersonal;Timidez;No
+39;When I ask someone for something important, I feel confident and comfortable with the right to make my request.;Habilidades interpersonales;Asertividad;No
+40;When I ask someone for something important, I think what I need or want is important, so the person should respond immediately.;Estilos de comunicación interpersonal;Timidez;No
+41;When I ask someone for something important, I think I really should not be bothering them with my request.;Habilidades interpersonales;Asertividad;No
+42;When I ask someone for something important, I think I have the right to do so, but that I will respect how the person decides to respond.;Habilidades para la vida;Toma de decisiones;No
+43;When I ask someone for something important, I do it in an exaggerated and insistent way.;Estilos de comunicación interpersonal;Timidez;No
+44;When I ask someone for something important, I behave calmly and make my request frankly.;Habilidades interpersonales;Asertividad;No
+45;When I ask someone for something important, I behave hesitantly and awkwardly when making my request.;Habilidades interpersonales;Asertividad;No
+46;When I am in a new group of people and need to start communicating, I feel anxious and confused about how to do it.;Propensión al cambio;Propensión al cambio;No
+47;When I am in a new group of people and need to start communicating, I feel comfortable.;Propensión al cambio;Propensión al cambio;No
+48;When I am in a new group of people and need to start communicating, I feel uncomfortable and pressured, but I do it.;Habilidades intrapersonales;Manejo de la tensión;No
+49;When I am in a new group of people and need to start communicating, I think it will be interesting to get to know each other better.;Habilidades para la vida;Motivación;No
+50;When I am in a new group of people and need to start communicating, I think I should do it whether or not the group is ready.;Propensión al cambio;Propensión al cambio;No
+51;When I am in a new group of people and need to start communicating, I think they are more relaxed than I am and that, anyway, I do not have much to say to them.;Habilidades para la vida;Liderazgo;Sí
+52;When I am in a new group of people and need to start communicating, I behave cautiously and wait until someone speaks to me.;Habilidades para la vida;Compromiso;No
+53;When I am in a new group of people and need to start communicating, I tend to talk a lot and even tend to come across as annoying.;Habilidades para la vida;Compromiso;No
+54;When I am in a new group of people and need to start communicating, I behave calmly, introduce myself to someone who seems interesting, or simply walk around.;Habilidades para la vida;Motivación;No
+55;I am a cheerful person.;Habilidades interpersonales;Empatía;No
+56;I solve my problems easily.;Habilidades para la vida;Toma de decisiones;No
+57;I am satisfied with the way I relate to others.;Habilidades interpersonales;Conciencia de los demás;No
+58;My voice is clear and others hear it.;Habilidades interpersonales;Conciencia de los demás;No
+59;My relationships with other people are easy and comfortable.;Habilidades interpersonales;Conciencia de los demás;No
+60;I am a person who cares about others, and it seems they sense that about me.;Habilidades interpersonales;Conciencia de los demás;No
+61;My everyday life is full of things that keep me interested.;Habilidades para la vida;Motivación;No
+62;I find it difficult to talk with people who have authority.;Estilos de comunicación interpersonal;Agresión;No
+63;I feel I can make up my mind very easily.;Habilidades para la vida;Toma de decisiones;No
+64;I am an important person.;Habilidades interpersonales;Empatía;No
+65;My feelings are not easily hurt.;Habilidades interpersonales;Empatía;No
+66;I am trustworthy and I can really depend on myself.;Habilidades para la vida;Administración del tiempo;No
+67;It seems I do not care what might happen to me.;Habilidades para la vida;Administración del tiempo;Sí
+68;I am confident in my ability to communicate easily and effectively with other people.;Habilidades interpersonales;Conciencia de los demás;No
+69;I know when I should speak and when I should listen.;Habilidades para la vida;Administración del tiempo;No
+70;I can understand and be patient with a person who is going through an emotional crisis.;Habilidades para la vida;Administración del tiempo;No
+71;I can ask my friends to help me, even if I cannot return the favor.;Habilidades para la vida;Administración del tiempo;No
+72;I find it very difficult to speak in front of a group of people.;Estilos de comunicación interpersonal;Timidez;Sí
+73;I face and solve problems as they arise, instead of avoiding them and putting them off.;Habilidades para la vida;Toma de decisiones;No
+74;I am a person who trusts myself.;Habilidades para la vida;Toma de decisiones;No
+75;I enjoy creating new interpersonal relationships, and I can describe myself as someone who cares about others.;Habilidades interpersonales;Conciencia de los demás;No
+76;People easily get me to change my mind, even after I have already made a decision.;Habilidades para la vida;Liderazgo;No
+77;I get impatient with others easily.;Habilidades interpersonales;Conciencia de los demás;No
+78;My nonverbal communication (eyes, facial expression, movements) facilitates my communication with others.;Habilidades interpersonales;Conciencia de los demás;No
+79;I am an affectionate and open person, so people feel comfortable telling me their concerns and personal feelings.;Habilidades para la vida;Toma de decisiones;No
+80;I am the kind of person people can really tell their personal problems to.;Habilidades para la vida;Liderazgo;No
+81;If given the opportunity, I could be a good executive.;Habilidades para la vida;Liderazgo;No
+82;I like myself and feel satisfied with the kind of person I am.;Habilidades para la vida;Liderazgo;No
+83;I am afraid of being myself.;Habilidades para la vida;Liderazgo;Sí
+84;I enjoy social gatherings just for the sake of being with people.;Habilidades para la vida;Liderazgo;No
+85;Because I am shy, I find it difficult to stand up for my rights.;Estilos de comunicación interpersonal;Timidez;Sí
+86;I am excited about myself and about the potential I can develop as a person.;Habilidades para la vida;Liderazgo;No
+87;I believe I should say what I feel when dealing with other people.;Habilidades interpersonales;Conciencia de los demás;No
+88;I know how to ask for a favor without imposing myself.;Habilidades interpersonales;Asertividad;No
+89;My friends tell me I am an understanding person.;Habilidades para la vida;Compromiso;No
+90;I feel others' emotions the way they do.;Habilidades para la vida;Compromiso;No
+91;For me, everything is possible if I believe in myself.;Habilidades para la vida;Compromiso;No
+92;I trust my ability to evaluate a situation that arises.;Habilidades intrapersonales;Autoestima;No
+93;I can describe myself as a creative person.;Habilidades interpersonales;Empatía;No
+94;I can handle the ups and downs of work.;Habilidades interpersonales;Empatía;No
+95;I feel comfortable showing my weaknesses to my friends.;Habilidades interpersonales;Empatía;No
+96;I am free to be myself and can handle the consequences.;Habilidades interpersonales;Empatía;No
+97;My handshake is confident and firm, and communicates a solid personality to others.;Habilidades interpersonales;Conciencia de los demás;No
+98;I know how close I can get to another person without making them feel uncomfortable.;Habilidades para la vida;Compromiso;No
+99;I have the ability to listen and truly understand other people's feelings.;Habilidades interpersonales;Conciencia de los demás;No
+100;Others consider me a good listener.;Habilidades para la vida;Compromiso;No
+101;Living for the future gives my life its main meaning.;Habilidades para la vida;Compromiso;No
+102;For me, work and fun are equally important in my life.;Habilidades para la vida;Compromiso;No
+103;I am assertive in my relationships with other people.;Habilidades interpersonales;Conciencia de los demás;No
+104;I feel I have control over my life.;Habilidades para la vida;Compromiso;No
+105;I have the ability to change or grow in the way I consider appropriate for myself.;Habilidades para la vida;Compromiso;No
+106;I can accept my mistakes instead of worrying about them.;Habilidades para la vida;Compromiso;No
+107;I can decide how friendly to be with a stranger.;Habilidades para la vida;Toma de decisiones;No
+108;I can decide whether it is right for me to introduce myself to other people or wait for someone else to do it for me.;Habilidades interpersonales;Conciencia de los demás;No
+109;I can understand how a person feels when they are talking with me.;Habilidades interpersonales;Empatía;No
+110;When a person is telling me something important, I really focus on listening to them.;Habilidades para la vida;Compromiso;No
+111;The future seems hopeful to me.;Habilidades para la vida;Toma de decisiones;No
+112;I am able to accept others as they are.;Habilidades para la vida;Liderazgo;No
+113;I regret many things I have done in the past.;Propensión al cambio;Propensión al cambio;No
+114;In my daily routine I experience changes and new things.;Propensión al cambio;Propensión al cambio;No
+115;I am able to discuss points of view that are contrary to my own.;Estilos de comunicación interpersonal;Timidez;No
+116;I am able to praise those I admire.;Estilos de comunicación interpersonal;Timidez;No
+117;I have the ability to feel comfortable with all kinds of people.;Estilos de comunicación interpersonal;Timidez;No
+118;I know when it is appropriate to give another person a pat on the shoulder.;Estilos de comunicación interpersonal;Timidez;No
+119;It seems I am able to sense precisely how another person feels.;Estilos de comunicación interpersonal;Timidez;No
+120;When someone tells me how they feel, I can listen to them and understand their point of view.;Propensión al cambio;Propensión al cambio;No
+121;I am an open, honest, and spontaneous person.;Propensión al cambio;Propensión al cambio;No
+122;I am regarded by others as a leader.;Habilidades para la vida;Liderazgo;No
+123;I am able to create new friendships or relationships.;Propensión al cambio;Propensión al cambio;No
+124;I set clear goals related to my career or my life.;Habilidades para la vida;Motivación;No
+125;When I carry out a task, I frequently evaluate my progress and get concrete feedback from the person in charge.;Habilidades para la vida;Toma de decisiones;No
+126;I am more likely to make a decision and act than to keep worrying about which alternative to take and get tense.;Habilidades para la vida;Toma de decisiones;Sí
+127;I have the ability to organize myself, following an efficient personal schedule.;Habilidades para la vida;Administración del tiempo;No
+128;I can get a group to agree with me when it is something that matters a great deal to me.;Habilidades para la vida;Motivación;No
+129;I intentionally work on building the future I want for myself.;Propensión al cambio;Propensión al cambio;No
+130;When I get involved in a task, I sometimes think about how I would feel if I fail.;Habilidades para la vida;Compromiso;No
+131;When I am part of a work team, I like to oversee that plans are carried out efficiently.;Habilidades para la vida;Liderazgo;No
+132;I make my decisions independently, and I rarely ask bosses, teachers, friends, or family for help.;Propensión al cambio;Propensión al cambio;No
+133;I am able to set goals for myself and achieve them within a specific period of time.;Habilidades para la vida;Motivación;No
+134;I have the ability to make a strong, positive impact on most of the people I meet.;Propensión al cambio;Propensión al cambio;No
+135;I try to incorporate challenges into my life.;Propensión al cambio;Propensión al cambio;No
+136;I prefer challenging activities—that is, those that involve risk or the possibility of failure.;Habilidades para la vida;Toma de decisiones;Sí
+137;I devote most of my time and energy to important projects.;Propensión al cambio;Propensión al cambio;No
+138;I have established a process that guides me in making important decisions.;Estilos de comunicación interpersonal;Timidez;No
+139;I have the ability to plan and finish my work on schedule.;Habilidades para la vida;Administración del tiempo;No
+140;I am able to be persuasive (to convince) without taking advantage of others.;Habilidades interpersonales;Conciencia de los demás;No
+141;I take risks that get me out of monotony.;Habilidades para la vida;Toma de decisiones;No
+142;I am willing to take on projects that involve some risk of failing.;Habilidades para la vida;Toma de decisiones;No
+143;I know how to set my own goals.;Habilidades para la vida;Motivación;No
+144;If I am involved in a group project, I can suggest solutions that the other members accept.;Habilidades interpersonales;Conciencia de los demás;No
+145;If I were evaluated in terms of effectiveness at work, I would get a good score on the way I manage my time.;Habilidades para la vida;Administración del tiempo;No
+146;I feel comfortable approaching another person with the idea of selling them something.;Habilidades para la vida;Liderazgo;No
+147;I seek out new activities, even if they do not make me feel comfortable or secure.;Habilidades para la vida;Liderazgo;Sí
+148;I think more about success than about failure when I start a new task.;Habilidades para la vida;Liderazgo;Sí
+149;I think that despite the uncertainty of the future, it is worthwhile to make plans.;Habilidades para la vida;Liderazgo;No
+150;Changes in my life cause me conflict.;Propensión al cambio;Propensión al cambio;No
+151;I waste little time.;Habilidades para la vida;Administración del tiempo;No
+152;If the team I belong to needs someone to speak for everyone, they tend to choose me.;Habilidades para la vida;Liderazgo;No
+153;Learning or doing new things fills me with enthusiasm.;Habilidades para la vida;Motivación;No
+154;When I am immersed in a difficult task, I think about all the resources I have available to complete it successfully.;Propensión al cambio;Propensión al cambio;Sí
+155;I feel that my current work is satisfying.;Estilos de comunicación interpersonal;Agresión;No
+156;When I face a difficult situation, I am able to see several alternatives and make a good decision.;Habilidades para la vida;Toma de decisiones;Sí
+157;I know exactly how much time I need to finish tasks and projects.;Habilidades para la vida;Administración del tiempo;No
+158;I can take charge of a situation when necessary.;Estilos de comunicación interpersonal;Timidez;No
+159;I enjoy the emotions that changes bring out in me.;Propensión al cambio;Propensión al cambio;No
+160;When I am working on a difficult task, I try to correct those personal weaknesses that might interfere with its successful completion.;Estilos de comunicación interpersonal;Timidez;Sí
+161;I prefer projects that require intense effort or a long-term commitment.;Habilidades para la vida;Motivación;Sí
+162;Future trends are a matter of indifference to me.;Estilos de comunicación interpersonal;Timidez;No
+163;I am an efficient and well-organized person.;Estilos de comunicación interpersonal;Timidez;No
+164;Because I am a convincing and credible person, my friends tend to ask me to "talk" with someone instead of doing it themselves.;Estilos de comunicación interpersonal;Timidez;No
+165;I dare to make mistakes.;Habilidades interpersonales;Empatía;No
+166;I think that planning future activities does not take away from what makes life interesting.;Habilidades para la vida;Motivación;No
+167;I can concentrate on a task for a long period of time.;Habilidades para la vida;Administración del tiempo;No
+168;My decisions tend to be accepted as "good" by the people involved.;Habilidades interpersonales;Conciencia de los demás;No
+169;I am able to manage my time in the present so I do not feel pressured by the things I left undone.;Habilidades para la vida;Administración del tiempo;No
+170;My friends involve me in solving their problems.;Habilidades intrapersonales;Autoestima;No
+171;I innovate.;Propensión al cambio;Propensión al cambio;No
+172;My tendency is not to give in easily when I face a difficult problem.;Habilidades intrapersonales;Autoestima;Sí
+173;On projects I am assigned, I prefer to work with a "subject-matter expert" rather than with a friend or acquaintance.;Habilidades intrapersonales;Autoestima;No
+174;My friends tend to ask me for help when making important decisions.;Habilidades intrapersonales;Autoestima;No
+175;I am among the first to arrive at meetings or events.;Habilidades intrapersonales;Autoestima;No
+176;I am a good salesperson (promoter of my ideas).;Habilidades intrapersonales;Autoestima;No
+177;If I fail, I try again.;Habilidades intrapersonales;Autoestima;Sí
+178;I have the ability to stay with a job even when I no longer feel like it.;Habilidades para la vida;Motivación;No
+179;I finish what I start.;Habilidades intrapersonales;Autoestima;No
+180;I am able to decide when a tense or difficult situation requires immediate action.;Habilidades para la vida;Toma de decisiones;Sí
+181;I arrive on time for my commitments.;Habilidades para la vida;Administración del tiempo;No
+182;I tend to talk with people who have differences so they can resolve their problems.;Habilidades intrapersonales;Autoestima;No
+183;I am open to new ideas.;Habilidades intrapersonales;Autoestima;No
+184;I am able to set priorities and reach the proposed objectives efficiently.;Habilidades para la vida;Motivación;No
+185;I have enough energy throughout the day to do what I have to do.;Habilidades intrapersonales;Bienestar físico;No
+186;I am sure of the decisions I make.;Habilidades intrapersonales;Autoestima;No
+187;I am able to work on several projects at the same time, with good results.;Habilidades para la vida;Administración del tiempo;No
+188;It seems I am able to "sell my image" to people with authority, by being just as I am.;Habilidades intrapersonales;Autoestima;No
+189;I get excited about setting personal goals that are difficult to reach.;Habilidades para la vida;Motivación;Sí
+190;I achieve what I set out to do.;Habilidades intrapersonales;Autoestima;No
+191;I intensely desire to succeed in what I set out to do.;Habilidades intrapersonales;Autoestima;No
+192;I make decisions easily and with good results.;Habilidades interpersonales;Empatía;No
+193;I have the ability to control my responsibilities instead of being controlled by them.;Habilidades para la vida;Compromiso;No
+194;I am unable to calm others in tense situations.;Habilidades intrapersonales;Manejo de la tensión;No
+195;I can change the course of my life easily if I consider it necessary.;Habilidades interpersonales;Conciencia de los demás;No
+196;When I start a difficult task, I am more motivated by thinking about success than about failure.;Habilidades para la vida;Motivación;Sí
+197;I am considered a reliable and responsible person.;Habilidades para la vida;Compromiso;No
+198;Even though I have worked hard, I have not gotten as far as I can or want to because my education or work has not given me the opportunity.;Habilidades interpersonales;Asertividad;Sí
+199;I have not been able to find the time to truly enjoy life the way I would like.;Habilidades para la vida;Administración del tiempo;No
+200;I am worried about some physical symptoms I have, such as headaches, insomnia, an ulcer, or high blood pressure.;Habilidades intrapersonales;Manejo de la tensión;Sí
+201;When something needs to be done, people look for me.;Habilidades interpersonales;Asertividad;No
+202;I get impatient watching someone trying to do something that I can do much faster.;Habilidades interpersonales;Asertividad;No
+203;I am a tense person.;Habilidades intrapersonales;Autoestima;No
+204;I feel physically healthy and full of energy.;Habilidades interpersonales;Empatía;No
+205;I have worked hard to finish projects by the set deadline, the agreed date, or one I imposed on myself.;Habilidades interpersonales;Empatía;No
+206;I find it difficult to unwind and have fun.;Habilidades interpersonales;Empatía;Sí
+207;I am not able to comfortably express strong emotions, such as fear, anger, or sadness.;Habilidades interpersonales;Empatía;Sí
+208;I sleep poorly.;Habilidades intrapersonales;Bienestar físico;Sí
+209;I have a strong sense of what is good or bad for me, and I behave accordingly.;Habilidades interpersonales;Empatía;Sí
+210;If I really calmed down and enjoyed life the way I would like, I would feel uncomfortable with myself.;Habilidades interpersonales;Empatía;No
+211;Even when I am on vacation or simply resting and having fun, I put pressure on myself trying to meet goals.;Habilidades para la vida;Compromiso;No
+212;I do things that are harmful to my health.;Habilidades intrapersonales;Bienestar físico;No
+213;I am confident in my ability to create a good life for myself.;Habilidades intrapersonales;Bienestar físico;No
+214;I want people to talk faster, and I find myself wanting to hurry them along.;Habilidades intrapersonales;Bienestar físico;No
+215;I can relax at the end of a long day and then fall asleep easily.;Habilidades intrapersonales;Bienestar físico;No
+216;I have healthy and nutritious eating habits.;Habilidades intrapersonales;Bienestar físico;No
+217;When I decide to do something, I carry it out.;Habilidades para la vida;Toma de decisiones;No
+218;I perceive that I do not have control over what I think, feel, or do.;Habilidades intrapersonales;Bienestar físico;Sí
+219;I am not able to relax naturally, so I tend to depend on other things to do so.;Habilidades intrapersonales;Manejo de la tensión;Sí
+220;I do not get tired easily, because I have enough physical vigor.;Habilidades intrapersonales;Bienestar físico;Sí
+221;I live my life according to my own personal values.;Habilidades intrapersonales;Bienestar físico;No
+222;I feel tense and pressured by the way I have to live.;Habilidades intrapersonales;Manejo de la tensión;Sí
+223;My coworkers and friends advise me to rest and relax.;Habilidades intrapersonales;Manejo de la tensión;No
+224;I exercise regularly to stay in good physical condition.;Habilidades intrapersonales;Bienestar físico;No
+225;In almost every kind of activity I carry out, I am able to perform well.;Habilidades intrapersonales;Manejo de la tensión;No
+226;I get impatient with myself and with others, and I tend to push to speed things up.;Habilidades intrapersonales;Manejo de la tensión;No
+227;I am under such tension that I can feel it in my body.;Habilidades intrapersonales;Manejo de la tensión;No
+228;I am a healthy person and I take care of myself physically and emotionally.;Habilidades intrapersonales;Manejo de la tensión;No
+229;I am a good worker, even when I am not supervised.;Habilidades intrapersonales;Manejo de la tensión;Sí
+230;My friends tend to tell me that I look worried, tense, or nervous.;Habilidades intrapersonales;Manejo de la tensión;Sí
+231;I handle tension well, and I have learned several healthy ways to relax.;Habilidades intrapersonales;Manejo de la tensión;No
+232;I picture myself living a long and healthy life.;Habilidades intrapersonales;Bienestar físico;No
+233;People admire my ability to achieve what I set out to do.;Habilidades para la vida;Motivación;No
+234;In my work I have a lot of tension.;Habilidades intrapersonales;Manejo de la tensión;No
+235;I have been unable to break my negative habits that are a problem for me.;Habilidades intrapersonales;Bienestar físico;No
+236;Many of my behaviors tend to be harmful to my health.;Habilidades intrapersonales;Bienestar físico;No
+237;I fulfill my tasks and obligations, even when I encounter difficulties.;Habilidades intrapersonales;Manejo de la tensión;No
+238;When I truly rest and do absolutely nothing for several days, I tend to feel guilty for having wasted so much time.;Habilidades intrapersonales;Bienestar físico;Sí
+239;I get extremely nervous and tense, and doctors have recommended that I slow down and calm myself.;Habilidades intrapersonales;Manejo de la tensión;Sí
+240;I wake up fresh and rested in the mornings.;Habilidades intrapersonales;Manejo de la tensión;No
+241;I tend not to fail at things that seem important to me.;Habilidades intrapersonales;Autoestima;No
+242;It seems I am continually striving to achieve results, but I do not take the time to honestly ask myself what I really want in life.;Habilidades para la vida;Motivación;Sí
+243;I apply procedures that allow me to manage my tensions effectively, such as rest techniques, exercise, or meditation.;Habilidades intrapersonales;Bienestar físico;No
+244;Compared with other people my age, I am sickly.;Habilidades interpersonales;Conciencia de los demás;No
+`;
+
+    function norm(str) { return (str || "").trim(); }
+
+    let ITEMS = [];
+
+    function parsePreguntas(csv) {
+      const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const rows = [];
+      for (const line of lines) {
+        const parts = line.split(";").map(norm);
+        if (parts.length < 5) continue;
+        const id = Number(parts[0]);
+        const invertida = parts[parts.length - 1];
+        const subhab = parts[parts.length - 2];
+        const bloque = parts[parts.length - 3];
+        const pregunta = parts.slice(1, parts.length - 3).join(";");
+        if (!Number.isFinite(id) || !pregunta) continue;
+        rows.push({
+          id, pregunta, bloque,
+          subhabilidad: subhab,
+          invertida: /^s(i|í)$/i.test(invertida) ? "Sí" : "No",
+          value: null
+        });
+      }
+      rows.sort((a,b)=>a.id-b.id);
+      return rows;
+    }
+
+    function updateProgress() {
+      const total = ITEMS.length;
+      const ans = ITEMS.filter(q => q.value != null).length;
+      const pct = total ? Math.round((ans / total) * 100) : 0;
+
+      document.getElementById("bar").style.width = pct + "%";
+      document.getElementById("pillTotal").textContent = "Total: " + ans + " / " + total + " (" + pct + "%)";
+
+      const bloques = new Set(ITEMS.map(q => q.bloque));
+      const subs = new Set(ITEMS.map(q => q.subhabilidad));
+      document.getElementById("metaInfo").textContent = bloques.size + " blocks · " + subs.size + " sub-skills";
+
+      document.getElementById("notaContinuar").textContent =
+        "NOTE: You must answer all questions to continue. Answered: " + ans + "/" + total + ".";
+    }
+
+    function construirPreguntas() {
+      ITEMS = parsePreguntas(PREGUNTAS_CSV);
+      currentPage = 0;
+      renderPage();
+      updateProgress();
+    }
+
+    function markRowAnswered(rowEl, q) {
+      if (!rowEl) return;
+      if (q && q.value != null) rowEl.classList.add("answered");
+      else rowEl.classList.remove("answered");
+    }
+
+    function renderPage() {
+      const cont = document.getElementById("questions");
+      cont.innerHTML = "";
+
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+
+      for (let i = start; i < end; i++) {
+        const q = ITEMS[i];
+        const row = document.createElement("div");
+        row.className = "question";
+
+        const colNo = document.createElement("div");
+        colNo.className = "q-no";
+        colNo.textContent = String(q.id).padStart(3, "0");
+        row.appendChild(colNo);
+
+        const colText = document.createElement("div");
+        const txt = document.createElement("span");
+        txt.className = "q-text";
+        txt.textContent = q.pregunta;
+        colText.appendChild(txt);
+        row.appendChild(colText);
+
+        ["CS","AV","RV"].forEach(code=>{
+          const cell = document.createElement("div");
+          cell.className="q-cell";
+
+          const r = document.createElement("input");
+          r.type="radio";
+          r.name="q_"+q.id;
+          r.value=code;
+
+          r.title = (code==="CS")?"Always":(code==="AV")?"Sometimes":"Rarely";
+          r.setAttribute("aria-label", r.title);
+
+          if (q.value != null) {
+            const inv = q.invertida === "Sí";
+            let expectedScore;
+            if (!inv) expectedScore = (code==="CS")?3:(code==="AV")?2:1;
+            else expectedScore = (code==="CS")?1:(code==="AV")?2:3;
+            if (q.value === expectedScore) r.checked = true;
+          }
+
+          r.addEventListener("change", ()=>{
+            const inv = q.invertida === "Sí";
+            let score;
+            if (!inv) score = (code==="CS")?3:(code==="AV")?2:1;
+            else score = (code==="CS")?1:(code==="AV")?2:3;
+
+            q.value = score;
+            markRowAnswered(row, q);
+            updateProgress();
+          });
+
+          cell.appendChild(r);
+          row.appendChild(cell);
+        });
+
+        markRowAnswered(row, q);
+        cont.appendChild(row);
+      }
+
+      document.getElementById("pageIndicator").textContent =
+        "Questions " + (start + 1) + "–" + end + " of " + total;
+
+      document.getElementById("btnSiguiente").textContent = (end >= total) ? "FINISH" : "NEXT";
+    }
+
+    function paginaCompleta() {
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+      for (let i = start; i < end; i++) if (ITEMS[i].value == null) return false;
+      return true;
+    }
+
+    function obtenerRespuestasCrudas() {
+      const map = {};
+      ITEMS.forEach(q => { if (q.value != null) map[String(q.id)] = q.value; });
+      return map;
+    }
+
+    function mostrarPantallaPreguntas() {
+      document.getElementById("pantalla-inicio").classList.add("hidden");
+      document.getElementById("datos-participante").classList.add("hidden");
+      document.getElementById("pantalla-final").style.display = "none";
+      document.getElementById("pantalla-preguntas").classList.remove("hidden");
+      renderPage();
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function aplicarState(state) {
+      if (!state) return;
+
+      document.getElementById("nombre").value = state.nombre || "";
+      document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
+      document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
+      document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
+      if (state.fecha) document.getElementById("fecha").value = state.fecha;
+
+      CODIGO_ACTUAL = state.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+
+      const resp = state.responses || {};
+      ITEMS.forEach(q => {
+        const v = resp[String(q.id)];
+        q.value = (typeof v === "number") ? v : null;
+      });
+
+      currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
+      __startTime = state.startTime || Date.now();
+    }
+
+    function iniciarEvaluacionNueva() {
+      __startTime = Date.now();
+      ITEMS.forEach(q => { q.value = null; });
+      currentPage = 0;
+      saveState(false);
+      mostrarPantallaPreguntas();
+    }
+
+    function onSiguienteClick() {
+      if (!paginaCompleta()) {
+        alert("NOTE: You must answer all questions on this page to continue.");
+        return;
+      }
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+
+      if (end >= total) onFinalizarClick();
+      else {
+        currentPage++;
+        saveState(false);
+        renderPage();
+        updateProgress();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    function normalizeBloqueName(name) {
+      if (!name) return "";
+      return name.replace(/\s+/g, " ").trim().toLowerCase();
+    }
+
+    function calcIV1_IV2_categories(items) {
+      const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
+      const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
+      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+      const stdev = arr => {
+        if (arr.length < 2) return 1;
+        const m = avg(arr);
+        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
+      };
+      const invNorm = invers.map(v => 4 - v);
+      const allNorm = direct.concat(invNorm);
+      if (!allNorm.length) return { iv1Cat: null, iv2Cat: null };
+      const s = stdev(allNorm);
+      const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
+      const diff = Math.abs(avg(direct) - avg(invNorm));
+      const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
+      return { iv1Cat, iv2Cat };
+    }
+
+    function calcularResultadosGlobales() {
+      if (!ITEMS.length) return null;
+
+      const subMap = new Map();
+      ITEMS.forEach(q => {
+        if (!subMap.has(q.subhabilidad))
+          subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
+        const s = subMap.get(q.subhabilidad);
+        s.items += 1;
+        s.pts += q.value ?? 0;
+      });
+
+      const subRows = Array.from(subMap.entries())
+        .map(([sub, v]) => {
+          const max = v.items * 3;
+          const pct = max ? Math.round((v.pts / max) * 100) : 0;
+          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct };
+        })
+        .sort(
+          (a, b) =>
+            (a.bloque || "").localeCompare(b.bloque || "") ||
+            (a.sub || "").localeCompare(b.sub || "")
+        );
+
+      const bloqMap = new Map();
+      subRows.forEach(r => {
+        if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0 });
+        const b = bloqMap.get(r.bloque);
+        b.sumPct += r.pct;
+        b.n += 1;
+      });
+
+      const bloqPercents = {};
+      Array.from(bloqMap.entries()).forEach(([bloque, a]) => {
+        const pct = a.n ? Math.round(a.sumPct / a.n) : 0;
+        bloqPercents[bloque] = pct;
+      });
+
+      function pctBloque(nombreEsperado) {
+        const key = Object.keys(bloqPercents).find(
+          k => normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado)
+        );
+        return key ? bloqPercents[key] : 0;
+      }
+
+      const bIntra = pctBloque("Habilidades intrapersonales");
+      const bInter = pctBloque("Habilidades interpersonales");
+      const bPV = pctBloque("Habilidades para la vida");
+      const iie =
+        [bIntra, bInter, bPV].filter(v => v > 0).length > 0
+          ? Math.round((bIntra + bInter + bPV) / 3)
+          : 0;
+
+      const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
+
+      const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
+      const iv3Cat =
+        mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
+
+      const bEstilos = pctBloque("Estilos de comunicación interpersonal");
+      const bCambio = pctBloque("Propensión al cambio");
+
+      return {
+        globales: { IIE: iie, IV1: iv1Cat, IV2: iv2Cat, IV3: iv3Cat },
+        bloques: {
+          intrapersonales: bIntra,
+          interpersonales: bInter,
+          para_la_vida: bPV,
+          estilos_comunicacion: bEstilos,
+          propension_cambio: bCambio
+        },
+        subhabilidades: subRows,
+        bloqPercents: bloqPercents
+      };
+    }
+
+    function onFinalizarClick() {
+      const nombre = document.getElementById("nombre").value.trim();
+      if (!nombre) { alert("Please enter your name."); return; }
+
+      const respuestas = obtenerRespuestasCrudas();
+      const total = ITEMS.length;
+      if (Object.keys(respuestas).length < total) { alert("There are still unanswered questions."); return; }
+
+      const resultados = calcularResultadosGlobales();
+
+      const payload = {
+        codigo: CODIGO_ACTUAL,
+        evaluacion: EVAL_PRODUCT_KEY,
+        idioma: EVAL_LANG,
+        snapshot: {
+          nombre,
+          institucion: document.getElementById("institucion").value,
+          grupo: document.getElementById("grupo").value,
+          curso: document.getElementById("curso").value,
+          version_banco: "IE-v1"
+        },
+        resultados,
+        responses: respuestas
+      };
+
+      saveState(true);
+
+      fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).catch(()=>{});
+
+      document.getElementById("datos-participante").classList.remove("hidden");
+      document.getElementById("nombre").readOnly = true;
+
+      document.getElementById("pantalla-preguntas").classList.add("hidden");
+      const pantallaFinal = document.getElementById("pantalla-final");
+      pantallaFinal.style.display = "block";
+      pantallaFinal.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function inicializarDatosFijos() {
+      document.getElementById("institucion").value = DATOS_FIJOS.institucion;
+      document.getElementById("grupo").value = DATOS_FIJOS.grupo;
+      document.getElementById("curso").value = DATOS_FIJOS.curso;
+
+      const hoy = new Date();
+      try {
+        const fmt = new Intl.DateTimeFormat("en-US", { year:"numeric", month:"2-digit", day:"2-digit" });
+        document.getElementById("fecha").value = fmt.format(hoy);
+      } catch {
+        const dd = String(hoy.getDate()).padStart(2, "0");
+        const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+        const yyyy = hoy.getFullYear();
+        document.getElementById("fecha").value = dd + "/" + mm + "/" + yyyy;
+      }
+    }
+
+    function validarAntesDeIniciar() {
+      const nombre = document.getElementById("nombre").value.trim();
+      if (!nombre) { alert("Please enter your name before starting."); return false; }
+      return true;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      inicializarDatosFijos();
+      construirPreguntas();
+
+      btnIniciar.disabled = true;
+
+      btnIniciar.addEventListener("click", async () => {
+        if (!validarAntesDeIniciar()) return;
+
+        if (!CODIGO_ACTUAL) {
+          await lookupCodigo();
+        }
+        if (!CODIGO_ACTUAL) {
+          alert("Please validate the code before starting.");
+          return;
+        }
+
+        const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+
+        let serverState = null;
+        if (codigo) serverState = await cargarAutosaveServidor(codigo);
+
+        const localSaved = loadStateForCurrentCode();
+        const candidate = serverState || localSaved;
+
+        if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
+          const retomar = confirm("An in-progress assessment was found for this code. Do you want to continue where you left off?");
+          if (retomar) {
+            aplicarState(candidate);
+            mostrarPantallaPreguntas();
+            return;
+          } else {
+            clearState();
+          }
+        }
+
+        iniciarEvaluacionNueva();
+      });
+
+      document.getElementById("btnSiguiente").addEventListener("click", onSiguienteClick);
+
+      document.getElementById("btnRegresarMenu").addEventListener("click", () => {
+        window.location.href = "index-en.html";
+      });
+    });
+  </script>
+</body>
+</html>
