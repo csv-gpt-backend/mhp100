@@ -15,6 +15,19 @@
     .muted{color:var(--muted)}
     .topbar{display:flex;gap:12px;align-items:center;margin-bottom:8px;justify-content:center;flex-wrap:wrap}
     .topbar input{flex:1;max-width:220px;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;text-transform:uppercase}
+    .reporte-build-stamp{
+      position:fixed;
+      left:10px;
+      bottom:10px;
+      z-index:9998;
+      font-size:10px;
+      font-weight:600;
+      letter-spacing:.03em;
+      color:#94a3b8;
+      opacity:.72;
+      user-select:all;
+      pointer-events:none;
+    }
     .intro-logo-wrap{display:flex;justify-content:center;align-items:center;margin:28px 0 14px}
     .intro-logo{width:256px;max-width:78vw;height:auto;object-fit:contain}
     .ingreso-titulo{
@@ -28,12 +41,25 @@
     .msg.err{color:#c00}
     .hint{font-size:12px;color:var(--muted);margin-bottom:8px}
 
-    .rep-top{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:6px;}
+    .rep-top{border-bottom:none;padding-bottom:6px;margin-bottom:6px;}
     .rep-top-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px;margin-bottom:6px;}
     .rep-date{justify-self:flex-start;}
     .rep-top-center{text-align:center;font-weight:700;text-transform:uppercase;}
     .rep-top-logo{justify-self:flex-end;}
-    .mhp-logo{height:200px;margin-left:12px;margin-top:-4px;object-fit:contain;}
+    .mhp-logo{height:90px;margin-left:8px;margin-top:0;object-fit:contain;}
+    #page1 .mhp-logo,
+    #pageInterpretacion .mhp-logo{height:90px;margin-left:8px;margin-top:0;}
+    .reporte-pie-adalam{
+      margin-top:16px;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+      text-align:center;
+      font-size:11px;
+      color:var(--muted);
+      letter-spacing:.02em;
+    }
+    #page1 .reporte-pie-page1{margin-top:14px}
+    .reporte-acciones-pantalla{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase;}
     .rep-top-row3{text-align:center;font-size:18px;font-weight:800;}
 
@@ -46,39 +72,45 @@
     .page-break{height:0;margin:0;border:0}
     @media print{
       @page{ size:A4; margin:8mm 8mm }
-      .topbar,.hint,.intro-logo-wrap,.ingreso-titulo{display:none !important}
-      body{zoom:0.92;}
+      .topbar,.hint,.intro-logo-wrap,.ingreso-titulo,.ingreso-panel,.reporte-build-stamp,#btnImprimir,#btnPDF,.reporte-acciones-pantalla{display:none !important}
+      body{-webkit-print-color-adjust:exact;print-color-adjust:exact;zoom:0.92;}
       .wrap{max-width:none;margin:0 auto;padding:0 6px}
       .page{margin-top:0;break-inside:auto}
       .page-break{page-break-before:always}
       /* Mantener la PARTE 1 en una sola hoja */
-      #page1{zoom:0.90;}
-      #tituloCurvaFrecuencias{font-size:12px !important;white-space:nowrap;letter-spacing:0}
+      #page1{zoom:0.90;page-break-after:always; break-after:page;}
+      #page1 *{break-inside:avoid;}
       .rep-top{margin-bottom:4px;padding-bottom:4px}
       .rep-ids{margin-top:4px !important}
       .rep-mid{margin-top:4px !important}
-      .mhp-logo{height:130px !important;margin-top:0 !important}
+      .mhp-logo{height:72px !important;margin-top:0 !important;margin-left:4px !important}
+      #page1 .mhp-logo,
+      #pageInterpretacion .mhp-logo{height:72px !important}
       .rep-top-row2{font-size:22px !important;margin-bottom:0 !important}
       .rep-top-row3{font-size:16px !important}
       .bloque-title{margin:8px 0 4px !important}
       .scale-section{margin-top:8px !important}
-      /* Compactación para confirmar que la Página 1 quede completa */
-      #page1{page-break-after:always; break-after:page;}
-      #page1 *{break-inside:avoid;}
-      .rep-top{padding-bottom:4px;margin-bottom:4px}
-      .rep-top-row2{font-size:22px;margin-bottom:0}
-      .rep-top-row3{font-size:16px}
-      .mhp-logo{height:140px;margin-top:-14px}
       #repHeaderBox{padding:4px !important}
-      .rep-mid{margin-top:6px !important}
-      .bloque-title{margin:8px 0 4px}
       .iie-row{margin:8px 0 4px}
-      .scale-section{margin-top:8px}
       .bars-row{margin:6px 0}
       .bars-slot{height:18px}
       .bars-slot .tick-label{top:15px}
       .scale-note-inline{margin-top:2px}
-
+      #page1 .reporte-pie-page1,
+      #pageInterpretacion .reporte-pie-page2{
+        margin-top:12px;
+        text-align:center;
+        font-size:10.5px;
+        break-inside:avoid;
+        page-break-inside:avoid;
+      }
+      .iv-legend{
+        flex-wrap:nowrap !important;
+        gap:10px !important;
+        font-size:10px !important;
+        white-space:nowrap;
+      }
+      .iv-legend span{white-space:nowrap}
     }
 
 
@@ -200,6 +232,7 @@
 </head>
 <body>
 <div class="wrap">
+  <div id="ingresoPanel" class="ingreso-panel">
   <div class="intro-logo-wrap">
     <img src="assets/logo_adalam.webp" alt="Adalam seal" class="intro-logo" width="248" height="99"/>
   </div>
@@ -209,7 +242,9 @@
     <button type="button" class="btn" id="btnVer">View report</button>
     <span id="msg" class="msg"></span>
   </div>
+  <span class="report-build-stamp" id="reporteBuildStamp" title="Internal version control (does not appear in PDF)" aria-hidden="true"></span>
   <div class="hint ingreso-usuario">Enter a <strong>valid code</strong>—the same one you <strong>used</strong> when you took the Socioemotional Assessment.</div>
+  </div>
 
   <div id="reporteContainer" style="display:none">
     <!-- ===== PAGE 1 ===== -->
@@ -381,8 +416,9 @@
         <div class="scale-note-inline">      Lower adaptability to change       —        Higher adaptability to change</div>
       </div>
 
-      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-        <button id="btnImprimir" class="btn" style="background:#2563eb">Print / PDF</button>
+      <p class="reporte-pie-adalam reporte-pie-page1">Adalam — Socioemotional Assessment Report</p>
+      <div class="reporte-acciones-pantalla">
+        <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Print / PDF</button>
       </div>
     </section>
 
@@ -438,6 +474,7 @@
       <div id="perfilGlobal" class="interp-bloque"></div>
       <div id="recomendaciones" class="interp-bloque"></div>
       <div id="planAccion" class="interp-bloque"></div>
+      <p class="reporte-pie-adalam reporte-pie-page2">Adalam — Socioemotional Assessment Interpretation</p>
     </section>
 
     <div class="page-break"></div>
@@ -446,6 +483,9 @@
     <section class="page page-2" id="page2">
       <div class="p2-title">
         <h2>OVERALL RESULTS</h2>
+      </div>
+      <div class="reporte-acciones-pantalla">
+        <button type="button" class="btn" id="btnPDF" style="background:#2563eb">Print / PDF</button>
       </div>
 
       <div class="card">
@@ -467,14 +507,20 @@
           <span class="badge b-green">71–100</span>
         </div>
       </div>
-      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-        <button type="button" class="btn" id="btnPDF" style="background:#2563eb">Print / PDF</button>
-      </div>
     </section>
   </div>
 </div>
 
 <script>
+  const REPORT_PRODUCT_KEY = "SOCIOE";
+  const REPORT_UI_LANG = "EN";
+  /* Señal interna (no sale en PDF). Formato: UP + DD + MM + AA + HHMM */
+  const REPORTE_BUILD_ID = "UP2805262205";
+  (function(){
+    const el = document.getElementById("reporteBuildStamp");
+    if (el) el.textContent = "· " + REPORTE_BUILD_ID;
+  })();
+
   const $ = sel => document.querySelector(sel);
   function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
   function normalizeName(name){ return (name||"").replace(/\s+/g," ").trim().toLowerCase(); }
@@ -2416,13 +2462,7 @@ const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
       ]);
     }
 
-    const foot=document.createElement("div");
-    foot.style.textAlign="right";
-    foot.style.fontSize="10px";
-    foot.style.color="var(--muted)";
-    foot.style.marginTop="8px";
-    foot.textContent="ADALAM — Socioemotional assessment report.";
-    cont.appendChild(foot);
+    // Interpretation footer: fixed HTML (reporte-pie-page2). Do not duplicate here.
   }
 
   function renderPerfilGlobal(extras){
@@ -2603,7 +2643,7 @@ const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
     const ahora = new Date();
     document.getElementById("repDateLine").textContent = ahora.toLocaleString("en-US", { dateStyle:"short", timeStyle:"short" });
 
-    const fechaTexto = fechaObj ? fechaObj.toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" }) : "—";
+    const fechaTexto = fechaObj ? fechaObj.toLocaleDateString("en-US", { year:"numeric", month:"long", day:"2-digit" }) : "—";
     const nombre = snap.nombre || attempt.nombre || "—";
     const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
 const esProfesional = codigoActual.startsWith("PRO");
@@ -2706,15 +2746,25 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
     });
 
     document.getElementById("reporteContainer").style.display="block";
+    const ingreso = document.getElementById("ingresoPanel");
+    if (ingreso) ingreso.style.display = "none";
   }
 
   async function cargarReporte(codigo){
     document.getElementById("msg").textContent = "Searching...";
     document.getElementById("msg").className = "msg";
     document.getElementById("reporteContainer").style.display = "none";
+    const ingreso = document.getElementById("ingresoPanel");
+    if (ingreso) ingreso.style.display = "";
     try{
-      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const q = new URLSearchParams({ codigo, eval: REPORT_PRODUCT_KEY, idioma: REPORT_UI_LANG });
+      const r = await fetch(`/api/report?${q.toString()}`);
       const data = await r.json();
+      if (r.status === 403 && (data.eval_mismatch || data.idioma_mismatch)) {
+        document.getElementById("msg").textContent = data.error || "This code does not belong to this report.";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
       if(!r.ok || data.error){
         document.getElementById("msg").textContent = data.error || "Not found";
         document.getElementById("msg").className = "msg err";
@@ -2730,8 +2780,8 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
         document.getElementById("msg").className = "msg err";
         return;
       }
-      document.getElementById("msg").textContent = "Report loaded.";
-      document.getElementById("msg").className = "msg ok";
+      document.getElementById("msg").textContent = "";
+      document.getElementById("msg").className = "msg";
       renderAll(data);
       window.scrollTo({top:0,behavior:"smooth"});
     }catch(e){
