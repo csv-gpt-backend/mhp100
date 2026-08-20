@@ -11,7 +11,6 @@ function isIdiomaLockedReportEval(raw) {
   const t = String(raw || "").trim().toUpperCase();
   if (t === "APREND" || t === "APRENDIZAJE" || t === "APREN" || t === "APR") return true;
   if (t === "HABITO" || t === "HABITOS" || t === "HABIT" || t === "HAB") return true;
-  if (t === "SOCIOE" || t === "SOCIOEMOCIONAL" || t === "SOCIO" || t === "SOC") return true;
   return false;
 }
 
