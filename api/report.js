@@ -7,9 +7,11 @@ const {
   normalizeIdioma,
 } = require("./eval-codigo");
 
-function isAprendizajeReportEval(raw) {
+function isIdiomaLockedReportEval(raw) {
   const t = String(raw || "").trim().toUpperCase();
-  return t === "APREND" || t === "APRENDIZAJE" || t === "APREN" || t === "APR";
+  if (t === "APREND" || t === "APRENDIZAJE" || t === "APREN" || t === "APR") return true;
+  if (t === "HABITO" || t === "HABITOS" || t === "HABIT" || t === "HAB") return true;
+  return false;
 }
 
 module.exports = async function handler(req, res) {
@@ -65,7 +67,7 @@ module.exports = async function handler(req, res) {
           eval_esperada: check.eval_esperada,
         });
       }
-      if (isAprendizajeReportEval(evalEsperada)) {
+      if (isIdiomaLockedReportEval(evalEsperada)) {
         const checkI = validateCodigoIdioma(codigo, uiLang, participant);
         if (!checkI.ok) {
           return res.status(403).json({

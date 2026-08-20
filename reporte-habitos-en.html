@@ -741,7 +741,7 @@ async function cargar(){
   try{
     const q=new URLSearchParams({ codigo:c, eval:REPORT_PRODUCT_KEY, idioma:REPORT_UI_LANG });
     const r=await fetch(`/api/report?${q.toString()}`); const data=await r.json();
-    if(r.status===403 && data.eval_mismatch){
+    if(r.status===403 && (data.eval_mismatch || data.idioma_mismatch)){
       $("msg").textContent=data.error||"This code does not match this report.";
       $("msg").className="msg err";
       try{$("ver").disabled=false; $("ver").style.opacity="1"; $("ver").style.cursor="pointer";}catch(_e){}
