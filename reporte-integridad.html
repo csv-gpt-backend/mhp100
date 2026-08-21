@@ -98,14 +98,14 @@
       #page1 .rep-box,
       #page1 .row2,
       #page1 .cards2x2,
-      #page1 .iviRow{break-inside:avoid; page-break-inside:avoid;}
-      #page1 .iviSoft,
-      #page1 .starNote{break-inside:auto; page-break-inside:auto;}
+      #page1 #iviIndexRow{break-inside:avoid; page-break-inside:avoid;}
+      #page1 .iviSoft{break-inside:auto; page-break-inside:auto;}
+      #page1 .starNote,
       #page1 .reporte-pie-page1{
-        break-before:avoid;
-        page-break-before:avoid;
         break-inside:avoid;
         page-break-inside:avoid;
+        break-before:avoid;
+        page-break-before:avoid;
       }
       .rep-top{margin-bottom:4px;padding-bottom:4px}
       .rep-ids{margin-top:4px !important}
@@ -273,15 +273,22 @@
     max-width:100% !important;
     box-sizing:border-box !important;
   }
-  /* IVI claramente separado de las cards (pantalla + PDF) */
-  #page1 .iviRow{
-    margin-top:28px !important;
+  /* Separación fija cards → IVI (height no colapsa en PDF) */
+  #page1 > .ivi-gap{
+    display:block !important;
+    height:32px !important;
+    width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+  #page1 > #iviIndexRow{
+    margin-top:0 !important;
     gap:10px !important;
   }
   #page1 .iviCaption{ font-size:15px !important; }
   #page1 .iviTag{ padding:8px 10px !important; }
   #page1 .iviVal{ padding:8px 14px !important; font-size:20px !important; }
-  #page1 #repSeals .seal{ width:52px !important; }
+  #page1 #repSeals .seal{ width:48px !important; }
   #page1 .iviSoft{
     margin-top:8px !important;
     font-size:12px !important;
@@ -291,16 +298,20 @@
     margin-top:8px !important;
     font-size:12px !important;
     line-height:1.35 !important;
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
   }
   #page1 .starNote .iviLevels{
     margin:10px 0 0 0 !important;
-    font-size:13px !important;
-    gap:5px !important;
-    line-height:1.4 !important;
+    font-size:12.5px !important;
+    gap:4px !important;
+    line-height:1.35 !important;
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
   }
-  #page1 .iviLevelsNote{ margin-top:5px !important; font-size:11.5px !important; }
+  #page1 .iviLevelsNote{ margin-top:4px !important; font-size:11.5px !important; }
   #page1 .reporte-pie-page1{
-    margin-top:10px !important;
+    margin-top:8px !important;
     padding-top:8px !important;
     break-before:avoid !important;
     page-break-before:avoid !important;
@@ -479,8 +490,21 @@
   align-items:center;
   gap:10px;
 }
-#page1 > .cards2x2{ margin-bottom:4px; }
-#page1 > .iviRow{ margin-top:28px !important; }
+/* Separación REAL (no colapsa) entre tarjetas e IVI */
+#page1 > .ivi-gap{
+  display:block !important;
+  height:36px !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  pointer-events:none;
+}
+#page1 > #iviIndexRow,
+#page1 > .iviRow#iviIndexRow{
+  margin-top:0 !important;
+  padding-top:0 !important;
+}
     /* Título “INDICE DE VALORES E INTEGRIDAD” más grande y centrado */
 /* 🔧 Forzar 1 sola línea: Título + [IVI|xx] */
 .iviLeft{
@@ -988,7 +1012,9 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
       </div>
     </div>
 
-<div class="iviRow">
+    <div class="ivi-gap" aria-hidden="true"></div>
+
+<div class="iviRow" id="iviIndexRow">
   <div class="iviLeft">
     <div class="iviCaption">INDICE DE VALORES E INTEGRIDAD</div>
     <div class="iviBox">
