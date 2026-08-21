@@ -118,32 +118,63 @@
       .section-title{margin-bottom:8px !important}
       .scale-note-inline{margin-top:8px !important}
       .scale-range-header{margin-bottom:6px !important}
-      /* Evitar títulos/subtítulos huérfanos al pie (PDF) — no tocar curvas/textos */
-      h2, h3, h4,
-      .section-title,
-      .bloque-title,
-      .interp-title,
-      .interp-bloque-nombre,
-      .interp-bloque-header,
-      .interpTitle,
-      .iviTitle,
-      .iviGuideTitle,
-      .iviGuideTitleRow,
-      .plan-section-title,
-      .esc-comp-title,
-      .esc-comp-subtitle,
-      .numsec h3,
-      .numsec h4,
-      .part2top h3{
+            /* Interpretación: regla amplia — ningún encabezado de sección solo al pie */
+      #pageInterpretacion h2, #pageInterpretacion h3, #pageInterpretacion h4,
+      #page2 h2, #page2 h3, #page2 h4,
+      #p2 h2, #p2 h3, #p2 h4,
+      #pageInterpretacion .section-title,
+      #pageInterpretacion .bloque-title,
+      #pageInterpretacion .interp-title,
+      #pageInterpretacion .interp-bloque-nombre,
+      #pageInterpretacion .interp-bloque-header,
+      #pageInterpretacion .interpTitle,
+      #pageInterpretacion .iviTitle,
+      #pageInterpretacion .iviGuideTitle,
+      #pageInterpretacion .iviGuideTitleRow,
+      #pageInterpretacion .plan-section-title,
+      #pageInterpretacion .plan-focus-head,
+      #pageInterpretacion .skill-row-title,
+      #pageInterpretacion .esc-comp-title,
+      #pageInterpretacion .esc-comp-subtitle,
+      #pageInterpretacion .sec-head,
+      #pageInterpretacion .recom-list > li.sec-head,
+      #page2 .section-title,
+      #page2 .bloque-title,
+      #page2 .interp-title,
+      #page2 .interp-bloque-nombre,
+      #page2 .interp-bloque-header,
+      #page2 .interpTitle,
+      #page2 .iviTitle,
+      #page2 .iviGuideTitle,
+      #page2 .iviGuideTitleRow,
+      #page2 .plan-section-title,
+      #page2 .plan-focus-head,
+      #page2 .skill-row-title,
+      #page2 .esc-comp-title,
+      #page2 .esc-comp-subtitle,
+      #page2 .sec-head,
+      #page2 .recom-list > li.sec-head,
+      #page2 .numsec h3,
+      #page2 .numsec h4,
+      #page2 .part2top h3,
+      #page2 .interp-box > h3,
+      #page2 .recom-box > h3,
+      #page2 .ctx-box > h3,
+      #p2 .section-title,
+      #p2 .numsec h3,
+      #p2 .numsec h4,
+      #p2 .part2top h3,
+      #p2 .sec-head{
         break-after:avoid !important;
         page-break-after:avoid !important;
       }
-      .iviGuideKeep{
+      #pageInterpretacion .iviGuideKeep,
+      #page2 .iviGuideKeep,
+      #pageInterpretacion .skill-row{
         break-inside:avoid !important;
         page-break-inside:avoid !important;
       }
-
-    }
+}
 
 
     .bloque-title{font-weight:800;margin:12px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -2111,6 +2142,7 @@ agresion: {
     const addGroup = (title, items, opts={}) => {
       if(!items || !items.length) return;
       const liHead = document.createElement("li");
+      liHead.className = "sec-head";
       liHead.textContent = title + ":";
       liHead.style.fontWeight = "800";
       if(opts.marginTop) liHead.style.marginTop = opts.marginTop;
@@ -2130,6 +2162,7 @@ agresion: {
     // Comunicación interpersonal (baja una línea y evita duplicar Timidez/Agresión)
     if (extras.timidezVal != null || extras.agresionVal != null){
       const liHead = document.createElement("li");
+      liHead.className = "sec-head";
       liHead.textContent = "INTERPERSONAL COMMUNICATION:";
       liHead.style.fontWeight = "800";
       liHead.style.marginTop = "10px"; // baja una línea
@@ -2138,6 +2171,7 @@ agresion: {
       // Timidez (invertida)
       if (extras.timidezVal != null){
         const liSub = document.createElement("li");
+        liSub.className = "sec-head";
         liSub.textContent = "Shyness:";
         liSub.style.fontWeight = "700";
         lista.appendChild(liSub);
@@ -2153,6 +2187,7 @@ agresion: {
       // Agresión
       if (extras.agresionVal != null){
         const liSub = document.createElement("li");
+        liSub.className = "sec-head";
         liSub.textContent = "Aggression:";
         liSub.style.fontWeight = "700";
         liSub.style.marginTop = "6px";
@@ -2399,6 +2434,7 @@ const pack = PLAN_ACCION_NIVEL[f.key]?.[f.nivel]?.[perfilPlan];
 
         if(grp && grp !== lastGrp){
           const liHead=document.createElement("li");
+          liHead.className = "sec-head";
           liHead.textContent = grp + " (priority):";
           liHead.style.fontWeight = "800";
           liHead.style.listStyle = "none";
