@@ -12,6 +12,7 @@ function isIdiomaLockedReportEval(raw) {
   if (t === "APREND" || t === "APRENDIZAJE" || t === "APREN" || t === "APR") return true;
   if (t === "HABITO" || t === "HABITOS" || t === "HABIT" || t === "HAB") return true;
   if (t === "SOCIOE" || t === "SOCIOEMOCIONAL" || t === "SOCIO" || t === "SOC") return true;
+  if (t === "INTEGR" || t === "INTEGRIDAD" || t === "VALORES" || t === "INTG") return true;
   return false;
 }
 
