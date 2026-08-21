@@ -86,61 +86,38 @@
     @media print{
       .page-break{margin-bottom:0;}
 
-      @page{ size:A4; margin:5mm 7mm }
+      @page{ size:A4; margin:7mm 8mm }
       .ingreso-panel,.hint,.reporte-build-stamp,#btnImprimir,#btnPDF,.reporte-acciones-pantalla{display:none !important}
       body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
       .wrap{max-width:none;margin:0 auto;padding:0 !important;box-sizing:border-box !important}
-      .page{margin-top:0;break-inside:auto;box-sizing:border-box !important;max-width:100% !important;overflow-x:hidden !important}
+      .page{margin-top:0;break-inside:auto;box-sizing:border-box !important;max-width:100% !important;overflow:visible !important}
       .page-break{break-after:page;page-break-after:always;margin-bottom:0;}
-      #page1{page-break-after:always; break-after:page;}
-      /* Bloques duros: no romper curva/cards/IVI. Sellos SÍ pueden fluir (evita hoja huérfana). */
+      #page1{page-break-after:always; break-after:page; zoom:0.96;}
+
+      /* Curva/cards/IVI no se parten; cierre (sellos+pie) va JUNTO */
       #page1 .rep-head,
       #page1 .rep-box,
       #page1 .row2,
       #page1 .cards2x2,
-      #page1 #iviIndexRow{break-inside:avoid; page-break-inside:avoid;}
-      #page1 .iviSoft,
-      #page1 .starNote,
-      #page1 .starNote .iviLevels{
-        break-inside:auto !important;
-        page-break-inside:auto !important;
-      }
-      #page1 .reporte-pie-page1{
-        break-before:avoid;
-        page-break-before:avoid;
+      #page1 #iviIndexRow,
+      #page1 .page1-cierre{
         break-inside:avoid;
         page-break-inside:avoid;
       }
-      .rep-top{margin-bottom:2px;padding-bottom:2px}
-      .rep-ids{margin-top:2px !important}
-      .rep-mid{margin-top:2px !important}
-      .mhp-logo{height:52px !important;width:auto !important;object-fit:contain;display:block;}
+
+      .rep-top{margin-bottom:6px;padding-bottom:4px}
+      .mhp-logo{height:72px !important;width:auto !important;object-fit:contain;display:block;}
       #page1 .mhp-logo,
-      #page2 .mhp-logo{height:52px !important;}
-      .rep-top-row2{font-size:22px !important;margin-bottom:0 !important}
-      .rep-top-row3{font-size:16px !important}
-      .bloque-title{margin:8px 0 4px !important}
-      .scale-section{margin-top:8px !important}
-      .rep-top{padding-bottom:2px;margin-bottom:2px}
-      .rep-top-row2{font-size:22px;margin-bottom:0}
-      .rep-top-row3{font-size:16px}
-      #repHeaderBox{padding:4px !important}
-      .rep-mid{margin-top:4px !important}
-      .bloque-title{margin:8px 0 4px}
-      .iie-row{margin:8px 0 4px}
-      .scale-section{margin-top:8px}
-      .bars-row{margin:6px 0}
-      .bars-slot{height:18px}
-      .bars-slot .tick-label{top:15px}
-      .scale-note-inline{margin-top:2px}
+      #page2 .mhp-logo{height:72px !important;}
+      #repHeaderBox{padding:8px 10px !important}
+
       #page1 .reporte-pie-page1,
       #page2 .reporte-pie-page2{
-        margin-top:6px;
+        margin-top:10px;
         text-align:center;
-        font-size:10.5px;
-        break-inside:avoid;
-        page-break-inside:avoid;
+        font-size:11px;
       }
+
   /* === FIX PDF: asegurar que la curva (SVG) se imprima === */
   *{
     -webkit-print-color-adjust: exact !important;
@@ -159,16 +136,14 @@
     -webkit-backdrop-filter: none !important;
   }
 
-  /* Quitar filtros que suelen "romper" SVG en PDF */
   .curve-3d{ filter: none !important; }
   #curveFill{ filter: none !important; }
 
-  /* Parte 2 PDF: una habilidad debajo de otra (mismo texto que en pantalla) */
   .page, .pagina{
     max-width:100% !important;
     width:100% !important;
     box-sizing:border-box !important;
-    padding:2mm 5mm 3mm 5mm !important;
+    padding:4mm 6mm !important;
     margin:0 !important;
     border:0 !important;
     box-shadow:none !important;
@@ -177,8 +152,7 @@
   #page1{
     box-sizing:border-box !important;
     max-width:100% !important;
-    overflow-x:hidden !important;
-    padding-top:1mm !important;
+    overflow:visible !important;
   }
   #page2{
     overflow:visible !important;
@@ -217,122 +191,100 @@
   .iviLevelsNote{ margin-left:0 !important; }
   .scale-note-inline{ left:0 !important; text-align:center !important; }
 
-  /* PDF hoja1: subir contenido (usar vacío de arriba) + IVI separado + 1 hoja */
+  /* Hoja1 descomprimida: tamaños normales + IVI separado + cierre unido */
   .curve-marker{ transition:none !important; }
   #page1 .rep-date{
     text-align:left !important;
-    margin:0 0 1px 0 !important;
-    font-size:11px !important;
-    line-height:1.2 !important;
+    margin:0 0 4px 0 !important;
+    font-size:12px !important;
   }
-  #page1 .rep-title{ font-size:17px !important; }
-  #page1 .rep-subtitle{ font-size:12px !important; }
-  #page1 .rep-box{ padding:5px 8px !important; margin:4px 0 4px !important; font-size:12px !important; }
+  #page1 .rep-title{ font-size:20px !important; }
+  #page1 .rep-subtitle{ font-size:13px !important; }
+  #page1 .rep-box{ padding:8px 10px !important; margin:8px 0 !important; font-size:13px !important; }
   #page1 .row2{
     grid-template-columns:1.2fr .8fr !important;
-    gap:8px !important;
+    gap:12px !important;
     width:100% !important;
     max-width:100% !important;
     box-sizing:border-box !important;
-    margin:4px 0 6px !important;
+    margin:8px 0 10px !important;
   }
   #page1 .row2 > *{ min-width:0 !important; max-width:100% !important; }
-  #page1 .mini{ padding:6px 8px !important; }
-  #page1 .mini-title{ margin-bottom:4px !important; font-size:13px !important; }
-  #page1 .curve{ padding:4px !important; box-shadow:none !important; }
-  #page1 .curve-caption{ font-size:11px !important; margin:0 0 2px 0 !important; }
+  #page1 .mini{ padding:10px 12px !important; }
+  #page1 .mini-title{ margin-bottom:8px !important; font-size:14px !important; }
+  #page1 .curve{ padding:10px !important; }
+  #page1 .curve-caption{ font-size:12px !important; margin:0 0 4px 0 !important; }
   #page1 .mini-validacion .ivline{
     white-space:nowrap !important;
-    font-size:12px !important;
-    margin:4px 0 !important;
-    line-height:1.25 !important;
+    font-size:13px !important;
+    margin:6px 0 !important;
+    line-height:1.35 !important;
   }
-  #page1 .mini-validacion .mini-title{ font-size:13px !important; margin-bottom:4px !important; }
   #page1 .mini-validacion .val-note,
-  #page1 .mini-validacion #ivNote{ font-size:10px !important; margin-top:4px !important; line-height:1.2 !important; }
+  #page1 .mini-validacion #ivNote{ font-size:11.5px !important; margin-top:8px !important; line-height:1.35 !important; }
   #page1 .cards2x2{
     display:grid !important;
     grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
-    gap:8px !important;
-    margin-top:8px !important;
-    margin-left:0 !important;
-    margin-right:0 !important;
+    gap:12px !important;
+    margin-top:12px !important;
     width:100% !important;
     max-width:100% !important;
     box-sizing:border-box !important;
   }
   #page1 .cards2x2 .card{
     min-width:0 !important;
-    width:auto !important;
     max-width:100% !important;
     box-sizing:border-box !important;
-    padding:10px 12px !important;
+    padding:14px 16px !important;
     margin-top:0 !important;
-    overflow:hidden !important;
   }
-  #page1 .cards2x2 .card-label{ font-size:15px !important; min-width:0 !important; }
+  #page1 .cards2x2 .card-label{ font-size:17px !important; }
   #page1 .cards2x2 .card-score{
-    width:48px !important;
-    height:38px !important;
-    font-size:18px !important;
+    width:52px !important;
+    height:42px !important;
+    font-size:20px !important;
     flex:0 0 auto !important;
-  }
-  #page1 .iviRow,
-  #page1 .iviLeft{
-    max-width:100% !important;
-    box-sizing:border-box !important;
   }
   #page1 .ivi-gap,
   #page1 > .ivi-gap{
     display:block !important;
-    height:20px !important;
-    min-height:20px !important;
+    height:24px !important;
+    min-height:24px !important;
     width:100% !important;
     margin:0 !important;
     padding:0 !important;
   }
-  #page1 #iviIndexRow,
-  #page1 > #iviIndexRow{
-    margin-top:0 !important;
-    gap:6px !important;
-  }
-  #page1 .iviCaption{ font-size:14px !important; }
-  #page1 .iviTag{ padding:6px 8px !important; }
-  #page1 .iviVal{ padding:6px 12px !important; font-size:18px !important; }
-  #page1 .iviRight{ margin-top:2px !important; }
-  #page1 .iviLegend{ margin-top:2px !important; font-size:12px !important; }
-  #page1 #repSeals .seal{ width:36px !important; }
+  #page1 #iviIndexRow{ margin-top:0 !important; gap:10px !important; }
+  #page1 .iviCaption{ font-size:16px !important; }
+  #page1 .iviTag{ padding:8px 10px !important; }
+  #page1 .iviVal{ padding:8px 14px !important; font-size:20px !important; }
+  #page1 #repSeals .seal{ width:52px !important; }
   #page1 .iviSoft{
-    margin-top:3px !important;
-    font-size:10.5px !important;
-    line-height:1.2 !important;
+    margin-top:8px !important;
+    font-size:12.5px !important;
+    line-height:1.35 !important;
   }
-  /* Sellos pueden partirse: así no empujan una hoja vacía */
   #page1 .starNote{
-    margin-top:3px !important;
-    font-size:10.5px !important;
-    line-height:1.2 !important;
-    break-inside:auto !important;
-    page-break-inside:auto !important;
+    margin-top:8px !important;
+    font-size:12.5px !important;
+    line-height:1.35 !important;
   }
   #page1 .starNote .iviLevels{
-    margin:4px 0 0 0 !important;
-    font-size:11.5px !important;
-    gap:1px !important;
-    line-height:1.2 !important;
-    break-inside:auto !important;
-    page-break-inside:auto !important;
+    margin:10px 0 0 0 !important;
+    font-size:13px !important;
+    gap:4px !important;
+    line-height:1.4 !important;
   }
-  #page1 .iviLevelsNote{ margin-top:2px !important; font-size:10px !important; }
-  #page1 .reporte-pie-adalam{
-    margin-top:4px !important;
-    padding-top:4px !important;
+  #page1 .iviLevelsNote{ margin-top:4px !important; font-size:12px !important; }
+  #page1 .page1-cierre{
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
   }
   #page1 .reporte-pie-page1{
-    margin-top:4px !important;
-    padding-top:4px !important;
-    break-before:avoid !important;
-    page-break-before:avoid !important;
+    margin-top:10px !important;
+    padding-top:8px !important;
+    break-before:auto !important;
+    page-break-before:auto !important;
   }
 
     }
@@ -1056,6 +1008,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 </div>
 
     
+<div class="page1-cierre">
 <div class="iviSoft muted" id="iviSoftMsg">
   Este resultado es una referencia inicial. La interpretación completa depende del índice de validación y del contexto (etapa escolar o adulto/profesional).
 </div>
@@ -1077,9 +1030,8 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 
 </div>
 
-
-
   <p class="reporte-pie-adalam reporte-pie-page1">Adalam — Reporte de Valores e Integridad</p>
+</div>
   <div class="reporte-acciones-pantalla">
     <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
   </div>
