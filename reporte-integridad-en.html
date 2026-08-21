@@ -82,38 +82,37 @@
     @media print{
       .page-break{margin-bottom:0;}
 
-      @page{ size:A4; margin:8mm 8mm }
-      .ingreso-panel,.hint,.reporte-build-stamp{display:none !important}
-      body{zoom:0.92;}
-      .wrap{max-width:none;margin:0 auto;padding:0 6px}
-      .page{margin-top:0;break-inside:auto}
-      .page-break{break-after:page;page-break-after:always;margin-bottom:18px;}
-      /* Mantener la PARTE 1 en una sola hoja */
-      #page1{zoom:0.90;}
-      .rep-top{margin-bottom:4px;padding-bottom:4px}
-      .rep-ids{margin-top:4px !important}
-      .rep-mid{margin-top:4px !important}
-      .mhp-logo{height:56px !important;width:auto !important;object-fit:contain;display:block;}
-      .rep-top-row2{font-size:22px !important;margin-bottom:0 !important}
-      .rep-top-row3{font-size:16px !important}
-      .bloque-title{margin:8px 0 4px !important}
-      .scale-section{margin-top:8px !important}
-      /* Compactación para confirmar que la Página 1 quede completa */
-      #page1{page-break-after:always; break-after:page;}
-      #page1 *{break-inside:avoid;}
-      .rep-top{padding-bottom:4px;margin-bottom:4px}
-      .rep-top-row2{font-size:22px;margin-bottom:0}
-      .rep-top-row3{font-size:16px}
-      .mhp-logo{height:56px !important;width:auto !important;object-fit:contain;display:block;}
-      #repHeaderBox{padding:4px !important}
-      .rep-mid{margin-top:6px !important}
-      .bloque-title{margin:8px 0 4px}
-      .iie-row{margin:8px 0 4px}
-      .scale-section{margin-top:8px}
-      .bars-row{margin:6px 0}
-      .bars-slot{height:18px}
-      .bars-slot .tick-label{top:15px}
-      .scale-note-inline{margin-top:2px}
+      @page{ size:A4; margin:7mm 8mm }
+      .ingreso-panel,.hint,.reporte-build-stamp,#btnImprimir,#btnPDF,.reporte-acciones-pantalla{display:none !important}
+      body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .wrap{max-width:none;margin:0 auto;padding:0 !important;box-sizing:border-box !important}
+      .page{margin-top:0;break-inside:auto;box-sizing:border-box !important;max-width:100% !important;overflow:visible !important}
+      .page-break{break-after:page;page-break-after:always;margin-bottom:0;}
+      #page1{page-break-after:always; break-after:page; zoom:0.96;}
+
+      /* Curva/cards/IVI no se parten; cierre (sellos+pie) va JUNTO */
+      #page1 .rep-head,
+      #page1 .rep-box,
+      #page1 .row2,
+      #page1 .cards2x2,
+      #page1 #iviIndexRow,
+      #page1 .page1-cierre{
+        break-inside:avoid;
+        page-break-inside:avoid;
+      }
+
+      .rep-top{margin-bottom:6px;padding-bottom:4px}
+      .mhp-logo{height:72px !important;width:auto !important;object-fit:contain;display:block;}
+      #page1 .mhp-logo,
+      #page2 .mhp-logo{height:72px !important;}
+      #repHeaderBox{padding:8px 10px !important}
+
+      #page1 .reporte-pie-page1,
+      #page2 .reporte-pie-page2{
+        margin-top:10px;
+        text-align:center;
+        font-size:11px;
+      }
   /* === FIX PDF: asegurar que la curva (SVG) se imprima === */
   *{
     -webkit-print-color-adjust: exact !important;
@@ -132,21 +131,23 @@
     -webkit-backdrop-filter: none !important;
   }
 
-  /* Quitar filtros que suelen "romper" SVG en PDF */
   .curve-3d{ filter: none !important; }
   #curveFill{ filter: none !important; }
 
-  /* Parte 2 PDF: una habilidad debajo de otra (mismo texto que en pantalla) */
-  body{ zoom:1 !important; }
-  #page1{ zoom:0.90 !important; }
   .page, .pagina{
     max-width:100% !important;
     width:100% !important;
-    padding:5mm 6mm !important;
+    box-sizing:border-box !important;
+    padding:4mm 6mm !important;
     margin:0 !important;
     border:0 !important;
     box-shadow:none !important;
     border-radius:0 !important;
+  }
+  #page1{
+    box-sizing:border-box !important;
+    max-width:100% !important;
+    overflow:visible !important;
   }
   #page2{
     overflow:visible !important;
@@ -241,7 +242,110 @@
         break-inside:avoid !important;
         page-break-inside:avoid !important;
       }
-}
+      #page2 .iviGuideTitle + #guideEscolarWrap,
+      #page2 .iviGuideTitle + #guideAdultoWrap,
+      #page2 .iviGuideKeep > .iviGuideTitle{
+        break-after:avoid !important;
+        page-break-after:avoid !important;
+      }
+
+  /* Hoja1 descomprimida: tamaños normales + IVI separado + cierre unido */
+  .curve-marker{ transition:none !important; }
+  #page1 .rep-date{
+    text-align:left !important;
+    margin:0 0 4px 0 !important;
+    font-size:12px !important;
+  }
+  #page1 .rep-title{ font-size:20px !important; }
+  #page1 .rep-subtitle{ font-size:13px !important; }
+  #page1 .rep-box{ padding:8px 10px !important; margin:8px 0 !important; font-size:13px !important; }
+  #page1 .row2{
+    grid-template-columns:1.2fr .8fr !important;
+    gap:12px !important;
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    margin:8px 0 10px !important;
+  }
+  #page1 .row2 > *{ min-width:0 !important; max-width:100% !important; }
+  #page1 .mini{ padding:10px 12px !important; }
+  #page1 .mini-title{ margin-bottom:8px !important; font-size:14px !important; }
+  #page1 .curve{ padding:10px !important; }
+  #page1 .curve-caption{ font-size:12px !important; margin:0 0 4px 0 !important; }
+  #page1 .mini-validacion .ivline{
+    white-space:nowrap !important;
+    font-size:13px !important;
+    margin:6px 0 !important;
+    line-height:1.35 !important;
+  }
+  #page1 .mini-validacion .val-note,
+  #page1 .mini-validacion #ivNote{ font-size:11.5px !important; margin-top:8px !important; line-height:1.35 !important; }
+  #page1 .cards2x2{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    gap:12px !important;
+    margin-top:12px !important;
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+  }
+  #page1 .cards2x2 .card{
+    min-width:0 !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    padding:14px 16px !important;
+    margin-top:0 !important;
+  }
+  #page1 .cards2x2 .card-label{ font-size:17px !important; }
+  #page1 .cards2x2 .card-score{
+    width:52px !important;
+    height:42px !important;
+    font-size:20px !important;
+    flex:0 0 auto !important;
+  }
+  #page1 .ivi-gap,
+  #page1 > .ivi-gap{
+    display:block !important;
+    height:24px !important;
+    min-height:24px !important;
+    width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+  #page1 #iviIndexRow{ margin-top:0 !important; gap:10px !important; }
+  #page1 .iviCaption{ font-size:16px !important; }
+  #page1 .iviTag{ padding:8px 10px !important; }
+  #page1 .iviVal{ padding:8px 14px !important; font-size:20px !important; }
+  #page1 #repSeals .seal{ width:52px !important; }
+  #page1 .iviSoft{
+    margin-top:8px !important;
+    font-size:12.5px !important;
+    line-height:1.35 !important;
+  }
+  #page1 .starNote{
+    margin-top:8px !important;
+    font-size:12.5px !important;
+    line-height:1.35 !important;
+  }
+  #page1 .starNote .iviLevels{
+    margin:10px 0 0 0 !important;
+    font-size:13px !important;
+    gap:4px !important;
+    line-height:1.4 !important;
+  }
+  #page1 .iviLevelsNote{ margin-top:4px !important; font-size:12px !important; }
+  #page1 .page1-cierre{
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+  }
+  #page1 .reporte-pie-page1{
+    margin-top:10px !important;
+    padding-top:8px !important;
+    break-before:auto !important;
+    page-break-before:auto !important;
+  }
+
+    }
 
 
     .bloque-title{font-weight:800;margin:12px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -412,6 +516,23 @@
   flex-direction:column;
   align-items:center;
   gap:10px;
+}
+#page1 .ivi-gap,
+#page1 > .ivi-gap{
+  display:block !important;
+  height:28px !important;
+  min-height:28px !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  pointer-events:none;
+}
+#page1 #iviIndexRow,
+#page1 > #iviIndexRow,
+#page1 > .iviRow#iviIndexRow{
+  margin-top:0 !important;
+  padding-top:0 !important;
 }
     /* Título “INDICE DE VALORES E INTEGRIDAD” más grande y centrado */
 /* 🔧 Forzar 1 sola línea: Título + [IVI|xx] */
@@ -801,7 +922,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 </head>
 <body>
 <div class="wrap">
-  <div class="ingreso-panel">
+  <div id="ingresoPanel" class="ingreso-panel">
     <div class="intro-logo-wrap">
       <img src="assets/logo_adalam.webp" alt="Adalam seal" class="intro-logo" width="248" height="99"/>
     </div>
@@ -822,6 +943,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   <!-- ===== PAGE 1 ===== -->
   <section id="page1" class="page page-break">
     <div class="rep-top">
+      <div class="rep-meta muted rep-date" id="repDateLine">—</div>
       <div class="rep-head">
         <div class="rep-brand">
           <img id="brandLogo" alt="ADALAM" src="assets/logo_adalam.webp" onerror="this.style.display='none'" class="mhp-logo"/>
@@ -830,7 +952,6 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
             <div class="rep-subtitle muted">SCORE REPORT</div>
           </div>
         </div>
-        <div class="rep-meta muted" id="repDateLine">—</div>
       </div>
 
       <div class="rep-box" id="repHeaderBox"></div>
@@ -921,7 +1042,9 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
       </div>
     </div>
 
-<div class="iviRow">
+    <div class="ivi-gap" aria-hidden="true"></div>
+
+<div class="iviRow" id="iviIndexRow">
   <div class="iviLeft">
     <div class="iviCaption">VALUES AND INTEGRITY INDEX</div>
     <div class="iviBox">
@@ -943,6 +1066,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 </div>
 
     
+<div class="page1-cierre">
 <div class="iviSoft muted" id="iviSoftMsg">
   This result is an initial reference. Full interpretation depends on the validation index and context (school stage or adult/professional).
 </div>
@@ -964,13 +1088,14 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
 
 </div>
 
-
-
+  <p class="reporte-pie-adalam reporte-pie-page1">Adalam — Values and Integrity Report.</p>
+</div>
   </section>
 
   <!-- ===== PAGE 2+ (Interpretación) ===== -->
   <section id="page2" class="page">
     <div class="rep-top">
+  <div class="rep-meta muted rep-date" id="repDateLine2">—</div>
   <div class="rep-head">
     <div class="rep-brand">
       <img id="brandLogo2" alt="ADALAM" src="assets/logo_adalam.webp"
@@ -980,7 +1105,6 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
         <div class="rep-subtitle muted">INDIVIDUAL INTEGRITY REPORT</div>
       </div>
     </div>
-    <div class="rep-meta muted" id="repDateLine2">—</div>
   </div>
 
   <div class="rep-box" id="repHeaderBox2"></div>
@@ -1108,18 +1232,20 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
   <div id="recomendaciones" class="interp-bloque"></div>
   <div id="planAccion" class="interp-bloque"></div>
 
-  <p class="reporte-pie-adalam" id="reportePieAdalam">Adalam — Values and Integrity Report.</p>
+  <p class="reporte-pie-adalam reporte-pie-page2" id="reportePieAdalam">Adalam — Values and Integrity Report.</p>
 </section>
 </div>
 
 <script>
   /* Señal interna (no sale en PDF). Formato: UP + DD + MM + AA + HHMM
      Ej. UP0106261751 = actualizado 01-jun-2026 17:51. Cambia al subir a GitHub/Vercel. */
-  const REPORTE_BUILD_ID = "UP0106261835";
+  const REPORTE_BUILD_ID = "UP2108261300";
   (function(){
     const el = document.getElementById("reporteBuildStamp");
     if (el) el.textContent = "· " + REPORTE_BUILD_ID;
   })();
+  const REPORT_PRODUCT_KEY = "INTEGR";
+  const REPORT_UI_LANG = "EN";
   const $ = sel => document.querySelector(sel);
   function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
   function normalizeName(name){ return (name||"").replace(/\s+/g," ").trim().toLowerCase(); }
@@ -2828,6 +2954,8 @@ sellos: sellos,
 
 
   document.getElementById("reporteContainer").style.display = "block";
+  const ingreso = document.getElementById("ingresoPanel");
+  if (ingreso) ingreso.style.display = "none";
 }
 
 
@@ -3283,9 +3411,17 @@ function interpGlobal(ivi, sellos){
     document.getElementById("msg").textContent = "Searching...";
     document.getElementById("msg").className = "msg";
     document.getElementById("reporteContainer").style.display = "none";
+    const ingreso = document.getElementById("ingresoPanel");
+    if (ingreso) ingreso.style.display = "";
     try{
-      const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const q = new URLSearchParams({ codigo, eval: REPORT_PRODUCT_KEY, idioma: REPORT_UI_LANG });
+      const r = await fetch(`/api/report?${q.toString()}`);
       const data = await r.json();
+      if (r.status === 403 && (data.eval_mismatch || data.idioma_mismatch)) {
+        document.getElementById("msg").textContent = data.error || "This code does not belong to this report.";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
       if(!r.ok || data.error){
         document.getElementById("msg").textContent = data.error || "Not found";
         document.getElementById("msg").className = "msg err";
@@ -3301,8 +3437,8 @@ function interpGlobal(ivi, sellos){
         document.getElementById("msg").className = "msg err";
         return;
       }
-      document.getElementById("msg").textContent = "Report loaded.";
-      document.getElementById("msg").className = "msg ok";
+      document.getElementById("msg").textContent = "";
+      document.getElementById("msg").className = "msg";
       renderAll(data);
       window.scrollTo({top:0,behavior:"smooth"});
     }catch(e){
