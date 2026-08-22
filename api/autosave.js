@@ -1,25 +1,53 @@
 // api/autosave.js
 const { sql } = require("@vercel/postgres");
 
+function normalizeIdioma(raw) {
+  const t = String(raw || "").trim().toUpperCase();
+  if (t === "EN" || t === "ENG" || t === "ENGLISH" || t === "US") return "EN";
+  if (t === "ES" || t === "ESP" || t === "SPANISH") return "ES";
+  return "";
+}
+
+function msg(key, lang) {
+  const en = normalizeIdioma(lang) === "EN";
+  const map = {
+    missing_code: en ? "Missing code" : "Falta 'codigo'",
+    method: en ? "Method not allowed" : "Método no permitido",
+    internal: en ? "Internal server error" : "Error interno de servidor",
+  };
+  return map[key] || (en ? "Error" : "Error");
+}
+
+function langFrom(req) {
+  const body = req.body || {};
+  const snap = body.snapshot || {};
+  return (
+    normalizeIdioma(
+      (req.query && (req.query.idioma || req.query.lang)) ||
+        body.idioma ||
+        body.lang ||
+        snap.idioma ||
+        snap.lang ||
+        ""
+    ) || "ES"
+  );
+}
+
 module.exports = async function handler(req, res) {
+  const uiLang = langFrom(req);
   try {
-    // Normalizamos método
     const method = (req.method || "GET").toUpperCase();
 
     if (method === "POST") {
-      // =========================
-      // GUARDAR / ACTUALIZAR
-      // =========================
       const body = req.body || {};
       const rawCodigo = (body.codigo || "").trim();
 
       if (!rawCodigo) {
-        return res.status(400).json({ ok: false, error: "Falta 'codigo'" });
+        return res.status(400).json({ ok: false, error: msg("missing_code", uiLang) });
       }
 
       const codigo = rawCodigo.toUpperCase();
 
-      // Estructura mínima
       const currentPage =
         typeof body.currentPage === "number" && body.currentPage >= 0
           ? body.currentPage
@@ -35,9 +63,6 @@ module.exports = async function handler(req, res) {
           ? body.snapshot
           : {};
 
-      // Estrategia simple:
-      // 1) Borramos cualquier registro previo de ese código
-      // 2) Insertamos el estado nuevo
       await sql`
         DELETE FROM autosave_eval
         WHERE UPPER(codigo) = UPPER(${codigo})
@@ -59,13 +84,10 @@ module.exports = async function handler(req, res) {
     }
 
     if (method === "GET") {
-      // =========================
-      // LEER ESTADO GUARDADO
-      // =========================
       const rawCodigo = (req.query.codigo || "").trim();
 
       if (!rawCodigo) {
-        return res.status(400).json({ ok: false, error: "Falta 'codigo'" });
+        return res.status(400).json({ ok: false, error: msg("missing_code", uiLang) });
       }
 
       const codigo = rawCodigo.toUpperCase();
@@ -87,10 +109,9 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Si llega otro método (PUT, DELETE, etc.)
-    return res.status(405).json({ ok: false, error: "Método no permitido" });
+    return res.status(405).json({ ok: false, error: msg("method", uiLang) });
   } catch (err) {
     console.error("autosave error", err);
-    return res.status(500).json({ ok: false, error: "Error interno de servidor" });
+    return res.status(500).json({ ok: false, error: msg("internal", uiLang) });
   }
 };

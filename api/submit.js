@@ -7,9 +7,27 @@ const {
   normalizeIdioma,
 } = require("./eval-codigo");
 
+function msg(key, lang) {
+  const en = normalizeIdioma(lang) === "EN";
+  const map = {
+    method: en ? "POST only" : "Solo POST",
+    missing_code: en ? "Missing code" : "Falta codigo",
+    code_not_found: en ? "Code not found" : "Código no encontrado",
+    save_error: en ? "Error saving" : "Error al guardar",
+  };
+  return map[key] || (en ? "Error" : "Error");
+}
+
 module.exports = async function handler(req, res) {
+  const bodyEarly = req.body || {};
+  const snapEarly = bodyEarly.snapshot || {};
+  const uiLangEarly =
+    normalizeIdioma(
+      bodyEarly.idioma || bodyEarly.lang || snapEarly.idioma || snapEarly.lang || ""
+    ) || "ES";
+
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Solo POST" });
+    return res.status(405).json({ error: msg("method", uiLangEarly) });
   }
 
   try {
@@ -17,7 +35,7 @@ module.exports = async function handler(req, res) {
     const codigoRaw = body.codigo;
 
     if (!codigoRaw) {
-      return res.status(400).json({ error: "Falta codigo" });
+      return res.status(400).json({ error: msg("missing_code", uiLangEarly) });
     }
 
     const codigo = String(codigoRaw).trim().toUpperCase();
@@ -37,7 +55,7 @@ module.exports = async function handler(req, res) {
 
     if (!pRes.rows.length) {
       return res.status(404).json({
-        error: uiLang === "EN" ? "Code not found" : "Código no encontrado",
+        error: msg("code_not_found", uiLang),
       });
     }
 
@@ -107,6 +125,6 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true });
   } catch (err) {
     console.error("SUBMIT ERROR:", err);
-    return res.status(500).json({ error: "Error al guardar", detail: err.message });
+    return res.status(500).json({ error: msg("save_error", uiLangEarly), detail: err.message });
   }
 };

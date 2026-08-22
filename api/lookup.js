@@ -9,10 +9,24 @@ const {
   normalizeIdioma,
 } = require("./eval-codigo");
 
+function msg(key, lang) {
+  const en = normalizeIdioma(lang) === "EN";
+  const map = {
+    method: en ? "GET only" : "Solo se permite GET",
+    missing_code: en ? "Missing code" : "Falta el código",
+    code_not_found: en ? "Code not found" : "Código no encontrado",
+    internal: en ? "Internal error" : "Error interno",
+  };
+  return map[key] || (en ? "Error" : "Error");
+}
+
 module.exports = async function handler(req, res) {
+  const uiLangEarly =
+    normalizeIdioma((req.query && (req.query.idioma || req.query.lang)) || "") || "ES";
+
   try {
     if (req.method !== "GET") {
-      return res.status(405).json({ error: "Solo se permite GET" });
+      return res.status(405).json({ error: msg("method", uiLangEarly) });
     }
 
     const codigoRaw = (req.query.codigo || "").trim();
@@ -22,9 +36,7 @@ module.exports = async function handler(req, res) {
     const uiLang = normalizeIdioma(idiomaEsperado) || "ES";
 
     if (!codigo) {
-      return res.status(400).json({
-        error: uiLang === "EN" ? "Missing code" : "Falta el código",
-      });
+      return res.status(400).json({ error: msg("missing_code", uiLang) });
     }
 
     const pRes = await sql`
@@ -35,9 +47,7 @@ module.exports = async function handler(req, res) {
     `;
 
     if (!pRes.rows.length) {
-      return res.status(404).json({
-        error: uiLang === "EN" ? "Code not found" : "Código no encontrado",
-      });
+      return res.status(404).json({ error: msg("code_not_found", uiLang) });
     }
 
     const participante = pRes.rows[0];
@@ -101,6 +111,6 @@ module.exports = async function handler(req, res) {
     });
   } catch (e) {
     console.error("lookup error", e);
-    return res.status(500).json({ error: "Error interno" });
+    return res.status(500).json({ error: msg("internal", uiLangEarly) });
   }
 };
