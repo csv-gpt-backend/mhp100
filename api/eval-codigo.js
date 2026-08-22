@@ -138,7 +138,7 @@ function mismatchErrorMessage(v, lang) {
       (v.eval_label_codigo_en || v.eval_label_codigo) +
       "» assessment, not «" +
       (v.eval_label_esperada_en || v.eval_label_esperada) +
-      "». Open the correct assessment from the English portal."
+      "». Open the correct assessment."
     );
   }
   return (
@@ -146,7 +146,7 @@ function mismatchErrorMessage(v, lang) {
     v.eval_label_codigo +
     "», no a «" +
     v.eval_label_esperada +
-    "». Abra la evaluación correcta desde el portal."
+    "». Abra la evaluación correcta."
   );
 }
 
