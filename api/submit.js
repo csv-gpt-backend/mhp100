@@ -59,18 +59,6 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    if (evalEsperada) {
-      const check = validateCodigoEval(codigo, evalEsperada, pRes.rows[0]);
-      if (!check.ok) {
-        return res.status(403).json({
-          error: mismatchErrorMessage(check, uiLang),
-          eval_mismatch: true,
-          eval_codigo: check.eval_codigo,
-          eval_esperada: check.eval_esperada,
-        });
-      }
-    }
-
     if (idiomaEsperado) {
       const checkI = validateCodigoIdioma(codigo, idiomaEsperado, pRes.rows[0]);
       if (!checkI.ok) {
@@ -79,6 +67,18 @@ module.exports = async function handler(req, res) {
           idioma_mismatch: true,
           idioma_codigo: checkI.idioma_codigo,
           idioma_esperada: checkI.idioma_esperada,
+        });
+      }
+    }
+
+    if (evalEsperada) {
+      const check = validateCodigoEval(codigo, evalEsperada, pRes.rows[0]);
+      if (!check.ok) {
+        return res.status(403).json({
+          error: mismatchErrorMessage(check, uiLang),
+          eval_mismatch: true,
+          eval_codigo: check.eval_codigo,
+          eval_esperada: check.eval_esperada,
         });
       }
     }

@@ -155,11 +155,11 @@ function idiomaMismatchMessage(v, lang) {
   const codeLang = v.idioma_codigo;
   if (L === "EN") {
     return codeLang === "ES"
-      ? "This code is for the Spanish assessment, not the English one. Use the Spanish link."
+      ? "This code is for Spanish, not English. Open the Spanish portal / link."
       : "This code does not match this language. Use the matching portal.";
   }
   return codeLang === "EN"
-    ? "Este código corresponde a la evaluación en inglés, no a la de español. Use el enlace en inglés."
+    ? "Este código es de inglés, no de español. Abra el portal / enlace en inglés."
     : "Este código no corresponde a este idioma. Use el portal correcto.";
 }
 

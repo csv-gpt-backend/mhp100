@@ -81,16 +81,7 @@ module.exports = async function handler(req, res) {
     const evalEsperada = req.query.eval || req.query.evaluacion || "";
 
     if (evalEsperada) {
-      const check = validateCodigoEval(codigo, evalEsperada, participant);
-      if (!check.ok) {
-        return res.status(403).json({
-          valid: false,
-          error: mismatchErrorMessage(check, uiLang),
-          eval_mismatch: true,
-          eval_codigo: check.eval_codigo,
-          eval_esperada: check.eval_esperada,
-        });
-      }
+      // Idioma primero cuando el reporte exige candado de idioma
       if (isIdiomaLockedReportEval(evalEsperada)) {
         const checkI = validateCodigoIdioma(codigo, uiLang, participant);
         if (!checkI.ok) {
@@ -102,6 +93,16 @@ module.exports = async function handler(req, res) {
             idioma_esperada: checkI.idioma_esperada,
           });
         }
+      }
+      const check = validateCodigoEval(codigo, evalEsperada, participant);
+      if (!check.ok) {
+        return res.status(403).json({
+          valid: false,
+          error: mismatchErrorMessage(check, uiLang),
+          eval_mismatch: true,
+          eval_codigo: check.eval_codigo,
+          eval_esperada: check.eval_esperada,
+        });
       }
     }
 

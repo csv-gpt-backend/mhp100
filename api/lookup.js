@@ -54,6 +54,19 @@ module.exports = async function handler(req, res) {
     const evalKey = resolveEvalKey(codigo, participante);
     const idioma = resolveIdioma(codigo, participante);
 
+    // Idioma primero: si el código es EN en portal ES (o viceversa), orientar al portal correcto
+    if (idiomaEsperado) {
+      const checkI = validateCodigoIdioma(codigo, idiomaEsperado, participante);
+      if (!checkI.ok) {
+        return res.status(403).json({
+          error: idiomaMismatchMessage(checkI, uiLang),
+          idioma_mismatch: true,
+          idioma_codigo: checkI.idioma_codigo,
+          idioma_esperada: checkI.idioma_esperada,
+        });
+      }
+    }
+
     if (evalEsperada) {
       const check = validateCodigoEval(codigo, evalEsperada, participante);
       if (!check.ok) {
@@ -64,18 +77,6 @@ module.exports = async function handler(req, res) {
           eval_esperada: check.eval_esperada,
           eval_label_codigo: check.eval_label_codigo,
           eval_label_esperada: check.eval_label_esperada,
-        });
-      }
-    }
-
-    if (idiomaEsperado) {
-      const checkI = validateCodigoIdioma(codigo, idiomaEsperado, participante);
-      if (!checkI.ok) {
-        return res.status(403).json({
-          error: idiomaMismatchMessage(checkI, uiLang),
-          idioma_mismatch: true,
-          idioma_codigo: checkI.idioma_codigo,
-          idioma_esperada: checkI.idioma_esperada,
         });
       }
     }
