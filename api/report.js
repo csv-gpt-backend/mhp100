@@ -16,17 +16,41 @@ function isIdiomaLockedReportEval(raw) {
   return false;
 }
 
+function isEn(lang) {
+  return normalizeIdioma(lang) === "EN";
+}
+
+function reportMsg(key, lang, extra) {
+  const en = isEn(lang);
+  const map = {
+    method: en ? "GET only" : "Solo GET",
+    missing_code: en ? "Missing code" : "Falta codigo",
+    code_not_found: en ? "Code not found" : "Código no encontrado",
+    no_attempt: en
+      ? "No assessment attempt was found for this code"
+      : "No se encontró un intento de evaluación para este código",
+    no_attempt_bank: en
+      ? `No attempt was found for this code with bank=${extra || ""}`
+      : `No se encontró un intento para este código con bank=${extra || ""}`,
+    internal: en ? "Internal error" : "Error interno",
+  };
+  return map[key] || (en ? "Error" : "Error");
+}
+
 module.exports = async function handler(req, res) {
   try {
+    const uiLang =
+      normalizeIdioma(req.query.idioma || req.query.lang || "") || "ES";
+
     if (req.method !== "GET") {
-      return res.status(405).json({ error: "Solo GET" });
+      return res.status(405).json({ error: reportMsg("method", uiLang) });
     }
 
     const codigoRaw = (req.query.codigo || "").trim();
     const codigo = codigoRaw.toUpperCase();
 
     if (!codigo) {
-      return res.status(400).json({ valid: false, error: "Falta codigo" });
+      return res.status(400).json({ valid: false, error: reportMsg("missing_code", uiLang) });
     }
 
     // NUEVO: parámetro opcional para filtrar banco
@@ -49,14 +73,12 @@ module.exports = async function handler(req, res) {
     `;
 
     if (!pRes.rows.length) {
-      return res.status(404).json({ valid: false, error: "Código no encontrado" });
+      return res.status(404).json({ valid: false, error: reportMsg("code_not_found", uiLang) });
     }
 
     const participant = pRes.rows[0];
 
     const evalEsperada = req.query.eval || req.query.evaluacion || "";
-    const uiLang =
-      normalizeIdioma(req.query.idioma || req.query.lang || "") || "ES";
 
     if (evalEsperada) {
       const check = validateCodigoEval(codigo, evalEsperada, participant);
@@ -113,8 +135,8 @@ module.exports = async function handler(req, res) {
       return res.status(404).json({
         valid: true,
         error: bankNorm
-          ? `No se encontró un intento para este código con bank=${bankNorm}`
-          : "No se encontró un intento de evaluación para este código",
+          ? reportMsg("no_attempt_bank", uiLang, bankNorm)
+          : reportMsg("no_attempt", uiLang),
         participant,
         attempt: null
       });
@@ -139,6 +161,8 @@ module.exports = async function handler(req, res) {
     });
   } catch (e) {
     console.error("report error", e);
-    return res.status(500).json({ valid: false, error: "Error interno" });
+    const uiLang =
+      normalizeIdioma((req.query && (req.query.idioma || req.query.lang)) || "") || "ES";
+    return res.status(500).json({ valid: false, error: reportMsg("internal", uiLang) });
   }
 };
