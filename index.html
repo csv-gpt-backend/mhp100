@@ -669,8 +669,36 @@
   })();
 
   const ACCESS_SESSION_KEY = "adal_access_session";
+  /** Origen de entrada: "site" si llegó desde adalam.vercel.app (?from=site). */
+  const ENTRY_ORIGIN_KEY = "adal_entry_origin";
+  const SITE_HOME_URL = "https://adalam.vercel.app/";
   /** Pruebas 1–7: 1 Socioemocional, 2 Valores, 3 Liderazgo, 4 Hábitos, 5 Aprendizaje, 6 Vocacional, 7 Intelectual */
   const ALL_BLOCKS = [1, 2, 3, 4, 5, 6, 7];
+
+  function captureEntryOrigin() {
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      if (params.get("from") === "site") {
+        sessionStorage.setItem(ENTRY_ORIGIN_KEY, "site");
+        params.delete("from");
+        const qs = params.toString();
+        const clean = window.location.pathname + (qs ? "?" + qs : "") + (window.location.hash || "");
+        history.replaceState(null, "", clean);
+      }
+    } catch {}
+  }
+
+  function cameFromSite() {
+    try {
+      return sessionStorage.getItem(ENTRY_ORIGIN_KEY) === "site";
+    } catch {
+      return false;
+    }
+  }
+
+  function clearEntryOrigin() {
+    try { sessionStorage.removeItem(ENTRY_ORIGIN_KEY); } catch {}
+  }
 
   /**
    * ADALAM → todas las pruebas.
@@ -742,7 +770,13 @@
   const introText  = $("#introText");
 
   function cerrarSesion(){
+    const backToSite = cameFromSite();
     clearAccessSession();
+    clearEntryOrigin();
+    if (backToSite) {
+      window.location.href = SITE_HOME_URL;
+      return;
+    }
     if(passInput) passInput.value = "";
     if(msg){
       msg.textContent = "Sesión cerrada.";
@@ -800,6 +834,7 @@
   if (btnSalirBottom) btnSalirBottom.addEventListener("click", cerrarSesion);
 
   window.addEventListener("DOMContentLoaded", ()=>{
+    captureEntryOrigin();
     if(hasValidAccessSession()){
       if(msg){
         const s = getAccessSession();
