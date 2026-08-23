@@ -104,14 +104,12 @@
     @media print{
       @page{size:A4; margin:8mm 8mm}
       .intro-logo-wrap,.topbar,.hint{display:none !important}
-      body{zoom:0.92}
       .wrap{max-width:none;margin:0 auto;padding:0 6px}
       .page{break-inside:auto;margin-top:0}
       .page-break{page-break-before:always}
       #page1{page-break-after:always}
       .mhp-logo{height:130px}
       .rep-top-row2{font-size:22px}.rep-top-row3{font-size:16px}
-      #tituloCurvaFrecuencias{font-size:12px !important;white-space:nowrap}
     }
   </style>
 </head>
@@ -122,7 +120,7 @@
   </div>
 
     <div class="topbar">
-      <input id="codigoInput" placeholder="CODE" maxlength="32" />
+      <input id="codigoInput" placeholder="Code (e.g. ESC-VOCACI-EN-AB12 / PRO-VOCACI-EN-AB12)" maxlength="40" />
       <button id="btnVer" class="btn">View Career Orientation Report</button>
       <span id="msg" class="msg"></span>
     </div>
@@ -218,6 +216,7 @@
 <div id="areaGrid"></div>
         <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
           <button id="btnImprimir" class="btn" style="background:#2563eb">Print / PDF</button>
+          <button id="btnExportJSON" class="btn" style="background:#6b7280">Export JSON</button>
         </div>
       </section>
 
@@ -262,9 +261,6 @@
         </div>
 
         <p class="reporte-pie-adalam" id="reportePieAdalam">Adalam — Career Orientation Report.</p>
-        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-          <button type="button" id="btnPDF" class="btn" style="background:#2563eb">Print / PDF</button>
-        </div>
       </section>
     </section>
   </div>
@@ -400,8 +396,7 @@
     };
     return pro ? profesional[axis] : escolar[axis];
   }
-  function fmtDate(iso){ if(!iso) return '—'; try { return new Date(iso).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});} catch{return '—';}}
-  function fmtFechaGeneracion(){ return new Date().toLocaleString('en-US',{dateStyle:'short',timeStyle:'short'}); }
+  function fmtDate(iso){ if(!iso) return '—'; try { return new Date(iso).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'2-digit'});} catch{return '—';}}
   function parseMaybeJSON(v){ if(!v) return null; if(typeof v==='object') return v; try{return JSON.parse(v);}catch{return null;} }
 
   let __curveMarkerScore = null;
@@ -496,7 +491,7 @@
     const esProfesional = codigoActual.startsWith('PRO');
     window.__ESPRO__ = esProfesional;
     const labelCurso = esProfesional ? 'Level' : 'Grade/Course';
-    const fechaTexto = fmtDate(attempt.created_at);
+    const fechaTexto = fmtDate(attempt.created_at || new Date().toISOString());
     const headerHtml = `
       <div><b>Name:</b> ${escapeHtml(attempt.nombre || '—')}</div>
       <div><b>${labelCurso}:</b> ${escapeHtml(attempt.curso || '—')}</div>
@@ -508,9 +503,8 @@
     if (header) header.innerHTML = headerHtml;
     const header2 = document.getElementById('repHeaderBox2');
     if (header2) header2.innerHTML = headerHtml;
-    const fechaGen = fmtFechaGeneracion();
-    document.getElementById('repDateLine1').textContent = fechaGen;
-    document.getElementById('repDateLine2').textContent = fechaGen;
+    document.getElementById('repDateLine1').textContent = fechaTexto;
+    document.getElementById('repDateLine2').textContent = fechaTexto;
   }
 
   function buildSummary(resultados){
@@ -597,8 +591,8 @@ if (subtituloResumen){
               ${isMain ? `<span class="badge pref-high">${weights[idx] || 0}%</span>` : ``}
             </h3>
             <div class="area-card-axis-meta muted">
-              <span class="area-card-axis-line1">${isMain ? 'Estimated share within dimension:' : 'Suggested area based on dimension:'}</span>
-              <span class="area-card-axis-line2">${escapeHtml(g.axis)} · ${escapeHtml(RIASEC_LABELS[g.axis])}.</span>
+              <span class="area-card-axis-line1">${isMain ? 'Estimated share' : 'Suggested area'}</span>
+              <span class="area-card-axis-line2">Dimension ${escapeHtml(g.axis)}: ${escapeHtml(RIASEC_LABELS[g.axis])}</span>
             </div>
             <div class="muted" style="font-size:12px;line-height:1.45">
               <b>Related subjects / fields:</b><br>${subjects.map(s=>escapeHtml(s)).join(' · ')}
@@ -817,6 +811,12 @@ function buildContexts(resultados){
 
   box.innerHTML = blocks;
 }
+  function exportJSON(){
+    const payload = window.__LAST_REPORT__ || {};
+    const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='reporte-vocacional.json'; a.click();
+  }
+
   function renderAll(data){
     window.__LAST_REPORT__ = data;
     const attempt = data.attempt || {};
@@ -861,15 +861,14 @@ function buildContexts(resultados){
   }
 
   document.getElementById('btnVer').addEventListener('click',()=>{ const c=document.getElementById('codigoInput').value.trim().toUpperCase(); if(c) cargarReporte(c); });
-  function imprimirReporteVocacional(){
+  document.getElementById('btnImprimir').addEventListener('click',()=>{
     refreshCurveMarkerForPrint();
     requestAnimationFrame(()=>{
       refreshCurveMarkerForPrint();
       window.print();
     });
-  }
-  document.getElementById('btnImprimir').addEventListener('click', imprimirReporteVocacional);
-  document.getElementById('btnPDF').addEventListener('click', imprimirReporteVocacional);
+  });
+  document.getElementById('btnExportJSON').addEventListener('click',exportJSON);
   window.addEventListener('beforeprint', refreshCurveMarkerForPrint);
   window.addEventListener('resize', refreshCurveMarkerForPrint);
   (function init(){
