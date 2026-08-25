@@ -1734,6 +1734,29 @@
       instInput.value = data.institucion || "";
       grupoInput.value = data.grupo || "";
       cursoInput.value = data.curso || "";
+
+      // Si hay intento en curso, reponer el nombre ya guardado (local o servidor).
+      const nombreEl = document.getElementById("nombre");
+      let nombreGuardado = "";
+      if (localState && !isStateCompleted(localState) && localState.nombre) {
+        nombreGuardado = String(localState.nombre).trim();
+      }
+      if (!nombreGuardado) {
+        const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
+        if (
+          serverDraft &&
+          !isStateCompleted(serverDraft) &&
+          serverDraft.responses &&
+          Object.keys(serverDraft.responses).length > 0 &&
+          serverDraft.nombre
+        ) {
+          nombreGuardado = String(serverDraft.nombre).trim();
+        }
+      }
+      if (nombreEl && nombreGuardado) {
+        nombreEl.value = nombreGuardado;
+      }
+
       if (codigoMsg) {
         codigoMsg.textContent = "Código válido.";
         codigoMsg.className = "ok";
