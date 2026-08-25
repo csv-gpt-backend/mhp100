@@ -1568,6 +1568,13 @@
     });
 
     document.getElementById("reporteContainer").style.display = "block";
+    const ingresoOk = document.querySelector(".ingreso-panel");
+    if (ingresoOk) ingresoOk.style.display = "none";
+    const msgOk = document.getElementById("msg");
+    if (msgOk) {
+      msgOk.textContent = "";
+      msgOk.className = "msg";
+    }
   }
 
   function parseResultados(raw) {
@@ -1678,6 +1685,8 @@
   async function cargar(codigo) {
     const msg = document.getElementById("msg");
     document.getElementById("reporteContainer").style.display = "none";
+    const ingreso = document.querySelector(".ingreso-panel");
+    if (ingreso) ingreso.style.display = "";
     msg.textContent = "Buscando...";
     msg.className = "msg";
 
@@ -1685,8 +1694,6 @@
     if (st) {
       const ctx = ctxFromLocalState(st, codigo);
       if (ctx) {
-        msg.textContent = "Reporte cargado (dispositivo local).";
-        msg.className = "msg ok";
         renderAll(ctx);
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
@@ -1696,8 +1703,6 @@
 
     try {
       const ctx = await tryServer(codigo);
-      msg.textContent = "Reporte cargado (servidor).";
-      msg.className = "msg ok";
       const merged = {
         codigo: ctx.codigo,
         nombre: ctx.snapshot.nombre,
