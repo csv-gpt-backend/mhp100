@@ -620,7 +620,7 @@
   };
   // sub mapping (normalizado, sin tildes) construido en runtime:
   (function(){
-    const src = {"autoestima": "Self-Esteem", "manejo de la tension": "Stress Management", "manejo de la tensión": "Stress Management", "bienestar fisico": "Healthy Habits", "bienestar físico": "Healthy Habits", "asertividad": "Assertive Expression", "conciencia de los demas": "Perception of Others", "conciencia de los demás": "Perception of Others", "empatia": "Empathic Sensitivity", "empatía": "Empathic Sensitivity", "motivacion": "Intrinsic Motivation", "motivación": "Intrinsic Motivation", "compromiso": "Commitment Level", "administracion del tiempo": "Time Management", "administración del tiempo": "Time Management", "toma de decisiones": "Decision-Making", "toma de desiciones": "Decision-Making", "liderazgo": "Leadership", "propensión al cambio": "Adaptation to Change", "propension al cambio": "Adaptation to Change"};
+    const src = {"autoestima": "Self-Esteem", "manejo de la tension": "Stress Management", "manejo de la tensión": "Stress Management", "bienestar fisico": "Healthy Habits", "bienestar físico": "Healthy Habits", "asertividad": "Assertive Expression", "conciencia de los demas": "Perception of Others", "conciencia de los demás": "Perception of Others", "empatia": "Empathic Sensitivity", "empatía": "Empathic Sensitivity", "motivacion": "Intrinsic Motivation", "motivación": "Intrinsic Motivation", "compromiso": "Commitment Level", "administracion del tiempo": "Time Management", "administración del tiempo": "Time Management", "toma de decisiones": "Decision-Making", "toma de desiciones": "Decision-Making", "liderazgo": "Leadership", "propensión al cambio": "Adaptation to Change", "propension al cambio": "Adaptation to Change", "agresion": "Aggression", "agresión": "Aggression", "timidez": "Shyness"};
     const strip = s => (s||"").normalize("NFD").replace(/\p{Diacritic}/gu,"");
     for (const [k,v] of Object.entries(src)) {
       DISPLAY.sub[k] = v;
@@ -1063,7 +1063,15 @@ function setCurveMarker(iie){
 
   function dispSub(n){
     const key = (n||"").trim();
-    return SUB_DISPLAY[key] || key;
+    if (!key) return key;
+    if (SUB_DISPLAY[key]) return SUB_DISPLAY[key];
+    const strip = DISPLAY._strip || (s => (s||"").normalize("NFD").replace(/\p{Diacritic}/gu,""));
+    const k = strip(normalizeName(key));
+    if (DISPLAY.sub && DISPLAY.sub[k]) return DISPLAY.sub[k];
+    for (const [sk, sv] of Object.entries(SUB_DISPLAY)) {
+      if (strip(normalizeName(sk)) === k) return sv;
+    }
+    return key;
   }
 
   function renderSkillRow(parent, nombre, pct){
@@ -2436,7 +2444,7 @@ const pack = PLAN_ACCION_NIVEL[f.key]?.[f.nivel]?.[perfilPlan];
       const sec = document.createElement("div");
       sec.className = "plan-focus-item";
       sec.innerHTML = `
-<div class="plan-focus-head"><b>${(f.key==="AGRESION"?"AGGRESSION":(f.key==="INTERPERSONAL LINKS"?"INTERPERSONAL RELATIONSHIPS":f.key))}</b> — ${({bajo:"Low",medio:"Moderate",alto:"High"}[f.nivel]||f.nivel)} (${pctTxt(f.pct)})</div>
+<div class="plan-focus-head"><b>${(f.key==="AGRESION"?"AGGRESSION":(f.key==="TIMIDEZ"?"SHYNESS":(f.key==="INTERPERSONAL LINKS"?"INTERPERSONAL RELATIONSHIPS":f.key)))}</b> — ${({bajo:"Low",medio:"Moderate",alto:"High"}[f.nivel]||f.nivel)} (${pctTxt(f.pct)})</div>
         <div class="plan-focus-obj"><b>Objective:</b> ${escapeHtml(textoPlanClaro(pack.objetivo))}</div>
         <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(textoPlanClaro(a))}</li>`).join("")}</ul>
         <div class="plan-focus-meta"><b>Indicator:</b> ${escapeHtml(textoPlanClaro((()=>{const ind=pack.indicador||""; const needs=!/record|checklist|short note|log|note|mark/i.test(ind); return ind + (needs ? " Record completion in a short note or checklist." : "");})()))}</div>
@@ -2486,7 +2494,7 @@ const perfilRol = esProfesional ? "pro" : "esc";
 const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
       if(!pack) return;
 
-      const keyDisp = (f.key === "AGRESION") ? "AGGRESSION" : (f.key === "INTERPERSONAL LINKS") ? "INTERPERSONAL RELATIONSHIPS" : f.key;
+      const keyDisp = (f.key === "AGRESION") ? "AGGRESSION" : (f.key === "TIMIDEZ") ? "SHYNESS" : (f.key === "INTERPERSONAL LINKS") ? "INTERPERSONAL RELATIONSHIPS" : f.key;
 
       // Agregamos 1–2 acciones por foco y rol (para que no sea infinito)
       (pack.hogar || []).slice(0,2).forEach(x => hogar.push({ grp: keyDisp, txt: x }));
