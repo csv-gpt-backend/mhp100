@@ -1626,11 +1626,17 @@
         grupo: snap.grupo || DATOS_FIJOS.grupo,
         curso: snap.curso || DATOS_FIJOS.curso,
         fecha: snap.fecha || document.getElementById("fecha").value,
-        currentPage: typeof row.current_page === "number" ? row.current_page : 0,
+        currentPage: (function () {
+          const n = Number(row.current_page);
+          return Number.isFinite(n) ? n : 0;
+        })(),
         responses: row.responses || {},
         startTime: snap.startTime || Date.now(),
         completed: false,
-        chcGwmTrialIndex: typeof snap.chcGwmTrialIndex === "number" ? snap.chcGwmTrialIndex : 0
+        chcGwmTrialIndex: (function () {
+          const n = Number(snap.chcGwmTrialIndex);
+          return Number.isFinite(n) ? n : 0;
+        })()
       };
     } catch (e) {
       console.warn("No se pudo cargar autosave servidor:", e);
@@ -3831,8 +3837,14 @@
     Object.keys(resp).forEach(function (k) {
       stateCHC.answers[k] = typeof resp[k] === "number" ? String(resp[k]) : resp[k];
     });
-    stateCHC.step = Number.isFinite(st.currentPage) ? st.currentPage : 0;
-    stateCHC.gwmTrialIndex = typeof st.chcGwmTrialIndex === "number" ? st.chcGwmTrialIndex : 0;
+    stateCHC.step = (function () {
+      const n = Number(st.currentPage);
+      return Number.isFinite(n) ? n : 0;
+    })();
+    stateCHC.gwmTrialIndex = (function () {
+      const n = Number(st.chcGwmTrialIndex);
+      return Number.isFinite(n) ? n : 0;
+    })();
     __startTime = st.startTime || Date.now();
     stateCHC.memTrials = [];
   }
@@ -3955,6 +3967,35 @@
     }
   });
 
+  function draftProgressCount(st) {
+    if (!st || !st.responses) return 0;
+    return Object.keys(st.responses).filter(function (k) {
+      const v = st.responses[k];
+      return v != null && v !== "";
+    }).length;
+  }
+
+  function draftHasProgress(st) {
+    return !!st && !isStateCompleted(st) && draftProgressCount(st) > 0;
+  }
+
+  /** Elige el borrador con más avance (local o servidor); no priorizar servidor vacío. */
+  function pickResumeDraft(serverState, localSaved) {
+    const serverOk = draftHasProgress(serverState);
+    const localOk = draftHasProgress(localSaved);
+    if (serverOk && localOk) {
+      const sc = draftProgressCount(serverState);
+      const lc = draftProgressCount(localSaved);
+      if (sc !== lc) return sc > lc ? serverState : localSaved;
+      const sp = Number(serverState.currentPage) || 0;
+      const lp = Number(localSaved.currentPage) || 0;
+      return sp >= lp ? serverState : localSaved;
+    }
+    if (serverOk) return serverState;
+    if (localOk) return localSaved;
+    return null;
+  }
+
   btnIniciar.addEventListener("click", async function () {
     if (!validarAntesDeIniciar()) return;
     if (!CODIGO_ACTUAL) await lookupCodigo();
@@ -3966,9 +4007,9 @@
     let serverState = null;
     if (codigo) serverState = await cargarAutosaveServidor(codigo);
     const localSaved = loadStateForCurrentCode();
-    const candidate = serverState || localSaved;
+    const candidate = pickResumeDraft(serverState, localSaved);
 
-    if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
+    if (candidate) {
       alert("Hay un intento en curso para este código. Continuará donde lo dejó.");
       aplicarEstadoCHC(candidate);
       mostrarPantallaPreguntas();
