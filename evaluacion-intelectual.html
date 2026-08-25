@@ -1690,6 +1690,8 @@
     }
     if (!codigo) {
       instInput.value = grupoInput.value = cursoInput.value = "";
+      const nombreEl0 = document.getElementById("nombre");
+      if (nombreEl0) nombreEl0.readOnly = false;
       return;
     }
     try {
@@ -1734,6 +1736,34 @@
       instInput.value = data.institucion || "";
       grupoInput.value = data.grupo || "";
       cursoInput.value = data.curso || "";
+
+      // Solo: si hay intento en curso, mostrar el nombre ya guardado y bloquear la casilla.
+      const nombreEl = document.getElementById("nombre");
+      let nombreGuardado = "";
+      if (localState && !isStateCompleted(localState) && localState.nombre) {
+        nombreGuardado = String(localState.nombre).trim();
+      }
+      if (!nombreGuardado) {
+        const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
+        if (
+          serverDraft &&
+          !isStateCompleted(serverDraft) &&
+          serverDraft.nombre &&
+          serverDraft.responses &&
+          Object.keys(serverDraft.responses).length > 0
+        ) {
+          nombreGuardado = String(serverDraft.nombre).trim();
+        }
+      }
+      if (nombreEl) {
+        if (nombreGuardado) {
+          nombreEl.value = nombreGuardado;
+          nombreEl.readOnly = true;
+        } else {
+          nombreEl.readOnly = false;
+        }
+      }
+
       if (codigoMsg) {
         codigoMsg.textContent = "Código válido.";
         codigoMsg.className = "ok";
@@ -1741,6 +1771,8 @@
     } catch (e) {
       instInput.value = grupoInput.value = cursoInput.value = "";
       CODIGO_ACTUAL = null;
+      const nombreElErr = document.getElementById("nombre");
+      if (nombreElErr) nombreElErr.readOnly = false;
       if (codigoMsg) {
         codigoMsg.textContent = (e && e.message) ? e.message : "Código no encontrado.";
         codigoMsg.className = "err";
