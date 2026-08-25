@@ -841,9 +841,9 @@ function setCurveMarker(iie){
 
     const bloqueKey = canonBloque(bloqueNombre);
     const ordenes = {
-      "personal development": ["Self-esteem","Stress Management","Healthy Habits"],
+      "personal development": ["Self-Esteem","Stress Management","Healthy Habits"],
       "interpersonal ties": ["Assertive Expression","Perception of Others","Empathic Sensitivity"],
-      "skills for life": ["Internal Motivation","Commitment Level","Time Organization","Toma de Decisiones","Leadership"]
+      "skills for life": ["Intrinsic Motivation","Commitment Level","Time Management","Decision-Making","Leadership"]
     };
 
     let rowsFiltradas = (subRows||[]).filter(r=> canonBloque(r.bloque||r.block||"")===bloqueKey);
@@ -851,8 +851,8 @@ function setCurveMarker(iie){
     const orden = ordenes[bloqueKey];
     if (orden){
       rowsFiltradas.sort((a,b)=>{
-        const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
-        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
+        const nameA = dispSub(a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
+        const nameB = dispSub(b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
         const ia = orden.findIndex(x=> x.toLowerCase()===nameA);
         const ib = orden.findIndex(x=> x.toLowerCase()===nameB);
         if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
@@ -992,8 +992,7 @@ function setCurveMarker(iie){
   };
 
   const HABILIDAD_DESCS = {
-    "Self-esteem": "It is a person's perception of themselves: how they describe themselves, what they believe they can achieve, and how they interpret their own abilities.",
-    "Stress Management": "Ability to recognize signs of tension, regulate emotional response and use healthy strategies to cope with pressure, frustration or uncertainty.",
+    "Self-Esteem": "It is a person's perception of themselves: how they describe themselves, what they believe they can achieve, and how they interpret their own abilities.",
     "Stress Management": "Ability to recognize signs of tension, regulate emotional response and use healthy strategies to cope with pressure, frustration or uncertainty.",
     "Healthy Habits": "Set of habits and decisions aimed at taking care of physical and mental well-being (sleep, food, movement, hygiene, rest and healthy limits).",
 
@@ -1001,23 +1000,46 @@ function setCurveMarker(iie){
     "Perception of Others": "Ability to observe and understand social and emotional signals in other people (gestures, tone, intention) to relate with greater adjustment.",
     "Empathic Sensitivity": "Ability to put yourself in someone else's shoes, understand how they feel, and respond with consideration and support when appropriate.",
 
-    "Internal Motivation": "Personal drive to initiate and sustain actions toward goals, even when there is difficulty, maintaining interest and effort.",
+    "Intrinsic Motivation": "Personal drive to initiate and sustain actions toward goals, even when there is difficulty, maintaining interest and effort.",
     "Commitment Level": "Degree to which the person assumes responsibilities, fulfills agreements and remains consistent with what he decides or promises.",
-    "Time Organization": "Ability to plan, prioritize and distribute time to accomplish tasks and objectives, avoiding excessive procrastination.",
-    "Toma de Decisiones": "Process of analyzing alternatives, evaluating consequences and choosing the most appropriate option to solve problems or achieve objectives.",
-    "Leadership": "Capacidad de influir de manera positiva, coordinar esfuerzos, motivar a otros y tomar iniciativa para lograr metas comunes.",
+    "Time Management": "Ability to plan, prioritize and distribute time to accomplish tasks and objectives, avoiding excessive procrastination.",
+    "Decision-Making": "Process of analyzing alternatives, evaluating consequences and choosing the most appropriate option to solve problems or achieve objectives.",
+    "Leadership": "Ability to positively influence, coordinate efforts, motivate others and take initiative to achieve shared goals.",
 
     "Aggression": "Tendency to respond in a hostile or impulsive way (verbally, physically, or emotionally) when facing conflict or frustration.",
     "Shyness": "Tendency to inhibit oneself or avoid social interaction due to insecurity, fear of evaluation or difficulty expressing oneself.",
-    "Adaptation to change": "Apertura para adaptarse a nuevas condiciones, ideas o rutinas, ajustando conductas y estrategias cuando el contexto lo requiere."
+    "Adaptation to Change": "Openness to adapt to new conditions, ideas or routines, adjusting behaviors and strategies when the context requires it.",
+
+    // Aliases from Spanish source names (DB / incomplete EN copy)
+    "Autoestima": "It is a person's perception of themselves: how they describe themselves, what they believe they can achieve, and how they interpret their own abilities.",
+    "Self-esteem": "It is a person's perception of themselves: how they describe themselves, what they believe they can achieve, and how they interpret their own abilities.",
+    "Manejo de la Tensión": "Ability to recognize signs of tension, regulate emotional response and use healthy strategies to cope with pressure, frustration or uncertainty.",
+    "Manejo de la tensión": "Ability to recognize signs of tension, regulate emotional response and use healthy strategies to cope with pressure, frustration or uncertainty.",
+    "Manejo de Estrés": "Ability to recognize signs of tension, regulate emotional response and use healthy strategies to cope with pressure, frustration or uncertainty.",
+    "Bienestar físico": "Set of habits and decisions aimed at taking care of physical and mental well-being (sleep, food, movement, hygiene, rest and healthy limits).",
+    "Asertividad": "Ability to build positive relationships, cooperate, resolve disagreements and maintain respectful coexistence.",
+    "Conciencia de los demás": "Ability to observe and understand social and emotional signals in other people (gestures, tone, intention) to relate with greater adjustment.",
+    "Empatía": "Ability to put yourself in someone else's shoes, understand how they feel, and respond with consideration and support when appropriate.",
+    "Motivación": "Personal drive to initiate and sustain actions toward goals, even when there is difficulty, maintaining interest and effort.",
+    "Internal Motivation": "Personal drive to initiate and sustain actions toward goals, even when there is difficulty, maintaining interest and effort.",
+    "Compromiso": "Degree to which the person assumes responsibilities, fulfills agreements and remains consistent with what he decides or promises.",
+    "Administración del tiempo": "Ability to plan, prioritize and distribute time to accomplish tasks and objectives, avoiding excessive procrastination.",
+    "Time Organization": "Ability to plan, prioritize and distribute time to accomplish tasks and objectives, avoiding excessive procrastination.",
+    "Toma de Decisiones": "Process of analyzing alternatives, evaluating consequences and choosing the most appropriate option to solve problems or achieve objectives.",
+    "Toma de decisiones": "Process of analyzing alternatives, evaluating consequences and choosing the most appropriate option to solve problems or achieve objectives.",
+    "Liderazgo": "Ability to positively influence, coordinate efforts, motivate others and take initiative to achieve shared goals.",
+    "Agresión": "Tendency to respond in a hostile or impulsive way (verbally, physically, or emotionally) when facing conflict or frustration.",
+    "Timidez": "Tendency to inhibit oneself or avoid social interaction due to insecurity, fear of evaluation or difficulty expressing oneself.",
+    "Propensión al cambio": "Openness to adapt to new conditions, ideas or routines, adjusting behaviors and strategies when the context requires it.",
+    "Adaptation to change": "Openness to adapt to new conditions, ideas or routines, adjusting behaviors and strategies when the context requires it."
   };
 
   const DATA_BLOQUE_POR_TITULO = {
-    "PERSONAL DEVELOPMENT": "Habilidades intrapersonales",
-    "INTERPERSONAL RELATIONSHIPS": "Habilidades interpersonales",
-    "LIFE SKILLS": "Habilidades para la vida",
-    "INTERPERSONAL COMMUNICATION": "Estilos de comunicación interpersonal",
-    "ADAPTATION TO CHANGE": "Propensión al cambio"
+    "PERSONAL DEVELOPMENT": "Intrapersonal skills",
+    "INTERPERSONAL RELATIONSHIPS": "Interpersonal skills",
+    "LIFE SKILLS": "Life skills",
+    "INTERPERSONAL COMMUNICATION": "Interpersonal communication styles",
+    "ADAPTATION TO CHANGE": "Propensity to change"
   };
 
     const SUB_DISPLAY = {
@@ -1064,7 +1086,7 @@ if (numeric != null){
     const descTxt =
   HABILIDAD_DESCS[nombreDisp] ||
   HABILIDAD_DESCS[nombre] ||
-  HABILIDAD_DESCS[Object.keys(SUB_DISPLAY).find(k => SUB_DISPLAY[k] === nombre)] ||
+  HABILIDAD_DESCS[Object.keys(SUB_DISPLAY).find(k => SUB_DISPLAY[k] === nombreDisp)] ||
   "";
 
     if(descTxt){
@@ -2235,24 +2257,24 @@ cont.appendChild(lista);
       if (s == null) return "";
       let t = String(s).replace(/\s+/g, " ").trim();
 
-      // Expandir abreviaturas y expresiones cortas
-      t = t.replace(/\b(\d+)\s*min\b/gi, "$1 minutos");
-      t = t.replace(/\b(\d+)\s*veces\/sem\b/gi, "$1 veces por semana");
-      t = t.replace(/\b(\d+)\s*vez\/sem\b/gi, "$1 vez por semana");
-      t = t.replace(/\b(\d+)\s*conversaciones\/sem\b/gi, "$1 conversaciones por semana");
-      t = t.replace(/\b(\d+)\s*prácticas\/sem\b/gi, "$1 prácticas por semana");
-      t = t.replace(/\b(\d+)\s*bloques\/sem\b/gi, "$1 bloques por semana");
-      t = t.replace(/\b(\d+)\s*roles\/sem\b/gi, "$1 roles por semana");
-      t = t.replace(/\b(\d+)\s*rol\/sem\b/gi, "$1 rol por semana");
-      t = t.replace(/\b(\d+)\s*días\/sem\b/gi, "$1 días por semana");
-      t = t.replace(/\bsem\.?\b/gi, "semana");
-      t = t.replace(/\bquincenal\b/gi, "cada dos semanas");
-      t = t.replace(/\bsemanal\b/gi, "cada semana");
-      t = t.replace(/\bmensual\b/gi, "cada mes");
-      t = t.replace(/\bHR\b/g, "recursos humanos");
+      // Expand short abbreviations (EN)
+      t = t.replace(/\b(\d+)\s*min\b/gi, "$1 minutes");
+      t = t.replace(/\b(\d+)\s*veces\/sem\b/gi, "$1 times per week");
+      t = t.replace(/\b(\d+)\s*vez\/sem\b/gi, "$1 time per week");
+      t = t.replace(/\b(\d+)\s*conversaciones\/sem\b/gi, "$1 conversations per week");
+      t = t.replace(/\b(\d+)\s*prácticas\/sem\b/gi, "$1 practices per week");
+      t = t.replace(/\b(\d+)\s*bloques\/sem\b/gi, "$1 blocks per week");
+      t = t.replace(/\b(\d+)\s*roles\/sem\b/gi, "$1 roles per week");
+      t = t.replace(/\b(\d+)\s*rol\/sem\b/gi, "$1 role per week");
+      t = t.replace(/\b(\d+)\s*días\/sem\b/gi, "$1 days per week");
+      t = t.replace(/\bsem\.?\b/gi, "week");
+      t = t.replace(/\bquincenal\b/gi, "every two weeks");
+      t = t.replace(/\bsemanal\b/gi, "every week");
+      t = t.replace(/\bmensual\b/gi, "every month");
+      t = t.replace(/\bHR\b/g, "human resources");
 
-      // Quitar puntos suspensivos o texto truncado
-      t = t.replace(/pr\.\.\./gi, "primero con acciones para la persona evaluada y luego con apoyos");
+      // Remove ellipsis / truncated text
+      t = t.replace(/pr\.\.\./gi, "first with actions for the person assessed and then with supports");
       t = t.replace(/\.\.\./g, ".");
 
       // Aterrizar actividades (explicando qué hacer / con quién / sobre qué)
@@ -2351,13 +2373,13 @@ cont.appendChild(lista);
         "Once a week, use a brief guide in a real case: describe the situation, say what emotion appeared and formulate a clear request or a possible agreement without insulting."
       );
 
-      // Ajustes de contexto para versión profesional
+      // Context tweaks for professional version (leftover ES + EN school terms)
       if (esProfesional) {
         t = t.replace(/\bdocente\b/gi, "supervisor");
-        t = t.replace(/\baula\b/gi, "equipo de trabajo");
-        t = t.replace(/\bclase\b/gi, "reunión");
-        t = t.replace(/\bcompañeros\b/gi, "colegas");
-        t = t.replace(/\bcompañero puente\b/gi, "colega de apoyo");
+        t = t.replace(/\baula\b/gi, "work team");
+        t = t.replace(/\bclase\b/gi, "meeting");
+        t = t.replace(/\bcompañeros\b/gi, "colleagues");
+        t = t.replace(/\bcompañero puente\b/gi, "support colleague");
         t = t.replace(/\borientador\b/gi, "mentor");
       }
 
