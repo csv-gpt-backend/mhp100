@@ -115,7 +115,8 @@
       <h2 class="q-title" id="qTitle"></h2>
       <div class="audio-row">
         <button type="button" class="btn-audio" id="btnAudio" aria-label="Escuchar la pregunta">🔊 Escuchar</button>
-        <button type="button" class="btn-audio-stop" id="btnAudioStop" aria-label="Detener audio">Parar</button>
+        <button type="button" class="btn-audio-stop" id="btnAudioPause" aria-label="Pausar o reanudar audio">⏸ Pausa</button>
+        <button type="button" class="btn-audio-stop" id="btnAudioStop" aria-label="Detener audio">⏹ Parar</button>
         <span class="audio-note" id="audioNote">Toca Escuchar si no quieres leer.</span>
       </div>
       <div class="scene" id="qScene" aria-hidden="true"></div>
@@ -248,6 +249,7 @@
     const btnPrev = document.getElementById("btnPrev");
     const btnNext = document.getElementById("btnNext");
     const btnAudio = document.getElementById("btnAudio");
+    const btnAudioPause = document.getElementById("btnAudioPause");
     const btnAudioStop = document.getElementById("btnAudioStop");
     const audioNote = document.getElementById("audioNote");
     const quizCard = document.getElementById("quizCard");
@@ -262,10 +264,34 @@
         || null;
     }
 
-    function stopSpeech(){
-      if (window.speechSynthesis) speechSynthesis.cancel();
+    function resetAudioButtons(){
       btnAudio.classList.remove("playing");
       btnAudio.textContent = "🔊 Escuchar";
+      btnAudioPause.textContent = "⏸ Pausa";
+    }
+
+    function stopSpeech(){
+      if (window.speechSynthesis) speechSynthesis.cancel();
+      resetAudioButtons();
+    }
+
+    function togglePauseSpeech(){
+      if (!window.speechSynthesis) return;
+      if (!speechSynthesis.speaking && !speechSynthesis.paused) {
+        speakCurrent();
+        return;
+      }
+      if (speechSynthesis.paused) {
+        speechSynthesis.resume();
+        btnAudioPause.textContent = "⏸ Pausa";
+        btnAudio.classList.add("playing");
+        btnAudio.textContent = "🔊 Escuchando…";
+      } else if (speechSynthesis.speaking) {
+        speechSynthesis.pause();
+        btnAudioPause.textContent = "▶ Seguir";
+        btnAudio.classList.remove("playing");
+        btnAudio.textContent = "🔊 En pausa";
+      }
     }
 
     function speakCurrent(){
@@ -283,10 +309,10 @@
       u.onstart = () => {
         btnAudio.classList.add("playing");
         btnAudio.textContent = "🔊 Escuchando…";
+        btnAudioPause.textContent = "⏸ Pausa";
       };
       u.onend = u.onerror = () => {
-        btnAudio.classList.remove("playing");
-        btnAudio.textContent = "🔊 Escuchar";
+        resetAudioButtons();
       };
       speechSynthesis.speak(u);
     }
@@ -341,6 +367,7 @@
     }
 
     btnAudio.addEventListener("click", speakCurrent);
+    btnAudioPause.addEventListener("click", togglePauseSpeech);
     btnAudioStop.addEventListener("click", stopSpeech);
 
     btnPrev.addEventListener("click", () => {
