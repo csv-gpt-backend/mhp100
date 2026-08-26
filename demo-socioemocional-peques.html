@@ -40,7 +40,20 @@
       padding:18px; box-shadow:0 8px 24px rgba(15,23,42,.06);
     }
     .q-meta{font-size:.82rem; color:var(--muted); margin-bottom:8px}
-    .q-title{font-size:1.25rem; font-weight:800; margin:0 0 14px; line-height:1.3}
+    .q-title{font-size:1.25rem; font-weight:800; margin:0 0 10px; line-height:1.3}
+    .audio-row{display:flex; gap:10px; flex-wrap:wrap; margin:0 0 14px; align-items:center}
+    .btn-audio{
+      border:0; border-radius:999px; padding:12px 18px; font-weight:800; cursor:pointer;
+      font-size:1.05rem; background:#0ea5e9; color:#fff;
+      display:inline-flex; align-items:center; gap:8px;
+      box-shadow:0 4px 14px rgba(14,165,233,.35);
+    }
+    .btn-audio.playing{background:#0369a1}
+    .btn-audio-stop{
+      border:2px solid #cbd5e1; background:#fff; color:#334155;
+      border-radius:999px; padding:10px 14px; font-weight:700; cursor:pointer;
+    }
+    .audio-note{font-size:.82rem; color:var(--muted)}
     .scene{
       display:grid; place-items:center;
       background: linear-gradient(180deg,#f0f9ff,#fff);
@@ -93,13 +106,18 @@
   <div class="wrap">
     <div class="top">
       <h1>Demo · Socioemocional para peques</h1>
-      <p>4 ejemplos visuales (solo ilustrativos). El niño responde solo, con dibujos y botones grandes. Base: bloques del socioemocional Adalam.</p>
-      <span class="badge">Demo · no es la prueba oficial</span>
+      <p>4 ejemplos visuales + <b>audio</b>. El niño puede <b>escuchar</b> la pregunta y las opciones, y responder solo con dibujos/botones. Base: bloques del socioemocional Adalam.</p>
+      <span class="badge">Demo · no es la prueba oficial · usa voz del navegador</span>
     </div>
 
     <div class="card" id="quizCard">
       <div class="q-meta" id="qMeta"></div>
       <h2 class="q-title" id="qTitle"></h2>
+      <div class="audio-row">
+        <button type="button" class="btn-audio" id="btnAudio" aria-label="Escuchar la pregunta">🔊 Escuchar</button>
+        <button type="button" class="btn-audio-stop" id="btnAudioStop" aria-label="Detener audio">Parar</button>
+        <span class="audio-note" id="audioNote">Toca Escuchar si no quieres leer.</span>
+      </div>
       <div class="scene" id="qScene" aria-hidden="true"></div>
       <p class="hint" id="qHint">Toca la opción que más se parece a ti</p>
       <div class="choices" id="qChoices"></div>
@@ -138,6 +156,7 @@
   <rect x="118" y="128" width="44" height="40" rx="10" fill="#60a5fa"/>
   <text x="210" y="30" text-anchor="middle" font-size="14" fill="#92400e" font-family="Segoe UI,sans-serif">Espejo</text>
 </svg>`,
+        speak: "¿Cómo te sientes contigo? Elige la carita que más se parece a ti. Opción uno: me siento bien. Opción dos: a veces sí. Opción tres: casi no.",
         choices: [
           { face: "😊", label: "Me siento bien" },
           { face: "😐", label: "A veces sí" },
@@ -161,6 +180,7 @@
   <text x="210" y="48" text-anchor="middle" font-size="15" fill="#166534" font-family="Segoe UI,sans-serif">Amigo triste</text>
   <circle cx="290" cy="70" r="10" fill="#facc15"/><circle cx="310" cy="55" r="7" fill="#fde047"/>
 </svg>`,
+        speak: "Tu amigo está triste. ¿Qué haces? Opción uno: me acerco y ayudo. Opción dos: a veces miro. Opción tres: sigo mi camino.",
         choices: [
           { face: "🤝", label: "Me acerco y ayudo" },
           { face: "👀", label: "A veces miro" },
@@ -182,6 +202,7 @@
   <path d="M190 130 Q210 118 230 130" stroke="#7f1d1d" stroke-width="4" fill="none"/>
   <text x="210" y="42" text-anchor="middle" font-size="15" fill="#991b1b" font-family="Segoe UI,sans-serif">¡Estoy enojado!</text>
 </svg>`,
+        speak: "Cuando te enojas mucho, ¿qué haces? Opción uno: digo con palabras qué me molestó. Opción dos: a veces grito un poco. Opción tres: grito o empujo.",
         choices: [
           { face: "🗣️", label: "Digo con palabras qué me molestó" },
           { face: "😮‍💨", label: "A veces grito un poco" },
@@ -204,6 +225,7 @@
   <text x="310" y="108" text-anchor="middle" font-size="16" fill="#065f46" font-family="Segoe UI,sans-serif">Juego B</text>
   <text x="210" y="42" text-anchor="middle" font-size="14" fill="#5b21b6" font-family="Segoe UI,sans-serif">El plan cambió</text>
 </svg>`,
+        speak: "Hoy el plan cambió. ¿Cómo te va? Opción uno: lo intento y me adapto. Opción dos: me cuesta, pero lo intento. Opción tres: me enojo mucho.",
         choices: [
           { face: "✅", label: "Lo intento y me adapto" },
           { face: "😕", label: "Me cuesta, pero lo intento" },
@@ -214,6 +236,7 @@
 
     let i = 0;
     let answers = Array(ITEMS.length).fill(null);
+    let esVoice = null;
 
     const qMeta = document.getElementById("qMeta");
     const qTitle = document.getElementById("qTitle");
@@ -224,8 +247,64 @@
     const dots = document.getElementById("dots");
     const btnPrev = document.getElementById("btnPrev");
     const btnNext = document.getElementById("btnNext");
+    const btnAudio = document.getElementById("btnAudio");
+    const btnAudioStop = document.getElementById("btnAudioStop");
+    const audioNote = document.getElementById("audioNote");
     const quizCard = document.getElementById("quizCard");
     const doneCard = document.getElementById("doneCard");
+
+    function pickSpanishVoice(){
+      if (!window.speechSynthesis) return null;
+      const voices = speechSynthesis.getVoices() || [];
+      return voices.find(v => /^es(-|_)/i.test(v.lang) && /female|mujer|sabina|lucia|paulina|helena|monica|sofía|sofia/i.test(v.name))
+        || voices.find(v => /^es-EC|^es-MX|^es-US|^es-ES/i.test(v.lang))
+        || voices.find(v => /^es/i.test(v.lang))
+        || null;
+    }
+
+    function stopSpeech(){
+      if (window.speechSynthesis) speechSynthesis.cancel();
+      btnAudio.classList.remove("playing");
+      btnAudio.textContent = "🔊 Escuchar";
+    }
+
+    function speakCurrent(){
+      const item = ITEMS[i];
+      if (!window.speechSynthesis) {
+        audioNote.textContent = "Este navegador no tiene voz. Prueba Chrome o Edge.";
+        return;
+      }
+      stopSpeech();
+      const u = new SpeechSynthesisUtterance(item.speak || (item.title + ". " + item.hint));
+      u.lang = (esVoice && esVoice.lang) || "es-ES";
+      if (esVoice) u.voice = esVoice;
+      u.rate = 0.92;
+      u.pitch = 1.05;
+      u.onstart = () => {
+        btnAudio.classList.add("playing");
+        btnAudio.textContent = "🔊 Escuchando…";
+      };
+      u.onend = u.onerror = () => {
+        btnAudio.classList.remove("playing");
+        btnAudio.textContent = "🔊 Escuchar";
+      };
+      speechSynthesis.speak(u);
+    }
+
+    function loadVoices(){
+      esVoice = pickSpanishVoice();
+      if (!window.speechSynthesis) {
+        audioNote.textContent = "Sin audio en este navegador.";
+      } else if (!esVoice) {
+        audioNote.textContent = "Audio listo (voz del sistema). Toca Escuchar.";
+      } else {
+        audioNote.textContent = "Audio listo. Toca Escuchar si no quieres leer.";
+      }
+    }
+    loadVoices();
+    if (window.speechSynthesis) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
 
     function renderDots(){
       dots.innerHTML = ITEMS.map((_, idx) =>
@@ -234,6 +313,7 @@
     }
 
     function render(){
+      stopSpeech();
       const item = ITEMS[i];
       qMeta.textContent = `Ejemplo ${i + 1} de ${ITEMS.length} · ${item.bloque}`;
       qTitle.textContent = item.title;
@@ -260,6 +340,9 @@
       doneCard.style.display = "none";
     }
 
+    btnAudio.addEventListener("click", speakCurrent);
+    btnAudioStop.addEventListener("click", stopSpeech);
+
     btnPrev.addEventListener("click", () => {
       if (i > 0) { i--; render(); }
     });
@@ -267,6 +350,7 @@
       if (answers[i] == null) return;
       if (i < ITEMS.length - 1) { i++; render(); }
       else {
+        stopSpeech();
         quizCard.style.display = "none";
         doneCard.style.display = "block";
       }
