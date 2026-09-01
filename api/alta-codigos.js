@@ -4,6 +4,7 @@ const EVAL_KEYS = new Set([
   "INTELC",
   "INTEGR",
   "SOCIOE",
+  "SOCPEQ",
   "LIDERA",
   "HABITO",
   "APREND",
