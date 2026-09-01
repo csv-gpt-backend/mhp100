@@ -3,6 +3,7 @@ const EVAL_CATALOG = [
   { key: "INTELC", label: "Intelectual", labelEn: "Intellectual", aliases: ["INTELECTUAL", "INTEL", "INTE"] },
   { key: "INTEGR", label: "Integridad", labelEn: "Integrity", aliases: ["INTEGRIDAD", "VALORES", "INTG"] },
   { key: "SOCIOE", label: "Socioemocional", labelEn: "Social-emotional", aliases: ["SOCIOEMOCIONAL", "SOCIO", "SOC"] },
+  { key: "SOCPEQ", label: "Socioemocional peques", labelEn: "Social-emotional (young)", aliases: ["SOCPEQUES", "SOCPEQ", "SOCINF"] },
   { key: "LIDERA", label: "Liderazgo", labelEn: "Leadership", aliases: ["LIDERAZGO", "LIDER", "LIDE", "LID"] },
   { key: "HABITO", label: "Hábitos", labelEn: "Habits", aliases: ["HABITOS", "HABIT", "HAB"] },
   { key: "APREND", label: "Aprendizaje", labelEn: "Learning", aliases: ["APRENDIZAJE", "APREN", "APR"] },

@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="es" translate="no" class="notranslate">
+<head>
+  <meta name="google" content="notranslate">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Evaluación Socioemocional · Peques</title>
+  <style>
+    :root{
+      --accent:#2563eb; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+      --bg:#f0f9ff; --card:#fff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:linear-gradient(180deg,#dbeafe,#f8fafc);color:var(--ink);font-size:16px}
+    .layout{display:grid;grid-template-columns:56px minmax(0,1fr);min-height:100vh}
+    .side{background:#e5e7eb;border-right:1px solid #cbd5e1;display:flex;align-items:center;justify-content:center}
+    .side span{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:11px;letter-spacing:.12em;color:#6b7280;text-align:center;padding:8px 0}
+    .page{max-width:720px;margin:0 auto;padding:12px 14px 32px;width:100%}
+    h1{font-size:1.2rem;margin:0 0 8px}
+    h2{font-size:1.05rem;margin:0 0 8px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+    .hidden{display:none !important}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+    @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+    .field{display:flex;flex-direction:column;gap:2px;font-size:13px}
+    .field label{font-weight:700}
+    .field input{padding:8px;border:1px solid #d1d5db;border-radius:8px;font-size:15px}
+    .field input[readonly]{background:#f9fafb;color:#4b5563}
+    .ok{color:#16a34a;font-weight:600;font-size:13px}
+    .err{color:#dc2626;font-weight:600;font-size:13px}
+    .muted{color:var(--muted);font-size:13px;line-height:1.45}
+    .btn{border:0;border-radius:10px;padding:12px 16px;font-weight:800;cursor:pointer;font-size:1rem}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-primary:disabled{opacity:.45;cursor:not-allowed}
+    .btn-ghost{background:#e5e7eb;color:#111}
+    .btn-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-top:12px}
+    .progress{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:10px 0}
+    .progress .bar{height:100%;background:var(--accent);width:0%;transition:width .2s}
+    .q-title{font-size:1.35rem;font-weight:800;margin:0 0 8px;line-height:1.25}
+    .audio-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+    .btn-audio{border:0;border-radius:999px;padding:11px 16px;font-weight:800;background:#0ea5e9;color:#fff;cursor:pointer}
+    .btn-audio.playing{background:#0369a1}
+    .btn-audio-sm{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer}
+    .scene{display:grid;place-items:center;min-height:160px;background:linear-gradient(180deg,#f0f9ff,#fff);border:2px dashed #93c5fd;border-radius:14px;padding:12px;margin-bottom:12px}
+    .scene svg{width:min(100%,400px);height:auto}
+    .scene-emoji{font-size:4rem;line-height:1;margin-bottom:4px}
+    .hint{text-align:center;color:var(--muted);font-size:.9rem;margin:0 0 10px}
+    .choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    @media(max-width:560px){.choices{grid-template-columns:1fr}}
+    .choice{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 8px;cursor:pointer;text-align:center;font-weight:700;font-size:.88rem}
+    .choice.selected{border-color:var(--accent);background:#eff6ff;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+    .choice .face{font-size:2rem;display:block;margin-bottom:4px}
+    #pantalla-final{display:none;text-align:center;padding:24px 12px}
+    #pantalla-final .check{font-size:2.5rem;color:#16a34a;margin-bottom:8px}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side"><span>SOCIOEMOCIONAL PEQUES</span></aside>
+  <main class="page">
+    <header><h1>Evaluación Socioemocional · Peques</h1></header>
+
+    <section id="datos-participante" class="card">
+      <div class="grid-2">
+        <div class="field"><label for="codigo">Código</label>
+          <input id="codigo" autocomplete="off" style="text-transform:uppercase"/>
+          <small id="codigoMsg" class="muted"></small></div>
+        <div class="field"><label for="nombre">Nombre</label>
+          <input id="nombre" autocomplete="name"/></div>
+        <div class="field"><label id="labelCurso" for="curso">Grado/Curso</label>
+          <input id="curso" readonly/></div>
+        <div class="field"><label for="institucion">Institución</label>
+          <input id="institucion" readonly/></div>
+        <div class="field"><label for="grupo">País</label>
+          <input id="grupo" readonly/></div>
+        <div class="field"><label for="fecha">Fecha</label>
+          <input id="fecha" readonly/></div>
+      </div>
+    </section>
+
+    <section id="pantalla-inicio" class="card">
+      <h2>Instrucciones</h2>
+      <p class="muted">Esta evaluación es para niños y niñas (aprox. 6 a 9 años). Son <strong>26 preguntas</strong> cortas, una por pantalla.</p>
+      <ul class="muted" style="margin:8px 0;padding-left:18px">
+        <li>Mira el dibujo.</li>
+        <li>Toca <strong>Escuchar</strong> si quieres que te lean la pregunta.</li>
+        <li>Elige el botón que más se parece a ti.</li>
+      </ul>
+      <p class="muted"><strong>Importante:</strong> Puedes avanzar solo cuando elijas una opción. No podrás volver a preguntas anteriores.</p>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" id="btnVolverMenuInicio">REGRESAR AL MENÚ</button>
+        <button type="button" class="btn btn-primary" id="btnIniciar" disabled>INICIAR</button>
+      </div>
+    </section>
+
+    <section id="pantalla-preguntas" class="hidden">
+      <div class="card">
+        <div class="muted" id="qMeta"></div>
+        <div class="progress" aria-label="Progreso"><div class="bar" id="bar"></div></div>
+        <h2 class="q-title" id="qTitle"></h2>
+        <div class="audio-row">
+          <button type="button" class="btn-audio" id="btnAudio">🔊 Escuchar</button>
+          <button type="button" class="btn-audio-sm" id="btnAudioPause">⏸ Pausa</button>
+          <button type="button" class="btn-audio-sm" id="btnAudioStop">⏹ Parar</button>
+        </div>
+        <div class="scene" id="qScene"></div>
+        <p class="hint" id="qHint">Toca la opción que más se parece a ti</p>
+        <div class="choices" id="qChoices"></div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-primary" id="btnSiguiente" disabled>SIGUIENTE</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="pantalla-final" class="card">
+      <div class="check">✔</div>
+      <h2>Evaluación terminada</h2>
+      <p class="muted">Felicidades, has concluido tu evaluación socioemocional.</p>
+      <button type="button" class="btn btn-primary" id="btnRegresarMenu">REGRESAR AL MENÚ</button>
+    </section>
+  </main>
+</div>
+
+<script>
+const EVAL_PRODUCT_KEY = "SOCPEQ";
+const EVAL_LANG = "ES";
+const STORAGE_PREFIX = "eval_socpeq_state_";
+let CODIGO_ACTUAL = null;
+let __startTime = Date.now();
+let currentIndex = 0;
+let esVoice = null;
+
+const SCENES = {
+  mirror:`<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg"><rect width="420" height="200" rx="16" fill="#fef3c7"/><circle cx="130" cy="100" r="36" fill="#fcd34d"/><circle cx="290" cy="100" r="32" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="3"/><text x="210" y="28" text-anchor="middle" font-size="14" fill="#92400e">Contigo</text></svg>`,
+  empathy:`<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg"><rect width="420" height="200" rx="16" fill="#dcfce7"/><circle cx="150" cy="105" r="30" fill="#fde68a"/><path d="M140 118 Q150 108 160 118" stroke="#111" fill="none"/><text x="210" y="32" text-anchor="middle" font-size="14" fill="#166534">Alguien triste</text></svg>`,
+  anger:`<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg"><rect width="420" height="200" rx="16" fill="#fee2e2"/><circle cx="210" cy="105" r="44" fill="#fca5a5"/><text x="210" y="32" text-anchor="middle" font-size="14" fill="#991b1b">Enojo</text></svg>`,
+  change:`<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg"><rect width="420" height="200" rx="16" fill="#ede9fe"/><rect x="60" y="70" width="100" height="70" rx="10" fill="#c4b5fd"/><rect x="260" y="70" width="100" height="70" rx="10" fill="#a7f3d0"/><text x="210" y="32" text-anchor="middle" font-size="14" fill="#5b21b6">Cambió el plan</text></svg>`
+};
+
+function sceneEmoji(emoji, caption){
+  return `<div class="scene-emoji" aria-hidden="true">${emoji}</div><div class="muted" style="text-align:center;font-weight:700">${caption}</div>`;
+}
+
+function mk(id, bloque, sub, title, speak, sceneHtml, choices){
+  return { id, bloque, subhabilidad: sub, title, speak, sceneHtml, choices, value: null };
+}
+
+const ITEMS = [
+  mk(1,"Habilidades intrapersonales","Autoestima","¿Cómo te sientes contigo?",
+    "¿Cómo te sientes contigo? Opción uno: me siento bien. Opción dos: a veces. Opción tres: casi no.",
+    SCENES.mirror,[["😊","Me siento bien",3],["😐","A veces",2],["😟","Casi no",1]]),
+  mk(2,"Habilidades intrapersonales","Autoestima","Si te equivocas, ¿aún te quieres?",
+    "Si te equivocas, ¿aún te quieres? Opción uno: sí. Opción dos: a veces. Opción tres: casi no.",
+    sceneEmoji("💛","Equivocarse es normal"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi no",1]]),
+  mk(3,"Habilidades intrapersonales","Bienestar físico","¿Duermes bien por la noche?",
+    "¿Duermes bien por la noche? Opción uno: sí. Opción dos: a veces. Opción tres: casi no.",
+    sceneEmoji("🌙","Descanso"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi no",1]]),
+  mk(4,"Habilidades intrapersonales","Bienestar físico","¿Comes frutas o verduras?",
+    "¿Comes frutas o verduras? Opción uno: casi todos los días. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("🍎","Alimentación"),[["✅","Casi todos los días",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(5,"Habilidades intrapersonales","Manejo de la tensión","¿Te calmas cuando estás con nervios?",
+    "¿Te calmas cuando estás con nervios? Opción uno: sí, lo intento. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("🧘","Calmarse"),[["✅","Sí, lo intento",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(6,"Habilidades intrapersonales","Manejo de la tensión","Si algo sale mal, ¿sigues intentando?",
+    "Si algo sale mal, ¿sigues intentando? Opción uno: sí. Opción dos: a veces. Opción tres: me rindo rápido.",
+    sceneEmoji("🎯","Seguir intentando"),[["✅","Sí",3],["😐","A veces",2],["😤","Me rindo rápido",1]]),
+  mk(7,"Habilidades interpersonales","Asertividad","¿Puedes decir sí o no con respeto?",
+    "¿Puedes decir sí o no con respeto? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("🗣️","Decir sí o no"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(8,"Habilidades interpersonales","Asertividad","¿Pides las cosas sin gritar?",
+    "¿Pides las cosas sin gritar? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("🤫","Sin gritar"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(9,"Habilidades interpersonales","Conciencia de los demás","¿Notas si alguien está triste o enojado?",
+    "¿Notas si alguien está triste o enojado? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    SCENES.empathy,[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(10,"Habilidades interpersonales","Conciencia de los demás","¿Escuchas cuando alguien te habla?",
+    "¿Escuchas cuando alguien te habla? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("👂","Escuchar"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(11,"Habilidades interpersonales","Empatía","¿Ayudas si alguien lo necesita?",
+    "¿Ayudas si alguien lo necesita? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("🤝","Ayudar"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(12,"Habilidades interpersonales","Empatía","¿Te importa cómo se sienten los demás?",
+    "¿Te importa cómo se sienten los demás? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("💚","Los demás"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(13,"Habilidades para la vida","Motivación","¿Terminas lo que empiezas?",
+    "¿Terminas lo que empiezas? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("✔️","Terminar"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(14,"Habilidades para la vida","Compromiso","¿Cumples lo que prometes?",
+    "¿Cumples lo que prometes? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("🤞","Promesa"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(15,"Habilidades para la vida","Administración del tiempo","¿Guardas tus cosas al terminar?",
+    "¿Guardas tus cosas al terminar? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("🎒","Orden"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(16,"Habilidades para la vida","Toma de decisiones","¿Puedes elegir entre dos cosas?",
+    "¿Puedes elegir entre dos cosas? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("🔀","Elegir"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(17,"Habilidades para la vida","Motivación","¿Te gusta probar cosas nuevas?",
+    "¿Te gusta probar cosas nuevas? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("✨","Nuevo"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(18,"Habilidades para la vida","Liderazgo","¿Ayudas a organizar o empezar en el grupo?",
+    "¿Ayudas a organizar o empezar en el grupo? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("👥","En grupo"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(19,"Estilos de comunicación interpersonal","Agresión","Cuando te enojas, ¿qué haces?",
+    "Cuando te enojas, ¿qué haces? Opción uno: grito o empujo. Opción dos: a veces. Opción tres: digo con palabras.",
+    SCENES.anger,[["👊","Grito o empujo",1],["😮‍💨","A veces",2],["🗣️","Digo con palabras",3]]),
+  mk(20,"Estilos de comunicación interpersonal","Agresión","Cuando te enojas, ¿qué haces?",
+    "Cuando te enojas, ¿qué haces? Opción uno: digo con palabras. Opción dos: a veces. Opción tres: grito o empujo.",
+    SCENES.anger,[["🗣️","Digo con palabras",3],["😮‍💨","A veces",2],["👊","Grito o empujo",1]]),
+  mk(21,"Estilos de comunicación interpersonal","Timidez","¿Te da miedo hablar delante de otros?",
+    "¿Te da miedo hablar delante de otros? Opción uno: mucho miedo. Opción dos: un poco. Opción tres: puedo hablar.",
+    sceneEmoji("🎤","Hablar"),[["😰","Mucho miedo",1],["😐","Un poco",2],["😊","Puedo hablar",3]]),
+  mk(22,"Estilos de comunicación interpersonal","Timidez","¿Pides ayuda si la necesitas?",
+    "¿Pides ayuda si la necesitas? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("🙋","Pedir ayuda"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(23,"Estilos de comunicación interpersonal","Timidez","¿Te quedas callado aunque quieras hablar?",
+    "¿Te quedas callado aunque quieras hablar? Opción uno: casi siempre. Opción dos: a veces. Opción tres: hablo cuando quiero.",
+    sceneEmoji("🤐","Callado"),[["😶","Casi siempre",1],["😐","A veces",2],["🗣️","Hablo cuando quiero",3]]),
+  mk(24,"Propensión al cambio","Propensión al cambio","Si cambia el plan, ¿lo aceptas?",
+    "Si cambia el plan, ¿lo aceptas? Opción uno: lo intento. Opción dos: me cuesta. Opción tres: me enojo mucho.",
+    SCENES.change,[["✅","Lo intento",3],["😕","Me cuesta",2],["😤","Me enojo mucho",1]]),
+  mk(25,"Propensión al cambio","Propensión al cambio","¿Te gustan personas o lugares nuevos?",
+    "¿Te gustan personas o lugares nuevos? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
+    sceneEmoji("🌍","Nuevo"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+  mk(26,"Propensión al cambio","Propensión al cambio","Si algo es distinto, ¿te adaptas?",
+    "Si algo es distinto, ¿te adaptas? Opción uno: sí, me adapto. Opción dos: lo intento. Opción tres: me enojo mucho.",
+    SCENES.change,[["✅","Sí, me adapto",3],["😐","Lo intento",2],["😤","Me enojo mucho",1]])
+];
+
+const codigoInput = document.getElementById("codigo");
+const codigoMsg = document.getElementById("codigoMsg");
+const btnIniciar = document.getElementById("btnIniciar");
+const labelCurso = document.getElementById("labelCurso");
+
+function actualizarLabelCurso(codigo=""){
+  const c = String(codigo||"").trim().toUpperCase();
+  if(labelCurso) labelCurso.textContent = c.startsWith("PRO") ? "Nivel" : "Grado/Curso";
+}
+
+function getStorageKey(){
+  const c = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+  return c ? STORAGE_PREFIX + c : null;
+}
+
+function obtenerRespuestasCrudas(){
+  const m = {};
+  ITEMS.forEach(q => { if(q.value != null) m[String(q.id)] = q.value; });
+  return m;
+}
+
+function loadStateForCurrentCode(){
+  const key = getStorageKey();
+  if(!key) return null;
+  try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
+}
+
+function clearState(){
+  const key = getStorageKey();
+  if(key) try { localStorage.removeItem(key); } catch {}
+}
+
+function isStateCompleted(state){
+  if(!state) return false;
+  if(state.completed) return true;
+  const r = state.responses || {};
+  return Object.keys(r).length >= ITEMS.length;
+}
+
+function saveState(completed){
+  const key = getStorageKey();
+  if(!key) return;
+  const state = {
+    codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
+    nombre: document.getElementById("nombre").value.trim(),
+    institucion: document.getElementById("institucion").value,
+    grupo: document.getElementById("grupo").value,
+    curso: document.getElementById("curso").value,
+    fecha: document.getElementById("fecha").value,
+    currentIndex,
+    responses: obtenerRespuestasCrudas(),
+    startTime: __startTime,
+    completed: !!completed
+  };
+  try { localStorage.setItem(key, JSON.stringify(state)); } catch {}
+  fetch("/api/autosave",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    codigo: state.codigo, currentPage: currentIndex, responses: state.responses,
+    snapshot:{nombre:state.nombre,institucion:state.institucion,grupo:state.grupo,curso:state.curso,fecha:state.fecha,startTime:state.startTime}
+  })}).catch(()=>{});
+}
+
+async function lookupCodigo(){
+  const codigo = codigoInput.value.trim().toUpperCase();
+  codigoInput.value = codigo;
+  actualizarLabelCurso(codigo);
+  CODIGO_ACTUAL = null;
+  btnIniciar.disabled = true;
+  if(codigoMsg){ codigoMsg.textContent = codigo ? "Buscando..." : "Ingresa un código."; codigoMsg.className = "muted"; }
+  if(!codigo) return;
+  try{
+    const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}&eval=${EVAL_PRODUCT_KEY}&idioma=${EVAL_LANG}`);
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error || "Código no válido");
+    const usado = data.usado === true || data.disponible === false;
+    if(usado) throw new Error("Este código ya fue utilizado o no está disponible.");
+    if(isStateCompleted(loadStateForCurrentCode())) throw new Error("Este código ya completó la evaluación en este dispositivo.");
+    CODIGO_ACTUAL = data.codigo || codigo;
+    document.getElementById("institucion").value = data.institucion || "";
+    document.getElementById("grupo").value = data.grupo || "";
+    document.getElementById("curso").value = data.curso || "";
+    btnIniciar.disabled = false;
+    if(codigoMsg){ codigoMsg.textContent = "Código válido."; codigoMsg.className = "ok"; }
+  }catch(e){
+    if(codigoMsg){ codigoMsg.textContent = e.message || "Código no encontrado."; codigoMsg.className = "err"; }
+  }
+}
+
+function calcularResultados(){
+  const subMap = new Map();
+  ITEMS.forEach(q => {
+    if(!subMap.has(q.subhabilidad)) subMap.set(q.subhabilidad,{bloque:q.bloque,items:0,pts:0});
+    const s = subMap.get(q.subhabilidad);
+    s.items++; s.pts += (q.value ?? 0);
+  });
+  const subhabilidades = Array.from(subMap.entries()).map(([sub,v])=>{
+    const max = v.items * 3;
+    return { bloque:v.bloque, subhabilidad:sub, sub, items:v.items, pts:v.pts, pct: max ? Math.round(v.pts/max*100) : 0 };
+  });
+  const bloqMap = new Map();
+  subhabilidades.forEach(r => {
+    if(!bloqMap.has(r.bloque)) bloqMap.set(r.bloque,{sum:0,n:0});
+    const b = bloqMap.get(r.bloque); b.sum += r.pct; b.n++;
+  });
+  const bloqPercents = {};
+  bloqMap.forEach((a,bloque)=>{ bloqPercents[bloque] = a.n ? Math.round(a.sum/a.n) : 0; });
+  const pct = name => {
+    const k = Object.keys(bloqPercents).find(x => x.toLowerCase() === name.toLowerCase());
+    return k ? bloqPercents[k] : 0;
+  };
+  const bIntra = pct("Habilidades intrapersonales");
+  const bInter = pct("Habilidades interpersonales");
+  const bPV = pct("Habilidades para la vida");
+  const iie = Math.round((bIntra+bInter+bPV)/3) || 0;
+  return {
+    globales:{ IIE:iie, IV1:0, IV2:0, IV3:0 },
+    bloques:{
+      intrapersonales:bIntra, interpersonales:bInter, para_la_vida:bPV,
+      estilos_comunicacion:pct("Estilos de comunicación interpersonal"),
+      propension_cambio:pct("Propensión al cambio")
+    },
+    subhabilidades, bloqPercents
+  };
+}
+
+function onFinalizar(){
+  const nombre = document.getElementById("nombre").value.trim();
+  if(!nombre){ alert("Por favor ingresa el nombre."); return; }
+  if(ITEMS.some(q => q.value == null)){ alert("Faltan respuestas."); return; }
+  const payload = {
+    codigo: CODIGO_ACTUAL,
+    evaluacion: EVAL_PRODUCT_KEY,
+    idioma: EVAL_LANG,
+    snapshot:{
+      nombre, institucion:document.getElementById("institucion").value,
+      grupo:document.getElementById("grupo").value, curso:document.getElementById("curso").value,
+      version_banco:"SOCPEQ-v1"
+    },
+    resultados: calcularResultados(),
+    responses: obtenerRespuestasCrudas()
+  };
+  saveState(true);
+  fetch("/api/submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).catch(()=>{});
+  document.getElementById("pantalla-preguntas").classList.add("hidden");
+  document.getElementById("datos-participante").classList.add("hidden");
+  document.getElementById("pantalla-inicio").classList.add("hidden");
+  document.getElementById("nombre").readOnly = true;
+  document.getElementById("pantalla-final").style.display = "block";
+  stopSpeech();
+}
+
+function updateProgress(){
+  const done = ITEMS.filter(q => q.value != null).length;
+  const pct = Math.round(done / ITEMS.length * 100);
+  document.getElementById("bar").style.width = pct + "%";
+  document.getElementById("qMeta").textContent = `Pregunta ${currentIndex+1} de ${ITEMS.length}`;
+}
+
+function renderQuestion(){
+  stopSpeech();
+  const q = ITEMS[currentIndex];
+  document.getElementById("qTitle").textContent = q.title;
+  document.getElementById("qHint").textContent = "Toca la opción que más se parece a ti";
+  document.getElementById("qScene").innerHTML = q.sceneHtml;
+  const cont = document.getElementById("qChoices");
+  cont.innerHTML = "";
+  q.choices.forEach((row, ci) => {
+    const [face, label, score] = row;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "choice" + (q.value === score ? " selected" : "");
+    b.innerHTML = `<span class="face">${face}</span>${label}`;
+    b.addEventListener("click", () => {
+      q.value = score;
+      renderQuestion();
+      updateProgress();
+      document.getElementById("btnSiguiente").disabled = false;
+    });
+    cont.appendChild(b);
+  });
+  document.getElementById("btnSiguiente").disabled = q.value == null;
+  document.getElementById("btnSiguiente").textContent = currentIndex === ITEMS.length - 1 ? "FINALIZAR" : "SIGUIENTE";
+  updateProgress();
+}
+
+function pickSpanishVoice(){
+  if(!window.speechSynthesis) return null;
+  const voices = speechSynthesis.getVoices() || [];
+  return voices.find(v => /^es/i.test(v.lang)) || null;
+}
+
+function stopSpeech(){ if(window.speechSynthesis) speechSynthesis.cancel(); }
+
+function speakCurrent(){
+  const q = ITEMS[currentIndex];
+  if(!window.speechSynthesis) return;
+  stopSpeech();
+  const u = new SpeechSynthesisUtterance(q.speak);
+  u.lang = (esVoice && esVoice.lang) || "es-ES";
+  if(esVoice) u.voice = esVoice;
+  u.rate = 0.9;
+  speechSynthesis.speak(u);
+}
+
+function togglePause(){
+  if(!window.speechSynthesis) return;
+  if(speechSynthesis.paused) speechSynthesis.resume();
+  else if(speechSynthesis.speaking) speechSynthesis.pause();
+  else speakCurrent();
+}
+
+document.getElementById("btnAudio").addEventListener("click", speakCurrent);
+document.getElementById("btnAudioPause").addEventListener("click", togglePause);
+document.getElementById("btnAudioStop").addEventListener("click", stopSpeech);
+
+document.getElementById("btnSiguiente").addEventListener("click", () => {
+  if(ITEMS[currentIndex].value == null) return;
+  if(currentIndex >= ITEMS.length - 1) onFinalizar();
+  else {
+    currentIndex++;
+    saveState(false);
+    renderQuestion();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+});
+
+codigoInput.addEventListener("blur", lookupCodigo);
+codigoInput.addEventListener("input", () => { codigoInput.value = codigoInput.value.toUpperCase(); actualizarLabelCurso(codigoInput.value); });
+document.getElementById("btnVolverMenuInicio").onclick = () => { location.href = "index.html"; };
+document.getElementById("btnRegresarMenu").onclick = () => { location.href = "index.html"; };
+
+btnIniciar.addEventListener("click", async () => {
+  if(!document.getElementById("nombre").value.trim()){ alert("Ingresa tu nombre."); return; }
+  if(!CODIGO_ACTUAL) await lookupCodigo();
+  if(!CODIGO_ACTUAL){ alert("Valida el código."); return; }
+  const saved = loadStateForCurrentCode();
+  if(saved && !saved.completed && Object.keys(saved.responses||{}).length){
+    if(confirm("Hay una evaluación en curso. ¿Continuar donde la dejaste?")){
+      currentIndex = saved.currentIndex || 0;
+      __startTime = saved.startTime || Date.now();
+      ITEMS.forEach(q => { const v = saved.responses[String(q.id)]; q.value = typeof v === "number" ? v : null; });
+    } else { clearState(); ITEMS.forEach(q => q.value = null); currentIndex = 0; __startTime = Date.now(); }
+  } else { ITEMS.forEach(q => q.value = null); currentIndex = 0; __startTime = Date.now(); }
+  document.getElementById("pantalla-inicio").classList.add("hidden");
+  document.getElementById("datos-participante").classList.add("hidden");
+  document.getElementById("pantalla-preguntas").classList.remove("hidden");
+  renderQuestion();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  esVoice = pickSpanishVoice();
+  if(window.speechSynthesis) speechSynthesis.onvoiceschanged = () => { esVoice = pickSpanishVoice(); };
+  const hoy = new Date();
+  try { document.getElementById("fecha").value = new Intl.DateTimeFormat("es-EC").format(hoy); }
+  catch { document.getElementById("fecha").value = hoy.toLocaleDateString("es-EC"); }
+  actualizarLabelCurso("");
+});
+</script>
+</body>
+</html>
