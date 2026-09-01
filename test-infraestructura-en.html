@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Technology Infrastructure Test — ADALAM</title>
+  <style>
+    :root{
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e2e8f0;
+      --primary:#16a34a;
+      --primary-dark:#15803d;
+      --accent:#2563eb;
+      --accent-dark:#1d4ed8;
+      --warn:#ea580c;
+      --bg:#f1f5f9;
+      --card:#fff;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);min-height:100%}
+    .page{max-width:920px;margin:0 auto;padding:18px 14px 40px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+    .topbar a{color:var(--accent);font-size:13px;font-weight:700;text-decoration:none}
+    .topbar a:hover{text-decoration:underline}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{height:52px;object-fit:contain}
+     .brand-text h1{margin:0;font-size:20px;font-weight:900;letter-spacing:.02em}
+    .brand-text p{margin:2px 0 0;font-size:15px;color:var(--muted)}
+    .tit-badge{display:inline-flex;align-items:center;gap:6px;font-weight:900;font-size:22px;letter-spacing:-.02em}
+    .tit-badge .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#facc15,#ef4444)}
+
+    .wizard{background:var(--card);border:1px solid rgba(148,163,184,.45);border-radius:20px;box-shadow:0 20px 50px rgba(15,23,42,.08);overflow:hidden}
+    .wizard-head{padding:18px 20px 0;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%)}
+    .wizard-head h2{margin:0 0 12px;font-size:18px;font-weight:800;color:#334155}
+
+    .steps{display:flex;margin:0 0 0;padding:0;list-style:none}
+    .steps li{
+      flex:1;position:relative;text-align:center;padding:10px 6px 10px 18px;
+      font-size:15px;font-weight:800;color:#94a3b8;background:#e2e8f0;
+      clip-path:polygon(0 0,calc(100% - 12px) 0,100% 50%,calc(100% - 12px) 100%,0 100%,12px 50%);
+    }
+    .steps li:first-child{clip-path:polygon(0 0,calc(100% - 12px) 0,100% 50%,calc(100% - 12px) 100%,0 100%);padding-left:10px}
+    .steps li.active{background:var(--accent);color:#fff}
+    .steps li.done{background:#cbd5e1;color:#475569}
+    .steps li:last-child{clip-path:polygon(0 0,100% 0,100% 100%,0 100%,12px 50%)}
+
+    .wizard-body{padding:22px 22px 18px;min-height:320px}
+    .wizard-body p{line-height:1.5;font-size:16px;color:#334155;margin:0 0 10px}
+    .wizard-body ul{margin:8px 0 0;padding-left:20px;line-height:1.5;font-size:16px;color:#334155}
+    .wizard-body li+li{margin-top:6px}
+    .note-box{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#f8fafc;margin-top:14px;font-size:15px;line-height:1.45;color:#334155}
+    .muted{font-size:14px;color:var(--muted)}
+    .gps-alert{
+      margin-top:14px;padding:14px 16px;border-radius:12px;
+      border:2px solid #dc2626;background:#fef2f2;color:#991b1b;
+      font-size:16px;font-weight:800;line-height:1.4;
+    }
+    .gps-alert span{display:block;margin-top:6px;font-size:15px;font-weight:700}
+
+    .form-grid{display:grid;gap:12px;margin-top:8px}
+    @media(min-width:640px){.form-grid{grid-template-columns:1fr 1fr}}
+    label{display:block;font-size:14px;font-weight:700;margin-bottom:4px;color:#475569}
+    input[type=text],input[type=email],select{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;background:#fff;}
+    input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(37,99,235,.15)}
+
+    .speed-panel{display:grid;gap:14px;margin-top:16px}
+    @media(min-width:640px){.speed-panel{grid-template-columns:180px 1fr}}
+    .btn-run{
+      padding:14px 16px;border:0;border-radius:12px;background:var(--accent);color:#fff;
+      font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(37,99,235,.25);
+    }
+    .btn-run:hover{background:var(--accent-dark)}
+    .btn-run:disabled{opacity:.55;cursor:not-allowed}
+    .meter{display:grid;gap:10px}
+    .meter-row{display:grid;grid-template-columns:1fr 72px;gap:10px;align-items:center}
+    .meter-label{font-size:14px;font-weight:700;color:#475569}
+    .meter-track{height:14px;border-radius:999px;background:#e2e8f0;overflow:hidden;border:1px solid #cbd5e1}
+    .meter-fill{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width .25s}
+    .meter-val{font-size:15px;font-weight:900;text-align:right}
+    .meter-unit{font-size:11px;color:var(--muted);text-align:right;margin-top:-4px}
+
+    .diag-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:15px}
+    .diag-table th,.diag-table td{border:1px solid var(--line);padding:10px;text-align:center;vertical-align:middle}
+    .diag-table th{background:#f1f5f9;font-weight:800}
+    .diag-table .eval-col{text-align:left;min-width:140px;font-weight:700}
+    .diag-table .num-cell{font-size:22px;font-weight:900;color:#6d28d9;line-height:1.1}
+    .diag-table .speed-once{
+      display:inline-block;margin-bottom:8px;padding:5px 10px;border-radius:8px;
+      font-weight:900;color:#fff;background:#16a34a;font-size:13px;
+    }
+    .diag-table .ref-num{font-size:18px;font-weight:800;color:#475569}
+    @media print{
+      .diag-table{font-size:11px}
+      .diag-table .num-cell{font-size:18px}
+      .diag-table tr{break-inside:avoid;page-break-inside:avoid}
+    }
+    .speed-pill{display:inline-block;padding:6px 12px;border-radius:8px;font-weight:900;color:#fff;background:#16a34a}
+    .users-box{
+      margin-top:8px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);
+      color:#fff;font-weight:900;
+    }
+    .users-box .num{font-size:32px;line-height:1}
+    .users-box .lbl{font-size:12px;font-weight:600;opacity:.95;margin-top:4px}
+    .tech-max{font-size:13px;color:#64748b;margin-top:6px;line-height:1.35}
+    .ref-col{color:#64748b;background:#fafafa}
+    .eval-picker{display:flex;align-items:center;gap:8px;margin-top:10px}
+    .eval-picker select{flex:1;padding:8px 10px;border-radius:10px;border:1px solid #cbd5e1;font-size:13px;font-weight:600}
+    .eval-picker button{
+      width:36px;height:36px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;cursor:pointer;font-size:16px;
+    }
+
+    .faq{margin-top:16px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+    .faq details{border-top:1px solid var(--line)}
+    .faq details:first-child{border-top:0}
+    .faq summary{
+      padding:12px 14px;font-size:15px;font-weight:700;cursor:pointer;background:#f8fafc;list-style:none;
+    }
+    .faq summary::-webkit-details-marker{display:none}
+    .faq details[open] summary{background:#1e3a5f;color:#fff}
+    .faq .faq-body{padding:12px 14px;font-size:15px;line-height:1.5;color:#475569;background:#fff}
+
+    .wizard-foot{
+      display:flex;justify-content:space-between;align-items:center;padding:14px 18px;
+      border-top:1px solid var(--line);background:#f8fafc;
+    }
+    .nav-btn{
+      width:44px;height:44px;border:0;border-radius:12px;background:var(--accent);color:#fff;
+      font-size:20px;cursor:pointer;box-shadow:0 6px 16px rgba(37,99,235,.25);
+    }
+    .nav-btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+    .nav-btn.ghost{background:#fff;color:var(--accent);border:2px solid var(--accent);box-shadow:none}
+    .foot-actions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+    .btn-secondary{
+      padding:10px 16px;border-radius:999px;border:1px solid #cbd5e1;background:#fff;
+      font-size:15px;font-weight:700;cursor:pointer;color:#334155;
+    }
+    .btn-primary{
+      padding:10px 18px;border-radius:999px;border:0;background:var(--primary);color:#fff;
+      font-size:15px;font-weight:800;cursor:pointer;
+    }
+    .btn-primary:hover{background:var(--primary-dark)}
+
+    .step{display:none}
+    .step.active{display:block}
+    .err{color:#dc2626;font-size:15px;font-weight:700;margin-top:8px;min-height:16px;line-height:1.45}
+    .ok-msg{color:#16a34a;font-size:15px;font-weight:700;margin-top:8px}
+    .gps-help{
+      display:none;margin-top:12px;padding:12px 14px;border-radius:12px;
+      border:1px solid #fcd34d;background:#fffbeb;color:#78350f;font-size:15px;line-height:1.5;
+    }
+    .gps-help strong{display:block;margin-bottom:6px;font-size:16px}
+    .gps-help ol{margin:8px 0 0;padding-left:18px}
+    .gps-help li{margin:4px 0}
+        .print-only{display:none}
+    @media print{
+      body{background:#fff}
+      .topbar,.wizard-foot,.no-print{display:none !important}
+      .wizard{box-shadow:none;border:0}
+      .wizard-head .steps{display:none}
+      .print-only{display:block;margin-top:12px;font-size:12px}
+      .diag-table{font-size:11px}
+      .diag-table .num-cell{font-size:18px}
+      .diag-table tr{break-inside:avoid;page-break-inside:avoid}
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar no-print">
+    <a href="index-en.html">← Back to assessment portal</a>
+    <span class="muted">Infrastructure test · ADALAM</span>
+  </div>
+
+  <div class="brand">
+    <img src="assets/logo_adalam.png" alt="ADALAM" onerror="this.style.display='none'">
+    <div class="brand-text">
+      <div class="tit-badge"><span class="dot"></span> TIT</div>
+      <h1>Technology Infrastructure Test</h1>
+      <p>Simultaneous seats based on your center’s network.</p>
+    </div>
+  </div>
+
+  <div class="wizard" style="margin-top:16px">
+    <div class="wizard-head">
+      <h2 id="stepTitle">Before running assessments…</h2>
+      <ol class="steps" id="stepsBar">
+        <li class="active" data-step="1">1</li>
+        <li data-step="2">2</li>
+        <li data-step="3">3</li>
+        <li data-step="4">4</li>
+      </ol>
+    </div>
+
+    <div class="wizard-body">
+      <!-- Paso 1 -->
+      <section class="step active" id="step1">
+        <p>Before registering groups, run the <strong>infrastructure test</strong> to see how many people can be assessed at the same time.</p>
+      </section>
+
+      <!-- Paso 2 -->
+      <section class="step" id="step2">
+        <ul>
+          <li>Run it on the <strong>same network and location</strong> (wired or Wi‑Fi) as assessment day.</li>
+          <li>If you will use Wi‑Fi, measure over <strong>Wi‑Fi</strong>. If everyone uses wired, measure over <strong>wired</strong>.</li>
+        </ul>
+      </section>
+
+      <!-- Paso 3 -->
+      <section class="step" id="step3">
+        <div class="form-grid">
+          <div>
+            <label for="fInstitucion">Institution / center</label>
+            <input type="text" id="fInstitucion" placeholder="e.g. INTIYAN SCHOOL" autocomplete="organization">
+          </div>
+          <div>
+            <label for="fPais">Country</label>
+            <input type="text" id="fPais" placeholder="e.g. ECUADOR" autocomplete="country-name">
+          </div>
+          <div>
+            <label for="fCiudad">City</label>
+            <input type="text" id="fCiudad" placeholder="e.g. QUITO" autocomplete="address-level2">
+          </div>
+          <div>
+            <label for="fModalidad">Network type</label>
+            <select id="fModalidad">
+              <option value="">Select…</option>
+              <option value="cable">Wired</option>
+              <option value="wifi">Wi‑Fi</option>
+            </select>
+          </div>
+          <div>
+            <label for="fNombre">Contact name</label>
+            <input type="text" id="fNombre" autocomplete="name">
+          </div>
+          <div>
+            <label for="fEmail">Contact email</label>
+            <input type="email" id="fEmail" autocomplete="email">
+          </div>
+        </div>
+        <div class="gps-alert" id="gpsAlert">
+          You must click <strong>ALLOW</strong> in the browser prompt (GPS location).
+          <span>If you block or deny it, the test will NOT complete. The attempt is still logged in ADALAM.</span>
+        </div>
+
+        <div class="speed-panel">
+          <div>
+            <button type="button" class="btn-run" id="btnRunTest">Start test</button>
+            <button type="button" class="btn-run" id="btnRetryGps" style="display:none;margin-top:10px;background:#92400e">Click for GPS help</button>
+          </div>
+          <div class="meter">
+            <div>
+              <div class="meter-row">
+                <div>
+                  <div class="meter-label">Download speed</div>
+                  <div class="meter-track"><div class="meter-fill" id="fillDown"></div></div>
+                </div>
+                <div>
+                  <div class="meter-val" id="valDown">0</div>
+                  <div class="meter-unit">Mbps</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="meter-row">
+                <div>
+                  <div class="meter-label">Upload speed</div>
+                  <div class="meter-track"><div class="meter-fill" id="fillUp"></div></div>
+                </div>
+                <div>
+                  <div class="meter-val" id="valUp">0</div>
+                  <div class="meter-unit">Mbps</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="err" id="testErr"></div>
+        <div class="gps-help" id="gpsHelp"></div>
+        <div class="ok-msg" id="testOk"></div>
+      </section>
+
+      <!-- Paso 4 -->
+      <section class="step" id="step4">
+        <p><strong>Recommended capacity</strong> (conservative) based on download speed to ADALAM.</p>
+        <p class="muted" id="diagSpeedLine" style="margin-bottom:10px">Connection: —</p>
+
+        <table class="diag-table">
+          <thead>
+            <tr>
+              <th class="eval-col">Assessment</th>
+              <th id="thConn">Your connection</th>
+              <th class="ref-col">At 50 Mb/s</th>
+              <th class="ref-col">At 100 Mb/s</th>
+            </tr>
+          </thead>
+          <tbody id="diagBody"></tbody>
+        </table>
+
+        <p class="muted no-print" id="saveMsg" style="margin-top:10px;font-weight:700"></p>
+
+        <div class="print-only" id="printMeta">
+          <p><strong>Institution:</strong> <span id="printInst">—</span> · <strong>Country:</strong> <span id="printPais">—</span> · <strong>City:</strong> <span id="printCiudad">—</span></p>
+          <p><strong>Network type (required on report):</strong> <span id="printMod">—</span></p>
+          <p><strong>Download:</strong> <span id="printDown">—</span> · <strong>Upload:</strong> <span id="printUp">—</span></p>
+          <p><strong>Contact:</strong> <span id="printNombre">—</span></p>
+          <p><strong>Date:</strong> <span id="printFecha">—</span></p>
+          <p style="margin-top:8px"><strong>Required PDF submission:</strong> send this document to <strong>contacto.adalam@gmail.com</strong> for your center’s records and ADALAM registration.</p>
+        </div>
+
+        <div class="faq no-print">
+          <details>
+            <summary>What if we run more people than shown?</summary>
+            <div class="faq-body">Pages may load or save slowly. Stay at or below the table numbers.</div>
+          </details>
+          <details>
+            <summary>Why does another speed test show different results?</summary>
+            <div class="faq-body">They use other servers. TIT measures toward ADALAM, which is what matters here.</div>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <div class="wizard-foot no-print">
+      <button type="button" class="nav-btn ghost" id="btnPrev" disabled aria-label="Previous">←</button>
+      <div class="foot-actions">
+        <button type="button" class="btn-secondary" id="btnPrint" style="display:none">Print / Save PDF</button>
+        <button type="button" class="btn-secondary" id="btnRedo" style="display:none">Run test again</button>
+        <button type="button" class="nav-btn" id="btnNext" aria-label="Next">→</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const EVALS = [
+    { id: "socioemocional", name: "Social-Emotional Assessment", usersPerMbps: 11 },
+    { id: "integridad", name: "Values and Integrity", usersPerMbps: 11 },
+    { id: "liderazgo", name: "Leadership Factors", usersPerMbps: 13 },
+    { id: "habitos", name: "Habits", usersPerMbps: 13 },
+    { id: "aprendizaje", name: "Learning Preferences", usersPerMbps: 11 },
+    { id: "vocacional", name: "Career Orientation", usersPerMbps: 13 },
+    { id: "intelectual", name: "Intellectual Assessment", usersPerMbps: 7 }
+  ];
+
+  const BANDWIDTH_URL = "assets/tit-bandwidth-test.bin";
+  const BANDWIDTH_BYTES = 786432;
+  const UPLOAD_BYTES = 262144;
+  const MAX_MBPS_DISPLAY = 100;
+  const PRUDENT_FACTOR = 0.08; // cupo muy a la baja (~8 % del teórico), acorde a no sobreprometer
+
+  let step = 1;
+  let downloadMbps = 0;
+  let uploadMbps = 0;
+  let testDone = false;
+  let titSaved = false;
+  let titDeniedSaved = false;
+  let gpsInfo = {
+    status: "pending",
+    lat: null,
+    lon: null,
+    accuracy: null,
+    error: null
+  };
+
+  const $ = id => document.getElementById(id);
+  const titles = [
+    "Before running assessments…",
+    "Continue with the test…",
+    "Speed test",
+    "Results"
+  ];
+
+  function usersAt(mbps, factor){
+    return Math.max(0, Math.floor(mbps * factor));
+  }
+
+  function usersRecommended(raw){
+    return Math.max(0, Math.floor(raw * PRUDENT_FACTOR));
+  }
+
+  function setStep(n){
+    step = n;
+    document.querySelectorAll(".step").forEach(el => el.classList.remove("active"));
+    $("step" + n).classList.add("active");
+    $("stepTitle").textContent = titles[n - 1];
+    document.querySelectorAll(".steps li").forEach(li => {
+      const s = +li.dataset.step;
+      li.classList.toggle("active", s === n);
+      li.classList.toggle("done", s < n);
+    });
+    $("btnPrev").disabled = n === 1;
+    $("btnNext").disabled = n === 4;
+    $("btnNext").style.display = n === 4 ? "none" : "";
+    $("btnPrint").style.display = n === 4 ? "" : "none";
+    $("btnRedo").style.display = n === 4 ? "" : "none";
+    if (n === 4) renderDiag();
+    if (n === 3) updateGpsAlert();
+  }
+
+  function validateFormFields(){
+    const fields = [
+      ["fInstitucion", "Enter the institution or center."],
+      ["fPais", "Enter the country."],
+      ["fCiudad", "Enter the city."],
+      ["fModalidad", "Select network type (wired or Wi‑Fi)."],
+      ["fNombre", "Enter the contact name."],
+      ["fEmail", "Enter the contact email."]
+    ];
+    for (const [id, msg] of fields){
+      const v = ($(id).value || "").trim();
+      if (!v){ $("testErr").textContent = msg; return false; }
+      if (id.includes("Email") && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){
+        $("testErr").textContent = "Check the email format."; return false;
+      }
+    }
+    $("testErr").textContent = "";
+    return true;
+  }
+
+  function validateStep3(){
+    if (!validateFormFields()) return false;
+    if (!gpsInfo || gpsInfo.status !== "ok"){
+      $("testErr").textContent =
+        "Location is required to finish the test. Allow location in the browser or click “Click for GPS help”.";
+      return false;
+    }
+    if (!testDone || downloadMbps <= 0){
+      $("testErr").textContent = "Run the speed test before continuing.";
+      return false;
+    }
+    $("testErr").textContent = "";
+    return true;
+  }
+
+  function buildCupos(){
+    const cupos = {};
+    EVALS.forEach(ev => {
+      cupos[ev.id] = usersRecommended(usersAt(downloadMbps, ev.usersPerMbps));
+    });
+    return cupos;
+  }
+
+  function requestGps(){
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve({
+          status: "unavailable",
+          lat: null,
+          lon: null,
+          accuracy: null,
+          error: "This browser does not support geolocation",
+          perm: "unavailable"
+        });
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          resolve({
+            status: "ok",
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            error: null,
+            perm: "granted"
+          });
+        },
+        (err) => {
+          let status = "error";
+          if (err && err.code === 1) status = "denied";
+          else if (err && err.code === 2) status = "unavailable";
+          else if (err && err.code === 3) status = "timeout";
+          resolve({
+            status,
+            lat: null,
+            lon: null,
+            accuracy: null,
+            error: (err && err.message) || "Could not get GPS",
+            perm: status === "denied" ? "denied" : "prompt"
+          });
+        },
+        { enableHighAccuracy: true, timeout: 18000, maximumAge: 0 }
+      );
+    });
+  }
+
+  async function queryGeoPermission(){
+    try {
+      if (!navigator.permissions || !navigator.permissions.query) return "unknown";
+      const r = await navigator.permissions.query({ name: "geolocation" });
+      return r && r.state ? r.state : "unknown"; // granted | denied | prompt
+    } catch (_e) {
+      return "unknown";
+    }
+  }
+
+  async function updateGpsAlert(){
+    const el = $("gpsAlert");
+    if (!el) return;
+    if (gpsInfo && gpsInfo.status === "ok") {
+      el.style.display = "none";
+      return;
+    }
+    const perm = await queryGeoPermission();
+    if (perm === "granted") {
+      el.style.display = "none";
+      return;
+    }
+    el.style.display = "block";
+    if (perm === "denied") {
+      el.innerHTML =
+        "Location is <strong>blocked</strong> or permission is not active yet." +
+        "<span>In the address bar lock icon, enable Location. If Chrome asks to <strong>Reload</strong>, accept (do not cancel). Then complete the form and click <strong>Start test</strong>.</span>";
+    } else {
+      el.innerHTML =
+        "You must click <strong>ALLOW</strong> in the browser prompt (GPS location)." +
+        "<span>If you block or deny it, the test will NOT complete. The attempt is still logged in ADALAM.</span>";
+    }
+  }
+
+  function showGpsHelp(blocked){
+    const el = $("gpsHelp");
+    if (!el) return;
+    if (!blocked) {
+      el.style.display = "none";
+      el.innerHTML = "";
+      return;
+    }
+    el.style.display = "block";
+    el.innerHTML =
+      "<strong>How to enable GPS in Chrome</strong>" +
+      "<ol>" +
+      "<li>Click the icon left of the address bar (lock / site settings).</li>" +
+      "<li><strong>Location</strong> → turn on / <strong>Allow</strong>.</li>" +
+      "<li>If <strong>Reload</strong> appears, click it. <em>Do not cancel</em> or the permission may not apply.</li>" +
+      "<li>After reload, fill the form again and click <strong>Start test</strong>.</li>" +
+      "<li>If it still fails: on Windows enable Location (Settings → Privacy → Location).</li>" +
+      "</ol>";
+  }
+
+  function gpsBlockMessage(info, permState){
+    if (!info || info.status === "ok") return "";
+    const blocked = permState === "denied" || info.status === "denied";
+    if (blocked) {
+      return "GPS was not obtained. Enable Location in the site settings and, if Chrome asks to reload, accept. Then click Start test. Without GPS the test does NOT complete.";
+    }
+    if (info.status === "timeout") {
+      return "GPS timed out. Click Start test again.";
+    }
+    if (info.status === "unavailable") {
+      return "GPS unavailable. Enable device and site location, reload, and try again.";
+    }
+    return "Error getting GPS. Check location permission and click Start test.";
+  }
+
+  function setRetryGpsVisible(show){
+    const b = $("btnRetryGps");
+    if (b) b.style.display = show ? "" : "none";
+  }
+
+  async function saveTitResult(opts){
+    const asDenied = !!(opts && opts.asDenied);
+    const msg = $("saveMsg");
+    if (!asDenied && titSaved) {
+      if (msg) msg.textContent = "Result already saved in ADALAM.";
+      return;
+    }
+    if (asDenied && titDeniedSaved) return;
+
+    if (msg && !asDenied) msg.textContent = "Saving result in ADALAM…";
+    try {
+      const testValido = !asDenied && gpsInfo.status === "ok" && downloadMbps > 0;
+      const r = await fetch("/api/tit-resultados", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          institucion: $("fInstitucion").value.trim(),
+          pais: $("fPais").value.trim(),
+          ciudad: $("fCiudad").value.trim(),
+          modalidad: $("fModalidad").value.trim(),
+          nombre: $("fNombre").value.trim(),
+          email: $("fEmail").value.trim(),
+          download_mbps: asDenied ? 0 : downloadMbps,
+          upload_mbps: asDenied ? 0 : uploadMbps,
+          cupos: asDenied ? {} : buildCupos(),
+          user_agent: navigator.userAgent || "",
+          client_timezone: (Intl.DateTimeFormat().resolvedOptions().timeZone) || "",
+          gps_status: gpsInfo.status || "pending",
+          gps_lat: gpsInfo.lat,
+          gps_lon: gpsInfo.lon,
+          gps_accuracy: gpsInfo.accuracy,
+          gps_error: gpsInfo.error || ""
+        })
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.ok) {
+        throw new Error(data.error || ("HTTP " + r.status));
+      }
+      if (asDenied) {
+        titDeniedSaved = true;
+        $("testOk").textContent =
+          "Attempt logged in ADALAM (id " + data.id + ", not valid). Allow GPS to complete the test.";
+      } else {
+        titSaved = true;
+        if (msg) {
+          let extra = "";
+          if (data.gps_status === "ok" && data.gps_city) {
+            extra = " GPS: " + data.gps_city + (data.gps_region ? ", " + data.gps_region : "") + ".";
+          }
+          msg.textContent =
+            "Valid result saved in ADALAM (id " + data.id + ")." + extra +
+            " You must create the PDF (Print / Save PDF) and send it to contacto.adalam@gmail.com for your center’s records (ADALAM already stores the technical record).";
+          msg.style.color = "#14632b";
+        }
+      }
+    } catch (e) {
+      if (asDenied) {
+        $("testOk").textContent = "";
+        // el error de GPS ya está en testErr; añadir nota de guardado
+        const prev = $("testErr").textContent || "";
+        $("testErr").textContent = prev + " (Could not log attempt: " + (e.message || e) + ")";
+      } else if (msg) {
+        msg.textContent = "Could not save to ADALAM: " + (e.message || e) + ". Retry with “Run test again” or print PDF.";
+        msg.style.color = "#b91c1c";
+      }
+    }
+  }
+
+  function setMeter(fillId, valId, mbps){
+    const pct = Math.min(100, (mbps / MAX_MBPS_DISPLAY) * 100);
+    $(fillId).style.width = pct + "%";
+    $(valId).textContent = mbps > 0 ? mbps.toFixed(2) : "0";
+  }
+
+  function deployHint(){
+    if (location.protocol === "file:") {
+      return "Open this page from the Vercel URL (https://…), not as a local file (file://).";
+    }
+    return "Confirm api/ping.js, api/tit-echo.js and assets/tit-bandwidth-test.bin are deployed on Vercel.";
+  }
+
+  async function measureLatency(){
+    try {
+      const t0 = performance.now();
+      const r = await fetch("/api/ping?_=" + Date.now(), { cache: "no-store" });
+      if (!r.ok) return null;
+      await r.json();
+      return performance.now() - t0;
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  async function measureDownload(onProgress){
+    const url = BANDWIDTH_URL + "?v=" + Date.now();
+    let r;
+    try {
+      const t0 = performance.now();
+      r = await fetch(url, { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const blob = await r.blob();
+      const sec = (performance.now() - t0) / 1000;
+      const bytes = blob.size || BANDWIDTH_BYTES;
+      if (bytes < 1000) throw new Error("empty or missing file");
+      if (onProgress) onProgress(Math.min(95, 40 + sec * 20));
+      return (bytes * 8) / (sec * 1e6);
+    } catch (e) {
+      throw new Error(
+        "Could not measure download from ADALAM. " + deployHint()
+      );
+    }
+  }
+
+  async function measureUpload(onProgress){
+    try {
+      const chunk = "A".repeat(1024);
+      const parts = UPLOAD_BYTES / 1024;
+      let data = "";
+      for (let i = 0; i < parts; i++) data += chunk;
+      const t0 = performance.now();
+      const r = await fetch("/api/tit-echo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tit: "upload-test", data })
+      });
+      if (!r.ok) return null;
+      await r.json();
+      const sec = (performance.now() - t0) / 1000;
+      if (onProgress) onProgress(100);
+      return (UPLOAD_BYTES * 8) / (sec * 1e6);
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  async function runSpeedTest(){
+    $("btnRunTest").disabled = true;
+    setRetryGpsVisible(false);
+    $("testErr").textContent = "";
+    $("testOk").textContent = "";
+    showGpsHelp(false);
+    setMeter("fillDown", "valDown", 0);
+    setMeter("fillUp", "valUp", 0);
+    testDone = false;
+
+    try {
+      if (!validateFormFields()) {
+        return;
+      }
+
+      $("testOk").textContent = "Getting GPS location…";
+      // Siempre intentar GPS real (no confiar solo en Permissions API: en Chrome
+      // tras activar el interruptor hace falta recargar; si no, puede seguir "denied").
+      gpsInfo = await requestGps();
+      const permAfter = await queryGeoPermission();
+
+      if (gpsInfo.status !== "ok") {
+        $("testErr").textContent = gpsBlockMessage(gpsInfo, permAfter);
+        $("testOk").textContent = "";
+        showGpsHelp(true);
+        setRetryGpsVisible(true);
+        await saveTitResult({ asDenied: true });
+        await updateGpsAlert();
+        return;
+      }
+
+      showGpsHelp(false);
+      setRetryGpsVisible(false);
+      await updateGpsAlert();
+      $("testErr").textContent = "";
+      $("testOk").textContent = "GPS obtained. Measuring speed…";
+
+      $("fillDown").style.width = "8%";
+      await measureLatency();
+      $("fillDown").style.width = "15%";
+
+      downloadMbps = await measureDownload(p => { $("fillDown").style.width = p + "%"; });
+      setMeter("fillDown", "valDown", downloadMbps);
+
+      uploadMbps = await measureUpload();
+      if (uploadMbps == null) {
+        uploadMbps = 0;
+        setMeter("fillUp", "valUp", 0);
+      } else {
+        setMeter("fillUp", "valUp", uploadMbps);
+      }
+
+      testDone = true;
+      await updateGpsAlert();
+      $("testOk").textContent = uploadMbps > 0
+        ? "Test completed with GPS. You can continue to results."
+        : "Download measured with GPS. Upload unavailable; results use download speed.";
+
+      const payload = {
+        at: new Date().toISOString(),
+        downloadMbps,
+        uploadMbps,
+        institucion: $("fInstitucion").value.trim(),
+        pais: $("fPais").value.trim(),
+        ciudad: $("fCiudad").value.trim(),
+        modalidad: $("fModalidad").value.trim(),
+        nombre: $("fNombre").value.trim(),
+        email: $("fEmail").value.trim(),
+        gps: gpsInfo
+      };
+      try { localStorage.setItem("adalam_tit_last", JSON.stringify(payload)); } catch(_e){}
+    } catch (e) {
+      $("testErr").textContent = e.message || "Test error.";
+      $("testOk").textContent = "";
+    } finally {
+      $("btnRunTest").disabled = false;
+    }
+  }
+
+  function renderDiag(){
+    const speedTxt = downloadMbps > 0 ? downloadMbps.toFixed(2) + " Mb/s" : "—";
+    const upTxt = uploadMbps > 0 ? uploadMbps.toFixed(2) + " Mb/s" : "—";
+    const modLabel = $("fModalidad").value === "cable" ? "Wired" :
+      ($("fModalidad").value === "wifi" ? "Wi‑Fi" : "—");
+    $("diagSpeedLine").textContent =
+      "Connection (" + modLabel + ") — Download: " + speedTxt +
+      (uploadMbps > 0 ? " · Upload: " + upTxt : "");
+    $("thConn").innerHTML =
+      'Your connection<br><span class="speed-once">' + speedTxt + '</span>';
+
+    $("diagBody").innerHTML = EVALS.map(ev => {
+      const rec = usersRecommended(usersAt(downloadMbps, ev.usersPerMbps));
+      const r50 = usersRecommended(usersAt(50, ev.usersPerMbps));
+      const r100 = usersRecommended(usersAt(100, ev.usersPerMbps));
+      return `
+        <tr>
+          <td class="eval-col">${ev.name}</td>
+          <td>
+            <div class="num-cell">${rec}</div>
+            <div class="tech-max">up to <strong>${rec}</strong> at once</div>
+          </td>
+          <td class="ref-col">
+            <div class="ref-num">${r50}</div>
+          </td>
+          <td class="ref-col">
+            <div class="ref-num">${r100}</div>
+          </td>
+        </tr>`;
+    }).join("");
+
+    const d = new Date();
+    $("printInst").textContent = $("fInstitucion").value.trim() || "—";
+    $("printPais").textContent = $("fPais").value.trim() || "—";
+    $("printCiudad").textContent = $("fCiudad").value.trim() || "—";
+    $("printMod").textContent = modLabel;
+    $("printDown").textContent = speedTxt;
+    $("printUp").textContent = uploadMbps > 0 ? uploadMbps.toFixed(2) + " Mb/s" : "Not measured";
+    $("printNombre").textContent = $("fNombre").value.trim() + " · " + $("fEmail").value.trim();
+    $("printFecha").textContent = d.toLocaleString("en-US");
+  }
+
+  $("btnNext").onclick = async () => {
+    if (step === 3 && !validateStep3()) return;
+    if (step < 4) {
+      setStep(step + 1);
+      if (step === 4) await saveTitResult();
+    }
+  };
+  $("btnPrev").onclick = () => { if (step > 1) setStep(step - 1); };
+  $("btnRunTest").onclick = runSpeedTest;
+  $("btnRetryGps").onclick = async () => {
+    showGpsHelp(true);
+    const help = $("gpsHelp");
+    if (help) help.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const perm = await queryGeoPermission();
+    if (perm === "granted") {
+      $("testOk").textContent = "Permission active. Starting test…";
+      $("testErr").textContent = "";
+      showGpsHelp(false);
+      runSpeedTest();
+      return;
+    }
+    // Aunque Permissions diga denied, intentar: tras recargar suele funcionar.
+    $("testOk").textContent = "Trying to get GPS…";
+    $("testErr").textContent =
+      perm === "denied"
+        ? "If you just enabled Location, Chrome may need a reload. If you canceled, press F5, fill the form, and Start test."
+        : "";
+    runSpeedTest();
+  };
+  $("btnPrint").onclick = () => window.print();
+  $("btnRedo").onclick = () => {
+    testDone = false;
+    titSaved = false;
+    titDeniedSaved = false;
+    gpsInfo = { status: "pending", lat: null, lon: null, accuracy: null, error: null };
+    downloadMbps = 0;
+    uploadMbps = 0;
+    setMeter("fillDown", "valDown", 0);
+    setMeter("fillUp", "valUp", 0);
+    $("testOk").textContent = "";
+    $("testErr").textContent = "";
+    setRetryGpsVisible(false);
+    showGpsHelp(false);
+    updateGpsAlert();
+    if ($("saveMsg")) $("saveMsg").textContent = "";
+    setStep(3);
+  };
+
+  setStep(1);
+  // Si el usuario cambia el permiso en el candado, actualizar aviso
+  try {
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: "geolocation" }).then((p) => {
+        p.onchange = () => { updateGpsAlert(); };
+      }).catch(() => {});
+    }
+  } catch (_e) {}
+})();
+</script>
+</body>
+</html>
