@@ -134,7 +134,8 @@ const STORAGE_PREFIX = "eval_socpeq_state_";
 let CODIGO_ACTUAL = null;
 let __startTime = Date.now();
 let currentIndex = 0;
-let esVoice = null;
+let pequesAudio = null;
+const DALIA_AUDIO_BASE = "assets/peques/audio/q";
 
 const SCENES = {
   mirror:`<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg"><rect width="420" height="200" rx="16" fill="#fef3c7"/><circle cx="130" cy="100" r="36" fill="#fcd34d"/><circle cx="290" cy="100" r="32" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="3"/><text x="210" y="28" text-anchor="middle" font-size="14" fill="#92400e">Contigo</text></svg>`,
@@ -526,6 +527,7 @@ function updateProgress(){
 
 function renderQuestion(){
   stopSpeech();
+  pequesAudio = null;
   const q = ITEMS[currentIndex];
   document.getElementById("qTitle").textContent = q.title;
   document.getElementById("qHint").textContent = "Toca la opción que más se parece a ti";
@@ -554,30 +556,46 @@ function renderQuestion(){
   updateProgress();
 }
 
-function pickSpanishVoice(){
-  if(!window.speechSynthesis) return null;
-  const voices = speechSynthesis.getVoices() || [];
-  return voices.find(v => /^es/i.test(v.lang)) || null;
+function audioBtn(){ return document.getElementById("btnAudio"); }
+
+function setAudioPlaying(on){
+  const b = audioBtn();
+  if(b) b.classList.toggle("playing", !!on);
 }
 
-function stopSpeech(){ if(window.speechSynthesis) speechSynthesis.cancel(); }
+function stopSpeech(){
+  if(pequesAudio){
+    try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
+  }
+  setAudioPlaying(false);
+}
 
 function speakCurrent(){
   const q = ITEMS[currentIndex];
-  if(!window.speechSynthesis) return;
+  if(!q) return;
+  const n = String(q.id).padStart(2,"0");
+  const src = DALIA_AUDIO_BASE + n + ".mp3";
   stopSpeech();
-  const u = new SpeechSynthesisUtterance(q.speak);
-  u.lang = (esVoice && esVoice.lang) || "es-ES";
-  if(esVoice) u.voice = esVoice;
-  u.rate = 0.9;
-  speechSynthesis.speak(u);
+  pequesAudio = new Audio(src);
+  pequesAudio.preload = "auto";
+  pequesAudio.onended = () => setAudioPlaying(false);
+  pequesAudio.onerror = () => {
+    setAudioPlaying(false);
+    alert("No se pudo cargar el audio de esta pregunta.");
+  };
+  setAudioPlaying(true);
+  pequesAudio.play().catch(() => setAudioPlaying(false));
 }
 
 function togglePause(){
-  if(!window.speechSynthesis) return;
-  if(speechSynthesis.paused) speechSynthesis.resume();
-  else if(speechSynthesis.speaking) speechSynthesis.pause();
-  else speakCurrent();
+  if(!pequesAudio){ speakCurrent(); return; }
+  if(pequesAudio.paused){
+    if(pequesAudio.ended || pequesAudio.currentTime === 0){ speakCurrent(); return; }
+    pequesAudio.play().then(() => setAudioPlaying(true)).catch(() => setAudioPlaying(false));
+  } else {
+    pequesAudio.pause();
+    setAudioPlaying(false);
+  }
 }
 
 document.getElementById("btnAudio").addEventListener("click", speakCurrent);
@@ -619,8 +637,6 @@ btnIniciar.addEventListener("click", async () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  esVoice = pickSpanishVoice();
-  if(window.speechSynthesis) speechSynthesis.onvoiceschanged = () => { esVoice = pickSpanishVoice(); };
   const hoy = new Date();
   try { document.getElementById("fecha").value = new Intl.DateTimeFormat("es-EC").format(hoy); }
   catch { document.getElementById("fecha").value = hoy.toLocaleDateString("es-EC"); }
