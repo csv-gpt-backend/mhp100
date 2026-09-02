@@ -41,18 +41,20 @@
     .btn-audio{border:0;border-radius:999px;padding:11px 16px;font-weight:800;background:#0ea5e9;color:#fff;cursor:pointer}
     .btn-audio.playing{background:#0369a1}
     .btn-audio-sm{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer}
-    .scene{display:grid;place-items:center;min-height:200px;background:linear-gradient(180deg,#e0f2fe,#fff);border:2px solid #93c5fd;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+    .scene{display:grid;place-items:center;min-height:200px;background:linear-gradient(180deg,#e0f2fe,#fff);border:2px solid #93c5fd;border-radius:16px;padding:10px;margin-bottom:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.8);overflow:hidden}
     .scene svg{width:min(100%,440px);height:auto;display:block}
+    .scene .scene-photo{width:100%;max-width:520px;height:auto;display:block;border-radius:12px;object-fit:cover}
     .scene-emoji{font-size:4rem;line-height:1;margin-bottom:4px}
     .hint{text-align:center;color:var(--muted);font-size:.95rem;margin:0 0 10px;font-weight:600}
     .choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     @media(max-width:560px){.choices{grid-template-columns:1fr}}
-    .choice{border:2px solid var(--line);background:#fff;border-radius:14px;padding:10px 8px 12px;cursor:pointer;text-align:center;font-weight:800;font-size:.9rem;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:132px;transition:border-color .15s,box-shadow .15s,transform .12s}
+    .choice{border:2px solid var(--line);background:#fff;border-radius:14px;padding:8px 8px 12px;cursor:pointer;text-align:center;font-weight:800;font-size:.9rem;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:148px;transition:border-color .15s,box-shadow .15s,transform .12s}
     .choice:hover{border-color:#93c5fd;transform:translateY(-1px)}
     .choice.selected{border-color:var(--accent);background:#eff6ff;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
     .choice .face{font-size:2rem;display:block;margin-bottom:4px}
-    .choice .thumb{width:100%;max-width:120px;margin:0 auto;line-height:0}
-    .choice .thumb svg{width:100%;height:auto;display:block;border-radius:10px}
+    .choice .thumb{width:100%;max-width:140px;margin:0 auto;line-height:0}
+    .choice .thumb svg,.choice .thumb .thumb-photo{width:100%;height:auto;display:block;border-radius:12px}
+    .choice .thumb .thumb-photo{aspect-ratio:1;object-fit:cover}
     .choice .choice-label{line-height:1.25}
     #pantalla-final{display:none;text-align:center;padding:24px 12px}
     #pantalla-final .check{font-size:2.5rem;color:#16a34a;margin-bottom:8px}
@@ -256,6 +258,13 @@ function thumbSleep(mood){
     <rect x="70" y="48" width="10" height="14" rx="2" fill="#fef08a"/></svg>`;
 }
 
+function sceneImg(src, alt){
+  return `<img class="scene-photo" src="${src}" alt="${alt}" width="960" height="540" loading="eager" decoding="async"/>`;
+}
+function thumbImg(src, alt){
+  return `<img class="thumb-photo" src="${src}" alt="${alt}" width="400" height="400" loading="eager" decoding="async"/>`;
+}
+
 function sceneEmoji(emoji, caption){
   return `<div class="scene-emoji" aria-hidden="true">${emoji}</div><div class="muted" style="text-align:center;font-weight:700">${caption}</div>`;
 }
@@ -267,10 +276,11 @@ function mk(id, bloque, sub, title, speak, sceneHtml, choices){
 const ITEMS = [
   mk(1,"Habilidades intrapersonales","Autoestima","¿Cómo te sientes contigo?",
     "¿Cómo te sientes contigo? Opción uno: me siento bien. Opción dos: a veces. Opción tres: casi no.",
-    sceneSelfMirror(),[
-      [thumbMirror("happy"),"Me siento bien",3],
-      [thumbMirror("mid"),"A veces",2],
-      [thumbMirror("sad"),"Casi no",1]
+    sceneImg("assets/peques/q1-scene.png","Niño frente al espejo"),
+    [
+      [thumbImg("assets/peques/q1-opt-bien.png","Me siento bien"),"Me siento bien",3],
+      [thumbImg("assets/peques/q1-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q1-opt-casino.png","Casi no"),"Casi no",1]
     ]),
   mk(2,"Habilidades intrapersonales","Autoestima","Si te equivocas, ¿aún te quieres?",
     "Si te equivocas, ¿aún te quieres? Opción uno: sí. Opción dos: a veces. Opción tres: casi no.",
