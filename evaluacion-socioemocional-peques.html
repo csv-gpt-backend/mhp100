@@ -100,11 +100,21 @@
       0%,100%{box-shadow:0 0 0 3px rgba(14,165,233,.25)}
       50%{box-shadow:0 0 0 6px rgba(14,165,233,.45)}
     }
+    .choice .opt-badge-row{
+      display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin:0 0 2px;
+    }
     .choice .opt-badge{
       display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.04em;
       text-transform:uppercase;color:#0369a1;background:#e0f2fe;border:1px solid #7dd3fc;
-      border-radius:999px;padding:3px 8px;margin:0 0 2px;line-height:1.2;
+      border-radius:999px;padding:3px 8px;line-height:1.2;
     }
+    .choice .opt-speak{
+      flex:0 0 auto;border:1px solid #7dd3fc;background:#e0f2fe;color:#0369a1;
+      border-radius:999px;width:30px;height:30px;padding:0;cursor:pointer;
+      font-size:1rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;
+    }
+    .choice .opt-speak:hover,.choice .opt-speak:focus-visible{background:#0284c7;color:#fff;border-color:#0284c7}
+    .choice .opt-speak.playing{background:#0369a1;color:#fff;border-color:#0369a1}
     .choice.cue-on .opt-badge{background:#0284c7;color:#fff;border-color:#0284c7}
     .choice .face{font-size:2.4rem;display:block;margin:0}
     .choice .thumb{width:100%;max-width:180px;margin:0 auto;line-height:0;flex:0 0 auto}
@@ -134,7 +144,8 @@
       .page{max-width:100%;padding:12px}
       .choices{grid-template-columns:1fr;gap:8px}
       .choice{flex-direction:row;flex-wrap:wrap;text-align:left;padding:8px 10px;height:auto}
-      .choice .opt-badge{width:100%;text-align:center}
+      .choice .opt-badge-row{width:100%;justify-content:space-between}
+      .choice .opt-badge{flex:1;text-align:center}
       .choice .thumb{width:96px;max-width:96px;margin:0}
       .choice .choice-label{text-align:left;margin-top:0;flex:1}
     }
@@ -170,6 +181,7 @@
       <ul class="muted" style="margin:8px 0;padding-left:18px">
         <li>Mira el dibujo grande.</li>
         <li>Toca <strong>Escuchar</strong> si quieres que te lean la pregunta.</li>
+        <li>En cada opción puedes tocar la <strong>🔊</strong> para oír solo esa respuesta.</li>
         <li>Elige la tarjeta con el dibujo que más se parece a ti.</li>
       </ul>
       <p class="muted"><strong>Importante:</strong> Puedes avanzar solo cuando elijas una opción. No podrás volver a preguntas anteriores.</p>
@@ -223,8 +235,18 @@ let CODIGO_ACTUAL = null;
 let __startTime = Date.now();
 let currentIndex = 0;
 let pequesAudio = null;
+let pequesOptAudio = null;
 let audioCueEnds = null; // cumulative end times [introEnd, opt1End, opt2End, opt3End]
 const DALIA_AUDIO_BASE = "assets/peques/audio/q";
+const DALIA_OPT_AUDIO_BASE = "assets/peques/audio/labels/";
+
+function labelAudioSlug(label){
+  return String(label || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "opcion";
+}
 
 function clearChoiceCues(){
   document.querySelectorAll(".choice.cue-on").forEach(el => el.classList.remove("cue-on"));
@@ -595,8 +617,13 @@ const ITEMS = [
       [thumbImg("assets/peques/q19-opt-grito.png","Grito o empujo"),"Grito o empujo",1]
     ]),
   mk(21,"Estilos de comunicación interpersonal","Timidez","¿Te da miedo hablar delante de otros?",
-    "¿Te da miedo hablar delante de otros? Opción uno: mucho miedo. Opción dos: un poco. Opción tres: puedo hablar.",
-    sceneEmoji("🎤","Hablar"),[["😰","Mucho miedo",1],["😐","Un poco",2],["😊","Puedo hablar",3]]),
+    "¿Te da miedo hablar delante de otros? Primera opción: mucho miedo. Segunda opción: un poco de miedo. Tercera opción: puedo hablar.",
+    sceneImg("assets/peques/q21-scene.png","Niño hablando delante del grupo con un libro"),
+    [
+      [thumbImg("assets/peques/q21-opt-mucho.png","Mucho miedo"),"Mucho miedo",1],
+      [thumbImg("assets/peques/q21-opt-unpoco.png","Un poco de miedo"),"Un poco de miedo",2],
+      [thumbImg("assets/peques/q21-opt-puedo.png","Puedo hablar"),"Puedo hablar",3]
+    ]),
   mk(22,"Estilos de comunicación interpersonal","Timidez","¿Pides ayuda si la necesitas?",
     "¿Pides ayuda si la necesitas? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
     sceneEmoji("🙋","Pedir ayuda"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
@@ -793,7 +820,12 @@ function renderQuestion(){
     const media = isHtml
       ? `<span class="thumb">${face}</span>`
       : `<span class="face">${face}</span>`;
-    b.innerHTML = `<span class="opt-badge">Opción ${optN}</span>${media}<span class="choice-label">${label}</span>`;
+    b.innerHTML = `<span class="opt-badge-row"><span class="opt-badge">Opción ${optN}</span><button type="button" class="opt-speak" data-label="${String(label).replace(/"/g,"&quot;")}" aria-label="Escuchar opción: ${label}">🔊</button></span>${media}<span class="choice-label">${label}</span>`;
+    b.querySelector(".opt-speak").addEventListener("click", (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      speakOptionLabel(label, ev.currentTarget);
+    });
     b.addEventListener("click", () => {
       q.value = score;
       renderQuestion();
@@ -815,13 +847,51 @@ function setAudioPlaying(on){
   if(!on) clearChoiceCues();
 }
 
+function stopOptionSpeech(){
+  if(pequesOptAudio){
+    try{ pequesOptAudio.pause(); pequesOptAudio.currentTime = 0; }catch{}
+  }
+  pequesOptAudio = null;
+  document.querySelectorAll(".opt-speak.playing").forEach(el => el.classList.remove("playing"));
+}
+
 function stopSpeech(){
+  stopOptionSpeech();
   if(pequesAudio){
     try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
   }
   audioCueEnds = null;
   setAudioPlaying(false);
   clearChoiceCues();
+}
+
+function speakOptionLabel(label, btn){
+  const slug = labelAudioSlug(label);
+  if(!slug) return;
+  // Stop full-question narration so only the option plays
+  if(pequesAudio){
+    try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
+    audioCueEnds = null;
+    setAudioPlaying(false);
+    clearChoiceCues();
+  }
+  stopOptionSpeech();
+  const src = DALIA_OPT_AUDIO_BASE + slug + ".mp3";
+  pequesOptAudio = new Audio(src);
+  pequesOptAudio.preload = "auto";
+  if(btn) btn.classList.add("playing");
+  pequesOptAudio.onended = () => {
+    if(btn) btn.classList.remove("playing");
+    pequesOptAudio = null;
+  };
+  pequesOptAudio.onerror = () => {
+    if(btn) btn.classList.remove("playing");
+    pequesOptAudio = null;
+  };
+  pequesOptAudio.play().catch(() => {
+    if(btn) btn.classList.remove("playing");
+    pequesOptAudio = null;
+  });
 }
 
 function speakCurrent(){
