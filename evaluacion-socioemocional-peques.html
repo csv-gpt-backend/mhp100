@@ -40,15 +40,19 @@
     .btn-ghost{background:#e5e7eb;color:#111}
     .btn-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:14px}
     #pantalla-inicio ul.muted{font-size:15px}
-    .q-head{margin-bottom:12px}
+    .q-head{margin-bottom:10px}
     .progress{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:6px 0 10px}
     .progress .bar{height:100%;background:var(--accent);width:0%;transition:width .2s}
     .q-meta{font-size:15px;font-weight:600}
-    .q-title{font-size:1.45rem;font-weight:800;margin:0 0 8px;line-height:1.25}
-    .audio-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:0}
-    .btn-audio{border:0;border-radius:999px;padding:10px 16px;font-weight:800;background:#0ea5e9;color:#fff;cursor:pointer;font-size:1rem}
+    .q-title-row{
+      display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+      gap:10px 14px;margin:0 0 4px;
+    }
+    .q-title{font-size:1.45rem;font-weight:800;margin:0;line-height:1.25;flex:1 1 220px}
+    .audio-row{display:flex;flex-wrap:nowrap;gap:8px;align-items:center;margin:0;flex:0 0 auto}
+    .btn-audio{border:0;border-radius:999px;padding:10px 16px;font-weight:800;background:#0ea5e9;color:#fff;cursor:pointer;font-size:1rem;white-space:nowrap}
     .btn-audio.playing{background:#0369a1}
-    .btn-audio-sm{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:.95rem}
+    .btn-audio-sm{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:.95rem;white-space:nowrap}
     /* Escena | bloque opciones: misma altura */
     .play-area{
       display:grid;
@@ -81,10 +85,27 @@
       border:2px solid var(--line);background:#fff;border-radius:14px;padding:10px;
       cursor:pointer;text-align:center;font-weight:800;font-size:1.05rem;
       display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;
-      min-height:0;height:100%;transition:border-color .15s,box-shadow .15s,transform .12s;
+      min-height:0;height:100%;position:relative;
+      transition:border-color .15s,box-shadow .15s,transform .12s,background .15s;
     }
     .choice:hover{border-color:#93c5fd;transform:translateY(-1px)}
     .choice.selected{border-color:var(--accent);background:#eff6ff;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+    .choice.cue-on{
+      border-color:#0284c7;background:#e0f2fe;
+      box-shadow:0 0 0 4px rgba(14,165,233,.35);
+      transform:scale(1.03);
+      animation:cuePulse 1s ease-in-out infinite;
+    }
+    @keyframes cuePulse{
+      0%,100%{box-shadow:0 0 0 3px rgba(14,165,233,.25)}
+      50%{box-shadow:0 0 0 6px rgba(14,165,233,.45)}
+    }
+    .choice .opt-badge{
+      display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.04em;
+      text-transform:uppercase;color:#0369a1;background:#e0f2fe;border:1px solid #7dd3fc;
+      border-radius:999px;padding:3px 8px;margin:0 0 2px;line-height:1.2;
+    }
+    .choice.cue-on .opt-badge{background:#0284c7;color:#fff;border-color:#0284c7}
     .choice .face{font-size:2.4rem;display:block;margin:0}
     .choice .thumb{width:100%;max-width:180px;margin:0 auto;line-height:0;flex:0 0 auto}
     .choice .thumb svg,.choice .thumb .thumb-photo{
@@ -103,12 +124,17 @@
       .block-right{height:auto}
       .choice .thumb{max-width:150px}
     }
+    @media(max-width:700px){
+      .q-title-row{flex-direction:column;align-items:flex-start}
+      .audio-row{width:100%}
+    }
     @media(max-width:560px){
       .layout{grid-template-columns:48px minmax(0,1fr)}
       .side span{font-size:14px;letter-spacing:.1em}
       .page{max-width:100%;padding:12px}
       .choices{grid-template-columns:1fr;gap:8px}
-      .choice{flex-direction:row;text-align:left;padding:8px 10px;height:auto}
+      .choice{flex-direction:row;flex-wrap:wrap;text-align:left;padding:8px 10px;height:auto}
+      .choice .opt-badge{width:100%;text-align:center}
       .choice .thumb{width:96px;max-width:96px;margin:0}
       .choice .choice-label{text-align:left;margin-top:0;flex:1}
     }
@@ -158,11 +184,13 @@
         <div class="q-head">
           <div class="muted q-meta" id="qMeta"></div>
           <div class="progress" aria-label="Progreso"><div class="bar" id="bar"></div></div>
-          <h2 class="q-title" id="qTitle"></h2>
-          <div class="audio-row">
-            <button type="button" class="btn-audio" id="btnAudio">🔊 Escuchar</button>
-            <button type="button" class="btn-audio-sm" id="btnAudioPause">⏸ Pausa</button>
-            <button type="button" class="btn-audio-sm" id="btnAudioStop">⏹ Parar</button>
+          <div class="q-title-row">
+            <h2 class="q-title" id="qTitle"></h2>
+            <div class="audio-row">
+              <button type="button" class="btn-audio" id="btnAudio">🔊 Escuchar</button>
+              <button type="button" class="btn-audio-sm" id="btnAudioPause">⏸ Pausa</button>
+              <button type="button" class="btn-audio-sm" id="btnAudioStop">⏹ Parar</button>
+            </div>
           </div>
         </div>
         <div class="play-area">
@@ -195,7 +223,65 @@ let CODIGO_ACTUAL = null;
 let __startTime = Date.now();
 let currentIndex = 0;
 let pequesAudio = null;
+let audioCueEnds = null; // cumulative end times [introEnd, opt1End, opt2End, opt3End]
 const DALIA_AUDIO_BASE = "assets/peques/audio/q";
+
+function clearChoiceCues(){
+  document.querySelectorAll(".choice.cue-on").forEach(el => el.classList.remove("cue-on"));
+}
+
+function setChoiceCue(optIndex){
+  // optIndex 1..3 highlights that option; 0 or null = none
+  clearChoiceCues();
+  if(!optIndex) return;
+  const btn = document.querySelector(`.choice[data-opt="${optIndex}"]`);
+  if(btn) btn.classList.add("cue-on");
+}
+
+/** Split speak text into intro + 3 options for timed highlight (by character weight). */
+function buildAudioCuePlan(speakText){
+  const raw = String(speakText || "");
+  const re = /Opci[oó]n\s+(uno|dos|tres)\s*:/gi;
+  const marks = [];
+  let m;
+  while((m = re.exec(raw))){
+    const word = m[1].toLowerCase();
+    const n = word === "uno" ? 1 : word === "dos" ? 2 : 3;
+    marks.push({ opt:n, index:m.index });
+  }
+  if(marks.length < 3){
+    return { weights:[1,1,1,1] }; // intro + 3 equal fallback
+  }
+  marks.sort((a,b) => a.index - b.index);
+  const parts = [
+    raw.slice(0, marks[0].index),
+    raw.slice(marks[0].index, marks[1].index),
+    raw.slice(marks[1].index, marks[2].index),
+    raw.slice(marks[2].index)
+  ];
+  const weights = parts.map(p => Math.max(8, p.trim().length));
+  return { weights };
+}
+
+function cueEndsFromDuration(duration, weights){
+  const total = weights.reduce((a,b) => a+b, 0) || 1;
+  let acc = 0;
+  return weights.map(w => {
+    acc += duration * (w / total);
+    return acc;
+  });
+}
+
+function syncChoiceCueFromAudio(){
+  if(!pequesAudio || !audioCueEnds || !audioCueEnds.length) return;
+  const t = pequesAudio.currentTime || 0;
+  // ends: [introEnd, opt1End, opt2End, opt3End]
+  if(t < audioCueEnds[0]){ setChoiceCue(0); return; }
+  if(t < audioCueEnds[1]){ setChoiceCue(1); return; }
+  if(t < audioCueEnds[2]){ setChoiceCue(2); return; }
+  if(t < audioCueEnds[3]){ setChoiceCue(3); return; }
+  setChoiceCue(0);
+}
 
 const SCENES = {
   mirror:`<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg"><rect width="420" height="200" rx="16" fill="#fef3c7"/><circle cx="130" cy="100" r="36" fill="#fcd34d"/><circle cx="290" cy="100" r="32" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="3"/><text x="210" y="28" text-anchor="middle" font-size="14" fill="#92400e">Contigo</text></svg>`,
@@ -630,21 +716,26 @@ function updateProgress(){
 function renderQuestion(){
   stopSpeech();
   pequesAudio = null;
+  audioCueEnds = null;
+  clearChoiceCues();
   const q = ITEMS[currentIndex];
   document.getElementById("qTitle").textContent = q.title;
   document.getElementById("qHint").textContent = "Toca la opción que más se parece a ti";
   document.getElementById("qScene").innerHTML = q.sceneHtml;
   const cont = document.getElementById("qChoices");
   cont.innerHTML = "";
-  q.choices.forEach((row) => {
+  q.choices.forEach((row, idx) => {
     const [face, label, score] = row;
+    const optN = idx + 1;
     const b = document.createElement("button");
     b.type = "button";
     b.className = "choice" + (q.value === score ? " selected" : "");
+    b.dataset.opt = String(optN);
     const isHtml = typeof face === "string" && face.trim().startsWith("<");
-    b.innerHTML = isHtml
-      ? `<span class="thumb">${face}</span><span class="choice-label">${label}</span>`
-      : `<span class="face">${face}</span><span class="choice-label">${label}</span>`;
+    const media = isHtml
+      ? `<span class="thumb">${face}</span>`
+      : `<span class="face">${face}</span>`;
+    b.innerHTML = `<span class="opt-badge">Opción ${optN}</span>${media}<span class="choice-label">${label}</span>`;
     b.addEventListener("click", () => {
       q.value = score;
       renderQuestion();
@@ -663,13 +754,16 @@ function audioBtn(){ return document.getElementById("btnAudio"); }
 function setAudioPlaying(on){
   const b = audioBtn();
   if(b) b.classList.toggle("playing", !!on);
+  if(!on) clearChoiceCues();
 }
 
 function stopSpeech(){
   if(pequesAudio){
     try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
   }
+  audioCueEnds = null;
   setAudioPlaying(false);
+  clearChoiceCues();
 }
 
 function speakCurrent(){
@@ -678,11 +772,23 @@ function speakCurrent(){
   const n = String(q.id).padStart(2,"0");
   const src = DALIA_AUDIO_BASE + n + ".mp3";
   stopSpeech();
+  const plan = buildAudioCuePlan(q.speak);
   pequesAudio = new Audio(src);
   pequesAudio.preload = "auto";
-  pequesAudio.onended = () => setAudioPlaying(false);
+  pequesAudio.onloadedmetadata = () => {
+    const dur = pequesAudio.duration;
+    if(Number.isFinite(dur) && dur > 0){
+      audioCueEnds = cueEndsFromDuration(dur, plan.weights);
+    }
+  };
+  pequesAudio.ontimeupdate = syncChoiceCueFromAudio;
+  pequesAudio.onended = () => {
+    setAudioPlaying(false);
+    clearChoiceCues();
+  };
   pequesAudio.onerror = () => {
     setAudioPlaying(false);
+    clearChoiceCues();
     alert("No se pudo cargar el audio de esta pregunta.");
   };
   setAudioPlaying(true);
