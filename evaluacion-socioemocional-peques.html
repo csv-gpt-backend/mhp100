@@ -45,23 +45,29 @@
     .progress .bar{height:100%;background:var(--accent);width:0%;transition:width .2s}
     .q-meta{font-size:15px;font-weight:600}
     .q-title-row{
-      display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
-      gap:10px 14px;margin:0 0 4px;
+      display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;
+      gap:10px 14px;margin:0 0 10px;
     }
-    .q-title{font-size:1.45rem;font-weight:800;margin:0;line-height:1.25;flex:1 1 220px}
-    .audio-row{display:flex;flex-wrap:nowrap;gap:8px;align-items:center;margin:0;flex:0 0 auto}
+    .q-title{font-size:1.45rem;font-weight:800;margin:0;line-height:1.25;flex:1 1 auto}
+    .audio-row{
+      display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;
+      margin:0;width:100%;
+    }
     .btn-audio{border:0;border-radius:999px;padding:10px 16px;font-weight:800;background:#0ea5e9;color:#fff;cursor:pointer;font-size:1rem;white-space:nowrap}
     .btn-audio.playing{background:#0369a1}
     .btn-audio-sm{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:.95rem;white-space:nowrap}
-    /* Escena un poco menor | opciones más protagonistas */
+    /* Escena + audio izq | opciones der; centrados en altura */
     .play-area{
       display:grid;
       grid-template-columns:minmax(0,.88fr) minmax(360px,1.22fr);
       gap:16px;
-      align-items:stretch;
+      align-items:center;
+    }
+    .block-left{
+      min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:10px;
     }
     .scene{
-      display:grid;place-items:center;align-self:start;width:100%;height:auto;
+      display:grid;place-items:center;width:100%;height:auto;
       background:linear-gradient(180deg,#e0f2fe,#fff);border:2px solid #93c5fd;border-radius:16px;
       padding:6px;margin:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.8);overflow:hidden;
     }
@@ -130,14 +136,13 @@
     #pantalla-final h2{font-size:1.4rem}
     #pantalla-final .muted{font-size:1.05rem}
     @media(max-width:960px){
-      .play-area{grid-template-columns:1fr;gap:12px}
+      .play-area{grid-template-columns:1fr;gap:12px;align-items:stretch}
       .scene .scene-photo,.scene svg{max-height:min(32vh,300px)}
       .block-right{height:auto}
       .choice .thumb{max-width:200px}
     }
     @media(max-width:700px){
-      .q-title-row{flex-direction:column;align-items:flex-start}
-      .audio-row{width:100%}
+      .audio-row{justify-content:center}
     }
     @media(max-width:560px){
       .layout{grid-template-columns:48px minmax(0,1fr)}
@@ -199,15 +204,17 @@
           <div class="progress" aria-label="Progreso"><div class="bar" id="bar"></div></div>
           <div class="q-title-row">
             <h2 class="q-title" id="qTitle"></h2>
+          </div>
+        </div>
+        <div class="play-area">
+          <div class="block-left">
+            <div class="scene" id="qScene"></div>
             <div class="audio-row">
               <button type="button" class="btn-audio" id="btnAudio">🔊 Escuchar</button>
               <button type="button" class="btn-audio-sm" id="btnAudioPause">⏸ Pausa</button>
               <button type="button" class="btn-audio-sm" id="btnAudioStop">⏹ Parar</button>
             </div>
           </div>
-        </div>
-        <div class="play-area">
-          <div class="scene" id="qScene"></div>
           <div class="block-right">
             <p class="hint" id="qHint">Toca la opción que más se parece a ti</p>
             <div class="choices" id="qChoices"></div>
