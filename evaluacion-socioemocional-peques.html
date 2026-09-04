@@ -241,23 +241,36 @@ function setChoiceCue(optIndex){
 /** Split speak text into intro + 3 options for timed highlight (by character weight). */
 function buildAudioCuePlan(speakText){
   const raw = String(speakText || "");
-  const re = /Opci[oó]n\s+(uno|dos|tres)\s*:/gi;
+  // Soporta "Opción uno/dos/tres" (viejas) y "Primera/Segunda/Tercera opción" (nuevas, audio más limpio)
+  const reOld = /Opci[oó]n\s+(uno|dos|tres)\s*:/gi;
+  const reNew = /(Primera|Segunda|Tercera)\s+opci[oó]n\s*:/gi;
   const marks = [];
   let m;
-  while((m = re.exec(raw))){
+  while((m = reOld.exec(raw))){
     const word = m[1].toLowerCase();
     const n = word === "uno" ? 1 : word === "dos" ? 2 : 3;
     marks.push({ opt:n, index:m.index });
   }
-  if(marks.length < 3){
-    return { weights:[1,1,1,1] }; // intro + 3 equal fallback
+  while((m = reNew.exec(raw))){
+    const word = m[1].toLowerCase();
+    const n = word === "primera" ? 1 : word === "segunda" ? 2 : 3;
+    marks.push({ opt:n, index:m.index });
   }
-  marks.sort((a,b) => a.index - b.index);
+  // unique by opt, keep earliest index
+  const byOpt = new Map();
+  marks.forEach(x => {
+    if(!byOpt.has(x.opt) || x.index < byOpt.get(x.opt).index) byOpt.set(x.opt, x);
+  });
+  const ordered = [1,2,3].map(o => byOpt.get(o)).filter(Boolean);
+  if(ordered.length < 3){
+    return { weights:[1,1,1,1] };
+  }
+  ordered.sort((a,b) => a.index - b.index);
   const parts = [
-    raw.slice(0, marks[0].index),
-    raw.slice(marks[0].index, marks[1].index),
-    raw.slice(marks[1].index, marks[2].index),
-    raw.slice(marks[2].index)
+    raw.slice(0, ordered[0].index),
+    raw.slice(ordered[0].index, ordered[1].index),
+    raw.slice(ordered[1].index, ordered[2].index),
+    raw.slice(ordered[2].index)
   ];
   const weights = parts.map(p => Math.max(8, p.trim().length));
   return { weights };
@@ -510,8 +523,13 @@ const ITEMS = [
       [thumbImg("assets/peques/q11-opt-nunca.png","Casi nunca"),"Casi nunca",1]
     ]),
   mk(12,"Habilidades interpersonales","Empatía","¿Te importa cómo se sienten los demás?",
-    "¿Te importa cómo se sienten los demás? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
-    sceneEmoji("💚","Los demás"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
+    "¿Te importa cómo se sienten los demás? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q12-scene.png","Niño al que le importa cómo se siente una niña"),
+    [
+      [thumbImg("assets/peques/q12-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q12-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q12-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
   mk(13,"Habilidades para la vida","Motivación","¿Terminas lo que empiezas?",
     "¿Terminas lo que empiezas? Opción uno: sí. Opción dos: a veces. Opción tres: casi nunca.",
     sceneEmoji("✔️","Terminar"),[["✅","Sí",3],["😐","A veces",2],["😟","Casi nunca",1]]),
