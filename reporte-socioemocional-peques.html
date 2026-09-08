@@ -510,10 +510,7 @@
         </div>
         <div class="interp-legend-row">
           El color <b>rojo</b> indica habilidades por acompañar, el <b>amarillo</b> habilidades por fortalecer y el <b>verde</b> habilidades por enriquecer.
-          Un puntaje más alto refleja mayor presencia de la habilidad en casa, escuela y juego (salvo Agresión y Timidez).
-        </div>
-        <div class="interp-legend-row">
-          En las escalas de <b>Agresión</b> y <b>Timidez</b> la interpretación es inversa: puntajes bajos indican mejor manejo; puntajes altos sugieren más apoyo de adultos.
+          Un puntaje más alto refleja mayor presencia de la habilidad en casa, escuela y juego (también en Agresión y Timidez: alto = mejor manejo).
         </div>
         <div class="interp-legend-row">
           El instrumento observa habilidades intrapersonales, interpersonales y para la vida, además de estilos de comunicación y propensión al cambio.
@@ -632,10 +629,9 @@ function dispBloque(name){
 
   /* Ajuste visual -10 (solo visual, no BD) */
   const SCORE_ADJUST = { ENABLED:false, OFFSET:10, APPLY_TO_RISK:true };
+  // Kids: Agresión/Timidez se puntúan como habilidad (alto = mejor manejo). No son escalas de riesgo.
   function isRiskScale(bloqueNorm, subNorm){
-    const b = canonBloque(bloqueNorm || "");
-    const s = normalizeName(subNorm || "");
-    return (b === normalizeName("estilos de comunicación interpersonal") && (s === "agresión" || s === "timidez"));
+    return false;
   }
   function adjScore(v, {bloqueNorm=null, subNorm=null}={}){
     const n = Number(v);
@@ -916,7 +912,7 @@ function setCurveMarker(iie){
     if (showNote) {
       const note = document.createElement("div");
       note.className = "scale-note-inline";
-      note.textContent = "Un puntaje bajo indica mejor manejo en estas áreas.";
+      note.textContent = "Un puntaje más alto indica mejor manejo en estas áreas (calma al enojarse / participar y pedir ayuda).";
       host.appendChild(note);
     }
   }
@@ -979,7 +975,7 @@ function setCurveMarker(iie){
     desarrollo: "El desarrollo personal en peques mira cómo el niño o la niña se siente consigo, cuida su cuerpo y se calma cuando algo le cuesta. Se observa en casa, en la escuela y en el juego.",
     vinculos: "Los vínculos interpersonales agrupan cómo se relaciona con otras personas: pedir con respeto, notar cómo están los demás y ayudar con cariño.",
     competencias: "Las habilidades para la vida son hábitos pequeños del día a día: terminar lo empezado, cumplir promesas, guardar cosas, elegir entre opciones y ayudar a organizar un juego.",
-    comunicacion: "La comunicación interpersonal describe estilos de reacción. En Agresión y Timidez la lectura es inversa: puntajes bajos sugieren mejor manejo; puntajes altos piden más acompañamiento de adultos.",
+    comunicacion: "La comunicación interpersonal describe cómo reacciona al enojo y al hablar con otros. En Kids, Agresión y Timidez se leen como el resto: puntajes altos indican mejor manejo; puntajes bajos piden más acompañamiento de adultos.",
     adaptacion: "La propensión al cambio mira si el niño o la niña acepta con más facilidad planes nuevos, personas nuevas o rutinas distintas, con apoyo de casa y escuela."
   };
 
@@ -996,8 +992,8 @@ function setCurveMarker(iie){
     "Administración del tiempo": "Ordenar y guardar cosas al terminar, y seguir una rutina breve del día.",
     "Toma de decisiones": "Elegir entre dos opciones simples y aceptar la consecuencia de esa elección.",
     "Liderazgo": "Ayudar a empezar o a organizar un juego o actividad en el grupo, con amabilidad.",
-    "Agresión": "Tendencia a reaccionar con golpes, gritos o empujones cuando se enoja (puntaje alto = más apoyo).",
-    "Timidez": "Tendencia a callarse o evitar hablar/pedir ayuda por miedo o vergüenza (puntaje alto = más apoyo).",
+    "Agresión": "Cómo reacciona al enojarse: calmarse y decir qué le molestó en lugar de gritar o empujar (puntaje alto = mejor manejo).",
+    "Timidez": "Cómo participa: hablar, pedir ayuda y no quedarse callado cuando quiere decir algo (puntaje alto = mejor manejo).",
     "Propensión al cambio": "Apertura a planes, lugares o personas nuevas, con acompañamiento adulto.",
     "Adaptación al cambio": "Apertura a planes, lugares o personas nuevas, con acompañamiento adulto."
   };
@@ -1044,13 +1040,11 @@ function setCurveMarker(iie){
     title.className = "skill-row-title";
     const numeric = (pct != null && !Number.isNaN(Number(pct))) ? Math.round(pct) : null;
     const nombreDisp = dispSub(nombre);
-    const isAggOrTim = (nombreDisp === "Agresión" || nombreDisp === "Timidez");
-
     title.textContent = numeric != null ? `${nombreDisp} (Puntaje: ${numeric}/100)` : nombreDisp;
     row.appendChild(title);
 let shouldAlert = false;
 if (numeric != null){
-  shouldAlert = isAggOrTim ? (numeric >= 71) : (numeric <= 40);
+  shouldAlert = (numeric <= 40);
 }
 
     const descTxt =
@@ -1072,11 +1066,6 @@ if (numeric != null){
     const track = document.createElement("div");
     track.className = "skill-bar-track";
 
-    if (isAggOrTim){
-      track.style.background =
-        "linear-gradient(to right,var(--green) 0%, var(--green) 40%,var(--orange) 40%, var(--orange) 70%,var(--red) 70%, var(--red) 100%)";
-    }
-
     const marker = document.createElement("div");
     marker.className = "skill-bar-marker";
     if(numeric == null) marker.style.display = "none";
@@ -1093,9 +1082,7 @@ if (numeric != null){
 if (shouldAlert){
   const al = document.createElement("div");
   al.className = "skill-row-alert";
-  al.textContent = isAggOrTim
-    ? "Atención: puntaje elevado — conviene más acompañamiento en casa y escuela."
-    : "Atención: puntaje bajo — practicar actividades cortas en casa, escuela y juego.";
+  al.textContent = "Atención: puntaje bajo — practicar actividades cortas en casa, escuela y juego.";
   row.appendChild(al);
 }
 
@@ -1156,7 +1143,7 @@ function nivelFromPctInv(p, invert=false){
     if(v <= 70) return "medio";
     return "alto";
   }else{
-    // invertido para Timidez/Agresión: alto es “peor” (prioridad)
+    // invert=true solo si alguna escala se lee al revés (Kids Agresión/Timidez ya no lo usan)
     if(v <= 40) return "alto";
     if(v <= 70) return "medio";
     return "bajo";
@@ -1733,7 +1720,7 @@ agresion: {
       liHead.style.marginTop = "10px"; // baja una línea
       lista.appendChild(liHead);
 
-      // Timidez (invertida)
+      // Timidez (Kids: misma lectura que el resto — alto = mejor)
       if (extras.timidezVal != null){
         const liSub = document.createElement("li");
         liSub.className = "sec-head";
@@ -1741,7 +1728,7 @@ agresion: {
         liSub.style.fontWeight = "700";
         lista.appendChild(liSub);
 
-        const nivT = nivelFromPctInv(extras.timidezVal, true);
+        const nivT = nivelFromPctInv(extras.timidezVal, false);
         (RECOM_ESTILOS.timidez[nivT] || []).forEach(txt=>{
           const li=document.createElement("li");
           li.textContent = contextualizaTextoCodigo(textoPlanClaro(txt), esProfesional);
@@ -1749,7 +1736,7 @@ agresion: {
         });
       }
 
-      // Agresión
+      // Agresión (Kids: misma lectura que el resto — alto = mejor)
       if (extras.agresionVal != null){
         const liSub = document.createElement("li");
         liSub.className = "sec-head";
@@ -1758,7 +1745,7 @@ agresion: {
         liSub.style.marginTop = "6px";
         lista.appendChild(liSub);
 
-        const nivA = nivelFromPctInv(extras.agresionVal, true);
+        const nivA = nivelFromPctInv(extras.agresionVal, false);
         (RECOM_ESTILOS.agresion[nivA] || []).forEach(txt=>{
           const li=document.createElement("li");
           li.textContent = contextualizaTextoCodigo(textoPlanClaro(txt), esProfesional);
@@ -1954,8 +1941,8 @@ cont.appendChild(lista);
       { key:"VINCULOS INTERPERSONALES", pct: extras.bInter, invert:false },
       { key:"HABILIDADES PARA LA VIDA", pct: extras.bPV, invert:false },
     ];
-    if (extras.timidezVal != null) items.push({ key:"TIMIDEZ", pct: extras.timidezVal, invert:true });
-    if (extras.agresionVal != null) items.push({ key:"AGRESION", pct: extras.agresionVal, invert:true });
+    if (extras.timidezVal != null) items.push({ key:"TIMIDEZ", pct: extras.timidezVal, invert:false });
+    if (extras.agresionVal != null) items.push({ key:"AGRESION", pct: extras.agresionVal, invert:false });
 
     items.forEach(it => it.nivel = nivelFromPctInv(it.pct, it.invert));
 
@@ -2126,7 +2113,7 @@ const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
 
     const subt = document.createElement("div");
     subt.className = "plan-section-title";
-    subt.textContent = "Comunicación interpersonal (en estas escalas puntajes bajos indican mejor manejo):";
+    subt.textContent = "Comunicación interpersonal (puntaje alto = mejor manejo):";
     cont.appendChild(subt);
 
     const ul2 = document.createElement("ul");
@@ -2134,17 +2121,17 @@ const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
 
     const liA = document.createElement("li");
     liA.textContent = "Agresión: " + fmt(extras.agresionVal);
-    if (extras.agresionVal != null && !Number.isNaN(extras.agresionVal) && extras.agresionVal > 70){
+    if (extras.agresionVal != null && !Number.isNaN(extras.agresionVal) && extras.agresionVal <= 40){
       liA.classList.add("skill-row-alert");
-      liA.textContent += " (rango alto: más acompañamiento en casa y escuela).";
+      liA.textContent += " (rango bajo: más acompañamiento en casa y escuela).";
     }
     ul2.appendChild(liA);
 
     const liT = document.createElement("li");
     liT.textContent = "Timidez: " + fmt(extras.timidezVal);
-    if (extras.timidezVal != null && !Number.isNaN(extras.timidezVal) && extras.timidezVal > 70){
+    if (extras.timidezVal != null && !Number.isNaN(extras.timidezVal) && extras.timidezVal <= 40){
       liT.classList.add("skill-row-alert");
-      liT.textContent += " (rango alto: apoyar participación gradual sin forzar).";
+      liT.textContent += " (rango bajo: apoyar participación gradual sin forzar).";
     }
     ul2.appendChild(liT);
 
