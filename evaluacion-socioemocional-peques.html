@@ -860,6 +860,50 @@ async function lookupCodigo(){
   }
 }
 
+function calcIV1_IV2_categories(items){
+  // Misma lógica del socioemocional grande (escala 1–3).
+  // Kids no trae ítems invertidos: todos se tratan como directos.
+  const vals = items.filter(q => q.value != null).map(q => Number(q.value)).filter(Number.isFinite);
+  const avg = arr => (arr.length ? arr.reduce((a,b)=>a+b,0) / arr.length : 0);
+  const stdev = arr => {
+    if(arr.length < 2) return 1;
+    const m = avg(arr);
+    return Math.sqrt(arr.reduce((s,x)=>s+(x-m)*(x-m),0) / arr.length);
+  };
+  if(!vals.length) return { iv1Cat: null, iv2Cat: null };
+  const s = stdev(vals);
+  const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
+
+  // NC: consistencia entre pares de la misma subhabilidad (hermanos del banco Kids)
+  const bySub = new Map();
+  items.forEach(q => {
+    if(q.value == null) return;
+    if(!bySub.has(q.subhabilidad)) bySub.set(q.subhabilidad, []);
+    bySub.get(q.subhabilidad).push(Number(q.value));
+  });
+  const diffs = [];
+  bySub.forEach(arr => {
+    for(let i=0;i<arr.length;i++){
+      for(let j=i+1;j<arr.length;j++){
+        diffs.push(Math.abs(arr[i]-arr[j]));
+      }
+    }
+  });
+  const meanDiff = diffs.length ? avg(diffs) : 0;
+  const iv2Cat = meanDiff < 0.5 ? 0 : meanDiff < 1.0 ? 1 : 2;
+  return { iv1Cat, iv2Cat };
+}
+
+function calcIV3_category(){
+  // PT adaptado a peques (26 ítems): bandas proporcionales al grande.
+  const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
+  if(mins >= 6 && mins <= 25) return 0;      // adecuado
+  if(mins >= 3 && mins <= 5) return 1;       // demasiado breve
+  if(mins > 40) return 2;                    // demasiado lento
+  if(mins < 3) return 2;                     // apresurado extremo
+  return 1;                                  // 26–40 u otros bordes
+}
+
 function calcularResultados(){
   const subMap = new Map();
   ITEMS.forEach(q => {
@@ -886,8 +930,10 @@ function calcularResultados(){
   const bInter = pct("Habilidades interpersonales");
   const bPV = pct("Habilidades para la vida");
   const iie = Math.round((bIntra+bInter+bPV)/3) || 0;
+  const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
+  const iv3Cat = calcIV3_category();
   return {
-    globales:{ IIE:iie, IV1:0, IV2:0, IV3:0 },
+    globales:{ IIE:iie, IV1:iv1Cat, IV2:iv2Cat, IV3:iv3Cat },
     bloques:{
       intrapersonales:bIntra, interpersonales:bInter, para_la_vida:bPV,
       estilos_comunicacion:pct("Estilos de comunicación interpersonal"),
