@@ -1,0 +1,2424 @@
+<!doctype html>
+<html lang="es" translate="no" class="notranslate">
+<head>
+  <meta name="google" content="notranslate">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Informe Socioemocional · Kids – Adalam</title>
+  <style>
+    :root{
+      --ink:#111; --muted:#666; --line:#ddd;
+      --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757;
+    }
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#fff;color:#0f172a;min-height:100vh;}
+    .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
+    h1,h2,h3{margin:0 0 8px 0}
+    .muted{color:var(--muted)}
+    .topbar{display:flex;gap:12px;align-items:center;margin-bottom:8px;justify-content:center;flex-wrap:wrap}
+    .topbar input{flex:1;max-width:220px;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;text-transform:uppercase}
+    .intro-logo-wrap{display:flex;justify-content:center;align-items:center;margin:28px 0 14px}
+    .intro-logo{width:256px;max-width:78vw;height:auto;object-fit:contain}
+    .ingreso-titulo{
+      text-align:center;font-weight:800;font-size:clamp(1.05rem,2.9vw,1.42rem);line-height:1.3;
+      margin:0 0 14px;padding:0 10px;color:#0f172a;text-transform:uppercase;letter-spacing:.03em;
+    }
+    .hint.ingreso-usuario{text-align:center;font-size:12px;line-height:1.45;margin-top:-2px;margin-bottom:14px}
+    .btn{padding:9px 14px;border-radius:999px;border:0;background:#1a8f3b;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
+    .msg{margin-left:8px;font-weight:700}
+    .msg.ok{color:#0a8}
+    .msg.err{color:#c00}
+    .hint{font-size:12px;color:var(--muted);margin-bottom:8px}
+
+    .rep-top{border-bottom:none;padding-bottom:6px;margin-bottom:6px;}
+    .rep-top-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px;margin-bottom:6px;}
+    .rep-date{justify-self:flex-start;}
+    .rep-top-center{text-align:center;font-weight:700;text-transform:uppercase;}
+    .rep-top-logo{justify-self:flex-end;}
+    .mhp-logo{height:90px;margin-left:8px;margin-top:0;object-fit:contain;}
+    #page1 .mhp-logo,
+    #pageInterpretacion .mhp-logo{height:90px;margin-left:8px;margin-top:0;}
+    .reporte-pie-adalam{
+      margin-top:16px;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+      text-align:center;
+      font-size:11px;
+      color:var(--muted);
+      letter-spacing:.02em;
+    }
+    #page1 .page1-sheet{display:flex;flex-direction:column}
+    #page1 .reporte-pie-page1{margin-top:14px}
+    .reporte-acciones-pantalla{margin-top:8px;margin-bottom:16px;padding-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;width:100%;border-bottom:1px solid #e5e7eb}
+    .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase;}
+    .rep-top-row3{text-align:center;font-size:18px;font-weight:800;}
+
+    .iv-table td.hl{background:var(--yellow)}
+    .iv-key{font-weight:900;color:#000;}
+    .iv-legend{display:flex;gap:14px;justify-content:flex-start;margin-top:6px;font-size:11px;color:#111;flex-wrap:wrap}
+    .iv-legend span b{font-weight:900}
+
+    .page{margin-top:10px}
+    .page-break{height:0;margin:0;border:0}
+    @media print{
+      @page{ size:A4; margin:8mm 8mm }
+      .topbar,.hint,.intro-logo-wrap,.ingreso-titulo,.ingreso-panel,#btnImprimir,#btnPDF,.reporte-acciones-pantalla{display:none !important}
+      body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .wrap{max-width:none;margin:0 auto;padding:0 6px}
+      .page{margin-top:0;break-inside:auto}
+      .page-break{page-break-before:always}
+      /* Página 1: ampliar VERTICAL (sin zoom que aprieta arriba; sin ensanchar) */
+      #page1{page-break-after:always; break-after:page;}
+      #page1 *{break-inside:avoid;}
+      #tituloCurvaFrecuencias{font-size:12px !important;white-space:nowrap;letter-spacing:0}
+      .mhp-logo{height:72px !important;margin-top:0 !important;margin-left:4px !important}
+      #page1 .mhp-logo,
+      #pageInterpretacion .mhp-logo{height:72px !important}
+      #page1 .reporte-pie-page1,
+      #pageInterpretacion .reporte-pie-page2{
+        margin-top:12px;
+        text-align:center;
+        font-size:10.5px;
+        break-inside:avoid;
+        page-break-inside:avoid;
+      }
+      /* Leyenda NA/NC/PT: una sola línea en PDF (como en pantalla) */
+      .iv-legend{
+        flex-wrap:nowrap !important;
+        gap:10px !important;
+        font-size:10px !important;
+        white-space:nowrap;
+      }
+      .iv-legend span{white-space:nowrap}
+      .rep-top{margin-bottom:12px;padding-bottom:10px}
+      .rep-top-row1{margin-bottom:12px;align-items:flex-start}
+      .rep-top-row2{font-size:24px !important;margin-bottom:6px !important}
+      .rep-top-row3{font-size:17px !important;margin-bottom:4px !important}
+      .rep-ids{margin-top:12px !important}
+      #repHeaderBox{padding:8px 10px !important}
+      .rep-mid{margin-top:16px !important;gap:16px !important}
+      .bloque-title{margin:16px 0 10px !important}
+      .bars-row{margin:9px 0 !important}
+      .bars-slot{height:26px !important}
+      .bars-slot .tick{height:28px !important}
+      .bars-slot .tick-label{top:24px !important}
+      .bars-slot .marker{height:26px !important;top:-3px !important}
+      .iie-row{margin:14px 0 10px !important}
+      .scale-section{margin-top:18px !important}
+      .section-title{margin-bottom:8px !important}
+      .scale-note-inline{margin-top:8px !important}
+      .scale-range-header{margin-bottom:6px !important}
+            /* Interpretación: regla amplia — ningún encabezado de sección solo al pie */
+      #pageInterpretacion h2, #pageInterpretacion h3, #pageInterpretacion h4,
+      #page2 h2, #page2 h3, #page2 h4,
+      #p2 h2, #p2 h3, #p2 h4,
+      #pageInterpretacion .section-title,
+      #pageInterpretacion .bloque-title,
+      #pageInterpretacion .interp-title,
+      #pageInterpretacion .interp-bloque-nombre,
+      #pageInterpretacion .interp-bloque-header,
+      #pageInterpretacion .interpTitle,
+      #pageInterpretacion .iviTitle,
+      #pageInterpretacion .iviGuideTitle,
+      #pageInterpretacion .iviGuideTitleRow,
+      #pageInterpretacion .plan-section-title,
+      #pageInterpretacion .plan-focus-head,
+      #pageInterpretacion .skill-row-title,
+      #pageInterpretacion .esc-comp-title,
+      #pageInterpretacion .esc-comp-subtitle,
+      #pageInterpretacion .sec-head,
+      #pageInterpretacion .recom-list > li.sec-head,
+      #page2 .section-title,
+      #page2 .bloque-title,
+      #page2 .interp-title,
+      #page2 .interp-bloque-nombre,
+      #page2 .interp-bloque-header,
+      #page2 .interpTitle,
+      #page2 .iviTitle,
+      #page2 .iviGuideTitle,
+      #page2 .iviGuideTitleRow,
+      #page2 .plan-section-title,
+      #page2 .plan-focus-head,
+      #page2 .skill-row-title,
+      #page2 .esc-comp-title,
+      #page2 .esc-comp-subtitle,
+      #page2 .sec-head,
+      #page2 .recom-list > li.sec-head,
+      #page2 .numsec h3,
+      #page2 .numsec h4,
+      #page2 .part2top h3,
+      #page2 .interp-box > h3,
+      #page2 .recom-box > h3,
+      #page2 .ctx-box > h3,
+      #p2 .section-title,
+      #p2 .numsec h3,
+      #p2 .numsec h4,
+      #p2 .part2top h3,
+      #p2 .sec-head{
+        break-after:avoid !important;
+        page-break-after:avoid !important;
+      }
+      #pageInterpretacion .iviGuideKeep,
+      #page2 .iviGuideKeep,
+      #pageInterpretacion .skill-row{
+        break-inside:avoid !important;
+        page-break-inside:avoid !important;
+      }
+}
+
+
+    .bloque-title{font-weight:800;margin:12px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .bloque-left{display:flex;align-items:center;gap:6px;}
+    .bloque-bullet{width:10px;height:10px;border-radius:999px;background:#f4a338;flex:0 0 auto;}
+    .ih-badge{background:var(--yellow);padding:2px 10px;border-radius:2px;min-width:36px;text-align:center;font-weight:800;}
+    .iie-row{display:flex;justify-content:flex-end;align-items:center;margin:12px 0 6px;font-weight:800;gap:8px;}
+    .iie-badge{background:#1d4ed8;color:#fff;padding:3px 12px;border-radius:2px;min-width:40px;text-align:center;}
+
+    .scale-section{margin-top:14px;}
+    .section-title{display:flex;align-items:center;gap:6px;font-weight:800;margin-bottom:2px;}
+    .section-dot{width:10px;height:10px;border-radius:999px;background:#f4a338;flex:0 0 auto;}
+    .scale-range-header{display:grid;grid-template-columns:220px 1fr 1fr 1fr;font-size:11px;font-weight:700;margin:0 0 2px;align-items:flex-end;}
+    .scale-range-header span{text-align:center;}
+.scale-note-inline{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+  text-align:center;
+  position: relative;
+  left: 4cm;
+}
+
+    .bars-wrap{margin:8px 0}
+    .bars-row{display:grid;grid-template-columns:220px 1fr;align-items:center;gap:8px;margin:10px 0;}
+    .bars-row .label{font-weight:700;font-size:12px}
+    .bars-slot{position:relative;height:22px;border:1px solid #9ca3af;border-radius:4px;background:#f3f4f6}
+    .bars-slot .tick{position:absolute;top:-6px;width:1px;height:24px;background:#9ca3af}
+    .bars-slot .tick-label{position:absolute;top:19px;font-size:10px;transform:translateX(-50%)}
+    .bars-slot .marker{position:absolute;top:-4px;width:14px;height:22px;background:#000;border-radius:3px;transform:translateX(-50%);display:none;box-shadow:0 0 0 1px rgba(255,255,255,.78),0 1px 4px rgba(0,0,0,.35);z-index:4}
+
+    /* Interpretación larga */
+    .interp-title{margin-top:8px;font-size:18px;font-weight:800;}
+    .interp-legend{font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:4px;}
+    .interp-legend-row{margin-top:3px;margin-bottom:3px;}
+    .interp-bloque{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;font-size:12px;background:#fff;}
+    .interp-bloque-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px;}
+    .interp-bloque-nombre{margin-top:8px;font-size:18px;font-weight:800;text-transform:none;}
+    .interp-bloque-indice{font-weight:800;font-size:12px;}
+    .interp-bloque-indice span{background:var(--yellow);padding:2px 8px;border-radius:2px;min-width:36px;text-align:center;display:inline-block;}
+    .interp-bloque-desc{font-size:12px;color:var(--muted);margin-bottom:6px;}
+    .skill-row{margin:6px 0 10px;}
+    .skill-row-title{font-weight:700;font-size:12px;margin-bottom:2px;}
+    .skill-row-desc{font-size:11px;color:var(--muted);margin-bottom:4px;}
+    .skill-row-alert{color: var(--red);font-weight:600;}
+    .skill-bar{display:flex;align-items:center;gap:6px;}
+    .skill-bar-track{position:relative;flex:1;height:12px;border-radius:999px;overflow:hidden;background:linear-gradient(to right,var(--red) 0%, var(--red) 40%,var(--orange) 40%, var(--orange) 70%,var(--green) 70%, var(--green) 100%);}
+    .skill-bar-marker{position:absolute;top:-4px;bottom:-4px;width:5px;background:#000;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.78),0 1px 4px rgba(0,0,0,.35);transform:translateX(-50%);z-index:4;}
+    .skill-bar-value{font-size:11px;font-weight:700;min-width:48px;text-align:right;}
+    /* MARKER CAMBIO 2026-03-10: diferenciación explícita PRO vs escolar en recomendaciones y plan de acción */
+
+    .recom-subtitle{font-size:12px;color:var(--muted);margin-bottom:4px;}
+    .recom-list{margin:4px 0 0 14px;padding:0;font-size:12px;color:#374151;}
+    .recom-list li{margin-bottom:3px;}
+    .plan-section-title{font-weight:700;font-size:12px;margin-top:4px;margin-bottom:2px;}
+
+    .p2-title{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+    .p2-title h2{font-size:18px;font-weight:800}
+    .card{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
+    .result-table th,.result-table td{border-bottom:1px solid #e5e5e5;padding:6px 8px;font-size:13px;text-align:left}
+    .result-table th{font-weight:800}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:800;font-size:12px;color:#fff}
+    .b-red{background:var(--red)}
+    .b-orange{background:var(--orange)}
+    .b-green{background:var(--green)}
+  
+    .complementarias{
+      margin-top:14px;
+      border-top:1px solid var(--line);
+      padding-top:10px;
+    }
+    .esc-comp-header{
+      text-align:center;
+      margin-bottom:8px;
+    }
+    .esc-comp-title{
+      font-weight:900;
+      font-size:14px;
+      text-transform:uppercase;
+    }
+    .esc-comp-subtitle{
+      font-weight:800;
+      font-size:12px;
+      text-transform:uppercase;
+      margin-top:2px;
+    }
+    @media print{
+      .page-1{page-break-after:always}
+
+      .complementarias{ page-break-before: always; break-before: page; border-top:0; padding-top:0; }
+    }
+  /* tus estilos existentes... */
+
+  /* AQUÍ PEGAS ESTO */
+  .plan-focus-box{margin:10px 0 14px;padding:10px 12px;border:1px solid #e6e6e6;border-radius:10px;}
+  .plan-focus-item{margin-top:10px;}
+  .plan-focus-head{margin-bottom:4px;}
+  .plan-focus-obj{margin:4px 0 6px;}
+  .plan-focus-meta{margin:4px 0;}
+.iv-title{
+  font-weight:700;
+  font-size:14px;
+  text-transform:uppercase;
+  text-align:center;
+  margin:0 0 10px 0;
+}
+    /* Realce SOLO para la línea del IIE en el Perfil cuantitativo global */
+.perfil-iie{
+  font-weight:900;
+  font-size:13.5px;
+  margin-top:8px;   /* “pequeño margen arriba” */
+}
+    .perfil-sep{
+  margin-top:18px; /* “bajar una línea” */
+}
+  </style>
+
+</head>
+<body>
+<div class="wrap">
+  <div id="ingresoPanel" class="ingreso-panel">
+    <div class="intro-logo-wrap">
+      <img src="assets/logo_adalam.webp" alt="Sello Adalam" class="intro-logo" width="248" height="99"/>
+    </div>
+    <h1 class="ingreso-titulo">Informe Socioemocional · Kids</h1>
+    <div class="topbar">
+      <input id="codigoInput" placeholder="Código (ej. ESC-SOCPEQ-AB12 / PRO-SOCPEQ-AB12)" maxlength="32"/>
+      <button type="button" class="btn" id="btnVer">Ver reporte</button>
+      <span id="msg" class="msg"></span>
+    </div>
+    <div class="hint ingreso-usuario">Ingrese un <strong>código válido</strong> de peques (SOCPEQ), el mismo que <strong>utilizó</strong> para la Evaluación Socioemocional Kids.</div>
+  </div>
+
+  <div id="reporteContainer" style="display:none">
+    <!-- ===== PAGE 1 ===== -->
+    <section id="page1" class="page page-1">
+      <div class="page1-sheet">
+      <div class="rep-top">
+        <div class="rep-top-row1">
+          <div id="repDateLine" class="rep-date"></div>
+          <div class="rep-top-center">SCORE REPORT</div>
+          <div class="rep-top-logo">
+            <img src="assets/logo_adalam.webp" alt="Logotipo" class="mhp-logo">
+          </div>
+        </div>
+        <div class="rep-top-row2">
+          <span>REPORTE</span>
+        </div>
+        <div class="rep-top-row3">INFORME SOCIOEMOCIONAL · KIDS</div>
+      </div>
+
+      <div class="rep-ids" id="repHeaderBox"
+           style="display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:12px;margin-top:8px">
+      </div>
+
+      <div class="rep-mid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+        <div class="curve">
+          <div id="tituloCurvaFrecuencias" style="font-weight:700">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS.</div>
+           <div class="curve-gauge" style="position:relative; width:100%; height:220px; margin-top:6px;">
+                <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución"
+               style="width:100%; height:220px; object-fit:contain; display:block;"/>
+
+                <div id="curveMarker" aria-hidden="true"
+                   style="position:absolute; left:50%; bottom:26px; width:0; height:0;
+                    z-index:3; pointer-events:none;">
+   <svg width="30" height="54" viewBox="0 0 18 30"
+     style="position:absolute; left:0; bottom:0; transform:translateX(-50%);
+            display:block; overflow:visible;">
+  <defs>
+    <!-- Negro tipo "cristal" -->
+    <linearGradient id="blkMain" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0%"   stop-color="#1a1a1a"/>
+  <stop offset="28%"  stop-color="#2b2b2b"/>
+  <stop offset="55%"  stop-color="#111111"/>
+  <stop offset="78%"  stop-color="#3a3a3a"/>
+  <stop offset="100%" stop-color="#181818"/>
+</linearGradient>
+
+    <!-- Brillo de borde (fino) -->
+    <linearGradient id="blkEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Sombra suave (pequeña) -->
+    <filter id="blkShadow" x="-40%" y="-40%" width="180%" height="200%">
+      <feDropShadow dx="0" dy="1.1" stdDeviation="1.0" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <!-- CUERPO -->
+  <g filter="url(#blkShadow)">
+    <!-- base -->
+    <rect x="6" y="0" width="6" height="16" rx="1.2"
+          fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+    <!-- faceta clara (izquierda) -->
+    <path d="M6.2 0.6 L8.4 0.6 L8.4 15.4 L6.2 15.4 Z"
+          fill="#ffffff" opacity="0.10"/>
+    <!-- faceta oscura (derecha) -->
+    <path d="M9.8 0.6 L11.8 0.6 L11.8 15.4 L9.8 15.4 Z"
+          fill="#000000" opacity="0.22"/>
+    <!-- brillo de borde -->
+    <rect x="6.4" y="0.8" width="1.1" height="14.8" rx="0.8"
+          fill="url(#blkEdge)" opacity="0.85"/>
+  </g>
+
+  <!-- PUNTA -->
+  <g filter="url(#blkShadow)">
+    <!-- base -->
+    <path d="M9 30 L2 16 H16 Z"
+          fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+    <!-- faceta izquierda -->
+    <path d="M9 30 L2.7 16.3 L8.8 16.3 Z"
+          fill="#ffffff" opacity="0.10"/>
+    <!-- faceta derecha -->
+    <path d="M9 30 L9.2 16.3 L15.3 16.3 Z"
+          fill="#000000" opacity="0.22"/>
+    <!-- brillo central suave -->
+    <path d="M9 28.6 L4.3 16.7 H13.7 Z"
+          fill="url(#blkEdge)" opacity="0.55"/>
+  </g>
+</svg>
+                </div>
+          </div>
+            </div>
+
+        <div class="rep-iv" style="margin-top:26px;">
+          <div class="iv-title">ÍNDICES DE VALIDACIÓN</div>
+          <div class="interp-legend-row" style="font-size:12px;line-height:1.45;color:#374151;border:1px solid #111;padding:10px;background:#fafafa">
+            En la versión <b>Kids (SOCPEQ)</b> los índices NA, NC y PT <b>no aplican</b> (quedan en 0 / no se calculan).
+            La lectura del informe se basa en los porcentajes por habilidad y en el IIE.
+          </div>
+          <div class="iv-legend" style="opacity:.75">
+            <span><b>NA / NC / PT</b> · No aplica en peques</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bloque-title">
+        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblIntra">DESARROLLO PERSONAL</span></div>
+        <div>IDP: <span class="ih-badge" id="ihIntra">—</span></div>
+      </div>
+      <div class="rep-bloque" id="bloqueIntra"></div>
+
+      <div class="bloque-title">
+        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblInter">VÍNCULOS INTERPERSONALES</span></div>
+        <div>IVI: <span class="ih-badge" id="ihInter">—</span></div>
+      </div>
+      <div class="rep-bloque" id="bloqueInter"></div>
+
+      <div class="bloque-title">
+        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblVida">HABILIDADES PARA LA VIDA</span></div>
+        <div>IHV: <span class="ih-badge" id="ihPV">—</span></div>
+      </div>
+      <div class="rep-bloque" id="bloquePV"></div>
+
+      <div class="iie-row">
+        <span>ÍNDICE DE INTELIGENCIA EMOCIONAL IIE:</span>
+        <span class="iie-badge" id="repIIE">—</span>
+      </div>
+
+      <!-- COMUNICACIÓN INTERPERSONAL -->
+      <div class="scale-section">
+        <div class="section-title">
+          <div class="section-dot"></div>
+          <div>COMUNICACIÓN INTERPERSONAL</div>
+        </div>
+        <div class="scale-range-header">
+          <span></span>
+          <span>BAJO</span>
+          <span>PROMEDIO</span>
+          <span>ALTO</span>
+        </div>
+        <div class="rep-scale" id="estilos"></div>
+      </div>
+
+      <!-- ADAPTACIÓN AL CAMBIO -->
+      <div class="scale-section">
+        <div class="section-title">
+          <div class="section-dot"></div>
+          <div>PROPENSIÓN AL CAMBIO</div>
+        </div>
+        <div class="rep-scale" id="cambio"></div>
+        <div class="scale-note-inline">      Menor apertura al cambio       —        Mayor apertura al cambio</div>
+      </div>
+
+      <p class="reporte-pie-adalam reporte-pie-page1">Adalam — Informe Socioemocional · Kids</p>
+      </div>
+      <div class="reporte-acciones-pantalla">
+        <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
+        <a href="index.html" class="btn" style="background:#0f766e;text-decoration:none;color:#fff">Volver al menú</a>
+      </div>
+    </section>
+
+    <!-- ===== PAGE 3 (INTERPRETACIÓN LARGA) ===== -->
+    <section class="page page-interpretacion" id="pageInterpretacion">
+      <div class="rep-top">
+        <div class="rep-top-row1">
+          <div id="repDateLine2" class="rep-date"></div>
+          <div class="rep-top-center">Informe Socioemocional · Kids</div>
+          <div class="rep-top-logo">
+            <img src="assets/logo_adalam.webp" alt="Logotipo" class="mhp-logo">
+          </div>
+        </div>
+        <div class="rep-top-row2"><span>Informe Socioemocional · Kids</span></div>
+        <div class="rep-top-row3">SOCIOEMOCIONAL KIDS – INTERPRETACIÓN</div>
+      </div>
+
+      <h2 class="interp-title">1.- Datos personales.</h2>
+      <div class="rep-ids" id="repHeaderBox2"
+           style="display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:12px;margin-top:4px">
+      </div>
+
+      <h2 class="interp-title">2.- Descripción del instrumento y criterios de interpretación</h2>
+
+      <div class="interp-legend">
+        <div class="interp-legend-row">
+          Este informe corresponde a la evaluación <b>Socioemocional Kids (SOCPEQ)</b> de Adalam: 26 ítems ilustrados para niñas y niños pequeños.
+          Las respuestas se puntúan de forma directa (1–2–3) y se expresan como porcentaje (1 a 100) sin ajuste visual.
+        </div>
+        <div class="interp-legend-row">Para facilitar la lectura se utilizan tres rangos de interpretación:</div>
+        <div class="interp-legend-row">
+          <span class="badge b-red">1–40 · Bajo</span>
+          <span class="badge b-orange">41–70 · Medio</span>
+          <span class="badge b-green">71–100 · Alto</span>
+        </div>
+        <div class="interp-legend-row">
+          El color <b>rojo</b> indica habilidades por acompañar, el <b>amarillo</b> habilidades por fortalecer y el <b>verde</b> habilidades por enriquecer.
+          Un puntaje más alto refleja mayor presencia de la habilidad en casa, escuela y juego (salvo Agresión y Timidez).
+        </div>
+        <div class="interp-legend-row">
+          En las escalas de <b>Agresión</b> y <b>Timidez</b> la interpretación es inversa: puntajes bajos indican mejor manejo; puntajes altos sugieren más apoyo de adultos.
+        </div>
+        <div class="interp-legend-row">
+          El instrumento observa habilidades intrapersonales, interpersonales y para la vida, además de estilos de comunicación y propensión al cambio.
+          Este PDF está pensado para <b>padres, cuidadores y docentes</b>.
+        </div>
+      </div>
+
+      <div id="interpIntra"  class="interp-bloque"></div>
+      <div id="interpInter"  class="interp-bloque"></div>
+      <div id="interpPV"     class="interp-bloque"></div>
+
+      <div id="interpEstilos" class="interp-bloque"></div>
+      <div id="interpCambio"  class="interp-bloque"></div>
+
+      <div id="perfilGlobal" class="interp-bloque"></div>
+      <div id="recomendaciones" class="interp-bloque"></div>
+      <div id="planAccion" class="interp-bloque"></div>
+      <p class="reporte-pie-adalam reporte-pie-page2">Adalam — Interpretación Socioemocional · Kids</p>
+    </section>
+
+    <div class="page-break"></div>
+
+    <!-- ===== PAGE 4 (DETALLE HABILIDADES) ===== -->
+    <section class="page page-2" id="page2">
+      <div class="p2-title">
+        <h2>RESULTADOS GLOBALES</h2>
+      </div>
+
+      <div class="card">
+        <div><b>Contestadas:</b> <span id="contestadasLine">—</span></div>
+
+        <h3 style="margin-top:8px">Por sub-habilidad</h3>
+        <table class="result-table" id="subTable">
+          <thead>
+            <tr>
+              <th>Grupo</th><th>Habilidad</th><th>Ítems</th><th>Puntos</th><th>%</th><th>Rango</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <div class="hint" style="margin-top:6px">
+          Rangos: <span class="badge b-red">1–40</span>
+          <span class="badge b-orange">41–70</span>
+          <span class="badge b-green">71–100</span>
+        </div>
+      </div>
+      <div class="reporte-acciones-pantalla">
+        <button type="button" class="btn" id="btnPDF" style="background:#2563eb">Imprimir / PDF</button>
+        <a href="index.html" class="btn" style="background:#0f766e;text-decoration:none;color:#fff">Volver al menú</a>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  const REPORT_PRODUCT_KEY = "SOCPEQ";
+  const REPORT_UI_LANG = "ES";
+  const $ = sel => document.querySelector(sel);
+  function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
+  function normalizeName(name){ return (name||"").replace(/\s+/g," ").trim().toLowerCase(); }
+
+  // Alias de nombres de bloques: permite que el reporte muestre los NUEVOS títulos,
+  // pero siga encontrando los datos aunque vengan con nombres anteriores en la BD/API.
+  const BLOQUE_ALIAS = {
+    // Nuevos -> antiguos (normalizados)
+    "desarrollo personal": "habilidades intrapersonales",
+    "vínculos interpersonales": "habilidades interpersonales",
+    "vinculos interpersonales": "habilidades interpersonales",
+    "competencias para la vida": "habilidades para la vida",
+    "comunicación interpersonal": "estilos de comunicación interpersonal",
+    "comunicacion interpersonal": "estilos de comunicación interpersonal",
+    "adaptación al cambio": "propensión al cambio",
+    "adaptacion al cambio": "propensión al cambio"
+  };
+
+  function canonBloque(name){
+    const n = normalizeName(name);
+    return BLOQUE_ALIAS[n] || n;
+  }
+
+
+  const DISPLAY = {
+    bloque: {
+      "desarrollo personal": "DESARROLLO PERSONAL",
+      "vínculos interpersonales": "VÍNCULOS INTERPERSONALES",
+      "competencias para la vida": "HABILIDADES PARA LA VIDA",
+      "estilos de comunicación interpersonal": "COMUNICACIÓN INTERPERSONAL",
+      "propensión al cambio": "PROPENSIÓN AL CAMBIO",
+
+      "habilidades intrapersonales": "DESARROLLO PERSONAL",
+    "habilidades interpersonales": "VÍNCULOS INTERPERSONALES",
+    "habilidades para la vida": "HABILIDADES PARA LA VIDA"
+    },
+    sub: {}
+  };
+  // sub mapping (normalizado, sin tildes) construido en runtime:
+  (function(){
+    const src = {"autoestima": "Autoestima", "manejo de la tension": "Manejo del estrés", "manejo de la tensión": "Manejo del estrés", "manejo del estres": "Manejo del estrés", "manejo del estrés": "Manejo del estrés", "bienestar fisico": "Bienestar físico", "bienestar físico": "Bienestar físico", "asertividad": "Asertividad", "conciencia de los demas": "Conciencia de los demás", "conciencia de los demás": "Conciencia de los demás", "empatia": "Empatía", "empatía": "Empatía", "motivacion": "Motivación", "motivación": "Motivación", "compromiso": "Compromiso", "administracion del tiempo": "Administración del tiempo", "administración del tiempo": "Administración del tiempo", "toma de decisiones": "Toma de decisiones", "toma de desiciones": "Toma de decisiones", "liderazgo": "Liderazgo", "agresion": "Agresión", "agresión": "Agresión", "timidez": "Timidez", "propensión al cambio": "Propensión al cambio", "propension al cambio": "Propensión al cambio"};
+    const strip = s => (s||"").normalize("NFD").replace(/\p{Diacritic}/gu,"");
+    for (const [k,v] of Object.entries(src)) {
+      DISPLAY.sub[k] = v;
+    }
+    DISPLAY._strip = strip;
+  })();
+function dispBloque(name){
+  const canon = canonBloque(name);      // convierte lo que venga a nombre canónico (BD)
+  return DISPLAY.bloque[canon] || name; // devuelve el nombre NUEVO si existe
+}
+
+  function dispSub(name){
+    const strip = DISPLAY._strip;
+    const k = strip(normalizeName(name));
+    return DISPLAY.sub[k] || name;
+  }
+
+  /* Ajuste visual -10 (solo visual, no BD) */
+  const SCORE_ADJUST = { ENABLED:false, OFFSET:10, APPLY_TO_RISK:true };
+  function isRiskScale(bloqueNorm, subNorm){
+    const b = canonBloque(bloqueNorm || "");
+    const s = normalizeName(subNorm || "");
+    return (b === normalizeName("estilos de comunicación interpersonal") && (s === "agresión" || s === "timidez"));
+  }
+  function adjScore(v, {bloqueNorm=null, subNorm=null}={}){
+    const n = Number(v);
+    if(!Number.isFinite(n)) return v;
+    if(n<=0) return n;
+    if(!SCORE_ADJUST.ENABLED) return Math.round(n);
+    if(isRiskScale(bloqueNorm||"", subNorm||"") && !SCORE_ADJUST.APPLY_TO_RISK){
+      return clamp(Math.round(n),1,100);
+    }
+    return clamp(Math.round(n - SCORE_ADJUST.OFFSET),1,100);
+  }
+
+  function rangoBadge(p){
+    if (p<=40) return {txt:"1–40 Por desarrollar", cls:"b-red"};
+    if (p<=70) return {txt:"41–70 Por fortalecer", cls:"b-orange"};
+    return {txt:"71–100 Por enriquecer", cls:"b-green"};
+  }
+  function rangoBadgeRiesgo(p){
+    if (p<=40) return {txt:"1–40 Bajo riesgo", cls:"b-green"};
+    if (p<=70) return {txt:"41–70 Riesgo medio", cls:"b-orange"};
+    return {txt:"71–100 Riesgo alto", cls:"b-red"};
+  }
+
+  function highlightIV(rowId, colIndex){
+    const row = document.getElementById(rowId);
+    if(!row) return;
+    [...row.children].forEach(td=>td.classList.remove("hl"));
+    const idx = Math.max(1, Math.min(3, colIndex|0));
+    const td = row.children[idx];
+    if(td) td.classList.add("hl");
+  }
+
+  function ivToCol(v){
+    if (v === null || v === undefined) return 2;
+    const n = Number(v);
+    if (!Number.isNaN(n)){
+      if (n === 0 || n === 1 || n === 2) return n + 1;
+      if (Number.isInteger(n) && n>=1 && n<=3) return n;
+      if (n >= 0 && n <= 100){
+        if (n >= 71) return 1;
+        if (n >= 41) return 2;
+        return 3;
+      }
+    }
+    const s = String(v).toLowerCase();
+    if (s.includes("no se contradice") || s.includes("tomó el tiempo adecuado") || s.includes("tiempo adecuado")) return 1;
+    if (s.includes("se contradice frecuentemente") || s.includes("demasiado lento")) return 3;
+    return 2;
+  }
+
+  function drawBellCurve(){
+    const path = document.getElementById("bellPath");
+    const fill = document.getElementById("bellFill");
+    if(!path || !fill) return;
+    const left=10, right=510, baseY=100, topY=18;
+    const mid=(left+right)/2, sigma=90;
+    const pts=[];
+    for(let x=left; x<=right; x+=5){
+      const z=(x-mid)/sigma;
+      const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
+      pts.push([x,y]);
+    }
+    let d=`M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+    for(let i=1;i<pts.length;i++) d += ` L${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}`;
+    path.setAttribute("d", d);
+    const df = d + ` L${right} ${baseY} L${left} ${baseY} Z`;
+    fill.setAttribute("d", df);
+  }
+function setCurveMarker(iie){
+  const score = clamp(Number(iie) || 0, 1, 100);
+
+  const wrap = document.querySelector(".curve .curve-gauge");
+  const img  = document.getElementById("freqCurveImg");
+  const mk   = document.getElementById("curveMarker");
+  if(!wrap || !img || !mk) return;
+
+  const place = () => {
+    const rW = wrap.getBoundingClientRect();
+    const rI = img.getBoundingClientRect();
+
+    // Tamaño real dibujado dentro del <img> (por object-fit:contain)
+    const natW = img.naturalWidth  || 1;
+    const natH = img.naturalHeight || 1;
+
+    const scale  = Math.min(rI.width / natW, rI.height / natH);
+    const drawnW = natW * scale;
+
+    // offset X dentro del <img> (centrado por contain)
+    const offsetXInsideImg = (rI.width - drawnW) / 2;
+
+    // X relativo al contenedor .curve-gauge
+    const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+
+    // Calibración horizontal (márgenes de la "regla" dentro de la imagen)
+    const padL = drawnW * 0.12;   // 0% (ajuste fino)
+    const padR = drawnW * 0.22;   // 100% (ajuste fino)
+
+    const minX = leftInWrap + padL;
+    const maxX = leftInWrap + drawnW - padR;
+
+    const t = (score - 1) / 99; // 1..100 -> 0..1 exacto
+
+    // X (horizontal)
+    let x = minX + t * (maxX - minX);
+    x = Math.max(minX, Math.min(maxX, x));
+
+    // Y (vertical): regla inclinada (toque mágico)
+    // Ajusta estos dos valores UNA VEZ:
+    // - bottomAt0: dónde toca la regla cuando score≈1 (lado 0%)
+    // - bottomAt100: dónde toca la regla cuando score≈100 (lado 100%)
+    const bottomAt0 = 94;    // px
+    const bottomAt100 = 30;  // px
+    const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+
+    // Porcentajes respecto a .curve-gauge: al imprimir/PDF el zoom cambia el layout;
+    // los px fijos quedan desalineados; los % escalan con el mismo contenedor que la imagen.
+    const w = rW.width || 1;
+    const h = rW.height || 1;
+    mk.style.left = `${(x / w) * 100}%`;
+    mk.style.bottom = `${(y / h) * 100}%`;
+  };
+
+  // Asegura que se calcule cuando ya hay layout + imagen lista
+  if (img.complete) {
+    requestAnimationFrame(place);
+  } else {
+    img.addEventListener("load", () => requestAnimationFrame(place), { once:true });
+  }
+}
+
+  function addRow(container, name, pct){
+    const row=document.createElement('div');
+    row.style.display='grid';
+    row.style.gridTemplateColumns='220px 1fr 1fr 1fr';
+    row.style.alignItems='center';
+    row.style.gap='6px';
+    row.style.margin='2px 0';
+
+    const nameCell=document.createElement('div');
+    nameCell.textContent=dispSub(name);
+    nameCell.style.fontWeight='700';
+    nameCell.style.fontSize='12px';
+    row.appendChild(nameCell);
+
+    for(let i=0;i<3;i++){ 
+      const track=document.createElement('div');
+      track.style.position='relative';
+      track.style.height='14px';
+      track.style.border='1px solid #aab';
+      track.style.borderRadius='4px';
+      track.style.background='#f3f5f8';
+      track.style.overflow='hidden';
+
+      const fill=document.createElement('div');
+      fill.style.position='absolute';
+      fill.style.left='0';
+      fill.style.top='0';
+      fill.style.bottom='0';
+      fill.style.background='#6b7280';
+
+      let w=0;
+      if(i===0 && pct<=40)  w = Math.max(2, Math.round((pct/40)*100));
+      if(i===1 && pct>40 && pct<=70) w = Math.max(2, Math.round(((pct-40)/30)*100));
+      if(i===2 && pct>70)  w = Math.max(2, Math.round(((pct-70)/30)*100));
+      fill.style.width = w + '%';
+      track.appendChild(fill);
+      row.appendChild(track);
+    }
+    container.appendChild(row);
+  }
+
+  function buildBloque(containerId, subRows, bloqueNombre){
+    const cont = document.getElementById(containerId);
+    if(!cont) return;
+    cont.innerHTML = '';
+
+    const cols = document.createElement('div');
+    cols.style.display='grid';
+    cols.style.gridTemplateColumns='220px 1fr 1fr 1fr';
+    cols.style.gap='6px';
+    cols.style.marginBottom='6px';
+
+    const blank=document.createElement('div');
+    cols.appendChild(blank);
+
+    ['POR DESARROLLAR','POR FORTALECER','POR ENRIQUECER'].forEach(t=>{
+      const d=document.createElement('div');
+      d.style.fontSize='11px';
+      d.style.textAlign='center';
+      d.style.color='#374151';
+      d.textContent=t;
+      cols.appendChild(d);
+    });
+    cont.appendChild(cols);
+
+    const bloqueKey = canonBloque(bloqueNombre);
+    const ordenes = {
+      "habilidades intrapersonales": ["Autoestima","Bienestar físico","Manejo de la tensión"],
+      "habilidades interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
+      "habilidades para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de decisiones","Liderazgo"]
+    };
+
+    let rowsFiltradas = (subRows||[]).filter(r=> canonBloque(r.bloque||r.block||"")===bloqueKey);
+
+    const orden = ordenes[bloqueKey];
+    if (orden){
+      rowsFiltradas.sort((a,b)=>{
+        const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
+        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
+        const ia = orden.findIndex(x=> x.toLowerCase()===nameA);
+        const ib = orden.findIndex(x=> x.toLowerCase()===nameB);
+        if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
+        if (ia===-1) return 1;
+        if (ib===-1) return -1;
+        return ia-ib;
+      });
+    }
+
+    rowsFiltradas.forEach(r=>{
+      const sub = r.subhabilidad || r.sub || r.nombre || "";
+      const pctRaw = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
+      const pct = adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeName(sub)});
+      addRow(cont, sub, pct);
+    });
+  }
+
+  function renderBars(containerId, items, showNote){
+    const host = document.getElementById(containerId);
+    if (!host) return;
+    host.innerHTML = "";
+    const wrap = document.createElement("div");
+    wrap.className = "bars-wrap";
+
+    items.forEach(it => {
+      const row = document.createElement("div");
+      row.className = "bars-row";
+
+      // Separación visual entre Agresión y Timidez
+      if (it.label === "TIMIDEZ") {
+        row.style.marginTop = "20px";
+      }
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = it.label + " (10–100)";
+      row.appendChild(label);
+
+      const slot = document.createElement("div");
+      slot.className = "bars-slot";
+
+      [10,40,70,100].forEach(v => {
+        const pct = (v - 10) / 90 * 100;
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        tick.style.left = pct + "%";
+        slot.appendChild(tick);
+
+        const tLabel = document.createElement("div");
+        tLabel.className = "tick-label";
+        tLabel.style.left = pct + "%";
+        tLabel.textContent = v;
+        slot.appendChild(tLabel);
+      });
+
+      const marker = document.createElement("div");
+      marker.className = "marker";
+      marker.id = it.id;
+      marker.style.display = "none";
+      slot.appendChild(marker);
+
+      row.appendChild(slot);
+      wrap.appendChild(row);
+    });
+
+    host.appendChild(wrap);
+
+    // Nota SOLO para la Página 1 (no alertas rojas aquí)
+    if (showNote) {
+      const note = document.createElement("div");
+      note.className = "scale-note-inline";
+      note.textContent = "Un puntaje bajo indica mejor manejo en estas áreas.";
+      host.appendChild(note);
+    }
+  }
+
+  function setMarker(id, val){
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(val==null || isNaN(val)) { el.style.display="none"; return; }
+    const pct = (clamp(val,10,100)-10)/90*100;
+    el.style.left = pct + "%";
+    el.style.display="block";
+  }
+
+  function renderPage2(subRows){
+    const subT = document.querySelector("#subTable tbody");
+    subT.innerHTML = "";
+    (subRows||[]).forEach(r=>{
+      const bloque = r.bloque || r.block || "";
+      const sub = r.subhabilidad || r.sub || "";
+      const items = r.items ?? r.n_items ?? "";
+      const puntos = r.puntos ?? r.points ?? r.pts ?? "";
+      const pctRaw = Math.round(r.percent ?? r.pct ?? 0);
+
+      const bloqueNorm = canonBloque(bloque);
+      const subNorm = normalizeName(sub);
+
+      const pct = adjScore(pctRaw, {bloqueNorm, subNorm});
+
+      let badge;
+      if (isRiskScale(bloqueNorm, subNorm)) badge = rangoBadgeRiesgo(pct);
+      else badge = rangoBadge(pct);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${dispBloque(bloque)}</td>
+        <td>${dispSub(sub)}</td>
+        <td>${items}</td>
+        <td>${puntos}</td>
+        <td><b>${pct}%</b></td>
+        <td><span class="badge ${badge.cls}">${badge.txt}</span></td>
+      `;
+      subT.appendChild(tr);
+    });
+  }
+
+  function findSubPct(subRows, bloqueNombre, subNombre){
+    const bloqueKey = canonBloque(bloqueNombre);
+    const subKey = normalizeName(subNombre);
+    const row = (subRows || []).find(r =>
+      canonBloque(r.bloque || r.block || "") === bloqueKey &&
+      normalizeName(r.subhabilidad || r.sub || r.nombre || "") === subKey
+    );
+    if(!row) return null;
+    const vRaw = Number(row.percent ?? row.pct ?? row.porcentaje ?? row.value);
+    if(Number.isNaN(vRaw)) return null;
+    return adjScore(vRaw, {bloqueNorm: bloqueKey, subNorm: subKey});
+  }
+
+  const BLOQUE_DESCS = {
+    desarrollo: "El desarrollo personal en peques mira cómo el niño o la niña se siente consigo, cuida su cuerpo y se calma cuando algo le cuesta. Se observa en casa, en la escuela y en el juego.",
+    vinculos: "Los vínculos interpersonales agrupan cómo se relaciona con otras personas: pedir con respeto, notar cómo están los demás y ayudar con cariño.",
+    competencias: "Las habilidades para la vida son hábitos pequeños del día a día: terminar lo empezado, cumplir promesas, guardar cosas, elegir entre opciones y ayudar a organizar un juego.",
+    comunicacion: "La comunicación interpersonal describe estilos de reacción. En Agresión y Timidez la lectura es inversa: puntajes bajos sugieren mejor manejo; puntajes altos piden más acompañamiento de adultos.",
+    adaptacion: "La propensión al cambio mira si el niño o la niña acepta con más facilidad planes nuevos, personas nuevas o rutinas distintas, con apoyo de casa y escuela."
+  };
+
+  const HABILIDAD_DESCS = {
+    "Autoestima": "Cómo se siente consigo mismo o consigo misma: si se quiere, se anima y se recupera cuando se equivoca.",
+    "Bienestar físico": "Cuidado básico del cuerpo: dormir, alimentarse y notar cuando necesita descanso o movimiento.",
+    "Manejo del estrés": "Capacidad de calmarse cuando hay nervios, frustración o algo sale mal, con ayuda de un adulto si hace falta.",
+    "Manejo de Estrés": "Capacidad de calmarse cuando hay nervios, frustración o algo sale mal, con ayuda de un adulto si hace falta.",
+    "Asertividad": "Decir lo que necesita o siente con respeto, sin gritar ni quedarse callado cuando es importante.",
+    "Conciencia de los demás": "Notar cómo se sienten otras personas (triste, enojado, contento) y escuchar cuando hablan.",
+    "Empatía": "Importarle el sentir de los demás y ofrecer ayuda sencilla cuando alguien lo necesita.",
+    "Motivación": "Ganas de empezar, seguir e intentar cosas nuevas aunque cuesten un poco.",
+    "Compromiso": "Cumplir lo que promete y sostener acuerdos pequeños en casa o en la escuela.",
+    "Administración del tiempo": "Ordenar y guardar cosas al terminar, y seguir una rutina breve del día.",
+    "Toma de decisiones": "Elegir entre dos opciones simples y aceptar la consecuencia de esa elección.",
+    "Liderazgo": "Ayudar a empezar o a organizar un juego o actividad en el grupo, con amabilidad.",
+    "Agresión": "Tendencia a reaccionar con golpes, gritos o empujones cuando se enoja (puntaje alto = más apoyo).",
+    "Timidez": "Tendencia a callarse o evitar hablar/pedir ayuda por miedo o vergüenza (puntaje alto = más apoyo).",
+    "Propensión al cambio": "Apertura a planes, lugares o personas nuevas, con acompañamiento adulto.",
+    "Adaptación al cambio": "Apertura a planes, lugares o personas nuevas, con acompañamiento adulto."
+  };
+
+  const DATA_BLOQUE_POR_TITULO = {
+    "DESARROLLO PERSONAL": "Habilidades intrapersonales",
+    "VINCULOS INTERPERSONALES": "Habilidades interpersonales",
+    "HABILIDADES PARA LA VIDA": "Habilidades para la vida",
+    "COMUNICACIÓN INTERPERSONAL": "Estilos de comunicación interpersonal",
+    "ADAPTACIÓN AL CAMBIO": "Propensión al cambio"
+  };
+
+
+  const SUB_DISPLAY = {
+    "Autoestima": "Autoestima",
+    "Bienestar físico": "Bienestar físico",
+    "Manejo de la Tensión": "Manejo del estrés",
+    "Manejo de la tensión": "Manejo del estrés",
+    "Manejo del estrés": "Manejo del estrés",
+    "Asertividad": "Asertividad",
+    "Conciencia de los demás": "Conciencia de los demás",
+    "Empatía": "Empatía",
+    "Motivación": "Motivación",
+    "Compromiso": "Compromiso",
+    "Administración del tiempo": "Administración del tiempo",
+    "Toma de Decisiones": "Toma de decisiones",
+    "Toma de decisiones": "Toma de decisiones",
+    "Liderazgo": "Liderazgo",
+    "Agresión": "Agresión",
+    "Timidez": "Timidez",
+    "Propensión al cambio": "Propensión al cambio"
+  };
+
+  function dispSub(n){
+    const key = (n||"").trim();
+    return SUB_DISPLAY[key] || key;
+  }
+
+  function renderSkillRow(parent, nombre, pct){
+    const row = document.createElement("div");
+    row.className = "skill-row";
+
+    const title = document.createElement("div");
+    title.className = "skill-row-title";
+    const numeric = (pct != null && !Number.isNaN(Number(pct))) ? Math.round(pct) : null;
+    const nombreDisp = dispSub(nombre);
+    const isAggOrTim = (nombreDisp === "Agresión" || nombreDisp === "Timidez");
+
+    title.textContent = numeric != null ? `${nombreDisp} (Puntaje: ${numeric}/100)` : nombreDisp;
+    row.appendChild(title);
+let shouldAlert = false;
+if (numeric != null){
+  shouldAlert = isAggOrTim ? (numeric >= 71) : (numeric <= 40);
+}
+
+    const descTxt =
+  HABILIDAD_DESCS[nombreDisp] ||
+  HABILIDAD_DESCS[nombre] ||
+  HABILIDAD_DESCS[Object.keys(SUB_DISPLAY).find(k => SUB_DISPLAY[k] === nombre)] ||
+  "";
+
+    if(descTxt){
+      const desc = document.createElement("div");
+      desc.className = "skill-row-desc";
+      desc.textContent = descTxt;
+      row.appendChild(desc);
+    }
+
+    const bar = document.createElement("div");
+    bar.className = "skill-bar";
+
+    const track = document.createElement("div");
+    track.className = "skill-bar-track";
+
+    if (isAggOrTim){
+      track.style.background =
+        "linear-gradient(to right,var(--green) 0%, var(--green) 40%,var(--orange) 40%, var(--orange) 70%,var(--red) 70%, var(--red) 100%)";
+    }
+
+    const marker = document.createElement("div");
+    marker.className = "skill-bar-marker";
+    if(numeric == null) marker.style.display = "none";
+    else marker.style.left = clamp(numeric,1,100) + "%";
+    track.appendChild(marker);
+
+    const value = document.createElement("div");
+    value.className = "skill-bar-value";
+    value.textContent = numeric != null ? `${numeric} / 100` : "—";
+
+    bar.appendChild(track);
+    bar.appendChild(value);
+    row.appendChild(bar);
+if (shouldAlert){
+  const al = document.createElement("div");
+  al.className = "skill-row-alert";
+  al.textContent = isAggOrTim
+    ? "Atención: puntaje elevado — conviene más acompañamiento en casa y escuela."
+    : "Atención: puntaje bajo — practicar actividades cortas en casa, escuela y juego.";
+  row.appendChild(al);
+}
+
+    parent.appendChild(row);
+  }
+
+  function nivelFromPct(p){
+    if(p == null || Number.isNaN(p)) return "medio";
+    if(p <= 40) return "bajo";
+    if(p <= 70) return "medio";
+    return "alto";
+  }
+  function escapeHtml(s){
+  return String(s ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
+
+// Normaliza textos del plan para que estén en lenguaje completo (sin abreviaciones confusas)
+function textoPlanClaro(s){
+  let t = String(s ?? "");
+
+  // Normaliza separadores comunes
+  t = t.replace(/\s+/g, " ").trim();
+
+  // Expande abreviaciones frecuentes (solo cuando aparecen como palabra completa o en formatos típicos)
+  t = t
+    .replace(/\bsem\b/gi, "semana")
+    .replace(/\bsemanal\b/gi, "semanal")
+    .replace(/\bquincenal\b/gi, "quincenal")
+    .replace(/\bmensual\b/gi, "mensual")
+    .replace(/\bmin\b/gi, "minutos")
+    .replace(/\bmins\b/gi, "minutos")
+    .replace(/\bhr\b/gi, "hora")
+    .replace(/\bRRHH\b/gi, "equipo de apoyo");
+
+  // Formatos tipo "2 veces/sem" o "2/sem"
+  t = t
+    .replace(/\b(\d+)\s*veces\s*\/\s*sem\b/gi, "$1 veces por semana")
+    .replace(/\b(\d+)\s*\/\s*sem\b/gi, "$1 por semana")
+    .replace(/\b(\d+)\s*\/\s*min\b/gi, "$1 minutos");
+
+  // Evita dobles espacios (por reemplazos)
+  t = t.replace(/\s{2,}/g, " ").trim();
+  return t;
+}
+
+
+function nivelFromPctInv(p, invert=false){
+  if(p == null || Number.isNaN(p)) return "medio";
+  const v = Math.round(p);
+
+  if(!invert){
+    if(v <= 40) return "bajo";
+    if(v <= 70) return "medio";
+    return "alto";
+  }else{
+    // invertido para Timidez/Agresión: alto es “peor” (prioridad)
+    if(v <= 40) return "alto";
+    if(v <= 70) return "medio";
+    return "bajo";
+  }
+}
+
+function pctTxt(p){
+  return (p==null || Number.isNaN(p)) ? "—" : `${Math.round(p)}/100`;
+}
+
+  const RECOM_BLOQUES = {
+    intra: {
+  bajo: [
+    "En casa (5–10 min): al final del día, el adulto dice 1 logro concreto del niño/a (‘hoy guardaste tus zapatos’) y 1 frase de cariño. Repetir 4 noches por semana.",
+    "En casa/juego: cuando haya nervios, practicar 1 minuto de respiración juntos (inhalar–exhalar lento) y luego un abrazo o vaso de agua. 3 veces por semana.",
+    "En la escuela: el docente refuerza en voz baja 1 esfuerzo real por día (‘sí lo intentaste’). Seguimiento: familia y escuela se cuentan 1 avance el viernes."
+  ],
+  medio: [
+    "En casa: rutina breve de 5 minutos (ordenar un rincón + preparar la mochila o el abrigo). 4 días por semana.",
+    "Antes de una actividad difícil, dividirla en 2 pasos y empezar solo por el primero, con un adulto cerca. 2 veces por semana."
+  ],
+  alto: [
+    "Elegir una meta chiquita de 2 semanas (por ejemplo: guardar juguetes 4 noches) y celebrar cada ✓ con una frase concreta.",
+    "Una vez por semana, pedir al niño/a que cuente a un adulto qué le ayudó a calmarse o a sentirse bien."
+  ]
+},
+inter: {
+  bajo: [
+    "En casa: practicar 2 frases amables (‘por favor’, ‘gracias’, ‘yo necesito…’) en un juego de 5 minutos. 2 veces por semana.",
+    "En casa: después de un roce, hablar 3 minutos: qué pasó, cómo se sintió el otro, qué se puede decir con respeto.",
+    "En la escuela: turnos de palabra visibles (mano levantada / objeto que habla). Seguimiento: 1 situación real revisada por semana."
+  ],
+  medio: [
+    "En juego: 5–10 minutos de escucha (‘tú hablas, yo repito lo que entendí’). 2 veces por semana.",
+    "En casa/escuela: reconocer en voz alta 1 conducta amable de otra persona (esperar, ayudar, compartir)."
+  ],
+  alto: [
+    "Dar un rol breve de ayuda en el grupo (repartir hojas, cuidar turnos) 1 vez por semana y agradecerlo.",
+    "Invitar a invitar a un compañero a un juego corto y practicar incluir a alguien nuevo."
+  ]
+},
+vida: {
+  bajo: [
+    "En casa: lista visual de 2 tareas del día (dibujos o pegatinas). Marcar ✓ al terminar. 4 días por semana.",
+    "Juego de 5 minutos: elegir entre 2 opciones (‘rojo o azul’, ‘cuento o canción’) y respetar la elección.",
+    "Meta semanal chiquita (por ejemplo: guardar la lonchera 3 días). Revisar el viernes con un adulto."
+  ],
+  medio: [
+    "Bloque de juego/estudio de 8–10 minutos con un solo foco; luego pausa de 2 minutos. 2–3 veces por semana.",
+    "Encargo pequeño con supervisión (llevar un mensaje, repartir materiales) 1 vez por semana."
+  ],
+  alto: [
+    "Mantener un encargo fijo semanal en casa o aula (regar una planta, ordenar un estante) y registrar si se cumplió.",
+    "Proyecto de 3 pasos en el juego (preparar, jugar, guardar) y marcar cada paso."
+  ]
+}
+};
+    const PLAN_ACCION_NIVEL = {
+"DESARROLLO PERSONAL": {
+  bajo: { esc: {
+      objetivo: "Fortalecer cariño hacia sí mismo, calma y cuidados básicos en casa y escuela durante 2–3 semanas.",
+      acciones: [
+        "En casa (5 min/noche, 5 días): decir 1 logro concreto + 1 frase de afecto. El niño/a puede pegar una estrella en un calendario.",
+        "Cuando haya frustración: adulto guía 1 minuto de respiración y luego el primer pasito de la actividad (abrir el libro, juntar piezas).",
+        "En la escuela: 1 refuerzo diario de esfuerzo (‘hoy sí pediste ayuda’). Familia y docente se cuentan 1 avance el viernes."
+      ],
+      indicador: "4 noches con logro+cariño y 3 pausas de calma por semana.",
+      revision: "Revisión suave de 5–10 minutos con un cuidador o docente: qué sí se hizo y qué se prueba la próxima semana."
+    }, pro: null },
+  medio: { esc: {
+      objetivo: "Sostener rutinas cortas de orden, descanso y calma en la semana.",
+      acciones: [
+        "Rutina de 5–10 min: ordenar un rincón + preparar algo para mañana. 4 días.",
+        "2 veces/semana: antes de algo difícil, respirar 1 minuto y hacer solo el primer paso.",
+        "Acordar una hora aproximada de dormir 4 noches y reducir pantallas 15–20 min antes."
+      ],
+      indicador: "4 rutinas breves + 2 pausas antes de tareas difíciles por semana.",
+      revision: "Revisión quincenal en familia: qué hábito costó más y cuál se mantiene."
+    }, pro: null },
+  alto: { esc: {
+      objetivo: "Enriquecer autonomía y ejemplo positivo en casa y juego.",
+      acciones: [
+        "Meta de 2 semanas en 4 pasos chiquitos (guardar, intentar, pedir ayuda, celebrar).",
+        "1 vez/semana: contar a un adulto qué le ayudó a sentirse bien o a calmarse.",
+        "Cada 2 semanas: dibujar o decir qué le funcionó y qué quiere probar."
+      ],
+      indicador: "Al menos 3 de 4 pasos cumplidos y 1 ejemplo semanal contado en voz alta.",
+      revision: "Revisión quincenal breve con cuidador/docente."
+    }, pro: null }
+},
+"VINCULOS INTERPERSONALES": {
+  bajo: { esc: {
+      objetivo: "Practicar frases respetuosas, escucha y reparación breve en casa y escuela.",
+      acciones: [
+        "Juego de 5–10 min (2 veces/semana): practicar ‘por favor / gracias / yo necesito…’.",
+        "Después de un roce: 3 minutos con un adulto — qué pasó, cómo se sintió el otro, qué se dice con respeto.",
+        "En aula: turnos de palabra; 1 situación real revisada por semana."
+      ],
+      indicador: "2 prácticas de frases + 1 reparación guiada por semana.",
+      revision: "Revisión semanal de 5–10 minutos con familia o docente."
+    }, pro: null },
+  medio: { esc: {
+      objetivo: "Sostener escucha, cooperación y límites amables.",
+      acciones: [
+        "2 conversaciones/juego de 5–10 min: repetir ‘lo que entendí fue…’.",
+        "Reconocer 2 conductas amables ajenas por semana.",
+        "1 rol cooperativo breve (repartir, cuidar turnos) por semana."
+      ],
+      indicador: "2 escuchas + 2 reconocimientos + 1 rol semanal.",
+      revision: "Revisión quincenal suave."
+    }, pro: null },
+  alto: { esc: {
+      objetivo: "Ampliar ayuda y liderazgo amable en el grupo.",
+      acciones: [
+        "1 vez/semana: ayudar 5–10 min a un compañero o hermano en un juego o tarea.",
+        "Proponer una regla amable del juego (‘hablamos por turnos’).",
+        "Incluir a alguien nuevo en un juego corto."
+      ],
+      indicador: "1 ayuda + 1 regla amable por semana.",
+      revision: "Revisión mensual breve."
+    }, pro: null }
+},
+"HABILIDADES PARA LA VIDA": {
+  bajo: { esc: {
+      objetivo: "Fortalecer orden, elecciones simples y metas chiquitas.",
+      acciones: [
+        "Lista visual de 2 tareas del día con ✓. 4 días/semana (5–10 min).",
+        "Juego de elección entre 2 opciones 1 vez/semana.",
+        "Meta semanal medible (guardar lonchera 3 días) y revisar el viernes."
+      ],
+      indicador: "4 días con lista + 1 decisión + 1 meta revisada.",
+      revision: "Revisión semanal de 5–10 minutos."
+    }, pro: null },
+  medio: { esc: {
+      objetivo: "Sostener foco breve e iniciativas pequeñas.",
+      acciones: [
+        "Bloque de 8–10 min en una sola actividad + pausa 2 min. 2–3 veces/semana.",
+        "1 encargo supervisado por semana.",
+        "Reprogramar 1 pendiente con día concreto."
+      ],
+      indicador: "2 bloques + 1 encargo + 1 pendiente reprogramado.",
+      revision: "Revisión quincenal."
+    }, pro: null },
+  alto: { esc: {
+      objetivo: "Ampliar responsabilidades chiquitas y proyectos de juego.",
+      acciones: [
+        "Encargo fijo semanal (planta, estante) con fecha.",
+        "Proyecto de 3 pasos: preparar–hacer–guardar.",
+        "Al terminar: decir 1 cosa que salió bien y 1 para la próxima."
+      ],
+      indicador: "1 encargo + 1 proyecto de 3 pasos por semana.",
+      revision: "Revisión mensual."
+    }, pro: null }
+},
+"TIMIDEZ": {
+  bajo: { esc: {
+      objetivo: "Bajar la evitación con saludos y frases cortas, sin forzar.",
+      acciones: [
+        "Cada día: 1 interacción breve (saludar, pedir, dar las gracias) con ✓.",
+        "2 veces/semana: practicar 5 min 2 frases (‘¿me ayudas?’, ‘gracias’).",
+        "Usar un ‘compañero puente’ o adulto de confianza en situaciones difíciles."
+      ],
+      indicador: "5 interacciones breves + 2 prácticas de frases por semana.",
+      revision: "Revisión semanal suave: qué sí hizo y qué sigue."
+    }, pro: null },
+  medio: { esc: {
+      objetivo: "Sostener participación breve en casa y aula.",
+      acciones: [
+        "3 participaciones cortas por semana (responder, leer una línea, pedir).",
+        "Usar 2 frases preparadas en situaciones reales.",
+        "Lista de 3 frases de inicio en un papelito."
+      ],
+      indicador: "3 participaciones + 2 frases usadas.",
+      revision: "Revisión quincenal."
+    }, pro: null },
+  alto: { esc: {
+      objetivo: "Mantener seguridad al hablar sin presión.",
+      acciones: [
+        "1 participación voluntaria breve por semana.",
+        "Opcional: rol chiquito de comunicación si se siente listo.",
+        "Cuidar sueño y rutina básica."
+      ],
+      indicador: "1 participación breve sostenida por semana.",
+      revision: "Revisión mensual."
+    }, pro: null }
+},
+"AGRESION": {
+  bajo: { esc: {
+      objetivo: "Frenar reacciones fuertes y practicar pausa + palabras.",
+      acciones: [
+        "Secuencia: callar, respirar 4 veces, esperar 1 minuto. Marcar ✓ (3 veces/semana).",
+        "Hoja de 3 detonantes + frase puente (‘necesito un minuto’).",
+        "1 conflicto revisado con un adulto: qué pasó y qué se dice sin gritar."
+      ],
+      indicador: "3 pausas + hoja de frases + 1 revisión semanal.",
+      revision: "Revisión semanal de 5–10 minutos."
+    }, pro: null },
+  medio: { esc: {
+      objetivo: "Detectar señales tempranas y usar límites respetuosos.",
+      acciones: [
+        "2 veces/semana: notar señal (voz alta, puños) y pausar/tomar agua.",
+        "Practicar 2 frases de límite (‘hablemos sin gritar’).",
+        "1 reparación breve por semana."
+      ],
+      indicador: "2 pausas + 2 frases + 1 reparación.",
+      revision: "Revisión quincenal."
+    }, pro: null },
+  alto: { esc: {
+      objetivo: "Mantener calma y modelar acuerdos en el juego.",
+      acciones: [
+        "1 situación semanal manejada con voz baja.",
+        "Registrar qué ayudó a calmarse.",
+        "Ayudar a recordar una regla amable del grupo."
+      ],
+      indicador: "1 situación calmada + 1 registro semanal.",
+      revision: "Revisión mensual."
+    }, pro: null }
+}
+};
+// fill pro = esc
+(function(){
+  Object.keys(PLAN_ACCION_NIVEL).forEach(k=>{
+    ["bajo","medio","alto"].forEach(n=>{
+      const pack = PLAN_ACCION_NIVEL[k][n];
+      if (pack && pack.esc && !pack.pro) pack.pro = pack.esc;
+    });
+  });
+})();
+const PLAN_ROLES_NIVEL = {
+"DESARROLLO PERSONAL": {
+  bajo: { esc: {
+      hogar: [
+        "Rutina visible de 3 momentos (despertar, juego/tarea, descanso). Revisar 5 min al final del día.",
+        "Antes de algo difícil: 1–2 min de respiración y solo el primer paso."
+      ],
+      aula: [
+        "Pausa breve de 1 minuto antes de actividades exigentes.",
+        "2 comentarios concretos de esfuerzo por semana."
+      ],
+      apoyo: [
+        "Registro semanal simple: emoción – situación – qué ayudó.",
+        "Micro-meta semanal chiquita y revisión el viernes."
+      ]
+    }, pro: null },
+  medio: { esc: {
+      hogar: [
+        "Ayudar a elegir 2–3 prioridades del día con dibujos o pegatinas.",
+        "Rutina de sueño realista 4 noches (menos pantallas antes)."
+      ],
+      aula: [
+        "Modelar: respirar, releer, primer paso.",
+        "Encargo pequeño de orden 1 vez/semana."
+      ],
+      apoyo: [
+        "Seguimiento quincenal de qué estrategia calmó más.",
+        "Planificación semanal con 1 meta medible."
+      ]
+    }, pro: null },
+  alto: { esc: {
+      hogar: [
+        "Apoyar meta mensual con 4 hitos semanales y celebrar avances reales.",
+        "Responsabilidad estable chiquita en casa."
+      ],
+      aula: [
+        "Rol breve de ayuda positiva 1 vez/semana.",
+        "Reto realista y amable (exposición corta, puntualidad en una rutina)."
+      ],
+      apoyo: [
+        "Revisión mensual de qué sí sostuvo.",
+        "Evitar sobrecarga: metas cortas + descanso."
+      ]
+    }, pro: null }
+},
+"VINCULOS INTERPERSONALES": {
+  bajo: { esc: {
+      hogar: [
+        "2 veces/semana: frase en primera persona sin discutir.",
+        "Modelar reparación breve: qué pasó + disculpa concreta + próximo paso."
+      ],
+      aula: [
+        "Dinámica de 5 min: qué pasó / qué sintió el otro / qué se dice con respeto.",
+        "Turnos de palabra visibles."
+      ],
+      apoyo: [
+        "Plantilla semanal: hecho – emoción – pedido.",
+        "Si se aísla, acordar 1 interacción breve concreta."
+      ]
+    }, pro: null },
+  medio: { esc: {
+      hogar: [
+        "1 conversación/semana cerrando con ‘entonces tú querías…’.",
+        "Actividad social corta (15 min) con inicio y cierre claros."
+      ],
+      aula: [
+        "Rol cooperativo 1 vez/semana.",
+        "Reconocer 2 conductas prosociales por semana."
+      ],
+      apoyo: [
+        "Revisar cada 2 semanas una situación social difícil.",
+        "Practicar frases de límite respetuoso."
+      ]
+    }, pro: null },
+  alto: { esc: {
+      hogar: [
+        "Ayudar 10 min a alguien sin hacerlo todo por él/ella.",
+        "Convivencia breve sin pantallas 1 vez/semana."
+      ],
+      aula: [
+        "Rol de mediación suave supervisado.",
+        "Proyecto grupal chiquito con acuerdos claros."
+      ],
+      apoyo: [
+        "Elegir 1 ejemplo de ayuda positiva para repetir.",
+        "Cuidar que no cargue con todo el grupo."
+      ]
+    }, pro: null }
+},
+"HABILIDADES PARA LA VIDA": {
+  bajo: { esc: {
+      hogar: [
+        "Lista de 2–3 tareas reales con ✓. 4 días.",
+        "1 decisión semanal con 2 opciones dibujadas."
+      ],
+      aula: [
+        "Apoyos visuales (agenda, pictogramas) revisados 1 vez/semana.",
+        "Encargo simple de organización con refuerzo concreto."
+      ],
+      apoyo: [
+        "Planificar 3 tareas chiquitas de la semana.",
+        "Resolver 1 problema real con 3 preguntas: qué pasó / opciones / elección."
+      ]
+    }, pro: null },
+  medio: { esc: {
+      hogar: [
+        "Bloque de 8–10 min + pausa. 2–3 veces/semana.",
+        "Reprogramar 1 pendiente con día concreto."
+      ],
+      aula: [
+        "Rol pequeño de iniciativa 1 vez/semana.",
+        "Priorizar: 1 importante, 1 corta, 1 de cierre."
+      ],
+      apoyo: [
+        "Seguimiento quincenal de qué terminó y qué quedó a medias.",
+        "Practicar 1 decisión guiada por quincena."
+      ]
+    }, pro: null },
+  alto: { esc: {
+      hogar: [
+        "Responsabilidad fija semanal con revisión el viernes.",
+        "Proyecto de 3 pasos en casa/juego."
+      ],
+      aula: [
+        "Coordinar actividad chiquita con fecha de cierre.",
+        "Tarea con poca ayuda y explicación de pasos al final."
+      ],
+      apoyo: [
+        "Revisión mensual: qué aprendió y qué haría distinto.",
+        "Si hay sobrecarga, pausar o redistribuir 1 tarea."
+      ]
+    }, pro: null }
+},
+"TIMIDEZ": {
+  bajo: { esc: {
+      hogar: [
+        "1 interacción breve diaria con ✓.",
+        "Practicar 2 guiones sociales 5 min, 2 veces/semana."
+      ],
+      aula: [
+        "Participación breve anticipada (avisar antes el momento).",
+        "Compañero puente en actividades grupales."
+      ],
+      apoyo: [
+        "Exposición gradual con registro semanal.",
+        "Entrenar inicio–sostén–cierre de una frase."
+      ]
+    }, pro: null },
+  medio: { esc: {
+      hogar: [
+        "2 prácticas/semana y refuerzo concreto de lo que salió bien.",
+        "Escribir/practicar 2 frases de inicio."
+      ],
+      aula: [
+        "Pregunta cerrada o respuesta corta al inicio de la actividad.",
+        "Reconocer el intento sin exigir más en el mismo momento."
+      ],
+      apoyo: [
+        "Elegir el siguiente nivel de exposición cada 2 semanas.",
+        "Practicar 1–2 frases frente a un adulto de confianza."
+      ]
+    }, pro: null },
+  alto: { esc: {
+      hogar: [
+        "Participación voluntaria 1 vez/semana sin forzar.",
+        "Cuidar sueño y rutina básica."
+      ],
+      aula: [
+        "Mantener 1 participación breve en contexto conocido.",
+        "Ofrecer rol chiquito solo si se siente listo."
+      ],
+      apoyo: [
+        "Revisión mensual de estabilidad.",
+        "Antes de un cambio de grupo, practicar frase de inicio."
+      ]
+    }, pro: null }
+},
+"AGRESION": {
+  bajo: { esc: {
+      hogar: [
+        "Secuencia callar–respirar–esperar 1 min. 4 días si hace falta.",
+        "Después de un conflicto: qué pasó / qué empeoró / qué se dice distinto."
+      ],
+      aula: [
+        "Tiempo fuera breve 2–5 min y volver con una frase sin gritar.",
+        "Practicar 2 frases de límite respetuoso."
+      ],
+      apoyo: [
+        "Anotar detonante + respuesta alternativa 1 vez/semana.",
+        "Registro simple de incidentes (fecha, detonante, qué ayudó)."
+      ]
+    }, pro: null },
+  medio: { esc: {
+      hogar: [
+        "Detectar señal temprana y pausar/tomar agua. 2 veces/semana.",
+        "Practicar 2 frases de límite."
+      ],
+      aula: [
+        "Decir en una frase qué hizo y cuál será la alternativa.",
+        "Resolución guiada en 3 pasos: pasó / molestó / pide sin gritar."
+      ],
+      apoyo: [
+        "Elegir la estrategia que más bajó el enojo cada 2 semanas.",
+        "Practicar frase completa: pasó / sintió / necesita / pide."
+      ]
+    }, pro: null },
+  alto: { esc: {
+      hogar: [
+        "1 conversación semanal para acordar algo con calma.",
+        "Reconocer en voz alta cuando se controló."
+      ],
+      aula: [
+        "Recordar 1 norma amable al inicio de la actividad.",
+        "Rol de apoyo solo con autocontrol estable."
+      ],
+      apoyo: [
+        "Revisión mensual de estabilidad.",
+        "Revisar qué le activa y qué le calma (sueño, pausa, hablar después)."
+      ]
+    }, pro: null }
+}
+};
+(function(){
+  Object.keys(PLAN_ROLES_NIVEL).forEach(k=>{
+    ["bajo","medio","alto"].forEach(n=>{
+      const pack = PLAN_ROLES_NIVEL[k][n];
+      if (pack && pack.esc && !pack.pro) pack.pro = JSON.parse(JSON.stringify(pack.esc));
+    });
+  });
+})();
+  const RECOM_ESTILOS = {
+ timidez: {
+  bajo: [
+    "En casa/juego (5–10 min): practicar 1 frase preparada y usarla en una situación real (saludar o pedir). 1–2 veces por semana.",
+    "En la escuela: participación breve avisada con anticipación; compañero puente si hace falta. Seguimiento: marcar ✓ cuando lo intente."
+  ],
+  medio: [
+    "3 intervenciones cortas por semana (una oración). Celebrar el intento.",
+    "Actividad en pareja con rol claro 1 vez por semana."
+  ],
+  alto: [
+    "Mantener 1 participación breve voluntaria por semana.",
+    "Si se siente listo, un rol chiquito de comunicación (leer una línea, avisar algo)."
+  ]
+},
+agresion: {
+  bajo: [
+    "Cuando aparezca molestia: 10 segundos + 3 respiraciones + una frase sin gritar. 3 veces/semana.",
+    "Después de un conflicto: 5 minutos con un adulto — qué pasó y qué reparación harán."
+  ],
+  medio: [
+    "Detectar señal temprana y pausar 2 minutos. 2 veces/semana.",
+    "Practicar frase de límite (‘hablemos sin gritar’) en juego de roles 5–10 min."
+  ],
+  alto: [
+    "Registrar 1 situación semanal en la que logró calmarse.",
+    "Resolver una diferencia con 3 pasos: escuchar, proponer, acordar."
+  ]
+}
+  };
+
+  function contextualizaTextoCodigo(s, esProfesional){
+    let t = String(s ?? "").replace(/\s+/g, " ").trim();
+    if(esProfesional){
+      t = t
+        .replace(/hogar\/aula\/orientador/gi, "casa, trabajo y acompañamiento profesional")
+        .replace(/\bclase\/reuni[oó]n\b/gi, "reunión")
+        .replace(/\bclase, casa o reuni[oó]n\b/gi, "casa, trabajo o reunión")
+        .replace(/\bdin[aá]mica de clase\b/gi, "actividad de equipo")
+        .replace(/\bjornada\/clase\b/gi, "jornada laboral")
+        .replace(/\bdocente\b/gi, "supervisor")
+        .replace(/\bcompa[ñn]ero puente\b/gi, "colega de apoyo")
+        .replace(/\bcompa[ñn]eros\b/gi, "colegas")
+        .replace(/\bcompa[ñn]ero\b/gi, "colega")
+        .replace(/\baula\b/gi, "equipo de trabajo")
+        .replace(/\bclase\b/gi, "reunión")
+        .replace(/\borientador\b/gi, "mentor")
+        .replace(/familia\/docente u otro adulto/gi, "mentor, supervisor u otra persona de apoyo")
+        .replace(/familiar, colega o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/familiar, compa[ñn]ero o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/familiar, compa[ñn]ero, supervisor, colega o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/familiar, compa[ñn]ero, docente, colega o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/tarea familiar/gi, "actividad de coordinación")
+        .replace(/casa o reuni[oó]n/gi, "casa o trabajo")
+        .replace(/en clase o reuniones/gi, "en reuniones")
+        .replace(/por clase/gi, "por reunión")
+        .replace(/clase, reuni[oó]n o conversaci[oó]n grupal/gi, "reunión o conversación grupal");
+    }else{
+      t = t.replace(/casa, trabajo y acompañamiento profesional/gi, "hogar, aula y acompañamiento profesional");
+    }
+    return t.replace(/\s{2,}/g, ' ').trim();
+  }
+
+  function renderRecomendaciones(extras){
+    const cont = document.getElementById("recomendaciones");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
+    const esProfesional = false; // Kids report: no workplace path
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">4.- Recomendaciones y plan de acción</div>`;
+    cont.appendChild(header);
+
+    const sub = document.createElement("div");
+    sub.className = "recom-subtitle";
+    sub.textContent = "Actividades cortas (5–10 minutos) priorizadas según los puntajes. Están pensadas para que padres, cuidadores y docentes acompañen al niño o la niña en casa, la escuela y el juego.";
+    cont.appendChild(sub);
+    
+    const lista = document.createElement("ul");
+    lista.className = "recom-list";
+
+    const nIntra = nivelFromPct(extras.bIntra);
+    const nInter = nivelFromPct(extras.bInter);
+    const nPV    = nivelFromPct(extras.bPV);
+
+    // Helper: 1 título por bloque + sus viñetas
+    const addGroup = (title, items, opts={}) => {
+      if(!items || !items.length) return;
+      const liHead = document.createElement("li");
+      liHead.className = "sec-head";
+      liHead.textContent = title + ":";
+      liHead.style.fontWeight = "800";
+      if(opts.marginTop) liHead.style.marginTop = opts.marginTop;
+      lista.appendChild(liHead);
+
+      items.forEach(txt=>{
+        const li=document.createElement("li");
+        li.textContent = contextualizaTextoCodigo(textoPlanClaro(txt), esProfesional);
+        lista.appendChild(li);
+      });
+    };
+
+    addGroup("DESARROLLO PERSONAL",      RECOM_BLOQUES.intra[nIntra] || []);
+    addGroup("VÍNCULOS INTERPERSONALES", RECOM_BLOQUES.inter[nInter] || []);
+    addGroup("HABILIDADES PARA LA VIDA", RECOM_BLOQUES.vida[nPV]   || []);
+
+    // Comunicación interpersonal (baja una línea y evita duplicar Timidez/Agresión)
+    if (extras.timidezVal != null || extras.agresionVal != null){
+      const liHead = document.createElement("li");
+      liHead.className = "sec-head";
+      liHead.textContent = "COMUNICACIÓN INTERPERSONAL:";
+      liHead.style.fontWeight = "800";
+      liHead.style.marginTop = "10px"; // baja una línea
+      lista.appendChild(liHead);
+
+      // Timidez (invertida)
+      if (extras.timidezVal != null){
+        const liSub = document.createElement("li");
+        liSub.className = "sec-head";
+        liSub.textContent = "Timidez:";
+        liSub.style.fontWeight = "700";
+        lista.appendChild(liSub);
+
+        const nivT = nivelFromPctInv(extras.timidezVal, true);
+        (RECOM_ESTILOS.timidez[nivT] || []).forEach(txt=>{
+          const li=document.createElement("li");
+          li.textContent = contextualizaTextoCodigo(textoPlanClaro(txt), esProfesional);
+          lista.appendChild(li);
+        });
+      }
+
+      // Agresión
+      if (extras.agresionVal != null){
+        const liSub = document.createElement("li");
+        liSub.className = "sec-head";
+        liSub.textContent = "Agresión:";
+        liSub.style.fontWeight = "700";
+        liSub.style.marginTop = "6px";
+        lista.appendChild(liSub);
+
+        const nivA = nivelFromPctInv(extras.agresionVal, true);
+        (RECOM_ESTILOS.agresion[nivA] || []).forEach(txt=>{
+          const li=document.createElement("li");
+          li.textContent = contextualizaTextoCodigo(textoPlanClaro(txt), esProfesional);
+          lista.appendChild(li);
+        });
+      }
+    }
+//----HHHHH
+   
+// Adaptación al cambio (resaltado como Comunicación)
+if(extras.propCambioVal != null){
+  let txt = null;
+  if(extras.propCambioVal <= 40){
+    txt = "En casa: avisar con anticipación un cambio pequeño (otro juego, otro sitio en la mesa) y practicar 5 minutos: mirar juntos qué cambia y qué sigue igual. En la escuela: el docente anticipa con un dibujo o pictograma. Seguimiento: 2 prácticas por semana.";
+  } else if(extras.propCambioVal >= 71){
+    txt = "En casa y en el juego: una vez por semana invitar al niño o la niña a probar una variación divertida (nueva regla breve, otro material) durante 5–10 minutos y celebrar el intento. Seguimiento: anotar qué le gustó.";
+  } else {
+    txt = "En casa/escuela: frente a un cambio cotidiano, decir en 1 frase qué es nuevo y cuál es el primer paso (por ejemplo: sentarse, mirar, preguntar). Practicarlo 5 minutos. Seguimiento: 1 vez por semana.";
+  }
+
+  addGroup("PROPENSIÓN AL CAMBIO", [txt], { marginTop: "10px" });
+}    
+//-----HHHH
+cont.appendChild(lista);
+  }
+
+  function renderPlanAccion(extras){
+    const cont = document.getElementById("planAccion");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
+    const esProfesional = false; // Kids report: no workplace path
+
+    const textoPlanClaro = (s) => {
+      if (s == null) return "";
+      let t = String(s).replace(/\s+/g, " ").trim();
+
+      // Expandir abreviaturas y expresiones cortas
+      t = t.replace(/\b(\d+)\s*min\b/gi, "$1 minutos");
+      t = t.replace(/\b(\d+)\s*veces\/sem\b/gi, "$1 veces por semana");
+      t = t.replace(/\b(\d+)\s*vez\/sem\b/gi, "$1 vez por semana");
+      t = t.replace(/\b(\d+)\s*conversaciones\/sem\b/gi, "$1 conversaciones por semana");
+      t = t.replace(/\b(\d+)\s*prácticas\/sem\b/gi, "$1 prácticas por semana");
+      t = t.replace(/\b(\d+)\s*bloques\/sem\b/gi, "$1 bloques por semana");
+      t = t.replace(/\b(\d+)\s*roles\/sem\b/gi, "$1 roles por semana");
+      t = t.replace(/\b(\d+)\s*rol\/sem\b/gi, "$1 rol por semana");
+      t = t.replace(/\b(\d+)\s*días\/sem\b/gi, "$1 días por semana");
+      t = t.replace(/\bsem\.?\b/gi, "semana");
+      t = t.replace(/\bquincenal\b/gi, "cada dos semanas");
+      t = t.replace(/\bsemanal\b/gi, "cada semana");
+      t = t.replace(/\bmensual\b/gi, "cada mes");
+      t = t.replace(/\bHR\b/g, "recursos humanos");
+
+      // Quitar puntos suspensivos o texto truncado
+      t = t.replace(/pr\.\.\./gi, "primero con acciones para la persona evaluada y luego con apoyos");
+      t = t.replace(/\.\.\./g, ".");
+
+      // Aterrizar actividades (explicando qué hacer / con quién / sobre qué)
+      t = t.replace(
+        /^Rutina breve diaria \(5 minutos\): identificar emoción \+ causa \+ acción útil\.?$/i,
+        "Una vez al día (cinco minutos), escribir en una hoja o en el teléfono: qué emoción sintió, qué situación la provocó y qué acción útil hará después (por ejemplo: respirar, pedir ayuda, hacer una pausa o hablar con calma)."
+      );
+
+      t = t.replace(
+        /^Plan diario: 3 tareas máximas \+ checklist \(inicio y cierre del día\)\.?$/i,
+        "Al iniciar el día o la tarde, elegir y escribir tres tareas concretas (una importante, una corta y una de cierre) como estudiar un tema, terminar una tarea, ordenar materiales o responder un pendiente. Marcar con una señal cuando se complete cada una y revisar al final del día qué quedó pendiente."
+      );
+
+      t = t.replace(
+        /^Micro-meta semanal: definir, ejecutar y medir avance \(%\)\.?$/i,
+        "Definir una meta pequeña para la semana (por ejemplo: completar una tarea pendiente, practicar una habilidad o terminar una lectura), ejecutarla en pasos simples y anotar al final qué porcentaje se logró y qué faltó."
+      );
+
+      t = t.replace(
+        /^Decisión guiada: 2 opciones \+ consecuencias corto\/largo plazo \(1 caso\/sem\)\.?$/i,
+        "Una vez por semana, elegir una situación real para decidir (por ejemplo: organizar tiempo, resolver un pendiente o responder un conflicto), escribir dos opciones y anotar una consecuencia a corto plazo y otra a largo plazo de cada opción antes de elegir."
+      );
+
+      t = t.replace(
+        /^Escucha activa \(2 conversaciones\/sem\):/i,
+        "Escucha activa (2 conversaciones por semana): conversar durante cinco a diez minutos con un familiar, compañero, docente, colega o supervisor sobre una tarea, una situación del día o un acuerdo pendiente; "
+      );
+
+      t = t.replace(
+        /Escucha activa \(2 conversaciones por semana con[^:]*:\s*/i,
+        "Escucha activa (2 conversaciones por semana): conversar durante cinco a diez minutos con un familiar, compañero, docente, colega o supervisor sobre una tarea, una situación del día o un acuerdo pendiente; "
+      );
+
+      t = t.replace(
+        /resumir lo entendido y hacer 1 pregunta de aclaración antes de responder\.?/i,
+        "escuchar sin interrumpir, resumir con una frase lo que entendió y hacer una pregunta de aclaración antes de responder."
+      );
+
+      t = t.replace(
+        /^Reconocer conductas prosociales y cooperación.*$/i,
+        "Reconocer conductas prosociales y cooperación: señalar con palabras claras una conducta útil observada (por ejemplo: esperar turno, ayudar a otra persona, escuchar sin interrumpir, cumplir un acuerdo o proponer una solución sin pelear) al menos dos veces por semana."
+      );
+
+      t = t.replace(
+        /^Participar en una actividad grupal con rol definido \(1 vez\/sem\):/i,
+        "Participar en una actividad grupal con rol definido (una vez por semana): elegir una actividad concreta (trabajo en grupo, tarea familiar, reunión de equipo, dinámica de clase o actividad de trabajo) y asumir un rol claro como tomar notas, controlar el tiempo, repartir materiales, leer instrucciones o presentar una parte; "
+      );
+
+      t = t.replace(
+        /^Bloques de trabajo 20–25 min \(2–3 veces\/sem\):/i,
+        "Bloques de trabajo de veinte a veinticinco minutos (dos a tres veces por semana): elegir una sola tarea concreta (estudiar un tema, hacer una tarea, ordenar materiales, responder pendientes o preparar una actividad), "
+      );
+
+      t = t.replace(
+        /^Bloques de trabajo 20–25 minutos \(2–3 veces por semana\):/i,
+        "Bloques de trabajo de veinte a veinticinco minutos (dos a tres veces por semana): elegir una sola tarea concreta (estudiar un tema, hacer una tarea, ordenar materiales, responder pendientes o preparar una actividad), "
+      );
+
+      t = t.replace(
+        /^Asignar un rol pequeño de iniciativa 1 vez\/sem/i,
+        "Asumir un rol pequeño de iniciativa una vez por semana"
+      );
+
+      t = t.replace(
+        /^Asignar un rol pequeño de iniciativa 1 vez por semana/i,
+        "Asumir un rol pequeño de iniciativa una vez por semana"
+      );
+
+      t = t.replace(
+        /^Revisión de tareas: qué quedó pendiente y plan de recuperación\.?$/i,
+        "Una vez por semana, revisar qué tareas quedaron pendientes, escribir por qué no se completaron y definir cuándo se retomarán (día y hora aproximada) con un plan de recuperación simple."
+      );
+
+      t = t.replace(
+        /^Registro semanal: 2 logros concretos \+ 1 ajuste para la semana siguiente\.?$/i,
+        "Una vez por semana, escribir dos logros concretos (qué hizo y qué resultado obtuvo) y un ajuste práctico para la siguiente semana."
+      );
+
+      t = t.replace(
+        /^Práctica 4 días\/sem: respiración 4–6 \(2 minutos\) antes de tareas difíciles\.?$/i,
+        "Cuatro días por semana, antes de una tarea difícil, practicar respiración lenta durante dos minutos (inhalar en cuatro tiempos y exhalar en seis) para iniciar con mayor calma."
+      );
+
+      t = t.replace(
+        /^2 veces\/sem: practicar mensajes en primera persona \(yo siento \/ yo necesito\)\.?$/i,
+        "Dos veces por semana, practicar mensajes en primera persona en una situación real o simulada: decir qué siente, qué necesita y qué pide, sin atacar a la otra persona."
+      );
+
+      t = t.replace(
+        /^Ejercicio guiado 1 vez\/sem: perspectiva del otro .*$/i,
+        "Una vez por semana, elegir una situación reciente y responder tres preguntas: qué pudo pensar la otra persona, qué pudo sentir y qué pudo necesitar; luego comentar una respuesta posible más respetuosa."
+      );
+
+      t = t.replace(
+        /^Resolución de conflicto: situación–emoción–pedido .*$/i,
+        "Una vez por semana, usar una guía breve en un caso real: describir la situación, decir qué emoción apareció y formular un pedido claro o un acuerdo posible sin insultar."
+      );
+
+      // Ajustes de contexto para versión profesional
+      if (esProfesional) {
+        t = t.replace(/\bdocente\b/gi, "supervisor");
+        t = t.replace(/\baula\b/gi, "equipo de trabajo");
+        t = t.replace(/\bclase\b/gi, "reunión");
+        t = t.replace(/\bcompañeros\b/gi, "colegas");
+        t = t.replace(/\bcompañero puente\b/gi, "colega de apoyo");
+        t = t.replace(/\borientador\b/gi, "mentor");
+      }
+
+      // Indicadores y revisiones en lenguaje completo
+      if (/^Indicador:/i.test(t) && !/registro|checklist|lista|nota breve/i.test(t)) {
+        t = t + " Registrar cumplimiento en una nota breve o lista de verificación.";
+      }
+      t = t.replace(/\bchecklist\b/gi, "lista de verificación");
+
+      t = contextualizaTextoCodigo(t, esProfesional);
+      return t.replace(/\s{2,}/g, " ").trim();
+    };
+
+    const tituloPorCodigo = {
+      hogar: "En casa / con la familia (actividades sugeridas):",
+      aula: "En la escuela / con el docente (actividades sugeridas):",
+      apoyo: "Seguimiento suave (familia + escuela):"
+    };
+
+    const header=document.createElement("div");
+    header.className="interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">Plan de acción sugerido</div>`;
+    cont.appendChild(header);
+
+    const sub=document.createElement("div");
+    sub.className="recom-subtitle";
+    sub.textContent = "Plan práctico Kids priorizado según puntajes: primero actividades con el niño o la niña; después apoyo en el hogar, en el aula y seguimiento suave con familia/docente.";
+    cont.appendChild(sub);
+// ===== Prioridades según puntaje (Top 3) =====
+    const items = [
+      { key:"DESARROLLO PERSONAL", pct: extras.bIntra, invert:false },
+      { key:"VINCULOS INTERPERSONALES", pct: extras.bInter, invert:false },
+      { key:"HABILIDADES PARA LA VIDA", pct: extras.bPV, invert:false },
+    ];
+    if (extras.timidezVal != null) items.push({ key:"TIMIDEZ", pct: extras.timidezVal, invert:true });
+    if (extras.agresionVal != null) items.push({ key:"AGRESION", pct: extras.agresionVal, invert:true });
+
+    items.forEach(it => it.nivel = nivelFromPctInv(it.pct, it.invert));
+
+    const ord = { bajo: 0, medio: 1, alto: 2 };
+    items.sort((a,b)=> (ord[a.nivel]??9) - (ord[b.nivel]??9));
+
+    const candidatos = items.filter(x => x.nivel !== "alto");
+    const focos = (candidatos.length ? candidatos : items).slice(0,3);
+
+    const box = document.createElement("div");
+    box.className = "plan-focus-box";
+    box.innerHTML = `<div class="plan-section-title">Prioridades según puntaje (Top 3 áreas prioritarias de intervención)</div>`;
+    focos.forEach(f=>{
+const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
+const perfilPlan = codigoActual.startsWith("PRO") ? "pro" : "esc";
+const pack = PLAN_ACCION_NIVEL[f.key]?.[f.nivel]?.[perfilPlan];
+      if(!pack) return;
+
+      const sec = document.createElement("div");
+      sec.className = "plan-focus-item";
+      sec.innerHTML = `
+<div class="plan-focus-head"><b>${(f.key==="AGRESION"?"AGRESIÓN":(f.key==="VINCULOS INTERPERSONALES"?"VÍNCULOS INTERPERSONALES":f.key))}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
+        <div class="plan-focus-obj"><b>Objetivo:</b> ${escapeHtml(textoPlanClaro(pack.objetivo))}</div>
+        <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(textoPlanClaro(a))}</li>`).join("")}</ul>
+        <div class="plan-focus-meta"><b>Indicador:</b> ${escapeHtml(textoPlanClaro((()=>{const ind=pack.indicador||""; const needs=!/registro|lista de verificación|nota breve|bitácora|anotar|marcar/i.test(ind); return ind + (needs ? " Registrar en una nota breve (fecha + actividad + marca de verificación)." : "");})()))}</div>
+        <div class="plan-focus-meta"><b>Revisión:</b> ${escapeHtml(textoPlanClaro(pack.revision))}</div>
+      `;
+      box.appendChild(sec);
+    });
+    cont.appendChild(box);
+    // ===== Fin prioridades =====
+
+    const mkList=(title, items)=>{
+      const t=document.createElement("div"); t.className="plan-section-title"; t.textContent=title; cont.appendChild(t);
+      const ul=document.createElement("ul"); ul.className="recom-list";
+
+      // items: [{grp, txt}, ...]  -> render 1 title per grp + bullets
+      let lastGrp = null;
+      items.forEach((it, idx)=>{
+        const grp = it && typeof it === "object" ? it.grp : null;
+        const txt = it && typeof it === "object" ? it.txt : String(it ?? "");
+
+        if(grp && grp !== lastGrp){
+          const liHead=document.createElement("li");
+          liHead.className = "sec-head";
+          liHead.textContent = grp + " (prioridad):";
+          liHead.style.fontWeight = "800";
+          liHead.style.listStyle = "none";
+          liHead.style.marginTop = (lastGrp===null ? "0" : "10px");
+          ul.appendChild(liHead);
+          lastGrp = grp;
+        }
+
+        const li=document.createElement("li");
+        li.textContent = textoPlanClaro(txt);
+        li.style.marginLeft = "18px"; // un poco más a la derecha
+        ul.appendChild(li);
+      });
+
+      cont.appendChild(ul);
+    };
+        // ===== Plan por rol basado en los focos Top 3 =====
+    const hogar = [];
+    const aula  = [];
+    const apoyo = [];
+
+    focos.forEach(f=>{
+const perfilRol = esProfesional ? "pro" : "esc";
+const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
+      if(!pack) return;
+
+      const keyDisp = (f.key === "AGRESION") ? "AGRESIÓN" : (f.key === "VINCULOS INTERPERSONALES") ? "VÍNCULOS INTERPERSONALES" : f.key;
+
+      // Agregamos 1–2 acciones por foco y rol (para que no sea infinito)
+      (pack.hogar || []).slice(0,2).forEach(x => hogar.push({ grp: keyDisp, txt: x }));
+(pack[esProfesional ? "trabajo" : "aula"] || []).slice(0,2).forEach(x => aula.push({ grp: keyDisp, txt: x }));
+      (pack.apoyo || []).slice(0,2).forEach(x => apoyo.push({ grp: keyDisp, txt: x }));
+    });
+
+
+    if(hogar.length) mkList(tituloPorCodigo.hogar, hogar);
+    if(aula.length)  mkList(tituloPorCodigo.aula, aula);
+    if(apoyo.length) mkList(tituloPorCodigo.apoyo, apoyo);
+    // ===== Fin plan por rol =====
+
+    const mkLinks=(title, links)=>{
+      const t=document.createElement("div");
+      t.className="plan-section-title";
+      t.textContent=title;
+      cont.appendChild(t);
+
+      const ul=document.createElement("ul");
+      ul.className="recom-list";
+
+      links.forEach(l=>{
+        const li=document.createElement("li");
+        li.innerHTML = `<a href="${l.href}" target="_blank" rel="noopener noreferrer">${l.text}</a>`;
+        ul.appendChild(li);
+      });
+
+      cont.appendChild(ul);
+    };
+
+   // mkList("En el hogar / familia:", [
+   //   "Conversar diariamente sobre emociones y experiencias del día (validación).",
+   //   "Reconocer esfuerzos y avances con mensajes concretos.",
+    //  "Mantener rutinas claras de estudio, descanso y ocio."
+   // ]);
+
+   // mkList("En el aula / institución educativa:", [
+   //   "Promover respeto, colaboración y expresión emocional adecuada.",
+   //   "Observar conductas socioemocionales relevantes y coordinar con la familia.",
+   //   "Incluir actividades breves de educación emocional."
+  //  ]);
+
+   // mkList("Con apoyo del orientador / psicólogo:", [
+    //  "Si las dificultades se sostienen o son intensas, considerar evaluación más profunda y acompañamiento especializado.",
+    //  "Mantener comunicación periódica entre familia y escuela para alinear estrategias."
+   // ]);
+    mkLinks("Recursos de apoyo (familia y escuela) — opcionales", [
+      { text: "UNICEF: crianza y bienestar emocional (orientación para cuidadores)", href: "https://www.unicef.org/parenting/mental-health" },
+      { text: "OMS: habilidades para la vida (Life Skills Education)", href: "https://www.who.int/teams/health-promotion/enhanced-wellbeing/health-skills-and-education/life-skills" },
+      { text: "NHS: respiración breve para calmar el cuerpo", href: "https://www.nhs.uk/mental-health/self-help/guides-tools-and-activities/breathing-exercises-for-stress/" }
+    ]);
+
+    // Pie de interpretación: HTML fijo (reporte-pie-page2). No duplicar aquí.
+  }
+
+  function renderPerfilGlobal(extras){
+    const cont = document.getElementById("perfilGlobal");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">3.- Perfil cuantitativo global</div>`;
+    cont.appendChild(header);
+
+    const p = document.createElement("div");
+    p.className = "interp-bloque-desc";
+    const nombre = extras.nombre || "el niño o la niña";
+    p.textContent = `Del informe Kids de ${nombre} se desprenden los siguientes índices:`;
+    cont.appendChild(p);
+
+    const ul = document.createElement("ul");
+    ul.className = "recom-list";
+
+    const fmt = v => (v != null && !Number.isNaN(v)) ? Math.round(v) : "—";
+
+    [
+  `Índice de Desarrollo Personal: ${fmt(extras.bIntra)}`,
+  `Índice de Vínculos Interpersonales: ${fmt(extras.bInter)}`,
+  `Índice de Habilidades para la Vida: ${fmt(extras.bPV)}`,
+  `Índice Global de Inteligencia Emocional (IIE): ${fmt(extras.iieFinal)}`
+].forEach(t=>{
+  const li = document.createElement("li");
+  li.textContent = t;
+
+  // SOLO la línea del IIE se realza
+  if (t.includes("(IIE)")) li.classList.add("perfil-iie");
+  if (t.toLowerCase().startsWith("comunicación interpersonal")) li.classList.add("perfil-sep");
+  if (t.toLowerCase().startsWith("adaptación al cambio:")) li.classList.add("perfil-sep");
+
+  ul.appendChild(li);
+});
+
+    cont.appendChild(ul);
+
+    const subt = document.createElement("div");
+    subt.className = "plan-section-title";
+    subt.textContent = "Comunicación interpersonal (en estas escalas puntajes bajos indican mejor manejo):";
+    cont.appendChild(subt);
+
+    const ul2 = document.createElement("ul");
+    ul2.className = "recom-list";
+
+    const liA = document.createElement("li");
+    liA.textContent = "Agresión: " + fmt(extras.agresionVal);
+    if (extras.agresionVal != null && !Number.isNaN(extras.agresionVal) && extras.agresionVal > 70){
+      liA.classList.add("skill-row-alert");
+      liA.textContent += " (rango alto: más acompañamiento en casa y escuela).";
+    }
+    ul2.appendChild(liA);
+
+    const liT = document.createElement("li");
+    liT.textContent = "Timidez: " + fmt(extras.timidezVal);
+    if (extras.timidezVal != null && !Number.isNaN(extras.timidezVal) && extras.timidezVal > 70){
+      liT.classList.add("skill-row-alert");
+      liT.textContent += " (rango alto: apoyar participación gradual sin forzar).";
+    }
+    ul2.appendChild(liT);
+
+    cont.appendChild(ul2);
+
+    const subt2 = document.createElement("div");
+    subt2.className = "plan-section-title";
+    subt2.textContent = "Propensión al cambio:";
+    cont.appendChild(subt2);
+
+    const ul3 = document.createElement("ul");
+    ul3.className = "recom-list";
+    const liC = document.createElement("li");
+    liC.textContent = "Propensión al cambio: " + fmt(extras.propCambioVal) + " (a mayor puntaje, más apertura a lo nuevo en casa, escuela y juego).";
+    ul3.appendChild(liC);
+    cont.appendChild(ul3);
+  }
+
+  function renderBloqueInterpretacion(containerId, tituloDisplay, bloqueKeyOriginal, bloqueDescKey, subRows, pctBloqueVal){
+    const cont=document.getElementById(containerId);
+    if(!cont) return;
+    cont.innerHTML="";
+
+    const idxText=(pctBloqueVal!=null && !Number.isNaN(pctBloqueVal)) ? pctBloqueVal : "—";
+    const header=document.createElement("div");
+    header.className="interp-bloque-header";
+    header.innerHTML=`<div class="interp-bloque-nombre">${tituloDisplay}</div><div class="interp-bloque-indice">Índice: <span>${idxText}</span></div>`;
+    cont.appendChild(header);
+
+    const desc=document.createElement("div");
+    desc.className="interp-bloque-desc";
+    desc.textContent=BLOQUE_DESCS[bloqueDescKey] || "";
+    cont.appendChild(desc);
+
+    const bloqueKey = canonBloque(bloqueKeyOriginal);
+    let rows=(subRows||[]).filter(r=> canonBloque(r.bloque||r.block||"")===bloqueKey);
+
+    rows.forEach(r=>{
+      const sub=r.subhabilidad || r.sub || r.nombre || "";
+      const pctRaw=Number(r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? null);
+      const pct=(pctRaw!=null && !Number.isNaN(pctRaw)) ? adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeName(sub)}) : null;
+      renderSkillRow(cont, dispSub(sub), pct);
+    });
+  }
+
+  function renderInterpretacion(subRows, extras){
+    const date1=document.getElementById("repDateLine");
+    const date2=document.getElementById("repDateLine2");
+    const dateEsc=document.getElementById("repDateLineEsc");
+    if(date1 && date2) date2.textContent = date1.textContent;
+    if(date1 && dateEsc) dateEsc.textContent = date1.textContent;
+
+    const h1=document.getElementById("repHeaderBox");
+    const h2=document.getElementById("repHeaderBox2");
+    if(h1 && h2) h2.innerHTML = h1.innerHTML;
+
+    renderBloqueInterpretacion("interpIntra","DESARROLLO PERSONAL","Desarrollo Personal","desarrollo", subRows, extras.bIntra);
+    renderBloqueInterpretacion("interpInter","VINCULOS INTERPERSONALES","Vínculos Interpersonales","vinculos", subRows, extras.bInter);
+    renderBloqueInterpretacion("interpPV","HABILIDADES PARA LA VIDA","Competencias Para la Vida","competencias", subRows, extras.bPV);
+// === TEST TEMPORAL: forzar niveles bajos (solo para verificar 3 bullets) ===
+// extras.bIntra = 30;   // Desarrollo personal -> bajo
+//extras.bInter = 35;   // Vínculos -> bajo
+//extras.bPV    = 25;   // Vida -> bajo
+// === FIN TEST TEMPORAL ===
+
+    const estCont=document.getElementById("interpEstilos");
+    if(estCont){
+      estCont.innerHTML="";
+      const header=document.createElement("div");
+      header.className="interp-bloque-header";
+      header.innerHTML=`<div class="interp-bloque-nombre">COMUNICACIÓN INTERPERSONAL</div>`;
+      estCont.appendChild(header);
+
+      const desc=document.createElement("div");
+      desc.className="interp-bloque-desc";
+      desc.textContent = BLOQUE_DESCS.comunicacion;
+      estCont.appendChild(desc);
+
+      renderSkillRow(estCont, "Agresión", extras.agresionVal);
+      renderSkillRow(estCont, "Timidez", extras.timidezVal);
+    }
+
+    const cambCont=document.getElementById("interpCambio");
+    if(cambCont){
+      cambCont.innerHTML="";
+      const header=document.createElement("div");
+      header.className="interp-bloque-header";
+      header.innerHTML=`<div class="interp-bloque-nombre">PROPENSIÓN AL CAMBIO</div>`;
+      cambCont.appendChild(header);
+
+      const desc=document.createElement("div");
+      desc.className="interp-bloque-desc";
+      desc.textContent = BLOQUE_DESCS.adaptacion;
+      cambCont.appendChild(desc);
+
+      renderSkillRow(cambCont, "Propensión al cambio", extras.propCambioVal);
+    }
+
+    renderPerfilGlobal(extras);
+    renderRecomendaciones(extras);
+    renderPlanAccion(extras);
+  }
+
+  function renderAll(data){
+    window.__LAST_REPORT__ = data;
+    const attempt = data.attempt || data;
+    const snap = attempt.snapshot || attempt.snap || attempt;
+
+    const resultados = attempt.resultados || attempt.resultados_json || attempt.result || {};
+    const subRows = attempt.subhabilidades || resultados.subhabilidades || attempt.subRows || attempt.sub || [];
+    const bloqRows = attempt.bloqPercents || resultados.bloqPercents || attempt.bloqRows || attempt.bloques || resultados.bloques || [];
+
+    const fechaRaw = attempt.created_at || attempt.creado_en || attempt.fecha_intento;
+    const fechaObj = fechaRaw ? new Date(fechaRaw) : null;
+    const ahora = new Date();
+    document.getElementById("repDateLine").textContent = ahora.toLocaleString("es-EC", { dateStyle:"short", timeStyle:"short" });
+
+    const fechaTexto = fechaObj ? fechaObj.toLocaleDateString("es-EC", { year:"numeric", month:"long", day:"numeric" }) : "—";
+    const nombre = snap.nombre || attempt.nombre || "—";
+    const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
+const esProfesional = false; // Kids report: no workplace path
+const labelCurso = "Grado/Curso";
+    document.getElementById("repHeaderBox").innerHTML = `
+      <div><b>Nombre:</b> ${nombre}</div>
+      <div><b>País:</b> ${snap.grupo || attempt.grupo || "—"}</div>
+      <div><b>Institución:</b> ${snap.institucion || attempt.institucion || "—"}</div>
+      <div><b>Fecha:</b> ${fechaTexto}</div>
+      <div><b>${labelCurso}:</b> ${snap.curso || attempt.curso || "—"}</div>
+      <div><b>Código:</b> ${codigoActual || "—"}</div>
+    `;
+
+    function pctBloque(nombre){
+      const keyNorm = canonBloque(nombre);
+      let raw = 0;
+      if(Array.isArray(bloqRows)){
+        const f = bloqRows.find(r => canonBloque(r.bloque||r.block||"") === keyNorm);
+        if (f) raw = Math.round(f.percent ?? f.pct ?? f.porcentaje ?? 0);
+      } else if (bloqRows && typeof bloqRows === "object") {
+        const k = Object.keys(bloqRows||{}).find(k => normalizeName(k) === keyNorm);
+        if (k) raw = Math.round(bloqRows[k]);
+      }
+      if (!raw && resultados.bloques){
+        if (keyNorm === "habilidades intrapersonales" || keyNorm === "desarrollo personal") raw = Math.round(resultados.bloques.intrapersonales || 0);
+        if (keyNorm === "habilidades interpersonales" || keyNorm === "vínculos interpersonales" || keyNorm === "vinculos interpersonales") raw = Math.round(resultados.bloques.interpersonales || 0);
+        if (keyNorm === "habilidades para la vida" || keyNorm === "competencias para la vida") raw = Math.round(resultados.bloques.para_la_vida || 0);
+        if (keyNorm === "estilos de comunicación interpersonal") raw = Math.round(resultados.bloques.estilos_comunicacion || 0);
+        if (keyNorm === "propensión al cambio") raw = Math.round(resultados.bloques.propension_cambio || 0);
+      }
+      return adjScore(raw, {bloqueNorm: keyNorm, subNorm: ""});
+    }
+
+    const bIntra = pctBloque("Desarrollo Personal");
+    const bInter = pctBloque("Vínculos Interpersonales");
+    const bPV    = pctBloque("Competencias Para la Vida");
+
+    document.getElementById("ihIntra").textContent = bIntra || "—";
+    document.getElementById("ihInter").textContent = bInter || "—";
+    document.getElementById("ihPV").textContent = bPV || "—";
+
+    let iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie ?? (resultados.globales ? resultados.globales.IIE : undefined);
+    const iieBase = (iie != null && !Number.isNaN(Number(iie))) ? Number(iie) : ((bIntra||bInter||bPV) ? Math.round((bIntra+bInter+bPV)/3) : 0);
+    const iieFinal = adjScore(iieBase, {bloqueNorm:"", subNorm:""});
+
+    document.getElementById("repIIE").textContent = iieFinal || "—";
+    const tituloCurva = document.getElementById("tituloCurvaFrecuencias");
+    if (tituloCurva) {
+      const iieTitulo = Math.round(Number(iieFinal) || 0);
+      tituloCurva.textContent = `CURVA DE DISTRIBUCIÓN DE FRECUENCIAS: (IIE = ${iieTitulo}).`;
+    }
+    const iieForCurve = iieFinal || 0;
+    window.__curveIIEValue = iieForCurve;
+
+// 1) intento inmediato
+setCurveMarker(iieForCurve);
+
+// 2) reintento cuando ya hubo 1 frame de layout
+requestAnimationFrame(() => setCurveMarker(iieForCurve));
+
+// 3) reintento extra por si la imagen tarda un poco en cargar/renderizar
+setTimeout(() => setCurveMarker(iieForCurve), 120);
+    const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1 ?? (resultados.globales && resultados.globales.IV1);
+    const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2 ?? (resultados.globales && resultados.globales.IV2);
+    const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3 ?? (resultados.globales && resultados.globales.IV3);
+
+    // Kids: IV1/IV2/IV3 no aplican (panel N/A)
+    void iv1Val; void iv2Val; void iv3Val;
+
+    buildBloque("bloqueIntra", subRows, "Habilidades intrapersonales");
+    buildBloque("bloqueInter", subRows, "Habilidades interpersonales");
+    buildBloque("bloquePV", subRows, "Habilidades para la vida");
+
+    const agresionVal = findSubPct(subRows,"Estilos de comunicación interpersonal","Agresión");
+    const timidezVal  = findSubPct(subRows,"Estilos de comunicación interpersonal","Timidez");
+    const propCambioVal = pctBloque("Propensión al cambio");
+
+    renderBars("estilos", [
+      {label:"AGRESIÓN", val: agresionVal, id:"mAgresion"},
+      {label:"TIMIDEZ",  val: timidezVal,  id:"mTimidez"}
+    ], true);
+    renderBars("cambio", [
+      {label:"PROPENSIÓN AL CAMBIO", val: propCambioVal, id:"mCambio"}
+    ], false);
+
+    setMarker("mAgresion", agresionVal);
+    setMarker("mTimidez", timidezVal);
+    setMarker("mCambio", propCambioVal);
+
+    document.getElementById("contestadasLine").textContent = attempt.contestadas || attempt.n_respondidas || "26 de 26";
+
+    renderPage2(subRows);
+    renderInterpretacion(subRows, {
+      bIntra, bInter, bPV,
+      agresionVal, timidezVal,
+      propCambioVal,
+      iieFinal,
+      nombre
+    });
+
+    document.getElementById("reporteContainer").style.display="block";
+    const ingreso = document.getElementById("ingresoPanel");
+    if (ingreso) ingreso.style.display = "none";
+  }
+
+  async function cargarReporte(codigo){
+    document.getElementById("msg").textContent = "Buscando...";
+    document.getElementById("msg").className = "msg";
+    document.getElementById("reporteContainer").style.display = "none";
+    const ingreso = document.getElementById("ingresoPanel");
+    if (ingreso) ingreso.style.display = "";
+    try{
+      const q = new URLSearchParams({ codigo, eval: REPORT_PRODUCT_KEY, idioma: REPORT_UI_LANG });
+      const r = await fetch(`/api/report?${q.toString()}`);
+      const data = await r.json();
+      if (r.status === 403 && (data.eval_mismatch || data.idioma_mismatch)) {
+        document.getElementById("msg").textContent = data.error || "Este código no corresponde a este reporte.";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
+      if(!r.ok || data.error){
+        document.getElementById("msg").textContent = data.error || "No encontrado";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
+      if (!data || !data.attempt) {
+        document.getElementById("msg").textContent = "No se encontró un intento registrado para este código.";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
+      if (data.puede_ver_resultado !== true) {
+        document.getElementById("msg").textContent = "Este código no está habilitado para ver su reporte. Contacta a la coordinación.";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
+      document.getElementById("msg").textContent = "";
+      document.getElementById("msg").className = "msg";
+      renderAll(data);
+      window.scrollTo({top:0,behavior:"smooth"});
+    }catch(e){
+      console.error(e);
+      document.getElementById("msg").textContent="Error de conexión";
+      document.getElementById("msg").className="msg err";
+    }
+  }
+
+  document.getElementById("btnVer").addEventListener("click", ()=>{
+    const c = document.getElementById("codigoInput").value.trim().toUpperCase();
+    if(!c) return;
+    cargarReporte(c);
+  });
+
+  document.getElementById("btnImprimir").addEventListener("click", ()=>window.print());
+  document.getElementById("btnPDF").addEventListener("click", ()=>window.print());
+
+  window.addEventListener("beforeprint", () => {
+    const v = window.__curveIIEValue;
+    if (v == null || Number.isNaN(Number(v))) return;
+    requestAnimationFrame(() => setCurveMarker(Number(v)));
+  });
+  window.addEventListener("afterprint", () => {
+    const v = window.__curveIIEValue;
+    if (v == null || Number.isNaN(Number(v))) return;
+    requestAnimationFrame(() => setCurveMarker(Number(v)));
+  });
+
+  (function init(){
+    const qp = new URLSearchParams(location.search);
+    const c = (qp.get("codigo")||"").trim().toUpperCase();
+    if(c){
+      document.getElementById("codigoInput").value=c;
+      cargarReporte(c);
+    }
+  })();
+</script>
+</body>
+</html>
