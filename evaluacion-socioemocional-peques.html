@@ -210,6 +210,15 @@
     .choice .choice-label{line-height:1.25;text-align:center;font-size:1.12rem;margin-top:auto}
     .block-right .btn-row{margin:0;justify-content:center;flex-shrink:0}
     .block-right .btn{width:100%;max-width:260px;padding:14px 18px;font-size:1.1rem}
+    .block-right .btn .btn-next-arrow{
+      display:inline-block;margin-left:8px;font-size:1.35em;font-weight:900;
+      line-height:1;vertical-align:-2px;
+      animation:nextArrowPulse 1.1s ease-in-out infinite;
+    }
+    @keyframes nextArrowPulse{
+      0%,100%{transform:translateX(0);opacity:1}
+      50%{transform:translateX(5px);opacity:.75}
+    }
     #pantalla-final{display:none;text-align:center;padding:28px 14px}
     #pantalla-final .check{font-size:2.6rem;color:#16a34a;margin-bottom:8px}
     #pantalla-final h2{font-size:1.4rem}
@@ -570,12 +579,12 @@ const ITEMS = [
       [thumbImg("assets/peques/q2-opt-casino.png","Casi no"),"Casi no",1]
     ]),
   mk(3,"Habilidades intrapersonales","Bienestar físico","¿Duermes bien por la noche?",
-    "¿Duermes bien por la noche? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi no.",
+    "¿Duermes bien por la noche? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
     sceneImg("assets/peques/q3-scene.png","Niña durmiendo en su habitación"),
     [
       [thumbImg("assets/peques/q3-opt-si.png","Sí"),"Sí",3],
       [thumbImg("assets/peques/q3-opt-aveces.png","A veces"),"A veces",2],
-      [thumbImg("assets/peques/q3-opt-casino.png","Casi no"),"Casi no",1]
+      [thumbImg("assets/peques/q3-opt-casino.png","Casi nunca"),"Casi nunca",1]
     ]),
   mk(4,"Habilidades intrapersonales","Bienestar físico","¿Comes frutas o verduras?",
     "¿Comes frutas o verduras? Primera opción: casi todos los días. Segunda opción: a veces. Tercera opción: casi nunca.",
@@ -957,7 +966,9 @@ function renderQuestion(){
     cont.appendChild(b);
   });
   document.getElementById("btnSiguiente").disabled = q.value == null;
-  document.getElementById("btnSiguiente").textContent = currentIndex === ITEMS.length - 1 ? "FINALIZAR" : "SIGUIENTE";
+  document.getElementById("btnSiguiente").innerHTML = currentIndex === ITEMS.length - 1
+    ? 'FINALIZAR <span class="btn-next-arrow" aria-hidden="true">✓</span>'
+    : 'SIGUIENTE <span class="btn-next-arrow" aria-hidden="true">→</span>';
   updateProgress();
   setAudioNudgeVisible(q.value == null);
 }
