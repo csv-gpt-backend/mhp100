@@ -4,7 +4,7 @@
   <meta name="google" content="notranslate">
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Evaluación Socioemocional · Peques</title>
+  <title>Evaluación Socioemocional · Kids</title>
   <style>
     :root{
       --accent:#2563eb; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
@@ -62,8 +62,18 @@
       margin:4px 0 8px;padding-left:18px;font-size:14px;line-height:1.45;
     }
     #pantalla-inicio ul.muted li{margin:3px 0}
-    #pantalla-inicio .btn-row{margin-top:12px;gap:10px}
+    #pantalla-inicio .btn-row{
+      margin-top:12px;gap:10px;align-items:flex-end;
+    }
     #pantalla-inicio .btn{padding:10px 16px;font-size:1rem}
+    #pantalla-inicio .intro-right-actions{
+      display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-left:auto;
+    }
+    #pantalla-inicio .intro-audio-row{
+      display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;
+    }
+    #pantalla-inicio .intro-audio-row .audio-nudge{margin:0}
+    #pantalla-inicio .intro-audio-row .btn-audio{font-size:.95rem;padding:9px 14px}
     @media(max-height:760px){
       body:has(#pantalla-preguntas.hidden) .page{padding:10px 14px 12px}
       #datos-participante.card{padding:10px 12px;margin-bottom:8px}
@@ -209,9 +219,9 @@
 </head>
 <body>
 <div class="layout">
-  <aside class="side"><span>SOCIOEMOCIONAL PEQUES</span></aside>
+  <aside class="side"><span>SOCIOEMOCIONAL KIDS</span></aside>
   <main class="page">
-    <header><h1>Evaluación Socioemocional · Peques</h1></header>
+    <header><h1>Evaluación Socioemocional · Kids</h1></header>
 
     <section id="datos-participante" class="card">
       <div class="grid-2">
@@ -233,17 +243,23 @@
 
     <section id="pantalla-inicio" class="card">
       <h2>Instrucciones</h2>
-      <p class="muted">El manejo de las emociones ayuda a sentirte bien, a llevarte mejor con otros y a enfrentar lo que pasa cada día. Esta evaluación mira cómo te sientes contigo, cómo te relacionas y cómo reaccionas cuando algo cambia.</p>
+      <p class="muted">El manejo de las emociones ayuda a que te sientas bien, a llevarte mejor con otros y a enfrentar lo que pasa cada día. Esta evaluación mide cómo te sientes contigo, cómo te relacionas y reaccionas cuando algo cambia.</p>
       <ul class="muted">
-        <li>Mira el dibujo grande.</li>
-        <li>Toca <strong>Escuchar</strong> si quieres que te lean la pregunta.</li>
-        <li>En cada opción puedes tocar la <strong>🔊</strong> para oír solo esa respuesta.</li>
-        <li>Elige la tarjeta con el dibujo que más se parece a ti.</li>
+        <li>Observa la imagen más grande.</li>
+        <li>Haz clic en <strong>Escuchar</strong>, para oír la pregunta.</li>
+        <li>En cada opción puedes hacer clic en la bocina <strong>🔊</strong>, para oír esa respuesta únicamente.</li>
+        <li>Elige la imagen con el dibujo que más se parece a tu personalidad.</li>
       </ul>
       <p class="muted"><strong>Importante:</strong> Puedes avanzar solo cuando elijas una opción. No podrás volver a preguntas anteriores.</p>
       <div class="btn-row">
         <button type="button" class="btn btn-ghost" id="btnVolverMenuInicio">REGRESAR AL MENÚ</button>
-        <button type="button" class="btn btn-primary" id="btnIniciar" disabled>INICIAR</button>
+        <div class="intro-right-actions">
+          <div class="intro-audio-row">
+            <span class="audio-nudge" id="introAudioNudge" aria-hidden="true" title="Toca Escuchar instrucciones"><img src="assets/peques/audio-nudge-hand.png" alt=""/></span>
+            <button type="button" class="btn-audio" id="btnIntroAudio">🔊 Escuchar instrucciones</button>
+          </div>
+          <button type="button" class="btn btn-primary" id="btnIniciar" disabled>INICIAR</button>
+        </div>
       </div>
     </section>
 
@@ -295,9 +311,11 @@ let __startTime = Date.now();
 let currentIndex = 0;
 let pequesAudio = null;
 let pequesOptAudio = null;
+let introAudio = null;
 let audioCueEnds = null; // cumulative end times [introEnd, opt1End, opt2End, opt3End]
 const DALIA_AUDIO_BASE = "assets/peques/audio/q";
 const DALIA_OPT_AUDIO_BASE = "assets/peques/audio/labels/";
+const INTRO_AUDIO_SRC = "assets/peques/audio/instrucciones.mp3";
 
 function labelAudioSlug(label){
   return String(label || "")
@@ -946,7 +964,45 @@ function stopOptionSpeech(){
   document.querySelectorAll(".opt-speak.playing").forEach(el => el.classList.remove("playing"));
 }
 
+function stopIntroSpeech(){
+  if(introAudio){
+    try{ introAudio.pause(); introAudio.currentTime = 0; }catch{}
+  }
+  introAudio = null;
+  const btn = document.getElementById("btnIntroAudio");
+  if(btn) btn.classList.remove("playing");
+}
+
+function speakIntroInstructions(){
+  stopIntroSpeech();
+  stopOptionSpeech();
+  if(pequesAudio){
+    try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
+    audioCueEnds = null;
+    setAudioPlaying(false);
+    clearChoiceCues();
+  }
+  const btn = document.getElementById("btnIntroAudio");
+  introAudio = new Audio(INTRO_AUDIO_SRC);
+  introAudio.preload = "auto";
+  if(btn) btn.classList.add("playing");
+  introAudio.onended = () => {
+    if(btn) btn.classList.remove("playing");
+    introAudio = null;
+  };
+  introAudio.onerror = () => {
+    if(btn) btn.classList.remove("playing");
+    introAudio = null;
+    alert("No se pudo cargar el audio de las instrucciones.");
+  };
+  introAudio.play().catch(() => {
+    if(btn) btn.classList.remove("playing");
+    introAudio = null;
+  });
+}
+
 function stopSpeech(){
+  stopIntroSpeech();
   stopOptionSpeech();
   if(pequesAudio){
     try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
@@ -1029,6 +1085,7 @@ function togglePause(){
 document.getElementById("btnAudio").addEventListener("click", speakCurrent);
 document.getElementById("btnAudioPause").addEventListener("click", togglePause);
 document.getElementById("btnAudioStop").addEventListener("click", stopSpeech);
+document.getElementById("btnIntroAudio").addEventListener("click", speakIntroInstructions);
 
 document.getElementById("btnSiguiente").addEventListener("click", () => {
   if(ITEMS[currentIndex].value == null) return;
@@ -1058,6 +1115,7 @@ btnIniciar.addEventListener("click", async () => {
       ITEMS.forEach(q => { const v = saved.responses[String(q.id)]; q.value = typeof v === "number" ? v : null; });
     } else { clearState(); ITEMS.forEach(q => q.value = null); currentIndex = 0; __startTime = Date.now(); }
   } else { ITEMS.forEach(q => q.value = null); currentIndex = 0; __startTime = Date.now(); }
+  stopIntroSpeech();
   document.getElementById("pantalla-inicio").classList.add("hidden");
   document.getElementById("datos-participante").classList.add("hidden");
   document.getElementById("pantalla-preguntas").classList.remove("hidden");
