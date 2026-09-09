@@ -106,6 +106,8 @@
       .scale-section{margin-top:18px !important}
       .section-title{margin-bottom:8px !important}
       .scale-note-inline{margin-top:8px !important}
+      .scale-note-risk{margin-top:8px !important}
+      .scale-note-cambio{margin-top:6px !important}
       .scale-range-header{margin-bottom:6px !important}
             /* Interpretación: regla amplia — ningún encabezado de sección solo al pie */
       #pageInterpretacion h2, #pageInterpretacion h3, #pageInterpretacion h4,
@@ -186,6 +188,41 @@
   position: relative;
   left: 4cm;
 }
+.scale-note-risk{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:8px;
+  margin-top:8px;
+  align-items:center;
+}
+.scale-note-risk > span{
+  grid-column:2;
+  font-size:12px;
+  font-weight:800;
+  color:#111827;
+  background:#fef3c7;
+  border:1px solid #f59e0b;
+  border-radius:4px;
+  padding:4px 8px;
+  line-height:1.25;
+}
+.scale-note-cambio{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:8px;
+  margin-top:6px;
+  align-items:center;
+}
+.scale-note-cambio-bar{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  font-size:11px;
+  font-weight:700;
+  color:#374151;
+}
+.scale-note-cambio-bar span:first-child{text-align:left;}
+.scale-note-cambio-bar span:last-child{text-align:right;}
 
     .bars-wrap{margin:8px 0}
     .bars-row{display:grid;grid-template-columns:220px 1fr;align-items:center;gap:8px;margin:10px 0;}
@@ -465,7 +502,13 @@
           <div>PROPENSIÓN AL CAMBIO</div>
         </div>
         <div class="rep-scale" id="cambio"></div>
-        <div class="scale-note-inline">      Menor apertura al cambio       —        Mayor apertura al cambio</div>
+        <div class="scale-note-cambio">
+          <span></span>
+          <div class="scale-note-cambio-bar">
+            <span>Menor apertura al cambio</span>
+            <span>Mayor apertura al cambio</span>
+          </div>
+        </div>
       </div>
 
       <p class="reporte-pie-adalam reporte-pie-page1">Adalam — Informe Socioemocional · Kids</p>
@@ -920,8 +963,10 @@ function setCurveMarker(iie){
     // Nota SOLO para la Página 1 (no alertas rojas aquí)
     if (showNote) {
       const note = document.createElement("div");
-      note.className = "scale-note-inline";
-      note.textContent = "Un puntaje bajo indica mejor manejo en estas áreas.";
+      note.className = "scale-note-risk";
+      const txt = document.createElement("span");
+      txt.textContent = "Un puntaje bajo indica mejor manejo en estas áreas.";
+      note.appendChild(txt);
       host.appendChild(note);
     }
   }
