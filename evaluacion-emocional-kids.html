@@ -214,6 +214,14 @@
       width:100%;height:100%;max-height:none;
       display:block;border-radius:14px;object-fit:cover;
     }
+    .scene.scene-wait{
+      align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#e0f2fe,#f8fafc);
+    }
+    .scene-loading{
+      font-size:1.05rem;font-weight:800;color:#0369a1;letter-spacing:.02em;
+    }
+    .choices.choices-wait{opacity:.4;pointer-events:none}
     .scene-emoji{font-size:4rem;line-height:1;margin:auto}
     .block-right{
       min-width:0;height:100%;
@@ -625,10 +633,10 @@ function thumbSleep(mood){
 }
 
 function sceneImg(src, alt){
-  return `<img class="scene-photo" src="${src}" alt="${alt}" width="960" height="540" loading="eager" decoding="async"/>`;
+  return `<img class="scene-photo" src="${src}" alt="${alt}" width="960" height="540" loading="eager" decoding="sync"/>`;
 }
 function thumbImg(src, alt){
-  return `<img class="thumb-photo" src="${src}" alt="${alt}" width="400" height="400" loading="eager" decoding="async"/>`;
+  return `<img class="thumb-photo" src="${src}" alt="${alt}" width="400" height="400" loading="eager" decoding="sync"/>`;
 }
 
 function sceneEmoji(emoji, caption){
@@ -1151,6 +1159,8 @@ async function lookupCodigo(){
       codigoMsg.textContent = "Código válido.";
       codigoMsg.className = "ok";
     }
+    // Anticipa la 1ª pregunta mientras lee instrucciones.
+    if(ITEMS[0]) preloadImages(questionImageSrcs(ITEMS[0]));
   }catch(e){
     limpiarCamposCodigo();
     CODIGO_ACTUAL = null;
@@ -1285,16 +1295,61 @@ function updateProgress(){
   document.getElementById("qMeta").textContent = `Pregunta ${currentIndex+1} de ${ITEMS.length}`;
 }
 
-function renderQuestion(){
+function extractImgSrcs(html){
+  const out = [];
+  const re = /src="([^"]+)"/g;
+  let m;
+  while((m = re.exec(String(html || "")))) out.push(m[1]);
+  return out;
+}
+
+function questionImageSrcs(q){
+  if(!q) return [];
+  const srcs = extractImgSrcs(q.sceneHtml);
+  (q.choices || []).forEach(row => {
+    if(typeof row[0] === "string") srcs.push(...extractImgSrcs(row[0]));
+  });
+  return [...new Set(srcs)];
+}
+
+function preloadImages(srcs){
+  const list = (srcs || []).filter(Boolean);
+  if(!list.length) return Promise.resolve();
+  return Promise.all(list.map(src => new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = src;
+  })));
+}
+
+let renderToken = 0;
+
+async function renderQuestion(){
+  const token = ++renderToken;
   stopSpeech();
   pequesAudio = null;
   audioCueEnds = null;
   clearChoiceCues();
   const q = ITEMS[currentIndex];
+  const sceneEl = document.getElementById("qScene");
+  const cont = document.getElementById("qChoices");
   document.getElementById("qTitle").textContent = q.title;
   document.getElementById("qHint").textContent = "Haz clic en la opción que más se parece a ti.";
-  document.getElementById("qScene").innerHTML = q.sceneHtml;
-  const cont = document.getElementById("qChoices");
+  document.getElementById("btnSiguiente").disabled = true;
+  setAudioNudgeVisible(false);
+
+  sceneEl.classList.add("scene-wait");
+  sceneEl.innerHTML = `<div class="scene-loading" aria-busy="true">Cargando…</div>`;
+  cont.classList.add("choices-wait");
+  cont.innerHTML = "";
+
+  await preloadImages(questionImageSrcs(q));
+  if(token !== renderToken) return;
+
+  sceneEl.classList.remove("scene-wait");
+  sceneEl.innerHTML = q.sceneHtml;
+  cont.classList.remove("choices-wait");
   cont.innerHTML = "";
   q.choices.forEach((row, idx) => {
     const [face, label, score] = row;
@@ -1327,6 +1382,10 @@ function renderQuestion(){
     : 'SIGUIENTE <span class="btn-next-arrow" aria-hidden="true">➜</span>';
   updateProgress();
   setAudioNudgeVisible(q.value == null);
+
+  // Precarga en segundo plano la siguiente pregunta (si existe).
+  const next = ITEMS[currentIndex + 1];
+  if(next) preloadImages(questionImageSrcs(next));
 }
 
 function audioBtn(){ return document.getElementById("btnAudio"); }
