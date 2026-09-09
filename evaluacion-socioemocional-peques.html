@@ -64,6 +64,33 @@
     #pantalla-inicio ul.muted li{margin:3px 0}
     #pantalla-inicio .btn-row{margin-top:12px;gap:10px}
     #pantalla-inicio .btn{padding:10px 16px;font-size:1rem}
+    #pantalla-inicio .audio-check{
+      margin:10px 0 4px;padding:10px 12px;border-radius:12px;
+      border:2px solid #7dd3fc;background:#f0f9ff;
+    }
+    #pantalla-inicio .audio-check-q{
+      margin:0 0 8px;font-size:15px;font-weight:800;color:#0c4a6e;line-height:1.35;
+    }
+    #pantalla-inicio .audio-check-opts{
+      display:flex;flex-wrap:wrap;gap:10px;
+    }
+    #pantalla-inicio .audio-check-opts label{
+      display:inline-flex;align-items:center;gap:8px;padding:8px 14px;
+      border-radius:999px;border:2px solid #bae6fd;background:#fff;
+      font-size:15px;font-weight:800;color:#075985;cursor:pointer;
+      user-select:none;
+    }
+    #pantalla-inicio .audio-check-opts label:has(input:checked){
+      border-color:#0284c7;background:#e0f2fe;
+    }
+    #pantalla-inicio .audio-check-opts input{
+      width:18px;height:18px;accent-color:#0284c7;
+    }
+    #pantalla-inicio .audio-check-hint{
+      margin:8px 0 0;font-size:13px;font-weight:700;color:#0369a1;line-height:1.35;
+    }
+    #pantalla-inicio .audio-check-hint.err{color:#b91c1c}
+    #pantalla-inicio .audio-check-hint[hidden]{display:none !important}
     #pantalla-inicio .intro-title-row{
       display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;
       margin:0 0 8px;
@@ -294,6 +321,15 @@
         <li>Elige la imagen con el dibujo que más se parece a tu personalidad.</li>
       </ul>
       <p class="muted"><strong>Importante:</strong> Puedes avanzar solo cuando elijas una opción. No podrás volver a preguntas anteriores.</p>
+      <div class="audio-check" id="audioCheckBox">
+        <p class="audio-check-q">¿Oíste el audio con tus audífonos? (toca primero la corneta 🔊)</p>
+        <div class="audio-check-opts" role="radiogroup" aria-label="Prueba de audio">
+          <label><input type="radio" name="audioCheck" id="audioCheckSi" value="si" disabled> Sí, oí bien</label>
+          <label><input type="radio" name="audioCheck" id="audioCheckNo" value="no" disabled> No oí nada</label>
+        </div>
+        <p class="audio-check-hint" id="audioCheckHint">Toca la corneta de arriba para escuchar las instrucciones.</p>
+        <p class="audio-check-hint err" id="audioCheckNoMsg" hidden>Sube el volumen, ponte los audífonos y vuelve a tocar la corneta 🔊.</p>
+      </div>
       <div class="btn-row">
         <button type="button" class="btn btn-ghost" id="btnVolverMenuInicio">REGRESAR AL MENÚ</button>
         <button type="button" class="btn btn-primary" id="btnIniciar" disabled>INICIAR</button>
@@ -349,6 +385,8 @@ let currentIndex = 0;
 let pequesAudio = null;
 let pequesOptAudio = null;
 let introAudio = null;
+let introAudioStarted = false;
+let audioCheckOk = false;
 let audioCueEnds = null; // cumulative end times [introEnd, opt1End, opt2End, opt3End]
 const DALIA_AUDIO_BASE = "assets/peques/audio/q";
 const DALIA_OPT_AUDIO_BASE = "assets/peques/audio/labels/";
@@ -783,6 +821,56 @@ const ITEMS = [
 const codigoInput = document.getElementById("codigo");
 const codigoMsg = document.getElementById("codigoMsg");
 const btnIniciar = document.getElementById("btnIniciar");
+const audioCheckSi = document.getElementById("audioCheckSi");
+const audioCheckNo = document.getElementById("audioCheckNo");
+const audioCheckHint = document.getElementById("audioCheckHint");
+const audioCheckNoMsg = document.getElementById("audioCheckNoMsg");
+
+function syncIniciarBtn(){
+  btnIniciar.disabled = !(CODIGO_ACTUAL && audioCheckOk);
+}
+
+function enableAudioCheckChoices(){
+  if(audioCheckSi) audioCheckSi.disabled = false;
+  if(audioCheckNo) audioCheckNo.disabled = false;
+  if(audioCheckHint){
+    audioCheckHint.hidden = false;
+    audioCheckHint.textContent = "¿Oíste el audio? Elige Sí o No.";
+    audioCheckHint.classList.remove("err");
+  }
+}
+
+function onAudioCheckChange(){
+  const v = (document.querySelector('input[name="audioCheck"]:checked') || {}).value;
+  if(v === "si"){
+    if(!introAudioStarted){
+      audioCheckOk = false;
+      if(audioCheckSi) audioCheckSi.checked = false;
+      if(audioCheckHint){
+        audioCheckHint.hidden = false;
+        audioCheckHint.textContent = "Primero toca la corneta 🔊 para escuchar.";
+        audioCheckHint.classList.add("err");
+      }
+      if(audioCheckNoMsg) audioCheckNoMsg.hidden = true;
+      syncIniciarBtn();
+      return;
+    }
+    audioCheckOk = true;
+    if(audioCheckNoMsg) audioCheckNoMsg.hidden = true;
+    if(audioCheckHint){
+      audioCheckHint.hidden = false;
+      audioCheckHint.textContent = "Listo. Ya puedes iniciar cuando el código esté válido.";
+      audioCheckHint.classList.remove("err");
+    }
+  } else if(v === "no"){
+    audioCheckOk = false;
+    if(audioCheckNoMsg) audioCheckNoMsg.hidden = false;
+    if(audioCheckHint) audioCheckHint.hidden = true;
+  } else {
+    audioCheckOk = false;
+  }
+  syncIniciarBtn();
+}
 const labelCurso = document.getElementById("labelCurso");
 
 function actualizarLabelCurso(codigo=""){
@@ -937,7 +1025,7 @@ async function lookupCodigo(){
   codigoInput.value = codigo;
   actualizarLabelCurso(codigo);
   CODIGO_ACTUAL = null;
-  btnIniciar.disabled = true;
+  syncIniciarBtn();
 
   const nombreEl0 = document.getElementById("nombre");
   if(nombreEl0){
@@ -971,7 +1059,7 @@ async function lookupCodigo(){
     if(codigoUsado){
       limpiarCamposCodigo();
       CODIGO_ACTUAL = null;
-      btnIniciar.disabled = true;
+      syncIniciarBtn();
       if(codigoMsg){
         codigoMsg.textContent = "Este código ya fue utilizado o no está disponible.";
         codigoMsg.className = "err";
@@ -985,7 +1073,7 @@ async function lookupCodigo(){
     if(isStateCompleted(localState)){
       limpiarCamposCodigo();
       CODIGO_ACTUAL = null;
-      btnIniciar.disabled = true;
+      syncIniciarBtn();
       if(codigoMsg){
         codigoMsg.textContent = "Este código ya fue utilizado para completar una evaluación en este dispositivo.";
         codigoMsg.className = "err";
@@ -1026,7 +1114,7 @@ async function lookupCodigo(){
       }
     }
 
-    btnIniciar.disabled = false;
+    syncIniciarBtn();
     if(codigoMsg){
       codigoMsg.textContent = "Código válido.";
       codigoMsg.className = "ok";
@@ -1034,7 +1122,7 @@ async function lookupCodigo(){
   }catch(e){
     limpiarCamposCodigo();
     CODIGO_ACTUAL = null;
-    btnIniciar.disabled = true;
+    syncIniciarBtn();
     const nombreElErr = document.getElementById("nombre");
     if(nombreElErr){
       nombreElErr.readOnly = false;
@@ -1262,7 +1350,17 @@ function speakIntroInstructions(){
     introAudio = null;
     alert("No se pudo cargar el audio de las instrucciones.");
   };
-  introAudio.play().catch(() => {
+  introAudio.play().then(() => {
+    introAudioStarted = true;
+    enableAudioCheckChoices();
+    if(audioCheckNoMsg) audioCheckNoMsg.hidden = true;
+    // Si había dicho "No", al reescuchar limpia la elección para que confirme de nuevo.
+    if(audioCheckNo && audioCheckNo.checked){
+      audioCheckNo.checked = false;
+      audioCheckOk = false;
+      syncIniciarBtn();
+    }
+  }).catch(() => {
     if(btn) btn.classList.remove("playing");
     introAudio = null;
   });
@@ -1353,6 +1451,8 @@ document.getElementById("btnAudio").addEventListener("click", speakCurrent);
 document.getElementById("btnAudioPause").addEventListener("click", togglePause);
 document.getElementById("btnAudioStop").addEventListener("click", stopSpeech);
 document.getElementById("btnIntroAudio").addEventListener("click", speakIntroInstructions);
+if(audioCheckSi) audioCheckSi.addEventListener("change", onAudioCheckChange);
+if(audioCheckNo) audioCheckNo.addEventListener("change", onAudioCheckChange);
 
 document.getElementById("btnSiguiente").addEventListener("click", () => {
   if(ITEMS[currentIndex].value == null) return;
@@ -1378,6 +1478,10 @@ document.getElementById("btnRegresarMenu").onclick = () => { location.href = "in
 
 btnIniciar.addEventListener("click", async () => {
   if(!document.getElementById("nombre").value.trim()){ alert("Ingresa tu nombre."); return; }
+  if(!introAudioStarted || !audioCheckOk){
+    alert("Toca la corneta 🔊, escucha el audio y confirma que lo oíste con Sí.");
+    return;
+  }
   if(!CODIGO_ACTUAL) await lookupCodigo();
   if(!CODIGO_ACTUAL){ alert("Valida el código antes de iniciar."); return; }
 
@@ -1410,7 +1514,7 @@ document.addEventListener("DOMContentLoaded", () => {
   try { document.getElementById("fecha").value = new Intl.DateTimeFormat("es-EC").format(hoy); }
   catch { document.getElementById("fecha").value = hoy.toLocaleDateString("es-EC"); }
   actualizarLabelCurso("");
-  btnIniciar.disabled = true;
+  syncIniciarBtn();
 });
 </script>
 </body>
