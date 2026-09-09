@@ -797,41 +797,132 @@ function obtenerRespuestasCrudas(){
 function loadStateForCurrentCode(){
   const key = getStorageKey();
   if(!key) return null;
-  try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    console.warn("No se pudo leer el estado local:", e);
+    return null;
+  }
 }
 
 function clearState(){
   const key = getStorageKey();
-  if(key) try { localStorage.removeItem(key); } catch {}
+  if(!key) return;
+  try { localStorage.removeItem(key); }
+  catch (e) { console.warn("No se pudo borrar el estado local:", e); }
 }
 
 function isStateCompleted(state){
   if(!state) return false;
   if(state.completed) return true;
   const r = state.responses || {};
-  return Object.keys(r).length >= ITEMS.length;
+  return ITEMS.length > 0 && Object.keys(r).length >= ITEMS.length;
 }
 
-function saveState(completed){
+function limpiarCamposCodigo(){
+  document.getElementById("institucion").value = "";
+  document.getElementById("grupo").value = "";
+  document.getElementById("curso").value = "";
+}
+
+async function syncAutosaveToServer(state){
+  try{
+    const codigo = state.codigo;
+    if(!codigo) return;
+    const payload = {
+      codigo,
+      currentPage: Number.isFinite(state.currentIndex) ? state.currentIndex : 0,
+      responses: state.responses || {},
+      snapshot: {
+        nombre: state.nombre || "",
+        institucion: state.institucion || "",
+        grupo: state.grupo || "",
+        curso: state.curso || "",
+        fecha: state.fecha || "",
+        startTime: state.startTime || null
+      }
+    };
+    await fetch("/api/autosave", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  }catch(e){
+    console.warn("No se pudo sincronizar autosave servidor:", e);
+  }
+}
+
+async function cargarAutosaveServidor(codigo){
+  if(!codigo) return null;
+  try{
+    const r = await fetch(`/api/autosave?codigo=${encodeURIComponent(codigo)}`);
+    const data = await r.json();
+    if(!r.ok || !data.ok || !data.autosave) return null;
+    const row = data.autosave;
+    const snap = row.snapshot || {};
+    const page = typeof row.current_page === "number" ? row.current_page
+      : (typeof row.currentPage === "number" ? row.currentPage : 0);
+    return {
+      codigo: row.codigo || codigo,
+      nombre: snap.nombre || "",
+      institucion: snap.institucion || "",
+      grupo: snap.grupo || "",
+      curso: snap.curso || "",
+      fecha: snap.fecha || "",
+      currentIndex: page,
+      responses: row.responses || {},
+      startTime: snap.startTime || Date.now(),
+      completed: false
+    };
+  }catch(e){
+    console.warn("No se pudo cargar autosave servidor:", e);
+    return null;
+  }
+}
+
+function saveState(completedFlag){
   const key = getStorageKey();
   if(!key) return;
-  const state = {
-    codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
-    nombre: document.getElementById("nombre").value.trim(),
-    institucion: document.getElementById("institucion").value,
-    grupo: document.getElementById("grupo").value,
-    curso: document.getElementById("curso").value,
-    fecha: document.getElementById("fecha").value,
-    currentIndex,
-    responses: obtenerRespuestasCrudas(),
-    startTime: __startTime,
-    completed: !!completed
-  };
-  try { localStorage.setItem(key, JSON.stringify(state)); } catch {}
-  fetch("/api/autosave",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
-    codigo: state.codigo, currentPage: currentIndex, responses: state.responses,
-    snapshot:{nombre:state.nombre,institucion:state.institucion,grupo:state.grupo,curso:state.curso,fecha:state.fecha,startTime:state.startTime}
-  })}).catch(()=>{});
+  try{
+    const prev = loadStateForCurrentCode() || {};
+    const state = {
+      ...prev,
+      codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
+      nombre: document.getElementById("nombre").value.trim(),
+      institucion: document.getElementById("institucion").value,
+      grupo: document.getElementById("grupo").value,
+      curso: document.getElementById("curso").value,
+      fecha: document.getElementById("fecha").value,
+      currentIndex,
+      responses: obtenerRespuestasCrudas(),
+      startTime: __startTime || Date.now(),
+      completed: (typeof completedFlag === "boolean") ? completedFlag : !!prev.completed
+    };
+    localStorage.setItem(key, JSON.stringify(state));
+    syncAutosaveToServer(state);
+  }catch(e){
+    console.warn("No se pudo guardar el progreso local:", e);
+  }
+}
+
+function aplicarState(state){
+  if(!state) return;
+  document.getElementById("nombre").value = state.nombre || "";
+  if(state.institucion) document.getElementById("institucion").value = state.institucion;
+  if(state.grupo) document.getElementById("grupo").value = state.grupo;
+  if(state.curso) document.getElementById("curso").value = state.curso;
+  if(state.fecha) document.getElementById("fecha").value = state.fecha;
+  CODIGO_ACTUAL = state.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+  const resp = state.responses || {};
+  ITEMS.forEach(q => {
+    const v = resp[String(q.id)];
+    q.value = (typeof v === "number") ? v : null;
+  });
+  const idx = Number.isFinite(state.currentIndex) ? state.currentIndex
+    : (Number.isFinite(state.currentPage) ? state.currentPage : 0);
+  currentIndex = Math.max(0, Math.min(idx, Math.max(0, ITEMS.length - 1)));
+  __startTime = state.startTime || Date.now();
 }
 
 async function lookupCodigo(){
@@ -840,23 +931,71 @@ async function lookupCodigo(){
   actualizarLabelCurso(codigo);
   CODIGO_ACTUAL = null;
   btnIniciar.disabled = true;
-  if(codigoMsg){ codigoMsg.textContent = codigo ? "Buscando..." : "Ingresa un código."; codigoMsg.className = "muted"; }
-  if(!codigo) return;
+
+  if(codigoMsg){
+    codigoMsg.textContent = codigo ? "Buscando..." : "Ingresa un código.";
+    codigoMsg.className = codigo ? "muted" : "err";
+  }
+  if(!codigo){
+    limpiarCamposCodigo();
+    return;
+  }
+
   try{
-    const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}&eval=${EVAL_PRODUCT_KEY}&idioma=${EVAL_LANG}`);
+    const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}&eval=${encodeURIComponent(EVAL_PRODUCT_KEY)}&idioma=${encodeURIComponent(EVAL_LANG)}`);
     const data = await r.json();
     if(!r.ok) throw new Error(data.error || "Código no válido");
-    const usado = data.usado === true || data.disponible === false;
-    if(usado) throw new Error("Este código ya fue utilizado o no está disponible.");
-    if(isStateCompleted(loadStateForCurrentCode())) throw new Error("Este código ya completó la evaluación en este dispositivo.");
+
+    const codigoUsado =
+      data.usado === true ||
+      data.usado === "true" ||
+      (typeof data.disponible === "boolean" && data.disponible === false) ||
+      (data.estado && String(data.estado).toLowerCase() !== "activo") ||
+      (typeof data.intentos_max === "number" &&
+       typeof data.intentos_usados === "number" &&
+       data.intentos_usados >= data.intentos_max);
+
+    if(codigoUsado){
+      limpiarCamposCodigo();
+      CODIGO_ACTUAL = null;
+      btnIniciar.disabled = true;
+      if(codigoMsg){
+        codigoMsg.textContent = "Este código ya fue utilizado o no está disponible.";
+        codigoMsg.className = "err";
+      }
+      return;
+    }
+
     CODIGO_ACTUAL = data.codigo || codigo;
+
+    const localState = loadStateForCurrentCode();
+    if(isStateCompleted(localState)){
+      limpiarCamposCodigo();
+      CODIGO_ACTUAL = null;
+      btnIniciar.disabled = true;
+      if(codigoMsg){
+        codigoMsg.textContent = "Este código ya fue utilizado para completar una evaluación en este dispositivo.";
+        codigoMsg.className = "err";
+      }
+      return;
+    }
+
     document.getElementById("institucion").value = data.institucion || "";
     document.getElementById("grupo").value = data.grupo || "";
     document.getElementById("curso").value = data.curso || "";
     btnIniciar.disabled = false;
-    if(codigoMsg){ codigoMsg.textContent = "Código válido."; codigoMsg.className = "ok"; }
+    if(codigoMsg){
+      codigoMsg.textContent = "Código válido.";
+      codigoMsg.className = "ok";
+    }
   }catch(e){
-    if(codigoMsg){ codigoMsg.textContent = e.message || "Código no encontrado."; codigoMsg.className = "err"; }
+    limpiarCamposCodigo();
+    CODIGO_ACTUAL = null;
+    btnIniciar.disabled = true;
+    if(codigoMsg){
+      codigoMsg.textContent = (e && e.message) ? e.message : "Código no encontrado.";
+      codigoMsg.className = "err";
+    }
   }
 }
 
@@ -1177,22 +1316,45 @@ document.getElementById("btnSiguiente").addEventListener("click", () => {
 });
 
 codigoInput.addEventListener("blur", lookupCodigo);
-codigoInput.addEventListener("input", () => { codigoInput.value = codigoInput.value.toUpperCase(); actualizarLabelCurso(codigoInput.value); });
+codigoInput.addEventListener("input", () => {
+  codigoInput.value = codigoInput.value.toUpperCase();
+  actualizarLabelCurso(codigoInput.value);
+});
+codigoInput.addEventListener("keydown", (e) => {
+  if(e.key === "Enter"){ e.preventDefault(); lookupCodigo(); }
+});
 document.getElementById("btnVolverMenuInicio").onclick = () => { location.href = "index.html"; };
 document.getElementById("btnRegresarMenu").onclick = () => { location.href = "index.html"; };
 
 btnIniciar.addEventListener("click", async () => {
   if(!document.getElementById("nombre").value.trim()){ alert("Ingresa tu nombre."); return; }
   if(!CODIGO_ACTUAL) await lookupCodigo();
-  if(!CODIGO_ACTUAL){ alert("Valida el código."); return; }
-  const saved = loadStateForCurrentCode();
-  if(saved && !saved.completed && Object.keys(saved.responses||{}).length){
-    if(confirm("Hay una evaluación en curso. ¿Continuar donde la dejaste?")){
-      currentIndex = saved.currentIndex || 0;
-      __startTime = saved.startTime || Date.now();
-      ITEMS.forEach(q => { const v = saved.responses[String(q.id)]; q.value = typeof v === "number" ? v : null; });
-    } else { clearState(); ITEMS.forEach(q => q.value = null); currentIndex = 0; __startTime = Date.now(); }
-  } else { ITEMS.forEach(q => q.value = null); currentIndex = 0; __startTime = Date.now(); }
+  if(!CODIGO_ACTUAL){ alert("Valida el código antes de iniciar."); return; }
+
+  const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+  let serverState = null;
+  if(codigo) serverState = await cargarAutosaveServidor(codigo);
+  const localSaved = loadStateForCurrentCode();
+  const candidate = serverState || localSaved;
+
+  if(candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0){
+    const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
+    if(retomar){
+      aplicarState(candidate);
+    } else {
+      clearState();
+      ITEMS.forEach(q => { q.value = null; });
+      currentIndex = 0;
+      __startTime = Date.now();
+      saveState(false);
+    }
+  } else {
+    ITEMS.forEach(q => { q.value = null; });
+    currentIndex = 0;
+    __startTime = Date.now();
+    saveState(false);
+  }
+
   stopIntroSpeech();
   document.getElementById("pantalla-inicio").classList.add("hidden");
   document.getElementById("datos-participante").classList.add("hidden");
@@ -1205,6 +1367,7 @@ document.addEventListener("DOMContentLoaded", () => {
   try { document.getElementById("fecha").value = new Intl.DateTimeFormat("es-EC").format(hoy); }
   catch { document.getElementById("fecha").value = hoy.toLocaleDateString("es-EC"); }
   actualizarLabelCurso("");
+  btnIniciar.disabled = true;
 });
 </script>
 </body>
