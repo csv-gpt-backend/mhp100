@@ -220,10 +220,17 @@
       0%,100%{transform:translateX(0);opacity:1}
       50%{transform:translateX(6px);opacity:.85}
     }
-    #pantalla-final{display:none;text-align:center;padding:28px 14px}
-    #pantalla-final .check{font-size:2.6rem;color:#16a34a;margin-bottom:8px}
-    #pantalla-final h2{font-size:1.4rem}
-    #pantalla-final .muted{font-size:1.05rem}
+    #pantalla-final{
+      display:none;text-align:center;margin-top:24px;padding:28px 18px;
+      border-radius:8px;border:1px solid #e5e7eb;background:#fefce8;
+    }
+    #pantalla-final .check{
+      width:40px;height:40px;border-radius:999px;border:2px solid #16a34a;
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:1.5rem;color:#16a34a;margin-bottom:8px;
+    }
+    #pantalla-final h2{font-size:1.4rem;margin:0 0 8px}
+    #pantalla-final .muted{font-size:1.05rem;margin:0 0 16px}
     @media(max-width:960px){
       .play-area{grid-template-columns:1fr;gap:12px;align-items:stretch}
       .scene{min-height:min(36vh,320px);flex:0 0 auto}
@@ -259,7 +266,7 @@
           <input id="codigo" autocomplete="off" style="text-transform:uppercase"/>
           <small id="codigoMsg" class="muted"></small></div>
         <div class="field"><label for="nombre">Nombre</label>
-          <input id="nombre" autocomplete="name"/></div>
+          <input id="nombre" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
         <div class="field"><label id="labelCurso" for="curso">Grado/Curso</label>
           <input id="curso" readonly/></div>
         <div class="field"><label for="institucion">Institución</label>
@@ -326,8 +333,8 @@
     <section id="pantalla-final" class="card">
       <div class="check">✔</div>
       <h2>Evaluación terminada</h2>
-      <p class="muted">Felicidades, has concluido tu evaluación socioemocional.</p>
-      <button type="button" class="btn btn-primary" id="btnRegresarMenu">REGRESAR AL MENÚ</button>
+      <p class="muted">Felicidades, has concluido tu evaluación de socioemocional kids.</p>
+      <button type="button" class="btn btn-ghost" id="btnRegresarMenu">REGRESAR AL MENÚ</button>
     </section>
   </main>
 </div>
@@ -935,7 +942,7 @@ async function lookupCodigo(){
   const nombreEl0 = document.getElementById("nombre");
   if(nombreEl0){
     nombreEl0.readOnly = false;
-    nombreEl0.setAttribute("autocomplete", "name");
+    nombreEl0.setAttribute("autocomplete", "off");
   }
 
   if(codigoMsg){
@@ -1015,7 +1022,7 @@ async function lookupCodigo(){
         nombreEl.setAttribute("autocomplete", "off");
       } else {
         nombreEl.readOnly = false;
-        nombreEl.setAttribute("autocomplete", "name");
+        nombreEl.setAttribute("autocomplete", "off");
       }
     }
 
@@ -1031,7 +1038,7 @@ async function lookupCodigo(){
     const nombreElErr = document.getElementById("nombre");
     if(nombreElErr){
       nombreElErr.readOnly = false;
-      nombreElErr.setAttribute("autocomplete", "name");
+      nombreElErr.setAttribute("autocomplete", "off");
     }
     if(codigoMsg){
       codigoMsg.textContent = (e && e.message) ? e.message : "Código no encontrado.";
@@ -1142,10 +1149,12 @@ function onFinalizar(){
   saveState(true);
   fetch("/api/submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).catch(()=>{});
   document.getElementById("pantalla-preguntas").classList.add("hidden");
-  document.getElementById("datos-participante").classList.add("hidden");
   document.getElementById("pantalla-inicio").classList.add("hidden");
+  document.getElementById("datos-participante").classList.remove("hidden");
   document.getElementById("nombre").readOnly = true;
-  document.getElementById("pantalla-final").style.display = "block";
+  const pantallaFinal = document.getElementById("pantalla-final");
+  pantallaFinal.style.display = "block";
+  pantallaFinal.scrollIntoView({ behavior: "smooth", block: "start" });
   stopSpeech();
 }
 
