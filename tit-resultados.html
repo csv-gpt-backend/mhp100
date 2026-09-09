@@ -180,6 +180,7 @@
 (function(){
   const EVAL_LABELS = {
     socioemocional: "Socioemocional",
+    socioemocional_kids: "Socioemocional Kids",
     integridad: "Integridad",
     liderazgo: "Liderazgo",
     habitos: "Hábitos",
@@ -212,10 +213,18 @@
 
   function cuposTxt(cupos){
     if (!cupos || typeof cupos !== "object") return "—";
-    return Object.keys(EVAL_LABELS).map(k => {
-      if (cupos[k] == null) return null;
-      return EVAL_LABELS[k] + ": " + cupos[k];
-    }).filter(Boolean).join(" · ") || "—";
+    const seen = new Set();
+    const parts = [];
+    Object.keys(EVAL_LABELS).forEach(k => {
+      if (cupos[k] == null) return;
+      seen.add(k);
+      parts.push(EVAL_LABELS[k] + ": " + cupos[k]);
+    });
+    Object.keys(cupos).forEach(k => {
+      if (seen.has(k) || cupos[k] == null) return;
+      parts.push(k + ": " + cupos[k]);
+    });
+    return parts.join(" · ") || "—";
   }
 
   function dayKey(iso){
