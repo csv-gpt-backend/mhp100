@@ -1,0 +1,1553 @@
+<!doctype html>
+<html lang="es" translate="no" class="notranslate">
+<head>
+  <meta name="google" content="notranslate">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Evaluación Socioemocional · Kids</title>
+  <style>
+    :root{
+      --accent:#2563eb; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+      --bg:#f0f9ff; --card:#fff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:linear-gradient(180deg,#dbeafe,#f8fafc);color:var(--ink);font-size:17px}
+    .layout{display:grid;grid-template-columns:72px minmax(0,1fr);min-height:100vh}
+    .side{background:#e5e7eb;border-right:1px solid #cbd5e1;display:flex;align-items:center;justify-content:center}
+    .side span{
+      writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:20px;
+      letter-spacing:.14em;color:#6b7280;text-align:center;padding:10px 0;
+      text-shadow:0 1px 0 rgba(255,255,255,.8),0 -1px 0 rgba(0,0,0,.15);
+    }
+    .page{max-width:1200px;margin:0 auto;padding:14px 18px 28px;width:100%}
+    h1{font-size:1.35rem;margin:0 0 10px;font-weight:800}
+    h2{font-size:1.2rem;margin:0 0 10px;font-weight:800}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+    #pantalla-preguntas .card{padding:14px 16px 16px}
+    .hidden{display:none !important}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+    @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+    .field{display:flex;flex-direction:column;gap:4px;font-size:15px}
+    .field label{font-weight:700;font-size:15px}
+    .field input{padding:10px;border:1px solid #d1d5db;border-radius:8px;font-size:16px}
+    .field input[readonly]{background:#f9fafb;color:#4b5563}
+    .ok{color:#16a34a;font-weight:600;font-size:14px}
+    .err{color:#dc2626;font-weight:600;font-size:14px}
+    .muted{color:var(--muted);font-size:15px;line-height:1.5}
+    .btn{border:0;border-radius:10px;padding:12px 18px;font-weight:800;cursor:pointer;font-size:1.05rem}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-primary:disabled{opacity:.45;cursor:not-allowed}
+    .btn-ghost{background:#e5e7eb;color:#111}
+    .btn-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:14px}
+    #pantalla-inicio ul.muted{font-size:15px}
+
+    /* Solo ingreso (datos + instrucciones): compacto pero con más aire que el mínimo.
+       No afecta #pantalla-preguntas. */
+    body:has(#pantalla-preguntas.hidden) .page{padding:12px 16px 16px}
+    body:has(#pantalla-preguntas.hidden) header h1{font-size:1.25rem;margin:0 0 8px}
+    #datos-participante.card{
+      padding:12px 14px;margin-bottom:10px;
+    }
+    #datos-participante .grid-2{gap:8px 14px}
+    #datos-participante .field{gap:3px;font-size:14px}
+    #datos-participante .field label{font-size:13px;font-weight:700}
+    #datos-participante .field input{padding:8px 10px;font-size:15px;border-radius:8px}
+    #datos-participante .field small{font-size:12px;line-height:1.25}
+    #pantalla-inicio.card{
+      padding:12px 14px;margin-bottom:10px;
+    }
+    #pantalla-inicio h2{font-size:1.25rem;margin:0 0 8px}
+    #pantalla-inicio > .muted{font-size:16px;line-height:1.5;margin:0 0 8px}
+    #pantalla-inicio ul.muted{
+      margin:4px 0 8px;padding-left:18px;font-size:16px;line-height:1.5;
+    }
+    #pantalla-inicio ul.muted li{margin:4px 0}
+    #pantalla-inicio .btn-row{margin-top:12px;gap:10px}
+    #pantalla-inicio .btn{padding:10px 16px;font-size:1rem}
+    #pantalla-inicio .audio-check{
+      margin:10px 0 4px;padding:10px 12px;border-radius:12px;
+      border:2px solid #7dd3fc;background:#f0f9ff;
+    }
+    #pantalla-inicio .audio-check-q{
+      margin:0 0 8px;font-size:16px;font-weight:800;color:#0c4a6e;line-height:1.4;
+    }
+    #pantalla-inicio .audio-check-opts{
+      display:flex;flex-wrap:wrap;gap:10px;
+    }
+    #pantalla-inicio .audio-check-opts label{
+      display:inline-flex;align-items:center;gap:8px;padding:8px 14px;
+      border-radius:999px;border:2px solid #bae6fd;background:#fff;
+      font-size:16px;font-weight:800;color:#075985;cursor:pointer;
+      user-select:none;
+    }
+    #pantalla-inicio .audio-check-opts label:has(input:checked){
+      border-color:#0284c7;background:#e0f2fe;
+    }
+    #pantalla-inicio .audio-check-opts input{
+      width:18px;height:18px;accent-color:#0284c7;
+    }
+    #pantalla-inicio .audio-check-hint{
+      margin:8px 0 0;font-size:14px;font-weight:700;color:#0369a1;line-height:1.4;
+    }
+    #pantalla-inicio .audio-check-hint.err{color:#b91c1c}
+    #pantalla-inicio .audio-check-hint[hidden]{display:none !important}
+    #pantalla-inicio .intro-title-row{
+      display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;
+      margin:0 0 8px;
+    }
+    #pantalla-inicio .intro-title-row h2{margin:0;flex:1 1 auto}
+    #pantalla-inicio .intro-listen{
+      display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;
+      border:0;background:transparent;padding:0;cursor:pointer;line-height:0;
+      flex:0 0 auto;min-width:120px;
+    }
+    #pantalla-inicio .intro-listen .audio-nudge{
+      margin:0;width:56px;height:56px;
+    }
+    #pantalla-inicio .intro-listen .audio-nudge img{
+      width:56px;height:56px;
+    }
+    #pantalla-inicio .intro-horn{
+      font-size:2.6rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;
+      filter:drop-shadow(0 1px 2px rgba(3,105,161,.25));
+    }
+    #pantalla-inicio .intro-listen.playing .intro-horn{
+      filter:drop-shadow(0 0 6px rgba(14,165,233,.65));
+      transform:scale(1.08);
+    }
+    #pantalla-inicio .btn-row .btn-primary{
+      margin-left:auto;
+    }
+    @media(max-height:860px){
+      body:has(#pantalla-preguntas.hidden) .page{padding:8px 12px 10px}
+      body:has(#pantalla-preguntas.hidden) header h1{font-size:1.15rem;margin:0 0 6px}
+      #datos-participante.card{padding:8px 10px;margin-bottom:6px}
+      #datos-participante .grid-2{gap:5px 10px}
+      #datos-participante .field{gap:2px;font-size:13px}
+      #datos-participante .field label{font-size:12px}
+      #datos-participante .field input{padding:6px 8px;font-size:14px}
+      #datos-participante .field small{font-size:11px}
+      #pantalla-inicio.card{padding:8px 10px;margin-bottom:6px}
+      #pantalla-inicio h2{font-size:1.1rem}
+      #pantalla-inicio > .muted,
+      #pantalla-inicio ul.muted{font-size:14px;line-height:1.35;margin:0 0 4px}
+      #pantalla-inicio ul.muted{margin:2px 0 4px;padding-left:16px}
+      #pantalla-inicio ul.muted li{margin:2px 0}
+      #pantalla-inicio .intro-title-row{margin:0 0 4px;gap:6px}
+      #pantalla-inicio .intro-listen .audio-nudge,
+      #pantalla-inicio .intro-listen .audio-nudge img{width:44px;height:44px}
+      #pantalla-inicio .intro-horn{font-size:2.1rem}
+      #pantalla-inicio .audio-check{margin:6px 0 2px;padding:7px 9px}
+      #pantalla-inicio .audio-check-q{font-size:14px;margin:0 0 5px}
+      #pantalla-inicio .audio-check-opts{gap:6px}
+      #pantalla-inicio .audio-check-opts label{padding:6px 11px;font-size:14px}
+      #pantalla-inicio .audio-check-hint{margin:5px 0 0;font-size:12px}
+      #pantalla-inicio .btn-row{margin-top:8px;gap:8px}
+      #pantalla-inicio .btn{padding:8px 12px;font-size:.95rem}
+    }
+    @media(max-height:720px){
+      body:has(#pantalla-preguntas.hidden) .page{padding:6px 10px 8px}
+      #datos-participante.card{padding:6px 8px;margin-bottom:4px}
+      #datos-participante .grid-2{gap:4px 8px}
+      #datos-participante .field input{padding:5px 7px;font-size:13px}
+      #pantalla-inicio.card{padding:6px 8px}
+      #pantalla-inicio > .muted,
+      #pantalla-inicio ul.muted{font-size:13px;line-height:1.3}
+      #pantalla-inicio .audio-check{padding:6px 8px}
+      #pantalla-inicio .audio-check-q{font-size:13px}
+      #pantalla-inicio .audio-check-opts label{padding:5px 10px;font-size:13px}
+      #pantalla-inicio .intro-listen .audio-nudge,
+      #pantalla-inicio .intro-listen .audio-nudge img{width:38px;height:38px}
+      #pantalla-inicio .intro-horn{font-size:1.85rem}
+    }
+
+    .q-head{margin-bottom:10px}
+    .progress{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:6px 0 10px}
+    .progress .bar{height:100%;background:var(--accent);width:0%;transition:width .2s}
+    .q-meta{font-size:15px;font-weight:600}
+    .q-title-row{
+      display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;
+      gap:10px 14px;margin:0 0 10px;
+    }
+    .q-title{font-size:1.45rem;font-weight:800;margin:0;line-height:1.25;flex:1 1 auto}
+    .audio-row{
+      display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;
+      margin:0;width:100%;
+    }
+    .audio-nudge{
+      flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+      background:transparent;border:0;padding:0;margin:0 6px 0 0;
+      width:68px;height:68px;line-height:0;
+      animation:nudgeBlink 1s ease-in-out infinite;
+      user-select:none;pointer-events:none;
+    }
+    .audio-nudge img{
+      width:68px;height:68px;display:block;object-fit:contain;
+    }
+    .audio-nudge[hidden]{display:none !important}
+    @keyframes nudgeBlink{
+      0%,100%{opacity:1;transform:translateX(0) scale(1)}
+      50%{opacity:.5;transform:translateX(8px) scale(1.1)}
+    }
+    .btn-audio{border:0;border-radius:999px;padding:10px 16px;font-weight:800;background:#0ea5e9;color:#fff;cursor:pointer;font-size:1rem;white-space:nowrap}
+    .btn-audio.playing{background:#0369a1}
+    .btn-audio-sm{border:2px solid #cbd5e1;background:#fff;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:.95rem;white-space:nowrap}
+    /* Escena + audio izq | opciones der; misma altura de columnas */
+    .play-area{
+      display:grid;
+      grid-template-columns:minmax(0,.88fr) minmax(360px,1.22fr);
+      gap:16px;
+      align-items:stretch;
+    }
+    .block-left{
+      min-width:0;min-height:0;height:100%;
+      display:flex;flex-direction:column;align-items:stretch;gap:10px;
+    }
+    .scene{
+      flex:1 1 auto;min-height:280px;width:100%;height:auto;
+      display:flex;align-items:stretch;justify-content:stretch;
+      background:linear-gradient(180deg,#e0f2fe,#fff);border:2px solid #93c5fd;border-radius:16px;
+      padding:0;margin:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.8);overflow:hidden;
+    }
+    .scene svg{width:100%;height:100%;display:block}
+    .scene .scene-photo{
+      width:100%;height:100%;max-height:none;
+      display:block;border-radius:14px;object-fit:cover;
+    }
+    .scene-emoji{font-size:4rem;line-height:1;margin:auto}
+    .block-right{
+      min-width:0;height:100%;
+      display:flex;flex-direction:column;justify-content:space-between;gap:12px;
+      background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:14px;
+    }
+    .hint{text-align:center;color:var(--muted);font-size:1.05rem;margin:0;font-weight:700;line-height:1.3}
+    .choices{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:stretch;
+      flex:1;align-content:center;
+    }
+    .choice{
+      border:2px solid var(--line);background:#fff;border-radius:14px;padding:10px;
+      cursor:pointer;text-align:center;font-weight:800;font-size:1.05rem;
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;
+      min-height:0;height:100%;position:relative;
+      transition:border-color .15s,box-shadow .15s,transform .12s,background .15s;
+    }
+    .choice:hover{border-color:#93c5fd;transform:translateY(-1px)}
+    .choice.selected{border-color:var(--accent);background:#eff6ff;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+    .choice.cue-on{
+      border-color:#0284c7;background:#e0f2fe;
+      box-shadow:0 0 0 4px rgba(14,165,233,.35);
+      transform:scale(1.03);
+      animation:cuePulse 1s ease-in-out infinite;
+    }
+    @keyframes cuePulse{
+      0%,100%{box-shadow:0 0 0 3px rgba(14,165,233,.25)}
+      50%{box-shadow:0 0 0 6px rgba(14,165,233,.45)}
+    }
+    .choice .opt-badge-row{
+      display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin:0 0 2px;
+    }
+    .choice .opt-badge{
+      display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.04em;
+      text-transform:uppercase;color:#0369a1;background:#e0f2fe;border:1px solid #7dd3fc;
+      border-radius:999px;padding:3px 8px;line-height:1.2;
+    }
+    .choice .opt-speak{
+      flex:0 0 auto;border:2px solid #38bdf8;background:#e0f2fe;color:#0369a1;
+      border-radius:999px;width:44px;height:44px;padding:0;cursor:pointer;
+      font-size:1.35rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;
+      box-shadow:0 2px 6px rgba(3,105,161,.18);
+    }
+    .choice .opt-speak:hover,.choice .opt-speak:focus-visible{background:#0284c7;color:#fff;border-color:#0284c7}
+    .choice .opt-speak.playing{background:#0369a1;color:#fff;border-color:#0369a1}
+    .choice.cue-on .opt-badge{background:#0284c7;color:#fff;border-color:#0284c7}
+    .choice .face{font-size:2.4rem;display:block;margin:0}
+    .choice .thumb{width:100%;max-width:230px;margin:0 auto;line-height:0;flex:0 0 auto}
+    .choice .thumb svg,.choice .thumb .thumb-photo{
+      width:100%;height:auto;aspect-ratio:1;display:block;border-radius:12px;object-fit:cover;
+    }
+    .choice .choice-label{line-height:1.25;text-align:center;font-size:1.12rem;margin-top:auto}
+    .block-right .btn-row{margin:0;justify-content:center;flex-shrink:0}
+    .block-right .btn{width:100%;max-width:260px;padding:14px 18px;font-size:1.1rem}
+    .block-right .btn .btn-next-arrow{
+      display:inline-block;margin-left:10px;font-size:1.75em;font-weight:900;
+      line-height:1;vertical-align:-3px;color:#fff;
+      text-shadow:0 0 2px #fff, 0 2px 0 rgba(0,0,0,.35), 0 0 10px rgba(255,255,255,.9);
+      animation:nextArrowPulse 1.1s ease-in-out infinite;
+    }
+    @keyframes nextArrowPulse{
+      0%,100%{transform:translateX(0);opacity:1}
+      50%{transform:translateX(6px);opacity:.85}
+    }
+    #pantalla-final{
+      display:none;text-align:center;margin-top:24px;padding:28px 18px;
+      border-radius:8px;border:1px solid #e5e7eb;background:#fefce8;
+    }
+    #pantalla-final .check{
+      width:40px;height:40px;border-radius:999px;border:2px solid #16a34a;
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:1.5rem;color:#16a34a;margin-bottom:8px;
+    }
+    #pantalla-final h2{font-size:1.4rem;margin:0 0 8px}
+    #pantalla-final .muted{font-size:1.05rem;margin:0 0 16px}
+    @media(max-width:960px){
+      .play-area{grid-template-columns:1fr;gap:12px;align-items:stretch}
+      .scene{min-height:min(36vh,320px);flex:0 0 auto}
+      .scene .scene-photo,.scene svg{height:min(36vh,320px);object-fit:cover}
+      .block-right{height:auto}
+      .choice .thumb{max-width:200px}
+    }
+    @media(max-width:700px){
+      .audio-row{justify-content:center}
+    }
+    @media(max-width:560px){
+      .layout{grid-template-columns:48px minmax(0,1fr)}
+      .side span{font-size:14px;letter-spacing:.1em}
+      .page{max-width:100%;padding:12px}
+      .choices{grid-template-columns:1fr;gap:8px}
+      .choice{flex-direction:row;flex-wrap:wrap;text-align:left;padding:8px 10px;height:auto}
+      .choice .opt-badge-row{width:100%;justify-content:space-between}
+      .choice .opt-badge{flex:1;text-align:center}
+      .choice .thumb{width:96px;max-width:96px;margin:0}
+      .choice .choice-label{text-align:left;margin-top:0;flex:1}
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side"><span>SOCIOEMOCIONAL KIDS</span></aside>
+  <main class="page">
+    <header><h1>Evaluación Socioemocional · Kids</h1></header>
+
+    <section id="datos-participante" class="card">
+      <div class="grid-2">
+        <div class="field"><label for="codigo">Código</label>
+          <input id="codigo" autocomplete="off" style="text-transform:uppercase"/>
+          <small id="codigoMsg" class="muted"></small></div>
+        <div class="field"><label for="nombre">Nombre</label>
+          <input id="nombre" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+        <div class="field"><label id="labelCurso" for="curso">Grado/Curso</label>
+          <input id="curso" readonly/></div>
+        <div class="field"><label for="institucion">Institución</label>
+          <input id="institucion" readonly/></div>
+        <div class="field"><label for="grupo">País</label>
+          <input id="grupo" readonly/></div>
+        <div class="field"><label for="fecha">Fecha</label>
+          <input id="fecha" readonly/></div>
+      </div>
+    </section>
+
+    <section id="pantalla-inicio" class="card">
+      <div class="intro-title-row">
+        <h2>Instrucciones</h2>
+        <button type="button" class="intro-listen" id="btnIntroAudio" aria-label="Escuchar instrucciones" title="Escuchar instrucciones">
+          <span class="audio-nudge" id="introAudioNudge" aria-hidden="true"><img src="assets/peques/audio-nudge-hand.png" alt=""/></span>
+          <span class="intro-horn" aria-hidden="true">🔊</span>
+        </button>
+      </div>
+      <p class="muted">El manejo de las emociones ayuda a que te sientas bien, a llevarte mejor con otros y a enfrentar lo que pasa cada día. Esta evaluación mide cómo te sientes contigo, cómo te relacionas y reaccionas cuando algo cambia.</p>
+      <ul class="muted">
+        <li>Observa la imagen más grande.</li>
+        <li>Haz clic en <strong>Escuchar</strong>, para oír la pregunta.</li>
+        <li>En cada opción puedes hacer clic en la bocina <strong>🔊</strong>, para oír esa respuesta únicamente.</li>
+        <li>Elige la imagen con el dibujo que más se parece a tu personalidad.</li>
+      </ul>
+      <p class="muted"><strong>Importante:</strong> Puedes avanzar solo cuando elijas una opción. No podrás volver a preguntas anteriores.</p>
+      <div class="audio-check" id="audioCheckBox">
+        <p class="audio-check-q">¿Oíste el audio con tus audífonos? (toca primero la corneta 🔊)</p>
+        <div class="audio-check-opts" role="radiogroup" aria-label="Prueba de audio">
+          <label><input type="radio" name="audioCheck" id="audioCheckSi" value="si" disabled> Sí, oí bien</label>
+          <label><input type="radio" name="audioCheck" id="audioCheckNo" value="no" disabled> No oí nada</label>
+        </div>
+        <p class="audio-check-hint" id="audioCheckHint">Toca la corneta de arriba para escuchar las instrucciones.</p>
+        <p class="audio-check-hint err" id="audioCheckNoMsg" hidden>Sube el volumen, ponte los audífonos y vuelve a tocar la corneta 🔊.</p>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" id="btnVolverMenuInicio">REGRESAR AL MENÚ</button>
+        <button type="button" class="btn btn-primary" id="btnIniciar" disabled>INICIAR</button>
+      </div>
+    </section>
+
+    <section id="pantalla-preguntas" class="hidden">
+      <div class="card">
+        <div class="q-head">
+          <div class="muted q-meta" id="qMeta"></div>
+          <div class="progress" aria-label="Progreso"><div class="bar" id="bar"></div></div>
+          <div class="q-title-row">
+            <h2 class="q-title" id="qTitle"></h2>
+          </div>
+        </div>
+        <div class="play-area">
+          <div class="block-left">
+            <div class="scene" id="qScene"></div>
+            <div class="audio-row">
+              <span class="audio-nudge" id="audioNudge" aria-hidden="true" title="Toca Escuchar"><img src="assets/peques/audio-nudge-hand.png" alt=""/></span>
+              <button type="button" class="btn-audio" id="btnAudio">🔊 Escuchar</button>
+              <button type="button" class="btn-audio-sm" id="btnAudioPause">⏸ Pausa</button>
+              <button type="button" class="btn-audio-sm" id="btnAudioStop">⏹ Parar</button>
+            </div>
+          </div>
+          <div class="block-right">
+            <p class="hint" id="qHint">Haz clic en la opción que más se parece a ti.</p>
+            <div class="choices" id="qChoices"></div>
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" id="btnSiguiente" disabled>SIGUIENTE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pantalla-final" class="card">
+      <div class="check">✔</div>
+      <h2>Evaluación terminada</h2>
+      <p class="muted">Felicidades, has concluido tu evaluación de socioemocional kids.</p>
+      <button type="button" class="btn btn-ghost" id="btnRegresarMenu">REGRESAR AL MENÚ</button>
+    </section>
+  </main>
+</div>
+
+<script>
+const EVAL_PRODUCT_KEY = "SOCPEQ";
+const EVAL_LANG = "ES";
+const STORAGE_PREFIX = "eval_socpeq_state_";
+let CODIGO_ACTUAL = null;
+let __startTime = Date.now();
+let currentIndex = 0;
+let pequesAudio = null;
+let pequesOptAudio = null;
+let introAudio = null;
+let introAudioStarted = false;
+let audioCheckOk = false;
+let audioCueEnds = null; // cumulative end times [introEnd, opt1End, opt2End, opt3End]
+const DALIA_AUDIO_BASE = "assets/peques/audio/q";
+const DALIA_OPT_AUDIO_BASE = "assets/peques/audio/labels/";
+const INTRO_AUDIO_SRC = "assets/peques/audio/instrucciones.mp3?v=3";
+
+function labelAudioSlug(label){
+  return String(label || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "opcion";
+}
+
+function clearChoiceCues(){
+  document.querySelectorAll(".choice.cue-on").forEach(el => el.classList.remove("cue-on"));
+}
+
+function setChoiceCue(optIndex){
+  // optIndex 1..3 highlights that option; 0 or null = none
+  clearChoiceCues();
+  if(!optIndex) return;
+  const btn = document.querySelector(`.choice[data-opt="${optIndex}"]`);
+  if(btn) btn.classList.add("cue-on");
+}
+
+/** Split speak text into intro + 3 options for timed highlight (by character weight). */
+function buildAudioCuePlan(speakText){
+  const raw = String(speakText || "");
+  // Soporta "Opción uno/dos/tres" (viejas) y "Primera/Segunda/Tercera opción" (nuevas, audio más limpio)
+  const reOld = /Opci[oó]n\s+(uno|dos|tres)\s*:/gi;
+  const reNew = /(Primera|Segunda|Tercera)\s+opci[oó]n\s*:/gi;
+  const marks = [];
+  let m;
+  while((m = reOld.exec(raw))){
+    const word = m[1].toLowerCase();
+    const n = word === "uno" ? 1 : word === "dos" ? 2 : 3;
+    marks.push({ opt:n, index:m.index });
+  }
+  while((m = reNew.exec(raw))){
+    const word = m[1].toLowerCase();
+    const n = word === "primera" ? 1 : word === "segunda" ? 2 : 3;
+    marks.push({ opt:n, index:m.index });
+  }
+  // unique by opt, keep earliest index
+  const byOpt = new Map();
+  marks.forEach(x => {
+    if(!byOpt.has(x.opt) || x.index < byOpt.get(x.opt).index) byOpt.set(x.opt, x);
+  });
+  const ordered = [1,2,3].map(o => byOpt.get(o)).filter(Boolean);
+  if(ordered.length < 3){
+    return { weights:[1,1,1,1] };
+  }
+  ordered.sort((a,b) => a.index - b.index);
+  const parts = [
+    raw.slice(0, ordered[0].index),
+    raw.slice(ordered[0].index, ordered[1].index),
+    raw.slice(ordered[1].index, ordered[2].index),
+    raw.slice(ordered[2].index)
+  ];
+  const weights = parts.map(p => Math.max(8, p.trim().length));
+  return { weights };
+}
+
+function cueEndsFromDuration(duration, weights){
+  const total = weights.reduce((a,b) => a+b, 0) || 1;
+  let acc = 0;
+  return weights.map(w => {
+    acc += duration * (w / total);
+    return acc;
+  });
+}
+
+function syncChoiceCueFromAudio(){
+  if(!pequesAudio || !audioCueEnds || !audioCueEnds.length) return;
+  const t = pequesAudio.currentTime || 0;
+  // ends: [introEnd, opt1End, opt2End, opt3End]
+  if(t < audioCueEnds[0]){ setChoiceCue(0); return; }
+  if(t < audioCueEnds[1]){ setChoiceCue(1); return; }
+  if(t < audioCueEnds[2]){ setChoiceCue(2); return; }
+  if(t < audioCueEnds[3]){ setChoiceCue(3); return; }
+  setChoiceCue(0);
+}
+
+const SCENES = {
+  mirror:`<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg"><rect width="420" height="200" rx="16" fill="#fef3c7"/><circle cx="130" cy="100" r="36" fill="#fcd34d"/><circle cx="290" cy="100" r="32" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="3"/><text x="210" y="28" text-anchor="middle" font-size="14" fill="#92400e">Contigo</text></svg>`,
+  empathy:`<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg"><rect width="420" height="200" rx="16" fill="#dcfce7"/><circle cx="150" cy="105" r="30" fill="#fde68a"/><path d="M140 118 Q150 108 160 118" stroke="#111" fill="none"/><text x="210" y="32" text-anchor="middle" font-size="14" fill="#166534">Alguien triste</text></svg>`,
+  anger:`<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg"><rect width="420" height="200" rx="16" fill="#fee2e2"/><circle cx="210" cy="105" r="44" fill="#fca5a5"/><text x="210" y="32" text-anchor="middle" font-size="14" fill="#991b1b">Enojo</text></svg>`,
+  change:`<svg viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg"><rect width="420" height="200" rx="16" fill="#ede9fe"/><rect x="60" y="70" width="100" height="70" rx="10" fill="#c4b5fd"/><rect x="260" y="70" width="100" height="70" rx="10" fill="#a7f3d0"/><text x="210" y="32" text-anchor="middle" font-size="14" fill="#5b21b6">Cambió el plan</text></svg>`
+};
+
+/** Piloto visual Q1–Q3: escenas + miniaturas para opciones */
+function kidFace(mood){
+  const mouth = mood === "happy"
+    ? `<path d="M38 52 Q50 62 62 52" fill="none" stroke="#7c2d12" stroke-width="3" stroke-linecap="round"/>`
+    : mood === "mid"
+    ? `<path d="M40 54 H60" fill="none" stroke="#7c2d12" stroke-width="3" stroke-linecap="round"/>`
+    : `<path d="M38 58 Q50 48 62 58" fill="none" stroke="#7c2d12" stroke-width="3" stroke-linecap="round"/>`;
+  const brows = mood === "sad"
+    ? `<path d="M34 34 Q40 30 46 34" fill="none" stroke="#7c2d12" stroke-width="2"/><path d="M54 34 Q60 30 66 34" fill="none" stroke="#7c2d12" stroke-width="2"/>`
+    : "";
+  return `<circle cx="50" cy="44" r="28" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+    <circle cx="40" cy="40" r="3.2" fill="#451a03"/><circle cx="60" cy="40" r="3.2" fill="#451a03"/>
+    ${brows}${mouth}`;
+}
+
+function sceneSelfMirror(){
+  return `<svg viewBox="0 0 440 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Niño frente al espejo">
+    <defs><linearGradient id="gRoom" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef9c3"/><stop offset="100%" stop-color="#fde68a"/></linearGradient></defs>
+    <rect width="440" height="220" rx="18" fill="url(#gRoom)"/>
+    <ellipse cx="220" cy="200" rx="150" ry="14" fill="#fbbf24" opacity=".35"/>
+    <!-- niño -->
+    <circle cx="130" cy="88" r="36" fill="#fde68a" stroke="#f59e0b" stroke-width="2.5"/>
+    <circle cx="118" cy="82" r="4" fill="#451a03"/><circle cx="142" cy="82" r="4" fill="#451a03"/>
+    <path d="M116 98 Q130 110 144 98" fill="none" stroke="#7c2d12" stroke-width="3" stroke-linecap="round"/>
+    <path d="M130 124 L130 168" stroke="#38bdf8" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="130" cy="54" r="18" fill="#0ea5e9"/>
+    <!-- espejo -->
+    <rect x="250" y="36" width="140" height="150" rx="70" fill="#e0f2fe" stroke="#0284c7" stroke-width="8"/>
+    <rect x="262" y="48" width="116" height="126" rx="58" fill="#f0f9ff"/>
+    <circle cx="320" cy="95" r="30" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+    <circle cx="310" cy="90" r="3.5" fill="#451a03"/><circle cx="330" cy="90" r="3.5" fill="#451a03"/>
+    <path d="M308 106 Q320 116 332 106" fill="none" stroke="#7c2d12" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="220" y="28" text-anchor="middle" font-size="16" font-weight="800" fill="#92400e">Mírate en el espejo</text>
+  </svg>`;
+}
+
+function thumbMirror(mood){
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="14" fill="#e0f2fe"/>
+    <rect x="18" y="10" width="64" height="80" rx="32" fill="#bae6fd" stroke="#0284c7" stroke-width="5"/>
+    <g transform="translate(0 8)">${kidFace(mood)}</g></svg>`;
+}
+
+function sceneMistake(){
+  return `<svg viewBox="0 0 440 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Se cayó la torre de bloques">
+    <rect width="440" height="220" rx="18" fill="#fff7ed"/>
+    <ellipse cx="220" cy="198" rx="160" ry="12" fill="#fdba74" opacity=".4"/>
+    <!-- bloques caídos -->
+    <rect x="200" y="150" width="44" height="28" rx="4" fill="#fb923c" transform="rotate(-12 222 164)"/>
+    <rect x="248" y="155" width="40" height="26" rx="4" fill="#f97316" transform="rotate(18 268 168)"/>
+    <rect x="175" y="160" width="36" height="24" rx="4" fill="#fdba74" transform="rotate(-25 193 172)"/>
+    <circle cx="270" cy="140" r="10" fill="#fef08a" stroke="#ca8a04" stroke-width="2"/>
+    <!-- niño -->
+    <circle cx="120" cy="95" r="34" fill="#fde68a" stroke="#f59e0b" stroke-width="2.5"/>
+    <circle cx="108" cy="90" r="4" fill="#451a03"/><circle cx="132" cy="90" r="4" fill="#451a03"/>
+    <path d="M108 108 Q120 102 132 108" fill="none" stroke="#7c2d12" stroke-width="3" stroke-linecap="round"/>
+    <path d="M120 130 L120 175" stroke="#a78bfa" stroke-width="16" stroke-linecap="round"/>
+    <path d="M120 145 L155 155" stroke="#a78bfa" stroke-width="10" stroke-linecap="round"/>
+    <text x="220" y="30" text-anchor="middle" font-size="16" font-weight="800" fill="#9a3412">Se cayó… ¡pasa!</text>
+  </svg>`;
+}
+
+function thumbMistake(mood){
+  const extra = mood === "happy"
+    ? `<path d="M72 70 L78 78 L88 62" fill="none" stroke="#16a34a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`
+    : mood === "mid"
+    ? `<text x="82" y="78" font-size="22" text-anchor="middle">?</text>`
+    : `<path d="M74 62 L90 78 M90 62 L74 78" stroke="#dc2626" stroke-width="4" stroke-linecap="round"/>`;
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="14" fill="#ffedd5"/>
+    <g transform="translate(-8 6) scale(.9)">${kidFace(mood)}</g>
+    <rect x="58" y="58" width="18" height="12" rx="2" fill="#fb923c" transform="rotate(-20 67 64)"/>
+    ${extra}</svg>`;
+}
+
+function sceneSleep(){
+  return `<svg viewBox="0 0 440 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Habitación de noche">
+    <defs><linearGradient id="gNight" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1e3a8a"/><stop offset="100%" stop-color="#312e81"/></linearGradient></defs>
+    <rect width="440" height="220" rx="18" fill="url(#gNight)"/>
+    <circle cx="360" cy="48" r="28" fill="#fde68a" opacity=".95"/>
+    <circle cx="348" cy="42" r="22" fill="#1e3a8a"/>
+    <circle cx="80" cy="40" r="2" fill="#fff"/><circle cx="120" cy="55" r="1.5" fill="#fff"/><circle cx="200" cy="35" r="2" fill="#fff"/>
+    <circle cx="260" cy="60" r="1.5" fill="#fff"/>
+    <!-- cama -->
+    <rect x="90" y="130" width="220" height="55" rx="10" fill="#6366f1"/>
+    <rect x="100" y="118" width="90" height="28" rx="8" fill="#e0e7ff"/>
+    <circle cx="145" cy="112" r="22" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+    <path d="M136 112 Q145 118 154 112" fill="none" stroke="#7c2d12" stroke-width="2" stroke-linecap="round"/>
+    <path d="M132 108 Q136 106 140 108" fill="none" stroke="#451a03" stroke-width="2"/>
+    <path d="M150 108 Q154 106 158 108" fill="none" stroke="#451a03" stroke-width="2"/>
+    <text x="320" y="150" font-size="22" fill="#fef08a" font-weight="800">Zzz</text>
+    <text x="220" y="28" text-anchor="middle" font-size="16" font-weight="800" fill="#e0e7ff">Por la noche</text>
+  </svg>`;
+}
+
+function thumbSleep(mood){
+  if (mood === "happy") {
+    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="14" fill="#312e81"/>
+      <circle cx="78" cy="22" r="12" fill="#fde68a"/><rect x="12" y="55" width="70" height="28" rx="6" fill="#6366f1"/>
+      <circle cx="36" cy="52" r="14" fill="#fde68a"/><path d="M30 52 Q36 56 42 52" stroke="#7c2d12" stroke-width="2" fill="none"/>
+      <text x="72" y="70" fill="#fef08a" font-size="14" font-weight="800">Zzz</text></svg>`;
+  }
+  if (mood === "mid") {
+    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="14" fill="#312e81"/>
+      <circle cx="78" cy="22" r="12" fill="#fde68a"/><rect x="12" y="55" width="70" height="28" rx="6" fill="#6366f1"/>
+      <circle cx="40" cy="48" r="14" fill="#fde68a"/>
+      <circle cx="35" cy="46" r="2" fill="#451a03"/><circle cx="45" cy="46" r="2" fill="#451a03"/>
+      <path d="M34 54 H46" stroke="#7c2d12" stroke-width="2"/></svg>`;
+  }
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="14" fill="#1e293b"/>
+    <circle cx="78" cy="22" r="12" fill="#fde68a"/><rect x="12" y="58" width="70" height="26" rx="6" fill="#475569"/>
+    <circle cx="48" cy="42" r="14" fill="#fde68a"/>
+    <circle cx="43" cy="40" r="2.2" fill="#451a03"/><circle cx="53" cy="40" r="2.2" fill="#451a03"/>
+    <path d="M42 50 Q48 46 54 50" stroke="#7c2d12" stroke-width="2" fill="none"/>
+    <rect x="70" y="48" width="10" height="14" rx="2" fill="#fef08a"/></svg>`;
+}
+
+function sceneImg(src, alt){
+  return `<img class="scene-photo" src="${src}" alt="${alt}" width="960" height="540" loading="eager" decoding="async"/>`;
+}
+function thumbImg(src, alt){
+  return `<img class="thumb-photo" src="${src}" alt="${alt}" width="400" height="400" loading="eager" decoding="async"/>`;
+}
+
+function sceneEmoji(emoji, caption){
+  return `<div class="scene-emoji" aria-hidden="true">${emoji}</div><div class="muted" style="text-align:center;font-weight:700">${caption}</div>`;
+}
+
+function mk(id, bloque, sub, title, speak, sceneHtml, choices){
+  return { id, bloque, subhabilidad: sub, title, speak, sceneHtml, choices, value: null };
+}
+
+const ITEMS = [
+  mk(1,"Habilidades intrapersonales","Autoestima","¿Cómo te sientes contigo?",
+    "¿Cómo te sientes contigo? Primera opción: me siento bien. Segunda opción: a veces bien. Tercera opción: no me siento bien.",
+    sceneImg("assets/peques/q1-scene.png","Niño frente al espejo"),
+    [
+      [thumbImg("assets/peques/q1-opt-bien.png","Me siento bien"),"Me siento bien",3],
+      [thumbImg("assets/peques/q1-opt-aveces.png","A veces bien"),"A veces bien",2],
+      [thumbImg("assets/peques/q1-opt-casino.png","No me siento bien"),"No me siento bien",1]
+    ]),
+  mk(2,"Habilidades intrapersonales","Autoestima","Si te equivocas, ¿aún te quieres?",
+    "Si te equivocas, ¿aún te quieres? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi no.",
+    sceneImg("assets/peques/q2-scene.png","Niño que se equivoca y aún se quiere"),
+    [
+      [thumbImg("assets/peques/q2-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q2-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q2-opt-casino.png","Casi no"),"Casi no",1]
+    ]),
+  mk(3,"Habilidades intrapersonales","Bienestar físico","¿Duermes bien por la noche?",
+    "¿Duermes bien por la noche? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q3-scene.png","Niña durmiendo en su habitación"),
+    [
+      [thumbImg("assets/peques/q3-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q3-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q3-opt-casino.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(4,"Habilidades intrapersonales","Bienestar físico","¿Cada cuánto comes frutas o verduras?",
+    "¿Cada cuánto comes frutas o verduras? Primera opción: casi todos los días. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q4-scene.png","Niño con frutas y verduras"),
+    [
+      [thumbImg("assets/peques/q4-opt-todos.png","Casi todos los días"),"Casi todos los días",3],
+      [thumbImg("assets/peques/q4-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q4-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(5,"Habilidades intrapersonales","Manejo de la tensión","¿Te calmas cuando estás con nervios?",
+    "¿Te calmas cuando estás con nervios? Primera opción: sí, lo intento. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q5-scene.png","Niña calmándose con la respiración"),
+    [
+      [thumbImg("assets/peques/q5-opt-si.png","Sí, lo intento"),"Sí, lo intento",3],
+      [thumbImg("assets/peques/q5-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q5-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(6,"Habilidades intrapersonales","Manejo de la tensión","Si algo sale mal, ¿sigues intentando?",
+    "Si algo sale mal, ¿sigues intentando? Primera opción: sí. Segunda opción: a veces. Tercera opción: me rindo rápido.",
+    sceneImg("assets/peques/q6-scene.png","Niño que sigue intentando con bloques"),
+    [
+      [thumbImg("assets/peques/q6-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q6-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q6-opt-rindo.png","Me rindo rápido"),"Me rindo rápido",1]
+    ]),
+  mk(7,"Habilidades interpersonales","Asertividad","Cuando respondes, ¿lo haces con respeto?",
+    "Cuando respondes. ¿Lo haces con respeto? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q7-scene.png","Niña respondiendo con respeto"),
+    [
+      [thumbImg("assets/peques/q7-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q7-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q7-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(8,"Habilidades interpersonales","Asertividad","¿Pides las cosas sin gritar?",
+    "¿Pides las cosas sin gritar? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q8-scene.png","Niño pidiendo las cosas sin gritar"),
+    [
+      [thumbImg("assets/peques/q8-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q8-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q8-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(9,"Habilidades interpersonales","Conciencia de los demás","¿Notas si alguien está triste o enojado?",
+    "¿Notas si alguien está triste o enojado? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q9-scene.png","Niña que nota si alguien está triste"),
+    [
+      [thumbImg("assets/peques/q9-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q9-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q9-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(10,"Habilidades interpersonales","Conciencia de los demás","¿Escuchas cuando alguien te habla?",
+    "¿Escuchas cuando alguien te habla? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q10-scene.png","Niño escuchando cuando una niña le habla"),
+    [
+      [thumbImg("assets/peques/q10-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q10-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q10-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(11,"Habilidades interpersonales","Empatía","¿Ayudas si alguien lo necesita?",
+    "¿Ayudas si alguien lo necesita? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q11-scene.png","Niña ayudando a un niño con libros"),
+    [
+      [thumbImg("assets/peques/q11-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q11-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q11-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(12,"Habilidades interpersonales","Empatía","¿Te importa cómo se sienten los demás?",
+    "¿Te importa cómo se sienten los demás? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q12-scene.png","Niño con un grupo de niñas: le importa cómo se sienten los demás"),
+    [
+      [thumbImg("assets/peques/q12-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q12-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q12-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(13,"Habilidades para la vida","Motivación","¿Terminas lo que empiezas?",
+    "¿Terminas lo que empiezas? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q13-scene.png","Niña terminando un rompecabezas"),
+    [
+      [thumbImg("assets/peques/q13-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q13-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q13-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(14,"Habilidades para la vida","Compromiso","¿Cumples lo que prometes?",
+    "¿Cumples lo que prometes? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q14-scene.png","Niño cumpliendo una promesa"),
+    [
+      [thumbImg("assets/peques/q14-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q14-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q14-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(15,"Habilidades para la vida","Administración del tiempo","¿Guardas tus cosas al terminar?",
+    "¿Guardas tus cosas al terminar? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q15-scene.png","Niña guardando sus juguetes al terminar"),
+    [
+      [thumbImg("assets/peques/q15-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q15-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q15-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(16,"Habilidades para la vida","Toma de decisiones","¿Puedes elegir entre dos cosas?",
+    "¿Puedes elegir entre dos cosas? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q16-scene.png","Niño eligiendo entre dos juguetes"),
+    [
+      [thumbImg("assets/peques/q16-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q16-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q16-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(17,"Habilidades para la vida","Motivación","¿Te gusta probar cosas nuevas?",
+    "¿Te gusta probar cosas nuevas? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q17-scene.png","Niña probando pintar por primera vez"),
+    [
+      [thumbImg("assets/peques/q17-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q17-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q17-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(18,"Habilidades para la vida","Liderazgo","¿Ayudas a organizar o empezar en el grupo?",
+    "¿Ayudas a organizar o empezar en el grupo? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q18-scene.png","Niño ayudando a organizar al grupo con bloques"),
+    [
+      [thumbImg("assets/peques/q18-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q18-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q18-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(19,"Estilos de comunicación interpersonal","Agresión","Cuando te enojas, ¿qué haces?",
+    "Cuando te enojas, ¿qué haces? Primera opción: grito o empujo. Segunda opción: a veces grito, a veces hablo. Tercera opción: mantengo la calma.",
+    sceneImg("assets/peques/q19-scene.png","Niña enojada ante un conflicto con el niño"),
+    [
+      [thumbImg("assets/peques/q19-opt-grito.png","Grito o empujo"),"Grito o empujo",1],
+      [thumbImg("assets/peques/q19-opt-aveces.png","A veces grito, a veces hablo"),"A veces grito, a veces hablo",2],
+      [thumbImg("assets/peques/q19-opt-palabras.png","Mantengo la calma"),"Mantengo la calma",3]
+    ]),
+  mk(20,"Estilos de comunicación interpersonal","Agresión","Cuando te molestas, ¿dices qué te molestó?",
+    "Cuando te molestas, ¿dices qué te molestó? Primera opción: siempre. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q20-scene.png","Niño molesto ante un conflicto con la niña"),
+    [
+      [thumbImg("assets/peques/q20-opt-siempre.png","Siempre"),"Siempre",3],
+      [thumbImg("assets/peques/q20-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q20-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(21,"Estilos de comunicación interpersonal","Timidez","¿Te da miedo hablar delante de otros?",
+    "¿Te da miedo hablar delante de otros? Primera opción: mucho miedo. Segunda opción: un poco de miedo. Tercera opción: puedo hablar.",
+    sceneImg("assets/peques/q21-scene.png","Niño hablando delante del grupo con un libro"),
+    [
+      [thumbImg("assets/peques/q21-opt-mucho.png","Mucho miedo"),"Mucho miedo",1],
+      [thumbImg("assets/peques/q21-opt-unpoco.png","Un poco de miedo"),"Un poco de miedo",2],
+      [thumbImg("assets/peques/q21-opt-puedo.png","Puedo hablar"),"Puedo hablar",3]
+    ]),
+  mk(22,"Estilos de comunicación interpersonal","Timidez","¿Pides ayuda si la necesitas?",
+    "¿Pides ayuda si la necesitas? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q22-scene.png","Niña pidiendo ayuda al niño con un rompecabezas"),
+    [
+      [thumbImg("assets/peques/q22-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q22-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q22-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(23,"Estilos de comunicación interpersonal","Timidez","¿Te quedas callado aunque quieras hablar?",
+    "¿Te quedas callado aunque quieras hablar? Primera opción: casi siempre. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q23-scene.png","Niño callado en el grupo aunque quiere hablar"),
+    [
+      [thumbImg("assets/peques/q23-opt-callado.png","Casi siempre"),"Casi siempre",1],
+      [thumbImg("assets/peques/q23-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q23-opt-hablo.png","Casi nunca"),"Casi nunca",3]
+    ]),
+  mk(24,"Propensión al cambio","Propensión al cambio","Si cambia el plan, ¿lo aceptas?",
+    "Si cambia el plan, ¿lo aceptas? Primera opción: lo intento. Segunda opción: me cuesta. Tercera opción: me enojo mucho.",
+    sceneImg("assets/peques/q24-scene.png","Niña ante un cambio de plan: parque por juego adentro"),
+    [
+      [thumbImg("assets/peques/q24-opt-intento.png","Lo intento"),"Lo intento",3],
+      [thumbImg("assets/peques/q24-opt-cuesta.png","Me cuesta"),"Me cuesta",2],
+      [thumbImg("assets/peques/q24-opt-enojo.png","Me enojo mucho"),"Me enojo mucho",1]
+    ]),
+  mk(25,"Propensión al cambio","Propensión al cambio","¿Te gustan personas o lugares nuevos?",
+    "¿Te gustan personas o lugares nuevos? Primera opción: sí. Segunda opción: a veces. Tercera opción: casi nunca.",
+    sceneImg("assets/peques/q25-scene.png","Niño ante personas y un parque nuevo"),
+    [
+      [thumbImg("assets/peques/q25-opt-si.png","Sí"),"Sí",3],
+      [thumbImg("assets/peques/q25-opt-aveces.png","A veces"),"A veces",2],
+      [thumbImg("assets/peques/q25-opt-nunca.png","Casi nunca"),"Casi nunca",1]
+    ]),
+  mk(26,"Propensión al cambio","Propensión al cambio","Si algo es distinto, ¿te adaptas?",
+    "Si algo es distinto, ¿te adaptas? Primera opción: sí, me adapto. Segunda opción: lo intento. Tercera opción: me enojo mucho.",
+    sceneImg("assets/peques/q26-scene.png","Niña ante un pupitre distinto al de siempre"),
+    [
+      [thumbImg("assets/peques/q26-opt-adapto.png","Sí, me adapto"),"Sí, me adapto",3],
+      [thumbImg("assets/peques/q26-opt-intento.png","Lo intento"),"Lo intento",2],
+      [thumbImg("assets/peques/q26-opt-enojo.png","Me enojo mucho"),"Me enojo mucho",1]
+    ])
+];
+
+const codigoInput = document.getElementById("codigo");
+const codigoMsg = document.getElementById("codigoMsg");
+const btnIniciar = document.getElementById("btnIniciar");
+const audioCheckSi = document.getElementById("audioCheckSi");
+const audioCheckNo = document.getElementById("audioCheckNo");
+const audioCheckHint = document.getElementById("audioCheckHint");
+const audioCheckNoMsg = document.getElementById("audioCheckNoMsg");
+
+function syncIniciarBtn(){
+  btnIniciar.disabled = !(CODIGO_ACTUAL && audioCheckOk);
+}
+
+function enableAudioCheckChoices(){
+  if(audioCheckSi) audioCheckSi.disabled = false;
+  if(audioCheckNo) audioCheckNo.disabled = false;
+  if(audioCheckHint){
+    audioCheckHint.hidden = false;
+    audioCheckHint.textContent = "¿Oíste el audio? Elige Sí o No.";
+    audioCheckHint.classList.remove("err");
+  }
+}
+
+function onAudioCheckChange(){
+  const v = (document.querySelector('input[name="audioCheck"]:checked') || {}).value;
+  if(v === "si"){
+    if(!introAudioStarted){
+      audioCheckOk = false;
+      if(audioCheckSi) audioCheckSi.checked = false;
+      if(audioCheckHint){
+        audioCheckHint.hidden = false;
+        audioCheckHint.textContent = "Primero toca la corneta 🔊 para escuchar.";
+        audioCheckHint.classList.add("err");
+      }
+      if(audioCheckNoMsg) audioCheckNoMsg.hidden = true;
+      syncIniciarBtn();
+      return;
+    }
+    audioCheckOk = true;
+    if(audioCheckNoMsg) audioCheckNoMsg.hidden = true;
+    if(audioCheckHint){
+      audioCheckHint.hidden = false;
+      audioCheckHint.textContent = "Listo. Ya puedes iniciar cuando el código esté válido.";
+      audioCheckHint.classList.remove("err");
+    }
+  } else if(v === "no"){
+    audioCheckOk = false;
+    if(audioCheckNoMsg) audioCheckNoMsg.hidden = false;
+    if(audioCheckHint) audioCheckHint.hidden = true;
+  } else {
+    audioCheckOk = false;
+  }
+  syncIniciarBtn();
+}
+const labelCurso = document.getElementById("labelCurso");
+
+function actualizarLabelCurso(codigo=""){
+  const c = String(codigo||"").trim().toUpperCase();
+  if(labelCurso) labelCurso.textContent = c.startsWith("PRO") ? "Nivel" : "Grado/Curso";
+}
+
+function getStorageKey(){
+  const c = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+  return c ? STORAGE_PREFIX + c : null;
+}
+
+function obtenerRespuestasCrudas(){
+  const m = {};
+  ITEMS.forEach(q => { if(q.value != null) m[String(q.id)] = q.value; });
+  return m;
+}
+
+function loadStateForCurrentCode(){
+  const key = getStorageKey();
+  if(!key) return null;
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    console.warn("No se pudo leer el estado local:", e);
+    return null;
+  }
+}
+
+function clearState(){
+  const key = getStorageKey();
+  if(!key) return;
+  try { localStorage.removeItem(key); }
+  catch (e) { console.warn("No se pudo borrar el estado local:", e); }
+}
+
+function isStateCompleted(state){
+  if(!state) return false;
+  if(state.completed) return true;
+  const r = state.responses || {};
+  return ITEMS.length > 0 && Object.keys(r).length >= ITEMS.length;
+}
+
+function limpiarCamposCodigo(){
+  document.getElementById("institucion").value = "";
+  document.getElementById("grupo").value = "";
+  document.getElementById("curso").value = "";
+}
+
+async function syncAutosaveToServer(state){
+  try{
+    const codigo = state.codigo;
+    if(!codigo) return;
+    const payload = {
+      codigo,
+      currentPage: Number.isFinite(state.currentIndex) ? state.currentIndex : 0,
+      responses: state.responses || {},
+      snapshot: {
+        nombre: state.nombre || "",
+        institucion: state.institucion || "",
+        grupo: state.grupo || "",
+        curso: state.curso || "",
+        fecha: state.fecha || "",
+        startTime: state.startTime || null
+      }
+    };
+    await fetch("/api/autosave", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  }catch(e){
+    console.warn("No se pudo sincronizar autosave servidor:", e);
+  }
+}
+
+async function cargarAutosaveServidor(codigo){
+  if(!codigo) return null;
+  try{
+    const r = await fetch(`/api/autosave?codigo=${encodeURIComponent(codigo)}`);
+    const data = await r.json();
+    if(!r.ok || !data.ok || !data.autosave) return null;
+    const row = data.autosave;
+    const snap = row.snapshot || {};
+    const page = typeof row.current_page === "number" ? row.current_page
+      : (typeof row.currentPage === "number" ? row.currentPage : 0);
+    return {
+      codigo: row.codigo || codigo,
+      nombre: snap.nombre || "",
+      institucion: snap.institucion || "",
+      grupo: snap.grupo || "",
+      curso: snap.curso || "",
+      fecha: snap.fecha || "",
+      currentIndex: page,
+      responses: row.responses || {},
+      startTime: snap.startTime || Date.now(),
+      completed: false
+    };
+  }catch(e){
+    console.warn("No se pudo cargar autosave servidor:", e);
+    return null;
+  }
+}
+
+function saveState(completedFlag){
+  const key = getStorageKey();
+  if(!key) return;
+  try{
+    const prev = loadStateForCurrentCode() || {};
+    const state = {
+      ...prev,
+      codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
+      nombre: document.getElementById("nombre").value.trim(),
+      institucion: document.getElementById("institucion").value,
+      grupo: document.getElementById("grupo").value,
+      curso: document.getElementById("curso").value,
+      fecha: document.getElementById("fecha").value,
+      currentIndex,
+      responses: obtenerRespuestasCrudas(),
+      startTime: __startTime || Date.now(),
+      completed: (typeof completedFlag === "boolean") ? completedFlag : !!prev.completed
+    };
+    localStorage.setItem(key, JSON.stringify(state));
+    syncAutosaveToServer(state);
+  }catch(e){
+    console.warn("No se pudo guardar el progreso local:", e);
+  }
+}
+
+function aplicarState(state){
+  if(!state) return;
+  document.getElementById("nombre").value = state.nombre || "";
+  if(state.institucion) document.getElementById("institucion").value = state.institucion;
+  if(state.grupo) document.getElementById("grupo").value = state.grupo;
+  if(state.curso) document.getElementById("curso").value = state.curso;
+  if(state.fecha) document.getElementById("fecha").value = state.fecha;
+  CODIGO_ACTUAL = state.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+  const resp = state.responses || {};
+  ITEMS.forEach(q => {
+    const v = resp[String(q.id)];
+    q.value = (typeof v === "number") ? v : null;
+  });
+  const idx = Number.isFinite(state.currentIndex) ? state.currentIndex
+    : (Number.isFinite(state.currentPage) ? state.currentPage : 0);
+  currentIndex = Math.max(0, Math.min(idx, Math.max(0, ITEMS.length - 1)));
+  __startTime = state.startTime || Date.now();
+}
+
+async function lookupCodigo(){
+  const codigo = codigoInput.value.trim().toUpperCase();
+  codigoInput.value = codigo;
+  actualizarLabelCurso(codigo);
+  CODIGO_ACTUAL = null;
+  syncIniciarBtn();
+
+  const nombreEl0 = document.getElementById("nombre");
+  if(nombreEl0){
+    nombreEl0.readOnly = false;
+    nombreEl0.setAttribute("autocomplete", "off");
+  }
+
+  if(codigoMsg){
+    codigoMsg.textContent = codigo ? "Buscando..." : "Ingresa un código.";
+    codigoMsg.className = codigo ? "muted" : "err";
+  }
+  if(!codigo){
+    limpiarCamposCodigo();
+    return;
+  }
+
+  try{
+    const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}&eval=${encodeURIComponent(EVAL_PRODUCT_KEY)}&idioma=${encodeURIComponent(EVAL_LANG)}`);
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error || "Código no válido");
+
+    const codigoUsado =
+      data.usado === true ||
+      data.usado === "true" ||
+      (typeof data.disponible === "boolean" && data.disponible === false) ||
+      (data.estado && String(data.estado).toLowerCase() !== "activo") ||
+      (typeof data.intentos_max === "number" &&
+       typeof data.intentos_usados === "number" &&
+       data.intentos_usados >= data.intentos_max);
+
+    if(codigoUsado){
+      limpiarCamposCodigo();
+      CODIGO_ACTUAL = null;
+      syncIniciarBtn();
+      if(codigoMsg){
+        codigoMsg.textContent = "Este código ya fue utilizado o no está disponible.";
+        codigoMsg.className = "err";
+      }
+      return;
+    }
+
+    CODIGO_ACTUAL = data.codigo || codigo;
+
+    const localState = loadStateForCurrentCode();
+    if(isStateCompleted(localState)){
+      limpiarCamposCodigo();
+      CODIGO_ACTUAL = null;
+      syncIniciarBtn();
+      if(codigoMsg){
+        codigoMsg.textContent = "Este código ya fue utilizado para completar una evaluación en este dispositivo.";
+        codigoMsg.className = "err";
+      }
+      return;
+    }
+
+    document.getElementById("institucion").value = data.institucion || "";
+    document.getElementById("grupo").value = data.grupo || "";
+    document.getElementById("curso").value = data.curso || "";
+
+    // Como intelectual: si hay intento en curso, mostrar nombre guardado y bloquear casilla.
+    const nombreEl = document.getElementById("nombre");
+    let nombreGuardado = "";
+    if(localState && !isStateCompleted(localState) && localState.nombre){
+      nombreGuardado = String(localState.nombre).trim();
+    }
+    if(!nombreGuardado){
+      const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
+      if(
+        serverDraft &&
+        !isStateCompleted(serverDraft) &&
+        serverDraft.nombre &&
+        serverDraft.responses &&
+        Object.keys(serverDraft.responses).length > 0
+      ){
+        nombreGuardado = String(serverDraft.nombre).trim();
+      }
+    }
+    if(nombreEl){
+      if(nombreGuardado){
+        nombreEl.value = nombreGuardado;
+        nombreEl.readOnly = true;
+        nombreEl.setAttribute("autocomplete", "off");
+      } else {
+        nombreEl.readOnly = false;
+        nombreEl.setAttribute("autocomplete", "off");
+      }
+    }
+
+    syncIniciarBtn();
+    if(codigoMsg){
+      codigoMsg.textContent = "Código válido.";
+      codigoMsg.className = "ok";
+    }
+  }catch(e){
+    limpiarCamposCodigo();
+    CODIGO_ACTUAL = null;
+    syncIniciarBtn();
+    const nombreElErr = document.getElementById("nombre");
+    if(nombreElErr){
+      nombreElErr.readOnly = false;
+      nombreElErr.setAttribute("autocomplete", "off");
+    }
+    if(codigoMsg){
+      codigoMsg.textContent = (e && e.message) ? e.message : "Código no encontrado.";
+      codigoMsg.className = "err";
+    }
+  }
+}
+
+function calcIV1_IV2_categories(items){
+  // Misma lógica del socioemocional grande (escala 1–3).
+  // Kids no trae ítems invertidos: todos se tratan como directos.
+  const vals = items.filter(q => q.value != null).map(q => Number(q.value)).filter(Number.isFinite);
+  const avg = arr => (arr.length ? arr.reduce((a,b)=>a+b,0) / arr.length : 0);
+  const stdev = arr => {
+    if(arr.length < 2) return 1;
+    const m = avg(arr);
+    return Math.sqrt(arr.reduce((s,x)=>s+(x-m)*(x-m),0) / arr.length);
+  };
+  if(!vals.length) return { iv1Cat: null, iv2Cat: null };
+  const s = stdev(vals);
+  const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
+
+  // NC: consistencia entre pares de la misma subhabilidad (hermanos del banco Kids)
+  const bySub = new Map();
+  items.forEach(q => {
+    if(q.value == null) return;
+    if(!bySub.has(q.subhabilidad)) bySub.set(q.subhabilidad, []);
+    bySub.get(q.subhabilidad).push(Number(q.value));
+  });
+  const diffs = [];
+  bySub.forEach(arr => {
+    for(let i=0;i<arr.length;i++){
+      for(let j=i+1;j<arr.length;j++){
+        diffs.push(Math.abs(arr[i]-arr[j]));
+      }
+    }
+  });
+  const meanDiff = diffs.length ? avg(diffs) : 0;
+  const iv2Cat = meanDiff < 0.5 ? 0 : meanDiff < 1.0 ? 1 : 2;
+  return { iv1Cat, iv2Cat };
+}
+
+function calcIV3_category(){
+  // PT adaptado a peques (26 ítems): bandas proporcionales al grande.
+  const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
+  if(mins >= 6 && mins <= 25) return 0;      // adecuado
+  if(mins >= 3 && mins <= 5) return 1;       // demasiado breve
+  if(mins > 40) return 2;                    // demasiado lento
+  if(mins < 3) return 2;                     // apresurado extremo
+  return 1;                                  // 26–40 u otros bordes
+}
+
+function calcularResultados(){
+  const subMap = new Map();
+  ITEMS.forEach(q => {
+    if(!subMap.has(q.subhabilidad)) subMap.set(q.subhabilidad,{bloque:q.bloque,items:0,pts:0});
+    const s = subMap.get(q.subhabilidad);
+    s.items++; s.pts += (q.value ?? 0);
+  });
+  const subhabilidades = Array.from(subMap.entries()).map(([sub,v])=>{
+    const max = v.items * 3;
+    return { bloque:v.bloque, subhabilidad:sub, sub, items:v.items, pts:v.pts, pct: max ? Math.round(v.pts/max*100) : 0 };
+  });
+  const bloqMap = new Map();
+  subhabilidades.forEach(r => {
+    if(!bloqMap.has(r.bloque)) bloqMap.set(r.bloque,{sum:0,n:0});
+    const b = bloqMap.get(r.bloque); b.sum += r.pct; b.n++;
+  });
+  const bloqPercents = {};
+  bloqMap.forEach((a,bloque)=>{ bloqPercents[bloque] = a.n ? Math.round(a.sum/a.n) : 0; });
+  const pct = name => {
+    const k = Object.keys(bloqPercents).find(x => x.toLowerCase() === name.toLowerCase());
+    return k ? bloqPercents[k] : 0;
+  };
+  const bIntra = pct("Habilidades intrapersonales");
+  const bInter = pct("Habilidades interpersonales");
+  const bPV = pct("Habilidades para la vida");
+  const iie = Math.round((bIntra+bInter+bPV)/3) || 0;
+  const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
+  const iv3Cat = calcIV3_category();
+  return {
+    globales:{ IIE:iie, IV1:iv1Cat, IV2:iv2Cat, IV3:iv3Cat },
+    bloques:{
+      intrapersonales:bIntra, interpersonales:bInter, para_la_vida:bPV,
+      estilos_comunicacion:pct("Estilos de comunicación interpersonal"),
+      propension_cambio:pct("Propensión al cambio")
+    },
+    subhabilidades, bloqPercents
+  };
+}
+
+function onFinalizar(){
+  const nombre = document.getElementById("nombre").value.trim();
+  if(!nombre){ alert("Por favor ingresa el nombre."); return; }
+  if(ITEMS.some(q => q.value == null)){ alert("Faltan respuestas."); return; }
+  const payload = {
+    codigo: CODIGO_ACTUAL,
+    evaluacion: EVAL_PRODUCT_KEY,
+    idioma: EVAL_LANG,
+    snapshot:{
+      nombre, institucion:document.getElementById("institucion").value,
+      grupo:document.getElementById("grupo").value, curso:document.getElementById("curso").value,
+      version_banco:"SOCPEQ-v1"
+    },
+    resultados: calcularResultados(),
+    responses: obtenerRespuestasCrudas()
+  };
+  saveState(true);
+  fetch("/api/submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).catch(()=>{});
+  document.getElementById("pantalla-preguntas").classList.add("hidden");
+  document.getElementById("pantalla-inicio").classList.add("hidden");
+  document.getElementById("datos-participante").classList.remove("hidden");
+  document.getElementById("nombre").readOnly = true;
+  const pantallaFinal = document.getElementById("pantalla-final");
+  pantallaFinal.style.display = "block";
+  pantallaFinal.scrollIntoView({ behavior: "smooth", block: "start" });
+  stopSpeech();
+}
+
+function updateProgress(){
+  const done = ITEMS.filter(q => q.value != null).length;
+  const pct = Math.round(done / ITEMS.length * 100);
+  document.getElementById("bar").style.width = pct + "%";
+  document.getElementById("qMeta").textContent = `Pregunta ${currentIndex+1} de ${ITEMS.length}`;
+}
+
+function renderQuestion(){
+  stopSpeech();
+  pequesAudio = null;
+  audioCueEnds = null;
+  clearChoiceCues();
+  const q = ITEMS[currentIndex];
+  document.getElementById("qTitle").textContent = q.title;
+  document.getElementById("qHint").textContent = "Haz clic en la opción que más se parece a ti.";
+  document.getElementById("qScene").innerHTML = q.sceneHtml;
+  const cont = document.getElementById("qChoices");
+  cont.innerHTML = "";
+  q.choices.forEach((row, idx) => {
+    const [face, label, score] = row;
+    const optN = idx + 1;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "choice" + (q.value === score ? " selected" : "");
+    b.dataset.opt = String(optN);
+    const isHtml = typeof face === "string" && face.trim().startsWith("<");
+    const media = isHtml
+      ? `<span class="thumb">${face}</span>`
+      : `<span class="face">${face}</span>`;
+    b.innerHTML = `<span class="opt-badge-row"><span class="opt-badge">Opción ${optN}</span><button type="button" class="opt-speak" data-label="${String(label).replace(/"/g,"&quot;")}" aria-label="Escuchar opción: ${label}">🔊</button></span>${media}<span class="choice-label">${label}</span>`;
+    b.querySelector(".opt-speak").addEventListener("click", (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      speakOptionLabel(label, ev.currentTarget);
+    });
+    b.addEventListener("click", () => {
+      q.value = score;
+      renderQuestion();
+      updateProgress();
+      document.getElementById("btnSiguiente").disabled = false;
+    });
+    cont.appendChild(b);
+  });
+  document.getElementById("btnSiguiente").disabled = q.value == null;
+  document.getElementById("btnSiguiente").innerHTML = currentIndex === ITEMS.length - 1
+    ? 'FINALIZAR <span class="btn-next-arrow" aria-hidden="true">✓</span>'
+    : 'SIGUIENTE <span class="btn-next-arrow" aria-hidden="true">➜</span>';
+  updateProgress();
+  setAudioNudgeVisible(q.value == null);
+}
+
+function audioBtn(){ return document.getElementById("btnAudio"); }
+
+function setAudioNudgeVisible(on){
+  const el = document.getElementById("audioNudge");
+  if(!el) return;
+  el.hidden = !on;
+}
+
+function setAudioPlaying(on){
+  const b = audioBtn();
+  if(b) b.classList.toggle("playing", !!on);
+  if(!on) clearChoiceCues();
+}
+
+function stopOptionSpeech(){
+  if(pequesOptAudio){
+    try{ pequesOptAudio.pause(); pequesOptAudio.currentTime = 0; }catch{}
+  }
+  pequesOptAudio = null;
+  document.querySelectorAll(".opt-speak.playing").forEach(el => el.classList.remove("playing"));
+}
+
+function stopIntroSpeech(){
+  if(introAudio){
+    try{ introAudio.pause(); introAudio.currentTime = 0; }catch{}
+  }
+  introAudio = null;
+  const btn = document.getElementById("btnIntroAudio");
+  if(btn) btn.classList.remove("playing");
+}
+
+function speakIntroInstructions(){
+  stopIntroSpeech();
+  stopOptionSpeech();
+  if(pequesAudio){
+    try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
+    audioCueEnds = null;
+    setAudioPlaying(false);
+    clearChoiceCues();
+  }
+  const btn = document.getElementById("btnIntroAudio");
+  introAudio = new Audio(INTRO_AUDIO_SRC);
+  introAudio.preload = "auto";
+  if(btn) btn.classList.add("playing");
+  introAudio.onended = () => {
+    if(btn) btn.classList.remove("playing");
+    introAudio = null;
+  };
+  introAudio.onerror = () => {
+    if(btn) btn.classList.remove("playing");
+    introAudio = null;
+    alert("No se pudo cargar el audio de las instrucciones.");
+  };
+  introAudio.play().then(() => {
+    introAudioStarted = true;
+    enableAudioCheckChoices();
+    if(audioCheckNoMsg) audioCheckNoMsg.hidden = true;
+    // Si había dicho "No", al reescuchar limpia la elección para que confirme de nuevo.
+    if(audioCheckNo && audioCheckNo.checked){
+      audioCheckNo.checked = false;
+      audioCheckOk = false;
+      syncIniciarBtn();
+    }
+  }).catch(() => {
+    if(btn) btn.classList.remove("playing");
+    introAudio = null;
+  });
+}
+
+function stopSpeech(){
+  stopIntroSpeech();
+  stopOptionSpeech();
+  if(pequesAudio){
+    try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
+  }
+  audioCueEnds = null;
+  setAudioPlaying(false);
+  clearChoiceCues();
+}
+
+function speakOptionLabel(label, btn){
+  const slug = labelAudioSlug(label);
+  if(!slug) return;
+  // Stop full-question narration so only the option plays
+  if(pequesAudio){
+    try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
+    audioCueEnds = null;
+    setAudioPlaying(false);
+    clearChoiceCues();
+  }
+  stopOptionSpeech();
+  const src = DALIA_OPT_AUDIO_BASE + slug + ".mp3";
+  pequesOptAudio = new Audio(src);
+  pequesOptAudio.preload = "auto";
+  if(btn) btn.classList.add("playing");
+  pequesOptAudio.onended = () => {
+    if(btn) btn.classList.remove("playing");
+    pequesOptAudio = null;
+  };
+  pequesOptAudio.onerror = () => {
+    if(btn) btn.classList.remove("playing");
+    pequesOptAudio = null;
+  };
+  pequesOptAudio.play().catch(() => {
+    if(btn) btn.classList.remove("playing");
+    pequesOptAudio = null;
+  });
+}
+
+function speakCurrent(){
+  const q = ITEMS[currentIndex];
+  if(!q) return;
+  setAudioNudgeVisible(false);
+  const n = String(q.id).padStart(2,"0");
+  const src = DALIA_AUDIO_BASE + n + ".mp3";
+  stopSpeech();
+  const plan = buildAudioCuePlan(q.speak);
+  pequesAudio = new Audio(src);
+  pequesAudio.preload = "auto";
+  pequesAudio.onloadedmetadata = () => {
+    const dur = pequesAudio.duration;
+    if(Number.isFinite(dur) && dur > 0){
+      audioCueEnds = cueEndsFromDuration(dur, plan.weights);
+    }
+  };
+  pequesAudio.ontimeupdate = syncChoiceCueFromAudio;
+  pequesAudio.onended = () => {
+    setAudioPlaying(false);
+    clearChoiceCues();
+  };
+  pequesAudio.onerror = () => {
+    setAudioPlaying(false);
+    clearChoiceCues();
+    alert("No se pudo cargar el audio de esta pregunta.");
+  };
+  setAudioPlaying(true);
+  pequesAudio.play().catch(() => setAudioPlaying(false));
+}
+
+function togglePause(){
+  if(!pequesAudio){ speakCurrent(); return; }
+  if(pequesAudio.paused){
+    if(pequesAudio.ended || pequesAudio.currentTime === 0){ speakCurrent(); return; }
+    pequesAudio.play().then(() => setAudioPlaying(true)).catch(() => setAudioPlaying(false));
+  } else {
+    pequesAudio.pause();
+    setAudioPlaying(false);
+  }
+}
+
+document.getElementById("btnAudio").addEventListener("click", speakCurrent);
+document.getElementById("btnAudioPause").addEventListener("click", togglePause);
+document.getElementById("btnAudioStop").addEventListener("click", stopSpeech);
+document.getElementById("btnIntroAudio").addEventListener("click", speakIntroInstructions);
+if(audioCheckSi) audioCheckSi.addEventListener("change", onAudioCheckChange);
+if(audioCheckNo) audioCheckNo.addEventListener("change", onAudioCheckChange);
+
+document.getElementById("btnSiguiente").addEventListener("click", () => {
+  if(ITEMS[currentIndex].value == null) return;
+  if(currentIndex >= ITEMS.length - 1) onFinalizar();
+  else {
+    currentIndex++;
+    saveState(false);
+    renderQuestion();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+});
+
+codigoInput.addEventListener("blur", lookupCodigo);
+codigoInput.addEventListener("input", () => {
+  codigoInput.value = codigoInput.value.toUpperCase();
+  actualizarLabelCurso(codigoInput.value);
+});
+codigoInput.addEventListener("keydown", (e) => {
+  if(e.key === "Enter"){ e.preventDefault(); lookupCodigo(); }
+});
+document.getElementById("btnVolverMenuInicio").onclick = () => { location.href = "index.html"; };
+document.getElementById("btnRegresarMenu").onclick = () => { location.href = "index.html"; };
+
+btnIniciar.addEventListener("click", async () => {
+  if(!document.getElementById("nombre").value.trim()){ alert("Ingresa tu nombre."); return; }
+  if(!introAudioStarted || !audioCheckOk){
+    alert("Toca la corneta 🔊, escucha el audio y confirma que lo oíste con Sí.");
+    return;
+  }
+  if(!CODIGO_ACTUAL) await lookupCodigo();
+  if(!CODIGO_ACTUAL){ alert("Valida el código antes de iniciar."); return; }
+
+  const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+  let serverState = null;
+  if(codigo) serverState = await cargarAutosaveServidor(codigo);
+  const localSaved = loadStateForCurrentCode();
+  const candidate = serverState || localSaved;
+
+  if(candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0){
+    // Como intelectual: aviso informativo, sin Cancelar que reinicie.
+    alert("Hay un intento en curso para este código. Continuará donde lo dejó.");
+    aplicarState(candidate);
+  } else {
+    ITEMS.forEach(q => { q.value = null; });
+    currentIndex = 0;
+    __startTime = Date.now();
+    saveState(false);
+  }
+
+  stopIntroSpeech();
+  document.getElementById("pantalla-inicio").classList.add("hidden");
+  document.getElementById("datos-participante").classList.add("hidden");
+  document.getElementById("pantalla-preguntas").classList.remove("hidden");
+  renderQuestion();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const hoy = new Date();
+  try { document.getElementById("fecha").value = new Intl.DateTimeFormat("es-EC").format(hoy); }
+  catch { document.getElementById("fecha").value = hoy.toLocaleDateString("es-EC"); }
+  actualizarLabelCurso("");
+  syncIniciarBtn();
+});
+</script>
+</body>
+</html>
