@@ -5,7 +5,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Informe Socioemocional · Kids – Adalam</title>
-  <!-- hit-build fit-v2 -->
+  <!-- hit-build fit-v2-curve-pdf -->
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -796,6 +796,7 @@ function dispBloque(name){
   }
 function setCurveMarker(iie){
   const score = clamp(Number(iie) || 0, 1, 100);
+  window.__curveIIEValue = score;
 
   const wrap = document.querySelector(".curve .curve-gauge");
   const img  = document.getElementById("freqCurveImg");
@@ -805,6 +806,7 @@ function setCurveMarker(iie){
   const place = () => {
     const rW = wrap.getBoundingClientRect();
     const rI = img.getBoundingClientRect();
+    if (!rW.width || !rI.width) return;
 
     // Tamaño real dibujado dentro del <img> (por object-fit:contain)
     const natW = img.naturalWidth  || 1;
@@ -848,12 +850,22 @@ function setCurveMarker(iie){
     mk.style.bottom = `${(y / h) * 100}%`;
   };
 
-  // Asegura que se calcule cuando ya hay layout + imagen lista
-  if (img.complete) {
+  // Varios pases: pantalla y PDF/print (layout cambia al imprimir)
+  const schedule = () => {
+    place();
     requestAnimationFrame(place);
-  } else {
-    img.addEventListener("load", () => requestAnimationFrame(place), { once:true });
-  }
+    setTimeout(place, 80);
+    setTimeout(place, 200);
+  };
+
+  if (img.complete) schedule();
+  else img.addEventListener("load", schedule, { once:true });
+}
+
+function refreshCurveMarkerForPrint(){
+  const v = window.__curveIIEValue;
+  if (v == null || Number.isNaN(Number(v))) return;
+  setCurveMarker(Number(v));
 }
 
   function addRow(container, name, pct){
@@ -2511,19 +2523,18 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
     cargarReporte(c);
   });
 
-  document.getElementById("btnImprimir").addEventListener("click", ()=>window.print());
-  document.getElementById("btnPDF").addEventListener("click", ()=>window.print());
+  function imprimirReporteKids(){
+    refreshCurveMarkerForPrint();
+    setTimeout(() => {
+      refreshCurveMarkerForPrint();
+      window.print();
+    }, 120);
+  }
+  document.getElementById("btnImprimir").addEventListener("click", imprimirReporteKids);
+  document.getElementById("btnPDF").addEventListener("click", imprimirReporteKids);
 
-  window.addEventListener("beforeprint", () => {
-    const v = window.__curveIIEValue;
-    if (v == null || Number.isNaN(Number(v))) return;
-    requestAnimationFrame(() => setCurveMarker(Number(v)));
-  });
-  window.addEventListener("afterprint", () => {
-    const v = window.__curveIIEValue;
-    if (v == null || Number.isNaN(Number(v))) return;
-    requestAnimationFrame(() => setCurveMarker(Number(v)));
-  });
+  window.addEventListener("beforeprint", refreshCurveMarkerForPrint);
+  window.addEventListener("afterprint", refreshCurveMarkerForPrint);
 
   (function init(){
     const qp = new URLSearchParams(location.search);
