@@ -14,6 +14,7 @@ function isIdiomaLockedReportEval(raw) {
   if (t === "SOCIOE" || t === "SOCIOEMOCIONAL" || t === "SOCIO" || t === "SOC") return true;
   if (t === "SOCIV2" || t === "SOCIOEMOCIONALV2" || t === "EMOV2" || t === "SOC2") return true;
   if (t === "SOCPEQ" || t === "SOCPEQUES" || t === "SOCINF") return true;
+  if (t === "SOCIES" || t === "SOCIESC" || t === "SOCIOEMOCIONALESCOLAR" || t === "SOCESC") return true;
   if (t === "INTEGR" || t === "INTEGRIDAD" || t === "VALORES" || t === "INTG") return true;
   if (t === "INTELC" || t === "INTELECTUAL" || t === "INTEL" || t === "INTE") return true;
   return false;

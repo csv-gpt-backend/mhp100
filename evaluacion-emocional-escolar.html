@@ -1,0 +1,1496 @@
+<!doctype html>
+<html lang="es" translate="no" class="notranslate">
+<head>
+  <meta name="google" content="notranslate">
+  <meta charset="utf-8" />
+  <title>Evaluación Socioemocional Escolar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #111827;
+      background: #ffffff;
+      --sbw: 0px;
+    }
+
+    /* ===== FIX #1: evita que el ancho “salte” por aparición/desaparición del scroll ===== */
+  html{
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+  padding-right: var(--sbw);
+}
+
+    /* ===== FIX #2: letra un poquito más grande (suave) ===== */
+    body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      font-size: 16px;
+      overflow-y: scroll;      
+
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+.side-strip {
+  background: #e5e7eb;
+  border-right: 1px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.side-strip span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  font-size: 24px; /* un poco más compacto para caber bien */
+  text-align: center;
+
+  color: #6b7280; /* plata/metal oscuro (se lee bien) */
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.8),
+    0 -1px 0 rgba(0,0,0,.18);
+}
+
+    .page {
+  max-width: 1000px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+  
+    h1 {
+      font-size: 19px;
+      margin: 0 0 4px;
+    }
+    h2 {
+      font-size: 16px;
+      margin: 16px 0 8px;
+    }
+    .muted {
+      color: #6b7280;
+      font-size: 13px;
+    }
+    .ok {
+      color: #16a34a;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .err {
+      color: #dc2626;
+      font-size: 13px;
+      font-weight: 600;
+    }
+   #pantalla-preguntas .card {
+       min-height: 420px;
+       /* NO overflow-x:hidden: anula position:sticky de .sticky-wrap */
+       overflow: visible;
+      max-width: 100%;
+
+}
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 13px;
+    }
+    .field label {
+      font-weight: 600;
+    }
+    .field input {
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+    .field input[readonly] {
+      background: #f9fafb;
+      color: #4b5563;
+    }
+    .instructions p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    .instructions ul {
+      margin: 4px 0 0 18px;
+      padding: 0;
+    }
+    .instructions li {
+      margin-bottom: 2px;
+      font-size: 14px;
+    }
+    .instructions-header {
+      font-weight: 700;
+      text-align: center;
+      margin: 8px 0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #1d4ed8;
+      color: #ffffff;
+      font-size: 13px;
+    }
+
+    /* ===== Sticky header (opción 2) ===== */
+
+.sticky-wrap{
+  position: relative;
+  top: 0;
+  z-index: 999;
+  background: #ffffff;
+  padding-top: 8px;
+  margin-top: 0;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+.sticky-wrap.is-pinned{
+  position: fixed !important;
+  top: 0;
+  z-index: 1000;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+    .progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .progress .bar {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: width 0.2s ease-out;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+      background: #f9fafb;
+    }
+    .panel-note {
+      font-size: 12px;
+      color: #6b7280;
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    .questions-header {
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
+      gap: 4px;
+      align-items: center;
+      font-size: 13px;
+      margin-top: 8px;
+      padding: 4px 0;
+      border-bottom: 1px solid #e5e7eb;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .questions-header div {
+      text-align: center;
+    }
+    .questions-header div:first-child,
+    .questions-header div:nth-child(2) {
+      text-align: left;
+    }
+
+    /* ===== FIX: permite que la columna del texto se encoja sin romper el grid ===== */
+    .questions-header > div:nth-child(2),
+    .question > div:nth-child(2){
+      min-width: 0;
+    }
+
+    #questions {
+      margin-top: 0;
+      width: 100%;
+    }
+
+    .question {
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
+      gap: 4px;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 15px; /* un poquito más grande */
+      width: 100%;
+      box-sizing: border-box;
+    }
+    /* Color suave alternado */
+    .question:nth-child(even){
+      background: #f8fafc;
+    }
+    /* Color “bonito” cuando se responde */
+    .question.answered{
+      background: #ecfdf5 !important;
+      outline: 1px solid #bbf7d0;
+      outline-offset: -1px;
+      border-bottom-color: #bbf7d0;
+    }
+
+    .q-no {
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    /* ===== FIX: textos largos NO deben deformar el ancho ===== */
+    .q-text {
+      display: block;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .q-cell {
+      text-align: center;
+    }
+    .q-cell input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    /* Botón SIGUIENTE (bonito) */
+#btnSiguiente{
+  border: none;
+  border-radius: 999px;
+  padding: 9px 20px;
+font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #16a34a;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(22,163,74,.25);
+}
+
+#btnSiguiente:hover{
+  filter: brightness(0.95);
+}
+
+#btnSiguiente:active{
+  transform: translateY(1px);
+}
+
+#btnSiguiente:disabled{
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
+}
+/* Botón INICIAR (mismo estilo que SIGUIENTE, pero controlando el disabled para que no quede “lavado”) */
+#btnIniciar{
+  border: none;
+  border-radius: 999px;
+  padding: 9px 20px;     /* un poquito más chico */
+  font-size: 13px;       /* un poquito más chico */
+  font-weight: 800;
+  cursor: pointer;
+  background: #16a34a;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(22,163,74,.25);
+}
+
+#btnIniciar:hover{ filter: brightness(0.95); }
+#btnIniciar:active{ transform: translateY(1px); }
+
+/* Clave: en disabled NO usamos opacity, lo dejamos “gris prolijo” */
+#btnIniciar:disabled{
+  background: #9ca3af;      /* gris lindo */
+  color: #ffffff;
+  opacity: 1;               /* evita “lavado” */
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+    /* ===== FIX: barra inferior fija (sticky) para que SIGUIENTE no quede perdido ===== */
+/*#pantalla-preguntas .footer-actions{*/
+ /* position: sticky;*/
+/* bottom: 0;*/
+/*  z-index: 998;*/
+/*  background: #ffffff;*/
+/*  padding: 10px 0 0;*/
+/*  border-top: 1px solid #e5e7eb;*/
+/*}*/
+
+/* espacio para que el contenido no quede tapado por la barra sticky */
+/*#pantalla-preguntas #questions{*/
+ /* padding-bottom: 70px;*/
+/*}*/
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #16a34a;
+      color: #ffffff;
+    }
+    button.primary {
+      background: #16a34a;
+    }
+    button.secondary {
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    #pantalla-final {
+      margin-top: 32px;
+      padding: 24px 18px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: #fefce8;
+      text-align: center;
+      display: none;
+    }
+    #pantalla-final h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    .check-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 2px solid #16a34a;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #16a34a;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    /* ===== Escala naranjas alineadas con columnas 1/2/3 ===== */
+    .scale-banner {
+      margin-top: 6px;
+      margin-bottom: 2px;
+      display: grid;
+      grid-template-columns: 40px 1fr repeat(3, 80px);
+      gap: 10px;
+      align-items: end;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .scale-spacer { height: 1px; }
+    .scale-badge {
+      background: #f97316;
+      color: #ffffff;
+      padding: 2px 8px 4px;
+      border-radius: 4px 4px 0 0;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      position: relative;
+      min-width: 72px;
+      justify-self: center; /* clave: centrado exacto */
+      width: 72px;          /* mismo ancho de columna */
+    }
+    .scale-badge::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -4px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 4px solid #f97316;
+    }
+    .scale-num {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 1px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 840px) {
+      .layout {
+        grid-template-columns: 56px minmax(0, 1fr);
+      }
+      .side-strip span {
+        font-size: 18px;
+      }
+    }
+    @media (max-width: 720px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .questions-header,
+      .question,
+      .scale-banner {
+        grid-template-columns: 32px 1fr repeat(3, 64px);
+      }
+      .scale-badge{
+        min-width: 56px;
+        width: 56px;
+      }
+      .scale-banner { gap: 8px; }
+    }
+ 
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="side-strip">
+      <span>SOCIOEMOCIONAL ESCOLAR</span>
+    </aside>
+
+    <main class="page">
+      <header>
+        <h1>Evaluación Socioemocional · Escolar</h1>
+      </header>
+
+      <!-- Datos del participante -->
+      <section id="datos-participante" class="card">
+        <div class="grid-2">
+          <div class="field">
+            <label for="codigo">Código</label>
+            <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
+            <small id="codigoMsg" class="muted"></small>
+          </div>
+
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          </div>
+
+          <div class="field">
+<label for="curso" id="labelCurso">Grado/Curso/Nivel</label>
+            <input id="curso" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="institucion">Institución</label>
+            <input id="institucion" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="grupo">País</label>
+            <input id="grupo" type="text" readonly />
+          </div>
+          <div class="field">
+            <label for="fecha">Fecha</label>
+            <input id="fecha" type="text" readonly />
+          </div>
+        </div>
+      </section>
+
+      <!-- Pantalla de instrucciones -->
+      <section id="pantalla-inicio" class="card instructions">
+        <h2>Evaluación Socioemocional · Escolar</h2>
+        <p>
+          El manejo de las emociones es clave para relacionarte bien en el colegio, con tus amigos y en casa.
+          Esta evaluación está pensada para estudiantes de 9 a 16 años y te ayuda a conocer tu desarrollo
+          en habilidades socioemocionales importantes.
+        </p>
+        <p>
+          El instrumento identifica 12 habilidades emocionales y 2 áreas relacionadas
+          con el estilo de comunicación interpersonal.
+        </p>
+        <p>
+          La evaluación consta de 107 preguntas, y permite obtener un diagnóstico
+          sobre el manejo de la inteligencia emocional en cuatro áreas diferentes:
+        </p>
+        <ul>
+          <li>Desarrollo Personal.</li>
+          <li>Vínculos Interpersonales.</li>
+          <li>Competencias para la Vida.</li>
+          <li>Comunicación Interpersonal.</li>
+        </ul>
+        <div class="instructions-header">
+          INSTRUCCIONES PARA LLENAR LA EVALUACIÓN
+        </div>
+        <p>1. Lee con detenimiento cada enunciado.</p>
+        <p>2. Reflexiona en qué medida se parece a lo que haces o sientes habitualmente.</p>
+        <p>
+          3. Selecciona la casilla que corresponda a la respuesta deseada de acuerdo con los siguientes criterios:
+        </p>
+        <p style="margin-left: 12px; margin-top: 4px;">
+          1 = <strong>Siempre</strong> ·
+          2 = <strong>Algunas veces</strong> ·
+          3 = <strong>Rara vez</strong>
+        </p>
+        <p style="margin-top: 6px;">
+          <strong>IMPORTANTE:</strong> Una vez iniciada la evaluación, no podrás retroceder a las páginas anteriores.
+        </p>
+        <div style="margin-top: 12px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <button type="button" id="btnVolverMenuInicio" class="primary">REGRESAR AL MENÚ</button>
+          <button id="btnIniciar" class="primary" disabled>INICIAR</button>
+        </div>
+      </section>
+
+      <!-- Pantalla de preguntas -->
+      <section id="pantalla-preguntas" class="hidden">
+        <div class="card">
+
+          <div class="sticky-wrap">
+            <h2 style="margin:0 0 6px;">Responde las siguientes preguntas</h2>
+            <p class="muted" id="nota-genero" style="margin:0 0 6px;">
+              Nota: Las siguientes preguntas pueden estar redactadas en género masculino, pero se entiende que también se refieren al género femenino.
+            </p>
+
+            <div class="scale-banner" aria-label="Escala">
+              <div class="scale-spacer"></div>
+              <div class="scale-spacer"></div>
+              <div class="scale-badge">
+                  SIEMPRE
+              </div>
+              <div class="scale-badge">
+                  ALGUNAS VECES
+              </div>
+              <div class="scale-badge">
+                  RARA VEZ
+              </div>
+            </div>
+            <div class="progress" aria-label="Progreso">
+              <div class="bar" id="bar"></div>
+            </div>
+            <div style="margin:6px 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span class="pill" id="pillTotal">Total: 0 / 0 (0%)</span>
+              <small id="metaInfo" class="muted"></small>
+            </div>
+            <div class="questions-header">
+              <div>#</div>
+              <div>Pregunta</div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          </div><!-- /sticky-wrap: cabecera + franjas fijas -->
+          <div id="preguntas-header-spacer" aria-hidden="true" style="height:0;flex-shrink:0;"></div>
+
+          <div id="questions"></div>
+
+          <div class="footer-actions">
+            <div>
+              <small id="pageIndicator" class="muted"></small>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+              <small id="notaContinuar" class="panel-note">
+                NOTA: Para continuar debes contestar todas las preguntas. Contestadas: 0/0.
+              </small>
+              <button id="btnSiguiente" class="primary">SIGUIENTE</button>
+            </div>
+          </div>
+        </div><!-- /card -->
+      </section>
+
+      <!-- Pantalla final -->
+      <section id="pantalla-final">
+        <div class="check-icon">✔</div>
+        <h2>Evaluación terminada</h2>
+        <p>Felicidades, has concluido tu evaluación de socioemocional escolar.</p>
+        <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    console.log("ready!");
+    (function lockScrollbarWidth(){
+  function setSBW(){
+    const sbw = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.setProperty("--sbw", (sbw > 0 ? sbw : 0) + "px");
+  }
+  setSBW();
+  window.addEventListener("resize", setSBW);
+})();
+
+
+    let __startTime = Date.now();
+
+    const EVAL_PRODUCT_KEY = "SOCIES";
+    const EVAL_LANG = "ES";
+    let CODIGO_ACTUAL = null;
+    const STORAGE_PREFIX = "eval_socies_state_";
+
+    const codigoInput = document.getElementById('codigo');
+const instInput   = document.getElementById('institucion');
+const grupoInput  = document.getElementById('grupo');
+const cursoInput  = document.getElementById('curso');
+const labelCurso  = document.getElementById('labelCurso');
+const btnIniciar  = document.getElementById('btnIniciar');
+const codigoMsg   = document.getElementById('codigoMsg');
+    function actualizarLabelCurso(codigo = '') {
+  const limpio = String(codigo || '').trim().toUpperCase();
+  if (!labelCurso) return;
+
+  if (!limpio) {
+    labelCurso.textContent = 'Grado/Curso/Nivel';
+    return;
+  }
+
+  labelCurso.textContent = limpio.startsWith('PRO') ? 'Nivel' : 'Grado/Curso';
+}
+
+    function getStorageKey() {
+      const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+      return codigo ? STORAGE_PREFIX + codigo : null;
+    }
+
+    function loadStateForCurrentCode() {
+      const key = getStorageKey();
+      if (!key) return null;
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        console.warn("No se pudo leer el estado local:", e);
+        return null;
+      }
+    }
+
+    function clearState() {
+      const key = getStorageKey();
+      if (!key) return;
+      try { localStorage.removeItem(key); }
+      catch (e) { console.warn("No se pudo borrar el estado local:", e); }
+    }
+
+    function isStateCompleted(state) {
+      if (!state) return false;
+      if (state.completed) return true;
+      const resp = state.responses || {};
+      return ITEMS.length > 0 && Object.keys(resp).length >= ITEMS.length;
+    }
+
+    async function syncAutosaveToServer(state) {
+      try {
+        const codigo = state.codigo;
+        if (!codigo) return;
+
+        const payload = {
+          codigo,
+          currentPage: state.currentPage || 0,
+          responses: state.responses || {},
+          snapshot: {
+            nombre: state.nombre || "",
+            institucion: state.institucion || "",
+            grupo: state.grupo || "",
+            curso: state.curso || "",
+            fecha: state.fecha || "",
+            startTime: state.startTime || null
+          }
+        };
+
+        await fetch("/api/autosave", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {
+        console.warn("No se pudo sincronizar autosave servidor:", e);
+      }
+    }
+
+    async function cargarAutosaveServidor(codigo) {
+      if (!codigo) return null;
+      try {
+        const r = await fetch(`/api/autosave?codigo=${encodeURIComponent(codigo)}`);
+        const data = await r.json();
+        if (!r.ok || !data.ok || !data.autosave) return null;
+
+        const row = data.autosave;
+        const snap = row.snapshot || {};
+        return {
+          codigo: row.codigo || codigo,
+          nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+          institucion: snap.institucion || DATOS_FIJOS.institucion,
+          grupo: snap.grupo || DATOS_FIJOS.grupo,
+          curso: snap.curso || DATOS_FIJOS.curso,
+          fecha: snap.fecha || document.getElementById("fecha").value,
+          currentPage: typeof row.current_page === "number" ? row.current_page : 0,
+          responses: row.responses || {},
+          startTime: snap.startTime || Date.now(),
+          completed: false
+        };
+      } catch (e) {
+        console.warn("No se pudo cargar autosave servidor:", e);
+        return null;
+      }
+    }
+
+    function saveState(completedFlag) {
+      const key = getStorageKey();
+      if (!key) return;
+
+      try {
+        const prev = loadStateForCurrentCode() || {};
+        const state = {
+          ...prev,
+          codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
+          nombre: document.getElementById("nombre").value.trim(),
+          institucion: document.getElementById("institucion").value,
+          grupo: document.getElementById("grupo").value,
+          curso: document.getElementById("curso").value,
+          fecha: document.getElementById("fecha").value,
+          currentPage,
+          responses: obtenerRespuestasCrudas(),
+          startTime: __startTime || Date.now(),
+          completed: (typeof completedFlag === "boolean") ? completedFlag : !!prev.completed
+        };
+
+        localStorage.setItem(key, JSON.stringify(state));
+        syncAutosaveToServer(state);
+      } catch (e) {
+        console.warn("No se pudo guardar el progreso local:", e);
+      }
+    }
+
+    async function lookupCodigo() {
+      const codigo = codigoInput.value.trim().toUpperCase();
+      codigoInput.value = codigo;
+      actualizarLabelCurso(codigo);
+      CODIGO_ACTUAL = null;
+      btnIniciar.disabled = true;
+
+      const nombreEl0 = document.getElementById("nombre");
+      if (nombreEl0) {
+        nombreEl0.readOnly = false;
+        nombreEl0.setAttribute("autocomplete", "off");
+      }
+
+      if (codigoMsg) {
+        codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
+        codigoMsg.className = codigo ? 'muted' : 'err';
+      }
+      if (!codigo) {
+        instInput.value = grupoInput.value = cursoInput.value = '';
+        return;
+      }
+      try {
+        const r = await fetch(`/api/lookup?codigo=${encodeURIComponent(codigo)}&eval=${encodeURIComponent(EVAL_PRODUCT_KEY)}&idioma=${encodeURIComponent(EVAL_LANG)}`);
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Código no válido');
+
+        const codigoUsado =
+          data.usado === true ||
+          data.usado === "true" ||
+          (typeof data.disponible === "boolean" && data.disponible === false) ||
+          (data.estado && String(data.estado).toLowerCase() !== "activo") ||
+          (typeof data.intentos_max === "number" &&
+           typeof data.intentos_usados === "number" &&
+           data.intentos_usados >= data.intentos_max);
+
+        if (codigoUsado) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "Este código ya fue utilizado o no está disponible.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
+
+        CODIGO_ACTUAL = data.codigo || codigo;
+
+        const localState = loadStateForCurrentCode();
+        if (isStateCompleted(localState)) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "Este código ya fue utilizado para completar una evaluación en este dispositivo.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
+
+        instInput.value  = data.institucion || '';
+        grupoInput.value = data.grupo || '';
+        cursoInput.value = data.curso || '';
+        btnIniciar.disabled = false;
+
+        // Como intelectual/Kids: si hay intento en curso, mostrar nombre y bloquear casilla.
+        const nombreEl = document.getElementById("nombre");
+        let nombreGuardado = "";
+        if (localState && !isStateCompleted(localState) && localState.nombre) {
+          nombreGuardado = String(localState.nombre).trim();
+        }
+        if (!nombreGuardado) {
+          const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
+          if (
+            serverDraft &&
+            !isStateCompleted(serverDraft) &&
+            serverDraft.nombre &&
+            serverDraft.responses &&
+            Object.keys(serverDraft.responses).length > 0
+          ) {
+            nombreGuardado = String(serverDraft.nombre).trim();
+          }
+        }
+        if (nombreEl) {
+          if (nombreGuardado) {
+            nombreEl.value = nombreGuardado;
+            nombreEl.readOnly = true;
+            nombreEl.setAttribute("autocomplete", "off");
+          } else {
+            nombreEl.readOnly = false;
+            nombreEl.setAttribute("autocomplete", "off");
+          }
+        }
+
+        if (codigoMsg) {
+          codigoMsg.textContent = 'Código válido.';
+          codigoMsg.className = 'ok';
+        }
+      } catch (e) {
+        instInput.value = grupoInput.value = cursoInput.value = '';
+        const nombreElErr = document.getElementById("nombre");
+        if (nombreElErr) {
+          nombreElErr.readOnly = false;
+          nombreElErr.setAttribute("autocomplete", "off");
+        }
+        if (codigoMsg) {
+          codigoMsg.textContent = (e && e.message) ? e.message : 'Código no encontrado.';
+          codigoMsg.className = 'err';
+        }
+      }
+    }
+
+    codigoInput.addEventListener('input', () => {
+      codigoInput.value = codigoInput.value.toUpperCase();
+      actualizarLabelCurso(codigoInput.value);
+    });
+    codigoInput.addEventListener('blur', lookupCodigo);
+    codigoInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); lookupCodigo(); }
+    });
+actualizarLabelCurso(codigoInput.value);
+    const DATOS_FIJOS = {
+      institucion: "Institución por defecto",
+      grupo: "País por defecto",
+      curso: "Grado/Curso/Nivel por defecto"
+    };
+
+    const PAGE_SIZE = 10;
+    let currentPage = 0;
+
+    const PREGUNTAS_CSV = `
+1;Cuando me enojo mucho con alguien, siento ganas de pelearle con palabras.;Estilos de comunicación interpersonal;Agresión;No
+2;Cuando me enojo mucho con alguien, le digo mi enojo y empiezo una discusión.;Estilos de comunicación interpersonal;Agresión;No
+3;Si alguien se enoja mucho conmigo, me dan ganas de responderle igual de fuerte.;Estilos de comunicación interpersonal;Agresión;No
+4;Cuando hablo con un profesor o un adulto de autoridad, me pongo a la defensiva y a veces agresivo.;Estilos de comunicación interpersonal;Agresión;No
+5;Cuando necesito algo importante de alguien, lo pido de forma exagerada e insistente.;Estilos de comunicación interpersonal;Agresión;No
+6;En un grupo nuevo, hablo de más y a veces caigo pesado.;Estilos de comunicación interpersonal;Agresión;No
+7;Cuando me enojo mucho con alguien, me pongo nervioso y no sé qué decir.;Estilos de comunicación interpersonal;Timidez;No
+8;Si alguien se enoja mucho conmigo, me confundo, me da miedo y quiero alejarme.;Estilos de comunicación interpersonal;Timidez;No
+9;Cuando hablo con un profesor o un adulto de autoridad, me siento nervioso y no sé cómo acercarme.;Estilos de comunicación interpersonal;Timidez;No
+10;Si alguien me pide algo importante, digo “sí” aunque debería decir “no”.;Estilos de comunicación interpersonal;Timidez;No
+11;En un grupo nuevo, me pongo ansioso y no sé cómo empezar a hablar.;Estilos de comunicación interpersonal;Timidez;No
+12;Me resulta muy difícil hablar frente a un grupo (por ejemplo, en clase).;Estilos de comunicación interpersonal;Timidez;No
+13;Por timidez, me cuesta defender lo que creo justo.;Estilos de comunicación interpersonal;Timidez;No
+14;Cuando me enojo con alguien, me siento tenso, pero tranquilo por haber dicho exactamente lo que pensaba.;Habilidades interpersonales;Asertividad;No
+15;Cuando me enojo con alguien, le digo qué me molestó y trato de buscar una solución.;Habilidades interpersonales;Asertividad;No
+16;Si alguien se enoja conmigo, trato de entender por qué y le respondo con claridad para arreglarlo.;Habilidades interpersonales;Asertividad;No
+17;Cuando hablo con un profesor o un adulto de autoridad, me siento cómodo y me acerco de frente.;Habilidades interpersonales;Asertividad;No
+18;Si alguien me pide algo importante, me siento cómodo diciendo “sí” o “no”.;Habilidades interpersonales;Asertividad;No
+19;Cuando me piden algo importante, respondo según lo que realmente siento: “sí” o “no” con claridad.;Habilidades interpersonales;Asertividad;No
+20;Cuando pido algo importante, me siento seguro y con derecho a pedirlo.;Habilidades interpersonales;Asertividad;No
+21;Cuando pido algo importante, sé que tengo derecho a pedirlo y respeto la respuesta de la otra persona.;Habilidades interpersonales;Asertividad;No
+22;En un grupo nuevo, me siento cómodo para empezar a hablar.;Habilidades interpersonales;Asertividad;No
+23;Sé cómo pedir un favor sin imponerme.;Habilidades interpersonales;Asertividad;No
+24;No puedo expresar con comodidad emociones fuertes (miedo, enojo o tristeza).;Habilidades interpersonales;Asertividad;Sí
+25;Me importan los demás, y parece que ellos lo notan.;Habilidades interpersonales;Empatía;No
+26;Puedo entender y tener paciencia con un compañero que está pasando un mal momento.;Habilidades interpersonales;Empatía;No
+27;Soy afectuoso y abierto, y la gente se siente cómoda contándome lo que le preocupa.;Habilidades interpersonales;Empatía;No
+28;Mis amigos me dicen que soy una persona comprensiva.;Habilidades interpersonales;Empatía;No
+29;Puedo darme cuenta de cómo se sienten los otros, casi como si lo sintiera yo.;Habilidades interpersonales;Empatía;No
+30;Cuando alguien me cuenta algo importante, me concentro de verdad en escucharlo.;Habilidades interpersonales;Empatía;No
+31;Cuando alguien me dice cómo se siente, puedo escucharlo y entender su punto de vista.;Habilidades interpersonales;Empatía;No
+32;Me cuesta calmar a otros cuando hay una situación tensa.;Habilidades interpersonales;Empatía;Sí
+33;Sé cuándo debo hablar y cuándo escuchar.;Habilidades interpersonales;Conciencia de los demás;No
+34;Mi cara, mirada y gestos ayudan a que los demás me entiendan.;Habilidades interpersonales;Conciencia de los demás;No
+35;Sé qué tan cerca puedo estar de otra persona sin que se sienta incómoda.;Habilidades interpersonales;Conciencia de los demás;No
+36;Puedo decidir qué tan amistoso ser con alguien que recién conozco.;Habilidades interpersonales;Conciencia de los demás;No
+37;Sé cuándo presentarme yo mismo y cuándo esperar a que alguien me presente.;Habilidades interpersonales;Conciencia de los demás;No
+38;Mi relación con otras personas suele ser fácil y cómoda.;Habilidades interpersonales;Conciencia de los demás;No
+39;Soy capaz de hacer nuevas amistades.;Habilidades interpersonales;Conciencia de los demás;No
+40;Me impaciento fácilmente con los demás.;Habilidades interpersonales;Conciencia de los demás;Sí
+41;Soy una persona alegre.;Habilidades intrapersonales;Autoestima;No
+42;Confío en mí mismo/a.;Habilidades intrapersonales;Autoestima;No
+43;Me agrado y me siento bien con el tipo de persona que soy.;Habilidades intrapersonales;Autoestima;No
+44;Soy alguien en quien se puede confiar, y yo también puedo confiar en mí.;Habilidades intrapersonales;Autoestima;No
+45;Puedo aceptar mis errores en vez de preocuparme demasiado por ellos.;Habilidades intrapersonales;Autoestima;No
+46;Me siento cómodo mostrando mis debilidades a mis amigos.;Habilidades intrapersonales;Autoestima;No
+47;Siento que puedo lograr cosas importantes si creo en mí.;Habilidades intrapersonales;Autoestima;No
+48;Tengo miedo de ser yo mismo/a.;Habilidades intrapersonales;Autoestima;Sí
+49;Manejo bien la tensión y conozco formas sanas de calmarme.;Habilidades intrapersonales;Manejo de la tensión;No
+50;Uso formas que me ayudan con el estrés (respirar, moverme, descansar o hablar con alguien).;Habilidades intrapersonales;Manejo de la tensión;No
+51;Aguanto bien los días buenos y los días difíciles del colegio.;Habilidades intrapersonales;Manejo de la tensión;No
+52;Soy una persona tensa.;Habilidades intrapersonales;Manejo de la tensión;Sí
+53;A veces siento la tensión en el cuerpo (por ejemplo, estómago, cuello o cabeza).;Habilidades intrapersonales;Manejo de la tensión;Sí
+54;Mis amigos o mi familia me dicen que me veo preocupado, tenso o nervioso.;Habilidades intrapersonales;Manejo de la tensión;Sí
+55;Me siento tenso y presionado por cómo van mis días (tareas, estudios o responsabilidades).;Habilidades intrapersonales;Manejo de la tensión;Sí
+56;Me cuesta despreocuparme y divertirme.;Habilidades intrapersonales;Manejo de la tensión;Sí
+57;Me siento físicamente sano y con energía.;Habilidades intrapersonales;Bienestar físico;No
+58;Tengo suficiente energía durante el día para hacer lo que tengo que hacer.;Habilidades intrapersonales;Bienestar físico;No
+59;Me despierto fresco y descansado por las mañanas.;Habilidades intrapersonales;Bienestar físico;No
+60;Duermo mal.;Habilidades intrapersonales;Bienestar físico;Sí
+61;Tengo hábitos de alimentación sanos.;Habilidades intrapersonales;Bienestar físico;No
+62;Hago ejercicio o me muevo con regularidad para cuidarme.;Habilidades intrapersonales;Bienestar físico;No
+63;Soy una persona sana y me cuido en lo físico y en lo emocional.;Habilidades intrapersonales;Bienestar físico;No
+64;Mi día a día tiene cosas que me mantienen interesado.;Habilidades para la vida;Motivación;No
+65;El futuro me parece esperanzador.;Habilidades para la vida;Motivación;No
+66;Sé cómo establecer mis propias metas.;Habilidades para la vida;Motivación;No
+67;Soy capaz de fijarme objetivos y cumplirlos en un tiempo definido.;Habilidades para la vida;Motivación;No
+68;Me entusiasma ponerme metas personales difíciles.;Habilidades para la vida;Motivación;No
+69;Cuando empiezo algo difícil, me motiva más pensar en el éxito que en el fracaso.;Habilidades para la vida;Motivación;No
+70;Si fracaso, lo intento de nuevo.;Habilidades para la vida;Motivación;No
+71;Cuando estoy en una tarea, a veces pienso mucho en cómo me sentiría si fallo.;Habilidades para la vida;Motivación;Sí
+72;Termino lo que empiezo.;Habilidades para la vida;Compromiso;No
+73;Cumplo mis tareas y obligaciones, aunque encuentre dificultades.;Habilidades para la vida;Compromiso;No
+74;Se me considera una persona confiable y responsable.;Habilidades para la vida;Compromiso;No
+75;Cuando decido hacer algo, lo llevo a cabo.;Habilidades para la vida;Compromiso;No
+76;Puedo seguir en una tarea aunque ya no tenga ganas.;Habilidades para la vida;Compromiso;No
+77;Me esfuerzo para terminar mis tareas o proyectos en la fecha acordada.;Habilidades para la vida;Compromiso;No
+78;Hago bien mis tareas aunque nadie me esté vigilando.;Habilidades para la vida;Compromiso;No
+79;Otros me consideran un líder.;Habilidades para la vida;Liderazgo;No
+80;Puedo hacerme cargo de una situación cuando es necesario.;Habilidades para la vida;Liderazgo;No
+81;Puedo lograr que un grupo esté de acuerdo conmigo cuando algo me importa mucho.;Habilidades para la vida;Liderazgo;No
+82;En una tarea de grupo, puedo proponer soluciones que los demás aceptan.;Habilidades para la vida;Liderazgo;No
+83;Si el equipo necesita a alguien que hable por todos, suelen elegirme a mí.;Habilidades para la vida;Liderazgo;No
+84;Sé convencer sin aprovecharme de los demás.;Habilidades para la vida;Liderazgo;No
+85;Cuando hay que hacer algo, la gente me busca.;Habilidades para la vida;Liderazgo;No
+86;Las personas me hacen cambiar fácilmente de opinión, aunque ya haya decidido.;Habilidades para la vida;Liderazgo;Sí
+87;Sé organizarme y cumplir un horario personal que me funciona.;Habilidades para la vida;Administración del tiempo;No
+88;Sé planear y terminar mis tareas en el tiempo previsto.;Habilidades para la vida;Administración del tiempo;No
+89;Soy una persona eficiente y bien organizada.;Habilidades para la vida;Administración del tiempo;No
+90;Sé poner prioridades y avanzar hacia lo que me propongo.;Habilidades para la vida;Administración del tiempo;No
+91;Llego a tiempo a mis compromisos.;Habilidades para la vida;Administración del tiempo;No
+92;Organizo mi tiempo ahora para no quedar agobiado por lo que dejé pendiente.;Habilidades para la vida;Administración del tiempo;No
+93;No encuentro tiempo para disfrutar como me gustaría.;Habilidades para la vida;Administración del tiempo;Sí
+94;Enfrento y resuelvo los problemas cuando aparecen, en vez de dejarlos para después.;Habilidades para la vida;Toma de decisiones;No
+95;Ante una situación difícil, veo varias opciones y elijo una buena.;Habilidades para la vida;Toma de decisiones;No
+96;Me decido con facilidad.;Habilidades para la vida;Toma de decisiones;No
+97;Es más probable que decida y actúe, a que me quede preocupado sin elegir.;Habilidades para la vida;Toma de decisiones;No
+98;Estoy seguro/a de las decisiones que tomo.;Habilidades para la vida;Toma de decisiones;No
+99;Sé cuándo una situación difícil necesita una decisión rápida.;Habilidades para la vida;Toma de decisiones;No
+100;Aunque el futuro sea incierto, me parece útil hacer planes.;Habilidades para la vida;Toma de decisiones;No
+101;Puedo tomar decisiones por mí mismo/a, sin depender siempre de que otros decidan por mí.;Habilidades para la vida;Toma de decisiones;No
+102;Aprender o hacer cosas nuevas me da entusiasmo.;Propensión al cambio;Propensión al cambio;No
+103;Estoy abierto/a a ideas nuevas.;Propensión al cambio;Propensión al cambio;No
+104;Puedo cambiar o mejorar en la forma que creo conveniente para mí.;Propensión al cambio;Propensión al cambio;No
+105;En mi día a día hay cambios y cosas nuevas.;Propensión al cambio;Propensión al cambio;No
+106;Busco actividades nuevas, aunque al principio no me sienta del todo seguro/a.;Propensión al cambio;Propensión al cambio;No
+107;Los cambios en mi vida me generan conflicto.;Propensión al cambio;Propensión al cambio;Sí
+`;
+
+    function norm(str) { return (str || "").trim(); }
+
+    let ITEMS = [];
+
+    function parsePreguntas(csv) {
+      const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const rows = [];
+      for (const line of lines) {
+        const parts = line.split(";").map(norm);
+        if (parts.length < 5) continue;
+        const id = Number(parts[0]);
+        const invertida = parts[parts.length - 1];
+        const subhab = parts[parts.length - 2];
+        const bloque = parts[parts.length - 3];
+        const pregunta = parts.slice(1, parts.length - 3).join(";");
+        if (!Number.isFinite(id) || !pregunta) continue;
+        rows.push({
+          id, pregunta, bloque,
+          subhabilidad: subhab,
+          invertida: /^s(i|í)$/i.test(invertida) ? "Sí" : "No",
+          value: null
+        });
+      }
+      rows.sort((a,b)=>a.id-b.id);
+      return rows;
+    }
+
+    function updateProgress() {
+      const total = ITEMS.length;
+      const ans = ITEMS.filter(q => q.value != null).length;
+      const pct = total ? Math.round((ans / total) * 100) : 0;
+
+      document.getElementById("bar").style.width = pct + "%";
+      document.getElementById("pillTotal").textContent = "Total: " + ans + " / " + total + " (" + pct + "%)";
+
+      const bloques = new Set(ITEMS.map(q => q.bloque));
+      const subs = new Set(ITEMS.map(q => q.subhabilidad));
+      document.getElementById("metaInfo").textContent = bloques.size + " bloques · " + subs.size + " sub-habilidades";
+
+      document.getElementById("notaContinuar").textContent =
+        "NOTA: Para continuar debes contestar todas las preguntas. Contestadas: " + ans + "/" + total + ".";
+    }
+
+    function construirPreguntas() {
+      ITEMS = parsePreguntas(PREGUNTAS_CSV);
+      currentPage = 0;
+      renderPage();
+      updateProgress();
+    }
+
+    function markRowAnswered(rowEl, q) {
+      if (!rowEl) return;
+      if (q && q.value != null) rowEl.classList.add("answered");
+      else rowEl.classList.remove("answered");
+    }
+
+    function renderPage() {
+      const cont = document.getElementById("questions");
+      cont.innerHTML = "";
+
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+
+      for (let i = start; i < end; i++) {
+        const q = ITEMS[i];
+        const row = document.createElement("div");
+        row.className = "question";
+
+        const colNo = document.createElement("div");
+        colNo.className = "q-no";
+        colNo.textContent = String(q.id).padStart(3, "0");
+        row.appendChild(colNo);
+
+        const colText = document.createElement("div");
+        const txt = document.createElement("span");
+        txt.className = "q-text";
+        txt.textContent = q.pregunta;
+        colText.appendChild(txt);
+        row.appendChild(colText);
+
+        ["CS","AV","RV"].forEach(code=>{
+          const cell = document.createElement("div");
+          cell.className="q-cell";
+
+          const r = document.createElement("input");
+          r.type="radio";
+          r.name="q_"+q.id;
+          r.value=code;
+
+          r.title = (code==="CS")?"Siempre":(code==="AV")?"Algunas veces":"Rara vez";
+          r.setAttribute("aria-label", r.title);
+
+          if (q.value != null) {
+            const inv = q.invertida === "Sí";
+            let expectedScore;
+            if (!inv) expectedScore = (code==="CS")?3:(code==="AV")?2:1;
+            else expectedScore = (code==="CS")?1:(code==="AV")?2:3;
+            if (q.value === expectedScore) r.checked = true;
+          }
+
+          r.addEventListener("change", ()=>{
+            const inv = q.invertida === "Sí";
+            let score;
+            if (!inv) score = (code==="CS")?3:(code==="AV")?2:1;
+            else score = (code==="CS")?1:(code==="AV")?2:3;
+
+            q.value = score;
+            markRowAnswered(row, q);
+            updateProgress();
+          });
+
+          cell.appendChild(r);
+          row.appendChild(cell);
+        });
+
+        markRowAnswered(row, q);
+        cont.appendChild(row);
+      }
+
+      document.getElementById("pageIndicator").textContent =
+        "Preguntas " + (start + 1) + "–" + end + " de " + total;
+
+      document.getElementById("btnSiguiente").textContent = (end >= total) ? "FINALIZAR" : "SIGUIENTE";
+      if (typeof pinPreguntasHeader === "function") pinPreguntasHeader();
+    }
+
+    function paginaCompleta() {
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+      for (let i = start; i < end; i++) if (ITEMS[i].value == null) return false;
+      return true;
+    }
+
+    function obtenerRespuestasCrudas() {
+      const map = {};
+      ITEMS.forEach(q => { if (q.value != null) map[String(q.id)] = q.value; });
+      return map;
+    }
+
+
+    function unpinPreguntasHeader() {
+      const sec = document.getElementById("pantalla-preguntas");
+      const wrap = sec && sec.querySelector(".sticky-wrap");
+      const spacer = document.getElementById("preguntas-header-spacer");
+      const pageHeader = document.querySelector("main.page > header");
+      if (wrap) {
+        wrap.classList.remove("is-pinned");
+        wrap.style.left = "";
+        wrap.style.width = "";
+      }
+      if (spacer) spacer.style.height = "0px";
+      if (pageHeader) pageHeader.style.display = "";
+      if (window.__pinPreguntasHeader) {
+        window.removeEventListener("resize", window.__pinPreguntasHeader);
+        window.__pinPreguntasHeader = null;
+      }
+    }
+
+    function pinPreguntasHeader() {
+      const sec = document.getElementById("pantalla-preguntas");
+      const wrap = sec && sec.querySelector(".sticky-wrap");
+      const card = sec && sec.querySelector(".card");
+      const spacer = document.getElementById("preguntas-header-spacer");
+      const pageHeader = document.querySelector("main.page > header");
+      if (!sec || !wrap || !card || sec.classList.contains("hidden")) return;
+      if (pageHeader) pageHeader.style.display = "none";
+      const apply = () => {
+        if (sec.classList.contains("hidden")) return;
+        wrap.classList.add("is-pinned");
+        const r = card.getBoundingClientRect();
+        wrap.style.left = Math.max(0, r.left) + "px";
+        wrap.style.width = Math.max(200, r.width) + "px";
+        // Espaciador en flujo (= alto real). Sin padding-top en .card (ese dejaba el hueco blanco).
+        if (spacer) spacer.style.height = wrap.offsetHeight + "px";
+        card.style.paddingTop = "";
+      };
+      if (window.__pinPreguntasHeader) {
+        window.removeEventListener("resize", window.__pinPreguntasHeader);
+      }
+      window.__pinPreguntasHeader = apply;
+      window.addEventListener("resize", apply);
+      apply();
+      requestAnimationFrame(apply);
+    }
+
+    function mostrarPantallaPreguntas() {
+      document.getElementById("pantalla-inicio").classList.add("hidden");
+      document.getElementById("datos-participante").classList.add("hidden");
+      document.getElementById("pantalla-final").style.display = "none";
+      document.getElementById("pantalla-preguntas").classList.remove("hidden");
+      renderPage();
+      updateProgress();
+      pinPreguntasHeader();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      requestAnimationFrame(() => pinPreguntasHeader());
+    }
+
+    function aplicarState(state) {
+      if (!state) return;
+
+      const nombreEl = document.getElementById("nombre");
+      const nombreVal = state.nombre || "";
+      if (nombreEl) {
+        nombreEl.value = nombreVal;
+        if (String(nombreVal).trim()) {
+          nombreEl.readOnly = true;
+          nombreEl.setAttribute("autocomplete", "off");
+        }
+      }
+      document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
+      document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
+      document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
+      if (state.fecha) document.getElementById("fecha").value = state.fecha;
+
+      CODIGO_ACTUAL = state.codigo || CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();
+
+      const resp = state.responses || {};
+      ITEMS.forEach(q => {
+        const v = resp[String(q.id)];
+        q.value = (typeof v === "number") ? v : null;
+      });
+
+      currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
+      __startTime = state.startTime || Date.now();
+    }
+
+    function iniciarEvaluacionNueva() {
+      __startTime = Date.now();
+      ITEMS.forEach(q => { q.value = null; });
+      currentPage = 0;
+      saveState(false);
+      mostrarPantallaPreguntas();
+    }
+
+    function onSiguienteClick() {
+      if (!paginaCompleta()) {
+        alert("NOTA: Para continuar debes contestar todas las preguntas de esta página.");
+        return;
+      }
+      const total = ITEMS.length;
+      const start = currentPage * PAGE_SIZE;
+      const end = Math.min(start + PAGE_SIZE, total);
+
+      if (end >= total) onFinalizarClick();
+      else {
+        currentPage++;
+        saveState(false);
+        renderPage();
+        updateProgress();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    function normalizeBloqueName(name) {
+      if (!name) return "";
+      return name.replace(/\s+/g, " ").trim().toLowerCase();
+    }
+
+    function calcIV1_IV2_categories(items) {
+      const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
+      const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
+      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+      const stdev = arr => {
+        if (arr.length < 2) return 1;
+        const m = avg(arr);
+        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
+      };
+      const invNorm = invers.map(v => 4 - v);
+      const allNorm = direct.concat(invNorm);
+      if (!allNorm.length) return { iv1Cat: null, iv2Cat: null };
+      const s = stdev(allNorm);
+      const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
+      const diff = Math.abs(avg(direct) - avg(invNorm));
+      const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
+      return { iv1Cat, iv2Cat };
+    }
+
+    function calcularResultadosGlobales() {
+      if (!ITEMS.length) return null;
+
+      const subMap = new Map();
+      ITEMS.forEach(q => {
+        if (!subMap.has(q.subhabilidad))
+          subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
+        const s = subMap.get(q.subhabilidad);
+        s.items += 1;
+        s.pts += q.value ?? 0;
+      });
+
+      const subRows = Array.from(subMap.entries())
+        .map(([sub, v]) => {
+          const max = v.items * 3;
+          const pct = max ? Math.round((v.pts / max) * 100) : 0;
+          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct };
+        })
+        .sort(
+          (a, b) =>
+            (a.bloque || "").localeCompare(b.bloque || "") ||
+            (a.sub || "").localeCompare(b.sub || "")
+        );
+
+      const bloqMap = new Map();
+      subRows.forEach(r => {
+        if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0 });
+        const b = bloqMap.get(r.bloque);
+        b.sumPct += r.pct;
+        b.n += 1;
+      });
+
+      const bloqPercents = {};
+      Array.from(bloqMap.entries()).forEach(([bloque, a]) => {
+        const pct = a.n ? Math.round(a.sumPct / a.n) : 0;
+        bloqPercents[bloque] = pct;
+      });
+
+      function pctBloque(nombreEsperado) {
+        const key = Object.keys(bloqPercents).find(
+          k => normalizeBloqueName(k) === normalizeBloqueName(nombreEsperado)
+        );
+        return key ? bloqPercents[key] : 0;
+      }
+
+      const bIntra = pctBloque("Habilidades intrapersonales");
+      const bInter = pctBloque("Habilidades interpersonales");
+      const bPV = pctBloque("Habilidades para la vida");
+      const iie =
+        [bIntra, bInter, bPV].filter(v => v > 0).length > 0
+          ? Math.round((bIntra + bInter + bPV) / 3)
+          : 0;
+
+      const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
+
+      const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
+      const iv3Cat =
+        mins >= 30 && mins <= 90 ? 0 : mins >= 10 && mins <= 20 ? 1 : mins > 90 ? 2 : 1;
+
+      const bEstilos = pctBloque("Estilos de comunicación interpersonal");
+      const bCambio = pctBloque("Propensión al cambio");
+
+      return {
+        globales: { IIE: iie, IV1: iv1Cat, IV2: iv2Cat, IV3: iv3Cat },
+        bloques: {
+          intrapersonales: bIntra,
+          interpersonales: bInter,
+          para_la_vida: bPV,
+          estilos_comunicacion: bEstilos,
+          propension_cambio: bCambio
+        },
+        subhabilidades: subRows,
+        bloqPercents: bloqPercents
+      };
+    }
+
+    function onFinalizarClick() {
+      const nombre = document.getElementById("nombre").value.trim();
+      if (!nombre) { alert("Por favor ingresa el nombre."); return; }
+
+      const respuestas = obtenerRespuestasCrudas();
+      const total = ITEMS.length;
+      if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
+
+      const resultados = calcularResultadosGlobales();
+
+      const payload = {
+        codigo: CODIGO_ACTUAL,
+        evaluacion: EVAL_PRODUCT_KEY,
+        idioma: EVAL_LANG,
+        snapshot: {
+          nombre,
+          institucion: document.getElementById("institucion").value,
+          grupo: document.getElementById("grupo").value,
+          curso: document.getElementById("curso").value,
+          version_banco: "SOCIESC-v1-banco-107"
+        },
+        resultados,
+        responses: respuestas
+      };
+
+      saveState(true);
+
+      fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).catch(()=>{});
+
+      document.getElementById("datos-participante").classList.remove("hidden");
+      document.getElementById("nombre").readOnly = true;
+
+      unpinPreguntasHeader();
+      document.getElementById("pantalla-preguntas").classList.add("hidden");
+      const pantallaFinal = document.getElementById("pantalla-final");
+      pantallaFinal.style.display = "block";
+      pantallaFinal.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function inicializarDatosFijos() {
+      document.getElementById("institucion").value = DATOS_FIJOS.institucion;
+      document.getElementById("grupo").value = DATOS_FIJOS.grupo;
+      document.getElementById("curso").value = DATOS_FIJOS.curso;
+
+      const hoy = new Date();
+      try {
+        const fmt = new Intl.DateTimeFormat("es-EC", { year:"numeric", month:"2-digit", day:"2-digit" });
+        document.getElementById("fecha").value = fmt.format(hoy);
+      } catch {
+        const dd = String(hoy.getDate()).padStart(2, "0");
+        const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+        const yyyy = hoy.getFullYear();
+        document.getElementById("fecha").value = dd + "/" + mm + "/" + yyyy;
+      }
+    }
+
+    function validarAntesDeIniciar() {
+      const nombre = document.getElementById("nombre").value.trim();
+      if (!nombre) { alert("Por favor ingresa tu nombre antes de iniciar."); return false; }
+      return true;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      inicializarDatosFijos();
+      construirPreguntas();
+
+      btnIniciar.disabled = true;
+
+      btnIniciar.addEventListener("click", async () => {
+        if (!validarAntesDeIniciar()) return;
+
+        if (!CODIGO_ACTUAL) {
+          await lookupCodigo();
+        }
+        if (!CODIGO_ACTUAL) {
+          alert("Por favor valida el código antes de iniciar.");
+          return;
+        }
+
+        const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
+
+        let serverState = null;
+        if (codigo) serverState = await cargarAutosaveServidor(codigo);
+
+        const localSaved = loadStateForCurrentCode();
+        const candidate = serverState || localSaved;
+
+        if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
+          alert("Hay un intento en curso para este código. Continuará donde lo dejó.");
+          aplicarState(candidate);
+          mostrarPantallaPreguntas();
+          return;
+        }
+
+        iniciarEvaluacionNueva();
+      });
+
+      document.getElementById("btnSiguiente").addEventListener("click", onSiguienteClick);
+
+      document.getElementById("btnRegresarMenu").addEventListener("click", () => {
+        window.location.href = "index.html";
+      });
+      const btnVolverMenuInicio = document.getElementById("btnVolverMenuInicio");
+      if (btnVolverMenuInicio) {
+        btnVolverMenuInicio.addEventListener("click", () => {
+          window.location.href = "index.html";
+        });
+      }
+    });
+  </script>
+</body>
+</html>
