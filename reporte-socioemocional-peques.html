@@ -5,7 +5,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Informe Socioemocional · Kids – Adalam</title>
-  <!-- hit-build fit-v2-curve-pdf2 -->
+  <!-- hit-build fit-v2-curve-pdf3 -->
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -794,6 +794,8 @@ function dispBloque(name){
     const df = d + ` L${right} ${baseY} L${left} ${baseY} Z`;
     fill.setAttribute("d", df);
   }
+let __curvePrintMode = false;
+
 function setCurveMarker(iie){
   const score = clamp(Number(iie) || 0, 1, 100);
   window.__curveIIEValue = score;
@@ -806,7 +808,7 @@ function setCurveMarker(iie){
   const place = () => {
     const rW = wrap.getBoundingClientRect();
     const rI = img.getBoundingClientRect();
-    if (!rW.width || !rI.width || !rW.height) return;
+    if (!rW.width || !rI.width) return;
 
     // Tamaño real dibujado dentro del <img> (por object-fit:contain)
     const natW = img.naturalWidth  || 1;
@@ -814,40 +816,48 @@ function setCurveMarker(iie){
 
     const scale  = Math.min(rI.width / natW, rI.height / natH);
     const drawnW = natW * scale;
-    const drawnH = natH * scale;
-    if (drawnW < 2 || drawnH < 2) return;
 
-    // offset del contenido real (letterbox) dentro del <img>
+    // offset X dentro del <img> (centrado por contain)
     const offsetXInsideImg = (rI.width - drawnW) / 2;
-    const offsetYInsideImg = (rI.height - drawnH) / 2;
 
-    // Caja del PNG dibujado, relativa a .curve-gauge
-    const boxLeft = (rI.left - rW.left) + offsetXInsideImg;
-    const boxBottom = (rW.bottom - rI.bottom) + offsetYInsideImg;
+    // X relativo al contenedor .curve-gauge
+    const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
 
-    // Calibración vs marcas 0%…100% del PNG (no del marco del <img>)
-    const padL = drawnW * 0.085;
-    const padR = drawnW * 0.155;
-    const t = score / 100; // escala del gráfico: 0–100
+    // Calibración PANTALLA (original — no tocar)
+    const padL = drawnW * 0.12;
+    const padR = drawnW * 0.22;
 
-    let x = boxLeft + padL + t * (drawnW - padL - padR);
-    x = Math.max(boxLeft + padL, Math.min(boxLeft + drawnW - padR, x));
+    const minX = leftInWrap + padL;
+    const maxX = leftInWrap + drawnW - padR;
 
-    // Altura de la punta sobre la regla (fracción del alto dibujado)
-    const bottomAt0 = drawnH * 0.43;
-    const bottomAt100 = drawnH * 0.145;
-    const y = boxBottom + bottomAt0 + t * (bottomAt100 - bottomAt0);
+    const t = (score - 1) / 99; // 1..100 -> 0..1 exacto
 
-    mk.style.left = `${(x / rW.width) * 100}%`;
-    mk.style.bottom = `${(y / rW.height) * 100}%`;
+    let x = minX + t * (maxX - minX);
+
+    // Solo PDF/impresión: punta ~10 pts a la izquierda respecto a pantalla
+    const printMode = __curvePrintMode || (window.matchMedia && window.matchMedia("print").matches);
+    if (printMode) {
+      x += (maxX - minX) * 0.10;
+    }
+
+    x = Math.max(minX, Math.min(maxX, x));
+
+    // Y (vertical): regla inclinada — misma en pantalla
+    const bottomAt0 = 94;    // px
+    const bottomAt100 = 30;  // px
+    const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+
+    const w = rW.width || 1;
+    const h = rW.height || 1;
+    mk.style.left = `${(x / w) * 100}%`;
+    mk.style.bottom = `${(y / h) * 100}%`;
   };
 
   const schedule = () => {
     place();
     requestAnimationFrame(place);
-    setTimeout(place, 50);
-    setTimeout(place, 150);
-    setTimeout(place, 320);
+    setTimeout(place, 80);
+    setTimeout(place, 200);
   };
 
   if (img.complete) schedule();
@@ -858,6 +868,11 @@ function refreshCurveMarkerForPrint(){
   const v = window.__curveIIEValue;
   if (v == null || Number.isNaN(Number(v))) return;
   setCurveMarker(Number(v));
+}
+
+function refreshCurveMarkerForScreen(){
+  __curvePrintMode = false;
+  refreshCurveMarkerForPrint();
 }
 
   function addRow(container, name, pct){
@@ -2516,6 +2531,7 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
   });
 
   function imprimirReporteKids(){
+    __curvePrintMode = true;
     refreshCurveMarkerForPrint();
     setTimeout(() => {
       refreshCurveMarkerForPrint();
@@ -2525,11 +2541,18 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
   document.getElementById("btnImprimir").addEventListener("click", imprimirReporteKids);
   document.getElementById("btnPDF").addEventListener("click", imprimirReporteKids);
 
-  window.addEventListener("beforeprint", refreshCurveMarkerForPrint);
-  window.addEventListener("afterprint", refreshCurveMarkerForPrint);
+  window.addEventListener("beforeprint", () => {
+    __curvePrintMode = true;
+    refreshCurveMarkerForPrint();
+  });
+  window.addEventListener("afterprint", refreshCurveMarkerForScreen);
   if (window.matchMedia) {
     const mq = window.matchMedia("print");
-    const onMq = () => refreshCurveMarkerForPrint();
+    const onMq = (e) => {
+      __curvePrintMode = !!(e && e.matches);
+      if (__curvePrintMode) refreshCurveMarkerForPrint();
+      else refreshCurveMarkerForScreen();
+    };
     if (mq.addEventListener) mq.addEventListener("change", onMq);
     else if (mq.addListener) mq.addListener(onMq);
   }
