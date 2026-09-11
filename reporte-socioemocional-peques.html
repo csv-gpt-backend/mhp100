@@ -5,7 +5,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Informe Socioemocional · Kids – Adalam</title>
-  <!-- hit-build fit-v2-labels-grandes -->
+  <!-- hit-build fit-v2-orden-grandes -->
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -943,20 +943,33 @@ function refreshCurveMarkerForScreen(){
 
     const bloqueKey = canonBloque(bloqueNombre);
     const ordenes = {
-      "habilidades intrapersonales": ["Autoestima","Bienestar físico","Manejo de la tensión"],
+      // Mismo orden visual que socioemocional grandes
+      "habilidades intrapersonales": ["Autoestima","Manejo de la tensión","Bienestar físico"],
       "habilidades interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
-      "habilidades para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de decisiones","Liderazgo"]
+      "habilidades para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de decisiones","Liderazgo"],
+      "desarrollo personal": ["Autoestima","Manejo de la tensión","Bienestar físico"],
+      "vínculos interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
+      "competencias para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de decisiones","Liderazgo"]
     };
 
     let rowsFiltradas = (subRows||[]).filter(r=> canonBloque(r.bloque||r.block||"")===bloqueKey);
 
     const orden = ordenes[bloqueKey];
     if (orden){
+      const strip = (s) => (s||"").normalize("NFD").replace(/\p{Diacritic}/gu,"").toLowerCase();
+      const idxOf = (name) => {
+        const n = strip(name);
+        const d = strip(typeof dispSub === "function" ? dispSub(name) : name);
+        return orden.findIndex(x => {
+          const ox = strip(x);
+          return ox === n || ox === d || strip(typeof dispSub === "function" ? dispSub(x) : x) === n;
+        });
+      };
       rowsFiltradas.sort((a,b)=>{
-        const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
-        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
-        const ia = orden.findIndex(x=> x.toLowerCase()===nameA);
-        const ib = orden.findIndex(x=> x.toLowerCase()===nameB);
+        const nameA = (a.subhabilidad || a.sub || a.nombre || "");
+        const nameB = (b.subhabilidad || b.sub || b.nombre || "");
+        const ia = idxOf(nameA);
+        const ib = idxOf(nameB);
         if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
         if (ia===-1) return 1;
         if (ib===-1) return -1;
@@ -2308,6 +2321,37 @@ const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
 
     const bloqueKey = canonBloque(bloqueKeyOriginal);
     let rows=(subRows||[]).filter(r=> canonBloque(r.bloque||r.block||"")===bloqueKey);
+
+    const ordenesInterp = {
+      "habilidades intrapersonales": ["Autoestima","Manejo de la tensión","Bienestar físico"],
+      "habilidades interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
+      "habilidades para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de decisiones","Liderazgo"],
+      "desarrollo personal": ["Autoestima","Manejo de la tensión","Bienestar físico"],
+      "vínculos interpersonales": ["Asertividad","Conciencia de los demás","Empatía"],
+      "competencias para la vida": ["Motivación","Compromiso","Administración del tiempo","Toma de decisiones","Liderazgo"]
+    };
+    const orden = ordenesInterp[bloqueKey];
+    if (orden){
+      const strip = (s) => (s||"").normalize("NFD").replace(/\p{Diacritic}/gu,"").toLowerCase();
+      const idxOf = (name) => {
+        const n = strip(name);
+        const d = strip(dispSub(name));
+        return orden.findIndex(x => {
+          const ox = strip(x);
+          return ox === n || ox === d || strip(dispSub(x)) === n;
+        });
+      };
+      rows.sort((a,b)=>{
+        const nameA = (a.subhabilidad || a.sub || a.nombre || "");
+        const nameB = (b.subhabilidad || b.sub || b.nombre || "");
+        const ia = idxOf(nameA);
+        const ib = idxOf(nameB);
+        if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
+        if (ia===-1) return 1;
+        if (ib===-1) return -1;
+        return ia-ib;
+      });
+    }
 
     rows.forEach(r=>{
       const sub=r.subhabilidad || r.sub || r.nombre || "";
