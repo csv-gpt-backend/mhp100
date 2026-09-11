@@ -5,7 +5,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Informe Socioemocional · Kids – Adalam</title>
-  <!-- hit-build fit-v2-curve-pdf3 -->
+  <!-- hit-build fit-v2-curve-pdf4 -->
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -808,49 +808,50 @@ function setCurveMarker(iie){
   const place = () => {
     const rW = wrap.getBoundingClientRect();
     const rI = img.getBoundingClientRect();
-    if (!rW.width || !rI.width) return;
+    if (!rW.width || !rI.width || !rW.height) return;
 
-    // Tamaño real dibujado dentro del <img> (por object-fit:contain)
     const natW = img.naturalWidth  || 1;
     const natH = img.naturalHeight || 1;
-
     const scale  = Math.min(rI.width / natW, rI.height / natH);
     const drawnW = natW * scale;
+    const drawnH = natH * scale;
+    if (drawnW < 2) return;
 
-    // offset X dentro del <img> (centrado por contain)
     const offsetXInsideImg = (rI.width - drawnW) / 2;
-
-    // X relativo al contenedor .curve-gauge
+    const offsetYInsideImg = (rI.height - drawnH) / 2;
     const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
 
     // Calibración PANTALLA (original — no tocar)
     const padL = drawnW * 0.12;
     const padR = drawnW * 0.22;
-
     const minX = leftInWrap + padL;
     const maxX = leftInWrap + drawnW - padR;
+    const t = (score - 1) / 99;
 
-    const t = (score - 1) / 99; // 1..100 -> 0..1 exacto
+    const printMode = __curvePrintMode || (window.matchMedia && window.matchMedia("print").matches);
 
     let x = minX + t * (maxX - minX);
+    // Y pantalla: px fijos sobre gauge ~220 (original)
+    let y = 94 + t * (30 - 94);
 
-    // Solo PDF/impresión: punta ~10 pts a la izquierda respecto a pantalla
-    const printMode = __curvePrintMode || (window.matchMedia && window.matchMedia("print").matches);
     if (printMode) {
-      x += (maxX - minX) * 0.10;
+      // PDF: anclar a la caja real del PNG (object-fit) para que no se vaya arriba/derecha
+      const boxLeft = (rI.left - rW.left) + offsetXInsideImg;
+      const boxBottom = (rW.bottom - rI.bottom) + offsetYInsideImg;
+      const xInBox = padL + t * (drawnW - padL - padR);
+      // Misma inclinación que pantalla, escalada al alto dibujado (base 220px)
+      const yInBox = drawnH * ((94 + t * (30 - 94)) / 220);
+      // Nudge fino solo PDF: un poco izquierda y abajo (corrige sesgo de impresión)
+      x = boxLeft + xInBox - (drawnW * 0.015);
+      y = boxBottom + yInBox - (drawnH * 0.04);
+      x = Math.max(boxLeft + padL, Math.min(boxLeft + drawnW - padR, x));
+      y = Math.max(drawnH * 0.05, y);
+    } else {
+      x = Math.max(minX, Math.min(maxX, x));
     }
 
-    x = Math.max(minX, Math.min(maxX, x));
-
-    // Y (vertical): regla inclinada — misma en pantalla
-    const bottomAt0 = 94;    // px
-    const bottomAt100 = 30;  // px
-    const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
-
-    const w = rW.width || 1;
-    const h = rW.height || 1;
-    mk.style.left = `${(x / w) * 100}%`;
-    mk.style.bottom = `${(y / h) * 100}%`;
+    mk.style.left = `${(x / rW.width) * 100}%`;
+    mk.style.bottom = `${(y / rW.height) * 100}%`;
   };
 
   const schedule = () => {
