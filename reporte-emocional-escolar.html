@@ -5,7 +5,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Socioemocional Escolar – Reporte</title>
-  <!-- hit-build socies-fit-v1 -->
+  <!-- hit-build socies-agr-tim-espejo-v1 -->
   <style>
     :root{
       --ink:#111; --muted:#666; --line:#ddd;
@@ -716,6 +716,12 @@ function dispBloque(name){
     const s = normalizeName(subNorm || "");
     return (b === normalizeName("estilos de comunicación interpersonal") && (s === "agresión" || s === "timidez"));
   }
+  // Agresión/Timidez: alto en cálculo = más presencia del estilo.
+  // En informe se espeja: bajo = mejor manejo (como Kids / nota del reporte).
+  function invertRiskPctForDisplay(p){
+    if (p == null || Number.isNaN(Number(p))) return p;
+    return clamp(Math.round(100 - Number(p)), 1, 100);
+  }
   function adjScore(v, {bloqueNorm=null, subNorm=null}={}){
     const n = Number(v);
     if(!Number.isFinite(n)) return v;
@@ -936,7 +942,8 @@ function setCurveMarker(iie){
     rowsFiltradas.forEach(r=>{
       const sub = r.subhabilidad || r.sub || r.nombre || "";
       const pctRaw = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
-      const pct = adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeName(sub)});
+      let pct = adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeName(sub)});
+      if (isRiskScale(bloqueKey, normalizeName(sub))) pct = invertRiskPctForDisplay(pct);
       addRow(cont, sub, pct);
     });
   }
@@ -1024,7 +1031,8 @@ function setCurveMarker(iie){
       const bloqueNorm = canonBloque(bloque);
       const subNorm = normalizeName(sub);
 
-      const pct = adjScore(pctRaw, {bloqueNorm, subNorm});
+      let pct = adjScore(pctRaw, {bloqueNorm, subNorm});
+      if (isRiskScale(bloqueNorm, subNorm)) pct = invertRiskPctForDisplay(pct);
 
       let badge;
       if (isRiskScale(bloqueNorm, subNorm)) badge = rangoBadgeRiesgo(pct);
@@ -1053,7 +1061,9 @@ function setCurveMarker(iie){
     if(!row) return null;
     const vRaw = Number(row.percent ?? row.pct ?? row.porcentaje ?? row.value);
     if(Number.isNaN(vRaw)) return null;
-    return adjScore(vRaw, {bloqueNorm: bloqueKey, subNorm: subKey});
+    let v = adjScore(vRaw, {bloqueNorm: bloqueKey, subNorm: subKey});
+    if (isRiskScale(bloqueKey, subKey)) v = invertRiskPctForDisplay(v);
+    return v;
   }
 
   const BLOQUE_DESCS = {
@@ -2712,8 +2722,10 @@ const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
 
     rows.forEach(r=>{
       const sub=r.subhabilidad || r.sub || r.nombre || "";
+      const subNorm = normalizeName(sub);
       const pctRaw=Number(r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? null);
-      const pct=(pctRaw!=null && !Number.isNaN(pctRaw)) ? adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeName(sub)}) : null;
+      let pct=(pctRaw!=null && !Number.isNaN(pctRaw)) ? adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm}) : null;
+      if (pct != null && isRiskScale(bloqueKey, subNorm)) pct = invertRiskPctForDisplay(pct);
       renderSkillRow(cont, dispSub(sub), pct);
     });
   }
