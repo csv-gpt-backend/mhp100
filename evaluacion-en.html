@@ -157,7 +157,7 @@
     /* ===== Sticky header (opción 2) ===== */
 
 .sticky-wrap{
-  position: sticky;
+  position: relative;
   top: 0;
   z-index: 999;
   background: #ffffff;
@@ -165,6 +165,13 @@
   margin-top: 0;
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+.sticky-wrap.is-pinned{
+  position: fixed !important;
+  top: 0;
+  z-index: 1000;
+  margin: 0;
+  box-sizing: border-box;
 }
 
     .progress {
@@ -492,7 +499,7 @@ font-size: 13px;
 
           <div class="field">
             <label for="nombre">Name</label>
-            <input id="nombre" type="text" autocomplete="name" />
+            <input id="nombre" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
           </div>
 
           <div class="field">
@@ -785,7 +792,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
       const nombreEl0 = document.getElementById("nombre");
       if (nombreEl0) {
         nombreEl0.readOnly = false;
-        nombreEl0.setAttribute("autocomplete", "name");
+        nombreEl0.setAttribute("autocomplete", "off");
       }
 
       if (codigoMsg) {
@@ -864,7 +871,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
             nombreEl.setAttribute("autocomplete", "off");
           } else {
             nombreEl.readOnly = false;
-            nombreEl.setAttribute("autocomplete", "name");
+            nombreEl.setAttribute("autocomplete", "off");
           }
         }
 
@@ -877,7 +884,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
         const nombreElErr = document.getElementById("nombre");
         if (nombreElErr) {
           nombreElErr.readOnly = false;
-          nombreElErr.setAttribute("autocomplete", "name");
+          nombreElErr.setAttribute("autocomplete", "off");
         }
         if (codigoMsg) {
           codigoMsg.textContent = (e && e.message) ? e.message : 'Code not found.';
@@ -1275,6 +1282,7 @@ actualizarLabelCurso(codigoInput.value);
         "Questions " + (start + 1) + "–" + end + " of " + total;
 
       document.getElementById("btnSiguiente").textContent = (end >= total) ? "FINISH" : "NEXT";
+      if (typeof pinPreguntasHeader === "function") pinPreguntasHeader();
     }
 
     function paginaCompleta() {
@@ -1291,6 +1299,45 @@ actualizarLabelCurso(codigoInput.value);
       return map;
     }
 
+
+    function unpinPreguntasHeader() {
+      const sec = document.getElementById("pantalla-preguntas");
+      const wrap = sec && sec.querySelector(".sticky-wrap");
+      const card = sec && sec.querySelector(".card");
+      if (wrap) {
+        wrap.classList.remove("is-pinned");
+        wrap.style.left = "";
+        wrap.style.width = "";
+      }
+      if (card) card.style.paddingTop = "";
+      if (window.__pinPreguntasHeader) {
+        window.removeEventListener("resize", window.__pinPreguntasHeader);
+        window.__pinPreguntasHeader = null;
+      }
+    }
+
+    function pinPreguntasHeader() {
+      const sec = document.getElementById("pantalla-preguntas");
+      const wrap = sec && sec.querySelector(".sticky-wrap");
+      const card = sec && sec.querySelector(".card");
+      if (!sec || !wrap || !card || sec.classList.contains("hidden")) return;
+      const apply = () => {
+        if (sec.classList.contains("hidden")) return;
+        wrap.classList.add("is-pinned");
+        const r = card.getBoundingClientRect();
+        wrap.style.left = Math.max(0, r.left) + "px";
+        wrap.style.width = Math.max(200, r.width) + "px";
+        card.style.paddingTop = wrap.offsetHeight + "px";
+      };
+      if (window.__pinPreguntasHeader) {
+        window.removeEventListener("resize", window.__pinPreguntasHeader);
+      }
+      window.__pinPreguntasHeader = apply;
+      window.addEventListener("resize", apply);
+      apply();
+      requestAnimationFrame(apply);
+    }
+
     function mostrarPantallaPreguntas() {
       document.getElementById("pantalla-inicio").classList.add("hidden");
       document.getElementById("datos-participante").classList.add("hidden");
@@ -1298,7 +1345,9 @@ actualizarLabelCurso(codigoInput.value);
       document.getElementById("pantalla-preguntas").classList.remove("hidden");
       renderPage();
       updateProgress();
+      pinPreguntasHeader();
       window.scrollTo({ top: 0, behavior: "smooth" });
+      requestAnimationFrame(() => pinPreguntasHeader());
     }
 
     function aplicarState(state) {
@@ -1493,6 +1542,7 @@ actualizarLabelCurso(codigoInput.value);
       document.getElementById("datos-participante").classList.remove("hidden");
       document.getElementById("nombre").readOnly = true;
 
+      unpinPreguntasHeader();
       document.getElementById("pantalla-preguntas").classList.add("hidden");
       const pantallaFinal = document.getElementById("pantalla-final");
       pantallaFinal.style.display = "block";
