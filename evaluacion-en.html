@@ -231,7 +231,7 @@
     }
 
     #questions {
-      margin-top: 4px;
+      margin-top: 0;
       width: 100%;
     }
 
@@ -603,6 +603,7 @@ font-size: 13px;
               <div></div>
             </div>
           </div><!-- /sticky-wrap: header + scale badges fixed -->
+          <div id="preguntas-header-spacer" aria-hidden="true" style="height:0;flex-shrink:0;"></div>
 
           <div id="questions"></div>
 
@@ -1303,13 +1304,15 @@ actualizarLabelCurso(codigoInput.value);
     function unpinPreguntasHeader() {
       const sec = document.getElementById("pantalla-preguntas");
       const wrap = sec && sec.querySelector(".sticky-wrap");
-      const card = sec && sec.querySelector(".card");
+      const spacer = document.getElementById("preguntas-header-spacer");
+      const pageHeader = document.querySelector("main.page > header");
       if (wrap) {
         wrap.classList.remove("is-pinned");
         wrap.style.left = "";
         wrap.style.width = "";
       }
-      if (card) card.style.paddingTop = "";
+      if (spacer) spacer.style.height = "0px";
+      if (pageHeader) pageHeader.style.display = "";
       if (window.__pinPreguntasHeader) {
         window.removeEventListener("resize", window.__pinPreguntasHeader);
         window.__pinPreguntasHeader = null;
@@ -1320,14 +1323,19 @@ actualizarLabelCurso(codigoInput.value);
       const sec = document.getElementById("pantalla-preguntas");
       const wrap = sec && sec.querySelector(".sticky-wrap");
       const card = sec && sec.querySelector(".card");
+      const spacer = document.getElementById("preguntas-header-spacer");
+      const pageHeader = document.querySelector("main.page > header");
       if (!sec || !wrap || !card || sec.classList.contains("hidden")) return;
+      if (pageHeader) pageHeader.style.display = "none";
       const apply = () => {
         if (sec.classList.contains("hidden")) return;
         wrap.classList.add("is-pinned");
         const r = card.getBoundingClientRect();
         wrap.style.left = Math.max(0, r.left) + "px";
         wrap.style.width = Math.max(200, r.width) + "px";
-        card.style.paddingTop = wrap.offsetHeight + "px";
+        // Espaciador en flujo (= alto real). Sin padding-top en .card (ese dejaba el hueco blanco).
+        if (spacer) spacer.style.height = wrap.offsetHeight + "px";
+        card.style.paddingTop = "";
       };
       if (window.__pinPreguntasHeader) {
         window.removeEventListener("resize", window.__pinPreguntasHeader);
