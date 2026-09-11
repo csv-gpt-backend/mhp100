@@ -780,6 +780,12 @@ const codigoMsg   = document.getElementById('codigoMsg');
       CODIGO_ACTUAL = null;
       btnIniciar.disabled = true;
 
+      const nombreEl0 = document.getElementById("nombre");
+      if (nombreEl0) {
+        nombreEl0.readOnly = false;
+        nombreEl0.setAttribute("autocomplete", "name");
+      }
+
       if (codigoMsg) {
         codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
         codigoMsg.className = codigo ? 'muted' : 'err';
@@ -832,12 +838,46 @@ const codigoMsg   = document.getElementById('codigoMsg');
         cursoInput.value = data.curso || '';
         btnIniciar.disabled = false;
 
+        // Como intelectual/Kids: si hay intento en curso, mostrar nombre y bloquear casilla.
+        const nombreEl = document.getElementById("nombre");
+        let nombreGuardado = "";
+        if (localState && !isStateCompleted(localState) && localState.nombre) {
+          nombreGuardado = String(localState.nombre).trim();
+        }
+        if (!nombreGuardado) {
+          const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
+          if (
+            serverDraft &&
+            !isStateCompleted(serverDraft) &&
+            serverDraft.nombre &&
+            serverDraft.responses &&
+            Object.keys(serverDraft.responses).length > 0
+          ) {
+            nombreGuardado = String(serverDraft.nombre).trim();
+          }
+        }
+        if (nombreEl) {
+          if (nombreGuardado) {
+            nombreEl.value = nombreGuardado;
+            nombreEl.readOnly = true;
+            nombreEl.setAttribute("autocomplete", "off");
+          } else {
+            nombreEl.readOnly = false;
+            nombreEl.setAttribute("autocomplete", "name");
+          }
+        }
+
         if (codigoMsg) {
           codigoMsg.textContent = 'Código válido.';
           codigoMsg.className = 'ok';
         }
       } catch (e) {
         instInput.value = grupoInput.value = cursoInput.value = '';
+        const nombreElErr = document.getElementById("nombre");
+        if (nombreElErr) {
+          nombreElErr.readOnly = false;
+          nombreElErr.setAttribute("autocomplete", "name");
+        }
         if (codigoMsg) {
           codigoMsg.textContent = (e && e.message) ? e.message : 'Código no encontrado.';
           codigoMsg.className = 'err';
@@ -1263,7 +1303,15 @@ actualizarLabelCurso(codigoInput.value);
     function aplicarState(state) {
       if (!state) return;
 
-      document.getElementById("nombre").value = state.nombre || "";
+      const nombreEl = document.getElementById("nombre");
+      const nombreVal = state.nombre || "";
+      if (nombreEl) {
+        nombreEl.value = nombreVal;
+        if (String(nombreVal).trim()) {
+          nombreEl.readOnly = true;
+          nombreEl.setAttribute("autocomplete", "off");
+        }
+      }
       document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
       document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
       document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
@@ -1499,14 +1547,10 @@ actualizarLabelCurso(codigoInput.value);
         const candidate = serverState || localSaved;
 
         if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
-          const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
-          if (retomar) {
-            aplicarState(candidate);
-            mostrarPantallaPreguntas();
-            return;
-          } else {
-            clearState();
-          }
+          alert("Hay un intento en curso para este código. Continuará donde lo dejó.");
+          aplicarState(candidate);
+          mostrarPantallaPreguntas();
+          return;
         }
 
         iniciarEvaluacionNueva();
