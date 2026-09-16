@@ -2881,7 +2881,15 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
     setMarker("mTimidez", timidezVal);
     setMarker("mCambio", propCambioVal);
 
-    document.getElementById("contestadasLine").textContent = attempt.contestadas || attempt.n_respondidas || "244 de 244";
+    const ESCOLAR_N_ITEMS = 107;
+    let contestadasTxt = attempt.contestadas || attempt.n_respondidas || "";
+    if (!contestadasTxt) {
+      const resp = attempt.responses || attempt.respuestas || (resultados && resultados.responses) || {};
+      const nAns = (resp && typeof resp === "object") ? Object.keys(resp).length : 0;
+      const nTot = (attempt.meta && attempt.meta.items_total) || (resultados && resultados.meta && resultados.meta.items_total) || ESCOLAR_N_ITEMS;
+      contestadasTxt = (nAns ? nAns : nTot) + " de " + nTot;
+    }
+    document.getElementById("contestadasLine").textContent = contestadasTxt;
 
     renderPage2(subRows);
     renderInterpretacion(subRows, {
