@@ -459,6 +459,7 @@ let introAudio = null;
 let introAudioStarted = false;
 let introAutoTimer = null;
 let qAutoTimer = null;
+let qAdvanceTimer = null;
 let qAudioManual = false;
 let audioCheckOk = false;
 let audioCueEnds = null; // cumulative end times [introEnd, opt1End, opt2End, opt3End]
@@ -1416,6 +1417,7 @@ let renderToken = 0;
 async function renderQuestion(){
   const token = ++renderToken;
   clearQuestionAutoTimer();
+  clearQuestionAdvanceTimer();
   stopSpeech();
   pequesAudio = null;
   audioCueEnds = null;
@@ -1477,6 +1479,7 @@ async function renderQuestion(){
   if(next) preloadImages(questionImageSrcs(next));
 
   scheduleQuestionAutoplay(token);
+  if(q.value != null) scheduleQuestionAdvance(token);
 }
 
 function audioBtn(){ return document.getElementById("btnAudio"); }
@@ -1521,6 +1524,42 @@ function clearQuestionAutoTimer(){
   if(qAutoTimer){
     clearTimeout(qAutoTimer);
     qAutoTimer = null;
+  }
+}
+
+function clearQuestionAdvanceTimer(){
+  if(qAdvanceTimer){
+    clearTimeout(qAdvanceTimer);
+    qAdvanceTimer = null;
+  }
+}
+
+/** Tras elegir opción: ~5s y avanza (si no tocan SIGUIENTE; si cambian opción, reinicia). */
+function scheduleQuestionAdvance(token){
+  clearQuestionAdvanceTimer();
+  const q = ITEMS[currentIndex];
+  if(!q || q.value == null) return;
+  const idx = currentIndex;
+  qAdvanceTimer = setTimeout(function(){
+    qAdvanceTimer = null;
+    if(token !== renderToken) return;
+    if(idx !== currentIndex) return;
+    const cur = ITEMS[currentIndex];
+    if(!cur || cur.value == null) return;
+    advanceQuestion();
+  }, 5000);
+}
+
+function advanceQuestion(){
+  clearQuestionAdvanceTimer();
+  clearQuestionAutoTimer();
+  if(!ITEMS[currentIndex] || ITEMS[currentIndex].value == null) return;
+  if(currentIndex >= ITEMS.length - 1) onFinalizar();
+  else {
+    currentIndex++;
+    saveState(false);
+    renderQuestion();
+    window.scrollTo({top:0,behavior:"smooth"});
   }
 }
 
@@ -1730,14 +1769,7 @@ if(audioCheckNo) audioCheckNo.addEventListener("change", onAudioCheckChange);
 })();
 
 document.getElementById("btnSiguiente").addEventListener("click", () => {
-  if(ITEMS[currentIndex].value == null) return;
-  if(currentIndex >= ITEMS.length - 1) onFinalizar();
-  else {
-    currentIndex++;
-    saveState(false);
-    renderQuestion();
-    window.scrollTo({top:0,behavior:"smooth"});
-  }
+  advanceQuestion();
 });
 
 codigoInput.addEventListener("blur", lookupCodigo);
@@ -1780,6 +1812,7 @@ btnIniciar.addEventListener("click", async () => {
   stopIntroSpeech();
   clearIntroAutoTimer();
   clearQuestionAutoTimer();
+  clearQuestionAdvanceTimer();
   document.getElementById("pantalla-inicio").classList.add("hidden");
   document.getElementById("datos-participante").classList.add("hidden");
   document.getElementById("pantalla-preguntas").classList.remove("hidden");
