@@ -101,10 +101,14 @@
       border:0;background:transparent;padding:0;cursor:pointer;line-height:0;
       flex:0 0 auto;min-width:120px;
     }
-    #pantalla-inicio .intro-listen .audio-nudge{
+    #pantalla-inicio .intro-listen .audio-nudge.flow-nudge{
+      display:none;
       margin:0;width:56px;height:56px;
     }
-    #pantalla-inicio .intro-listen .audio-nudge img{
+    #pantalla-inicio .intro-listen .audio-nudge.flow-nudge[data-on="1"]{
+      display:inline-flex;align-items:center;justify-content:center;
+    }
+    #pantalla-inicio .intro-listen .audio-nudge.flow-nudge img{
       width:56px;height:56px;
     }
     #pantalla-inicio .intro-horn{
@@ -117,6 +121,30 @@
     }
     #pantalla-inicio .btn-row .btn-primary{
       margin-left:auto;
+    }
+    #pantalla-inicio .flow-nudge{
+      display:none;
+      width:48px;height:48px;flex:0 0 auto;
+      margin:0;line-height:0;
+      animation:kidsFlowNudge 1.1s ease-in-out infinite;
+      filter:drop-shadow(0 1px 2px rgba(15,23,42,.2));
+    }
+    #pantalla-inicio .flow-nudge[data-on="1"]{display:inline-flex;align-items:center;justify-content:center}
+    #pantalla-inicio .flow-nudge img{width:48px;height:48px;display:block}
+    #pantalla-inicio .btn-row{
+      align-items:center;
+    }
+    #pantalla-inicio .btn-row .iniciar-wrap{
+      display:inline-flex;align-items:center;gap:8px;margin-left:auto;
+    }
+    #pantalla-inicio .btn-row .iniciar-wrap .btn-primary{margin-left:0}
+    @keyframes kidsFlowNudge{
+      0%,100%{transform:translateX(0)}
+      50%{transform:translateX(7px)}
+    }
+    @media(max-height:860px){
+      #pantalla-inicio .flow-nudge:not(.audio-nudge),
+      #pantalla-inicio .flow-nudge:not(.audio-nudge) img{width:40px;height:40px}
     }
     @media(max-height:860px){
       body:has(#pantalla-preguntas.hidden) .page{padding:8px 12px 10px}
@@ -349,7 +377,7 @@
       <div class="intro-title-row">
         <h2>Instrucciones</h2>
         <button type="button" class="intro-listen" id="btnIntroAudio" aria-label="Escuchar instrucciones" title="Escuchar instrucciones">
-          <span class="audio-nudge" id="introAudioNudge" aria-hidden="true"><img src="assets/peques/audio-nudge-hand.png" alt=""/></span>
+          <span class="audio-nudge flow-nudge" id="introAudioNudge" aria-hidden="true"><img src="assets/peques/audio-nudge-hand.png" alt=""/></span>
           <span class="intro-horn" aria-hidden="true">🔊</span>
         </button>
       </div>
@@ -364,7 +392,7 @@
       <div class="audio-check" id="audioCheckBox">
         <p class="audio-check-q">¿Oíste el audio con tus audífonos? (toca primero la corneta 🔊)</p>
         <div class="audio-check-opts" role="radiogroup" aria-label="Prueba de audio">
-          <label><input type="radio" name="audioCheck" id="audioCheckSi" value="si" disabled> Sí, oí bien</label>
+          <label class="with-flow-nudge"><span class="flow-nudge" id="nudgeAudioSi" aria-hidden="true"><img src="assets/peques/audio-nudge-hand.png" alt=""/></span><input type="radio" name="audioCheck" id="audioCheckSi" value="si" disabled> Sí, oí bien</label>
           <label><input type="radio" name="audioCheck" id="audioCheckNo" value="no" disabled> No oí nada</label>
         </div>
         <p class="audio-check-hint" id="audioCheckHint">Toca la corneta de arriba para escuchar las instrucciones.</p>
@@ -372,7 +400,10 @@
       </div>
       <div class="btn-row">
         <button type="button" class="btn btn-ghost" id="btnVolverMenuInicio">REGRESAR AL MENÚ</button>
-        <button type="button" class="btn btn-primary" id="btnIniciar" disabled>INICIAR</button>
+        <span class="iniciar-wrap">
+          <span class="flow-nudge" id="nudgeIniciar" aria-hidden="true"><img src="assets/peques/audio-nudge-hand.png" alt=""/></span>
+          <button type="button" class="btn btn-primary" id="btnIniciar" disabled>INICIAR</button>
+        </span>
       </div>
     </section>
 
@@ -869,6 +900,56 @@ const audioCheckNoMsg = document.getElementById("audioCheckNoMsg");
 
 function syncIniciarBtn(){
   btnIniciar.disabled = !(CODIGO_ACTUAL && audioCheckOk);
+  updateIntroFlowNudge();
+}
+
+function setFlowNudgeOn(el, on){
+  if(!el) return;
+  if(on) el.setAttribute("data-on", "1");
+  else el.removeAttribute("data-on");
+}
+
+/** horn | si | iniciar | none — dedito de flujo en la 1ª pantalla */
+function updateIntroFlowNudge(){
+  const nudgeHorn = document.getElementById("introAudioNudge");
+  const nudgeSi = document.getElementById("nudgeAudioSi");
+  const nudgeIni = document.getElementById("nudgeIniciar");
+  const inicio = document.getElementById("pantalla-inicio");
+  if(inicio && inicio.classList.contains("hidden")){
+    setFlowNudgeOn(nudgeHorn, false);
+    setFlowNudgeOn(nudgeSi, false);
+    setFlowNudgeOn(nudgeIni, false);
+    return;
+  }
+  const v = (document.querySelector('input[name="audioCheck"]:checked') || {}).value;
+  const playing = !!(introAudio && !introAudio.paused);
+  if(playing){
+    setFlowNudgeOn(nudgeHorn, false);
+    setFlowNudgeOn(nudgeSi, false);
+    setFlowNudgeOn(nudgeIni, false);
+    return;
+  }
+  if(v === "si" && audioCheckOk){
+    setFlowNudgeOn(nudgeHorn, false);
+    setFlowNudgeOn(nudgeSi, false);
+    setFlowNudgeOn(nudgeIni, true);
+    return;
+  }
+  if(v === "no"){
+    setFlowNudgeOn(nudgeHorn, true);
+    setFlowNudgeOn(nudgeSi, false);
+    setFlowNudgeOn(nudgeIni, false);
+    return;
+  }
+  if(introAudioStarted){
+    setFlowNudgeOn(nudgeHorn, false);
+    setFlowNudgeOn(nudgeSi, true);
+    setFlowNudgeOn(nudgeIni, false);
+    return;
+  }
+  setFlowNudgeOn(nudgeHorn, true);
+  setFlowNudgeOn(nudgeSi, false);
+  setFlowNudgeOn(nudgeIni, false);
 }
 
 function enableAudioCheckChoices(){
@@ -879,6 +960,7 @@ function enableAudioCheckChoices(){
     audioCheckHint.textContent = "¿Oíste el audio? Elige Sí o No.";
     audioCheckHint.classList.remove("err");
   }
+  updateIntroFlowNudge();
 }
 
 function onAudioCheckChange(){
@@ -894,6 +976,7 @@ function onAudioCheckChange(){
       }
       if(audioCheckNoMsg) audioCheckNoMsg.hidden = true;
       syncIniciarBtn();
+      updateIntroFlowNudge();
       return;
     }
     audioCheckOk = true;
@@ -911,6 +994,7 @@ function onAudioCheckChange(){
     audioCheckOk = false;
   }
   syncIniciarBtn();
+  updateIntroFlowNudge();
 }
 const labelCurso = document.getElementById("labelCurso");
 
@@ -1464,10 +1548,12 @@ function speakIntroInstructions(){
   introAudio.onended = () => {
     if(btn) btn.classList.remove("playing");
     introAudio = null;
+    updateIntroFlowNudge();
   };
   introAudio.onerror = () => {
     if(btn) btn.classList.remove("playing");
     introAudio = null;
+    updateIntroFlowNudge();
     alert("No se pudo cargar el audio de las instrucciones.");
   };
   introAudio.play().then(() => {
@@ -1480,9 +1566,11 @@ function speakIntroInstructions(){
       audioCheckOk = false;
       syncIniciarBtn();
     }
+    updateIntroFlowNudge();
   }).catch(() => {
     if(btn) btn.classList.remove("playing");
     introAudio = null;
+    updateIntroFlowNudge();
   });
 }
 
@@ -1649,6 +1737,7 @@ document.addEventListener("DOMContentLoaded", () => {
   catch { document.getElementById("fecha").value = hoy.toLocaleDateString("es-EC"); }
   actualizarLabelCurso("");
   syncIniciarBtn();
+  updateIntroFlowNudge();
 });
 </script>
 </body>
