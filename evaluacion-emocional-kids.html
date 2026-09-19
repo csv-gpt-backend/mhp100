@@ -306,9 +306,9 @@
     .block-right .btn-row{margin:0;justify-content:center;flex-shrink:0}
     .block-right .btn{width:100%;max-width:260px;padding:14px 18px;font-size:1.1rem}
     .block-right .btn .btn-next-arrow{
-      display:inline-block;margin-left:10px;font-size:1.75em;font-weight:900;
-      line-height:1;vertical-align:-3px;color:#fff;
-      text-shadow:0 0 2px #fff, 0 2px 0 rgba(0,0,0,.35), 0 0 10px rgba(255,255,255,.9);
+      display:inline-block;margin-left:10px;font-size:2.45em;font-weight:900;
+      line-height:1;vertical-align:-4px;color:#f97316;
+      text-shadow:0 1px 0 rgba(0,0,0,.25), 0 0 8px rgba(249,115,22,.85);
       animation:nextArrowPulse 1.1s ease-in-out infinite;
     }
     @keyframes nextArrowPulse{
@@ -458,6 +458,8 @@ let pequesOptAudio = null;
 let introAudio = null;
 let introAudioStarted = false;
 let introAutoTimer = null;
+let qAutoTimer = null;
+let qAudioManual = false;
 let audioCheckOk = false;
 let audioCueEnds = null; // cumulative end times [introEnd, opt1End, opt2End, opt3End]
 const DALIA_AUDIO_BASE = "assets/peques/audio/q";
@@ -1413,6 +1415,7 @@ let renderToken = 0;
 
 async function renderQuestion(){
   const token = ++renderToken;
+  clearQuestionAutoTimer();
   stopSpeech();
   pequesAudio = null;
   audioCueEnds = null;
@@ -1472,6 +1475,8 @@ async function renderQuestion(){
   // Precarga en segundo plano la siguiente pregunta (si existe).
   const next = ITEMS[currentIndex + 1];
   if(next) preloadImages(questionImageSrcs(next));
+
+  scheduleQuestionAutoplay(token);
 }
 
 function audioBtn(){ return document.getElementById("btnAudio"); }
@@ -1510,6 +1515,34 @@ function clearIntroAutoTimer(){
     clearTimeout(introAutoTimer);
     introAutoTimer = null;
   }
+}
+
+function clearQuestionAutoTimer(){
+  if(qAutoTimer){
+    clearTimeout(qAutoTimer);
+    qAutoTimer = null;
+  }
+}
+
+/** Tras cargar la pregunta: ~3s y reproduce el audio (si no tocaron Escuchar/Pausa/Parar). */
+function scheduleQuestionAutoplay(token){
+  clearQuestionAutoTimer();
+  qAudioManual = false;
+  const q = ITEMS[currentIndex];
+  if(!q || q.value != null) return;
+  const idx = currentIndex;
+  qAutoTimer = setTimeout(function(){
+    qAutoTimer = null;
+    if(token !== renderToken) return;
+    if(idx !== currentIndex) return;
+    if(qAudioManual) return;
+    const pant = document.getElementById("pantalla-preguntas");
+    if(!pant || pant.classList.contains("hidden")) return;
+    const cur = ITEMS[currentIndex];
+    if(!cur || cur.value != null) return;
+    if(pequesAudio && !pequesAudio.paused) return;
+    speakCurrent();
+  }, 3000);
 }
 
 /** Tras escribir el nombre: ~3s y reproduce instrucciones (sin quitar corneta/manual). */
@@ -1615,6 +1648,7 @@ function speakOptionLabel(label, btn){
 }
 
 function speakCurrent(){
+  clearQuestionAutoTimer();
   const q = ITEMS[currentIndex];
   if(!q) return;
   setAudioNudgeVisible(false);
@@ -1634,17 +1668,27 @@ function speakCurrent(){
   pequesAudio.onended = () => {
     setAudioPlaying(false);
     clearChoiceCues();
+    const cur = ITEMS[currentIndex];
+    setAudioNudgeVisible(!!(cur && cur.value == null));
   };
   pequesAudio.onerror = () => {
     setAudioPlaying(false);
     clearChoiceCues();
+    const cur = ITEMS[currentIndex];
+    setAudioNudgeVisible(!!(cur && cur.value == null));
     alert("No se pudo cargar el audio de esta pregunta.");
   };
   setAudioPlaying(true);
-  pequesAudio.play().catch(() => setAudioPlaying(false));
+  pequesAudio.play().catch(() => {
+    setAudioPlaying(false);
+    const cur = ITEMS[currentIndex];
+    setAudioNudgeVisible(!!(cur && cur.value == null));
+  });
 }
 
 function togglePause(){
+  qAudioManual = true;
+  clearQuestionAutoTimer();
   if(!pequesAudio){ speakCurrent(); return; }
   if(pequesAudio.paused){
     if(pequesAudio.ended || pequesAudio.currentTime === 0){ speakCurrent(); return; }
@@ -1655,9 +1699,19 @@ function togglePause(){
   }
 }
 
-document.getElementById("btnAudio").addEventListener("click", speakCurrent);
+document.getElementById("btnAudio").addEventListener("click", () => {
+  qAudioManual = true;
+  clearQuestionAutoTimer();
+  speakCurrent();
+});
 document.getElementById("btnAudioPause").addEventListener("click", togglePause);
-document.getElementById("btnAudioStop").addEventListener("click", stopSpeech);
+document.getElementById("btnAudioStop").addEventListener("click", () => {
+  qAudioManual = true;
+  clearQuestionAutoTimer();
+  stopSpeech();
+  const cur = ITEMS[currentIndex];
+  setAudioNudgeVisible(!!(cur && cur.value == null));
+});
 document.getElementById("btnIntroAudio").addEventListener("click", speakIntroInstructions);
 if(audioCheckSi) audioCheckSi.addEventListener("change", onAudioCheckChange);
 if(audioCheckNo) audioCheckNo.addEventListener("change", onAudioCheckChange);
@@ -1725,6 +1779,7 @@ btnIniciar.addEventListener("click", async () => {
 
   stopIntroSpeech();
   clearIntroAutoTimer();
+  clearQuestionAutoTimer();
   document.getElementById("pantalla-inicio").classList.add("hidden");
   document.getElementById("datos-participante").classList.add("hidden");
   document.getElementById("pantalla-preguntas").classList.remove("hidden");
