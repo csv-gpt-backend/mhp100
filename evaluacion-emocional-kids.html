@@ -426,6 +426,7 @@ let pequesAudio = null;
 let pequesOptAudio = null;
 let introAudio = null;
 let introAudioStarted = false;
+let introAutoTimer = null;
 let audioCheckOk = false;
 let audioCueEnds = null; // cumulative end times [introEnd, opt1End, opt2End, opt3End]
 const DALIA_AUDIO_BASE = "assets/peques/audio/q";
@@ -1148,6 +1149,7 @@ async function lookupCodigo(){
         nombreEl.value = nombreGuardado;
         nombreEl.readOnly = true;
         nombreEl.setAttribute("autocomplete", "off");
+        scheduleIntroAutoplayAfterName();
       } else {
         nombreEl.readOnly = false;
         nombreEl.setAttribute("autocomplete", "off");
@@ -1419,7 +1421,34 @@ function stopIntroSpeech(){
   if(btn) btn.classList.remove("playing");
 }
 
+function clearIntroAutoTimer(){
+  if(introAutoTimer){
+    clearTimeout(introAutoTimer);
+    introAutoTimer = null;
+  }
+}
+
+/** Tras escribir el nombre: ~3s y reproduce instrucciones (sin quitar corneta/manual). */
+function scheduleIntroAutoplayAfterName(){
+  clearIntroAutoTimer();
+  if(introAudioStarted) return;
+  const nombreEl = document.getElementById("nombre");
+  if(!nombreEl || !String(nombreEl.value || "").trim()) return;
+  const inicio = document.getElementById("pantalla-inicio");
+  if(inicio && inicio.classList.contains("hidden")) return;
+  introAutoTimer = setTimeout(function(){
+    introAutoTimer = null;
+    if(introAudioStarted) return;
+    const n = document.getElementById("nombre");
+    if(!n || !String(n.value || "").trim()) return;
+    const pant = document.getElementById("pantalla-inicio");
+    if(pant && pant.classList.contains("hidden")) return;
+    speakIntroInstructions();
+  }, 3000);
+}
+
 function speakIntroInstructions(){
+  clearIntroAutoTimer();
   stopIntroSpeech();
   stopOptionSpeech();
   if(pequesAudio){
@@ -1545,6 +1574,19 @@ document.getElementById("btnIntroAudio").addEventListener("click", speakIntroIns
 if(audioCheckSi) audioCheckSi.addEventListener("change", onAudioCheckChange);
 if(audioCheckNo) audioCheckNo.addEventListener("change", onAudioCheckChange);
 
+(function bindNombreIntroAutoplay(){
+  const nombreEl = document.getElementById("nombre");
+  if(!nombreEl) return;
+  nombreEl.addEventListener("input", function(){
+    if(!String(nombreEl.value || "").trim()) clearIntroAutoTimer();
+    else scheduleIntroAutoplayAfterName();
+  });
+  nombreEl.addEventListener("change", function(){
+    if(!String(nombreEl.value || "").trim()) clearIntroAutoTimer();
+    else scheduleIntroAutoplayAfterName();
+  });
+})();
+
 document.getElementById("btnSiguiente").addEventListener("click", () => {
   if(ITEMS[currentIndex].value == null) return;
   if(currentIndex >= ITEMS.length - 1) onFinalizar();
@@ -1594,6 +1636,7 @@ btnIniciar.addEventListener("click", async () => {
   }
 
   stopIntroSpeech();
+  clearIntroAutoTimer();
   document.getElementById("pantalla-inicio").classList.add("hidden");
   document.getElementById("datos-participante").classList.add("hidden");
   document.getElementById("pantalla-preguntas").classList.remove("hidden");
