@@ -458,6 +458,7 @@ let pequesOptAudio = null;
 let introAudio = null;
 let introAudioStarted = false;
 let introAutoTimer = null;
+let introPreferHornNudge = false;
 let qAutoTimer = null;
 let qAdvanceTimer = null;
 let qAudioManual = false;
@@ -928,6 +929,13 @@ function updateIntroFlowNudge(){
   const playing = !!(introAudio && !introAudio.paused);
   if(playing){
     setFlowNudgeOn(nudgeHorn, false);
+    setFlowNudgeOn(nudgeSi, false);
+    setFlowNudgeOn(nudgeIni, false);
+    return;
+  }
+  // Al corregir el nombre: aviso suave en bocina (no borra Sí ni reinicia audio).
+  if(introPreferHornNudge){
+    setFlowNudgeOn(nudgeHorn, true);
     setFlowNudgeOn(nudgeSi, false);
     setFlowNudgeOn(nudgeIni, false);
     return;
@@ -1584,7 +1592,7 @@ function scheduleQuestionAutoplay(token){
   }, 3000);
 }
 
-/** Tras escribir el nombre: ~3s y reproduce instrucciones (sin quitar corneta/manual). */
+/** Tras escribir el nombre: ~5s y reproduce instrucciones (sin quitar corneta/manual). */
 function scheduleIntroAutoplayAfterName(){
   clearIntroAutoTimer();
   if(introAudioStarted) return;
@@ -1600,11 +1608,12 @@ function scheduleIntroAutoplayAfterName(){
     const pant = document.getElementById("pantalla-inicio");
     if(pant && pant.classList.contains("hidden")) return;
     speakIntroInstructions();
-  }, 3000);
+  }, 5000);
 }
 
 function speakIntroInstructions(){
   clearIntroAutoTimer();
+  introPreferHornNudge = false;
   stopIntroSpeech();
   stopOptionSpeech();
   if(pequesAudio){
@@ -1758,14 +1767,21 @@ if(audioCheckNo) audioCheckNo.addEventListener("change", onAudioCheckChange);
 (function bindNombreIntroAutoplay(){
   const nombreEl = document.getElementById("nombre");
   if(!nombreEl) return;
-  nombreEl.addEventListener("input", function(){
-    if(!String(nombreEl.value || "").trim()) clearIntroAutoTimer();
-    else scheduleIntroAutoplayAfterName();
-  });
-  nombreEl.addEventListener("change", function(){
-    if(!String(nombreEl.value || "").trim()) clearIntroAutoTimer();
-    else scheduleIntroAutoplayAfterName();
-  });
+  function onNombreEdit(){
+    if(!String(nombreEl.value || "").trim()){
+      clearIntroAutoTimer();
+      introPreferHornNudge = false;
+      updateIntroFlowNudge();
+      return;
+    }
+    if(introAudioStarted){
+      introPreferHornNudge = true;
+      updateIntroFlowNudge();
+    }
+    scheduleIntroAutoplayAfterName();
+  }
+  nombreEl.addEventListener("input", onNombreEdit);
+  nombreEl.addEventListener("change", onNombreEdit);
 })();
 
 document.getElementById("btnSiguiente").addEventListener("click", () => {
