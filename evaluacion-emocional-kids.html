@@ -1965,8 +1965,30 @@ codigoInput.addEventListener("input", () => {
   actualizarLabelCurso(codigoInput.value);
 });
 codigoInput.addEventListener("keydown", (e) => {
-  if(e.key === "Enter"){ e.preventDefault(); lookupCodigo(); }
+  if(e.key !== "Enter") return;
+  e.preventDefault();
+  lookupCodigo();
+  const nombreEl = document.getElementById("nombre");
+  if(nombreEl && !nombreEl.readOnly) nombreEl.focus();
 });
+(function bindEnterNextFields(){
+  const nombreEl = document.getElementById("nombre");
+  const apellidoEl = document.getElementById("apellido");
+  if(nombreEl){
+    nombreEl.addEventListener("keydown", (e) => {
+      if(e.key !== "Enter") return;
+      e.preventDefault();
+      if(apellidoEl && !apellidoEl.readOnly) apellidoEl.focus();
+    });
+  }
+  if(apellidoEl){
+    apellidoEl.addEventListener("keydown", (e) => {
+      if(e.key !== "Enter") return;
+      e.preventDefault();
+      apellidoEl.blur();
+    });
+  }
+})();
 document.getElementById("btnVolverMenuInicio").onclick = () => { location.href = "index.html"; };
 document.getElementById("btnRegresarMenu").onclick = () => { location.href = "index.html"; };
 
