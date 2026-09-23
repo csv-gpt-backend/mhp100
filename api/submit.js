@@ -86,7 +86,10 @@ module.exports = async function handler(req, res) {
     const resultados = body.resultados || {};
     const responses = body.responses || null;
 
-    const nombre = snapshot.nombre || null;
+    const nombrePila = snapshot.nombre ? String(snapshot.nombre).trim() : null;
+    const apellido = snapshot.apellido ? String(snapshot.apellido).trim() : null;
+    // Columna nombre: display completo (compat). apellido también en resultados para ordenar grupal.
+    const nombre = [nombrePila, apellido].filter(Boolean).join(" ") || null;
     const edad = snapshot.edad_anios ?? null;
     const institucion = snapshot.institucion || null;
     const grupo = snapshot.grupo || null;
@@ -106,6 +109,12 @@ module.exports = async function handler(req, res) {
     const b_estilos = b.estilos_comunicacion ?? null;
     const b_cambio = b.propension_cambio ?? null;
 
+    const resultadosOut = {
+      ...resultados,
+      nombre_pila: nombrePila || resultados.nombre_pila || null,
+      apellido: apellido || resultados.apellido || null,
+    };
+
     await sql`
       INSERT INTO attempts (
         codigo, nombre, edad_anios, institucion, grupo, curso,
@@ -117,7 +126,7 @@ module.exports = async function handler(req, res) {
         ${codigo}, ${nombre}, ${edad}, ${institucion}, ${grupo}, ${curso},
         ${iie}, ${iv1}, ${iv2}, ${iv3},
         ${b_intra}, ${b_inter}, ${b_pv}, ${b_estilos}, ${b_cambio},
-        ${JSON.stringify(resultados)},
+        ${JSON.stringify(resultadosOut)},
         ${responses ? JSON.stringify(responses) : null}
       );
     `;

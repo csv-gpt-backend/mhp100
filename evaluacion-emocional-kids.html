@@ -360,8 +360,11 @@
         <div class="field"><label for="codigo">Código</label>
           <input id="codigo" autocomplete="off" style="text-transform:uppercase"/>
           <small id="codigoMsg" class="muted"></small></div>
+        <div class="field" aria-hidden="true"></div>
         <div class="field"><label for="nombre">Nombre</label>
-          <input id="nombre" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+          <input id="nombre" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. ANA"/></div>
+        <div class="field"><label for="apellido">Apellido</label>
+          <input id="apellido" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. LÓPEZ"/></div>
         <div class="field"><label id="labelCurso" for="curso">Grado/Curso</label>
           <input id="curso" readonly/></div>
         <div class="field"><label for="institucion">Institución</label>
@@ -470,6 +473,24 @@ const DALIA_AUDIO_BASE = "assets/peques/audio/q";
 const DALIA_OPT_AUDIO_BASE = "assets/peques/audio/labels/";
 const INTRO_AUDIO_SRC = "assets/peques/audio/instrucciones.mp3?v=4";
 const IDLE_NUDGE_AUDIO_SRC = "assets/peques/audio/aun-no-elegido.mp3?v=1";
+
+/** Mayúsculas conservando tildes / ñ (es-EC). */
+function toUpperNombre(str){
+  return String(str || "").toLocaleUpperCase("es-EC");
+}
+
+function bindUpperInput(el){
+  if(!el) return;
+  el.addEventListener("input", function(){
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const next = toUpperNombre(el.value);
+    if(el.value !== next){
+      el.value = next;
+      try{ el.setSelectionRange(start, end); }catch{}
+    }
+  });
+}
 
 function labelAudioSlug(label){
   return String(label || "")
@@ -1070,6 +1091,7 @@ async function syncAutosaveToServer(state){
       responses: state.responses || {},
       snapshot: {
         nombre: state.nombre || "",
+        apellido: state.apellido || "",
         institucion: state.institucion || "",
         grupo: state.grupo || "",
         curso: state.curso || "",
@@ -1100,6 +1122,7 @@ async function cargarAutosaveServidor(codigo){
     return {
       codigo: row.codigo || codigo,
       nombre: snap.nombre || "",
+      apellido: snap.apellido || "",
       institucion: snap.institucion || "",
       grupo: snap.grupo || "",
       curso: snap.curso || "",
@@ -1123,7 +1146,8 @@ function saveState(completedFlag){
     const state = {
       ...prev,
       codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
-      nombre: document.getElementById("nombre").value.trim(),
+      nombre: toUpperNombre(document.getElementById("nombre").value.trim()),
+      apellido: toUpperNombre(document.getElementById("apellido").value.trim()),
       institucion: document.getElementById("institucion").value,
       grupo: document.getElementById("grupo").value,
       curso: document.getElementById("curso").value,
@@ -1142,7 +1166,8 @@ function saveState(completedFlag){
 
 function aplicarState(state){
   if(!state) return;
-  document.getElementById("nombre").value = state.nombre || "";
+  document.getElementById("nombre").value = toUpperNombre(state.nombre || "");
+  document.getElementById("apellido").value = toUpperNombre(state.apellido || "");
   if(state.institucion) document.getElementById("institucion").value = state.institucion;
   if(state.grupo) document.getElementById("grupo").value = state.grupo;
   if(state.curso) document.getElementById("curso").value = state.curso;
@@ -1159,6 +1184,15 @@ function aplicarState(state){
   __startTime = state.startTime || Date.now();
 }
 
+function setNombreApellidoReadonly(on){
+  ["nombre", "apellido"].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.readOnly = !!on;
+    el.setAttribute("autocomplete", "off");
+  });
+}
+
 async function lookupCodigo(){
   const codigo = codigoInput.value.trim().toUpperCase();
   codigoInput.value = codigo;
@@ -1167,9 +1201,14 @@ async function lookupCodigo(){
   syncIniciarBtn();
 
   const nombreEl0 = document.getElementById("nombre");
+  const apellidoEl0 = document.getElementById("apellido");
   if(nombreEl0){
     nombreEl0.readOnly = false;
     nombreEl0.setAttribute("autocomplete", "off");
+  }
+  if(apellidoEl0){
+    apellidoEl0.readOnly = false;
+    apellidoEl0.setAttribute("autocomplete", "off");
   }
 
   if(codigoMsg){
@@ -1224,11 +1263,14 @@ async function lookupCodigo(){
     document.getElementById("grupo").value = data.grupo || "";
     document.getElementById("curso").value = data.curso || "";
 
-    // Como intelectual: si hay intento en curso, mostrar nombre guardado y bloquear casilla.
+    // Como intelectual: si hay intento en curso, mostrar nombre/apellido guardados y bloquear.
     const nombreEl = document.getElementById("nombre");
+    const apellidoEl = document.getElementById("apellido");
     let nombreGuardado = "";
+    let apellidoGuardado = "";
     if(localState && !isStateCompleted(localState) && localState.nombre){
-      nombreGuardado = String(localState.nombre).trim();
+      nombreGuardado = toUpperNombre(String(localState.nombre).trim());
+      apellidoGuardado = toUpperNombre(String(localState.apellido || "").trim());
     }
     if(!nombreGuardado){
       const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
@@ -1239,18 +1281,18 @@ async function lookupCodigo(){
         serverDraft.responses &&
         Object.keys(serverDraft.responses).length > 0
       ){
-        nombreGuardado = String(serverDraft.nombre).trim();
+        nombreGuardado = toUpperNombre(String(serverDraft.nombre).trim());
+        apellidoGuardado = toUpperNombre(String(serverDraft.apellido || "").trim());
       }
     }
     if(nombreEl){
       if(nombreGuardado){
         nombreEl.value = nombreGuardado;
-        nombreEl.readOnly = true;
-        nombreEl.setAttribute("autocomplete", "off");
+        if(apellidoEl) apellidoEl.value = apellidoGuardado;
+        setNombreApellidoReadonly(true);
         scheduleIntroAutoplayAfterName();
       } else {
-        nombreEl.readOnly = false;
-        nombreEl.setAttribute("autocomplete", "off");
+        setNombreApellidoReadonly(false);
       }
     }
 
@@ -1266,9 +1308,14 @@ async function lookupCodigo(){
     CODIGO_ACTUAL = null;
     syncIniciarBtn();
     const nombreElErr = document.getElementById("nombre");
+    const apellidoElErr = document.getElementById("apellido");
     if(nombreElErr){
       nombreElErr.readOnly = false;
       nombreElErr.setAttribute("autocomplete", "off");
+    }
+    if(apellidoElErr){
+      apellidoElErr.readOnly = false;
+      apellidoElErr.setAttribute("autocomplete", "off");
     }
     if(codigoMsg){
       codigoMsg.textContent = (e && e.message) ? e.message : "Código no encontrado.";
@@ -1361,19 +1408,25 @@ function calcularResultados(){
 }
 
 function onFinalizar(){
-  const nombre = document.getElementById("nombre").value.trim();
+  const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
+  const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
   if(!nombre){ alert("Por favor ingresa el nombre."); return; }
+  if(!apellido){ alert("Por favor ingresa el apellido."); return; }
   if(ITEMS.some(q => q.value == null)){ alert("Faltan respuestas."); return; }
+  const resultados = calcularResultados();
+  resultados.nombre_pila = nombre;
+  resultados.apellido = apellido;
   const payload = {
     codigo: CODIGO_ACTUAL,
     evaluacion: EVAL_PRODUCT_KEY,
     idioma: EVAL_LANG,
     snapshot:{
-      nombre, institucion:document.getElementById("institucion").value,
+      nombre, apellido,
+      institucion:document.getElementById("institucion").value,
       grupo:document.getElementById("grupo").value, curso:document.getElementById("curso").value,
       version_banco:"SOCPEQ-v1"
     },
-    resultados: calcularResultados(),
+    resultados,
     responses: obtenerRespuestasCrudas()
   };
   saveState(true);
@@ -1381,7 +1434,7 @@ function onFinalizar(){
   document.getElementById("pantalla-preguntas").classList.add("hidden");
   document.getElementById("pantalla-inicio").classList.add("hidden");
   document.getElementById("datos-participante").classList.remove("hidden");
-  document.getElementById("nombre").readOnly = true;
+  setNombreApellidoReadonly(true);
   const pantallaFinal = document.getElementById("pantalla-final");
   pantallaFinal.style.display = "block";
   pantallaFinal.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1851,7 +1904,10 @@ if(audioCheckNo) audioCheckNo.addEventListener("change", onAudioCheckChange);
 
 (function bindNombreIntroAutoplay(){
   const nombreEl = document.getElementById("nombre");
+  const apellidoEl = document.getElementById("apellido");
   if(!nombreEl) return;
+  bindUpperInput(nombreEl);
+  bindUpperInput(apellidoEl);
   function onNombreEdit(){
     if(!String(nombreEl.value || "").trim()){
       clearIntroAutoTimer();
@@ -1865,8 +1921,18 @@ if(audioCheckNo) audioCheckNo.addEventListener("change", onAudioCheckChange);
     }
     scheduleIntroAutoplayAfterName();
   }
+  function onApellidoEdit(){
+    if(introAudioStarted && String(nombreEl.value || "").trim()){
+      introPreferHornNudge = true;
+      updateIntroFlowNudge();
+    }
+  }
   nombreEl.addEventListener("input", onNombreEdit);
   nombreEl.addEventListener("change", onNombreEdit);
+  if(apellidoEl){
+    apellidoEl.addEventListener("input", onApellidoEdit);
+    apellidoEl.addEventListener("change", onApellidoEdit);
+  }
 })();
 
 document.getElementById("btnSiguiente").addEventListener("click", () => {
@@ -1886,6 +1952,7 @@ document.getElementById("btnRegresarMenu").onclick = () => { location.href = "in
 
 btnIniciar.addEventListener("click", async () => {
   if(!document.getElementById("nombre").value.trim()){ alert("Ingresa tu nombre."); return; }
+  if(!document.getElementById("apellido").value.trim()){ alert("Ingresa tu apellido."); return; }
   if(!introAudioStarted || !audioCheckOk){
     alert("Toca la corneta 🔊, escucha el audio y confirma que lo oíste con Sí.");
     return;

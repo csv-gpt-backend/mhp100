@@ -2434,12 +2434,21 @@ const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
     document.getElementById("repDateLine").textContent = ahora.toLocaleString("es-EC", { dateStyle:"short", timeStyle:"short" });
 
     const fechaTexto = fechaObj ? fechaObj.toLocaleDateString("es-EC", { year:"numeric", month:"long", day:"numeric" }) : "—";
-    const nombre = snap.nombre || attempt.nombre || "—";
+    const apellido = String(resultados.apellido || snap.apellido || attempt.apellido || "").trim();
+    const nombrePila = String(resultados.nombre_pila || (apellido ? (snap.nombre || "") : "") || "").trim();
+    const nombreCompleto = apellido
+      ? [nombrePila, apellido].filter(Boolean).join(" ")
+      : String(snap.nombre || attempt.nombre || "—").trim();
+    const nombre = nombreCompleto || "—";
     const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
 const esProfesional = false; // Kids report: no workplace path
 const labelCurso = "Grado/Curso";
+    const nombreHeaderHtml = apellido
+      ? `<div><b>Nombre:</b> ${nombrePila || "—"}</div>
+      <div><b>Apellido:</b> ${apellido}</div>`
+      : `<div><b>Nombre:</b> ${nombre}</div>`;
     document.getElementById("repHeaderBox").innerHTML = `
-      <div><b>Nombre:</b> ${nombre}</div>
+      ${nombreHeaderHtml}
       <div><b>País:</b> ${snap.grupo || attempt.grupo || "—"}</div>
       <div><b>Institución:</b> ${snap.institucion || attempt.institucion || "—"}</div>
       <div><b>Fecha:</b> ${fechaTexto}</div>
