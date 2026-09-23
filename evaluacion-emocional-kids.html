@@ -461,12 +461,15 @@ let introAutoTimer = null;
 let introPreferHornNudge = false;
 let qAutoTimer = null;
 let qAdvanceTimer = null;
+let qIdleTimer = null;
+let pequesIdleAudio = null;
 let qAudioManual = false;
 let audioCheckOk = false;
 let audioCueEnds = null; // cumulative end times [introEnd, opt1End, opt2End, opt3End]
 const DALIA_AUDIO_BASE = "assets/peques/audio/q";
 const DALIA_OPT_AUDIO_BASE = "assets/peques/audio/labels/";
 const INTRO_AUDIO_SRC = "assets/peques/audio/instrucciones.mp3?v=4";
+const IDLE_NUDGE_AUDIO_SRC = "assets/peques/audio/aun-no-elegido.mp3?v=1";
 
 function labelAudioSlug(label){
   return String(label || "")
@@ -1426,6 +1429,8 @@ async function renderQuestion(){
   const token = ++renderToken;
   clearQuestionAutoTimer();
   clearQuestionAdvanceTimer();
+  clearQuestionIdleTimer();
+  stopIdleNudgeSpeech();
   stopSpeech();
   pequesAudio = null;
   audioCueEnds = null;
@@ -1542,7 +1547,68 @@ function clearQuestionAdvanceTimer(){
   }
 }
 
-/** Tras elegir opción: ~5s y avanza (si no tocan SIGUIENTE; si cambian opción, reinicia). */
+function clearQuestionIdleTimer(){
+  if(qIdleTimer){
+    clearTimeout(qIdleTimer);
+    qIdleTimer = null;
+  }
+}
+
+function stopIdleNudgeSpeech(){
+  if(pequesIdleAudio){
+    try{ pequesIdleAudio.pause(); pequesIdleAudio.currentTime = 0; }catch{}
+  }
+  pequesIdleAudio = null;
+}
+
+/** Tras terminar audio de pregunta sin respuesta: ~8s → aviso → replay (ciclo). */
+function scheduleQuestionIdleRemind(token){
+  clearQuestionIdleTimer();
+  stopIdleNudgeSpeech();
+  const q = ITEMS[currentIndex];
+  if(!q || q.value != null) return;
+  const idx = currentIndex;
+  qIdleTimer = setTimeout(function(){
+    qIdleTimer = null;
+    if(token !== renderToken) return;
+    if(idx !== currentIndex) return;
+    const cur = ITEMS[currentIndex];
+    if(!cur || cur.value != null) return;
+    playIdleNudgeThenReplay(token);
+  }, 8000);
+}
+
+function playIdleNudgeThenReplay(token){
+  clearQuestionIdleTimer();
+  const q = ITEMS[currentIndex];
+  if(!q || q.value != null) return;
+  stopOptionSpeech();
+  if(pequesAudio){
+    try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
+    pequesAudio = null;
+  }
+  audioCueEnds = null;
+  setAudioPlaying(false);
+  clearChoiceCues();
+  setAudioNudgeVisible(false);
+
+  const idx = currentIndex;
+  pequesIdleAudio = new Audio(IDLE_NUDGE_AUDIO_SRC);
+  pequesIdleAudio.preload = "auto";
+  const afterNudge = () => {
+    pequesIdleAudio = null;
+    if(token !== renderToken) return;
+    if(idx !== currentIndex) return;
+    const cur = ITEMS[currentIndex];
+    if(!cur || cur.value != null) return;
+    speakCurrent();
+  };
+  pequesIdleAudio.onended = afterNudge;
+  pequesIdleAudio.onerror = afterNudge;
+  pequesIdleAudio.play().catch(afterNudge);
+}
+
+/** Tras elegir opción: ~10s y avanza (si no tocan SIGUIENTE; si cambian opción, reinicia). */
 function scheduleQuestionAdvance(token){
   clearQuestionAdvanceTimer();
   const q = ITEMS[currentIndex];
@@ -1561,6 +1627,8 @@ function scheduleQuestionAdvance(token){
 function advanceQuestion(){
   clearQuestionAdvanceTimer();
   clearQuestionAutoTimer();
+  clearQuestionIdleTimer();
+  stopIdleNudgeSpeech();
   if(!ITEMS[currentIndex] || ITEMS[currentIndex].value == null) return;
   if(currentIndex >= ITEMS.length - 1) onFinalizar();
   else {
@@ -1658,6 +1726,8 @@ function speakIntroInstructions(){
 function stopSpeech(){
   stopIntroSpeech();
   stopOptionSpeech();
+  stopIdleNudgeSpeech();
+  clearQuestionIdleTimer();
   if(pequesAudio){
     try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
   }
@@ -1669,6 +1739,8 @@ function stopSpeech(){
 function speakOptionLabel(label, btn){
   const slug = labelAudioSlug(label);
   if(!slug) return;
+  clearQuestionIdleTimer();
+  stopIdleNudgeSpeech();
   // Stop full-question narration so only the option plays
   if(pequesAudio){
     try{ pequesAudio.pause(); pequesAudio.currentTime = 0; }catch{}
@@ -1684,10 +1756,14 @@ function speakOptionLabel(label, btn){
   pequesOptAudio.onended = () => {
     if(btn) btn.classList.remove("playing");
     pequesOptAudio = null;
+    const cur = ITEMS[currentIndex];
+    if(cur && cur.value == null) scheduleQuestionIdleRemind(renderToken);
   };
   pequesOptAudio.onerror = () => {
     if(btn) btn.classList.remove("playing");
     pequesOptAudio = null;
+    const cur = ITEMS[currentIndex];
+    if(cur && cur.value == null) scheduleQuestionIdleRemind(renderToken);
   };
   pequesOptAudio.play().catch(() => {
     if(btn) btn.classList.remove("playing");
@@ -1697,6 +1773,8 @@ function speakOptionLabel(label, btn){
 
 function speakCurrent(){
   clearQuestionAutoTimer();
+  clearQuestionIdleTimer();
+  stopIdleNudgeSpeech();
   const q = ITEMS[currentIndex];
   if(!q) return;
   setAudioNudgeVisible(false);
@@ -1718,6 +1796,7 @@ function speakCurrent(){
     clearChoiceCues();
     const cur = ITEMS[currentIndex];
     setAudioNudgeVisible(!!(cur && cur.value == null));
+    if(cur && cur.value == null) scheduleQuestionIdleRemind(renderToken);
   };
   pequesAudio.onerror = () => {
     setAudioPlaying(false);
@@ -1737,6 +1816,8 @@ function speakCurrent(){
 function togglePause(){
   qAudioManual = true;
   clearQuestionAutoTimer();
+  clearQuestionIdleTimer();
+  stopIdleNudgeSpeech();
   if(!pequesAudio){ speakCurrent(); return; }
   if(pequesAudio.paused){
     if(pequesAudio.ended || pequesAudio.currentTime === 0){ speakCurrent(); return; }
@@ -1750,12 +1831,16 @@ function togglePause(){
 document.getElementById("btnAudio").addEventListener("click", () => {
   qAudioManual = true;
   clearQuestionAutoTimer();
+  clearQuestionIdleTimer();
+  stopIdleNudgeSpeech();
   speakCurrent();
 });
 document.getElementById("btnAudioPause").addEventListener("click", togglePause);
 document.getElementById("btnAudioStop").addEventListener("click", () => {
   qAudioManual = true;
   clearQuestionAutoTimer();
+  clearQuestionIdleTimer();
+  stopIdleNudgeSpeech();
   stopSpeech();
   const cur = ITEMS[currentIndex];
   setAudioNudgeVisible(!!(cur && cur.value == null));
