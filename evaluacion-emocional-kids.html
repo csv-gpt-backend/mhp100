@@ -26,7 +26,11 @@
     #pantalla-preguntas .card{padding:14px 16px 16px}
     .hidden{display:none !important}
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
-    @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+    .grid-id{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:10px 14px;margin-bottom:10px}
+    @media(max-width:600px){
+      .grid-2{grid-template-columns:1fr}
+      .grid-id{grid-template-columns:1fr;margin-bottom:8px}
+    }
     .field{display:flex;flex-direction:column;gap:4px;font-size:15px}
     .field label{font-weight:700;font-size:15px}
     .field input{padding:10px;border:1px solid #d1d5db;border-radius:8px;font-size:16px}
@@ -49,6 +53,7 @@
       padding:12px 14px;margin-bottom:10px;
     }
     #datos-participante .grid-2{gap:8px 14px}
+    #datos-participante .grid-id{gap:8px 12px;margin-bottom:8px}
     #datos-participante .field{gap:3px;font-size:14px}
     #datos-participante .field label{font-size:13px;font-weight:700}
     #datos-participante .field input{padding:8px 10px;font-size:15px;border-radius:8px}
@@ -356,15 +361,16 @@
     <header><h1>Evaluación Socioemocional · Kids</h1></header>
 
     <section id="datos-participante" class="card">
-      <div class="grid-2">
+      <div class="grid-id">
         <div class="field"><label for="codigo">Código</label>
           <input id="codigo" autocomplete="off" style="text-transform:uppercase"/>
           <small id="codigoMsg" class="muted"></small></div>
-        <div class="field" aria-hidden="true"></div>
         <div class="field"><label for="nombre">Nombre</label>
           <input id="nombre" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. ANA"/></div>
         <div class="field"><label for="apellido">Apellido</label>
           <input id="apellido" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. LÓPEZ"/></div>
+      </div>
+      <div class="grid-2">
         <div class="field"><label id="labelCurso" for="curso">Grado/Curso</label>
           <input id="curso" readonly/></div>
         <div class="field"><label for="institucion">Institución</label>
@@ -1713,19 +1719,23 @@ function scheduleQuestionAutoplay(token){
   }, 3000);
 }
 
-/** Tras escribir el nombre: ~5s y reproduce instrucciones (sin quitar corneta/manual). */
+/** Tras Apellido (con Nombre): ~5s y reproduce instrucciones (sin quitar corneta/manual). */
 function scheduleIntroAutoplayAfterName(){
   clearIntroAutoTimer();
   if(introAudioStarted) return;
   const nombreEl = document.getElementById("nombre");
+  const apellidoEl = document.getElementById("apellido");
   if(!nombreEl || !String(nombreEl.value || "").trim()) return;
+  if(!apellidoEl || !String(apellidoEl.value || "").trim()) return;
   const inicio = document.getElementById("pantalla-inicio");
   if(inicio && inicio.classList.contains("hidden")) return;
   introAutoTimer = setTimeout(function(){
     introAutoTimer = null;
     if(introAudioStarted) return;
     const n = document.getElementById("nombre");
+    const a = document.getElementById("apellido");
     if(!n || !String(n.value || "").trim()) return;
+    if(!a || !String(a.value || "").trim()) return;
     const pant = document.getElementById("pantalla-inicio");
     if(pant && pant.classList.contains("hidden")) return;
     speakIntroInstructions();
@@ -1919,13 +1929,23 @@ if(audioCheckNo) audioCheckNo.addEventListener("change", onAudioCheckChange);
       introPreferHornNudge = true;
       updateIntroFlowNudge();
     }
+    // Solo agenda autoplay si ya hay apellido (el conteo lo dispara el apellido).
     scheduleIntroAutoplayAfterName();
   }
   function onApellidoEdit(){
-    if(introAudioStarted && String(nombreEl.value || "").trim()){
+    if(!String(apellidoEl.value || "").trim()){
+      clearIntroAutoTimer();
+      if(!introAudioStarted){
+        introPreferHornNudge = false;
+        updateIntroFlowNudge();
+      }
+      return;
+    }
+    if(introAudioStarted){
       introPreferHornNudge = true;
       updateIntroFlowNudge();
     }
+    scheduleIntroAutoplayAfterName();
   }
   nombreEl.addEventListener("input", onNombreEdit);
   nombreEl.addEventListener("change", onNombreEdit);
