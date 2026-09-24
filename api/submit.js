@@ -6,6 +6,7 @@ const {
   idiomaMismatchMessage,
   normalizeIdioma,
 } = require("./eval-codigo");
+const { scoreSocies } = require("./score-socies");
 
 function msg(key, lang) {
   const en = normalizeIdioma(lang) === "EN";
@@ -83,8 +84,19 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    const resultados = body.resultados || {};
     const responses = body.responses || null;
+    const evalKey = String(
+      body.evaluacion || body.eval || snapshot.evaluacion || snapshot.eval || ""
+    ).toUpperCase();
+
+    let resultados = body.resultados || {};
+    if (evalKey === "SOCIES") {
+      const scored = scoreSocies(responses, snapshot.startTime);
+      if (!scored.ok) {
+        return res.status(400).json({ error: scored.error || "No se pudo calcular el resultado." });
+      }
+      resultados = scored.resultados;
+    }
 
     const nombrePila = snapshot.nombre ? String(snapshot.nombre).trim() : null;
     const apellido = snapshot.apellido ? String(snapshot.apellido).trim() : null;
