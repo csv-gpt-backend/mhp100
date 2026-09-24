@@ -690,6 +690,20 @@ function setNombreApellidoReadonly(on) {
     el.setAttribute("autocomplete", "off");
   });
 }
+function lockNombreApellidoSiHayTexto(nombreVal, apellidoVal) {
+  const nombreEl = document.getElementById("nombre");
+  const apellidoEl = document.getElementById("apellido");
+  if (nombreEl) nombreEl.value = nombreVal || "";
+  if (apellidoEl) apellidoEl.value = apellidoVal || "";
+  if (nombreEl) {
+    nombreEl.readOnly = !!String(nombreVal || "").trim();
+    nombreEl.setAttribute("autocomplete", "off");
+  }
+  if (apellidoEl) {
+    apellidoEl.readOnly = !!String(apellidoVal || "").trim();
+    apellidoEl.setAttribute("autocomplete", "off");
+  }
+}
 const codigoMsg   = document.getElementById('codigoMsg');
     function actualizarLabelCurso(codigo = '') {
   const limpio = String(codigo || '').trim().toUpperCase();
@@ -893,8 +907,6 @@ const codigoMsg   = document.getElementById('codigoMsg');
         btnIniciar.disabled = false;
 
         // Como intelectual/Kids: si hay intento en curso, mostrar nombre y bloquear casilla.
-        const nombreEl = document.getElementById("nombre");
-        const apellidoEl = document.getElementById("apellido");
         let nombreGuardado = "";
         let apellidoGuardado = "";
         if (localState && !isStateCompleted(localState) && localState.nombre) {
@@ -914,15 +926,8 @@ const codigoMsg   = document.getElementById('codigoMsg');
             apellidoGuardado = toUpperNombre(String(serverDraft.apellido || "").trim());
           }
         }
-        if (nombreEl) {
-          if (nombreGuardado) {
-            nombreEl.value = nombreGuardado;
-            if (apellidoEl) apellidoEl.value = apellidoGuardado;
-            setNombreApellidoReadonly(true);
-          } else {
-            setNombreApellidoReadonly(false);
-          }
-        }
+        if (nombreGuardado) lockNombreApellidoSiHayTexto(nombreGuardado, apellidoGuardado);
+        else setNombreApellidoReadonly(false);
 
         if (codigoMsg) {
           codigoMsg.textContent = 'Código válido.';
@@ -1168,13 +1173,9 @@ actualizarLabelCurso(codigoInput.value);
     function aplicarState(state) {
       if (!state) return;
 
-      const nombreEl = document.getElementById("nombre");
-      const apellidoEl = document.getElementById("apellido");
       const nombreVal = toUpperNombre(state.nombre || "");
       const apellidoVal = toUpperNombre(state.apellido || "");
-      if (nombreEl) nombreEl.value = nombreVal;
-      if (apellidoEl) apellidoEl.value = apellidoVal;
-      if (String(nombreVal).trim()) setNombreApellidoReadonly(true);
+      lockNombreApellidoSiHayTexto(nombreVal, apellidoVal);
       document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
       document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
       document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
