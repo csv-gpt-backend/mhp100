@@ -112,6 +112,12 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px 16px;
     }
+    .grid-id {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr;
+      gap: 8px 16px;
+      margin-bottom: 8px;
+    }
     .field {
       display: flex;
       flex-direction: column;
@@ -460,7 +466,7 @@ font-size: 13px;
       }
     }
     @media (max-width: 720px) {
-      .grid-2 {
+      .grid-2, .grid-id {
         grid-template-columns: 1fr;
       }
       .questions-header,
@@ -490,18 +496,22 @@ font-size: 13px;
 
       <!-- Datos del participante -->
       <section id="datos-participante" class="card">
-        <div class="grid-2">
+        <div class="grid-id">
           <div class="field">
             <label for="codigo">Código</label>
             <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
             <small id="codigoMsg" class="muted"></small>
           </div>
-
           <div class="field">
             <label for="nombre">Nombre</label>
-            <input id="nombre" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            <input id="nombre" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. ANA" />
           </div>
-
+          <div class="field">
+            <label for="apellido">Apellido</label>
+            <input id="apellido" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. LÓPEZ" />
+          </div>
+        </div>
+        <div class="grid-2">
           <div class="field">
 <label for="curso" id="labelCurso">Grado/Curso/Nivel</label>
             <input id="curso" type="text" readonly />
@@ -656,6 +666,30 @@ const grupoInput  = document.getElementById('grupo');
 const cursoInput  = document.getElementById('curso');
 const labelCurso  = document.getElementById('labelCurso');
 const btnIniciar  = document.getElementById('btnIniciar');
+
+function toUpperNombre(str) {
+  return String(str || "").toLocaleUpperCase("es-EC");
+}
+function bindUpperInput(el) {
+  if (!el) return;
+  el.addEventListener("input", function () {
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const next = toUpperNombre(el.value);
+    if (el.value !== next) {
+      el.value = next;
+      try { el.setSelectionRange(start, end); } catch (e) {}
+    }
+  });
+}
+function setNombreApellidoReadonly(on) {
+  ["nombre", "apellido"].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.readOnly = !!on;
+    el.setAttribute("autocomplete", "off");
+  });
+}
 const codigoMsg   = document.getElementById('codigoMsg');
     function actualizarLabelCurso(codigo = '') {
   const limpio = String(codigo || '').trim().toUpperCase();
@@ -711,6 +745,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
           responses: state.responses || {},
           snapshot: {
             nombre: state.nombre || "",
+            apellido: state.apellido || "",
             institucion: state.institucion || "",
             grupo: state.grupo || "",
             curso: state.curso || "",
@@ -741,6 +776,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
         return {
           codigo: row.codigo || codigo,
           nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+          apellido: snap.apellido || "",
           institucion: snap.institucion || DATOS_FIJOS.institucion,
           grupo: snap.grupo || DATOS_FIJOS.grupo,
           curso: snap.curso || DATOS_FIJOS.curso,
@@ -765,7 +801,8 @@ const codigoMsg   = document.getElementById('codigoMsg');
         const state = {
           ...prev,
           codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
-          nombre: document.getElementById("nombre").value.trim(),
+          nombre: toUpperNombre(document.getElementById("nombre").value.trim()),
+          apellido: toUpperNombre(document.getElementById("apellido").value.trim()),
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
@@ -790,11 +827,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
       CODIGO_ACTUAL = null;
       btnIniciar.disabled = true;
 
-      const nombreEl0 = document.getElementById("nombre");
-      if (nombreEl0) {
-        nombreEl0.readOnly = false;
-        nombreEl0.setAttribute("autocomplete", "off");
-      }
+      setNombreApellidoReadonly(false);
 
       if (codigoMsg) {
         codigoMsg.textContent = codigo ? 'Buscando...' : 'Ingresa un código.';
@@ -861,9 +894,12 @@ const codigoMsg   = document.getElementById('codigoMsg');
 
         // Como intelectual/Kids: si hay intento en curso, mostrar nombre y bloquear casilla.
         const nombreEl = document.getElementById("nombre");
+        const apellidoEl = document.getElementById("apellido");
         let nombreGuardado = "";
+        let apellidoGuardado = "";
         if (localState && !isStateCompleted(localState) && localState.nombre) {
-          nombreGuardado = String(localState.nombre).trim();
+          nombreGuardado = toUpperNombre(String(localState.nombre).trim());
+          apellidoGuardado = toUpperNombre(String(localState.apellido || "").trim());
         }
         if (!nombreGuardado) {
           const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
@@ -874,17 +910,17 @@ const codigoMsg   = document.getElementById('codigoMsg');
             serverDraft.responses &&
             Object.keys(serverDraft.responses).length > 0
           ) {
-            nombreGuardado = String(serverDraft.nombre).trim();
+            nombreGuardado = toUpperNombre(String(serverDraft.nombre).trim());
+            apellidoGuardado = toUpperNombre(String(serverDraft.apellido || "").trim());
           }
         }
         if (nombreEl) {
           if (nombreGuardado) {
             nombreEl.value = nombreGuardado;
-            nombreEl.readOnly = true;
-            nombreEl.setAttribute("autocomplete", "off");
+            if (apellidoEl) apellidoEl.value = apellidoGuardado;
+            setNombreApellidoReadonly(true);
           } else {
-            nombreEl.readOnly = false;
-            nombreEl.setAttribute("autocomplete", "off");
+            setNombreApellidoReadonly(false);
           }
         }
 
@@ -894,11 +930,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
         }
       } catch (e) {
         instInput.value = grupoInput.value = cursoInput.value = '';
-        const nombreElErr = document.getElementById("nombre");
-        if (nombreElErr) {
-          nombreElErr.readOnly = false;
-          nombreElErr.setAttribute("autocomplete", "off");
-        }
+        setNombreApellidoReadonly(false);
         if (codigoMsg) {
           codigoMsg.textContent = (e && e.message) ? e.message : 'Código no encontrado.';
           codigoMsg.className = 'err';
@@ -912,8 +944,33 @@ const codigoMsg   = document.getElementById('codigoMsg');
     });
     codigoInput.addEventListener('blur', lookupCodigo);
     codigoInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); lookupCodigo(); }
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      lookupCodigo().then(function () {
+        const nombreEl = document.getElementById("nombre");
+        if (nombreEl && !nombreEl.readOnly) nombreEl.focus();
+      });
     });
+    (function bindEnterNextFields() {
+      const nombreEl = document.getElementById("nombre");
+      const apellidoEl = document.getElementById("apellido");
+      bindUpperInput(nombreEl);
+      bindUpperInput(apellidoEl);
+      if (nombreEl) {
+        nombreEl.addEventListener("keydown", function (e) {
+          if (e.key !== "Enter") return;
+          e.preventDefault();
+          if (apellidoEl && !apellidoEl.readOnly) apellidoEl.focus();
+        });
+      }
+      if (apellidoEl) {
+        apellidoEl.addEventListener("keydown", function (e) {
+          if (e.key !== "Enter") return;
+          e.preventDefault();
+          apellidoEl.blur();
+        });
+      }
+    })();
 actualizarLabelCurso(codigoInput.value);
     const DATOS_FIJOS = {
       institucion: "Institución por defecto",
@@ -1112,14 +1169,12 @@ actualizarLabelCurso(codigoInput.value);
       if (!state) return;
 
       const nombreEl = document.getElementById("nombre");
-      const nombreVal = state.nombre || "";
-      if (nombreEl) {
-        nombreEl.value = nombreVal;
-        if (String(nombreVal).trim()) {
-          nombreEl.readOnly = true;
-          nombreEl.setAttribute("autocomplete", "off");
-        }
-      }
+      const apellidoEl = document.getElementById("apellido");
+      const nombreVal = toUpperNombre(state.nombre || "");
+      const apellidoVal = toUpperNombre(state.apellido || "");
+      if (nombreEl) nombreEl.value = nombreVal;
+      if (apellidoEl) apellidoEl.value = apellidoVal;
+      if (String(nombreVal).trim()) setNombreApellidoReadonly(true);
       document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
       document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
       document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
@@ -1164,8 +1219,10 @@ actualizarLabelCurso(codigoInput.value);
     }
 
     function onFinalizarClick() {
-      const nombre = document.getElementById("nombre").value.trim();
+      const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
+      const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
       if (!nombre) { alert("Por favor ingresa el nombre."); return; }
+      if (!apellido) { alert("Por favor ingresa el apellido."); return; }
 
       const respuestas = obtenerRespuestasCrudas();
       const total = ITEMS.length;
@@ -1177,6 +1234,7 @@ actualizarLabelCurso(codigoInput.value);
         idioma: EVAL_LANG,
         snapshot: {
           nombre,
+          apellido,
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
@@ -1195,7 +1253,7 @@ actualizarLabelCurso(codigoInput.value);
       }).catch(()=>{});
 
       document.getElementById("datos-participante").classList.remove("hidden");
-      document.getElementById("nombre").readOnly = true;
+      setNombreApellidoReadonly(true);
 
       unpinPreguntasHeader();
       document.getElementById("pantalla-preguntas").classList.add("hidden");
@@ -1223,7 +1281,9 @@ actualizarLabelCurso(codigoInput.value);
 
     function validarAntesDeIniciar() {
       const nombre = document.getElementById("nombre").value.trim();
+      const apellido = document.getElementById("apellido").value.trim();
       if (!nombre) { alert("Por favor ingresa tu nombre antes de iniciar."); return false; }
+      if (!apellido) { alert("Por favor ingresa tu apellido antes de iniciar."); return false; }
       return true;
     }
 
