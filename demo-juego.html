@@ -63,7 +63,7 @@
     .plan { display:flex; gap:8px; margin-top:10px; }
     .goal { width:54px; height:54px; border-radius:16px; background:#fff; display:grid; place-items:center; box-shadow:0 6px 0 #eadfca; opacity:.45; }
     .goal img { width:40px; height:40px; }
-    .goal.now { opacity:1; outline:3px solid #f4a338; }
+    .goal.now { opacity:1; outline:4px solid #f4a338; transform:scale(1.18); }
     .goal.done { opacity:1; outline:3px solid var(--green); }
     .stage { position:relative; margin-top:12px; }
     .board {
@@ -78,7 +78,27 @@
     }
     .cell img { width:100%; height:100%; object-fit:contain; pointer-events:none; user-select:none; }
     .cell.sel { transform:translateY(-7px); box-shadow:0 12px 0 #b7e0c4; }
-    .cell.hint { outline:3px solid #f4a338; outline-offset:1px; animation:bob 1s ease infinite; }
+    .cell.dim { opacity:.28; filter:grayscale(.35); }
+    .cell .num {
+      position:absolute; inset:0; display:grid; place-items:center;
+      font-size:clamp(1.8rem, 5vw, 2.6rem); font-weight:900; color:#fff;
+      background:rgba(244,163,56,.92); border-radius:14px; pointer-events:none;
+    }
+    .cell .finger {
+      position:absolute; right:0; bottom:-2px; font-size:26px;
+      pointer-events:none; animation:tap .7s ease infinite; z-index:3;
+    }
+    .coach {
+      text-align:center; font-size:clamp(2rem, 7vw, 3.2rem); font-weight:900;
+      letter-spacing:.02em; margin:4px 0 10px;
+    }
+    .goal-pic { width:76px; height:76px; }
+    .aqui {
+      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+      background:#f4a338; color:#163024; font-weight:900; font-size:.68rem;
+      border-radius:999px; padding:3px 5px; pointer-events:none;
+    }
+    .cell.mark { outline:4px solid #f4a338; outline-offset:1px; animation:bob 1s ease infinite; z-index:1; }
     .cell.heart { box-shadow:0 0 0 3px #ff5d8f, 0 5px 0 #eadfca; animation:bob 1s ease infinite; }
     .cell.stone {
       cursor:default;
@@ -91,6 +111,7 @@
     .cell.empty { background:transparent; box-shadow:none; }
     @keyframes burst { 40% { transform:scale(1.12); } 100% { transform:scale(.35); opacity:.05; } }
     @keyframes bob { 50% { transform:translateY(-4px); } }
+    @keyframes tap { 50% { transform:translateY(5px); } }
     .pips { display:flex; gap:8px; justify-content:center; margin-top:12px; }
     .pip { width:14px; height:14px; border-radius:50%; background:#d9efe2; }
     .pip.on { background:var(--green); }
@@ -139,19 +160,13 @@
     </div>
 
     <section id="home">
-      <h1>Tres mundos.<br/>Junta las fichas.</h1>
-      <p class="lead">Dalia te explica la partida. Tú juegas. Al final aparece tu estilo.</p>
+      <h1>Toca Jugar.</h1>
       <div class="card">
         <label for="nombre">Tu nombre</label>
         <input id="nombre" type="text" maxlength="40" autocomplete="off" placeholder="Ej. ANA"/>
         <div class="row">
-          <button class="btn ghost" id="btnOir" type="button">ESCUCHAR CÓMO SE JUEGA</button>
           <button class="btn" id="btnJugar" type="button">JUGAR</button>
-        </div>
-        <div class="steps">
-          <div class="step"><b>1</b> Toca una ficha y luego la de al lado.</div>
-          <div class="step"><b>2</b> Si son tres iguales, revientan.</div>
-          <div class="step"><b>3</b> Cada mundo pide algo distinto en el tablero.</div>
+          <button class="btn ghost" id="btnOir" type="button">ESCUCHAR</button>
         </div>
       </div>
     </section>
@@ -173,6 +188,7 @@
       </div>
       <div class="card">
         <img class="scene" id="scene" alt=""/>
+        <div class="coach hidden" id="coach">TOCA EL 1</div>
         <div class="objective" id="objective"></div>
         <div class="plan hidden" id="plan"></div>
         <div class="stage">
@@ -232,6 +248,8 @@
     var busy = false;
     var levelOver = false;
     var hinted = false;
+    var guide = 0;
+    var guidePair = null;
     var toastTimer = 0;
 
     var home = document.getElementById("home");
@@ -308,25 +326,20 @@
       document.getElementById("worldName").textContent = w.name;
       document.getElementById("worldCount").textContent = (worldIndex + 1) + " / 3";
       el.replaceChildren();
+      if (guide) {
+        plan.classList.add("hidden");
+        return;
+      }
       if (!situation || situation.kind !== "plan") plan.classList.add("hidden");
-      if (!situation) {
-        el.textContent = "Sigue juntando fichas.";
-        return;
-      }
+      if (!situation) return;
       if (situation.kind === "rebuild") {
-        el.append("Junta ", icon(E.ESTRELLA), " pegadas a la columna gris.");
+        var big = icon(E.ESTRELLA);
+        big.className = "goal-pic";
+        el.appendChild(big);
         return;
       }
-      if (situation.kind === "heart") {
-        el.append("Junta fichas pegadas al ", icon(E.CORAZON), " encerrado.");
-        return;
-      }
-      if (situation.step >= situation.need.length) {
-        el.textContent = "Plan listo.";
-        return;
-      }
-      var names = ["soles", "gotas", "hojas", "estrellas", "rayos", "corazones"];
-      var need = situation.need[situation.step];
+      if (situation.kind === "heart") return;
+      if (situation.step >= situation.need.length) return;
       plan.classList.remove("hidden");
       plan.replaceChildren();
       situation.need.forEach(function (t, i) {
@@ -335,8 +348,6 @@
         d.appendChild(icon(t));
         plan.appendChild(d);
       });
-      if (situation.partial) el.append("Esa no era. El plan pide ", icon(need), ".");
-      else el.append("Junta ", names[need], " ", icon(need), ".");
     }
 
     function renderPips() {
@@ -350,9 +361,16 @@
     }
 
     function render() {
-      var hint = (!hinted && worldIndex === 0) ? E.findHint(grid) : null;
-      var hintKey = {};
-      if (hint) hint.forEach(function (h) { hintKey[h.r + "," + h.c] = true; });
+      var coach = document.getElementById("coach");
+      var scene = document.getElementById("scene");
+      if (guide && guidePair) {
+        coach.classList.remove("hidden");
+        coach.textContent = guide === 1 ? "TOCA EL 1" : "AHORA EL 2";
+        scene.classList.add("hidden");
+      } else {
+        coach.classList.add("hidden");
+        scene.classList.remove("hidden");
+      }
       board.replaceChildren();
       for (var r = 0; r < E.ROWS; r++) {
         for (var c = 0; c < E.COLS; c++) {
@@ -360,6 +378,9 @@
           b.type = "button";
           b.className = "cell";
           var cell = grid[r][c];
+          var is1 = guidePair && guidePair[0].r === r && guidePair[0].c === c;
+          var is2 = guidePair && guidePair[1].r === r && guidePair[1].c === c;
+          var active = (guide === 1 && is1) || (guide === 2 && is2);
           if (!cell) b.classList.add("empty");
           else if (cell.stone) b.classList.add("stone");
           else {
@@ -367,12 +388,35 @@
             if (cell.heart) b.classList.add("heart");
           }
           if (sel && sel.r === r && sel.c === c) b.classList.add("sel");
-          if (hintKey[r + "," + c]) b.classList.add("hint");
+          if (guide && !active && !(guide === 2 && is1)) b.classList.add("dim");
+          if (active) {
+            var n = document.createElement("span");
+            n.className = "num";
+            n.textContent = String(guide);
+            b.appendChild(n);
+            var hand = document.createElement("span");
+            hand.className = "finger";
+            hand.textContent = "👇";
+            b.appendChild(hand);
+          }
+          if (!guide && cell && cell.stone && WORLDS[worldIndex].kind === "rebuild") {
+            b.classList.add("mark");
+            var tag = document.createElement("span");
+            tag.className = "aqui";
+            tag.textContent = "AQUÍ";
+            b.appendChild(tag);
+          }
+          if (!guide && cell && cell.heart) {
+            var tagH = document.createElement("span");
+            tagH.className = "aqui";
+            tagH.textContent = "AQUÍ";
+            b.appendChild(tagH);
+          }
           (function (rr, cc) { b.addEventListener("click", function () { onCell(rr, cc); }); })(r, c);
           board.appendChild(b);
         }
       }
-      document.getElementById("scene").src = WORLDS[worldIndex].scene;
+      scene.src = WORLDS[worldIndex].scene;
       setObjective();
       renderPips();
     }
@@ -511,11 +555,6 @@
       }
       var result = situation.kind === "rebuild" ? E.judgeRebuild(grid, cleared) : E.judgeHeart(grid, cleared);
       if (!result) {
-        if (!situation.seen) {
-          situation.seen = true;
-          toast(situation.kind === "rebuild" ? "Así se juntan. Mira la columna gris." : "Así se juntan. Mira el corazón.");
-          return;
-        }
         situation.misses++;
         if (situation.misses >= 3) await closeBeat(1);
         return;
@@ -525,6 +564,18 @@
 
     async function onCell(r, c) {
       if (busy || levelOver || !grid) return;
+      if (guide && guidePair) {
+        var want = guidePair[guide - 1];
+        if (!want || r !== want.r || c !== want.c) return;
+        if (guide === 1) {
+          sel = { r: r, c: c };
+          guide = 2;
+          render();
+          say(AUDIO + "dos.mp3");
+          return;
+        }
+        sel = { r: guidePair[0].r, c: guidePair[0].c };
+      }
       var cell = grid[r][c];
       if (!E.isPlay(cell)) return;
       if (!sel) { sel = { r:r, c:c }; render(); return; }
@@ -544,6 +595,8 @@
         busy = false;
         return;
       }
+      guide = 0;
+      guidePair = null;
       hinted = true;
       var cleared = [];
       var guard = 0;
@@ -573,7 +626,7 @@
       document.getElementById("splashScene").src = w.scene;
       document.getElementById("splashKicker").textContent = "Mundo " + (worldIndex + 1) + " de 3";
       document.getElementById("splashTitle").textContent = w.name;
-      document.getElementById("splashLead").textContent = w.lead;
+      document.getElementById("splashLead").textContent = "";
       btnEntrar.dataset.mode = "enter";
       btnEntrar.textContent = "ENTRAR";
       show("splash");
@@ -586,8 +639,15 @@
       busy = false;
       levelOver = false;
       layoutLevel();
+      guide = 0;
+      guidePair = null;
+      if (worldIndex === 0 && !hinted) {
+        guidePair = E.findHint(grid);
+        guide = guidePair ? 1 : 0;
+      }
       show("play");
       render();
+      if (guide === 1) say(AUDIO + "uno.mp3");
     }
 
     function band(n) {
@@ -647,7 +707,7 @@
       results = [];
       worldIndex = 0;
       hinted = false;
-      openSplash();
+      beginLevel();
     });
     nombre.addEventListener("keydown", function (ev) {
       if (ev.key === "Enter") document.getElementById("btnJugar").click();
