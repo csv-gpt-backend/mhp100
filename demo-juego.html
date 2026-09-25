@@ -3,118 +3,192 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>ADALAM Play · Demo</title>
+  <title>ADALAM Play</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet"/>
   <style>
-    :root{
-      --ink:#163024;
-      --green:#1a8f3b;
-      --sky:#e8fbff;
-      --card:#fffdf8;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;font-family:Nunito,system-ui,sans-serif;color:var(--ink)}
-    body{
+    :root { --ink:#163024; --green:#178a38; --deep:#0f6a2b; --card:#fffdf8; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; min-height:100%; font-family:Nunito, system-ui, sans-serif; color:var(--ink); }
+    body {
       background:
-        radial-gradient(900px 420px at 10% -10%, #fff6c8 0%, transparent 60%),
-        radial-gradient(800px 480px at 110% 0%, #d7fff0 0%, transparent 55%),
-        linear-gradient(180deg, #f3fbff 0%, #e7fff4 100%);
+        radial-gradient(900px 420px at 8% -10%, #fff3c4 0%, transparent 55%),
+        radial-gradient(800px 480px at 110% 0%, #d7fff0 0%, transparent 50%),
+        linear-gradient(180deg, #f4fbff 0%, #e7fff4 100%);
     }
-    .app{max-width:920px;margin:0 auto;padding:18px 16px 40px}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.02em}
-    .brand img{height:42px;width:auto}
-    .pill{background:#fff;border-radius:999px;padding:8px 14px;font-weight:800;box-shadow:0 8px 20px rgba(22,48,36,.08)}
-    h1{font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.05;margin:18px 0 8px}
-    .lead{font-size:1.15rem;margin:0 0 18px;max-width:36rem}
-    .card{
-      background:var(--card);
-      border-radius:28px;
-      padding:18px;
+    button, input { font:inherit; }
+    button { -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+    .app { max-width:920px; margin:0 auto; padding:16px 16px 48px; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.02em; }
+    .brand img { height:42px; width:auto; }
+    .icon-btn {
+      width:44px; height:44px; border-radius:50%; border:0; background:#fff; cursor:pointer;
+      box-shadow:0 8px 18px rgba(22,48,36,.08); display:grid; place-items:center;
+    }
+    .icon-btn.off { opacity:.45; }
+    .top-actions { display:flex; gap:8px; }
+    h1 { font-size:clamp(1.9rem, 4vw, 2.7rem); line-height:1.02; margin:18px 0 8px; }
+    .lead { font-size:1.12rem; margin:0 0 16px; max-width:38rem; }
+    .card {
+      background:var(--card); border-radius:28px; padding:18px;
       box-shadow:0 18px 40px rgba(22,48,36,.08);
     }
-    label{font-weight:800;display:block;margin-bottom:6px}
-    input[type="text"]{
-      width:min(100%,360px);font:inherit;font-weight:800;font-size:1.05rem;
-      padding:12px 14px;border-radius:14px;border:2px solid #d7eadf;text-transform:uppercase
+    label { font-weight:800; display:block; margin-bottom:6px; }
+    input[type="text"] {
+      width:min(100%, 360px); font-weight:800; font-size:1.05rem;
+      padding:12px 14px; border-radius:14px; border:2px solid #d7eadf; text-transform:uppercase;
     }
-    .btn{
-      appearance:none;border:0;cursor:pointer;font:inherit;font-weight:900;
-      background:var(--green);color:#fff;border-radius:999px;padding:14px 22px;font-size:1.05rem;
-      box-shadow:0 10px 0 #146c2c
+    input.need { border-color:#e07a2f; }
+    .btn {
+      appearance:none; border:0; cursor:pointer; font-weight:900; color:#fff;
+      background:var(--green); border-radius:999px; padding:14px 22px; font-size:1.05rem;
+      box-shadow:0 10px 0 var(--deep);
     }
-    .btn:active{transform:translateY(2px);box-shadow:0 8px 0 #146c2c}
-    .btn.ghost{background:#fff;color:var(--ink);box-shadow:0 8px 0 #e5efe8}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
-    .scene{
-      width:100%;height:220px;object-fit:cover;border-radius:22px;background:#dff6ea;display:block
+    .btn:active { transform:translateY(2px); box-shadow:0 8px 0 var(--deep); }
+    .btn.ghost { background:#fff; color:var(--ink); box-shadow:0 8px 0 #e5efe8; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px; }
+    .steps { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:16px; }
+    .step { background:#fff; border-radius:18px; padding:12px; font-weight:800; box-shadow:0 8px 18px rgba(22,48,36,.05); }
+    .step b { display:block; color:var(--green); font-size:.82rem; letter-spacing:.04em; }
+    .scene { width:100%; height:168px; object-fit:cover; object-position:center 28%; border-radius:22px; display:block; background:#dff6ea; }
+    #play .scene { height:112px; }
+    .kicker { font-weight:900; color:var(--green); letter-spacing:.04em; margin:14px 0 0; }
+    .story { font-size:clamp(1.35rem, 3vw, 1.8rem); font-weight:900; margin:6px 0; }
+    .play-top { display:flex; justify-content:space-between; align-items:flex-end; gap:8px; margin-bottom:8px; }
+    .play-top h2 { margin:0; font-size:1.35rem; }
+    .objective { margin:8px 0 0; font-weight:800; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    .objective img, .goal img { width:28px; height:28px; object-fit:contain; }
+    .plan { display:flex; gap:8px; margin-top:10px; }
+    .goal { width:54px; height:54px; border-radius:16px; background:#fff; display:grid; place-items:center; box-shadow:0 6px 0 #eadfca; opacity:.45; }
+    .goal img { width:40px; height:40px; }
+    .goal.now { opacity:1; outline:3px solid #f4a338; }
+    .goal.done { opacity:1; outline:3px solid var(--green); }
+    .stage { position:relative; margin-top:12px; }
+    .board {
+      display:grid; grid-template-columns:repeat(7, 1fr); gap:6px;
+      width:min(100%, 470px); margin:0 auto; padding:10px; border-radius:24px;
+      background:linear-gradient(180deg, #fff6e4, #ffe8bf);
+      box-shadow:inset 0 0 0 3px #f3d7a2, 0 16px 30px rgba(120,72,10,.08);
     }
-    .story{font-size:clamp(1.25rem,3vw,1.7rem);font-weight:900;margin:14px 0}
-    .choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-    @media(max-width:720px){ .choices{grid-template-columns:1fr} .scene{height:180px} }
-    .choice{
-      border:0;background:#fff;border-radius:22px;padding:12px;cursor:pointer;font:inherit;text-align:center;
-      box-shadow:0 10px 0 #efe4c8;transition:transform .15s ease
+    .cell {
+      aspect-ratio:1; border:0; border-radius:16px; background:#fffdf8; padding:3px; cursor:pointer;
+      box-shadow:0 5px 0 #eadfca; position:relative;
     }
-    .stack{display:flex;justify-content:center;gap:4px}
-    .choice img{width:64px;height:64px;object-fit:contain}
-    .choice b{display:block;margin-top:6px;font-size:1.02rem}
-    .choice:hover{transform:translateY(-3px)}
-    .choice.pop{animation:pop .45s ease}
-    @keyframes pop{ 40%{transform:scale(1.08)} 100%{transform:scale(.92);opacity:.2} }
-    .hidden{display:none !important}
-    .gems{display:flex;gap:6px}
-    .gem{width:14px;height:14px;border-radius:50%;background:#d9efe2}
-    .gem.on{background:#1a8f3b}
-    .bars{display:flex;flex-direction:column;gap:14px;margin-top:8px}
-    .bar-top{display:flex;justify-content:space-between;font-weight:900}
-    .track{height:22px;border-radius:999px;background:#edf2ef;overflow:hidden}
-    .fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#f4a338,#1a8f3b);transition:width .8s ease}
-    .iie{
-      margin-top:16px;display:flex;justify-content:space-between;align-items:center;
-      background:#163024;color:#fff;border-radius:18px;padding:14px 16px;font-weight:900
+    .cell img { width:100%; height:100%; object-fit:contain; pointer-events:none; user-select:none; }
+    .cell.sel { transform:translateY(-7px); box-shadow:0 12px 0 #b7e0c4; }
+    .cell.hint { outline:3px solid #f4a338; outline-offset:1px; animation:bob 1s ease infinite; }
+    .cell.heart { box-shadow:0 0 0 3px #ff5d8f, 0 5px 0 #eadfca; animation:bob 1s ease infinite; }
+    .cell.stone {
+      cursor:default;
+      background:
+        linear-gradient(135deg, transparent 42%, rgba(90,70,50,.28) 42%, rgba(90,70,50,.28) 48%, transparent 48%),
+        linear-gradient(180deg, #e7e1d6, #b7b1a6);
+      box-shadow:inset 0 0 0 3px #9c958a, 0 5px 0 #d9d0c2;
     }
-    .iie span{background:#2563eb;border-radius:12px;padding:6px 12px;font-size:1.4rem}
-    .note{margin-top:14px;background:#fff8dc;border-radius:16px;padding:12px 14px;font-size:.98rem}
-    .scale{display:flex;justify-content:space-between;font-size:.78rem;font-weight:800;color:#5c7268;margin-top:4px}
+    .cell.pop { animation:burst .2s ease forwards; }
+    .cell.empty { background:transparent; box-shadow:none; }
+    @keyframes burst { 40% { transform:scale(1.12); } 100% { transform:scale(.35); opacity:.05; } }
+    @keyframes bob { 50% { transform:translateY(-4px); } }
+    .pips { display:flex; gap:8px; justify-content:center; margin-top:12px; }
+    .pip { width:14px; height:14px; border-radius:50%; background:#d9efe2; }
+    .pip.on { background:var(--green); }
+    .toast {
+      position:absolute; left:50%; top:-38px; transform:translateX(-50%);
+      background:#163024; color:#fff; font-weight:900; border-radius:999px; padding:8px 14px;
+      opacity:0; pointer-events:none; transition:opacity .2s ease; white-space:nowrap; z-index:2;
+    }
+    .toast.show { opacity:1; }
+    .hidden { display:none !important; }
+    .bars { display:flex; flex-direction:column; gap:14px; }
+    .bar-top { display:flex; justify-content:space-between; gap:8px; font-weight:900; }
+    .track { height:22px; border-radius:999px; background:#edf2ef; overflow:hidden; }
+    .fill { height:100%; width:0; border-radius:999px; background:linear-gradient(90deg, #f4a338, #1a8f3b); transition:width .8s ease; }
+    .iie {
+      margin-top:16px; display:flex; justify-content:space-between; align-items:center;
+      background:#163024; color:#fff; border-radius:18px; padding:14px 16px; font-weight:900;
+    }
+    .iie span { background:#2563eb; border-radius:12px; padding:6px 12px; font-size:1.4rem; }
+    .scale { display:flex; justify-content:space-between; font-size:.78rem; font-weight:800; color:#5c7268; margin-top:4px; }
+    .note { margin-top:14px; background:#fff8dc; border-radius:16px; padding:12px 14px; }
+    @media (max-width:720px) {
+      .steps { grid-template-columns:1fr; }
+      .scene { height:132px; }
+      .board { gap:4px; padding:8px; }
+      .cell { border-radius:12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cell.hint, .cell.heart { animation:none; }
+      .fill { transition:none; }
+    }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="top">
       <div class="brand"><img src="assets/logo_adalam.webp" alt="ADALAM"/> ADALAM Play</div>
-      <div class="pill" id="levelPill">Demo</div>
+      <div class="top-actions">
+        <button class="icon-btn" id="btnReplay" type="button" aria-label="Volver a escuchar">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#163024" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg>
+        </button>
+        <button class="icon-btn" id="btnMute" type="button" aria-label="Silencio">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#163024" d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
+        </button>
+      </div>
     </div>
 
     <section id="home">
-      <h1>Juega un día.<br/>Al final ves tu estilo.</h1>
-      <p class="lead">No es una prueba. Eliges cómo seguirías cada momento. Al terminar aparece un perfil del mismo tipo que el reporte socioemocional.</p>
+      <h1>Tres mundos.<br/>Junta las fichas.</h1>
+      <p class="lead">Dalia te explica la partida. Tú juegas. Al final aparece tu estilo.</p>
       <div class="card">
         <label for="nombre">Tu nombre</label>
         <input id="nombre" type="text" maxlength="40" autocomplete="off" placeholder="Ej. ANA"/>
         <div class="row">
+          <button class="btn ghost" id="btnOir" type="button">ESCUCHAR CÓMO SE JUEGA</button>
           <button class="btn" id="btnJugar" type="button">JUGAR</button>
+        </div>
+        <div class="steps">
+          <div class="step"><b>1</b> Toca una ficha y luego la de al lado.</div>
+          <div class="step"><b>2</b> Si son tres iguales, revientan.</div>
+          <div class="step"><b>3</b> Cada mundo pide algo distinto en el tablero.</div>
         </div>
       </div>
     </section>
 
+    <section id="splash" class="hidden">
+      <div class="card">
+        <img class="scene" id="splashScene" alt=""/>
+        <p class="kicker" id="splashKicker">Mundo</p>
+        <div class="story" id="splashTitle"></div>
+        <p class="lead" id="splashLead"></p>
+        <button class="btn" id="btnEntrar" type="button" data-mode="enter">ENTRAR</button>
+      </div>
+    </section>
+
     <section id="play" class="hidden">
-      <div class="gems" id="gems"></div>
-      <div class="card" style="margin-top:12px">
+      <div class="play-top">
+        <h2 id="worldName">Patio</h2>
+        <div id="worldCount">1 / 3</div>
+      </div>
+      <div class="card">
         <img class="scene" id="scene" alt=""/>
-        <div class="story" id="story"></div>
-        <div class="choices" id="choices"></div>
+        <div class="objective" id="objective"></div>
+        <div class="plan hidden" id="plan"></div>
+        <div class="stage">
+          <div class="toast" id="toast"></div>
+          <div class="board" id="board"></div>
+        </div>
+        <div class="pips" id="pips"></div>
       </div>
     </section>
 
     <section id="done" class="hidden">
       <h1 id="doneTitle">Tu estilo</h1>
-      <p class="lead" id="doneLead"></p>
+      <p class="lead">Así quedó la partida.</p>
       <div class="card">
         <div class="bars" id="bars"></div>
-        <div class="iie">Índice del demo <span id="iie">—</span></div>
+        <div class="iie">Índice de la partida <span id="iie">—</span></div>
         <div class="scale"><span>Por desarrollar</span><span>Por fortalecer</span><span>Por enriquecer</span></div>
         <div class="note" id="bossNote"></div>
         <div class="row">
@@ -124,202 +198,472 @@
       </div>
     </section>
   </div>
+  <script src="demo-juego-engine.js"></script>
   <script>
-    const ROUNDS = [
-      { scene:"assets/demo-juego/escena-patio.png", block:"personal",
-        line:"El día empieza y hay algo nuevo enfrente.",
-        choices:[
-          ["Lo tomo con calma", 3, "assets/demo-juego/tile-sol.png"],
-          ["Voy, aunque me cuesta", 2, "assets/demo-juego/tile-gota.png"],
-          ["Prefiero quedarme atrás", 1, "assets/demo-juego/tile-rayo.png"]
-        ]},
-      { scene:"assets/demo-juego/escena-meta.png", block:"personal",
-        line:"Se cae el trabajo que ya habías hecho.",
-        choices:[
-          ["Lo vuelvo a armar", 3, "assets/demo-juego/tile-estrella.png"],
-          ["Me quedo un momento", 2, "assets/demo-juego/tile-gota.png"],
-          ["Lo dejo así", 1, "assets/demo-juego/tile-rayo.png"]
-        ]},
-      { scene:"assets/demo-juego/escena-patio.png", block:"personal",
-        line:"Llevas un buen rato sentado y el cuerpo pide un cambio.",
-        choices:[
-          ["Me muevo un poco", 3, "assets/demo-juego/tile-hoja.png"],
-          ["Sigo y luego veo", 2, "assets/demo-juego/tile-gota.png"],
-          ["Ni me levanto", 1, "assets/demo-juego/tile-rayo.png"]
-        ]},
-      { scene:"assets/demo-juego/escena-amigos.png", block:"vinculos",
-        line:"Alguien del grupo está callado.",
-        choices:[
-          ["Me acerco", 3, "assets/demo-juego/tile-corazon.png"],
-          ["Lo miro de lejos", 2, "assets/demo-juego/tile-gota.png"],
-          ["Sigo en lo mío", 1, "assets/demo-juego/tile-rayo.png"]
-        ]},
-      { scene:"assets/demo-juego/escena-amigos.png", block:"vinculos",
-        line:"No estás de acuerdo con lo que dicen.",
-        choices:[
-          ["Lo digo claro y tranquilo", 3, "assets/demo-juego/tile-sol.png"],
-          ["Lo digo a medias", 2, "assets/demo-juego/tile-gota.png"],
-          ["Alzo la voz", 1, "assets/demo-juego/tile-rayo.png"]
-        ]},
-      { scene:"assets/demo-juego/escena-amigos.png", block:"vinculos",
-        line:"Te cuentan algo que les importa.",
-        choices:[
-          ["Escucho hasta el final", 3, "assets/demo-juego/tile-corazon.png"],
-          ["Escucho un poco", 2, "assets/demo-juego/tile-gota.png"],
-          ["Cambio de tema", 1, "assets/demo-juego/tile-rayo.png"]
-        ]},
-      { scene:"assets/demo-juego/escena-meta.png", block:"vida",
-        line:"Hay varias cosas para hacer hoy.",
-        choices:[
-          ["Ordeno qué va primero", 3, "assets/demo-juego/tile-estrella.png"],
-          ["Hago lo que salga", 2, "assets/demo-juego/tile-gota.png"],
-          ["Lo dejo para después", 1, "assets/demo-juego/tile-rayo.png"]
-        ]},
-      { scene:"assets/demo-juego/escena-meta.png", block:"vida",
-        line:"Una parte no te sale.",
-        choices:[
-          ["Sigo intentando", 3, "assets/demo-juego/tile-sol.png"],
-          ["Pido una pista", 2, "assets/demo-juego/tile-hoja.png"],
-          ["Lo abandono", 1, "assets/demo-juego/tile-rayo.png"]
-        ]},
-      { scene:"assets/demo-juego/escena-patio.png", block:"vida",
-        line:"El grupo no arranca.",
-        choices:[
-          ["Propongo por dónde empezar", 3, "assets/demo-juego/tile-estrella.png"],
-          ["Espero a que otro lo haga", 2, "assets/demo-juego/tile-gota.png"],
-          ["Me salgo", 1, "assets/demo-juego/tile-rayo.png"]
-        ]}
+    var E = window.AdalamPlay;
+    var TILES = [
+      "assets/demo-juego/tile-sol.png",
+      "assets/demo-juego/tile-gota.png",
+      "assets/demo-juego/tile-hoja.png",
+      "assets/demo-juego/tile-estrella.png",
+      "assets/demo-juego/tile-rayo.png",
+      "assets/demo-juego/tile-corazon.png"
+    ];
+    var AUDIO = "assets/demo-juego/audio/";
+    var WORLDS = [
+      { block:"personal", name:"Patio", scene:"assets/demo-juego/escena-patio.png", audio:AUDIO + "patio.mp3", kind:"rebuild",
+        lead:"Si una columna se pone gris, se cayó. Junta estrellas pegadas a ella y se levanta. Si juntas otras fichas, también sigues." },
+      { block:"vinculos", name:"Amigos", scene:"assets/demo-juego/escena-amigos.png", audio:AUDIO + "amigos.mp3", kind:"heart",
+        lead:"Vas a ver un corazón encerrado. Junta fichas pegadas a él y se abre. Tú eliges por dónde jugar." },
+      { block:"vida", name:"La meta", scene:"assets/demo-juego/escena-meta.png", audio:AUDIO + "meta.mp3", kind:"plan",
+        lead:"Arriba hay un plan: primero el sol, después la hoja y al final la estrella. Junta la ficha marcada." }
     ];
 
-    const LABELS = {
-      personal:"Desarrollo personal",
-      vinculos:"Vínculos",
-      vida:"Habilidades para la vida"
-    };
+    var voice = new Audio();
+    var lastVoice = AUDIO + "instrucciones.mp3";
+    var muted = false;
+    var ctx = null;
+    var worldIndex = 0;
+    var results = [];
+    var grid = null;
+    var situation = null;
+    var worldPts = [];
+    var sel = null;
+    var busy = false;
+    var levelOver = false;
+    var hinted = false;
+    var toastTimer = 0;
 
-    let index = 0;
-    let picks = [];
+    var home = document.getElementById("home");
+    var splash = document.getElementById("splash");
+    var play = document.getElementById("play");
+    var done = document.getElementById("done");
+    var nombre = document.getElementById("nombre");
+    var board = document.getElementById("board");
+    var btnEntrar = document.getElementById("btnEntrar");
 
-    const home = document.getElementById("home");
-    const play = document.getElementById("play");
-    const done = document.getElementById("done");
-    const nombre = document.getElementById("nombre");
+    function wait(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms); }); }
 
-    nombre.addEventListener("input", () => {
-      const start = nombre.selectionStart;
-      const next = nombre.value.toLocaleUpperCase("es-EC");
+    function show(which) {
+      home.classList.toggle("hidden", which !== "home");
+      splash.classList.toggle("hidden", which !== "splash");
+      play.classList.toggle("hidden", which !== "play");
+      done.classList.toggle("hidden", which !== "done");
+    }
+
+    function say(src) {
+      lastVoice = src;
+      if (muted) return;
+      voice.pause();
+      voice.src = src;
+      var played = voice.play();
+      if (played && played.catch) played.catch(function () {});
+    }
+
+    function sfx(freq) {
+      if (muted) return;
+      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ctx.state === "suspended") ctx.resume();
+      var o = ctx.createOscillator();
+      var g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.06, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.16);
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start();
+      o.stop(ctx.currentTime + 0.17);
+    }
+
+    function toast(text) {
+      var el = document.getElementById("toast");
+      el.textContent = text;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { el.classList.remove("show"); }, 1200);
+    }
+
+    nombre.addEventListener("input", function () {
+      nombre.classList.remove("need");
+      var start = nombre.selectionStart;
+      var next = nombre.value.toLocaleUpperCase("es-EC");
       if (nombre.value !== next) {
         nombre.value = next;
         try { nombre.setSelectionRange(start, start); } catch (e) {}
       }
     });
 
-    function shuffle(list){
-      const a = list.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const t = a[i]; a[i] = a[j]; a[j] = t;
+    function icon(type) {
+      var img = document.createElement("img");
+      img.src = TILES[type];
+      img.alt = "";
+      return img;
+    }
+
+    function setObjective() {
+      var el = document.getElementById("objective");
+      var plan = document.getElementById("plan");
+      var w = WORLDS[worldIndex];
+      document.getElementById("worldName").textContent = w.name;
+      document.getElementById("worldCount").textContent = (worldIndex + 1) + " / 3";
+      el.replaceChildren();
+      if (!situation || situation.kind !== "plan") plan.classList.add("hidden");
+      if (!situation) {
+        el.textContent = "Sigue juntando fichas.";
+        return;
       }
-      return a;
+      if (situation.kind === "rebuild") {
+        el.append("Junta ", icon(E.ESTRELLA), " pegadas a la columna gris.");
+        return;
+      }
+      if (situation.kind === "heart") {
+        el.append("Junta fichas pegadas al ", icon(E.CORAZON), " encerrado.");
+        return;
+      }
+      if (situation.step >= situation.need.length) {
+        el.textContent = "Plan listo.";
+        return;
+      }
+      var names = ["soles", "gotas", "hojas", "estrellas", "rayos", "corazones"];
+      var need = situation.need[situation.step];
+      plan.classList.remove("hidden");
+      plan.replaceChildren();
+      situation.need.forEach(function (t, i) {
+        var d = document.createElement("div");
+        d.className = "goal" + (i < situation.step ? " done" : i === situation.step ? " now" : "");
+        d.appendChild(icon(t));
+        plan.appendChild(d);
+      });
+      if (situation.partial) el.append("Esa no era. El plan pide ", icon(need), ".");
+      else el.append("Junta ", names[need], " ", icon(need), ".");
     }
 
-    function show(which){
-      home.classList.toggle("hidden", which !== "home");
-      play.classList.toggle("hidden", which !== "play");
-      done.classList.toggle("hidden", which !== "done");
+    function renderPips() {
+      var box = document.getElementById("pips");
+      box.replaceChildren();
+      for (var i = 0; i < 3; i++) {
+        var p = document.createElement("div");
+        p.className = "pip" + (i < worldPts.length ? " on" : "");
+        box.appendChild(p);
+      }
     }
 
-    function renderGems(){
-      const box = document.getElementById("gems");
-      box.innerHTML = "";
-      ROUNDS.forEach((_, i) => {
-        const g = document.createElement("div");
-        g.className = "gem" + (i < index ? " on" : "");
-        box.appendChild(g);
+    function render() {
+      var hint = (!hinted && worldIndex === 0) ? E.findHint(grid) : null;
+      var hintKey = {};
+      if (hint) hint.forEach(function (h) { hintKey[h.r + "," + h.c] = true; });
+      board.replaceChildren();
+      for (var r = 0; r < E.ROWS; r++) {
+        for (var c = 0; c < E.COLS; c++) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "cell";
+          var cell = grid[r][c];
+          if (!cell) b.classList.add("empty");
+          else if (cell.stone) b.classList.add("stone");
+          else {
+            b.appendChild(icon(cell.t));
+            if (cell.heart) b.classList.add("heart");
+          }
+          if (sel && sel.r === r && sel.c === c) b.classList.add("sel");
+          if (hintKey[r + "," + c]) b.classList.add("hint");
+          (function (rr, cc) { b.addEventListener("click", function () { onCell(rr, cc); }); })(r, c);
+          board.appendChild(b);
+        }
+      }
+      document.getElementById("scene").src = WORLDS[worldIndex].scene;
+      setObjective();
+      renderPips();
+    }
+
+    function markPop(cells) {
+      cells.forEach(function (m) {
+        var el = board.children[m.r * E.COLS + m.c];
+        if (el) el.classList.add("pop");
       });
     }
 
-    function renderRound(){
-      const round = ROUNDS[index];
-      document.getElementById("levelPill").textContent = (index + 1) + " / " + ROUNDS.length;
-      document.getElementById("scene").src = round.scene;
-      document.getElementById("story").textContent = round.line;
-      const box = document.getElementById("choices");
-      box.innerHTML = "";
-      renderGems();
-      shuffle(round.choices).forEach((ch) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "choice";
-        b.innerHTML = '<span class="stack"><img alt="" src="' + ch[2] + '"><img alt="" src="' + ch[2] + '"><img alt="" src="' + ch[2] + '"></span><b>' + ch[0] + '</b>';
-        b.addEventListener("click", () => choose(b, round.block, ch[1]));
-        box.appendChild(b);
-      });
+    function applyObstacle() {
+      var n = worldPts.length;
+      if (WORLDS[worldIndex].kind === "rebuild") {
+        var col = [1, 3, 5][n];
+        for (var r = E.ROWS - 2; r < E.ROWS; r++) grid[r][col] = { stone: true };
+        situation = { kind:"rebuild", col:col, misses:0, seen:false };
+      } else {
+        var spots = [[4, 1], [4, 5], [2, 3]];
+        var s = spots[n];
+        grid[s[0]][s[1]] = { t:E.CORAZON, heart:true };
+        situation = { kind:"heart", r:s[0], c:s[1], misses:0, seen:false };
+      }
     }
 
-    function choose(btn, block, pts){
-      if (btn.disabled) return;
-      document.querySelectorAll(".choice").forEach((el) => { el.disabled = true; });
-      btn.classList.add("pop");
-      picks.push({ block, pts });
-      setTimeout(() => {
-        index += 1;
-        if (index >= ROUNDS.length) finish();
-        else renderRound();
-      }, 420);
+    function layoutLevel() {
+      var w = WORLDS[worldIndex];
+      var tries = 0;
+      do {
+        grid = E.seedBoard(Math.random);
+        if (w.kind === "plan") situation = { kind:"plan", step:0, need:[E.SOL, E.HOJA, E.ESTRELLA], partial:false };
+        else applyObstacle();
+        tries++;
+      } while (tries < 8 && (!E.hasMove(grid) || E.findMatches(grid).length));
     }
 
-    function pct(block){
-      const rows = picks.filter((p) => p.block === block);
-      const max = rows.length * 3;
-      const sum = rows.reduce((a, p) => a + p.pts, 0);
-      return max ? Math.round(sum / max * 100) : 0;
+    function clearObstacle() {
+      if (!situation) return;
+      if (situation.kind === "rebuild") {
+        for (var r = 0; r < E.ROWS; r++) {
+          if (grid[r][situation.col] && grid[r][situation.col].stone) grid[r][situation.col] = null;
+        }
+      } else if (situation.kind === "heart") {
+        grid[situation.r][situation.c] = null;
+      }
     }
 
-    function band(n){
+    async function settleFree() {
+      var matched = E.findMatches(grid);
+      var guard = 0;
+      while (matched.length && guard++ < 8) {
+        markPop(matched);
+        sfx(480 + guard * 30);
+        await wait(160);
+        matched.forEach(function (m) { grid[m.r][m.c] = null; });
+        E.collapse(grid);
+        E.fillHoles(grid, Math.random);
+        render();
+        await wait(140);
+        matched = E.findMatches(grid);
+      }
+      if (!E.hasMove(grid)) {
+        E.reshuffle(grid, Math.random);
+        toast("Las fichas se reacomodaron");
+        render();
+      }
+    }
+
+    function cheer(pts, kind) {
+      var map = {
+        rebuild: ["Seguiste por otro lado", "Tocaste la columna", "¡La columna se levantó!"],
+        heart: ["Seguiste de largo", "Te acercaste", "¡El corazón se abrió!"],
+        plan: ["El plan avanzó", "Volviste al plan", "¡Esa era!"]
+      };
+      toast(map[kind][pts - 1]);
+      if (pts === 3) sfx(720);
+    }
+
+    async function endWorld() {
+      if (levelOver) return;
+      levelOver = true;
+      var w = WORLDS[worldIndex];
+      worldPts.forEach(function (pts) { results.push({ block:w.block, pts:pts }); });
+      voice.pause();
+      await wait(500);
+      if (worldIndex >= WORLDS.length - 1) {
+        showProfile();
+        return;
+      }
+      document.getElementById("splashScene").src = w.scene;
+      document.getElementById("splashKicker").textContent = "Mundo listo";
+      document.getElementById("splashTitle").textContent = w.name;
+      document.getElementById("splashLead").textContent = "Cuando quieras, pasa al siguiente.";
+      btnEntrar.dataset.mode = "next";
+      btnEntrar.textContent = "SIGUIENTE MUNDO";
+      show("splash");
+    }
+
+    async function closeBeat(pts) {
+      if (levelOver) return;
+      worldPts.push(pts);
+      cheer(pts, situation.kind);
+      clearObstacle();
+      E.collapse(grid);
+      E.fillHoles(grid, Math.random);
+      render();
+      await settleFree();
+      renderPips();
+      if (worldPts.length >= 3) await endWorld();
+      else {
+        await wait(280);
+        applyObstacle();
+        if (!E.hasMove(grid)) E.reshuffle(grid, Math.random);
+        render();
+      }
+    }
+
+    async function onCleared(cleared) {
+      if (!situation || levelOver) return;
+      if (situation.kind === "plan") {
+        var planResult = E.judgePlan(cleared, situation);
+        if (planResult.arm) {
+          situation.partial = true;
+          setObjective();
+          toast("El plan marca otra ficha");
+          return;
+        }
+        worldPts.push(planResult.pts);
+        situation.partial = false;
+        situation.step++;
+        cheer(planResult.pts, "plan");
+        renderPips();
+        if (situation.step >= 3) await endWorld();
+        else setObjective();
+        return;
+      }
+      var result = situation.kind === "rebuild" ? E.judgeRebuild(grid, cleared) : E.judgeHeart(grid, cleared);
+      if (!result) {
+        if (!situation.seen) {
+          situation.seen = true;
+          toast(situation.kind === "rebuild" ? "Así se juntan. Mira la columna gris." : "Así se juntan. Mira el corazón.");
+          return;
+        }
+        situation.misses++;
+        if (situation.misses >= 3) await closeBeat(1);
+        return;
+      }
+      await closeBeat(result.pts);
+    }
+
+    async function onCell(r, c) {
+      if (busy || levelOver || !grid) return;
+      var cell = grid[r][c];
+      if (!E.isPlay(cell)) return;
+      if (!sel) { sel = { r:r, c:c }; render(); return; }
+      if (sel.r === r && sel.c === c) { sel = null; render(); return; }
+      if (Math.abs(sel.r - r) + Math.abs(sel.c - c) !== 1) { sel = { r:r, c:c }; render(); return; }
+      var a = sel;
+      sel = null;
+      busy = true;
+      E.swapCells(grid, a.r, a.c, r, c);
+      render();
+      await wait(90);
+      var matched = E.findMatches(grid);
+      if (!matched.length) {
+        E.swapCells(grid, a.r, a.c, r, c);
+        render();
+        sfx(160);
+        busy = false;
+        return;
+      }
+      hinted = true;
+      var cleared = [];
+      var guard = 0;
+      while (matched.length && guard++ < 12) {
+        cleared = cleared.concat(matched);
+        markPop(matched);
+        sfx(500 + guard * 35);
+        await wait(190);
+        matched.forEach(function (m) { grid[m.r][m.c] = null; });
+        E.collapse(grid);
+        E.fillHoles(grid, Math.random);
+        render();
+        await wait(150);
+        matched = E.findMatches(grid);
+      }
+      if (!E.hasMove(grid)) {
+        E.reshuffle(grid, Math.random);
+        toast("Las fichas se reacomodaron");
+        render();
+      }
+      await onCleared(cleared);
+      busy = false;
+    }
+
+    function openSplash() {
+      var w = WORLDS[worldIndex];
+      document.getElementById("splashScene").src = w.scene;
+      document.getElementById("splashKicker").textContent = "Mundo " + (worldIndex + 1) + " de 3";
+      document.getElementById("splashTitle").textContent = w.name;
+      document.getElementById("splashLead").textContent = w.lead;
+      btnEntrar.dataset.mode = "enter";
+      btnEntrar.textContent = "ENTRAR";
+      show("splash");
+      say(w.audio);
+    }
+
+    function beginLevel() {
+      worldPts = [];
+      sel = null;
+      busy = false;
+      levelOver = false;
+      layoutLevel();
+      show("play");
+      render();
+    }
+
+    function band(n) {
       if (n <= 40) return "Por desarrollar";
       if (n <= 70) return "Por fortalecer";
       return "Por enriquecer";
     }
 
-    function finish(){
-      const personal = pct("personal");
-      const vinculos = pct("vinculos");
-      const vida = pct("vida");
-      const iie = Math.round((personal + vinculos + vida) / 3);
-      const who = nombre.value.trim() || "Jugador";
+    function pct(block) {
+      var rows = results.filter(function (p) { return p.block === block; });
+      if (!rows.length) return 0;
+      var sum = rows.reduce(function (a, p) { return a + p.pts; }, 0);
+      return Math.round(sum / (rows.length * 3) * 100);
+    }
+
+    function showProfile() {
+      var personal = pct("personal");
+      var vinculos = pct("vinculos");
+      var vida = pct("vida");
+      var iie = Math.round((personal + vinculos + vida) / 3);
+      var who = nombre.value.trim() || "Jugador";
       document.getElementById("doneTitle").textContent = who;
-      document.getElementById("doneLead").textContent = "Así queda el perfil de estas 9 jugadas. El cálculo es el de la prueba: cada elección vale 3, 2 o 1, y la barra es el porcentaje del máximo.";
-      const bars = document.getElementById("bars");
-      bars.innerHTML = "";
-      [["Desarrollo personal", personal], ["Vínculos", vinculos], ["Habilidades para la vida", vida]].forEach((row) => {
-        const wrap = document.createElement("div");
+      var bars = document.getElementById("bars");
+      bars.replaceChildren();
+      [["Desarrollo personal", personal], ["Vínculos", vinculos], ["Habilidades para la vida", vida]].forEach(function (row) {
+        var wrap = document.createElement("div");
         wrap.innerHTML =
           '<div class="bar-top"><span>' + row[0] + '</span><span>' + row[1] + " · " + band(row[1]) + '</span></div>' +
           '<div class="track"><div class="fill" data-w="' + row[1] + '"></div></div>';
         bars.appendChild(wrap);
       });
-      document.getElementById("iie").textContent = iie;
+      document.getElementById("iie").textContent = String(iie);
       document.getElementById("bossNote").textContent =
-        "Para la reunión: esto no reemplaza la evaluación completa. Son 9 momentos (3 de desarrollo personal, 3 de vínculos y 3 de habilidades para la vida). En la prueba real hay muchas más situaciones, pero el perfil se arma igual. Durante el juego no aparecen preguntas ni puntajes.";
+        "Esto salió de la partida: si levantaste lo que se cayó, si abriste el corazón y si seguiste el plan. La lectura de las barras es la misma del reporte socioemocional. No es la prueba completa.";
       show("done");
-      document.getElementById("levelPill").textContent = "Listo";
-      requestAnimationFrame(() => {
-        document.querySelectorAll(".fill").forEach((el) => { el.style.width = el.getAttribute("data-w") + "%"; });
+      say(AUDIO + "listo.mp3");
+      requestAnimationFrame(function () {
+        document.querySelectorAll(".fill").forEach(function (el) { el.style.width = el.getAttribute("data-w") + "%"; });
       });
     }
 
-    document.getElementById("btnJugar").addEventListener("click", () => {
-      index = 0;
-      picks = [];
-      show("play");
-      renderRound();
+    document.getElementById("btnOir").addEventListener("click", function () {
+      say(AUDIO + "instrucciones.mp3");
     });
-    document.getElementById("btnOtra").addEventListener("click", () => {
-      index = 0;
-      picks = [];
+    document.getElementById("btnReplay").addEventListener("click", function () { say(lastVoice); });
+    document.getElementById("btnMute").addEventListener("click", function () {
+      muted = !muted;
+      document.getElementById("btnMute").classList.toggle("off", muted);
+      if (muted) voice.pause();
+    });
+    document.getElementById("btnJugar").addEventListener("click", function () {
+      if (!nombre.value.trim()) {
+        nombre.classList.add("need");
+        nombre.focus();
+        return;
+      }
+      results = [];
+      worldIndex = 0;
+      hinted = false;
+      openSplash();
+    });
+    nombre.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter") document.getElementById("btnJugar").click();
+    });
+    btnEntrar.addEventListener("click", function () {
+      if (btnEntrar.dataset.mode === "next") {
+        worldIndex++;
+        openSplash();
+        return;
+      }
+      beginLevel();
+    });
+    document.getElementById("btnOtra").addEventListener("click", function () {
+      voice.pause();
       show("home");
-      document.getElementById("levelPill").textContent = "Demo";
+      lastVoice = AUDIO + "instrucciones.mp3";
     });
   </script>
 </body>
