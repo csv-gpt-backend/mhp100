@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ADALAM Play · Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --ink:#163024;
+      --green:#1a8f3b;
+      --sky:#e8fbff;
+      --card:#fffdf8;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:Nunito,system-ui,sans-serif;color:var(--ink)}
+    body{
+      background:
+        radial-gradient(900px 420px at 10% -10%, #fff6c8 0%, transparent 60%),
+        radial-gradient(800px 480px at 110% 0%, #d7fff0 0%, transparent 55%),
+        linear-gradient(180deg, #f3fbff 0%, #e7fff4 100%);
+    }
+    .app{max-width:920px;margin:0 auto;padding:18px 16px 40px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.02em}
+    .brand img{height:42px;width:auto}
+    .pill{background:#fff;border-radius:999px;padding:8px 14px;font-weight:800;box-shadow:0 8px 20px rgba(22,48,36,.08)}
+    h1{font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.05;margin:18px 0 8px}
+    .lead{font-size:1.15rem;margin:0 0 18px;max-width:36rem}
+    .card{
+      background:var(--card);
+      border-radius:28px;
+      padding:18px;
+      box-shadow:0 18px 40px rgba(22,48,36,.08);
+    }
+    label{font-weight:800;display:block;margin-bottom:6px}
+    input[type="text"]{
+      width:min(100%,360px);font:inherit;font-weight:800;font-size:1.05rem;
+      padding:12px 14px;border-radius:14px;border:2px solid #d7eadf;text-transform:uppercase
+    }
+    .btn{
+      appearance:none;border:0;cursor:pointer;font:inherit;font-weight:900;
+      background:var(--green);color:#fff;border-radius:999px;padding:14px 22px;font-size:1.05rem;
+      box-shadow:0 10px 0 #146c2c
+    }
+    .btn:active{transform:translateY(2px);box-shadow:0 8px 0 #146c2c}
+    .btn.ghost{background:#fff;color:var(--ink);box-shadow:0 8px 0 #e5efe8}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
+    .scene{
+      width:100%;height:220px;object-fit:cover;border-radius:22px;background:#dff6ea;display:block
+    }
+    .story{font-size:clamp(1.25rem,3vw,1.7rem);font-weight:900;margin:14px 0}
+    .choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    @media(max-width:720px){ .choices{grid-template-columns:1fr} .scene{height:180px} }
+    .choice{
+      border:0;background:#fff;border-radius:22px;padding:12px;cursor:pointer;font:inherit;text-align:center;
+      box-shadow:0 10px 0 #efe4c8;transition:transform .15s ease
+    }
+    .stack{display:flex;justify-content:center;gap:4px}
+    .choice img{width:64px;height:64px;object-fit:contain}
+    .choice b{display:block;margin-top:6px;font-size:1.02rem}
+    .choice:hover{transform:translateY(-3px)}
+    .choice.pop{animation:pop .45s ease}
+    @keyframes pop{ 40%{transform:scale(1.08)} 100%{transform:scale(.92);opacity:.2} }
+    .hidden{display:none !important}
+    .gems{display:flex;gap:6px}
+    .gem{width:14px;height:14px;border-radius:50%;background:#d9efe2}
+    .gem.on{background:#1a8f3b}
+    .bars{display:flex;flex-direction:column;gap:14px;margin-top:8px}
+    .bar-top{display:flex;justify-content:space-between;font-weight:900}
+    .track{height:22px;border-radius:999px;background:#edf2ef;overflow:hidden}
+    .fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#f4a338,#1a8f3b);transition:width .8s ease}
+    .iie{
+      margin-top:16px;display:flex;justify-content:space-between;align-items:center;
+      background:#163024;color:#fff;border-radius:18px;padding:14px 16px;font-weight:900
+    }
+    .iie span{background:#2563eb;border-radius:12px;padding:6px 12px;font-size:1.4rem}
+    .note{margin-top:14px;background:#fff8dc;border-radius:16px;padding:12px 14px;font-size:.98rem}
+    .scale{display:flex;justify-content:space-between;font-size:.78rem;font-weight:800;color:#5c7268;margin-top:4px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <div class="brand"><img src="assets/logo_adalam.webp" alt="ADALAM"/> ADALAM Play</div>
+      <div class="pill" id="levelPill">Demo</div>
+    </div>
+
+    <section id="home">
+      <h1>Juega un día.<br/>Al final ves tu estilo.</h1>
+      <p class="lead">No es una prueba. Eliges cómo seguirías cada momento. Al terminar aparece un perfil del mismo tipo que el reporte socioemocional.</p>
+      <div class="card">
+        <label for="nombre">Tu nombre</label>
+        <input id="nombre" type="text" maxlength="40" autocomplete="off" placeholder="Ej. ANA"/>
+        <div class="row">
+          <button class="btn" id="btnJugar" type="button">JUGAR</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="play" class="hidden">
+      <div class="gems" id="gems"></div>
+      <div class="card" style="margin-top:12px">
+        <img class="scene" id="scene" alt=""/>
+        <div class="story" id="story"></div>
+        <div class="choices" id="choices"></div>
+      </div>
+    </section>
+
+    <section id="done" class="hidden">
+      <h1 id="doneTitle">Tu estilo</h1>
+      <p class="lead" id="doneLead"></p>
+      <div class="card">
+        <div class="bars" id="bars"></div>
+        <div class="iie">Índice del demo <span id="iie">—</span></div>
+        <div class="scale"><span>Por desarrollar</span><span>Por fortalecer</span><span>Por enriquecer</span></div>
+        <div class="note" id="bossNote"></div>
+        <div class="row">
+          <button class="btn" id="btnOtra" type="button">JUGAR OTRA VEZ</button>
+          <a class="btn ghost" href="index.html" style="text-decoration:none">Volver al menú</a>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+    const ROUNDS = [
+      { scene:"assets/demo-juego/escena-patio.png", block:"personal",
+        line:"El día empieza y hay algo nuevo enfrente.",
+        choices:[
+          ["Lo tomo con calma", 3, "assets/demo-juego/tile-sol.png"],
+          ["Voy, aunque me cuesta", 2, "assets/demo-juego/tile-gota.png"],
+          ["Prefiero quedarme atrás", 1, "assets/demo-juego/tile-rayo.png"]
+        ]},
+      { scene:"assets/demo-juego/escena-meta.png", block:"personal",
+        line:"Se cae el trabajo que ya habías hecho.",
+        choices:[
+          ["Lo vuelvo a armar", 3, "assets/demo-juego/tile-estrella.png"],
+          ["Me quedo un momento", 2, "assets/demo-juego/tile-gota.png"],
+          ["Lo dejo así", 1, "assets/demo-juego/tile-rayo.png"]
+        ]},
+      { scene:"assets/demo-juego/escena-patio.png", block:"personal",
+        line:"Llevas un buen rato sentado y el cuerpo pide un cambio.",
+        choices:[
+          ["Me muevo un poco", 3, "assets/demo-juego/tile-hoja.png"],
+          ["Sigo y luego veo", 2, "assets/demo-juego/tile-gota.png"],
+          ["Ni me levanto", 1, "assets/demo-juego/tile-rayo.png"]
+        ]},
+      { scene:"assets/demo-juego/escena-amigos.png", block:"vinculos",
+        line:"Alguien del grupo está callado.",
+        choices:[
+          ["Me acerco", 3, "assets/demo-juego/tile-corazon.png"],
+          ["Lo miro de lejos", 2, "assets/demo-juego/tile-gota.png"],
+          ["Sigo en lo mío", 1, "assets/demo-juego/tile-rayo.png"]
+        ]},
+      { scene:"assets/demo-juego/escena-amigos.png", block:"vinculos",
+        line:"No estás de acuerdo con lo que dicen.",
+        choices:[
+          ["Lo digo claro y tranquilo", 3, "assets/demo-juego/tile-sol.png"],
+          ["Lo digo a medias", 2, "assets/demo-juego/tile-gota.png"],
+          ["Alzo la voz", 1, "assets/demo-juego/tile-rayo.png"]
+        ]},
+      { scene:"assets/demo-juego/escena-amigos.png", block:"vinculos",
+        line:"Te cuentan algo que les importa.",
+        choices:[
+          ["Escucho hasta el final", 3, "assets/demo-juego/tile-corazon.png"],
+          ["Escucho un poco", 2, "assets/demo-juego/tile-gota.png"],
+          ["Cambio de tema", 1, "assets/demo-juego/tile-rayo.png"]
+        ]},
+      { scene:"assets/demo-juego/escena-meta.png", block:"vida",
+        line:"Hay varias cosas para hacer hoy.",
+        choices:[
+          ["Ordeno qué va primero", 3, "assets/demo-juego/tile-estrella.png"],
+          ["Hago lo que salga", 2, "assets/demo-juego/tile-gota.png"],
+          ["Lo dejo para después", 1, "assets/demo-juego/tile-rayo.png"]
+        ]},
+      { scene:"assets/demo-juego/escena-meta.png", block:"vida",
+        line:"Una parte no te sale.",
+        choices:[
+          ["Sigo intentando", 3, "assets/demo-juego/tile-sol.png"],
+          ["Pido una pista", 2, "assets/demo-juego/tile-hoja.png"],
+          ["Lo abandono", 1, "assets/demo-juego/tile-rayo.png"]
+        ]},
+      { scene:"assets/demo-juego/escena-patio.png", block:"vida",
+        line:"El grupo no arranca.",
+        choices:[
+          ["Propongo por dónde empezar", 3, "assets/demo-juego/tile-estrella.png"],
+          ["Espero a que otro lo haga", 2, "assets/demo-juego/tile-gota.png"],
+          ["Me salgo", 1, "assets/demo-juego/tile-rayo.png"]
+        ]}
+    ];
+
+    const LABELS = {
+      personal:"Desarrollo personal",
+      vinculos:"Vínculos",
+      vida:"Habilidades para la vida"
+    };
+
+    let index = 0;
+    let picks = [];
+
+    const home = document.getElementById("home");
+    const play = document.getElementById("play");
+    const done = document.getElementById("done");
+    const nombre = document.getElementById("nombre");
+
+    nombre.addEventListener("input", () => {
+      const start = nombre.selectionStart;
+      const next = nombre.value.toLocaleUpperCase("es-EC");
+      if (nombre.value !== next) {
+        nombre.value = next;
+        try { nombre.setSelectionRange(start, start); } catch (e) {}
+      }
+    });
+
+    function shuffle(list){
+      const a = list.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+
+    function show(which){
+      home.classList.toggle("hidden", which !== "home");
+      play.classList.toggle("hidden", which !== "play");
+      done.classList.toggle("hidden", which !== "done");
+    }
+
+    function renderGems(){
+      const box = document.getElementById("gems");
+      box.innerHTML = "";
+      ROUNDS.forEach((_, i) => {
+        const g = document.createElement("div");
+        g.className = "gem" + (i < index ? " on" : "");
+        box.appendChild(g);
+      });
+    }
+
+    function renderRound(){
+      const round = ROUNDS[index];
+      document.getElementById("levelPill").textContent = (index + 1) + " / " + ROUNDS.length;
+      document.getElementById("scene").src = round.scene;
+      document.getElementById("story").textContent = round.line;
+      const box = document.getElementById("choices");
+      box.innerHTML = "";
+      renderGems();
+      shuffle(round.choices).forEach((ch) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "choice";
+        b.innerHTML = '<span class="stack"><img alt="" src="' + ch[2] + '"><img alt="" src="' + ch[2] + '"><img alt="" src="' + ch[2] + '"></span><b>' + ch[0] + '</b>';
+        b.addEventListener("click", () => choose(b, round.block, ch[1]));
+        box.appendChild(b);
+      });
+    }
+
+    function choose(btn, block, pts){
+      if (btn.disabled) return;
+      document.querySelectorAll(".choice").forEach((el) => { el.disabled = true; });
+      btn.classList.add("pop");
+      picks.push({ block, pts });
+      setTimeout(() => {
+        index += 1;
+        if (index >= ROUNDS.length) finish();
+        else renderRound();
+      }, 420);
+    }
+
+    function pct(block){
+      const rows = picks.filter((p) => p.block === block);
+      const max = rows.length * 3;
+      const sum = rows.reduce((a, p) => a + p.pts, 0);
+      return max ? Math.round(sum / max * 100) : 0;
+    }
+
+    function band(n){
+      if (n <= 40) return "Por desarrollar";
+      if (n <= 70) return "Por fortalecer";
+      return "Por enriquecer";
+    }
+
+    function finish(){
+      const personal = pct("personal");
+      const vinculos = pct("vinculos");
+      const vida = pct("vida");
+      const iie = Math.round((personal + vinculos + vida) / 3);
+      const who = nombre.value.trim() || "Jugador";
+      document.getElementById("doneTitle").textContent = who;
+      document.getElementById("doneLead").textContent = "Así queda el perfil de estas 9 jugadas. El cálculo es el de la prueba: cada elección vale 3, 2 o 1, y la barra es el porcentaje del máximo.";
+      const bars = document.getElementById("bars");
+      bars.innerHTML = "";
+      [["Desarrollo personal", personal], ["Vínculos", vinculos], ["Habilidades para la vida", vida]].forEach((row) => {
+        const wrap = document.createElement("div");
+        wrap.innerHTML =
+          '<div class="bar-top"><span>' + row[0] + '</span><span>' + row[1] + " · " + band(row[1]) + '</span></div>' +
+          '<div class="track"><div class="fill" data-w="' + row[1] + '"></div></div>';
+        bars.appendChild(wrap);
+      });
+      document.getElementById("iie").textContent = iie;
+      document.getElementById("bossNote").textContent =
+        "Para la reunión: esto no reemplaza la evaluación completa. Son 9 momentos (3 de desarrollo personal, 3 de vínculos y 3 de habilidades para la vida). En la prueba real hay muchas más situaciones, pero el perfil se arma igual. Durante el juego no aparecen preguntas ni puntajes.";
+      show("done");
+      document.getElementById("levelPill").textContent = "Listo";
+      requestAnimationFrame(() => {
+        document.querySelectorAll(".fill").forEach((el) => { el.style.width = el.getAttribute("data-w") + "%"; });
+      });
+    }
+
+    document.getElementById("btnJugar").addEventListener("click", () => {
+      index = 0;
+      picks = [];
+      show("play");
+      renderRound();
+    });
+    document.getElementById("btnOtra").addEventListener("click", () => {
+      index = 0;
+      picks = [];
+      show("home");
+      document.getElementById("levelPill").textContent = "Demo";
+    });
+  </script>
+</body>
+</html>
