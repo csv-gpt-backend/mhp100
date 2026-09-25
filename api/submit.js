@@ -7,6 +7,7 @@ const {
   normalizeIdioma,
 } = require("./eval-codigo");
 const { scoreSocies } = require("./score-socies");
+const { scoreSociv2 } = require("./score-sociv2");
 
 function msg(key, lang) {
   const en = normalizeIdioma(lang) === "EN";
@@ -92,6 +93,12 @@ module.exports = async function handler(req, res) {
     let resultados = body.resultados || {};
     if (evalKey === "SOCIES") {
       const scored = scoreSocies(responses, snapshot.startTime);
+      if (!scored.ok) {
+        return res.status(400).json({ error: scored.error || "No se pudo calcular el resultado." });
+      }
+      resultados = scored.resultados;
+    } else if (evalKey === "SOCIV2") {
+      const scored = scoreSociv2(responses, snapshot.startTime);
       if (!scored.ok) {
         return res.status(400).json({ error: scored.error || "No se pudo calcular el resultado." });
       }
