@@ -77,7 +77,7 @@
       box-shadow:0 5px 0 #eadfca; position:relative;
     }
     .cell img { width:100%; height:100%; object-fit:contain; pointer-events:none; user-select:none; }
-    .cell.sel { transform:translateY(-7px); box-shadow:0 12px 0 #b7e0c4; }
+    .cell.sel { transform:translateY(-12px) scale(1.08); box-shadow:0 14px 0 #b7e0c4; z-index:3; }
     .cell.dim { opacity:.28; filter:grayscale(.35); }
     .cell .num {
       position:absolute; inset:0; display:grid; place-items:center;
@@ -85,12 +85,14 @@
       background:rgba(244,163,56,.92); border-radius:14px; pointer-events:none;
     }
     .cell .finger {
-      position:absolute; right:0; bottom:-2px; font-size:26px;
-      pointer-events:none; animation:tap .7s ease infinite; z-index:3;
+      position:absolute; right:6px; bottom:4px; font-size:22px; line-height:1;
+      pointer-events:auto; z-index:4;
     }
+    .cell .num { pointer-events:auto; }
     .coach {
-      text-align:center; font-size:clamp(2rem, 7vw, 3.2rem); font-weight:900;
-      letter-spacing:.02em; margin:4px 0 10px;
+      position:sticky; top:8px; z-index:6;
+      text-align:center; font-size:clamp(1.8rem, 6vw, 2.6rem); font-weight:900;
+      letter-spacing:.02em; margin:4px 0 10px; background:#fff4d8; border-radius:16px; padding:6px 10px;
     }
     .goal-pic { width:76px; height:76px; }
     .aqui {
@@ -365,8 +367,8 @@
       var scene = document.getElementById("scene");
       if (guide && guidePair) {
         coach.classList.remove("hidden");
-        coach.textContent = guide === 1 ? "TOCA EL 1" : "AHORA EL 2";
-        scene.classList.add("hidden");
+        coach.textContent = "TOCA EL 1";
+        scene.classList.remove("hidden");
       } else {
         coach.classList.add("hidden");
         scene.classList.remove("hidden");
@@ -378,9 +380,9 @@
           b.type = "button";
           b.className = "cell";
           var cell = grid[r][c];
-          var is1 = guidePair && guidePair[0].r === r && guidePair[0].c === c;
-          var is2 = guidePair && guidePair[1].r === r && guidePair[1].c === c;
-          var active = (guide === 1 && is1) || (guide === 2 && is2);
+          var is1 = guide && guidePair && guidePair[0].r === r && guidePair[0].c === c;
+          var is2 = guide && guidePair && guidePair[1].r === r && guidePair[1].c === c;
+          var active = is1;
           if (!cell) b.classList.add("empty");
           else if (cell.stone) b.classList.add("stone");
           else {
@@ -388,31 +390,29 @@
             if (cell.heart) b.classList.add("heart");
           }
           if (sel && sel.r === r && sel.c === c) b.classList.add("sel");
-          if (guide && !active && !(guide === 2 && is1)) b.classList.add("dim");
+          if (guide && !is1 && !is2) b.classList.add("dim");
           if (active) {
             var n = document.createElement("span");
             n.className = "num";
-            n.textContent = String(guide);
+            n.textContent = "1";
             b.appendChild(n);
             var hand = document.createElement("span");
             hand.className = "finger";
             hand.textContent = "👇";
             b.appendChild(hand);
           }
-          if (!guide && cell && cell.stone && WORLDS[worldIndex].kind === "rebuild") {
-            b.classList.add("mark");
-            var tag = document.createElement("span");
-            tag.className = "aqui";
-            tag.textContent = "AQUÍ";
-            b.appendChild(tag);
-          }
-          if (!guide && cell && cell.heart) {
-            var tagH = document.createElement("span");
-            tagH.className = "aqui";
-            tagH.textContent = "AQUÍ";
-            b.appendChild(tagH);
-          }
-          (function (rr, cc) { b.addEventListener("click", function () { onCell(rr, cc); }); })(r, c);
+          if (!guide && cell && cell.stone && WORLDS[worldIndex].kind === "rebuild") b.classList.add("mark");
+          if (!guide && cell && cell.heart) b.classList.add("mark");
+          (function (rr, cc, btn) {
+            function go(ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              onCell(rr, cc);
+            }
+            btn.addEventListener("click", go);
+            var bits = btn.querySelectorAll(".num, .finger");
+            for (var i = 0; i < bits.length; i++) bits[i].addEventListener("click", go);
+          })(r, c, b);
           board.appendChild(b);
         }
       }
@@ -562,63 +562,107 @@
       await closeBeat(result.pts);
     }
 
-    async function onCell(r, c) {
-      if (busy || levelOver || !grid) return;
-      if (guide && guidePair) {
-        var want = guidePair[guide - 1];
-        if (!want || r !== want.r || c !== want.c) return;
-        if (guide === 1) {
-          sel = { r: r, c: c };
-          guide = 2;
-          render();
-          say(AUDIO + "dos.mp3");
-          return;
+    function findGoalHint() {
+      var dirs = [[0, 1], [1, 0]];
+      var best = null;
+      for (var r = 0; r < E.ROWS; r++) {
+        for (var c = 0; c < E.COLS; c++) {
+          if (!E.isPlay(grid[r][c])) continue;
+          for (var d = 0; d < dirs.length; d++) {
+            var rr = r + dirs[d][0];
+            var cc = c + dirs[d][1];
+            if (rr >= E.ROWS || cc >= E.COLS || !E.isPlay(grid[rr][cc])) continue;
+            E.swapCells(grid, r, c, rr, cc);
+            var matched = E.findMatches(grid);
+            var good = false;
+            if (matched.length && situation) {
+              if (situation.kind === "rebuild") good = !!E.judgeRebuild(grid, matched);
+              else if (situation.kind === "heart") good = !!E.judgeHeart(grid, matched);
+              else if (situation.kind === "plan") {
+                var snap = { step: situation.step, need: situation.need, partial: situation.partial };
+                var judged = E.judgePlan(matched, snap);
+                good = !!(judged && judged.advance);
+              }
+            }
+            E.swapCells(grid, r, c, rr, cc);
+            if (good) return [{ r: r, c: c }, { r: rr, c: cc }];
+            if (!best && matched.length) best = [{ r: r, c: c }, { r: rr, c: cc }];
+          }
         }
-        sel = { r: guidePair[0].r, c: guidePair[0].c };
       }
-      var cell = grid[r][c];
-      if (!E.isPlay(cell)) return;
-      if (!sel) { sel = { r:r, c:c }; render(); return; }
-      if (sel.r === r && sel.c === c) { sel = null; render(); return; }
-      if (Math.abs(sel.r - r) + Math.abs(sel.c - c) !== 1) { sel = { r:r, c:c }; render(); return; }
-      var a = sel;
-      sel = null;
-      busy = true;
-      E.swapCells(grid, a.r, a.c, r, c);
-      render();
-      await wait(90);
-      var matched = E.findMatches(grid);
-      if (!matched.length) {
-        E.swapCells(grid, a.r, a.c, r, c);
-        render();
-        sfx(160);
-        busy = false;
+      return best || E.findHint(grid);
+    }
+
+    function armGuide() {
+      if (levelOver) {
+        guide = 0;
+        guidePair = null;
         return;
       }
+      guidePair = findGoalHint();
+      guide = guidePair ? 1 : 0;
+    }
+
+    async function runSwap(r1, c1, r2, c2) {
+      busy = true;
+      sel = null;
       guide = 0;
       guidePair = null;
-      hinted = true;
-      var cleared = [];
-      var guard = 0;
-      while (matched.length && guard++ < 12) {
-        cleared = cleared.concat(matched);
-        markPop(matched);
-        sfx(500 + guard * 35);
-        await wait(190);
-        matched.forEach(function (m) { grid[m.r][m.c] = null; });
-        E.collapse(grid);
-        E.fillHoles(grid, Math.random);
+      try {
+        E.swapCells(grid, r1, c1, r2, c2);
         render();
-        await wait(150);
-        matched = E.findMatches(grid);
+        await wait(90);
+        var matched = E.findMatches(grid);
+        if (!matched.length) {
+          E.swapCells(grid, r1, c1, r2, c2);
+          sfx(160);
+          return;
+        }
+        hinted = true;
+        var cleared = [];
+        var guard = 0;
+        while (matched.length && guard++ < 12) {
+          cleared = cleared.concat(matched);
+          markPop(matched);
+          sfx(500 + guard * 35);
+          await wait(190);
+          matched.forEach(function (m) { grid[m.r][m.c] = null; });
+          E.collapse(grid);
+          E.fillHoles(grid, Math.random);
+          render();
+          await wait(150);
+          matched = E.findMatches(grid);
+        }
+        if (!E.hasMove(grid)) {
+          E.reshuffle(grid, Math.random);
+          render();
+        }
+        await onCleared(cleared);
+      } finally {
+        busy = false;
+        if (!levelOver) armGuide();
+        if (!levelOver) render();
       }
-      if (!E.hasMove(grid)) {
-        E.reshuffle(grid, Math.random);
-        toast("Las fichas se reacomodaron");
-        render();
+    }
+
+    async function onCell(r, c) {
+      if (busy || levelOver || !grid) return;
+      var cell = grid[r][c];
+      if (guide && guidePair) {
+        var onPair = (r === guidePair[0].r && c === guidePair[0].c) || (r === guidePair[1].r && c === guidePair[1].c);
+        var onGoal = cell && (cell.stone || cell.heart);
+        if (onPair || onGoal) {
+          var pair = guidePair;
+          await runSwap(pair[0].r, pair[0].c, pair[1].r, pair[1].c);
+          return;
+        }
       }
-      await onCleared(cleared);
-      busy = false;
+      if (!E.isPlay(cell)) return;
+      if (!sel) { sel = { r: r, c: c }; render(); return; }
+      if (sel.r === r && sel.c === c) { sel = null; render(); return; }
+      if (Math.abs(sel.r - r) + Math.abs(sel.c - c) !== 1) { sel = { r: r, c: c }; render(); return; }
+      var a = sel;
+      await runSwap(a.r, a.c, r, c);
     }
 
     function openSplash() {
@@ -641,13 +685,10 @@
       layoutLevel();
       guide = 0;
       guidePair = null;
-      if (worldIndex === 0 && !hinted) {
-        guidePair = E.findHint(grid);
-        guide = guidePair ? 1 : 0;
-      }
+      armGuide();
       show("play");
       render();
-      if (guide === 1) say(AUDIO + "uno.mp3");
+      if (worldIndex === 0) say(AUDIO + "uno.mp3");
     }
 
     function band(n) {
