@@ -101,7 +101,10 @@ module.exports = async function handler(req, res) {
     } else if (evalKey === "SOCIV2") {
       const scored = scoreSociv2(responses, snapshot.startTime);
       if (!scored.ok) {
-        return res.status(400).json({ error: scored.error || "No se pudo calcular el resultado." });
+        const fallback = uiLang === "EN" ? "The result could not be calculated." : "No se pudo calcular el resultado.";
+        let error = scored.error || fallback;
+        if (uiLang === "EN" && error === "Faltan respuestas.") error = "Some answers are missing.";
+        return res.status(400).json({ error });
       }
       resultados = scored.resultados;
     } else if (evalKey === "SOCPEQ") {

@@ -1,0 +1,2977 @@
+<!doctype html>
+<html lang="en" translate="no" class="notranslate">
+<head>
+  <meta name="google" content="notranslate">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Social-Emotional – Report</title>
+  <!-- hit-build sociv2-fit-v1 -->
+  <style>
+    :root{
+      --ink:#111; --muted:#666; --line:#ddd;
+      --yellow:#ffe36a; --green:#2e9b4f; --orange:#f4a338; --red:#e45757;
+    }
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#fff;color:#0f172a;min-height:100vh;}
+    .wrap{max-width:900px;margin:18px auto 48px;padding:0 12px}
+    h1,h2,h3{margin:0 0 8px 0}
+    .muted{color:var(--muted)}
+    .topbar{display:flex;gap:12px;align-items:center;margin-bottom:8px;justify-content:center;flex-wrap:wrap}
+    .topbar input{flex:1;max-width:220px;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font-size:16px;text-transform:uppercase}
+    .intro-logo-wrap{display:flex;justify-content:center;align-items:center;margin:28px 0 14px}
+    .intro-logo{width:256px;max-width:78vw;height:auto;object-fit:contain}
+    .ingreso-titulo{
+      text-align:center;font-weight:800;font-size:clamp(1.05rem,2.9vw,1.42rem);line-height:1.3;
+      margin:0 0 14px;padding:0 10px;color:#0f172a;text-transform:uppercase;letter-spacing:.03em;
+    }
+    .hint.ingreso-usuario{text-align:center;font-size:12px;line-height:1.45;margin-top:-2px;margin-bottom:14px}
+    .btn{padding:9px 14px;border-radius:999px;border:0;background:#1a8f3b;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
+    .msg{margin-left:8px;font-weight:700}
+    .msg.ok{color:#0a8}
+    .msg.err{color:#c00}
+    .hint{font-size:12px;color:var(--muted);margin-bottom:8px}
+
+    .rep-top{border-bottom:none;padding-bottom:6px;margin-bottom:6px;}
+    .rep-top-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px;margin-bottom:6px;}
+    .rep-date{justify-self:flex-start;}
+    .rep-top-center{text-align:center;font-weight:700;text-transform:uppercase;}
+    .rep-top-titles{justify-self:center;text-align:center;line-height:1.15;}
+    .rep-top-logo{justify-self:flex-end;}
+    .mhp-logo{height:90px;margin-left:8px;margin-top:0;object-fit:contain;}
+    #page1 .mhp-logo,
+    #pageInterpretacion .mhp-logo{height:90px;margin-left:8px;margin-top:0;}
+    #page1 .rep-top{padding-bottom:2px;margin-bottom:4px;}
+    #page1 .rep-top-row1{margin-bottom:0;align-items:center;}
+    #page1 .rep-top-row2{margin-bottom:0;font-size:24px;}
+    #page1 .rep-top-row3{margin-top:2px;font-size:16px;}
+    .reporte-pie-adalam{
+      margin-top:16px;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+      text-align:center;
+      font-size:11px;
+      color:var(--muted);
+      letter-spacing:.02em;
+    }
+    #page1 .page1-sheet{display:flex;flex-direction:column}
+    #page1 .reporte-pie-page1{margin-top:14px}
+    .reporte-acciones-pantalla{margin-top:8px;margin-bottom:16px;padding-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;width:100%;border-bottom:1px solid #e5e7eb}
+    .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase;}
+    .rep-top-row3{text-align:center;font-size:18px;font-weight:800;}
+
+    .iv-table td.hl{background:var(--yellow)}
+    .iv-key{font-weight:900;color:#000;}
+    .iv-legend{display:flex;gap:14px;justify-content:flex-start;margin-top:6px;font-size:11px;color:#111;flex-wrap:wrap}
+    .iv-legend span b{font-weight:900}
+
+    .page{margin-top:10px}
+    .page-break{height:0;margin:0;border:0}
+    @media print{
+      @page{ size:A4; margin:8mm 8mm }
+      .topbar,.hint,.intro-logo-wrap,.ingreso-titulo,.ingreso-panel,#btnImprimir,#btnPDF,.reporte-acciones-pantalla{display:none !important}
+      body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .wrap{max-width:none;margin:0 auto;padding:0 6px}
+      .page{margin-top:0;break-inside:auto}
+      .page-break{page-break-before:always}
+      /* Página 1: caber en 1 hoja (sin tocar curva) */
+      #page1{page-break-after:always; break-after:page;}
+      #page1 .page1-sheet{display:block !important;}
+      #page1 .rep-top,
+      #page1 #repHeaderBox,
+      #page1 .curve-gauge,
+      #page1 .bars-row,
+      #page1 .scale-note-risk,
+      #page1 .iie-row{
+        break-inside:avoid;
+        page-break-inside:avoid;
+      }
+      #tituloCurvaFrecuencias{font-size:12px !important;white-space:nowrap;letter-spacing:0}
+      .mhp-logo{height:72px !important;margin-top:0 !important;margin-left:4px !important}
+      #page1 .mhp-logo,
+      #pageInterpretacion .mhp-logo{height:72px !important}
+      #page1 .reporte-pie-page1,
+      #pageInterpretacion .reporte-pie-page2{
+        margin-top:12px;
+        text-align:center;
+        font-size:10.5px;
+        break-inside:avoid;
+        page-break-inside:avoid;
+      }
+      /* Leyenda NA/NC/PT: una sola línea en PDF (como en pantalla) */
+      .iv-legend{
+        flex-wrap:nowrap !important;
+        gap:10px !important;
+        font-size:10px !important;
+        white-space:nowrap;
+      }
+      .iv-legend span{white-space:nowrap}
+      .rep-top{margin-bottom:12px;padding-bottom:10px}
+      .rep-top-row1{margin-bottom:12px;align-items:flex-start}
+      .rep-top-row2{font-size:24px !important;margin-bottom:6px !important}
+      .rep-top-row3{font-size:17px !important;margin-bottom:4px !important}
+      .rep-ids{margin-top:12px !important}
+      #repHeaderBox{padding:8px 10px !important}
+      .rep-mid{margin-top:16px !important;gap:16px !important}
+      .bloque-title{margin:16px 0 10px !important}
+      .bars-row{margin:9px 0 !important}
+      .bars-slot{height:26px !important}
+      .bars-slot .tick{height:28px !important}
+      .bars-slot .tick-label{top:24px !important}
+      .bars-slot .marker{height:26px !important;top:-3px !important}
+      .iie-row{margin:14px 0 10px !important}
+      .scale-section{margin-top:18px !important}
+      .section-title{margin-bottom:8px !important}
+      .scale-note-inline{margin-top:8px !important}
+      .scale-note-risk{margin-top:6px !important}
+      .scale-note-cambio{margin-top:4px !important;margin-bottom:0 !important;line-height:1.2 !important}
+      .scale-range-header{margin-bottom:6px !important}
+      /* Página 1: subir aire (NO tocar curva) */
+      #page1 .rep-top{margin-bottom:4px !important;padding-bottom:2px !important}
+      #page1 .rep-top-row1{margin-bottom:0 !important;align-items:center !important}
+      #page1 .rep-top-row2{margin-bottom:0 !important;font-size:22px !important}
+      #page1 .rep-top-row3{margin-bottom:0 !important;margin-top:2px !important;font-size:15px !important}
+      #page1 .rep-ids{margin-top:6px !important}
+      #page1 #repHeaderBox{padding:5px 8px !important}
+      #page1 .rep-mid{margin-top:8px !important;gap:10px !important}
+      #page1 .rep-iv{margin-top:10px !important}
+      #page1 .bloque-title{margin:6px 0 3px !important}
+      #page1 .iie-row{margin:4px 0 3px !important}
+      #page1 .scale-section{margin-top:6px !important}
+      #page1 .scale-note-risk{margin-top:3px !important}
+      #page1 .scale-note-risk > span{padding:2px 8px !important;line-height:1.15 !important}
+      #page1 .reporte-pie-page1{margin-top:4px !important;padding-top:6px !important}
+      #page1 .bars-row{margin:6px 0 !important}
+      #page1 .bars-slot{height:22px !important}
+      #page1 .bars-slot .tick{height:24px !important}
+      #page1 .bars-slot .tick-label{top:19px !important}
+      #page1 .bars-slot .marker{height:22px !important;top:-4px !important}
+            /* Interpretación: regla amplia — ningún encabezado de sección solo al pie */
+      #pageInterpretacion h2, #pageInterpretacion h3, #pageInterpretacion h4,
+      #page2 h2, #page2 h3, #page2 h4,
+      #p2 h2, #p2 h3, #p2 h4,
+      #pageInterpretacion .section-title,
+      #pageInterpretacion .bloque-title,
+      #pageInterpretacion .interp-title,
+      #pageInterpretacion .interp-bloque-nombre,
+      #pageInterpretacion .interp-bloque-header,
+      #pageInterpretacion .interpTitle,
+      #pageInterpretacion .iviTitle,
+      #pageInterpretacion .iviGuideTitle,
+      #pageInterpretacion .iviGuideTitleRow,
+      #pageInterpretacion .plan-section-title,
+      #pageInterpretacion .plan-focus-head,
+      #pageInterpretacion .skill-row-title,
+      #pageInterpretacion .esc-comp-title,
+      #pageInterpretacion .esc-comp-subtitle,
+      #pageInterpretacion .sec-head,
+      #pageInterpretacion .recom-list > li.sec-head,
+      #page2 .section-title,
+      #page2 .bloque-title,
+      #page2 .interp-title,
+      #page2 .interp-bloque-nombre,
+      #page2 .interp-bloque-header,
+      #page2 .interpTitle,
+      #page2 .iviTitle,
+      #page2 .iviGuideTitle,
+      #page2 .iviGuideTitleRow,
+      #page2 .plan-section-title,
+      #page2 .plan-focus-head,
+      #page2 .skill-row-title,
+      #page2 .esc-comp-title,
+      #page2 .esc-comp-subtitle,
+      #page2 .sec-head,
+      #page2 .recom-list > li.sec-head,
+      #page2 .numsec h3,
+      #page2 .numsec h4,
+      #page2 .part2top h3,
+      #page2 .interp-box > h3,
+      #page2 .recom-box > h3,
+      #page2 .ctx-box > h3,
+      #p2 .section-title,
+      #p2 .numsec h3,
+      #p2 .numsec h4,
+      #p2 .part2top h3,
+      #p2 .sec-head{
+        break-after:avoid !important;
+        page-break-after:avoid !important;
+      }
+      #pageInterpretacion .iviGuideKeep,
+      #page2 .iviGuideKeep,
+      #pageInterpretacion .skill-row{
+        break-inside:avoid !important;
+        page-break-inside:avoid !important;
+      }
+}
+
+
+    .bloque-title{font-weight:800;margin:12px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .bloque-left{display:flex;align-items:center;gap:6px;}
+    .bloque-bullet{width:10px;height:10px;border-radius:999px;background:#f4a338;flex:0 0 auto;}
+    .ih-badge{background:var(--yellow);padding:2px 10px;border-radius:2px;min-width:36px;text-align:center;font-weight:800;}
+    .iie-row{display:flex;justify-content:flex-end;align-items:center;margin:12px 0 6px;font-weight:800;gap:8px;}
+    .iie-badge{background:#1d4ed8;color:#fff;padding:3px 12px;border-radius:2px;min-width:40px;text-align:center;}
+
+    .scale-section{margin-top:14px;}
+    .section-title{display:flex;align-items:center;gap:6px;font-weight:800;margin-bottom:2px;}
+    .section-dot{width:10px;height:10px;border-radius:999px;background:#f4a338;flex:0 0 auto;}
+    .scale-range-header{display:grid;grid-template-columns:220px 1fr 1fr 1fr;font-size:11px;font-weight:700;margin:0 0 2px;align-items:flex-end;}
+    .scale-range-header span{text-align:center;}
+.scale-note-inline{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+  text-align:center;
+  position: relative;
+  left: 4cm;
+}
+.scale-note-risk{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:8px;
+  margin-top:6px;
+  align-items:center;
+}
+.scale-note-risk > span{
+  grid-column:2;
+  font-size:12px;
+  font-weight:800;
+  color:#111827;
+  background:#fef3c7;
+  border:1px solid #f59e0b;
+  border-radius:4px;
+  padding:2px 8px;
+  line-height:1.2;
+  text-align:center;
+}
+.scale-note-cambio{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:8px;
+  margin-top:4px;
+  margin-bottom:0;
+  margin-left:calc(220px + 8px);
+  padding:0;
+  border:0;
+  font-size:11px;
+  font-weight:800;
+  color:#374151;
+  line-height:1.2;
+  position:relative;
+  left:0;
+  text-align:left;
+}
+.scale-note-cambio > span{
+  white-space:nowrap;
+  flex:0 1 auto;
+}
+.scale-note-cambio > span:first-child{text-align:left;}
+.scale-note-cambio > span:last-child{text-align:right;margin-left:auto;}
+
+    .bars-wrap{margin:8px 0}
+    .bars-row{display:grid;grid-template-columns:220px 1fr;align-items:center;gap:8px;margin:10px 0;}
+    .bars-row .label{font-weight:700;font-size:12px}
+    .bars-slot{position:relative;height:22px;border:1px solid #9ca3af;border-radius:4px;background:#f3f4f6}
+    .bars-slot .tick{position:absolute;top:-6px;width:1px;height:24px;background:#9ca3af}
+    .bars-slot .tick-label{position:absolute;top:19px;font-size:10px;transform:translateX(-50%)}
+    .bars-slot .marker{position:absolute;top:-4px;width:14px;height:22px;background:#000;border-radius:3px;transform:translateX(-50%);display:none;box-shadow:0 0 0 1px rgba(255,255,255,.78),0 1px 4px rgba(0,0,0,.35);z-index:4}
+
+    /* Interpretación larga */
+    .interp-title{margin-top:8px;font-size:18px;font-weight:800;}
+    .interp-legend{font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:4px;}
+    .interp-legend-row{margin-top:3px;margin-bottom:3px;}
+    .interp-bloque{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;font-size:12px;background:#fff;}
+    .interp-bloque-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px;}
+    .interp-bloque-nombre{margin-top:8px;font-size:18px;font-weight:800;text-transform:none;}
+    .interp-bloque-indice{font-weight:800;font-size:12px;}
+    .interp-bloque-indice span{background:var(--yellow);padding:2px 8px;border-radius:2px;min-width:36px;text-align:center;display:inline-block;}
+    .interp-bloque-desc{font-size:12px;color:var(--muted);margin-bottom:6px;}
+    .skill-row{margin:6px 0 10px;}
+    .skill-row-title{font-weight:700;font-size:12px;margin-bottom:2px;}
+    .skill-row-desc{font-size:11px;color:var(--muted);margin-bottom:4px;}
+    .skill-row-alert{color: var(--red);font-weight:600;}
+    .skill-bar{display:flex;align-items:center;gap:6px;}
+    .skill-bar-track{position:relative;flex:1;height:12px;border-radius:999px;overflow:hidden;background:linear-gradient(to right,var(--red) 0%, var(--red) 40%,var(--orange) 40%, var(--orange) 70%,var(--green) 70%, var(--green) 100%);}
+    .skill-bar-marker{position:absolute;top:-4px;bottom:-4px;width:5px;background:#000;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.78),0 1px 4px rgba(0,0,0,.35);transform:translateX(-50%);z-index:4;}
+    .skill-bar-value{font-size:11px;font-weight:700;min-width:48px;text-align:right;}
+    /* MARKER CAMBIO 2026-03-10: diferenciación explícita PRO vs escolar en recomendaciones y plan de acción */
+
+    .recom-subtitle{font-size:12px;color:var(--muted);margin-bottom:4px;}
+    .recom-list{margin:4px 0 0 14px;padding:0;font-size:12px;color:#374151;}
+    .recom-list li{margin-bottom:3px;}
+    .plan-section-title{font-weight:700;font-size:12px;margin-top:4px;margin-bottom:2px;}
+
+    .p2-title{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+    .p2-title h2{font-size:18px;font-weight:800}
+    .card{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
+    .result-table th,.result-table td{border-bottom:1px solid #e5e5e5;padding:6px 8px;font-size:13px;text-align:left}
+    .result-table th{font-weight:800}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:800;font-size:12px;color:#fff}
+    .b-red{background:var(--red)}
+    .b-orange{background:var(--orange)}
+    .b-green{background:var(--green)}
+  
+    .complementarias{
+      margin-top:14px;
+      border-top:1px solid var(--line);
+      padding-top:10px;
+    }
+    .esc-comp-header{
+      text-align:center;
+      margin-bottom:8px;
+    }
+    .esc-comp-title{
+      font-weight:900;
+      font-size:14px;
+      text-transform:uppercase;
+    }
+    .esc-comp-subtitle{
+      font-weight:800;
+      font-size:12px;
+      text-transform:uppercase;
+      margin-top:2px;
+    }
+    @media print{
+      .page-1{page-break-after:always}
+
+      .complementarias{ page-break-before: always; break-before: page; border-top:0; padding-top:0; }
+    }
+  /* tus estilos existentes... */
+
+  /* AQUÍ PEGAS ESTO */
+  .plan-focus-box{margin:10px 0 14px;padding:10px 12px;border:1px solid #e6e6e6;border-radius:10px;}
+  .plan-focus-item{margin-top:10px;}
+  .plan-focus-head{margin-bottom:4px;}
+  .plan-focus-obj{margin:4px 0 6px;}
+  .plan-focus-meta{margin:4px 0;}
+.iv-title{
+  font-weight:700;
+  font-size:14px;
+  text-transform:uppercase;
+  text-align:center;
+  margin:0 0 10px 0;
+}
+    /* Realce SOLO para la línea del IIE en el Perfil cuantitativo global */
+.perfil-iie{
+  font-weight:900;
+  font-size:13.5px;
+  margin-top:8px;   /* “pequeño margen arriba” */
+}
+    .perfil-sep{
+  margin-top:18px; /* “bajar una línea” */
+}
+  </style>
+
+</head>
+<body>
+<div class="wrap">
+  <div id="ingresoPanel" class="ingreso-panel">
+    <div class="intro-logo-wrap">
+      <img src="assets/logo_adalam.webp" alt="Adalam seal" class="intro-logo" width="248" height="99"/>
+    </div>
+    <h1 class="ingreso-titulo">Social-emotional assessment report</h1>
+    <div class="topbar">
+      <input id="codigoInput" placeholder="Code (e.g. ESC-SOCIV2-EN-AB12 / PRO-SOCIV2-EN-AB12)" maxlength="32"/>
+      <button type="button" class="btn" id="btnVer">View report</button>
+      <span id="msg" class="msg"></span>
+    </div>
+    <div class="hint ingreso-usuario">Enter a <strong>valid code</strong> (e.g. ESC-SOCIV2-EN-AB12), the same one you <strong>used</strong> for the Social-Emotional Assessment.</div>
+  </div>
+
+  <div id="reporteContainer" style="display:none">
+    <!-- ===== PAGE 1 ===== -->
+    <section id="page1" class="page page-1">
+      <div class="page1-sheet">
+      <div class="rep-top">
+        <div class="rep-top-row1">
+          <div id="repDateLine" class="rep-date"></div>
+          <div class="rep-top-titles">
+            <div class="rep-top-row2"><span>REPORT</span></div>
+            <div class="rep-top-row3">EMOTIONAL INTELLIGENCE</div>
+          </div>
+          <div class="rep-top-logo">
+            <img src="assets/logo_adalam.webp" alt="Logotipo" class="mhp-logo">
+          </div>
+        </div>
+      </div>
+
+      <div class="rep-ids" id="repHeaderBox"
+           style="display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:12px;margin-top:8px">
+      </div>
+
+      <div class="rep-mid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+        <div class="curve">
+          <div id="tituloCurvaFrecuencias" style="font-weight:700">FREQUENCY DISTRIBUTION CURVE.</div>
+           <div class="curve-gauge" style="position:relative; width:100%; height:220px; margin-top:6px;">
+                <img id="freqCurveImg" src="assets/curva_metal.png" alt="Distribution curve"
+               style="width:100%; height:220px; object-fit:contain; display:block;"/>
+
+                <div id="curveMarker" aria-hidden="true"
+                   style="position:absolute; left:50%; bottom:26px; width:0; height:0;
+                    z-index:3; pointer-events:none;">
+   <svg width="30" height="54" viewBox="0 0 18 30"
+     style="position:absolute; left:0; bottom:0; transform:translateX(-50%);
+            display:block; overflow:visible;">
+  <defs>
+    <!-- Negro tipo "cristal" -->
+    <linearGradient id="blkMain" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0%"   stop-color="#1a1a1a"/>
+  <stop offset="28%"  stop-color="#2b2b2b"/>
+  <stop offset="55%"  stop-color="#111111"/>
+  <stop offset="78%"  stop-color="#3a3a3a"/>
+  <stop offset="100%" stop-color="#181818"/>
+</linearGradient>
+
+    <!-- Brillo de borde (fino) -->
+    <linearGradient id="blkEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Sombra suave (pequeña) -->
+    <filter id="blkShadow" x="-40%" y="-40%" width="180%" height="200%">
+      <feDropShadow dx="0" dy="1.1" stdDeviation="1.0" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <!-- CUERPO -->
+  <g filter="url(#blkShadow)">
+    <!-- base -->
+    <rect x="6" y="0" width="6" height="16" rx="1.2"
+          fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+    <!-- faceta clara (izquierda) -->
+    <path d="M6.2 0.6 L8.4 0.6 L8.4 15.4 L6.2 15.4 Z"
+          fill="#ffffff" opacity="0.10"/>
+    <!-- faceta oscura (derecha) -->
+    <path d="M9.8 0.6 L11.8 0.6 L11.8 15.4 L9.8 15.4 Z"
+          fill="#000000" opacity="0.22"/>
+    <!-- brillo de borde -->
+    <rect x="6.4" y="0.8" width="1.1" height="14.8" rx="0.8"
+          fill="url(#blkEdge)" opacity="0.85"/>
+  </g>
+
+  <!-- PUNTA -->
+  <g filter="url(#blkShadow)">
+    <!-- base -->
+    <path d="M9 30 L2 16 H16 Z"
+          fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+    <!-- faceta izquierda -->
+    <path d="M9 30 L2.7 16.3 L8.8 16.3 Z"
+          fill="#ffffff" opacity="0.10"/>
+    <!-- faceta derecha -->
+    <path d="M9 30 L9.2 16.3 L15.3 16.3 Z"
+          fill="#000000" opacity="0.22"/>
+    <!-- brillo central suave -->
+    <path d="M9 28.6 L4.3 16.7 H13.7 Z"
+          fill="url(#blkEdge)" opacity="0.55"/>
+  </g>
+</svg>
+                </div>
+          </div>
+            </div>
+
+        <div class="rep-iv" style="margin-top:12px;">
+          <div class="iv-title">VALIDATION INDEXES</div>
+          <table class="iv-table" style="width:100%;border-collapse:collapse;font-size:12px">
+            <tr id="iv1Row">
+              <th class="iv-key" style="border:1px solid #111;padding:6px">NA</th>
+              <td style="border:1px solid #111;padding:6px">High level of self-knowledge</td>
+              <td style="border:1px solid #111;padding:6px">Medium level of self-knowledge</td>
+              <td style="border:1px solid #111;padding:6px">Low self-knowledge · needs support</td>
+            </tr>
+            <tr id="iv2Row">
+              <th class="iv-key" style="border:1px solid #111;padding:6px">NC</th>
+              <td style="border:1px solid #111;padding:6px">No contradiction</td>
+              <td style="border:1px solid #111;padding:6px">Some contradictions</td>
+              <td style="border:1px solid #111;padding:6px">Frequent contradiction</td>
+            </tr>
+            <tr id="iv3Row">
+              <th class="iv-key" style="border:1px solid #111;padding:6px">PT</th>
+              <td style="border:1px solid #111;padding:6px">30 to 90 minutes<br><span class="muted">Adequate time</span></td>
+              <td style="border:1px solid #111;padding:6px">10 to 20 minutes<br><span class="muted">Too brief</span></td>
+              <td style="border:1px solid #111;padding:6px">More than 90 minutes<br><span class="muted">Too slow</span></td>
+            </tr>
+          </table>
+          <div class="iv-legend">
+            <span><b>NA</b> Nivel de Autoconocimiento</span>
+            <span><b>NC</b> Nivel de Contradicción</span>
+            <span><b>PT</b> Promedio del Tiempo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bloque-title">
+        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblIntra">PERSONAL DEVELOPMENT</span></div>
+        <div>IDP: <span class="ih-badge" id="ihIntra">—</span></div>
+      </div>
+      <div class="rep-bloque" id="bloqueIntra"></div>
+
+      <div class="bloque-title">
+        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblInter">INTERPERSONAL BONDS</span></div>
+        <div>IVI: <span class="ih-badge" id="ihInter">—</span></div>
+      </div>
+      <div class="rep-bloque" id="bloqueInter"></div>
+
+      <div class="bloque-title">
+        <div class="bloque-left"><span class="bloque-bullet"></span><span id="lblVida">LIFE SKILLS</span></div>
+        <div>IHV: <span class="ih-badge" id="ihPV">—</span></div>
+      </div>
+      <div class="rep-bloque" id="bloquePV"></div>
+
+      <div class="iie-row">
+        <span>EMOTIONAL INTELLIGENCE INDEX EII:</span>
+        <span class="iie-badge" id="repIIE">—</span>
+      </div>
+
+      <!-- COMUNICACIÓN INTERPERSONAL -->
+      <div class="scale-section">
+        <div class="section-title">
+          <div class="section-dot"></div>
+          <div>INTERPERSONAL COMMUNICATION</div>
+        </div>
+        <div class="scale-range-header">
+          <span></span>
+          <span>BAJO</span>
+          <span>PROMEDIO</span>
+          <span>ALTO</span>
+        </div>
+        <div class="rep-scale" id="estilos"></div>
+      </div>
+
+      <!-- ADAPTACIÓN AL CAMBIO -->
+      <div class="scale-section">
+        <div class="section-title">
+          <div class="section-dot"></div>
+          <div>ADAPTATION TO CHANGE</div>
+        </div>
+        <div class="rep-scale" id="cambio"></div>
+        <div class="scale-note-cambio">
+          <span>Lower adaptation to change</span>
+          <span>Higher adaptation to change</span>
+        </div>
+      </div>
+
+      <p class="reporte-pie-adalam reporte-pie-page1">Adalam — Social-Emotional Assessment Report</p>
+      </div>
+      <div class="reporte-acciones-pantalla">
+        <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Print / PDF</button>
+        <a href="index-en.html" class="btn" style="background:#0f766e;text-decoration:none;color:#fff">Back to menu</a>
+      </div>
+    </section>
+
+    <!-- ===== PAGE 3 (INTERPRETACIÓN LARGA) ===== -->
+    <section class="page page-interpretacion" id="pageInterpretacion">
+      <div class="rep-top">
+        <div class="rep-top-row1">
+          <div id="repDateLine2" class="rep-date"></div>
+          <div class="rep-top-center">Social-emotional and psychometric report</div>
+          <div class="rep-top-logo">
+            <img src="assets/logo_adalam.webp" alt="Logotipo" class="mhp-logo">
+          </div>
+        </div>
+        <div class="rep-top-row2"><span>Social-emotional and psychometric report</span></div>
+        <div class="rep-top-row3">EMOTIONAL INTELLIGENCE – INTERPRETATION</div>
+      </div>
+
+      <h2 class="interp-title">1.- Datos personales.</h2>
+      <div class="rep-ids" id="repHeaderBox2"
+           style="display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:12px;margin-top:4px">
+      </div>
+
+      <h2 class="interp-title">2.- Instrument description and how to read the results</h2>
+
+      <div class="interp-legend">
+        <div class="interp-legend-row">
+          Results are shown on a scale from 1 to 100, like a percentile score. This shows whether the person falls below, around, or above the reference group for their age.
+        </div>
+        <div class="interp-legend-row">Three ranges are used to make the results easier to read:</div>
+        <div class="interp-legend-row">
+          <span class="badge b-red">1–40 · Low</span>
+          <span class="badge b-orange">41–70 · Medium</span>
+          <span class="badge b-green">71–100 · High</span>
+        </div>
+        <div class="interp-legend-row">
+          Red marks skills to develop, yellow skills to strengthen, and green skills to enrich. A higher score means a higher level of development or management of that skill.
+        </div>
+        <div class="interp-legend-row">
+          On the <b>Aggression</b> and <b>Shyness</b> scales the reading is reversed: low scores mean better management, while high scores suggest greater risk and need observation and support.
+        </div>
+        <div class="interp-legend-row">
+          The instrument assesses three broad skill sets (personal development, interpersonal bonds, and life skills), organized into specific sub-skills, plus interpersonal communication and adaptation to change.
+        </div>
+      </div>
+
+      <div id="interpIntra"  class="interp-bloque"></div>
+      <div id="interpInter"  class="interp-bloque"></div>
+      <div id="interpPV"     class="interp-bloque"></div>
+
+      <div id="interpEstilos" class="interp-bloque"></div>
+      <div id="interpCambio"  class="interp-bloque"></div>
+
+      <div id="perfilGlobal" class="interp-bloque"></div>
+      <div id="recomendaciones" class="interp-bloque"></div>
+      <div id="planAccion" class="interp-bloque"></div>
+      <p class="reporte-pie-adalam reporte-pie-page2">Adalam — Social-Emotional Assessment Interpretation</p>
+    </section>
+
+    <div class="page-break"></div>
+
+    <!-- ===== PAGE 4 (DETALLE HABILIDADES) ===== -->
+    <section class="page page-2" id="page2">
+      <div class="p2-title">
+        <h2>OVERALL RESULTS</h2>
+      </div>
+
+      <div class="card">
+        <div><b>Answered:</b> <span id="contestadasLine">—</span></div>
+
+        <h3 style="margin-top:8px">By sub-skill</h3>
+        <table class="result-table" id="subTable">
+          <thead>
+            <tr>
+              <th>Group</th><th>Skill</th><th>Items</th><th>Points</th><th>%</th><th>Range</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <div class="hint" style="margin-top:6px">
+          Rangos: <span class="badge b-red">1–40</span>
+          <span class="badge b-orange">41–70</span>
+          <span class="badge b-green">71–100</span>
+        </div>
+      </div>
+      <div class="reporte-acciones-pantalla">
+        <button type="button" class="btn" id="btnPDF" style="background:#2563eb">Print / PDF</button>
+        <a href="index-en.html" class="btn" style="background:#0f766e;text-decoration:none;color:#fff">Back to menu</a>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  const REPORT_PRODUCT_KEY = "SOCIV2";
+  const REPORT_UI_LANG = "EN";
+  const $ = sel => document.querySelector(sel);
+  function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
+  function normalizeName(name){ return (name||"").replace(/\s+/g," ").trim().toLowerCase(); }
+
+  // Alias de nombres de bloques: permite que el reporte muestre los NUEVOS títulos,
+  // pero siga encontrando los datos aunque vengan con nombres anteriores en la BD/API.
+  const BLOQUE_ALIAS = {
+    // Nuevos -> antiguos (normalizados)
+    "desarrollo personal": "habilidades intrapersonales",
+    "vínculos interpersonales": "habilidades interpersonales",
+    "vinculos interpersonales": "habilidades interpersonales",
+    "competencias para la vida": "habilidades para la vida",
+    "comunicación interpersonal": "estilos de comunicación interpersonal",
+    "comunicacion interpersonal": "estilos de comunicación interpersonal",
+    "adaptación al cambio": "propensión al cambio",
+    "adaptacion al cambio": "propensión al cambio"
+  };
+
+  function canonBloque(name){
+    const n = normalizeName(name);
+    return BLOQUE_ALIAS[n] || n;
+  }
+
+
+  const DISPLAY = {
+    bloque: {
+      "desarrollo personal": "PERSONAL DEVELOPMENT",
+      "vínculos interpersonales": "INTERPERSONAL BONDS",
+      "competencias para la vida": "LIFE SKILLS",
+      "estilos de comunicación interpersonal": "INTERPERSONAL COMMUNICATION",
+      "propensión al cambio": "ADAPTATION TO CHANGE",
+
+      "habilidades intrapersonales": "PERSONAL DEVELOPMENT",
+    "habilidades interpersonales": "INTERPERSONAL BONDS",
+    "habilidades para la vida": "LIFE SKILLS"
+    },
+    sub: {}
+  };
+  // sub mapping (normalizado, sin tildes) construido en runtime:
+  (function(){
+    const src = {"autoestima": "Self-esteem", "manejo de la tension": "Stress management", "manejo de la tensión": "Stress management", "bienestar fisico": "Healthy habits", "bienestar físico": "Healthy habits", "asertividad": "Assertive expression", "conciencia de los demas": "Awareness of others", "conciencia de los demás": "Awareness of others", "empatia": "Empathic sensitivity", "empatía": "Empathic sensitivity", "motivacion": "Inner motivation", "motivación": "Inner motivation", "compromiso": "Level of commitment", "administracion del tiempo": "Time organization", "administración del tiempo": "Time organization", "toma de decisiones": "Decision making", "toma de desiciones": "Decision making", "liderazgo": "Leadership", "propensión al cambio": "Adaptation to change", "propension al cambio": "Adaptation to change"};
+    const strip = s => (s||"").normalize("NFD").replace(/\p{Diacritic}/gu,"");
+    for (const [k,v] of Object.entries(src)) {
+      DISPLAY.sub[k] = v;
+    }
+    DISPLAY._strip = strip;
+  })();
+function dispBloque(name){
+  const canon = canonBloque(name);      // convierte lo que venga a nombre canónico (BD)
+  return DISPLAY.bloque[canon] || name; // devuelve el nombre NUEVO si existe
+}
+
+  function dispSub(name){
+    const strip = DISPLAY._strip;
+    const k = strip(normalizeName(name));
+    return DISPLAY.sub[k] || name;
+  }
+
+  /* SOCIV2: sin maquillaje; puntaje crudo 1–100 (sin −10) */
+  const SCORE_ADJUST = { ENABLED:false, OFFSET:0, APPLY_TO_RISK:false };
+  function isRiskScale(bloqueNorm, subNorm){
+    const b = canonBloque(bloqueNorm || "");
+    const s = normalizeName(subNorm || "");
+    return (b === normalizeName("estilos de comunicación interpersonal") && (s === "agresión" || s === "timidez"));
+  }
+  function adjScore(v, {bloqueNorm=null, subNorm=null}={}){
+    const n = Number(v);
+    if(!Number.isFinite(n)) return v;
+    if(n<=0) return n;
+    if(!SCORE_ADJUST.ENABLED) return Math.round(n);
+    if(isRiskScale(bloqueNorm||"", subNorm||"") && !SCORE_ADJUST.APPLY_TO_RISK){
+      return clamp(Math.round(n),1,100);
+    }
+    return clamp(Math.round(n - SCORE_ADJUST.OFFSET),1,100);
+  }
+
+  function rangoBadge(p){
+    if (p<=40) return {txt:"1–40 To develop", cls:"b-red"};
+    if (p<=70) return {txt:"41–70 To strengthen", cls:"b-orange"};
+    return {txt:"71–100 To enrich", cls:"b-green"};
+  }
+  function rangoBadgeRiesgo(p){
+    if (p<=40) return {txt:"1–40 Low risk", cls:"b-green"};
+    if (p<=70) return {txt:"41–70 Medium risk", cls:"b-orange"};
+    return {txt:"71–100 High risk", cls:"b-red"};
+  }
+
+  function highlightIV(rowId, colIndex){
+    const row = document.getElementById(rowId);
+    if(!row) return;
+    [...row.children].forEach(td=>td.classList.remove("hl"));
+    const idx = Math.max(1, Math.min(3, colIndex|0));
+    const td = row.children[idx];
+    if(td) td.classList.add("hl");
+  }
+
+  function ivToCol(v){
+    if (v === null || v === undefined) return 2;
+    const n = Number(v);
+    if (!Number.isNaN(n)){
+      if (n === 0 || n === 1 || n === 2) return n + 1;
+      if (Number.isInteger(n) && n>=1 && n<=3) return n;
+      if (n >= 0 && n <= 100){
+        if (n >= 71) return 1;
+        if (n >= 41) return 2;
+        return 3;
+      }
+    }
+    const s = String(v).toLowerCase();
+    if (s.includes("no se contradice") || s.includes("tomó el tiempo adecuado") || s.includes("tiempo adecuado")) return 1;
+    if (s.includes("se contradice frecuentemente") || s.includes("demasiado lento")) return 3;
+    return 2;
+  }
+
+  function drawBellCurve(){
+    const path = document.getElementById("bellPath");
+    const fill = document.getElementById("bellFill");
+    if(!path || !fill) return;
+    const left=10, right=510, baseY=100, topY=18;
+    const mid=(left+right)/2, sigma=90;
+    const pts=[];
+    for(let x=left; x<=right; x+=5){
+      const z=(x-mid)/sigma;
+      const y = baseY - Math.exp(-0.5*z*z)*(baseY-topY);
+      pts.push([x,y]);
+    }
+    let d=`M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+    for(let i=1;i<pts.length;i++) d += ` L${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}`;
+    path.setAttribute("d", d);
+    const df = d + ` L${right} ${baseY} L${left} ${baseY} Z`;
+    fill.setAttribute("d", df);
+  }
+function setCurveMarker(iie){
+  const score = clamp(Number(iie) || 0, 1, 100);
+
+  const wrap = document.querySelector(".curve .curve-gauge");
+  const img  = document.getElementById("freqCurveImg");
+  const mk   = document.getElementById("curveMarker");
+  if(!wrap || !img || !mk) return;
+
+  const place = () => {
+    const rW = wrap.getBoundingClientRect();
+    const rI = img.getBoundingClientRect();
+
+    // Tamaño real dibujado dentro del <img> (por object-fit:contain)
+    const natW = img.naturalWidth  || 1;
+    const natH = img.naturalHeight || 1;
+
+    const scale  = Math.min(rI.width / natW, rI.height / natH);
+    const drawnW = natW * scale;
+
+    // offset X dentro del <img> (centrado por contain)
+    const offsetXInsideImg = (rI.width - drawnW) / 2;
+
+    // X relativo al contenedor .curve-gauge
+    const leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+
+    // Calibración horizontal (márgenes de la "regla" dentro de la imagen)
+    const padL = drawnW * 0.12;   // 0% (ajuste fino)
+    const padR = drawnW * 0.22;   // 100% (ajuste fino)
+
+    const minX = leftInWrap + padL;
+    const maxX = leftInWrap + drawnW - padR;
+
+    const t = (score - 1) / 99; // 1..100 -> 0..1 exacto
+
+    // X (horizontal)
+    let x = minX + t * (maxX - minX);
+    x = Math.max(minX, Math.min(maxX, x));
+
+    // Y (vertical): regla inclinada (toque mágico)
+    // Ajusta estos dos valores UNA VEZ:
+    // - bottomAt0: dónde toca la regla cuando score≈1 (lado 0%)
+    // - bottomAt100: dónde toca la regla cuando score≈100 (lado 100%)
+    const bottomAt0 = 94;    // px
+    const bottomAt100 = 30;  // px
+    const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+
+    // Porcentajes respecto a .curve-gauge: al imprimir/PDF el zoom cambia el layout;
+    // los px fijos quedan desalineados; los % escalan con el mismo contenedor que la imagen.
+    const w = rW.width || 1;
+    const h = rW.height || 1;
+    mk.style.left = `${(x / w) * 100}%`;
+    mk.style.bottom = `${(y / h) * 100}%`;
+  };
+
+  // Asegura que se calcule cuando ya hay layout + imagen lista
+  if (img.complete) {
+    requestAnimationFrame(place);
+  } else {
+    img.addEventListener("load", () => requestAnimationFrame(place), { once:true });
+  }
+}
+
+  function addRow(container, name, pct){
+    const row=document.createElement('div');
+    row.style.display='grid';
+    row.style.gridTemplateColumns='220px 1fr 1fr 1fr';
+    row.style.alignItems='center';
+    row.style.gap='6px';
+    row.style.margin='2px 0';
+
+    const nameCell=document.createElement('div');
+    nameCell.textContent=dispSub(name);
+    nameCell.style.fontWeight='700';
+    nameCell.style.fontSize='12px';
+    row.appendChild(nameCell);
+
+    for(let i=0;i<3;i++){ 
+      const track=document.createElement('div');
+      track.style.position='relative';
+      track.style.height='14px';
+      track.style.border='1px solid #aab';
+      track.style.borderRadius='4px';
+      track.style.background='#f3f5f8';
+      track.style.overflow='hidden';
+
+      const fill=document.createElement('div');
+      fill.style.position='absolute';
+      fill.style.left='0';
+      fill.style.top='0';
+      fill.style.bottom='0';
+      fill.style.background='#6b7280';
+
+      let w=0;
+      if(i===0 && pct<=40)  w = Math.max(2, Math.round((pct/40)*100));
+      if(i===1 && pct>40 && pct<=70) w = Math.max(2, Math.round(((pct-40)/30)*100));
+      if(i===2 && pct>70)  w = Math.max(2, Math.round(((pct-70)/30)*100));
+      fill.style.width = w + '%';
+      track.appendChild(fill);
+      row.appendChild(track);
+    }
+    container.appendChild(row);
+  }
+
+  function buildBloque(containerId, subRows, bloqueNombre){
+    const cont = document.getElementById(containerId);
+    if(!cont) return;
+    cont.innerHTML = '';
+
+    const cols = document.createElement('div');
+    cols.style.display='grid';
+    cols.style.gridTemplateColumns='220px 1fr 1fr 1fr';
+    cols.style.gap='6px';
+    cols.style.marginBottom='6px';
+
+    const blank=document.createElement('div');
+    cols.appendChild(blank);
+
+    ['TO DEVELOP','TO STRENGTHEN','TO ENRICH'].forEach(t=>{
+      const d=document.createElement('div');
+      d.style.fontSize='11px';
+      d.style.textAlign='center';
+      d.style.color='#374151';
+      d.textContent=t;
+      cols.appendChild(d);
+    });
+    cont.appendChild(cols);
+
+    const bloqueKey = canonBloque(bloqueNombre);
+    const ordenes = {
+      "desarrollo personal": ["Autoestima","Manejo de Estrés","Hábitos Saludables"],
+      "vínculos interpersonales": ["Expresión Asertiva","Percepción de los Demás","Sensibilidad Empática"],
+      "competencias para la vida": ["Motivación Interna","Nivel de Compromiso","Organización del Tiempo","Toma de Decisiones","Liderazgo"]
+    };
+
+    let rowsFiltradas = (subRows||[]).filter(r=> canonBloque(r.bloque||r.block||"")===bloqueKey);
+
+    const orden = ordenes[bloqueKey];
+    if (orden){
+      rowsFiltradas.sort((a,b)=>{
+        const nameA = (a.subhabilidad || a.sub || a.nombre || "").toLowerCase();
+        const nameB = (b.subhabilidad || b.sub || b.nombre || "").toLowerCase();
+        const ia = orden.findIndex(x=> x.toLowerCase()===nameA);
+        const ib = orden.findIndex(x=> x.toLowerCase()===nameB);
+        if (ia===-1 && ib===-1) return nameA.localeCompare(nameB);
+        if (ia===-1) return 1;
+        if (ib===-1) return -1;
+        return ia-ib;
+      });
+    }
+
+    rowsFiltradas.forEach(r=>{
+      const sub = r.subhabilidad || r.sub || r.nombre || "";
+      const pctRaw = Math.round(r.percent ?? r.pct ?? r.porcentaje ?? 0);
+      const pct = adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeName(sub)});
+      addRow(cont, sub, pct);
+    });
+  }
+
+  function renderBars(containerId, items, showNote){
+    const host = document.getElementById(containerId);
+    if (!host) return;
+    host.innerHTML = "";
+    const wrap = document.createElement("div");
+    wrap.className = "bars-wrap";
+
+    items.forEach(it => {
+      const row = document.createElement("div");
+      row.className = "bars-row";
+
+      // Separación visual entre Agresión y Timidez
+      if (it.label === "SHYNESS") {
+        row.style.marginTop = "20px";
+      }
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = it.label + " (10–100)";
+      row.appendChild(label);
+
+      const slot = document.createElement("div");
+      slot.className = "bars-slot";
+
+      [10,40,70,100].forEach(v => {
+        const pct = (v - 10) / 90 * 100;
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        tick.style.left = pct + "%";
+        slot.appendChild(tick);
+
+        const tLabel = document.createElement("div");
+        tLabel.className = "tick-label";
+        tLabel.style.left = pct + "%";
+        tLabel.textContent = v;
+        slot.appendChild(tLabel);
+      });
+
+      const marker = document.createElement("div");
+      marker.className = "marker";
+      marker.id = it.id;
+      marker.style.display = "none";
+      slot.appendChild(marker);
+
+      row.appendChild(slot);
+      wrap.appendChild(row);
+    });
+
+    host.appendChild(wrap);
+
+    // Nota SOLO para la Página 1 (no alertas rojas aquí)
+    if (showNote) {
+      const note = document.createElement("div");
+      note.className = "scale-note-risk";
+      const txt = document.createElement("span");
+      txt.textContent = "A low score means better management in these areas.";
+      note.appendChild(txt);
+      host.appendChild(note);
+    }
+  }
+
+  function setMarker(id, val){
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(val==null || isNaN(val)) { el.style.display="none"; return; }
+    const pct = (clamp(val,10,100)-10)/90*100;
+    el.style.left = pct + "%";
+    el.style.display="block";
+  }
+
+  function renderPage2(subRows){
+    const subT = document.querySelector("#subTable tbody");
+    subT.innerHTML = "";
+    (subRows||[]).forEach(r=>{
+      const bloque = r.bloque || r.block || "";
+      const sub = r.subhabilidad || r.sub || "";
+      const items = r.items ?? r.n_items ?? "";
+      const puntos = r.puntos ?? r.points ?? r.pts ?? "";
+      const pctRaw = Math.round(r.percent ?? r.pct ?? 0);
+
+      const bloqueNorm = canonBloque(bloque);
+      const subNorm = normalizeName(sub);
+
+      const pct = adjScore(pctRaw, {bloqueNorm, subNorm});
+
+      let badge;
+      if (isRiskScale(bloqueNorm, subNorm)) badge = rangoBadgeRiesgo(pct);
+      else badge = rangoBadge(pct);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${dispBloque(bloque)}</td>
+        <td>${dispSub(sub)}</td>
+        <td>${items}</td>
+        <td>${puntos}</td>
+        <td><b>${pct}%</b></td>
+        <td><span class="badge ${badge.cls}">${badge.txt}</span></td>
+      `;
+      subT.appendChild(tr);
+    });
+  }
+
+  function findSubPct(subRows, bloqueNombre, subNombre){
+    const bloqueKey = canonBloque(bloqueNombre);
+    const subKey = normalizeName(subNombre);
+    const row = (subRows || []).find(r =>
+      canonBloque(r.bloque || r.block || "") === bloqueKey &&
+      normalizeName(r.subhabilidad || r.sub || r.nombre || "") === subKey
+    );
+    if(!row) return null;
+    const vRaw = Number(row.percent ?? row.pct ?? row.porcentaje ?? row.value);
+    if(Number.isNaN(vRaw)) return null;
+    return adjScore(vRaw, {bloqueNorm: bloqueKey, subNorm: subKey});
+  }
+
+  const BLOQUE_DESCS = {
+    desarrollo: "Personal development is the ability to understand what one feels, handle pressure, and keep habits and goals steady in everyday life.",
+    vinculos: "Interpersonal bonds group the skills for relating in a respectful and effective way. They include connecting with others, noticing other people, and responding with empathic sensitivity.",
+    competencias: "Life skills support everyday functioning and reaching goals. They include inner motivation, commitment, time organization, decision making, and leadership.",
+    comunicacion: "Interpersonal communication describes styles of interaction. On Aggression and Shyness the reading is reversed: low scores suggest better management, while high scores indicate greater risk and need observation and support.",
+    adaptacion: "Adaptation to change reflects openness and flexibility to adjust to new situations, accept change, and support positive change in the setting."
+  };
+
+  const HABILIDAD_DESCS = {
+    "Self-esteem": "How a person sees themselves: how they describe themselves, what they believe they can achieve, and how they read their own abilities.",
+    "Stress management": "The ability to notice signs of tension, regulate the emotional response, and use healthy strategies under pressure, frustration, or uncertainty.",
+    "Healthy habits": "Habits and choices that look after physical and mental well-being (sleep, food, movement, hygiene, rest, and healthy limits).",
+
+    "Assertive expression": "The skill of building positive relationships, cooperating, working through disagreements, and keeping respectful day-to-day contact.",
+    "Awareness of others": "The ability to notice social and emotional signals in other people (gesture, tone, intention) and relate with a better fit.",
+    "Empathic sensitivity": "The ability to take the other person's place, understand how they feel, and respond with consideration and support when it is called for.",
+
+    "Inner motivation": "The personal drive to start and keep going toward goals, even when it is hard, while holding interest and effort.",
+    "Level of commitment": "How far the person takes on responsibilities, keeps agreements, and stays steady with what they decide or promise.",
+    "Time organization": "The ability to plan, set priorities, and use time to finish tasks and goals, without putting things off too long.",
+    "Decision making": "Looking at options, weighing consequences, and choosing the better path to solve a problem or reach a goal.",
+    "Leadership": "The ability to influence in a positive way, coordinate effort, motivate others, and take initiative toward a shared goal.",
+
+    "Aggression": "A tendency to respond in a hostile or impulsive way (verbal, physical, or emotional) when there is conflict or frustration.",
+    "Shyness": "A tendency to hold back or avoid social contact because of insecurity, fear of being judged, or difficulty expressing oneself.",
+    "Adaptation to change": "Openness to adjust to new conditions, ideas, or routines, changing behavior and strategy when the situation calls for it.",
+    "Autoestima": "How a person sees themselves: how they describe themselves, what they believe they can achieve, and how they read their own abilities.",
+    "Agresión": "A tendency to respond in a hostile or impulsive way (verbal, physical, or emotional) when there is conflict or frustration.",
+    "Timidez": "A tendency to hold back or avoid social contact because of insecurity, fear of being judged, or difficulty expressing oneself."
+  };
+
+  const DATA_BLOQUE_POR_TITULO = {
+    "DESARROLLO PERSONAL": "Habilidades intrapersonales",
+    "VINCULOS INTERPERSONALES": "Habilidades interpersonales",
+    "HABILIDADES PARA LA VIDA": "Habilidades para la vida",
+    "COMUNICACIÓN INTERPERSONAL": "Estilos de comunicación interpersonal",
+    "ADAPTACIÓN AL CAMBIO": "Propensión al cambio"
+  };
+
+  const SUB_DISPLAY = {
+    "Autoestima": "Self-esteem",
+    "Asertividad": "Assertive expression",
+    "Conciencia de los demás": "Awareness of others",
+    "Empatía": "Empathic sensitivity",
+    "Compromiso": "Level of commitment",
+    "Motivación": "Inner motivation",
+    "Liderazgo": "Leadership",
+    "Manejo de la Tensión": "Stress management",
+    "Manejo de la tensión": "Stress management",
+    "Administración del tiempo": "Time organization",
+    "Toma de Decisiones": "Decision making",
+    "Toma de decisiones": "Decision making",
+    "Bienestar físico": "Healthy habits",
+    "Propensión al cambio": "Adaptation to change",
+    "Agresión": "Aggression",
+    "Timidez": "Shyness"
+  };
+
+  function dispSub(n){
+    const key = (n||"").trim();
+    return SUB_DISPLAY[key] || key;
+  }
+
+  function renderSkillRow(parent, nombre, pct){
+    const row = document.createElement("div");
+    row.className = "skill-row";
+
+    const title = document.createElement("div");
+    title.className = "skill-row-title";
+    const numeric = (pct != null && !Number.isNaN(Number(pct))) ? Math.round(pct) : null;
+    const nombreDisp = dispSub(nombre);
+    const isAggOrTim = (nombreDisp === "Aggression" || nombreDisp === "Shyness");
+
+    title.textContent = numeric != null ? `${nombreDisp} (Score: ${numeric}/100)` : nombreDisp;
+    row.appendChild(title);
+let shouldAlert = false;
+if (numeric != null){
+  shouldAlert = isAggOrTim ? (numeric >= 71) : (numeric <= 40);
+}
+
+    const descTxt =
+  HABILIDAD_DESCS[nombreDisp] ||
+  HABILIDAD_DESCS[nombre] ||
+  HABILIDAD_DESCS[Object.keys(SUB_DISPLAY).find(k => SUB_DISPLAY[k] === nombre)] ||
+  "";
+
+    if(descTxt){
+      const desc = document.createElement("div");
+      desc.className = "skill-row-desc";
+      desc.textContent = descTxt;
+      row.appendChild(desc);
+    }
+
+    const bar = document.createElement("div");
+    bar.className = "skill-bar";
+
+    const track = document.createElement("div");
+    track.className = "skill-bar-track";
+
+    if (isAggOrTim){
+      track.style.background =
+        "linear-gradient(to right,var(--green) 0%, var(--green) 40%,var(--orange) 40%, var(--orange) 70%,var(--red) 70%, var(--red) 100%)";
+    }
+
+    const marker = document.createElement("div");
+    marker.className = "skill-bar-marker";
+    if(numeric == null) marker.style.display = "none";
+    else marker.style.left = clamp(numeric,1,100) + "%";
+    track.appendChild(marker);
+
+    const value = document.createElement("div");
+    value.className = "skill-bar-value";
+    value.textContent = numeric != null ? `${numeric} / 100` : "—";
+
+    bar.appendChild(track);
+    bar.appendChild(value);
+    row.appendChild(bar);
+if (shouldAlert){
+  const al = document.createElement("div");
+  al.className = "skill-row-alert";
+  al.textContent = isAggOrTim
+    ? "Alert: high score on this scale."
+    : "Alert: low score on this skill.";
+  row.appendChild(al);
+}
+
+    parent.appendChild(row);
+  }
+
+  function nivelFromPct(p){
+    if(p == null || Number.isNaN(p)) return "medio";
+    if(p <= 40) return "bajo";
+    if(p <= 70) return "medio";
+    return "alto";
+  }
+  function escapeHtml(s){
+  return String(s ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
+
+// Normaliza textos del plan para que estén en lenguaje completo (sin abreviaciones confusas)
+function textoPlanClaro(s){
+  let t = String(s ?? "");
+
+  // Normaliza separadores comunes
+  t = t.replace(/\s+/g, " ").trim();
+
+  // Expande abreviaciones frecuentes (solo cuando aparecen como palabra completa o en formatos típicos)
+  t = t
+    .replace(/\bsem\b/gi, "semana")
+    .replace(/\bsemanal\b/gi, "semanal")
+    .replace(/\bquincenal\b/gi, "quincenal")
+    .replace(/\bmensual\b/gi, "mensual")
+    .replace(/\bmin\b/gi, "minutos")
+    .replace(/\bmins\b/gi, "minutos")
+    .replace(/\bhr\b/gi, "recursos humanos")
+    .replace(/\bRRHH\b/gi, "recursos humanos");
+
+  // Formatos tipo "2 veces/sem" o "2/sem"
+  t = t
+    .replace(/\b(\d+)\s*veces\s*\/\s*sem\b/gi, "$1 veces por semana")
+    .replace(/\b(\d+)\s*\/\s*sem\b/gi, "$1 por semana")
+    .replace(/\b(\d+)\s*\/\s*min\b/gi, "$1 minutos");
+
+  // Evita dobles espacios (por reemplazos)
+  t = t.replace(/\s{2,}/g, " ").trim();
+  return t;
+}
+
+
+function nivelFromPctInv(p, invert=false){
+  if(p == null || Number.isNaN(p)) return "medio";
+  const v = Math.round(p);
+
+  if(!invert){
+    if(v <= 40) return "bajo";
+    if(v <= 70) return "medio";
+    return "alto";
+  }else{
+    // invertido para Timidez/Agresión: alto es “peor” (prioridad)
+    if(v <= 40) return "alto";
+    if(v <= 70) return "medio";
+    return "bajo";
+  }
+}
+
+function pctTxt(p){
+  return (p==null || Number.isNaN(p)) ? "—" : `${Math.round(p)}/100`;
+}
+
+  const RECOM_BLOQUES = {
+    // ---NEW BLOCK
+    intra: {
+  bajo: [
+    "For 7 days, set a fixed bedtime on at least 4 nights a week, turn the screen off 20 minutes before, and mark ✓ each night you keep it. At the end of the day, write one line about one concrete achievement of your own, even a small one.",
+    "When they notice tension, frustration, or discouragement, stop for 2 minutes, inhale for 4 counts, hold for 4, and exhale for 6. Then write in one line what the first useful action will be in order to regain control. Practice this at least 3 times a week.",
+    "Once a week, record 3 real signs of progress, for example finishing a task, asking for help appropriately, keeping a schedule, or resolving a difficulty without arguing, and read them aloud or share them with a supporting person."
+  ],
+  medio: [
+    "Maintain a simple self-care routine at least 4 times a week: tidy a personal space for 5 minutes, prepare ahead of time what is needed for the next day, and at the end of the day note a specific achievement or a decision handled well.",
+    "Before a difficult activity, or one that creates resistance, take a short pause of 2 minutes, divide the task into 3 steps, and begin only with the first one. Repeat this practice at least 2 times a week to strengthen persistence and personal control."
+  ],
+  alto: [
+    "Choose a specific goal for 2 weeks, for example maintaining a routine, completing an important pending task, or finishing an activity already started, and divide it into 4 steps with a date. Each Friday, review what progress was actually made and what adjustment is needed.",
+    "Once a week, explain with a real example how they organized their time better, how they handled something that bothered them, or how they stayed calm when facing a difficulty, describing in 2 or 3 sentences what they did and why it worked for them."
+  ]
+},
+
+    //----NEW BLOCK
+inter: {
+  bajo: [
+    "Two times a week, use a complete assertive-communication sentence in a real situation, for example: ‘I think…’, ‘I feel…’, or ‘I need…’, aiming to speak without shouting, without interrupting, and in a respectful tone.",
+    "Once a week, choose a recent situation with another person and write in 3 lines: what happened, what the other person may have felt, and what could have been said or done with greater respect and clarity.",
+    "In one real situation per week, record in 3 steps: what happened, what emotion appeared, and what agreement, request, or specific response can be proposed in order to resolve it without an unnecessary argument."
+  ],
+  medio: [
+    "In 2 conversations per week, practice active listening: let the other person finish, do not interrupt, and respond by starting with phrases such as ‘I understand that you are saying…’ or ‘What I understood was…’, in order to confirm that they understood correctly.",
+    "Two times a week, acknowledge out loud a positive behavior from another person, for example waiting their turn, helping, explaining calmly, or cooperating, and thank them with a clear, specific sentence."
+  ],
+  alto: [
+    "Once a week, take on a specific support or coordination role, for example writing down agreements, handing out materials, managing turns, or keeping time, and record what they did and what result it produced in the group.",
+    "Once a week, take part in a group activity in which they can recall a rule of respect, suggest an appropriate way to communicate, or help close an agreement in an orderly and positive way."
+  ]
+},
+    //----NEW BLOCK
+vida: {
+  bajo: [
+    "Four days a week, write 3 specific tasks for the day: one important task, one brief task, and one closing task. Set an approximate time for each one and mark with ✓ when it is actually completed.",
+    "Once a week, choose a real decision they need to make and write 2 possible options, noting for each one a near-term consequence and a later one before deciding.",
+    "At the start of each week, set a small, measurable goal, for example finishing a task, organizing materials, keeping a schedule, or practicing a skill, and on Friday review whether it was completed fully, partly, or not."
+  ],
+  medio: [
+    "Two or three times a week, work for 20 to 25 minutes on a single task, take a short pause of 3 minutes, and then review what is still needed to finish it, without switching activities early.",
+    "Once a week, take on a small initiative with supervision, for example reading instructions, confirming agreements, coordinating materials, or announcing times, and note whether it was completed well, partially, or incompletely."
+  ],
+  alto: [
+    "Keep one fixed task each week, for example coordinating materials, reviewing a list, remembering an agreement, or following up on a pending task, and record with the date whether it was completed without needing an outside reminder.",
+    "Take part in a small project with 3 defined steps: start, follow-up, and close, noting each step completed and reviewing at the end which agreement was met and which one still needs to be completed."
+  ]
+}
+};
+    const PLAN_ACCION_NIVEL = {
+//---NEW BLOCK
+"DESARROLLO PERSONAL": {
+  bajo: {
+    esc: {
+      objetivo: "Build basic habits of self-regulation, personal confidence, and emotional management in school and everyday situations for 2 to 3 weeks.",
+      acciones: [
+        "For 5 days a week, at the end of the school day or study time, write on a sheet 3 things: which emotion appeared most strongly, what brought it on, and what they could do better next time. It should take only 3 to 5 minutes.",
+        "Four days a week, before starting a task that is hard for them, sit down and, for 2 minutes, breathe in for 4 counts, hold for 4, and exhale for 6. Then begin only with the first step of the task, for example copying the title, reading the first instruction, or solving the first item.",
+        "Once a week, write 2 specific achievements from those days, for example I finished a task, I asked for help without arguing, I kept a schedule, or I calmed down before responding, and note 1 specific thing they want to improve the following week."
+      ],
+      indicador: "Complete 4 breathing pauses per week and 1 weekly record of achievements with a specific improvement.",
+      revision: "Weekly 10-minute review with a teacher, a family member, a counselor, or another supporting adult, reading the sheet and marking which practice was completed."
+    },
+    pro: {
+      objetivo: "Strengthen basic habits of self-regulation, self-assurance, and stress management in situations of work pressure and daily life for 2 to 3 weeks.",
+      acciones: [
+        "Five days a week, at the end of the workday or half day, write in a brief note 3 things: which situation created the most tension, what reaction they had, and what more useful response they could use next time. It should take 3 to 5 minutes.",
+        "Four days a week, before a demanding task, a tense call, a meeting, or a difficult conversation, take a 2-minute pause with 4–4–6 breathing. Then write in one line what the first specific action will be, for example replying to an email, organizing ideas, speaking calmly, or prioritizing a pending task.",
+        "Once a week, record 2 specific signs of progress, for example I met a deadline, I did not respond right away out of irritation, I closed a pending item, or I spoke more calmly, and note 1 specific adjustment for the following week."
+      ],
+      indicador: "Complete 4 regulation pauses per week and 1 weekly record of progress with a specific adjustment.",
+      revision: "Weekly 10-minute review with a mentor, a supervisor, or a trusted person, checking which practice was maintained and what should be strengthened."
+    }
+  },
+
+  medio: {
+    esc: {
+      objetivo: "Consolidate stress-management strategies and strengthen habits of order, consistency, and personal care in the school routine.",
+      acciones: [
+        "Four days a week, at the start of the afternoon or study time, write 3 specific tasks: one important task, one short task, and one closing task. When each one is finished, mark it with ✓. If it is not finished, write in one line what was left undone.",
+        "Two times a week, before a difficult task or one they want to postpone, set a 20-minute alarm and work only on that activity until it rings. At the end, mark whether they finished it or note which part moved forward.",
+        "Four nights a week, choose a set bedtime and turn off the screen 20 minutes beforehand. If they do it, mark with ✓ on a sheet or calendar."
+      ],
+      indicador: "Record 4 days of planning per week, 2 blocks of focused work, and 4 nights with the rest routine completed.",
+      revision: "Review every two weeks to count how many times they did follow through, which habit was harder, and what specific adjustment they will make over the next two weeks."
+    },
+    pro: {
+      objetivo: "Consolidate stress-management strategies and strengthen habits of organization, balance, and consistency in the workday and in personal life.",
+      acciones: [
+        "Four days a week, at the start of the workday or half day, write 3 specific tasks: one priority task, one brief task, and one closing task. When each one is finished, mark it with ✓. If it is not completed, note in one line what remains pending.",
+        "Two times a week, before a demanding task or one they have been putting off, set an alarm for 20 to 25 minutes and work only on that activity until it rings. At the end, write down whether they closed it or which step they managed to move forward.",
+        "Four nights a week, set a target bedtime and turn off the screen or reduce stimulation 20 minutes beforehand. Record with ✓ whether they actually did it."
+      ],
+      indicador: "Record 4 days of planning per week, 2 blocks of focused work, and 4 nights with the rest routine completed.",
+      revision: "Review every two weeks to identify which habit was least stable, what was maintained, and what practical adjustment they will apply over the next two weeks."
+    }
+  },
+
+  alto: {
+    esc: {
+      objetivo: "Strengthen personal autonomy through more challenging goals, consistent habits, and a positive example in their school and family environment.",
+      acciones: [
+        "Choose a specific goal for 2 weeks, for example finishing a reading, improving a subject, maintaining a routine, or keeping to a schedule, and divide it into 4 small steps with a date. Each Friday, review which one they did complete.",
+        "Once a week, show with a real example how they organized their time better, how they stayed calm, or how they kept an agreement, explaining it in 2 or 3 sentences to a teacher, a family member, or a supporting adult.",
+        "Every two weeks, write a brief reflection with 3 questions: what worked for me, what made me lose consistency, and what I will do differently starting tomorrow."
+      ],
+      indicador: "Complete at least 3 of 4 planned steps and record one real example of autonomy or self-control per week.",
+      revision: "Review every two weeks for 10 to 15 minutes to check progress, read the reflection, and define the next specific adjustment."
+    },
+    pro: {
+      objetivo: "Strengthen autonomy and personal maturity through demanding goals, sustainable habits, and a consistent example in the professional environment.",
+      acciones: [
+        "Choose a specific goal for 2 weeks, for example closing a relevant pending task, maintaining an organizational routine, improving a skill, or meeting a deadline more reliably, and divide it into 4 small steps with a date. Each Friday, review which one they did complete.",
+        "Once a week, record a real example of self-regulation or professional maturity, for example I organized my workday better, I stayed calm in a meeting, I responded more clearly, or I kept an agreement without a reminder.",
+        "Every two weeks, write a brief reflection with 3 questions: what worked for me, what made me lose consistency, and what practical adjustment I will apply starting with the next workday."
+      ],
+      indicador: "Complete at least 3 of 4 planned steps and record one real example of autonomy or self-regulation per week.",
+      revision: "Review every two weeks for 10 to 15 minutes to check progress, read the reflection, and define the next practical adjustment."
+    }
+  }
+},      
+//--- NEW BLOCK
+"VINCULOS INTERPERSONALES": {
+  bajo: {
+    esc: {
+      objetivo: "Improve assertive communication and empathy in school, family, and everyday social situations for 2 to 3 weeks.",
+      acciones: [
+        "Two times a week, choose a real situation in which they usually stay silent, respond poorly, or get angry, and use a complete first-person sentence, for example: ‘I think…’, ‘I feel…’, or ‘I need…’, without shouting or interrupting.",
+        "Once a week, take a recent conflict with a classmate, a family member, or a teacher and write in 3 lines: what happened, what the other person may have felt, and what could have been said with more respect.",
+        "In one real situation per week, practice this sequence in writing or by talking with a supportive adult: what happened, what emotion I felt, and what specific request I can make in order to resolve it without an argument."
+      ],
+      indicador: "2 assertive-message practices per week + 1 weekly empathy exercise + 1 situation reviewed with the sequence fact–feeling–request.",
+      revision: "Weekly 10-minute review with a teacher, a family member, or a counselor, noting which phrase they did manage to use and in which situation it was harder."
+    },
+    pro: {
+      objetivo: "Improve assertive communication and empathy in work and personal conversations for 2 to 3 weeks.",
+      acciones: [
+        "Two times a week, choose a real situation of tension or disagreement and use a brief first-person sentence, for example: ‘I need to review this’, ‘I prefer to talk about it calmly’, or ‘I see this point in a different way’, avoiding a response that comes from irritation.",
+        "Once a week, take a recent interaction with a coworker, a client, a boss, or a family member and write in 3 lines: what happened, what the other person may have needed, and what could have been expressed with greater clarity and respect.",
+        "In one real situation per week, practice this sequence in writing or in a guided conversation: what happened, what emotion appeared, and what specific request or boundary they can state without putting the other person down."
+      ],
+      indicador: "2 assertive-message practices per week + 1 weekly exercise on the other person's point of view + 1 situation reviewed with the sequence fact–feeling–request.",
+      revision: "Weekly 10-minute review with a trusted person, a mentor, or a supervisor, reviewing which phrase they were able to apply and which situation is still harder."
+    }
+  },
+
+  medio: {
+    esc: {
+      objetivo: "Consolidate active listening, cooperation, and respectful boundaries in school and family life.",
+      acciones: [
+        "Two times a week, have a conversation of 5 to 10 minutes with a classmate, a family member, or a teacher about a task, a problem, or an agreement, and at the end respond starting with: ‘What I understood was…’ or ‘So you need…’.",
+        "Two times a week, acknowledge out loud a positive behavior from another person with a specific example, for example: ‘Thank you for waiting your turn’, ‘It helped that you explained it to me calmly’, or ‘Today you did keep the agreement’.",
+        "Once a week, take part in a group activity with a clear role, for example taking notes, handing out materials, keeping time, or presenting a part, and at the end note whether they carried it out well, fair, or incomplete."
+      ],
+      indicador: "2 conversations per week with active listening + 2 concrete acknowledgements per week + 1 weekly group role written down.",
+      revision: "Review every two weeks to look at in which situations they listened better, when they were able to acknowledge the other person, and which group role they maintained more consistently."
+    },
+    pro: {
+      objetivo: "Consolidate active listening, cooperation, and respectful boundaries in work and personal relationships.",
+      acciones: [
+        "Two times a week, have a conversation of 5 to 10 minutes with a coworker, a colleague, a supervisor, or a family member about a task, an agreement, or a difficulty, and respond at the end with a confirmation sentence, for example: ‘What I understood was…’ or ‘So the main point is…’.",
+        "Two times a week, acknowledge in a specific way a helpful behavior from another person, for example: ‘Thank you for giving notice in time’, ‘It helped that you explained it calmly’, or ‘It was useful that you made the next step clear’.",
+        "Once a week, take on a brief coordination or support role, for example noting agreements, confirming times, organizing materials, or closing a shared task, and at the end record whether they completed it well, fair, or incomplete."
+      ],
+      indicador: "2 conversations per week with active listening + 2 concrete acknowledgements per week + 1 weekly support role written down.",
+      revision: "Review every two weeks to identify in which situations they communicated better, which acknowledgment they did give, and which role they maintained with greater clarity."
+    }
+  },
+
+  alto: {
+    esc: {
+      objetivo: "Strengthen positive leadership, constructive mediation, and respectful support within the group.",
+      acciones: [
+        "Once a week, help bring order to a specific group situation, for example reminding others of turns, clarifying an agreement, or helping two classmates close a discussion calmly.",
+        "Once a week, take part in an activity in which they recall a rule of respect or suggest an appropriate way to speak, for example: ‘Let’s speak one at a time’ or ‘First we listen, and then we respond’.",
+        "Once a week, spend 10 minutes supporting a classmate, sibling, or family member with something specific, for example organizing a task, clarifying steps, or checking what they still need in order to finish."
+      ],
+      indicador: "1 positive step-in per week + 1 short support action per week + a simple note of what was done and what result it had.",
+      revision: "Monthly review to verify which leadership behavior they did maintain, which one they stopped doing, and what specific action they will strengthen the following month."
+    },
+    pro: {
+      objetivo: "Strengthen positive leadership, constructive mediation, and respectful support in the professional and everyday environment.",
+      acciones: [
+        "Once a week, help bring order to a specific situation, for example clarifying an agreement, organizing turns, summarizing a meeting point, or helping to close a difference respectfully.",
+        "Once a week, step in briefly during a group interaction to look after the group climate, for example by suggesting that people speak one at a time, clarifying the goal, or recalling a basic rule of respect.",
+        "Once a week, spend 10 to 15 minutes supporting another person on a specific task, for example organizing steps, reviewing a pending item, or clarifying what comes next in order to complete an activity."
+      ],
+      indicador: "1 positive step-in per week + 1 short support action per week + a simple note of the action taken and its result.",
+      revision: "Monthly review to check which support or leadership behavior they did maintain, which one needs adjustment, and what specific action they will apply the following month."
+    }
+  }
+},
+      //---NEW BLOCK 
+
+ "HABILIDADES PARA LA VIDA": {
+  bajo: {
+    esc: {
+      objetivo: "Strengthen organization, planning, and decision-making in study tasks, tasks at home, and daily responsibilities.",
+      acciones: [
+        "Four days a week, before starting the afternoon or study time, write 3 real tasks for the day: one important task, one short task, and one closing task. Example: finish an assignment, organize the backpack, and get the notebook ready for the next day. Mark each one with ✓ when it is finished.",
+        "Once a week, choose a real decision and write it on a sheet with 2 options. Example: study Mathematics or Language first; use the afternoon for homework or for organizing materials. Under each option, note one short-term consequence and one later one, and then choose one.",
+        "At the start of the week, choose a small, measurable goal, for example finishing an overdue task, organizing materials, or practicing a skill for 3 days. On Friday, review whether it was completed fully, partly, or not, and write why."
+      ],
+      indicador: "4 days a week with a 3-task list checked off + 1 weekly decision written as options + 1 weekly goal reviewed on Friday.",
+      revision: "Weekly review of 5 to 10 minutes to look at the sheet, count how many tasks they did complete, and decide which habit they will repeat the following week."
+    },
+    pro: {
+      objetivo: "Strengthen organization, planning, and decision-making for personal pending tasks and in the work setting.",
+      acciones: [
+        "Four days a week, at the start of the workday or half day, write 3 real tasks: one priority task, one brief task, and one closing task. Example: reply to an important email, review a document, and get the next day’s pending task ready. Mark each one with ✓ when it is completed.",
+        "Once a week, make a real decision using a sheet with 2 options. Example: handle an urgent pending item first or an important one; make a call today or reschedule it. Below, write one near-term consequence and one later one for each option before deciding.",
+        "At the start of the week, choose a small, measurable goal, for example closing a pending item, organizing a process, or following a routine for 3 days. On Friday, review whether it was completed fully, partly, or not, and write what helped or what got in the way."
+      ],
+      indicador: "4 days a week with a 3-task list checked off + 1 weekly decision written as options + 1 weekly goal reviewed on Friday.",
+      revision: "Weekly review of 5 to 10 minutes to look at completion and pending items, and decide what specific adjustment they will apply the following week."
+    }
+  },
+
+  medio: {
+    esc: {
+      objetivo: "Maintain task completion and take on small initiatives with greater consistency and order.",
+      acciones: [
+        "Two times a week, choose a real pending task, set a 20-minute alarm, and work only on that activity until it rings. Example: study a topic, finish a task, or organize notes. At the end, mark with ✓ if they finished it, or write which part moved forward.",
+        "Once a week, take on a small initiative role in a real situation, for example handing out materials, reading instructions to the group, keeping time, or confirming what needs to be done. At the end, note whether they did it well, fair, or incomplete.",
+        "Once a week, review a task that remained pending and write in one line why they did not finish it and when they will return to it, noting the approximate day and time."
+      ],
+      indicador: "2 work blocks per week with the task written down + 1 weekly initiative carried out + 1 pending item rescheduled with day and time.",
+      revision: "Review every two weeks to see which task they did manage to maintain, on which one they were more distracted, and what specific action they will repeat in order to improve."
+    },
+    pro: {
+      objetivo: "Maintain task completion and take on small initiatives with greater consistency, order, and autonomy.",
+      acciones: [
+        "Two times a week, choose a real pending task, set an alarm for 20 to 25 minutes, and work only on that activity until it rings. Example: close a report, organize information, reply to pending emails, or review a document. At the end, mark with ✓ if they finished it, or note which step they completed.",
+        "Once a week, take on a small, specific initiative, for example confirming an agreement, reviewing instructions, organizing materials, announcing times, or following up on a pending point. At the end, record whether they completed it well, fair, or incomplete.",
+        "Once a week, review an unresolved pending item and write in one line why they did not close it and when they will return to it, noting the approximate day and time."
+      ],
+      indicador: "2 work blocks per week with the pending item written down + 1 weekly initiative carried out + 1 pending item rescheduled with day and time.",
+      revision: "Review every two weeks to see which activity they did manage to maintain, which one they left unfinished, and what practical adjustment they will make over the next two weeks."
+    }
+  },
+
+  alto: {
+    esc: {
+      objetivo: "Expand leadership, autonomy, and the coordination of small activities or projects with greater organization.",
+      acciones: [
+        "Keep one fixed task each week, for example reviewing a list, remembering agreements, coordinating materials, or following up on a group task, and note with the date whether they completed it without a reminder.",
+        "Coordinate a small activity with 3 defined steps: start, follow-up, and close. Example: organize materials for a task, prepare a brief presentation, or coordinate part of an assignment. When each step is finished, mark it with ✓.",
+        "At the end of the activity, write 3 specific things learned, for example what was organized well, what was not planned for, and what to do differently next time."
+      ],
+      indicador: "1 weekly assignment completed with a date + 1 small activity coordinated step by step + 1 final note of what was learned.",
+      revision: "Monthly review to check which responsibility they did maintain, which one they stopped doing, and what specific adjustment they will apply the following month."
+    },
+    pro: {
+      objetivo: "Expand autonomy, leadership, and the ability to coordinate small tasks or projects in the professional setting.",
+      acciones: [
+        "Keep one fixed task each week, for example reviewing a list, remembering agreements, following up on a pending task, or coordinating a material, and note with the date whether they completed it without an outside reminder.",
+        "Coordinate a small activity or project with 3 defined steps: start, follow-up, and close. Example: organize a brief delivery, coordinate a review, organize shared tasks, or close a pending task with another person. Mark each step with ✓ when it is completed.",
+        "At the end, write 3 specific things learned, for example what was organized well, what was not anticipated, and what to do differently in the next activity or project."
+      ],
+      indicador: "1 weekly assignment completed with a date + 1 small activity or project coordinated step by step + 1 final note of what was learned.",
+      revision: "Monthly review to verify which practice they did maintain, which part needs adjustment, and what specific action they will strengthen the following month."
+    }
+  }
+},    
+//---NEW BLOCK
+"TIMIDEZ": {
+  bajo: {
+    esc: {
+      objetivo: "Reduce avoidance and increase gradual participation in classes, group work, and everyday conversations over 2 to 3 weeks.",
+      acciones: [
+        "Five days a week, carry out a brief, real interaction: greet someone, ask for a material, ask a short question, or answer with a simple sentence in class or at home. At the end of the day, mark with ✓ whether they did it.",
+        "Two times a week, practice for 5 minutes 3 specific sentences to start, continue, and close a conversation. Example: ‘Hello, can you help me with this?’, ‘I understand; I did this part’, and ‘Thank you, we can continue later’. Practice this with a trusted family member, teacher, or classmate.",
+        "Choose a bridge peer or a reference adult to use in situations that are harder for them, for example presentations, group work, or asking for help. The practical instruction is this: first they approach that person, say a prepared sentence, and then take part in the situation."
+      ],
+      indicador: "5 short interactions per week marked with ✓ + 2 weekly practices of social phrases + use of a bridge partner in at least 1 difficult situation.",
+      revision: "Weekly 10-minute review to count how many interactions they did have, in which ones they felt more confident, and which situation they will continue to practice."
+    },
+    pro: {
+      objetivo: "Reduce avoidance and increase gradual participation in meetings, work conversations, and everyday social situations over 2 to 3 weeks.",
+      acciones: [
+        "Five days a week, carry out a brief, real interaction: greet someone, make a short inquiry, answer a question, or give a one-sentence opinion at work or in an everyday conversation. At the end of the day, mark with ✓ whether they did it.",
+        "Two times a week, practice for 5 minutes 3 specific sentences to start, continue, and close a conversation. Example: ‘Good morning, I wanted to confirm this point’, ‘I understand; my part would be this’, and ‘Thank you, I will follow up’. Practice this with a trusted person.",
+        "Choose a bridge person or a support person for situations that are harder for them, for example meetings, conversations with supervisors, or group exchanges. The practical instruction is this: first they rely on that person, use a prepared sentence, and then contribute briefly."
+      ],
+      indicador: "5 short interactions per week marked with ✓ + 2 weekly practices of social phrases + use of a bridge person in at least 1 difficult situation.",
+      revision: "Weekly 10-minute review to count how many interactions they did have, in which ones they felt more confident, and which context they will continue to practice."
+    }
+  },
+
+  medio: {
+    esc: {
+      objetivo: "Maintain more consistent participation and strengthen confidence when speaking in class, at home, and in group activities.",
+      acciones: [
+        "Three times a week, take part at least once in a real situation: ask a question in class, read a line, answer when asked, or give a short opinion. Mark with ✓ each time they succeed.",
+        "Two times a week, practice a sentence for asking for help or expressing an opinion, and use it that same day in a real situation. Example: ‘I did not understand this part’, ‘Could you repeat the instruction?’, or ‘I think this idea works better’.",
+        "Prepare 3 opening phrases for frequent situations and write them on a sheet or in a notebook. Example: greeting, asking for help, and giving an opinion. Practice them for 5 minutes, then use at least one during the week."
+      ],
+      indicador: "3 real contributions per week + 2 phrases used in real situations + 1 written list of support phrases.",
+      revision: "Review every two weeks to see in which context they spoke more, which phrase they did use, and which situation is still difficult for them."
+    },
+    pro: {
+      objetivo: "Maintain more consistent participation and strengthen confidence when speaking in meetings, work conversations, and everyday social settings.",
+      acciones: [
+        "Three times a week, take part at least once in a real situation: make an inquiry, ask for clarification, give a brief opinion, or respond to a point in a meeting or conversation. Mark with ✓ each time they succeed.",
+        "Two times a week, practice a sentence for asking for support, expressing an idea, or clarifying a question, and use it that same day in a real situation. Example: ‘I need to confirm this point’, ‘I think this option can work’, or ‘Could you repeat the next step?’.",
+        "Prepare 3 opening phrases for frequent situations and write them in a note. Example: greeting, asking for help, and stating an opinion. Practice them for 5 minutes, then use at least one during the week."
+      ],
+      indicador: "3 real contributions per week + 2 phrases used in real situations + 1 written list of support phrases.",
+      revision: "Review every two weeks to see in which context they spoke more, which phrase they did use, and which situation they still avoid."
+    }
+  },
+
+  alto: {
+    esc: {
+      objetivo: "Maintain effective participation and take on small communication roles with greater confidence.",
+      acciones: [
+        "Once a month, take on a brief communication role in a real situation, for example reading a section, explaining an idea, coordinating a step, or reporting progress. Beforehand, write 3 key points on a sheet.",
+        "Once a week, practice for 10 minutes a full sequence of social skills: greeting, asking for help, expressing an opinion, and closing a conversation clearly. Then use at least one of those actions during the week.",
+        "Once a month, review which situation they handled better, for example speaking in a group, asking for help, or answering in class, and write a specific goal for the following month."
+      ],
+      indicador: "1 communication role per month + 1 weekly practice of social skills + 1 written monthly goal.",
+      revision: "Monthly review to check which situation they handled better, which practice they did maintain, and what specific goal they will strengthen the following month."
+    },
+    pro: {
+      objetivo: "Maintain effective participation and take on small communication roles with greater confidence in work and social settings.",
+      acciones: [
+        "Once a month, take on a brief communication role in a real situation, for example presenting an idea, reporting progress, clarifying an agreement, or coordinating part of an activity. Beforehand, write 3 key points in a note.",
+        "Once a week, practice for 10 minutes a full sequence of communication skills: greeting, asking for support, expressing an opinion, and closing a conversation clearly. Then use at least one of those actions during the week.",
+        "Once a month, review which situation they handled better, for example speaking up in a meeting, making an inquiry, or expressing an idea, and write a specific goal for the following month."
+      ],
+      indicador: "1 communication role per month + 1 weekly practice of communication skills + 1 written monthly goal.",
+      revision: "Monthly review to identify which situation they handled better, which practice they did maintain, and what specific objective they will strengthen the following month."
+    }
+  }
+},
+//-----NEW BLOCK
+"AGRESION": {
+  bajo: {
+    esc: {
+      objetivo: "Reduce impulsive reactions and learn to stop arguments before they escalate in school, family, or group situations for 2 to 3 weeks.",
+      acciones: [
+        "When they notice they are getting angry, apply this sequence in the moment: stay quiet, take 2 steps back or step aside a little, breathe slowly 4 times, and wait 1 minute before responding. Do this at least 3 times a week and mark with ✓ each time they succeed.",
+        "On a sheet, write 3 triggers that make them react poorly, for example teasing, interruptions, being corrected, or being ignored. Beside each one, write a bridge phrase, for example: ‘I need a minute’, ‘I do not want to argue right now’, or ‘We will talk about it later’. Read that sheet 2 times a week.",
+        "Once a week, take a real conflict and write 3 lines: what happened, what they did that made the situation worse, and what they could have said without shouting or insulting. If they can, talk about it with a supporting adult."
+      ],
+      indicador: "3 real pauses used per week + a sheet of triggers and bridge phrases + 1 weekly conflict reviewed in writing.",
+      revision: "Weekly 10-minute review to read the sheet, count how many times they did stop the reaction, and choose a phrase they will continue to practice."
+    },
+    pro: {
+      objetivo: "Reduce impulsive reactions and learn to stop arguments before they escalate in work or everyday situations for 2 to 3 weeks.",
+      acciones: [
+        "When they notice irritation, apply this sequence in the moment: stop responding, breathe slowly 4 times, drink water, or step aside for 1 minute before continuing. Do this at least 3 times a week and mark with ✓ each time they succeed.",
+        "On a sheet, write 3 frequent triggers, for example delays, mistakes made by others, interruptions, or time pressure. Beside each one, write a bridge phrase, for example: ‘I will review it and come back’, ‘I need a few minutes’, or ‘I prefer to return to it calmly’. Read that sheet 2 times a week.",
+        "Once a week, take a real conflict and write 3 lines: what happened, what they did that increased the tension, and what they could have said without blaming or responding out of irritation. If they can, review it with a trusted person."
+      ],
+      indicador: "3 real pauses used per week + a sheet of triggers and bridge phrases + 1 weekly conflict reviewed in writing.",
+      revision: "Weekly 10-minute review to read the sheet, count how many times they did stop the reaction, and choose a phrase they will continue to practice."
+    }
+  },
+
+  medio: {
+    esc: {
+      objetivo: "Maintain greater self-control and use more respectful responses in everyday conflicts over getting along with others.",
+      acciones: [
+        "Two times a week, identify an early sign of anger, for example speaking more loudly, clenching the hands, or wanting to respond right away, and apply a specific action: drink water, breathe for 1 minute, or stay quiet before speaking. Then note in one line whether it worked.",
+        "Practice a respectful boundary phrase in 2 real situations a week, for example: ‘Do not speak to me that way’, ‘Let’s talk without shouting’, or ‘Give me a minute and I will respond’. Mark with ✓ if they used it in full.",
+        "If they had a conflict, talk about it later, calmly, using this sequence: what happened, what bothered me, and what I propose for next time. Do this at least 1 time a week with a real case."
+      ],
+      indicador: "2 weekly notes of signal + strategy + 2 limit-setting phrases used in real situations + 1 repair conversation per week.",
+      revision: "Review every two weeks to look at which signal they noticed sooner, which phrase they did manage to use, and in which situation they still lose control."
+    },
+    pro: {
+      objetivo: "Maintain greater self-control and use more respectful responses in work-related or interpersonal disagreements.",
+      acciones: [
+        "Two times a week, identify an early sign of irritation, for example raising their tone, answering in a hurry, or tensing the body, and apply a specific action: pause, drink water, or breathe for 1 minute before continuing. Then note in one line whether it worked.",
+        "Practice a respectful boundary phrase in 2 real situations a week, for example: ‘I prefer to talk about it calmly’, ‘Give me a minute before I respond’, or ‘I do not want to continue this conversation in that tone’. Mark with ✓ if they used it in full.",
+        "If there was a conflict, return to it later, calmly, using this sequence: what happened, what bothered me, and what I propose for next time. Do this at least 1 time a week with a real case."
+      ],
+      indicador: "2 weekly notes of signal + strategy + 2 limit-setting phrases used in real situations + 1 repair conversation per week.",
+      revision: "Review every two weeks to look at which signal they noticed sooner, which phrase they did manage to use, and in which context they still respond with tension."
+    }
+  },
+
+  alto: {
+    esc: {
+      objetivo: "Maintain emotional control and become an example of peaceful conflict resolution within the group.",
+      acciones: [
+        "Once a week, in a real tense situation, apply this full sequence: listen without interrupting, wait a few seconds before responding, and speak in a low voice. Then note whether that helped calm the argument.",
+        "Once a week, review a conflict or difficult moment and write 4 things: what happened, which signal appeared first, what they did to stay in control, and what result they got.",
+        "Once a week, help uphold an agreement for getting along, for example recalling a rule, suggesting that people speak one at a time, or helping to close a discussion respectfully."
+      ],
+      indicador: "1 weekly situation handled calmly + 1 written note per week + 1 action that supports getting along.",
+      revision: "Monthly review to verify which behavior they did maintain, which one they stopped applying, and what specific action they will strengthen the following month."
+    },
+    pro: {
+      objetivo: "Maintain emotional control and model a respectful, effective resolution of conflicts in work and everyday settings.",
+      acciones: [
+        "Once a week, in a real tense situation, apply this full sequence: listen without interrupting, pause a few seconds before responding, and speak in a controlled tone. Then note whether that helped lower the tension.",
+        "Once a week, review a disagreement or difficult moment and write 4 things: what happened, which signal appeared first, what they did to stay in control, and what specific result they got.",
+        "Once a week, help look after an agreement or a tense conversation, for example by recalling a basic rule, suggesting that the topic be taken up calmly, or helping to close a clear agreement."
+      ],
+      indicador: "1 weekly situation handled calmly + 1 written note per week + 1 action that supports agreements or getting along.",
+      revision: "Monthly review to identify which practice they did maintain, which one needs adjustment, and what specific action they will strengthen the following month."
+    }
+   } 
+ } 
+};
+const PLAN_ROLES_NIVEL = {
+  // ----------- BLOQUES NORMALES -----------
+"DESARROLLO PERSONAL": {
+  bajo: {
+    esc: {
+      hogar: [
+        "Set a visible daily routine with 3 fixed points: an approximate wake-up time, study time, and a rest time. Review it for 5 minutes at the end of the day and mark with ✓ what they did complete.",
+        "Four days a week, before a difficult task, take a 2-minute pause to breathe slowly and then start only with the first step, for example reading the instructions, copying the title, or solving the first item."
+      ],
+      aula: [
+        "Before tests or demanding activities, guide a short pause of 1 to 2 minutes: breathe, reread the instructions, and say quietly what the first step will be.",
+        "At least 2 times a week, reinforce with a specific comment something they did well and one targeted improvement. Example: ‘Today you did start on time’ or ‘Next time, review it before you hand it in’."
+      ],
+      apoyo: [
+        "Once a week, work with a simple 3-column log: what emotion came up, in which situation, and what they did afterward. Together, review a more useful response for a similar situation.",
+        "Set a very specific weekly micro-goal, for example finishing a task, studying for 3 days, or going to sleep at a set time, and at the end review whether it was completed fully, partially, or not at all."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Set a visible daily routine with 3 fixed points: an approximate start time, a main block for pending tasks, and a rest time. Review it for 5 minutes at the end of the day and mark with ✓ what they did complete.",
+        "Four days a week, before a pending task that creates stress, take a 2-minute pause to breathe slowly and then start only with the first step, for example opening the file, reading the email, or writing down the first action."
+      ],
+      trabajo: [
+        "Before demanding tasks or tense conversations, take a short pause of 1 to 2 minutes to breathe, organize the ideas, and state in writing or quietly what the first specific step will be.",
+        "At least twice a week, give brief, specific feedback about something the person did well and one specific improvement. Example: 'Today you organized your time better' or 'Next time, confirm the agreement before closing.'"
+      ],
+      apoyo: [
+        "Once a week, work with a simple 3-column log: what situation created tension, what reaction they had, and what more useful response they could use next time.",
+        "Set a very specific weekly micro-goal, for example closing a pending task, maintaining a routine for 3 days, or responding more calmly in a difficult situation, and at the end review whether it was completed fully, partially, or not at all."
+      ]
+    }
+  },
+
+  medio: {
+    esc: {
+      hogar: [
+        "Four days a week, help them write 3 specific priorities for the day: one important priority, one short priority, and one closing priority. At the end, review which ones they did complete and which remained pending.",
+        "Agree on a realistic sleep routine: an approximate bedtime 4 nights a week, and turn off the screen 20 minutes before. Mark with ✓ each night completed."
+      ],
+      aula: [
+        "Before a difficult activity, model this sequence: breathe for 1 minute, reread the instructions, divide the task into 3 steps, and start only with the first one.",
+        "Once a week, give them a small organization task, for example organizing materials, writing down the steps of a task, or remembering a date, and close with a specific comment on what they did well and what they should adjust."
+      ],
+      apoyo: [
+        "Follow up every two weeks with a simple record: which situation created stress for them, which strategy they used, and which one helped them most.",
+        "Practice weekly planning with measurable goals, for example studying for 3 days, finishing a task, or preparing materials ahead of time, and review the percentage completed."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Four days a week, help them write 3 specific priorities for the day: one main priority, one brief priority, and one closing priority. At the end, review which ones they did complete and which need follow-up.",
+        "Agree on a basic rest routine: an approximate bedtime 4 nights a week, and reduce screens or other stimulation 20 minutes before. Mark with ✓ each night completed."
+      ],
+      trabajo: [
+        "Before a demanding task or a tense meeting, model this sequence: breathe for 1 minute, organize the topic into 3 steps, and start with the first one, for example reading, responding, or confirming an agreement.",
+        "Once a week, assign a small organization or follow-up task, for example reviewing a list, confirming times, organizing materials, or reminding someone of an agreement, and close with a specific comment on how it was carried out and what to improve."
+      ],
+      apoyo: [
+        "Follow up every two weeks with a simple record: which situation created pressure, which strategy they used, and which one helped them most to stay in control.",
+        "Practice weekly planning with measurable goals, for example closing a pending task, maintaining a habit for 3 days, or improving a work routine, and review the percentage completed."
+      ]
+    }
+  },
+
+  alto: {
+    esc: {
+      hogar: [
+        "Support a monthly goal with 4 specific weekly milestones, for example finishing a reading, improving a subject, or maintaining a routine. Celebrate real progress at the close of each week.",
+        "Encourage autonomy with a steady responsibility, for example preparing materials, remembering a schedule, or reviewing a task without needing constant reminders."
+      ],
+      aula: [
+        "Once a week, assign a specific positive-leadership role, for example organizing a brief activity, helping a classmate, or reminding the group of the agreements, and close with specific feedback.",
+        "Encourage challenging but realistic goals, for example improving a presentation, maintaining punctuality, or coordinating part of the work, reviewing clearly what they achieved and what comes next."
+      ],
+      apoyo: [
+        "Complete a monthly review of goals and adjustments, reading what they did maintain, what they stopped doing, and what specific challenge they will take on the following month.",
+        "Strengthen high-performance strategies without overload, for example keeping a useful routine, dividing long-term goals, and leaving real periods of rest."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Support a monthly goal with 4 specific weekly milestones, for example closing an important pending task, maintaining a routine, or improving a skill. At the end of each week, review what actually moved forward.",
+        "Encourage autonomy with a steady responsibility, for example reviewing the agenda, preparing materials, or maintaining a personal routine without depending on outside reminders."
+      ],
+      trabajo: [
+        "Once a week, assign or take on a specific positive-leadership role, for example coordinating part of an activity, organizing agreements, or supporting another person, and close with specific feedback.",
+        "Encourage challenging but realistic goals, for example improving a deliverable, keeping an organization routine, or coordinating a process more effectively, reviewing clearly what they achieved and what comes next."
+      ],
+      apoyo: [
+        "Complete a monthly review of goals and adjustments, reading what they did maintain, what they stopped doing, and what specific challenge they will take on the following month.",
+        "Strengthen high-performance strategies without overload, for example maintaining useful habits, breaking long-term goals into small steps, and protecting recovery time."
+      ]
+    }
+  }
+},
+"VINCULOS INTERPERSONALES": {
+  bajo: {
+    esc: {
+      hogar: [
+        "Two times a week, in a real situation at home, ask them to use a first-person sentence to express something without arguing. Example: ‘I got upset when this happened’ or ‘I need you to let me know beforehand’.",
+        "When there is a conflict, model a short repair in 3 steps: say what happened, apologize for a specific behavior, and agree on an improvement. Example: ‘I shouted at you; I am sorry. Next time I will speak more slowly’."
+      ],
+      aula: [
+        "Once a week, carry out a brief empathy activity with a real or familiar situation: what happened, what the other person may have felt, and what could have been said with more respect.",
+        "Use speaking turns and a visible rule for getting along in group activities. Example: speak one at a time, raise a hand, or wait 5 seconds before responding."
+      ],
+      apoyo: [
+        "Once a week, practice conflict resolution with a 3-step template: what happened, what emotion came up, and what specific request can be made without shouting or belittling.",
+        "Check whether they are avoiding someone important or isolating more than usual. If so, agree on one brief, specific interaction for the week, for example greeting someone, answering a question, or taking part with one phrase."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Two times a week, in a real conversation at home or in everyday life, ask them to use a first-person sentence to express something without arguing. Example: ‘I need to talk about it calmly’ or ‘I prefer that we agree on it beforehand’.",
+        "When there is a conflict, model a short repair in 3 steps: say what happened, apologize for a specific behavior, and propose an improvement. Example: ‘I responded poorly; I apologize. Next time I would rather pause before speaking’."
+      ],
+      trabajo: [
+        "Once a week, review a real work interaction and work through this sequence: what happened, what the other person may have understood, and what could be expressed with greater clarity and respect.",
+        "Use a visible interaction rule in meetings or shared conversations. Example: do not interrupt, summarize before responding, or state the final agreement clearly in one sentence."
+      ],
+      apoyo: [
+        "Once a week, practice conflict resolution with a 3-step template: what happened, what emotion came up, and what specific request or boundary can be stated without blaming or raising one’s voice.",
+        "Check whether they are avoiding important conversations or isolating more than necessary. If so, agree on one brief, specific interaction for the week, for example making an inquiry, replying to a message, or expressing a short idea."
+      ]
+    }
+  },
+
+  medio: {
+    esc: {
+      hogar: [
+        "Once a week, in a real family conversation, ask them to say in one phrase at the end what they understood and to ask a clarifying question before responding. Example: ‘So you wanted me to finish this first, right?’",
+        "Encourage one structured social activity a week, for example visiting someone for 15 minutes, playing something brief, studying with a classmate, or talking for 10 minutes, with a clear start and end."
+      ],
+      aula: [
+        "Once a week, assign a specific cooperative role, for example writing down agreements, handing out materials, keeping time, or moderating turns, and at the end record whether it was done well, fair, or incomplete.",
+        "At least 2 times a week, acknowledge a prosocial behavior with a specific example. Example: ‘You waited for your turn’, ‘You asked to speak respectfully’, or ‘You helped tidy up without arguing’."
+      ],
+      apoyo: [
+        "Every two weeks, review a difficult social situation and write 3 things: what happened, what they did, and what they could try differently next time.",
+        "Practice respectful boundary phrases using real examples or role-play. Example: ‘I do not agree’, ‘Let’s talk without shouting’, or ‘I need a minute before I respond’."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Once a week, in a real conversation at home, ask them to say in one phrase at the end what they understood and to ask a clarifying question before responding. Example: ‘So the important point is this, correct?’",
+        "Encourage one structured social or family activity a week, for example talking for 10 minutes, taking a short outing, or sharing a task without screens, with a clear start and end."
+      ],
+      trabajo: [
+        "Once a week, assign or take on a specific cooperative role, for example taking notes on agreements, confirming times, organizing materials, or moderating turns, and at the end record whether it was done well, fair, or incomplete.",
+        "At least 2 times a week, acknowledge a helpful behavior from another person with a specific example. Example: ‘You gave notice in time’, ‘You explained clearly’, or ‘You stayed calm in that situation’."
+      ],
+      apoyo: [
+        "Every two weeks, review a difficult interpersonal situation and write 3 things: what happened, what they did, and what they could try differently next time.",
+        "Practice respectful boundary phrases using real examples or role-play. Example: ‘I do not share that idea’, ‘I prefer to talk about it calmly’, or ‘I need a few minutes before I respond’."
+      ]
+    }
+  },
+
+  alto: {
+    esc: {
+      hogar: [
+        "Once a week, help another person with a specific task for 10 to 15 minutes, without doing the whole task for them. At the end, note exactly what support they gave and what the other person did on their own.",
+        "Set aside one brief activity a week to spend time together without screens or arguments, for example talking for 10 minutes, walking, or playing something short, and mark with ✓ if it was done."
+      ],
+      aula: [
+        "Once a week, assign a brief mediation or support role with supervision, for example organizing turns, reminding others of a rule, or helping close an agreement.",
+        "Facilitate a small group project in which they coordinate a specific agreement, for example who does what, what material is missing, or when progress will be reviewed."
+      ],
+      apoyo: [
+        "Once a month, review a real example of positive leadership shown by the person and choose in which other situation they could repeat it.",
+        "When they help someone, ask them to state clearly which part the other person will do on their own, so they do not carry everything."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Once a week, support another person on a specific task for 10 to 15 minutes without taking on all of the responsibility. At the end, note what support they gave and what the other person did on their own.",
+        "Set aside one brief activity a week to spend time together without screens or tension, for example talking for 10 minutes, going for a walk, or sharing a simple task, and mark with ✓ if it was done."
+      ],
+      trabajo: [
+        "Once a week, assign or take on a brief mediation or support role, for example organizing speaking turns, summarizing an agreement, or helping close a disagreement respectfully.",
+        "Facilitate a small activity or project in which they coordinate a specific agreement, for example who does what, what the next step is, or when progress will be reviewed."
+      ],
+      apoyo: [
+        "Once a month, review a real example of positive leadership shown by the person and decide in which other work or everyday situation they can repeat it.",
+        "When they support someone, ask them to state clearly which part the other person will do on their own, so they do not become overloaded or take full control."
+      ]
+    }
+  }
+},
+
+  
+"HABILIDADES PARA LA VIDA": {
+  bajo: {
+    esc: {
+      hogar: [
+        "Four days a week, help them write only 3 real tasks for the day: one important task, one short task, and one closing task. Example: finish an assignment, organize the backpack, and get the notebook ready for the next day. At the end of the day, mark with ✓ which ones they did complete.",
+        "Once a week, make a real decision and write it with 2 options. Example: study Mathematics or Language first; do the homework before or after a snack. Under each option, note one near-term consequence and then choose one."
+      ],
+      aula: [
+        "Use simple visual supports, for example a planner, a short list, or a reminder in the notebook, and review them once a week to see what they did complete and what they forgot.",
+        "Give a simple organizational task, for example handing out materials, writing down a date, or remembering what comes next, and reinforce it at the end with a specific comment. Example: ‘Today you did remember the next step’."
+      ],
+      apoyo: [
+        "Once a week, practice a brief plan for the week with 3 specific tasks and one small goal. At the end, review which ones were done and which ones were not.",
+        "Practice problem-solving with a real case using 3 questions: what happened, what options they have, and which one is the better choice. Do this at least 1 time a week."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Four days a week, help them write only 3 real tasks for the day: one priority task, one brief task, and one closing task. Example: respond to a pending task, organize documents, and get the next day’s work ready. At the end of the day, mark with ✓ which ones they did complete.",
+        "Once a week, make a real decision and write it with 2 options. Example: handle an urgent pending item first or an important one; make a call today or reschedule it. Under each option, note one near-term consequence and then choose one."
+      ],
+      trabajo: [
+        "Use simple visual supports, for example a planner, a short list, or a note on the phone, and review them once a week to see what they did complete and what remained pending.",
+        "Assign or take on a simple organizational task, for example confirming a date, reviewing a list, or remembering an agreement, and close with a specific observation. Example: ‘Today you did confirm the next step on time’."
+      ],
+      apoyo: [
+        "Once a week, practice a brief plan for the week with 3 specific tasks and one small goal. At the end, review which ones they did finish and which ones remained pending.",
+        "Practice problem-solving with a real case using 3 questions: what happened, what options they have, and which one is the better choice. Do this at least 1 time a week."
+      ]
+    }
+  },
+
+  medio: {
+    esc: {
+      hogar: [
+        "Two or three times a week, set a block of 20 to 25 minutes for a single specific activity, for example studying a topic, finishing a task, or organizing notes. When it ends, take a pause of 3 to 5 minutes and mark whether they made progress or finished.",
+        "Once a week, review a pending task with them and write down when they will return to it. Example: ‘I will continue it on Thursday at 5:00’."
+      ],
+      aula: [
+        "Once a week, assign a small initiative role, for example coordinating materials, reading instructions, keeping time, or confirming agreements, and close by noting whether it was done well, fair, or incomplete.",
+        "Teach a simple way to set priorities: one important task, one short task, and one closing task. At the end of the class or the day, review which one they completed and which one remained pending."
+      ],
+      apoyo: [
+        "Follow up every two weeks on organizational habits by reviewing a simple list: which task they started, which one they finished, and which one they left half done.",
+        "Practice decision-making with real situations using 3 steps: options, consequences, and choice. Practice at least 1 case every two weeks."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Two or three times a week, set a block of 20 to 25 minutes for a single specific activity, for example reviewing a document, closing a pending task, or organizing materials. When it ends, take a pause of 3 to 5 minutes and mark whether they made progress or finished.",
+        "Once a week, review an unresolved pending item and write down when they will return to it. Example: ‘I will continue it on Thursday at 8:30’."
+      ],
+      trabajo: [
+        "Once a week, assign or take on a small initiative role, for example confirming agreements, reviewing instructions, keeping time, or following up on a point, and close by noting whether it was done well, fair, or incomplete.",
+        "Teach a simple way to set priorities: one important task, one brief task, and one closing task. At the end of the workday, review which one they completed and which one remained pending."
+      ],
+      apoyo: [
+        "Follow up every two weeks on organizational habits by reviewing a simple list: which task they started, which one they finished, and which one they left half done.",
+        "Practice decision-making with real situations using 3 steps: options, consequences, and choice. Practice at least 1 case every two weeks."
+      ]
+    }
+  },
+
+  alto: {
+    esc: {
+      hogar: [
+        "Keep one fixed responsibility each week, for example reviewing materials, remembering a schedule, or following up on a task, and on Friday review whether they completed it fully, partially, or not at all, writing the reason.",
+        "Invite them to take part in a small project with a start, a follow-up, and a close, for example preparing materials, organizing a task, or helping with an activity, and ask them to note what they did at each stage."
+      ],
+      aula: [
+        "Coordinate a small activity with 3 clear goals, a closing date, and a brief review at the end to check the results. Example: organize materials, review the steps, and confirm delivery.",
+        "Give a task with little outside help and ask them to explain their steps when they finish. Close with a specific observation about autonomy or leadership. Example: ‘Today you handled this almost without support’."
+      ],
+      apoyo: [
+        "Once a month, review which project they carried out, what they learned, and what they would do differently next time, leaving 3 ideas written in a note.",
+        "Watch for signs of overload and, if 2 appear in a row, agree on a short pause or reassign a specific task before they become disorganized."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Keep one fixed responsibility each week, for example reviewing the agenda, remembering a schedule, or following up on a pending task, and on Friday review whether they completed it fully, partially, or not at all, writing the reason.",
+        "Invite them to take part in a small project with a start, a follow-up, and a close, for example organizing a purchase, sorting documents, or preparing something important, and ask them to note what they did at each stage."
+      ],
+      trabajo: [
+        "Coordinate a small activity with 3 clear goals, a closing date, and a brief review at the end to check the results. Example: organize a delivery, review a list, or coordinate one work step.",
+        "Give a task with little outside help and ask them to explain their steps when they finish. Close with a specific observation about autonomy or leadership. Example: ‘Today you organized this without depending on reminders’."
+      ],
+      apoyo: [
+        "Once a month, review which project or activity they carried out, what they learned, and what they would do differently next time, leaving 3 ideas written in a note.",
+        "Watch for signs of overload and, if 2 appear in a row, agree on a short pause or reassign a specific task before they become overwhelmed."
+      ]
+    }
+  }
+},
+  // ----------- INVERTIDOS -----------
+"TIMIDEZ": {
+  bajo: { // (alto puntaje real/visual => prioridad)
+    esc: {
+      hogar: [
+        "Each day, propose one short real interaction, for example saying hello, thanking someone, asking for something, or answering with a short phrase, and mark ✓ when it was actually done.",
+        "Two times a week, practice 2 specific social scripts for 5 minutes. Example: ‘Hello, can you help me with this?’ and ‘Thank you, I will tell you later’. Practice them with a family member or a trusted person."
+      ],
+      aula: [
+        "In each class or important activity, encourage a brief, planned participation, for example answering yes/no, reading one line, or asking a short question, telling them beforehand when their turn will be.",
+        "Use a classmate as a bridge in group work or demanding activities, so that they first interact with that person and then take part with the group more independently."
+      ],
+      apoyo: [
+        "Implement a gradual-exposure plan with a weekly record of 3 things: which situation they faced, what they did manage to do, and what was hardest for them.",
+        "Once a week, practice specific social skills: how to start a conversation, how to keep it going for one or two sentences, and how to close it respectfully."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Each day, propose a brief, real interaction, for example greeting someone, thanking someone, making a short inquiry, or answering with a brief sentence, and mark with ✓ when they did complete it.",
+        "Two times a week, practice 2 specific social scripts for 5 minutes. Example: ‘Good morning, I wanted to ask about this’ and ‘Thank you, I will follow up’. Practice them with a trusted person."
+      ],
+      trabajo: [
+        "In important meetings or exchanges, encourage a brief, planned participation, for example answering a short question, reading one point, or giving a one-sentence opinion, telling them beforehand when they can contribute.",
+        "Use a person as a bridge in meetings or demanding group activities, so that they first rely on that interaction and then take part more independently."
+      ],
+      apoyo: [
+        "Implement a gradual-exposure plan with a weekly record of 3 things: which situation they faced, what they did manage to do, and which setting created the most tension.",
+        "Once a week, practice specific social skills: how to start a conversation, how to keep it going with one or two sentences, and how to close it clearly."
+      ]
+    }
+  },
+
+  medio: {
+    esc: {
+      hogar: [
+        "Two times a week, keep up a brief interaction practice and afterward reinforce with a specific sentence what went well. Example: ‘Today you did greet someone first’ or ‘You did ask for help clearly’.",
+        "Write and practice 2 opening sentences for frequent situations, for example: ‘Can you explain this part to me?’ or ‘May I take part now?’, and use at least one during the week."
+      ],
+      aula: [
+        "Once a week, give a brief chance to participate with a closed question or a short answer at the start of the activity, so they can speak up without feeling too exposed.",
+        "Recognize the attempt to participate with a brief, specific phrase, for example: ‘Yes, you took part’ or ‘You said it with more confidence’, and do not ask them for a longer presentation at that same moment."
+      ],
+      apoyo: [
+        "Every two weeks, review in which situations they did manage to participate, and choose the next level of exposure: greeting, answering, giving an opinion, or presenting one part.",
+        "Once a week, practice in front of a mirror or with a trusted person a spoken turn of 1 or 2 phrases, in order to strengthen confidence when speaking."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Two times a week, keep up a brief interaction practice and afterward reinforce with a specific sentence what went well. Example: ‘Today you did ask your question’ or ‘You did express your idea clearly’.",
+        "Write and practice 2 opening sentences for frequent situations, for example: ‘I need to confirm this point’ or ‘I would like to give my opinion’, and use at least one during the week."
+      ],
+      trabajo: [
+        "Once a week, give a brief chance to participate in a meeting or exchange, for example answering a closed question, clarifying a point, or reading a line, so they can speak up without feeling too exposed.",
+        "Recognize the attempt to participate with a brief, specific phrase, for example: ‘Yes, they spoke up on time’ or ‘They said it more clearly’, and do not require a longer contribution at that same moment."
+      ],
+      apoyo: [
+        "Every two weeks, review in which settings they did manage to participate, and choose the next level of exposure: greeting, answering, giving an opinion, or presenting one part.",
+        "Once a week, practice in front of a mirror or with a trusted person a spoken turn of 1 or 2 phrases, in order to strengthen confidence when speaking."
+      ]
+    }
+  },
+
+  alto: { // (puntaje bajo => está bien)
+    esc: {
+      hogar: [
+        "Offer one opportunity for voluntary participation each week, for example greeting someone first, asking a question, or starting a short conversation, without requiring them to take part more than necessary.",
+        "Maintain sleep, nutrition, and basic organization during the week, marking completed days with ✓, in order to sustain confidence and energy when interacting."
+      ],
+      aula: [
+        "Maintain one brief participation per week in a familiar setting, for example reading one line, answering a question, or giving a short opinion, in order to sustain confidence in communicating.",
+        "Offer, if they feel ready, a small communication role once a week, for example reading an instruction, telling the group something, or presenting a brief step."
+      ],
+      apoyo: [
+        "Once a month, review whether participation remained stable and choose one simple action to maintain it.",
+        "Before a change of class, group, or activity, practice an opening sentence and decide whom they will speak to first in order to ease the adjustment."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Offer one opportunity for voluntary participation each week, for example starting a short conversation, making an inquiry, or expressing a brief idea, without requiring them to take part more than necessary.",
+        "Maintain rest, organization, and a basic routine during the week, marking completed days with ✓, in order to sustain confidence and energy when interacting."
+      ],
+      trabajo: [
+        "Maintain one brief participation per week in a familiar setting, for example making an inquiry, responding to a point, or commenting on a short idea, in order to sustain confidence in communicating.",
+        "Offer, if they feel ready, a small communication role once a week, for example reporting progress, reading a point, or clarifying a brief instruction."
+      ],
+      apoyo: [
+        "Once a month, review whether participation remained stable and choose one simple action to maintain it.",
+        "Before a change of team, meeting, or activity, practice an opening sentence and decide whom they will speak to first in order to ease the adjustment."
+      ]
+    }
+  }
+},
+"AGRESION": {
+  bajo: { // (alto puntaje => prioridad)
+    esc: {
+      hogar: [
+        "Four days a week, when they notice anger, apply this sequence: stay quiet, breathe slowly on a 4–6 pattern for 1 minute, and respond only when the tone of voice comes down. If they succeed, mark that day with ✓.",
+        "After a conflict, write 3 things on a sheet: what happened, what they did that made the situation worse, and what they will do differently next time. If they can, add how they will repair what happened, for example apologizing or speaking without shouting."
+      ],
+      aula: [
+        "Use a short time-out of 2 to 5 minutes when anger rises, and return only when they can say a sentence without shouting. Example: ‘I need a minute’ or ‘I can talk now’.",
+        "Practice a respectful boundary phrase 2 times a week in a real or simulated situation. Example: ‘Do not speak to me that way’, ‘Give me a minute’, or ‘Let’s talk without shouting’. Reinforce each time they use it without insulting."
+      ],
+      apoyo: [
+        "Once a week, note one anger trigger, what they did at that moment, and what the alternative response will be next time. Example: ‘They interrupted me; I shouted; next time I will ask for a minute’.",
+        "Keep a weekly incident record with 4 items: date, trigger, response used, and whether the strategy helped reduce the conflict."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Four days a week, when they notice anger, apply this sequence: stop responding, breathe slowly on a 4–6 pattern for 1 minute, and continue only when the tone comes down. If they succeed, mark that day with ✓.",
+        "After a conflict, write 3 things on a sheet: what happened, what they did that increased the tension, and what they will do differently next time. If they can, add how they will repair what happened, for example returning to it calmly or apologizing."
+      ],
+      trabajo: [
+        "Use a short pause of 2 to 5 minutes when anger rises during a conversation or disagreement, and resume only when they can say a sentence without raising their voice. Example: ‘I need a few minutes and I will be back’.",
+        "Practice a respectful boundary phrase 2 times a week in a real or simulated situation. Example: ‘I prefer to talk about it calmly’, ‘Give me a minute before I respond’, or ‘Let’s return to it without raising our voices’. Reinforce each time they use it without blaming."
+      ],
+      apoyo: [
+        "Once a week, note one anger trigger, what they did at that moment, and what the alternative response will be next time. Example: ‘They interrupted me; I responded poorly; next time I will pause before I reply’.",
+        "Keep a weekly incident record with 4 items: date, trigger, response used, and whether the strategy helped reduce the conflict."
+      ]
+    }
+  },
+
+  medio: {
+    esc: {
+      hogar: [
+        "Two times a week, identify an early sign of anger, for example raising their voice, tensing the body, or wanting to argue, and immediately apply a specific action: breathe slowly, drink water, or step away for 2 minutes. Then note whether it worked.",
+        "Practice a respectful boundary phrase in 2 situations a week. Example: ‘I do not want to continue like this’, ‘Give me a minute’, or ‘Let’s talk later’."
+      ],
+      aula: [
+        "After an impulsive behavior, ask them to say in one sentence what they did and what a specific alternative will be next time. Example: ‘I shouted; next time I will ask for a minute’.",
+        "Carry out a guided conflict-resolution activity with 3 steps: what happened, what bothered me, and what I can ask for without shouting."
+      ],
+      apoyo: [
+        "Every two weeks, review which strategy worked best to bring anger down, and decide which one they will repeat over the next two weeks.",
+        "Once a week, practice a complete statement with 4 parts: what happened, how they felt, what they need, and what they are asking for, without blaming or insulting."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Two times a week, identify an early sign of anger, for example raising their tone, tensing the body, or wanting to respond right away, and apply a specific action: breathe slowly, drink water, or step away for 2 minutes. Then note whether it worked.",
+        "Practice a respectful boundary phrase in 2 situations a week. Example: ‘I prefer to return to it calmly’, ‘I need a minute before I respond’, or ‘I do not want to continue like this’."
+      ],
+      trabajo: [
+        "After an impulsive or tense reaction, ask them to say in one sentence what they did and what a specific alternative will be next time. Example: ‘I answered in a hurry; next time I will pause before I reply’.",
+        "Carry out a guided activity to resolve a disagreement, with 3 steps: what happened, what bothered me, and what I can propose without blaming or raising my voice."
+      ],
+      apoyo: [
+        "Every two weeks, review which strategy worked best to bring anger down, and decide which one they will repeat over the next two weeks.",
+        "Once a week, practice a complete statement with 4 parts: what happened, how they felt, what they need, and what they are asking for, without blaming or insulting."
+      ]
+    }
+  },
+
+  alto: { // (puntaje bajo => está bien)
+    esc: {
+      hogar: [
+        "Hold at least one conversation per week to resolve a difference in a calm tone and end with a simple agreement. Example: ‘Next time we will give notice beforehand’ or ‘Each person will do this part’.",
+        "Each time they manage to stay in control in a difficult situation, acknowledge with a specific sentence what they did well. Once a week, write down a real example."
+      ],
+      aula: [
+        "Remind them of a specific rule at the start of an activity, for example not interrupting or speaking without shouting, and reinforce it when they follow the rule, without needing to repeat the instruction.",
+        "Offer a small support role only after they have shown stable self-control, for example organizing turns or helping to close an agreement, and finish with a brief review of how they handled it."
+      ],
+      apoyo: [
+        "Once a month, review whether self-control remained stable and choose one simple action to maintain it.",
+        "Once a week, review which situations trigger them more and which self-care habit helps them stay calm, for example sleeping better, stepping away for a moment, or talking afterward."
+      ]
+    },
+    pro: {
+      hogar: [
+        "Hold at least one conversation per week to resolve a difference in a calm tone and close with a simple agreement. Example: ‘Next time we will talk about it beforehand’ or ‘Each person will be responsible for this part’.",
+        "Each time they manage to stay in control in a difficult situation, acknowledge with a specific sentence what they did well. Once a week, write down a real example."
+      ],
+      trabajo: [
+        "Remind them of a specific rule at the start of an activity or meeting, for example not interrupting or speaking without raising one’s voice, and reinforce it when they follow the rule, without needing to repeat the instruction.",
+        "Offer or take on a small support role only when they have shown steady self-control, for example organizing turns, summarizing an agreement, or helping close a conversation, and finish with a brief review of how they handled it."
+      ],
+      apoyo: [
+        "Once a month, review whether self-control remained stable and choose one simple action to maintain it.",
+        "Once a week, review which situations trigger them more and which self-care habit helps them stay calm, for example pausing, sleeping better, or returning to a conversation later."
+      ]
+    }
+  }
+  }
+};
+  const RECOM_ESTILOS = {
+ timidez: {
+  bajo: [
+    "Once a week, take part in a group activity by saying at least one phrase prepared in advance, for example greeting, answering a short question, or giving a brief idea, and mark with ✓ when they succeed.",
+    "Two times a week, practice a brief script and use it in a real situation: greet someone, ask for help, or give an opinion in a single sentence, first with someone they know and then in a small group."
+  ],
+  medio: [
+    "Three times a week, speak up with a single sentence in class, a meeting, or a group conversation, even if only to read a line, answer a question, or say a short idea, and mark with ✓ when they do so.",
+    "Once a week, take part in a paired or small-group activity with a clear role, for example reading, taking notes, explaining a part, or presenting a brief point, in order to build confidence when speaking."
+  ],
+  alto: [
+    "Maintain at least one brief participation per week, for example making an inquiry, giving an opinion, or answering a question, and afterward note in one line what went well.",
+    "When possible, take on a small communication role once a week, for example reading instructions, giving a direction, or presenting a brief idea, in order to maintain confidence when speaking."
+  ]
+},    
+agresion: {
+  bajo: [
+    "When irritation appears, stop for 10 seconds before responding, breathe slowly 3 times, and state the idea in a single sentence without shouting. Practice this at least 3 times a week and mark with ✓ when they succeed.",
+    "Once a week, after a conflict, write in one line what happened, what could have been said better, and what repair action they will take, for example apologizing, clarifying, or correcting."
+  ],
+  medio: [
+    "Two times a week, identify an early sign of irritation, for example raising their tone, tensing up, or wanting to argue, and immediately apply a strategy: stay silent for 10 seconds, breathe, or step away for 2 minutes.",
+    "Practice a respectful boundary phrase 2 times a week, for example: ‘I do not agree’, ‘Let’s talk without shouting’, or ‘I need a moment to respond’, and use it in a real situation when possible."
+  ],
+  alto: [
+    "Keep a simple record of 1 situation per week in which they managed to stay in control, and write what they did to stay calm.",
+    "Once a week, resolve a difference using 3 steps: listen, state a brief proposal, and close with a specific agreement."
+  ]
+}
+  };
+
+  function contextualizaTextoCodigo(s, esProfesional){
+    let t = String(s ?? "").replace(/\s+/g, " ").trim();
+    if(esProfesional){
+      t = t
+        .replace(/hogar\/aula\/orientador/gi, "casa, trabajo y acompañamiento profesional")
+        .replace(/\bclase\/reuni[oó]n\b/gi, "reunión")
+        .replace(/\bclase, casa o reuni[oó]n\b/gi, "casa, trabajo o reunión")
+        .replace(/\bdin[aá]mica de clase\b/gi, "actividad de equipo")
+        .replace(/\bjornada\/clase\b/gi, "jornada laboral")
+        .replace(/\bdocente\b/gi, "supervisor")
+        .replace(/\bcompa[ñn]ero puente\b/gi, "colega de apoyo")
+        .replace(/\bcompa[ñn]eros\b/gi, "colegas")
+        .replace(/\bcompa[ñn]ero\b/gi, "colega")
+        .replace(/\baula\b/gi, "equipo de trabajo")
+        .replace(/\bclase\b/gi, "reunión")
+        .replace(/\borientador\b/gi, "mentor")
+        .replace(/familia\/docente u otro adulto/gi, "mentor, supervisor u otra persona de apoyo")
+        .replace(/familiar, colega o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/familiar, compa[ñn]ero o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/familiar, compa[ñn]ero, supervisor, colega o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/familiar, compa[ñn]ero, docente, colega o supervisor/gi, "colega, supervisor o persona de confianza")
+        .replace(/tarea familiar/gi, "actividad de coordinación")
+        .replace(/casa o reuni[oó]n/gi, "casa o trabajo")
+        .replace(/en clase o reuniones/gi, "en reuniones")
+        .replace(/por clase/gi, "por reunión")
+        .replace(/clase, reuni[oó]n o conversaci[oó]n grupal/gi, "reunión o conversación grupal");
+    }else{
+      t = t.replace(/casa, trabajo y acompañamiento profesional/gi, "hogar, aula y acompañamiento profesional");
+    }
+    return t.replace(/\s{2,}/g, ' ').trim();
+  }
+
+  function renderRecomendaciones(extras){
+    const cont = document.getElementById("recomendaciones");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
+    const esProfesional = codigoActual.startsWith("PRO");
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">4.- Recommendations and action plan</div>`;
+    cont.appendChild(header);
+
+    const sub = document.createElement("div");
+    sub.className = "recom-subtitle";
+    sub.textContent = esProfesional
+      ? "The actions below are ordered by the scores. The first block is for the person assessed (what to do in practice). The home, work, and professional-support sections show how to back that plan."
+      : "The actions below are ordered by the scores. The first block is for the person assessed (what to do in practice). The home, classroom, and professional-support sections show how to back that plan.";
+    cont.appendChild(sub);
+    
+    const lista = document.createElement("ul");
+    lista.className = "recom-list";
+
+    const nIntra = nivelFromPct(extras.bIntra);
+    const nInter = nivelFromPct(extras.bInter);
+    const nPV    = nivelFromPct(extras.bPV);
+
+    // Helper: 1 título por bloque + sus viñetas
+    const addGroup = (title, items, opts={}) => {
+      if(!items || !items.length) return;
+      const liHead = document.createElement("li");
+      liHead.className = "sec-head";
+      liHead.textContent = title + ":";
+      liHead.style.fontWeight = "800";
+      if(opts.marginTop) liHead.style.marginTop = opts.marginTop;
+      lista.appendChild(liHead);
+
+      items.forEach(txt=>{
+        const li=document.createElement("li");
+        li.textContent = contextualizaTextoCodigo(textoPlanClaro(txt), esProfesional);
+        lista.appendChild(li);
+      });
+    };
+
+    addGroup("PERSONAL DEVELOPMENT",      RECOM_BLOQUES.intra[nIntra] || []);
+    addGroup("INTERPERSONAL BONDS", RECOM_BLOQUES.inter[nInter] || []);
+    addGroup("LIFE SKILLS", RECOM_BLOQUES.vida[nPV]   || []);
+
+    // Comunicación interpersonal (baja una línea y evita duplicar Timidez/Agresión)
+    if (extras.timidezVal != null || extras.agresionVal != null){
+      const liHead = document.createElement("li");
+      liHead.className = "sec-head";
+      liHead.textContent = "COMUNICACIÓN INTERPERSONAL:";
+      liHead.style.fontWeight = "800";
+      liHead.style.marginTop = "10px"; // baja una línea
+      lista.appendChild(liHead);
+
+      // Timidez (invertida)
+      if (extras.timidezVal != null){
+        const liSub = document.createElement("li");
+        liSub.className = "sec-head";
+        liSub.textContent = "Shyness:";
+        liSub.style.fontWeight = "700";
+        lista.appendChild(liSub);
+
+        const nivT = nivelFromPctInv(extras.timidezVal, true);
+        (RECOM_ESTILOS.timidez[nivT] || []).forEach(txt=>{
+          const li=document.createElement("li");
+          li.textContent = contextualizaTextoCodigo(textoPlanClaro(txt), esProfesional);
+          lista.appendChild(li);
+        });
+      }
+
+      // Agresión
+      if (extras.agresionVal != null){
+        const liSub = document.createElement("li");
+        liSub.className = "sec-head";
+        liSub.textContent = "Aggression:";
+        liSub.style.fontWeight = "700";
+        liSub.style.marginTop = "6px";
+        lista.appendChild(liSub);
+
+        const nivA = nivelFromPctInv(extras.agresionVal, true);
+        (RECOM_ESTILOS.agresion[nivA] || []).forEach(txt=>{
+          const li=document.createElement("li");
+          li.textContent = contextualizaTextoCodigo(textoPlanClaro(txt), esProfesional);
+          lista.appendChild(li);
+        });
+      }
+    }
+//----HHHHH
+   
+// Adaptación al cambio (resaltado como Comunicación)
+if(extras.propCambioVal != null){
+  let txt = null;
+  if(extras.propCambioVal <= 40){
+    txt = "Before an important change, write 3 things on a sheet: what will change, what will stay the same, and what the first concrete step will be in order to adapt. Review it twice a week and mark ✓ each time that first step was actually taken.";
+  } else if(extras.propCambioVal >= 71){
+    txt = "Once a week, propose a specific improvement in a task, routine, or project, for example changing the order of the steps, trying a different way of organizing, or adjusting a schedule, and try it for 1 day to review whether it really worked.";
+  } else {
+    txt = "When facing an everyday change, write in one line what the new situation or instruction is, and note a simple first step in order to adapt without putting it off, for example asking a question, reorganizing a task, or starting with a small part.";
+  }
+
+  addGroup("ADAPTACIÓN AL CAMBIO", [txt], { marginTop: "10px" });
+}    
+//-----HHHH
+cont.appendChild(lista);
+  }
+
+  function renderPlanAccion(extras){
+    const cont = document.getElementById("planAccion");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
+    const esProfesional = codigoActual.startsWith("PRO");
+
+    const textoPlanClaro = (s) => {
+      if (s == null) return "";
+      let t = String(s).replace(/\s+/g, " ").trim();
+
+      // Expandir abreviaturas y expresiones cortas
+      t = t.replace(/\b(\d+)\s*min\b/gi, "$1 minutos");
+      t = t.replace(/\b(\d+)\s*veces\/sem\b/gi, "$1 veces por semana");
+      t = t.replace(/\b(\d+)\s*vez\/sem\b/gi, "$1 vez por semana");
+      t = t.replace(/\b(\d+)\s*conversaciones\/sem\b/gi, "$1 conversaciones por semana");
+      t = t.replace(/\b(\d+)\s*prácticas\/sem\b/gi, "$1 prácticas por semana");
+      t = t.replace(/\b(\d+)\s*bloques\/sem\b/gi, "$1 bloques por semana");
+      t = t.replace(/\b(\d+)\s*roles\/sem\b/gi, "$1 roles por semana");
+      t = t.replace(/\b(\d+)\s*rol\/sem\b/gi, "$1 rol por semana");
+      t = t.replace(/\b(\d+)\s*días\/sem\b/gi, "$1 días por semana");
+      t = t.replace(/\bsem\.?\b/gi, "semana");
+      t = t.replace(/\bquincenal\b/gi, "cada dos semanas");
+      t = t.replace(/\bsemanal\b/gi, "cada semana");
+      t = t.replace(/\bmensual\b/gi, "cada mes");
+      t = t.replace(/\bHR\b/g, "recursos humanos");
+
+      // Quitar puntos suspensivos o texto truncado
+      t = t.replace(/pr\.\.\./gi, "primero con acciones para la persona evaluada y luego con apoyos");
+      t = t.replace(/\.\.\./g, ".");
+
+      // Aterrizar actividades (explicando qué hacer / con quién / sobre qué)
+      t = t.replace(
+        /^Rutina breve diaria \(5 minutos\): identificar emoción \+ causa \+ acción útil\.?$/i,
+        "Once a day (five minutes), write on paper or on the phone: what emotion was felt, what situation caused it, and what useful action will come next (for example: breathe, ask for help, take a pause, or speak calmly)."
+      );
+
+      t = t.replace(
+        /^Plan diario: 3 tareas máximas \+ checklist \(inicio y cierre del día\)\.?$/i,
+        "At the start of the day or the afternoon, choose and write three concrete tasks (one important, one short, and one to close), such as studying a topic, finishing a task, organizing materials, or answering something pending. Mark a sign when each one is finished and, at the end of the day, review what is still pending."
+      );
+
+      t = t.replace(
+        /^Micro-meta semanal: definir, ejecutar y medir avance \(%\)\.?$/i,
+        "Set one small goal for the week (for example: finish a pending task, practice a skill, or finish a reading), carry it out in simple steps, and at the end note what percentage was achieved and what was missing."
+      );
+
+      t = t.replace(
+        /^Decisión guiada: 2 opciones \+ consecuencias corto\/largo plazo \(1 caso\/sem\)\.?$/i,
+        "Once a week, choose a real situation to decide (for example: organizing time, resolving something pending, or responding to a conflict), write two options, and note one short-term and one long-term consequence of each option before choosing."
+      );
+
+      t = t.replace(
+        /^Escucha activa \(2 conversaciones\/sem\):/i,
+        "Active listening (2 conversations per week): talk for five to ten minutes with a family member, classmate, teacher, colleague, or supervisor about a task, something from the day, or a pending agreement; "
+      );
+
+      t = t.replace(
+        /Escucha activa \(2 conversaciones por semana con[^:]*:\s*/i,
+        "Active listening (2 conversations per week): talk for five to ten minutes with a family member, classmate, teacher, colleague, or supervisor about a task, something from the day, or a pending agreement; "
+      );
+
+      t = t.replace(
+        /resumir lo entendido y hacer 1 pregunta de aclaración antes de responder\.?/i,
+        "listen without interrupting, sum up what was understood in one sentence, and ask one clarifying question before answering."
+      );
+
+      t = t.replace(
+        /^Reconocer conductas prosociales y cooperación.*$/i,
+        "Notice helpful behavior and cooperation: name a useful behavior that was seen, in clear words (for example: waiting a turn, helping someone, listening without interrupting, keeping an agreement, or proposing a solution without a fight), at least twice a week."
+      );
+
+      t = t.replace(
+        /^Participar en una actividad grupal con rol definido \(1 vez\/sem\):/i,
+        "Take part in a group activity with a defined role (once a week): choose a concrete activity (group work, a family task, a team meeting, a class activity, or a work activity) and take a clear role such as taking notes, watching the time, handing out materials, reading instructions, or presenting one part; "
+      );
+
+      t = t.replace(
+        /^Bloques de trabajo 20–25 min \(2–3 veces\/sem\):/i,
+        "Bloques de trabajo de veinte a veinticinco minutos (dos a tres veces por semana): elegir una sola tarea concreta (estudiar un tema, hacer una tarea, ordenar materiales, responder pendientes o preparar una actividad), "
+      );
+
+      t = t.replace(
+        /^Bloques de trabajo 20–25 minutos \(2–3 veces por semana\):/i,
+        "Bloques de trabajo de veinte a veinticinco minutos (dos a tres veces por semana): elegir una sola tarea concreta (estudiar un tema, hacer una tarea, ordenar materiales, responder pendientes o preparar una actividad), "
+      );
+
+      t = t.replace(
+        /^Asignar un rol pequeño de iniciativa 1 vez\/sem/i,
+        "Asumir un rol pequeño de iniciativa una vez por semana"
+      );
+
+      t = t.replace(
+        /^Asignar un rol pequeño de iniciativa 1 vez por semana/i,
+        "Asumir un rol pequeño de iniciativa una vez por semana"
+      );
+
+      t = t.replace(
+        /^Revisión de tareas: qué quedó pendiente y plan de recuperación\.?$/i,
+        "Once a week, review which tasks are still pending, write why they were not finished, and set when they will be picked up again (approximate day and time) with a simple recovery plan."
+      );
+
+      t = t.replace(
+        /^Registro semanal: 2 logros concretos \+ 1 ajuste para la semana siguiente\.?$/i,
+        "Once a week, write two concrete achievements (what was done and what result it had) and one practical adjustment for the next week."
+      );
+
+      t = t.replace(
+        /^Práctica 4 días\/sem: respiración 4–6 \(2 minutos\) antes de tareas difíciles\.?$/i,
+        "Four days a week, before a difficult task, practice slow breathing for two minutes (inhale for four counts and exhale for six) in order to start more calmly."
+      );
+
+      t = t.replace(
+        /^2 veces\/sem: practicar mensajes en primera persona \(yo siento \/ yo necesito\)\.?$/i,
+        "Twice a week, practice first-person messages in a real or practice situation: say what you feel, what you need, and what you are asking for, without attacking the other person."
+      );
+
+      t = t.replace(
+        /^Ejercicio guiado 1 vez\/sem: perspectiva del otro .*$/i,
+        "Once a week, choose a recent situation and answer three questions: what the other person might have thought, what they might have felt, and what they might have needed; then mention one more respectful response that was possible."
+      );
+
+      t = t.replace(
+        /^Resolución de conflicto: situación–emoción–pedido .*$/i,
+        "Once a week, use a short guide on a real case: describe the situation, say what emotion showed up, and state a clear request or a possible agreement without insulting."
+      );
+
+      // Ajustes de contexto para versión profesional
+      if (esProfesional) {
+        t = t.replace(/\bdocente\b/gi, "supervisor");
+        t = t.replace(/\baula\b/gi, "equipo de trabajo");
+        t = t.replace(/\bclase\b/gi, "reunión");
+        t = t.replace(/\bcompañeros\b/gi, "colegas");
+        t = t.replace(/\bcompañero puente\b/gi, "colega de apoyo");
+        t = t.replace(/\borientador\b/gi, "mentor");
+      }
+
+      // Indicadores y revisiones en lenguaje completo
+      if (/^Indicador:/i.test(t) && !/registro|checklist|lista|nota breve/i.test(t)) {
+        t = t + " Registrar cumplimiento en una nota breve o lista de verificación.";
+      }
+      t = t.replace(/\bchecklist\b/gi, "lista de verificación");
+
+      t = contextualizaTextoCodigo(t, esProfesional);
+      return t.replace(/\s{2,}/g, " ").trim();
+    };
+
+    const tituloPorCodigo = {
+      hogar: esProfesional ? "En casa / entorno personal (acciones de apoyo sugeridas según puntajes):" : "En el hogar / familia (acciones sugeridas según puntajes):",
+      aula: esProfesional ? "En el trabajo / equipo (acciones sugeridas según puntajes):" : "En el aula / institución educativa (acciones sugeridas según puntajes):",
+      apoyo: esProfesional ? "With support from a supervisor / mentor / Human Resources (suggested actions according to scores):" : "With support from the counselor / psychologist / Human Resources (suggested actions according to scores):"
+    };
+
+    const header=document.createElement("div");
+    header.className="interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">Suggested action plan</div>`;
+    cont.appendChild(header);
+
+    const sub=document.createElement("div");
+    sub.className="recom-subtitle";
+    sub.textContent = esProfesional ? "A practical plan prioritized by scores: first it includes actions for the person assessed (what to do), and then support actions for home, work, and professional support (how to support them)." : "A practical plan prioritized by scores: first it includes actions for the person assessed (what to do), and then support actions for home, classroom, and professional intervention (how to support them).";
+    cont.appendChild(sub);
+// ===== Prioridades según puntaje (Top 3) =====
+    const items = [
+      { key:"DESARROLLO PERSONAL", pct: extras.bIntra, invert:false },
+      { key:"VINCULOS INTERPERSONALES", pct: extras.bInter, invert:false },
+      { key:"HABILIDADES PARA LA VIDA", pct: extras.bPV, invert:false },
+    ];
+    if (extras.timidezVal != null) items.push({ key:"TIMIDEZ", pct: extras.timidezVal, invert:true });
+    if (extras.agresionVal != null) items.push({ key:"AGRESION", pct: extras.agresionVal, invert:true });
+
+    items.forEach(it => it.nivel = nivelFromPctInv(it.pct, it.invert));
+
+    const ord = { bajo: 0, medio: 1, alto: 2 };
+    items.sort((a,b)=> (ord[a.nivel]??9) - (ord[b.nivel]??9));
+
+    const candidatos = items.filter(x => x.nivel !== "alto");
+    const focos = (candidatos.length ? candidatos : items).slice(0,3);
+
+    const box = document.createElement("div");
+    box.className = "plan-focus-box";
+    box.innerHTML = `<div class="plan-section-title">Priorities by score (Top 3 areas for support)</div>`;
+    focos.forEach(f=>{
+const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
+const perfilPlan = codigoActual.startsWith("PRO") ? "pro" : "esc";
+const pack = PLAN_ACCION_NIVEL[f.key]?.[f.nivel]?.[perfilPlan];
+      if(!pack) return;
+
+      const sec = document.createElement("div");
+      sec.className = "plan-focus-item";
+      sec.innerHTML = `
+<div class="plan-focus-head"><b>${(f.key==="AGRESION"?"AGRESIÓN":(f.key==="VINCULOS INTERPERSONALES"?"VÍNCULOS INTERPERSONALES":f.key))}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
+        <div class="plan-focus-obj"><b>Goal:</b> ${escapeHtml(textoPlanClaro(pack.objetivo))}</div>
+        <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(textoPlanClaro(a))}</li>`).join("")}</ul>
+        <div class="plan-focus-meta"><b>Indicator:</b> ${escapeHtml(textoPlanClaro((()=>{const ind=pack.indicador||""; const needs=!/registro|lista de verificación|nota breve|bitácora|anotar|marcar|record|note|log|check|mark|written|sheet/i.test(ind); return ind + (needs ? " Record it in a short note (date + activity + check mark)." : "");})()))}</div>
+        <div class="plan-focus-meta"><b>Review:</b> ${escapeHtml(textoPlanClaro(pack.revision))}</div>
+      `;
+      box.appendChild(sec);
+    });
+    cont.appendChild(box);
+    // ===== Fin prioridades =====
+
+    const mkList=(title, items)=>{
+      const t=document.createElement("div"); t.className="plan-section-title"; t.textContent=title; cont.appendChild(t);
+      const ul=document.createElement("ul"); ul.className="recom-list";
+
+      // items: [{grp, txt}, ...]  -> render 1 title per grp + bullets
+      let lastGrp = null;
+      items.forEach((it, idx)=>{
+        const grp = it && typeof it === "object" ? it.grp : null;
+        const txt = it && typeof it === "object" ? it.txt : String(it ?? "");
+
+        if(grp && grp !== lastGrp){
+          const liHead=document.createElement("li");
+          liHead.className = "sec-head";
+          liHead.textContent = grp + " (prioridad):";
+          liHead.style.fontWeight = "800";
+          liHead.style.listStyle = "none";
+          liHead.style.marginTop = (lastGrp===null ? "0" : "10px");
+          ul.appendChild(liHead);
+          lastGrp = grp;
+        }
+
+        const li=document.createElement("li");
+        li.textContent = textoPlanClaro(txt);
+        li.style.marginLeft = "18px"; // un poco más a la derecha
+        ul.appendChild(li);
+      });
+
+      cont.appendChild(ul);
+    };
+        // ===== Plan por rol basado en los focos Top 3 =====
+    const hogar = [];
+    const aula  = [];
+    const apoyo = [];
+
+    focos.forEach(f=>{
+const perfilRol = esProfesional ? "pro" : "esc";
+const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
+      if(!pack) return;
+
+      const keyDisp = (f.key === "AGRESION") ? "AGRESIÓN" : (f.key === "VINCULOS INTERPERSONALES") ? "VÍNCULOS INTERPERSONALES" : f.key;
+
+      // Agregamos 1–2 acciones por foco y rol (para que no sea infinito)
+      (pack.hogar || []).slice(0,2).forEach(x => hogar.push({ grp: keyDisp, txt: x }));
+(pack[esProfesional ? "trabajo" : "aula"] || []).slice(0,2).forEach(x => aula.push({ grp: keyDisp, txt: x }));
+      (pack.apoyo || []).slice(0,2).forEach(x => apoyo.push({ grp: keyDisp, txt: x }));
+    });
+
+
+    if(hogar.length) mkList(tituloPorCodigo.hogar, hogar);
+    if(aula.length)  mkList(tituloPorCodigo.aula, aula);
+    if(apoyo.length) mkList(tituloPorCodigo.apoyo, apoyo);
+    // ===== Fin plan por rol =====
+
+    const mkLinks=(title, links)=>{
+      const t=document.createElement("div");
+      t.className="plan-section-title";
+      t.textContent=title;
+      cont.appendChild(t);
+
+      const ul=document.createElement("ul");
+      ul.className="recom-list";
+
+      links.forEach(l=>{
+        const li=document.createElement("li");
+        li.innerHTML = `<a href="${l.href}" target="_blank" rel="noopener noreferrer">${l.text}</a>`;
+        ul.appendChild(li);
+      });
+
+      cont.appendChild(ul);
+    };
+
+   // mkList("En el hogar / familia:", [
+   //   "Conversar diariamente sobre emociones y experiencias del día (validación).",
+   //   "Reconocer esfuerzos y avances con mensajes concretos.",
+    //  "Mantener rutinas claras de estudio, descanso y ocio."
+   // ]);
+
+   // mkList("En el aula / institución educativa:", [
+   //   "Promover respeto, colaboración y expresión emocional adecuada.",
+   //   "Observar conductas socioemocionales relevantes y coordinar con la familia.",
+   //   "Incluir actividades breves de educación emocional."
+  //  ]);
+
+   // mkList("Con apoyo del orientador / psicólogo:", [
+    //  "If the difficulties continue or are severe, consider a more thorough assessment and specialized support.",
+    //  "Maintain regular communication between family and school in order to align strategies."
+   // ]);
+    if (esProfesional) {
+      mkLinks("Recursos de apoyo (Profesional) — opcionales", [
+        { text: "OMS/WHO: salud mental en el trabajo (recomendaciones)", href: "https://www.who.int/news-room/fact-sheets/detail/mental-health-at-work" },
+        { text: "APA: herramientas prácticas para manejo del estrés", href: "https://www.apa.org/topics/stress/manage-stress-tools" },
+        { text: "CDC/NIOSH: estrés en el trabajo (prevención y estrategias)", href: "https://www.cdc.gov/niosh/stress/about/index.html" }
+      ]);
+    } else {
+      mkLinks("Recursos de apoyo (Escolar) — opcionales", [
+        { text: "UNICEF: salud mental en adolescentes (recursos y orientación)", href: "https://www.unicef.org/parenting/mental-health" },
+        { text: "OMS/WHO: habilidades para la vida (Life Skills Education)", href: "https://www.who.int/teams/health-promotion/enhanced-wellbeing/health-skills-and-education/life-skills" },
+        { text: "NHS: ejercicios de respiración para estrés y ansiedad", href: "https://www.nhs.uk/mental-health/self-help/guides-tools-and-activities/breathing-exercises-for-stress/" }
+      ]);
+    }
+
+    // Pie de interpretación: HTML fijo (reporte-pie-page2). No duplicar aquí.
+  }
+
+  function renderPerfilGlobal(extras){
+    const cont = document.getElementById("perfilGlobal");
+    if(!cont) return;
+    cont.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "interp-bloque-header";
+    header.innerHTML = `<div class="interp-bloque-nombre">3.- Overall score profile</div>`;
+    cont.appendChild(header);
+
+    const p = document.createElement("div");
+    p.className = "interp-bloque-desc";
+    const nombre = extras.nombre || "the participant";
+    p.textContent = `From ${nombre}'s individual report, these indexes follow:`;
+    cont.appendChild(p);
+
+    const ul = document.createElement("ul");
+    ul.className = "recom-list";
+
+    const fmt = v => (v != null && !Number.isNaN(v)) ? Math.round(v) : "—";
+
+    [
+  `Personal Development Index: ${fmt(extras.bIntra)}`,
+  `Interpersonal Bonds Index: ${fmt(extras.bInter)}`,
+  `Life Skills Index: ${fmt(extras.bPV)}`,
+  `Overall Emotional Intelligence Index (EII): ${fmt(extras.iieFinal)}`
+].forEach(t=>{
+  const li = document.createElement("li");
+  li.textContent = t;
+
+  // SOLO la línea del IIE se realza
+  if (t.includes("(EII)")) li.classList.add("perfil-iie");
+  if (t.toLowerCase().startsWith("comunicación interpersonal")) li.classList.add("perfil-sep");
+  if (t.toLowerCase().startsWith("adaptación al cambio:")) li.classList.add("perfil-sep");
+
+  ul.appendChild(li);
+});
+
+    cont.appendChild(ul);
+
+    const subt = document.createElement("div");
+    subt.className = "plan-section-title";
+    subt.textContent = "Interpersonal communication (on these scales, a low score means better management):";
+    cont.appendChild(subt);
+
+    const ul2 = document.createElement("ul");
+    ul2.className = "recom-list";
+
+    const liA = document.createElement("li");
+    liA.textContent = "Aggression: " + fmt(extras.agresionVal);
+    if (extras.agresionVal != null && !Number.isNaN(extras.agresionVal) && extras.agresionVal > 70){
+      liA.classList.add("skill-row-alert");
+      liA.textContent += " (high range; needs attention and support).";
+    }
+    ul2.appendChild(liA);
+
+    const liT = document.createElement("li");
+    liT.textContent = "Shyness: " + fmt(extras.timidezVal);
+    if (extras.timidezVal != null && !Number.isNaN(extras.timidezVal) && extras.timidezVal > 70){
+      liT.classList.add("skill-row-alert");
+      liT.textContent += " (high range; suggests marked social holding-back).";
+    }
+    ul2.appendChild(liT);
+
+    cont.appendChild(ul2);
+
+    const subt2 = document.createElement("div");
+    subt2.className = "plan-section-title";
+    subt2.textContent = "Adaptation to change:";
+    cont.appendChild(subt2);
+
+    const ul3 = document.createElement("ul");
+    ul3.className = "recom-list";
+    const liC = document.createElement("li");
+    liC.textContent = "Adaptation to change: " + fmt(extras.propCambioVal) + " (a higher score means more openness to change).";
+    ul3.appendChild(liC);
+    cont.appendChild(ul3);
+  }
+
+  function renderBloqueInterpretacion(containerId, tituloDisplay, bloqueKeyOriginal, bloqueDescKey, subRows, pctBloqueVal){
+    const cont=document.getElementById(containerId);
+    if(!cont) return;
+    cont.innerHTML="";
+
+    const idxText=(pctBloqueVal!=null && !Number.isNaN(pctBloqueVal)) ? pctBloqueVal : "—";
+    const header=document.createElement("div");
+    header.className="interp-bloque-header";
+    header.innerHTML=`<div class="interp-bloque-nombre">${tituloDisplay}</div><div class="interp-bloque-indice">Índice: <span>${idxText}</span></div>`;
+    cont.appendChild(header);
+
+    const desc=document.createElement("div");
+    desc.className="interp-bloque-desc";
+    desc.textContent=BLOQUE_DESCS[bloqueDescKey] || "";
+    cont.appendChild(desc);
+
+    const bloqueKey = canonBloque(bloqueKeyOriginal);
+    let rows=(subRows||[]).filter(r=> canonBloque(r.bloque||r.block||"")===bloqueKey);
+
+    rows.forEach(r=>{
+      const sub=r.subhabilidad || r.sub || r.nombre || "";
+      const pctRaw=Number(r.percent ?? r.pct ?? r.porcentaje ?? r.value ?? null);
+      const pct=(pctRaw!=null && !Number.isNaN(pctRaw)) ? adjScore(pctRaw, {bloqueNorm: bloqueKey, subNorm: normalizeName(sub)}) : null;
+      renderSkillRow(cont, dispSub(sub), pct);
+    });
+  }
+
+  function renderInterpretacion(subRows, extras){
+    const date1=document.getElementById("repDateLine");
+    const date2=document.getElementById("repDateLine2");
+    const dateEsc=document.getElementById("repDateLineEsc");
+    if(date1 && date2) date2.textContent = date1.textContent;
+    if(date1 && dateEsc) dateEsc.textContent = date1.textContent;
+
+    const h1=document.getElementById("repHeaderBox");
+    const h2=document.getElementById("repHeaderBox2");
+    if(h1 && h2) h2.innerHTML = h1.innerHTML;
+
+    renderBloqueInterpretacion("interpIntra","DESARROLLO PERSONAL","Desarrollo Personal","desarrollo", subRows, extras.bIntra);
+    renderBloqueInterpretacion("interpInter","VINCULOS INTERPERSONALES","Vínculos Interpersonales","vinculos", subRows, extras.bInter);
+    renderBloqueInterpretacion("interpPV","HABILIDADES PARA LA VIDA","Competencias Para la Vida","competencias", subRows, extras.bPV);
+// === TEST TEMPORAL: forzar niveles bajos (solo para verificar 3 bullets) ===
+// extras.bIntra = 30;   // Desarrollo personal -> bajo
+//extras.bInter = 35;   // Vínculos -> bajo
+//extras.bPV    = 25;   // Vida -> bajo
+// === FIN TEST TEMPORAL ===
+
+    const estCont=document.getElementById("interpEstilos");
+    if(estCont){
+      estCont.innerHTML="";
+      const header=document.createElement("div");
+      header.className="interp-bloque-header";
+      header.innerHTML=`<div class="interp-bloque-nombre">INTERPERSONAL COMMUNICATION</div>`;
+      estCont.appendChild(header);
+
+      const desc=document.createElement("div");
+      desc.className="interp-bloque-desc";
+      desc.textContent = BLOQUE_DESCS.comunicacion;
+      estCont.appendChild(desc);
+
+      renderSkillRow(estCont, "Agresión", extras.agresionVal);
+      renderSkillRow(estCont, "Timidez", extras.timidezVal);
+    }
+
+    const cambCont=document.getElementById("interpCambio");
+    if(cambCont){
+      cambCont.innerHTML="";
+      const header=document.createElement("div");
+      header.className="interp-bloque-header";
+      header.innerHTML=`<div class="interp-bloque-nombre">ADAPTATION TO CHANGE</div>`;
+      cambCont.appendChild(header);
+
+      const desc=document.createElement("div");
+      desc.className="interp-bloque-desc";
+      desc.textContent = BLOQUE_DESCS.adaptacion;
+      cambCont.appendChild(desc);
+
+      renderSkillRow(cambCont, "Adaptación al cambio", extras.propCambioVal);
+    }
+
+    renderPerfilGlobal(extras);
+    renderRecomendaciones(extras);
+    renderPlanAccion(extras);
+  }
+
+  function renderAll(data){
+    window.__LAST_REPORT__ = data;
+    const attempt = data.attempt || data;
+    const snap = attempt.snapshot || attempt.snap || attempt;
+
+    const resultados = attempt.resultados || attempt.resultados_json || attempt.result || {};
+    const subRows = attempt.subhabilidades || resultados.subhabilidades || attempt.subRows || attempt.sub || [];
+    const bloqRows = attempt.bloqPercents || resultados.bloqPercents || attempt.bloqRows || attempt.bloques || resultados.bloques || [];
+
+    const fechaRaw = attempt.created_at || attempt.creado_en || attempt.fecha_intento;
+    const fechaObj = fechaRaw ? new Date(fechaRaw) : null;
+    const ahora = new Date();
+    document.getElementById("repDateLine").textContent = ahora.toLocaleString("en-US", { dateStyle:"short", timeStyle:"short" });
+
+    const fechaTexto = fechaObj ? fechaObj.toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" }) : "—";
+    const apellidoRep = String(resultados.apellido || snap.apellido || "").trim();
+    const nombrePila = String(resultados.nombre_pila || "").trim();
+    const nombre = (nombrePila && apellidoRep)
+      ? (nombrePila + " " + apellidoRep)
+      : (snap.nombre || attempt.nombre || "—");
+    const codigoActual = String(document.getElementById("codigoInput")?.value || "").trim().toUpperCase();
+const esProfesional = codigoActual.startsWith("PRO");
+const labelCurso = esProfesional ? "Level" : "Grade/Course";
+    document.getElementById("repHeaderBox").innerHTML = `
+      <div><b>Name:</b> ${nombre}</div>
+      <div><b>Country:</b> ${snap.grupo || attempt.grupo || "—"}</div>
+      <div><b>Institution:</b> ${snap.institucion || attempt.institucion || "—"}</div>
+      <div><b>Date:</b> ${fechaTexto}</div>
+      <div><b>${labelCurso}:</b> ${snap.curso || attempt.curso || "—"}</div>
+      <div><b>Code:</b> ${codigoActual || "—"}</div>
+    `;
+
+    function pctBloque(nombre){
+      const keyNorm = canonBloque(nombre);
+      let raw = 0;
+      if(Array.isArray(bloqRows)){
+        const f = bloqRows.find(r => canonBloque(r.bloque||r.block||"") === keyNorm);
+        if (f) raw = Math.round(f.percent ?? f.pct ?? f.porcentaje ?? 0);
+      } else if (bloqRows && typeof bloqRows === "object") {
+        const k = Object.keys(bloqRows||{}).find(k => normalizeName(k) === keyNorm);
+        if (k) raw = Math.round(bloqRows[k]);
+      }
+      if (!raw && resultados.bloques){
+        if (keyNorm === "desarrollo personal") raw = Math.round(resultados.bloques.intrapersonales || 0);
+        if (keyNorm === "vínculos interpersonales") raw = Math.round(resultados.bloques.interpersonales || 0);
+        if (keyNorm === "competencias para la vida")   raw = Math.round(resultados.bloques.para_la_vida || 0);
+        if (keyNorm === "estilos de comunicación interpersonal") raw = Math.round(resultados.bloques.estilos_comunicacion || 0);
+        if (keyNorm === "propensión al cambio") raw = Math.round(resultados.bloques.propension_cambio || 0);
+      }
+      return adjScore(raw, {bloqueNorm: keyNorm, subNorm: ""});
+    }
+
+    const bIntra = pctBloque("Desarrollo Personal");
+    const bInter = pctBloque("Vínculos Interpersonales");
+    const bPV    = pctBloque("Competencias Para la Vida");
+
+    document.getElementById("ihIntra").textContent = bIntra || "—";
+    document.getElementById("ihInter").textContent = bInter || "—";
+    document.getElementById("ihPV").textContent = bPV || "—";
+
+    let iie = attempt.iie ?? attempt.IIE ?? attempt.indice_ie ?? (resultados.globales ? resultados.globales.IIE : undefined);
+    const iieBase = (iie != null && !Number.isNaN(Number(iie))) ? Number(iie) : ((bIntra||bInter||bPV) ? Math.round((bIntra+bInter+bPV)/3) : 0);
+    const iieFinal = adjScore(iieBase, {bloqueNorm:"", subNorm:""});
+
+    document.getElementById("repIIE").textContent = iieFinal || "—";
+    const tituloCurva = document.getElementById("tituloCurvaFrecuencias");
+    if (tituloCurva) {
+      const iieTitulo = Math.round(Number(iieFinal) || 0);
+      tituloCurva.textContent = `FREQUENCY DISTRIBUTION CURVE: (EII = ${iieTitulo}).`;
+    }
+    const iieForCurve = iieFinal || 0;
+    window.__curveIIEValue = iieForCurve;
+
+// 1) intento inmediato
+setCurveMarker(iieForCurve);
+
+// 2) reintento cuando ya hubo 1 frame de layout
+requestAnimationFrame(() => setCurveMarker(iieForCurve));
+
+// 3) reintento extra por si la imagen tarda un poco en cargar/renderizar
+setTimeout(() => setCurveMarker(iieForCurve), 120);
+    const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1 ?? (resultados.globales && resultados.globales.IV1);
+    const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2 ?? (resultados.globales && resultados.globales.IV2);
+    const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3 ?? (resultados.globales && resultados.globales.IV3);
+
+    highlightIV("iv1Row", ivToCol(iv1Val));
+    highlightIV("iv2Row", ivToCol(iv2Val));
+    highlightIV("iv3Row", ivToCol(iv3Val));
+
+    buildBloque("bloqueIntra", subRows, "Habilidades intrapersonales");
+    buildBloque("bloqueInter", subRows, "Habilidades interpersonales");
+    buildBloque("bloquePV", subRows, "Habilidades para la vida");
+
+    const agresionVal = findSubPct(subRows,"Estilos de comunicación interpersonal","Agresión");
+    const timidezVal  = findSubPct(subRows,"Estilos de comunicación interpersonal","Timidez");
+    const propCambioVal = pctBloque("Propensión al cambio");
+
+    renderBars("estilos", [
+      {label:"AGGRESSION", val: agresionVal, id:"mAgresion"},
+      {label:"SHYNESS",  val: timidezVal,  id:"mTimidez"}
+    ], true);
+    renderBars("cambio", [
+      {label:"ADAPTATION TO CHANGE", val: propCambioVal, id:"mCambio"}
+    ], false);
+
+    setMarker("mAgresion", agresionVal);
+    setMarker("mTimidez", timidezVal);
+    setMarker("mCambio", propCambioVal);
+
+    document.getElementById("contestadasLine").textContent = attempt.contestadas || attempt.n_respondidas || "244 of 244";
+
+    renderPage2(subRows);
+    renderInterpretacion(subRows, {
+      bIntra, bInter, bPV,
+      agresionVal, timidezVal,
+      propCambioVal,
+      iieFinal,
+      nombre
+    });
+
+    document.getElementById("reporteContainer").style.display="block";
+    const ingreso = document.getElementById("ingresoPanel");
+    if (ingreso) ingreso.style.display = "none";
+  }
+
+  async function cargarReporte(codigo){
+    document.getElementById("msg").textContent = "Buscando...";
+    document.getElementById("msg").className = "msg";
+    document.getElementById("reporteContainer").style.display = "none";
+    const ingreso = document.getElementById("ingresoPanel");
+    if (ingreso) ingreso.style.display = "";
+    try{
+      const q = new URLSearchParams({ codigo, eval: REPORT_PRODUCT_KEY, idioma: REPORT_UI_LANG });
+      const r = await fetch(`/api/report?${q.toString()}`);
+      const data = await r.json();
+      if (r.status === 403 && (data.eval_mismatch || data.idioma_mismatch)) {
+        document.getElementById("msg").textContent = data.error || "Este código no corresponde a este reporte.";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
+      if(!r.ok || data.error){
+        document.getElementById("msg").textContent = data.error || "No encontrado";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
+      if (!data || !data.attempt) {
+        document.getElementById("msg").textContent = "No se encontró un intento registrado para este código.";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
+      if (data.puede_ver_resultado !== true) {
+        document.getElementById("msg").textContent = "Este código no está habilitado para ver su reporte. Contacta a la coordinación.";
+        document.getElementById("msg").className = "msg err";
+        return;
+      }
+      document.getElementById("msg").textContent = "";
+      document.getElementById("msg").className = "msg";
+      renderAll(data);
+      window.scrollTo({top:0,behavior:"smooth"});
+    }catch(e){
+      console.error(e);
+      document.getElementById("msg").textContent="Error de conexión";
+      document.getElementById("msg").className="msg err";
+    }
+  }
+
+  document.getElementById("btnVer").addEventListener("click", ()=>{
+    const c = document.getElementById("codigoInput").value.trim().toUpperCase();
+    if(!c) return;
+    cargarReporte(c);
+  });
+
+  document.getElementById("btnImprimir").addEventListener("click", ()=>window.print());
+  document.getElementById("btnPDF").addEventListener("click", ()=>window.print());
+
+  window.addEventListener("beforeprint", () => {
+    const v = window.__curveIIEValue;
+    if (v == null || Number.isNaN(Number(v))) return;
+    requestAnimationFrame(() => setCurveMarker(Number(v)));
+  });
+  window.addEventListener("afterprint", () => {
+    const v = window.__curveIIEValue;
+    if (v == null || Number.isNaN(Number(v))) return;
+    requestAnimationFrame(() => setCurveMarker(Number(v)));
+  });
+
+  (function init(){
+    const qp = new URLSearchParams(location.search);
+    const c = (qp.get("codigo")||"").trim().toUpperCase();
+    if(c){
+      document.getElementById("codigoInput").value=c;
+      cargarReporte(c);
+    }
+  })();
+</script>
+</body>
+</html>
