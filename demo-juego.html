@@ -4,691 +4,368 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>ADALAM Play</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet"/>
   <style>
-    :root { --ink:#163024; --green:#178a38; --deep:#0f6a2b; --card:#fffdf8; }
+    :root { --ink:#163024; --green:#178a38; --deep:#0f6a2b; }
     * { box-sizing:border-box; }
-    html, body { margin:0; min-height:100%; font-family:Nunito, system-ui, sans-serif; color:var(--ink); }
-    body {
-      background:
-        radial-gradient(900px 420px at 8% -10%, #fff3c4 0%, transparent 55%),
-        radial-gradient(800px 480px at 110% 0%, #d7fff0 0%, transparent 50%),
-        linear-gradient(180deg, #f4fbff 0%, #e7fff4 100%);
-    }
+    html, body { margin:0; height:100%; font-family:Nunito, system-ui, sans-serif; color:var(--ink); background:#dff6ea; }
     button, input { font:inherit; }
-    button { -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
-    .app { max-width:920px; margin:0 auto; padding:16px 16px 48px; }
-    .top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .brand { display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.02em; }
-    .brand img { height:42px; width:auto; }
-    .icon-btn {
-      width:44px; height:44px; border-radius:50%; border:0; background:#fff; cursor:pointer;
-      box-shadow:0 8px 18px rgba(22,48,36,.08); display:grid; place-items:center;
-    }
-    .icon-btn.off { opacity:.45; }
-    .top-actions { display:flex; gap:8px; }
-    h1 { font-size:clamp(1.9rem, 4vw, 2.7rem); line-height:1.02; margin:18px 0 8px; }
-    .lead { font-size:1.12rem; margin:0 0 16px; max-width:38rem; }
-    .card {
-      background:var(--card); border-radius:28px; padding:18px;
-      box-shadow:0 18px 40px rgba(22,48,36,.08);
-    }
+    .app { max-width:1100px; margin:0 auto; padding:12px 12px 24px; min-height:100%; }
+    .top { display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:900; }
+    .brand img { height:40px; }
+    h1 { font-size:clamp(1.7rem, 4vw, 2.4rem); margin:12px 0 8px; }
+    .card { background:#fffdf8; border-radius:28px; padding:16px; box-shadow:0 18px 40px rgba(22,48,36,.08); }
     label { font-weight:800; display:block; margin-bottom:6px; }
     input[type="text"] {
-      width:min(100%, 360px); font-weight:800; font-size:1.05rem;
-      padding:12px 14px; border-radius:14px; border:2px solid #d7eadf; text-transform:uppercase;
+      width:min(100%, 320px); font-weight:800; font-size:1.05rem; padding:12px 14px;
+      border-radius:14px; border:2px solid #d7eadf; text-transform:uppercase;
     }
-    input.need { border-color:#e07a2f; }
     .btn {
-      appearance:none; border:0; cursor:pointer; font-weight:900; color:#fff;
-      background:var(--green); border-radius:999px; padding:14px 22px; font-size:1.05rem;
-      box-shadow:0 10px 0 var(--deep);
+      border:0; cursor:pointer; font-weight:900; color:#fff; background:var(--green);
+      border-radius:999px; padding:14px 22px; box-shadow:0 8px 0 var(--deep);
     }
-    .btn:active { transform:translateY(2px); box-shadow:0 8px 0 var(--deep); }
-    .btn.ghost { background:#fff; color:var(--ink); box-shadow:0 8px 0 #e5efe8; }
-    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px; }
-    .steps { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:16px; }
-    .step { background:#fff; border-radius:18px; padding:12px; font-weight:800; box-shadow:0 8px 18px rgba(22,48,36,.05); }
-    .step b { display:block; color:var(--green); font-size:.82rem; letter-spacing:.04em; }
-    .scene { width:100%; height:168px; object-fit:cover; object-position:center 28%; border-radius:22px; display:block; background:#dff6ea; }
-    #play .scene { height:112px; }
-    .kicker { font-weight:900; color:var(--green); letter-spacing:.04em; margin:14px 0 0; }
-    .story { font-size:clamp(1.35rem, 3vw, 1.8rem); font-weight:900; margin:6px 0; }
-    .play-top { display:flex; justify-content:space-between; align-items:flex-end; gap:8px; margin-bottom:8px; }
-    .play-top h2 { margin:0; font-size:1.35rem; }
-    .objective { margin:8px 0 0; font-weight:800; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-    .objective img, .goal img { width:28px; height:28px; object-fit:contain; }
-    .plan { display:flex; gap:8px; margin-top:10px; }
-    .goal { width:54px; height:54px; border-radius:16px; background:#fff; display:grid; place-items:center; box-shadow:0 6px 0 #eadfca; opacity:.45; }
-    .goal img { width:40px; height:40px; }
-    .goal.now { opacity:1; outline:4px solid #f4a338; transform:scale(1.18); }
-    .goal.done { opacity:1; outline:3px solid var(--green); }
-    .stage { position:relative; margin-top:12px; }
-    .board {
-      display:grid; grid-template-columns:repeat(7, 1fr); gap:6px;
-      width:min(100%, 470px); margin:0 auto; padding:10px; border-radius:24px;
-      background:linear-gradient(180deg, #fff6e4, #ffe8bf);
-      box-shadow:inset 0 0 0 3px #f3d7a2, 0 16px 30px rgba(120,72,10,.08);
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:14px; }
+    .stage { position:relative; margin-top:10px; }
+    canvas { width:100%; height:min(68vh, 640px); display:block; border-radius:22px; background:#c8f0dc; touch-action:none; }
+    .goal {
+      position:absolute; left:12px; right:12px; top:12px; z-index:2;
+      background:rgba(255,253,248,.94); border-radius:16px; padding:10px 14px;
+      font-weight:900; font-size:clamp(1rem, 2.4vw, 1.25rem); text-align:center;
     }
-    .cell {
-      aspect-ratio:1; border:0; border-radius:16px; background:#fffdf8; padding:3px; cursor:pointer;
-      box-shadow:0 5px 0 #eadfca; position:relative;
+    .dpad {
+      position:absolute; left:12px; bottom:12px; z-index:2;
+      display:grid; grid-template-columns:52px 52px 52px; grid-template-rows:52px 52px 52px; gap:4px;
     }
-    .cell img { width:100%; height:100%; object-fit:contain; pointer-events:none; user-select:none; }
-    .cell.sel { transform:translateY(-12px) scale(1.08); box-shadow:0 14px 0 #b7e0c4; z-index:3; }
-    .cell.dim { opacity:.28; filter:grayscale(.35); }
-    .cell .num {
-      position:absolute; inset:0; display:grid; place-items:center;
-      font-size:clamp(1.8rem, 5vw, 2.6rem); font-weight:900; color:#fff;
-      background:rgba(244,163,56,.92); border-radius:14px; pointer-events:none;
+    .dpad button {
+      border:0; border-radius:14px; background:rgba(255,255,255,.92); font-weight:900; font-size:1.2rem;
+      box-shadow:0 4px 0 #d7eadf; cursor:pointer; touch-action:none;
     }
-    .cell .finger {
-      position:absolute; right:6px; bottom:4px; font-size:22px; line-height:1;
-      pointer-events:auto; z-index:4;
-    }
-    .cell .num { pointer-events:auto; }
-    .coach {
-      position:sticky; top:8px; z-index:6;
-      text-align:center; font-size:clamp(1.8rem, 6vw, 2.6rem); font-weight:900;
-      letter-spacing:.02em; margin:4px 0 10px; background:#fff4d8; border-radius:16px; padding:6px 10px;
-    }
-    .goal-pic { width:76px; height:76px; }
-    .aqui {
-      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-      background:#f4a338; color:#163024; font-weight:900; font-size:.68rem;
-      border-radius:999px; padding:3px 5px; pointer-events:none;
-    }
-    .cell.mark { outline:4px solid #f4a338; outline-offset:1px; animation:bob 1s ease infinite; z-index:1; }
-    .cell.heart { box-shadow:0 0 0 3px #ff5d8f, 0 5px 0 #eadfca; animation:bob 1s ease infinite; }
-    .cell.stone {
-      cursor:default;
-      background:
-        linear-gradient(135deg, transparent 42%, rgba(90,70,50,.28) 42%, rgba(90,70,50,.28) 48%, transparent 48%),
-        linear-gradient(180deg, #e7e1d6, #b7b1a6);
-      box-shadow:inset 0 0 0 3px #9c958a, 0 5px 0 #d9d0c2;
-    }
-    .cell.pop { animation:burst .2s ease forwards; }
-    .cell.empty { background:transparent; box-shadow:none; }
-    @keyframes burst { 40% { transform:scale(1.12); } 100% { transform:scale(.35); opacity:.05; } }
-    @keyframes bob { 50% { transform:translateY(-4px); } }
-    @keyframes tap { 50% { transform:translateY(5px); } }
-    .pips { display:flex; gap:8px; justify-content:center; margin-top:12px; }
-    .pip { width:14px; height:14px; border-radius:50%; background:#d9efe2; }
-    .pip.on { background:var(--green); }
-    .toast {
-      position:absolute; left:50%; top:-38px; transform:translateX(-50%);
-      background:#163024; color:#fff; font-weight:900; border-radius:999px; padding:8px 14px;
-      opacity:0; pointer-events:none; transition:opacity .2s ease; white-space:nowrap; z-index:2;
-    }
-    .toast.show { opacity:1; }
+    .dpad .u { grid-column:2; grid-row:1; }
+    .dpad .l { grid-column:1; grid-row:2; }
+    .dpad .r { grid-column:3; grid-row:2; }
+    .dpad .d { grid-column:2; grid-row:3; }
     .hidden { display:none !important; }
-    .bars { display:flex; flex-direction:column; gap:14px; }
+    .bars { display:flex; flex-direction:column; gap:12px; }
     .bar-top { display:flex; justify-content:space-between; gap:8px; font-weight:900; }
-    .track { height:22px; border-radius:999px; background:#edf2ef; overflow:hidden; }
-    .fill { height:100%; width:0; border-radius:999px; background:linear-gradient(90deg, #f4a338, #1a8f3b); transition:width .8s ease; }
-    .iie {
-      margin-top:16px; display:flex; justify-content:space-between; align-items:center;
-      background:#163024; color:#fff; border-radius:18px; padding:14px 16px; font-weight:900;
-    }
-    .iie span { background:#2563eb; border-radius:12px; padding:6px 12px; font-size:1.4rem; }
-    .scale { display:flex; justify-content:space-between; font-size:.78rem; font-weight:800; color:#5c7268; margin-top:4px; }
-    .note { margin-top:14px; background:#fff8dc; border-radius:16px; padding:12px 14px; }
-    @media (max-width:720px) {
-      .steps { grid-template-columns:1fr; }
-      .scene { height:132px; }
-      .board { gap:4px; padding:8px; }
-      .cell { border-radius:12px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .cell.hint, .cell.heart { animation:none; }
-      .fill { transition:none; }
-    }
+    .track { height:20px; border-radius:999px; background:#edf2ef; overflow:hidden; }
+    .fill { height:100%; width:0; background:linear-gradient(90deg,#f4a338,#1a8f3b); transition:width .7s ease; }
+    .iie { margin-top:14px; display:flex; justify-content:space-between; align-items:center; background:#163024; color:#fff; border-radius:16px; padding:12px 14px; font-weight:900; }
+    .iie span { background:#2563eb; border-radius:10px; padding:4px 10px; font-size:1.3rem; }
+    .note { margin-top:12px; background:#fff8dc; border-radius:16px; padding:12px 14px; }
+    .shake { animation:shake .35s linear; }
+    @keyframes shake { 25% { transform:translateX(-6px); } 50% { transform:translateX(6px); } 75% { transform:translateX(-3px); } }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="top">
       <div class="brand"><img src="assets/logo_adalam.webp" alt="ADALAM"/> ADALAM Play</div>
-      <div class="top-actions">
-        <button class="icon-btn" id="btnReplay" type="button" aria-label="Volver a escuchar">
-          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#163024" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg>
-        </button>
-        <button class="icon-btn" id="btnMute" type="button" aria-label="Silencio">
-          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#163024" d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
-        </button>
-      </div>
     </div>
 
     <section id="home">
-      <h1>Toca Jugar.</h1>
+      <h1>Camina por el patio.</h1>
       <div class="card">
         <label for="nombre">Tu nombre</label>
-        <input id="nombre" type="text" maxlength="40" autocomplete="off" placeholder="Ej. ANA"/>
+        <input id="nombre" maxlength="40" autocomplete="off" placeholder="Ej. ANA"/>
         <div class="row">
           <button class="btn" id="btnJugar" type="button">JUGAR</button>
-          <button class="btn ghost" id="btnOir" type="button">ESCUCHAR</button>
         </div>
-      </div>
-    </section>
-
-    <section id="splash" class="hidden">
-      <div class="card">
-        <img class="scene" id="splashScene" alt=""/>
-        <p class="kicker" id="splashKicker">Mundo</p>
-        <div class="story" id="splashTitle"></div>
-        <p class="lead" id="splashLead"></p>
-        <button class="btn" id="btnEntrar" type="button" data-mode="enter">ENTRAR</button>
       </div>
     </section>
 
     <section id="play" class="hidden">
-      <div class="play-top">
-        <h2 id="worldName">Patio</h2>
-        <div id="worldCount">1 / 3</div>
-      </div>
-      <div class="card">
-        <img class="scene" id="scene" alt=""/>
-        <div class="coach hidden" id="coach">TOCA EL 1</div>
-        <div class="objective" id="objective"></div>
-        <div class="plan hidden" id="plan"></div>
-        <div class="stage">
-          <div class="toast" id="toast"></div>
-          <div class="board" id="board"></div>
+      <div class="stage" id="stage">
+        <canvas id="cv"></canvas>
+        <div class="goal" id="goal"></div>
+        <div class="dpad" id="dpad">
+          <button class="u" type="button" data-k="up">▲</button>
+          <button class="l" type="button" data-k="left">◀</button>
+          <button class="r" type="button" data-k="right">▶</button>
+          <button class="d" type="button" data-k="down">▼</button>
         </div>
-        <div class="pips" id="pips"></div>
       </div>
     </section>
 
     <section id="done" class="hidden">
       <h1 id="doneTitle">Tu estilo</h1>
-      <p class="lead">Así quedó la partida.</p>
       <div class="card">
         <div class="bars" id="bars"></div>
-        <div class="iie">Índice de la partida <span id="iie">—</span></div>
-        <div class="scale"><span>Por desarrollar</span><span>Por fortalecer</span><span>Por enriquecer</span></div>
+        <div class="iie">Índice de la escena <span id="iie">—</span></div>
         <div class="note" id="bossNote"></div>
         <div class="row">
           <button class="btn" id="btnOtra" type="button">JUGAR OTRA VEZ</button>
-          <a class="btn ghost" href="index.html" style="text-decoration:none">Volver al menú</a>
+          <a class="btn" href="index.html" style="text-decoration:none;background:#fff;color:#163024;box-shadow:0 8px 0 #e5efe8">Volver al menú</a>
         </div>
       </div>
     </section>
   </div>
-  <script src="demo-juego-engine.js"></script>
   <script>
-    var E = window.AdalamPlay;
-    var TILES = [
-      "assets/demo-juego/tile-sol.png",
-      "assets/demo-juego/tile-gota.png",
-      "assets/demo-juego/tile-hoja.png",
-      "assets/demo-juego/tile-estrella.png",
-      "assets/demo-juego/tile-rayo.png",
-      "assets/demo-juego/tile-corazon.png"
-    ];
-    var AUDIO = "assets/demo-juego/audio/";
-    var WORLDS = [
-      { block:"personal", name:"Patio", scene:"assets/demo-juego/escena-patio.png", audio:AUDIO + "patio.mp3", kind:"rebuild",
-        lead:"Si una columna se pone gris, se cayó. Junta estrellas pegadas a ella y se levanta. Si juntas otras fichas, también sigues." },
-      { block:"vinculos", name:"Amigos", scene:"assets/demo-juego/escena-amigos.png", audio:AUDIO + "amigos.mp3", kind:"heart",
-        lead:"Vas a ver un corazón encerrado. Junta fichas pegadas a él y se abre. Tú eliges por dónde jugar." },
-      { block:"vida", name:"La meta", scene:"assets/demo-juego/escena-meta.png", audio:AUDIO + "meta.mp3", kind:"plan",
-        lead:"Arriba hay un plan: primero el sol, después la hoja y al final la estrella. Junta la ficha marcada." }
+    var WORLD_W = 1600, WORLD_H = 900;
+    var BASE = "assets/demo-juego/escena/";
+    var SCENES = [
+      {
+        block: "personal",
+        line: "Se cayeron los bloques. Camina hasta un círculo.",
+        pads: [
+          { x: 640, y: 640, pts: 3, label: "Lo levanto", act: "stack" },
+          { x: 800, y: 760, pts: 2, label: "Espero", act: "wait" },
+          { x: 960, y: 640, pts: 1, label: "Lo dejo", act: "leave" }
+        ]
+      },
+      {
+        block: "vinculos",
+        line: "Él está callado. Camina hasta un círculo.",
+        pads: [
+          { x: 250, y: 700, pts: 3, label: "Me acerco", act: "hello" },
+          { x: 430, y: 800, pts: 2, label: "Lo miro", act: "look" },
+          { x: 600, y: 680, pts: 1, label: "Frase dura", act: "harsh-boy" }
+        ]
+      },
+      {
+        block: "vida",
+        line: "El grupo no arranca. Camina hasta un círculo.",
+        pads: [
+          { x: 1080, y: 680, pts: 3, label: "Propongo", act: "lead" },
+          { x: 1260, y: 800, pts: 2, label: "Espero", act: "wait" },
+          { x: 1440, y: 680, pts: 1, label: "Frase dura", act: "harsh-group" }
+        ]
+      }
     ];
 
-    var voice = new Audio();
-    var lastVoice = AUDIO + "instrucciones.mp3";
-    var muted = false;
-    var ctx = null;
-    var worldIndex = 0;
+    var sprites = {};
+    var keys = { left:false, right:false, up:false, down:false };
+    var player = { x: 800, y: 870, flip: false, walk: 0 };
+    var boy = { x: 380, y: 560, homeX: 380, mood: "calma" };
+    var group = { x: 1260, y: 540, homeX: 1260, mood: "calma" };
+    var blocks = { x: 800, y: 560, rise: 0 };
+    var sceneIndex = 0;
+    var phase = "home";
+    var dwell = { i: -1, t: 0 };
     var results = [];
-    var grid = null;
-    var situation = null;
-    var worldPts = [];
-    var sel = null;
-    var busy = false;
-    var levelOver = false;
-    var hinted = false;
-    var guide = 0;
-    var guidePair = null;
-    var toastTimer = 0;
+    var bubble = null;
+    var shake = 0;
+    var cv = document.getElementById("cv");
+    var ctx = cv.getContext("2d");
+    var dpr = 1;
+    var voice = new Audio("assets/demo-juego/audio/camina.mp3");
 
-    var home = document.getElementById("home");
-    var splash = document.getElementById("splash");
-    var play = document.getElementById("play");
-    var done = document.getElementById("done");
-    var nombre = document.getElementById("nombre");
-    var board = document.getElementById("board");
-    var btnEntrar = document.getElementById("btnEntrar");
-
-    function wait(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms); }); }
+    function loadImage(src) {
+      return new Promise(function (resolve, reject) {
+        var img = new Image();
+        img.onload = function () { resolve(img); };
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
 
     function show(which) {
-      home.classList.toggle("hidden", which !== "home");
-      splash.classList.toggle("hidden", which !== "splash");
-      play.classList.toggle("hidden", which !== "play");
-      done.classList.toggle("hidden", which !== "done");
-    }
-
-    function say(src) {
-      lastVoice = src;
-      if (muted) return;
-      voice.pause();
-      voice.src = src;
-      var played = voice.play();
-      if (played && played.catch) played.catch(function () {});
-    }
-
-    function sfx(freq) {
-      if (muted) return;
-      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-      if (ctx.state === "suspended") ctx.resume();
-      var o = ctx.createOscillator();
-      var g = ctx.createGain();
-      o.type = "sine";
-      o.frequency.value = freq;
-      g.gain.setValueAtTime(0.06, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.16);
-      o.connect(g);
-      g.connect(ctx.destination);
-      o.start();
-      o.stop(ctx.currentTime + 0.17);
-    }
-
-    function toast(text) {
-      var el = document.getElementById("toast");
-      el.textContent = text;
-      el.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(function () { el.classList.remove("show"); }, 1200);
-    }
-
-    nombre.addEventListener("input", function () {
-      nombre.classList.remove("need");
-      var start = nombre.selectionStart;
-      var next = nombre.value.toLocaleUpperCase("es-EC");
-      if (nombre.value !== next) {
-        nombre.value = next;
-        try { nombre.setSelectionRange(start, start); } catch (e) {}
-      }
-    });
-
-    function icon(type) {
-      var img = document.createElement("img");
-      img.src = TILES[type];
-      img.alt = "";
-      return img;
-    }
-
-    function setObjective() {
-      var el = document.getElementById("objective");
-      var plan = document.getElementById("plan");
-      var w = WORLDS[worldIndex];
-      document.getElementById("worldName").textContent = w.name;
-      document.getElementById("worldCount").textContent = (worldIndex + 1) + " / 3";
-      el.replaceChildren();
-      if (guide) {
-        plan.classList.add("hidden");
-        return;
-      }
-      if (!situation || situation.kind !== "plan") plan.classList.add("hidden");
-      if (!situation) return;
-      if (situation.kind === "rebuild") {
-        var big = icon(E.ESTRELLA);
-        big.className = "goal-pic";
-        el.appendChild(big);
-        return;
-      }
-      if (situation.kind === "heart") return;
-      if (situation.step >= situation.need.length) return;
-      plan.classList.remove("hidden");
-      plan.replaceChildren();
-      situation.need.forEach(function (t, i) {
-        var d = document.createElement("div");
-        d.className = "goal" + (i < situation.step ? " done" : i === situation.step ? " now" : "");
-        d.appendChild(icon(t));
-        plan.appendChild(d);
+      ["home", "play", "done"].forEach(function (id) {
+        document.getElementById(id).classList.toggle("hidden", id !== which);
       });
     }
 
-    function renderPips() {
-      var box = document.getElementById("pips");
-      box.replaceChildren();
+    function resize() {
+      var r = cv.getBoundingClientRect();
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      cv.width = Math.max(1, Math.floor(r.width * dpr));
+      cv.height = Math.max(1, Math.floor(r.height * dpr));
+    }
+
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+    function drawSprite(img, x, y, h, flip) {
+      if (!img) return;
+      var w = h * (img.width / img.height);
+      ctx.save();
+      ctx.translate(x, y);
+      if (flip) ctx.scale(-1, 1);
+      ctx.drawImage(img, -w / 2, -h, w, h);
+      ctx.restore();
+    }
+
+    function roundRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function drawBlocks() {
+      var cols = ["#f4a338", "#7dce8a", "#8ec8f5"];
       for (var i = 0; i < 3; i++) {
-        var p = document.createElement("div");
-        p.className = "pip" + (i < worldPts.length ? " on" : "");
-        box.appendChild(p);
+        var fallenX = blocks.x - 120 + i * 100;
+        var fallenY = blocks.y;
+        var stackX = blocks.x - 36;
+        var stackY = blocks.y - 70 - i * 64;
+        var x = fallenX + (stackX - fallenX) * blocks.rise;
+        var y = fallenY + (stackY - fallenY) * blocks.rise;
+        ctx.fillStyle = cols[i];
+        roundRect(x, y, 78, 58, 12);
+        ctx.fill();
       }
     }
 
-    function render() {
-      var coach = document.getElementById("coach");
-      var scene = document.getElementById("scene");
-      if (guide && guidePair) {
-        coach.classList.remove("hidden");
-        coach.textContent = "TOCA EL 1";
-        scene.classList.remove("hidden");
-      } else {
-        coach.classList.add("hidden");
-        scene.classList.remove("hidden");
-      }
-      board.replaceChildren();
-      for (var r = 0; r < E.ROWS; r++) {
-        for (var c = 0; c < E.COLS; c++) {
-          var b = document.createElement("button");
-          b.type = "button";
-          b.className = "cell";
-          var cell = grid[r][c];
-          var is1 = guide && guidePair && guidePair[0].r === r && guidePair[0].c === c;
-          var is2 = guide && guidePair && guidePair[1].r === r && guidePair[1].c === c;
-          var active = is1;
-          if (!cell) b.classList.add("empty");
-          else if (cell.stone) b.classList.add("stone");
-          else {
-            b.appendChild(icon(cell.t));
-            if (cell.heart) b.classList.add("heart");
-          }
-          if (sel && sel.r === r && sel.c === c) b.classList.add("sel");
-          if (guide && !is1 && !is2) b.classList.add("dim");
-          if (active) {
-            var n = document.createElement("span");
-            n.className = "num";
-            n.textContent = "1";
-            b.appendChild(n);
-            var hand = document.createElement("span");
-            hand.className = "finger";
-            hand.textContent = "👇";
-            b.appendChild(hand);
-          }
-          if (!guide && cell && cell.stone && WORLDS[worldIndex].kind === "rebuild") b.classList.add("mark");
-          if (!guide && cell && cell.heart) b.classList.add("mark");
-          (function (rr, cc, btn) {
-            function go(ev) {
-              ev.preventDefault();
-              ev.stopPropagation();
-              onCell(rr, cc);
-            }
-            btn.addEventListener("click", go);
-            var bits = btn.querySelectorAll(".num, .finger");
-            for (var i = 0; i < bits.length; i++) bits[i].addEventListener("click", go);
-          })(r, c, b);
-          board.appendChild(b);
-        }
-      }
-      scene.src = WORLDS[worldIndex].scene;
-      setObjective();
-      renderPips();
+    function drawPad(pad, hot, fill) {
+      ctx.beginPath();
+      ctx.arc(pad.x, pad.y, 62, 0, Math.PI * 2);
+      ctx.fillStyle = pad.pts === 3 ? "rgba(26,143,59,.88)" : pad.pts === 2 ? "rgba(244,163,56,.92)" : "rgba(232,93,76,.9)";
+      ctx.fill();
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = "rgba(255,255,255,.95)";
+      ctx.beginPath();
+      ctx.arc(pad.x, pad.y, 68, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (hot ? fill : 0));
+      ctx.stroke();
+      ctx.fillStyle = "#fff";
+      ctx.font = "900 16px Nunito, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(pad.label, pad.x, pad.y);
     }
 
-    function markPop(cells) {
-      cells.forEach(function (m) {
-        var el = board.children[m.r * E.COLS + m.c];
-        if (el) el.classList.add("pop");
+    function drawBubble(text, x, y) {
+      ctx.font = "900 28px Nunito, sans-serif";
+      var w = ctx.measureText(text).width + 36;
+      ctx.fillStyle = "#fffdf8";
+      roundRect(x - w / 2, y - 78, w, 52, 16);
+      ctx.fill();
+      ctx.fillStyle = "#163024";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, x, y - 52);
+    }
+
+    function draw() {
+      var cw = cv.width / dpr;
+      var ch = cv.height / dpr;
+      var s = Math.min(cw / WORLD_W, ch / WORLD_H);
+      var ox = (cw - WORLD_W * s) / 2;
+      var oy = (ch - WORLD_H * s) / 2;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cw, ch);
+      ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy);
+      if (shake > 0) ctx.translate((Math.random() - 0.5) * 14, 0);
+      if (sprites.patio) ctx.drawImage(sprites.patio, 0, 0, WORLD_W, WORLD_H);
+      drawBlocks();
+      var scene = SCENES[sceneIndex];
+      if (phase === "play" && scene) scene.pads.forEach(function (pad, i) {
+        drawPad(pad, dwell.i === i, dwell.t / 0.45);
       });
+      var boyImg = boy.mood === "susto" ? sprites.susto : sprites.nino;
+      var groupImg = group.mood === "susto" ? sprites.gsusto : sprites.gcalma;
+      drawSprite(boyImg, boy.x, boy.y, 250, false);
+      drawSprite(groupImg, group.x, group.y, 230, false);
+      var frame = (player.walk % 0.28) < 0.14 ? sprites.paso : sprites.nina;
+      if (!keys.left && !keys.right && !keys.up && !keys.down) frame = sprites.nina;
+      ctx.fillStyle = "rgba(22,48,36,.18)";
+      ctx.beginPath();
+      ctx.ellipse(player.x, player.y - 6, 42, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+      drawSprite(frame, player.x, player.y + Math.sin(player.walk * 18) * 4, 270, player.flip);
+      if (bubble) drawBubble(bubble.text, bubble.x, bubble.y);
     }
 
-    function applyObstacle() {
-      var n = worldPts.length;
-      if (WORLDS[worldIndex].kind === "rebuild") {
-        var col = [1, 3, 5][n];
-        for (var r = E.ROWS - 2; r < E.ROWS; r++) grid[r][col] = { stone: true };
-        situation = { kind:"rebuild", col:col, misses:0, seen:false };
+    function currentPads() {
+      var scene = SCENES[sceneIndex];
+      return scene ? scene.pads : [];
+    }
+
+    async function react(act, pad) {
+      phase = "react";
+      dwell = { i: -1, t: 0 };
+      if (act === "stack") {
+        await tween(blocks, { rise: 1 }, 500);
+      } else if (act === "hello") {
+        bubble = { text: "Hola, ¿estás bien?", x: player.x, y: player.y - 230 };
+        await tween(boy, { x: boy.homeX + 50 }, 400);
+      } else if (act === "harsh-boy") {
+        bubble = { text: "¡Quítate de ahí!", x: player.x, y: player.y - 230 };
+        boy.mood = "susto";
+        shake = 8;
+        await tween(boy, { x: boy.homeX - 90 }, 380);
+      } else if (act === "lead") {
+        bubble = { text: "Empecemos por aquí", x: player.x, y: player.y - 230 };
+        await tween(group, { x: group.homeX - 60 }, 400);
+      } else if (act === "harsh-group") {
+        bubble = { text: "¡Apúrense ya!", x: player.x, y: player.y - 230 };
+        group.mood = "susto";
+        shake = 8;
+        await tween(group, { x: group.homeX + 80 }, 380);
       } else {
-        var spots = [[4, 1], [4, 5], [2, 3]];
-        var s = spots[n];
-        grid[s[0]][s[1]] = { t:E.CORAZON, heart:true };
-        situation = { kind:"heart", r:s[0], c:s[1], misses:0, seen:false };
+        bubble = { text: "...", x: player.x, y: player.y - 230 };
+        await wait(350);
       }
-    }
-
-    function layoutLevel() {
-      var w = WORLDS[worldIndex];
-      var tries = 0;
-      do {
-        grid = E.seedBoard(Math.random);
-        if (w.kind === "plan") situation = { kind:"plan", step:0, need:[E.SOL, E.HOJA, E.ESTRELLA], partial:false };
-        else applyObstacle();
-        tries++;
-      } while (tries < 8 && (!E.hasMove(grid) || E.findMatches(grid).length));
-    }
-
-    function clearObstacle() {
-      if (!situation) return;
-      if (situation.kind === "rebuild") {
-        for (var r = 0; r < E.ROWS; r++) {
-          if (grid[r][situation.col] && grid[r][situation.col].stone) grid[r][situation.col] = null;
-        }
-      } else if (situation.kind === "heart") {
-        grid[situation.r][situation.c] = null;
-      }
-    }
-
-    async function settleFree() {
-      var matched = E.findMatches(grid);
-      var guard = 0;
-      while (matched.length && guard++ < 8) {
-        markPop(matched);
-        sfx(480 + guard * 30);
-        await wait(160);
-        matched.forEach(function (m) { grid[m.r][m.c] = null; });
-        E.collapse(grid);
-        E.fillHoles(grid, Math.random);
-        render();
-        await wait(140);
-        matched = E.findMatches(grid);
-      }
-      if (!E.hasMove(grid)) {
-        E.reshuffle(grid, Math.random);
-        toast("Las fichas se reacomodaron");
-        render();
-      }
-    }
-
-    function cheer(pts, kind) {
-      var map = {
-        rebuild: ["Seguiste por otro lado", "Tocaste la columna", "¡La columna se levantó!"],
-        heart: ["Seguiste de largo", "Te acercaste", "¡El corazón se abrió!"],
-        plan: ["El plan avanzó", "Volviste al plan", "¡Esa era!"]
-      };
-      toast(map[kind][pts - 1]);
-      if (pts === 3) sfx(720);
-    }
-
-    async function endWorld() {
-      if (levelOver) return;
-      levelOver = true;
-      var w = WORLDS[worldIndex];
-      worldPts.forEach(function (pts) { results.push({ block:w.block, pts:pts }); });
-      voice.pause();
-      await wait(500);
-      if (worldIndex >= WORLDS.length - 1) {
+      results.push({ block: SCENES[sceneIndex].block, pts: pad.pts });
+      await wait(700);
+      bubble = null;
+      shake = 0;
+      sceneIndex += 1;
+      if (sceneIndex >= SCENES.length) {
         showProfile();
         return;
       }
-      document.getElementById("splashScene").src = w.scene;
-      document.getElementById("splashKicker").textContent = "Mundo listo";
-      document.getElementById("splashTitle").textContent = w.name;
-      document.getElementById("splashLead").textContent = "Cuando quieras, pasa al siguiente.";
-      btnEntrar.dataset.mode = "next";
-      btnEntrar.textContent = "SIGUIENTE MUNDO";
-      show("splash");
+      document.getElementById("goal").textContent = SCENES[sceneIndex].line;
+      phase = "play";
     }
 
-    async function closeBeat(pts) {
-      if (levelOver) return;
-      worldPts.push(pts);
-      cheer(pts, situation.kind);
-      clearObstacle();
-      E.collapse(grid);
-      E.fillHoles(grid, Math.random);
-      render();
-      await settleFree();
-      renderPips();
-      if (worldPts.length >= 3) await endWorld();
+    function tween(obj, props, ms) {
+      var from = {};
+      Object.keys(props).forEach(function (k) { from[k] = obj[k]; });
+      var t0 = performance.now();
+      return new Promise(function (resolve) {
+        function step(now) {
+          var u = Math.min(1, (now - t0) / ms);
+          var e = u * u * (3 - 2 * u);
+          Object.keys(props).forEach(function (k) { obj[k] = from[k] + (props[k] - from[k]) * e; });
+          if (u < 1) requestAnimationFrame(step);
+          else resolve();
+        }
+        requestAnimationFrame(step);
+      });
+    }
+
+    function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+    function update(dt) {
+      if (phase !== "play") return;
+      var vx = 0, vy = 0;
+      if (keys.left) vx -= 1;
+      if (keys.right) vx += 1;
+      if (keys.up) vy -= 1;
+      if (keys.down) vy += 1;
+      var moving = vx !== 0 || vy !== 0;
+      if (moving) {
+        var len = Math.hypot(vx, vy);
+        player.x = clamp(player.x + (vx / len) * 340 * dt, 90, WORLD_W - 90);
+        player.y = clamp(player.y + (vy / len) * 340 * dt, 280, WORLD_H - 20);
+        player.walk += dt;
+        if (vx) player.flip = vx < 0;
+      }
+      var pads = currentPads();
+      var found = -1;
+      for (var i = 0; i < pads.length; i++) {
+        if (Math.hypot(player.x - pads[i].x, player.y - pads[i].y) < 62) found = i;
+      }
+      if (found === -1) dwell = { i: -1, t: 0 };
+      else if (dwell.i !== found) dwell = { i: found, t: 0 };
       else {
-        await wait(280);
-        applyObstacle();
-        if (!E.hasMove(grid)) E.reshuffle(grid, Math.random);
-        render();
+        dwell.t += dt;
+        if (dwell.t >= 0.45) react(pads[found].act, pads[found]);
       }
     }
 
-    async function onCleared(cleared) {
-      if (!situation || levelOver) return;
-      if (situation.kind === "plan") {
-        var planResult = E.judgePlan(cleared, situation);
-        if (planResult.arm) {
-          situation.partial = true;
-          setObjective();
-          toast("El plan marca otra ficha");
-          return;
-        }
-        worldPts.push(planResult.pts);
-        situation.partial = false;
-        situation.step++;
-        cheer(planResult.pts, "plan");
-        renderPips();
-        if (situation.step >= 3) await endWorld();
-        else setObjective();
-        return;
-      }
-      var result = situation.kind === "rebuild" ? E.judgeRebuild(grid, cleared) : E.judgeHeart(grid, cleared);
-      if (!result) {
-        situation.misses++;
-        if (situation.misses >= 3) await closeBeat(1);
-        return;
-      }
-      await closeBeat(result.pts);
-    }
-
-    function findGoalHint() {
-      var dirs = [[0, 1], [1, 0]];
-      var best = null;
-      for (var r = 0; r < E.ROWS; r++) {
-        for (var c = 0; c < E.COLS; c++) {
-          if (!E.isPlay(grid[r][c])) continue;
-          for (var d = 0; d < dirs.length; d++) {
-            var rr = r + dirs[d][0];
-            var cc = c + dirs[d][1];
-            if (rr >= E.ROWS || cc >= E.COLS || !E.isPlay(grid[rr][cc])) continue;
-            E.swapCells(grid, r, c, rr, cc);
-            var matched = E.findMatches(grid);
-            var good = false;
-            if (matched.length && situation) {
-              if (situation.kind === "rebuild") good = !!E.judgeRebuild(grid, matched);
-              else if (situation.kind === "heart") good = !!E.judgeHeart(grid, matched);
-              else if (situation.kind === "plan") {
-                var snap = { step: situation.step, need: situation.need, partial: situation.partial };
-                var judged = E.judgePlan(matched, snap);
-                good = !!(judged && judged.advance);
-              }
-            }
-            E.swapCells(grid, r, c, rr, cc);
-            if (good) return [{ r: r, c: c }, { r: rr, c: cc }];
-            if (!best && matched.length) best = [{ r: r, c: c }, { r: rr, c: cc }];
-          }
-        }
-      }
-      return best || E.findHint(grid);
-    }
-
-    function armGuide() {
-      if (levelOver) {
-        guide = 0;
-        guidePair = null;
-        return;
-      }
-      guidePair = findGoalHint();
-      guide = guidePair ? 1 : 0;
-    }
-
-    async function runSwap(r1, c1, r2, c2) {
-      busy = true;
-      sel = null;
-      guide = 0;
-      guidePair = null;
-      try {
-        E.swapCells(grid, r1, c1, r2, c2);
-        render();
-        await wait(90);
-        var matched = E.findMatches(grid);
-        if (!matched.length) {
-          E.swapCells(grid, r1, c1, r2, c2);
-          sfx(160);
-          return;
-        }
-        hinted = true;
-        var cleared = [];
-        var guard = 0;
-        while (matched.length && guard++ < 12) {
-          cleared = cleared.concat(matched);
-          markPop(matched);
-          sfx(500 + guard * 35);
-          await wait(190);
-          matched.forEach(function (m) { grid[m.r][m.c] = null; });
-          E.collapse(grid);
-          E.fillHoles(grid, Math.random);
-          render();
-          await wait(150);
-          matched = E.findMatches(grid);
-        }
-        if (!E.hasMove(grid)) {
-          E.reshuffle(grid, Math.random);
-          render();
-        }
-        await onCleared(cleared);
-      } finally {
-        busy = false;
-        if (!levelOver) armGuide();
-        if (!levelOver) render();
-      }
-    }
-
-    async function onCell(r, c) {
-      if (busy || levelOver || !grid) return;
-      var cell = grid[r][c];
-      if (guide && guidePair) {
-        var onPair = (r === guidePair[0].r && c === guidePair[0].c) || (r === guidePair[1].r && c === guidePair[1].c);
-        var onGoal = cell && (cell.stone || cell.heart);
-        if (onPair || onGoal) {
-          var pair = guidePair;
-          await runSwap(pair[0].r, pair[0].c, pair[1].r, pair[1].c);
-          return;
-        }
-      }
-      if (!E.isPlay(cell)) return;
-      if (!sel) { sel = { r: r, c: c }; render(); return; }
-      if (sel.r === r && sel.c === c) { sel = null; render(); return; }
-      if (Math.abs(sel.r - r) + Math.abs(sel.c - c) !== 1) { sel = { r: r, c: c }; render(); return; }
-      var a = sel;
-      await runSwap(a.r, a.c, r, c);
-    }
-
-    function openSplash() {
-      var w = WORLDS[worldIndex];
-      document.getElementById("splashScene").src = w.scene;
-      document.getElementById("splashKicker").textContent = "Mundo " + (worldIndex + 1) + " de 3";
-      document.getElementById("splashTitle").textContent = w.name;
-      document.getElementById("splashLead").textContent = "";
-      btnEntrar.dataset.mode = "enter";
-      btnEntrar.textContent = "ENTRAR";
-      show("splash");
-      say(w.audio);
-    }
-
-    function beginLevel() {
-      worldPts = [];
-      sel = null;
-      busy = false;
-      levelOver = false;
-      layoutLevel();
-      guide = 0;
-      guidePair = null;
-      armGuide();
-      show("play");
-      render();
-      if (worldIndex === 0) say(AUDIO + "uno.mp3");
+    var last = 0;
+    function loop(now) {
+      if (!last) last = now;
+      var dt = Math.min(0.034, (now - last) / 1000);
+      last = now;
+      if (shake > 0) shake -= 1;
+      update(dt);
+      draw();
+      requestAnimationFrame(loop);
     }
 
     function band(n) {
@@ -696,75 +373,103 @@
       if (n <= 70) return "Por fortalecer";
       return "Por enriquecer";
     }
-
     function pct(block) {
       var rows = results.filter(function (p) { return p.block === block; });
       if (!rows.length) return 0;
       var sum = rows.reduce(function (a, p) { return a + p.pts; }, 0);
       return Math.round(sum / (rows.length * 3) * 100);
     }
-
     function showProfile() {
+      phase = "done";
       var personal = pct("personal");
       var vinculos = pct("vinculos");
       var vida = pct("vida");
       var iie = Math.round((personal + vinculos + vida) / 3);
-      var who = nombre.value.trim() || "Jugador";
-      document.getElementById("doneTitle").textContent = who;
+      document.getElementById("doneTitle").textContent = document.getElementById("nombre").value.trim() || "Jugador";
       var bars = document.getElementById("bars");
       bars.replaceChildren();
       [["Desarrollo personal", personal], ["Vínculos", vinculos], ["Habilidades para la vida", vida]].forEach(function (row) {
         var wrap = document.createElement("div");
-        wrap.innerHTML =
-          '<div class="bar-top"><span>' + row[0] + '</span><span>' + row[1] + " · " + band(row[1]) + '</span></div>' +
-          '<div class="track"><div class="fill" data-w="' + row[1] + '"></div></div>';
+        wrap.innerHTML = '<div class="bar-top"><span>' + row[0] + '</span><span>' + row[1] + " · " + band(row[1]) + '</span></div><div class="track"><div class="fill" data-w="' + row[1] + '"></div></div>';
         bars.appendChild(wrap);
       });
       document.getElementById("iie").textContent = String(iie);
-      document.getElementById("bossNote").textContent =
-        "Esto salió de la partida: si levantaste lo que se cayó, si abriste el corazón y si seguiste el plan. La lectura de las barras es la misma del reporte socioemocional. No es la prueba completa.";
+      document.getElementById("bossNote").textContent = "La niña caminó con las flechas y el patio reaccionó. Cada círculo valió 3, 2 o 1, como en la prueba. Es una escena, no las 7 pruebas completas.";
       show("done");
-      say(AUDIO + "listo.mp3");
       requestAnimationFrame(function () {
         document.querySelectorAll(".fill").forEach(function (el) { el.style.width = el.getAttribute("data-w") + "%"; });
       });
     }
 
-    document.getElementById("btnOir").addEventListener("click", function () {
-      say(AUDIO + "instrucciones.mp3");
-    });
-    document.getElementById("btnReplay").addEventListener("click", function () { say(lastVoice); });
-    document.getElementById("btnMute").addEventListener("click", function () {
-      muted = !muted;
-      document.getElementById("btnMute").classList.toggle("off", muted);
-      if (muted) voice.pause();
-    });
-    document.getElementById("btnJugar").addEventListener("click", function () {
-      if (!nombre.value.trim()) {
-        nombre.classList.add("need");
-        nombre.focus();
-        return;
-      }
+    function resetWorld() {
+      player.x = 800; player.y = 870; player.flip = false; player.walk = 0;
+      boy.x = boy.homeX; boy.mood = "calma";
+      group.x = group.homeX; group.mood = "calma";
+      blocks.rise = 0;
+      sceneIndex = 0;
       results = [];
-      worldIndex = 0;
-      hinted = false;
-      beginLevel();
+      bubble = null;
+      dwell = { i: -1, t: 0 };
+      document.getElementById("goal").textContent = SCENES[0].line;
+    }
+
+    document.getElementById("nombre").addEventListener("input", function () {
+      var el = document.getElementById("nombre");
+      var start = el.selectionStart;
+      var next = el.value.toLocaleUpperCase("es-EC");
+      if (el.value !== next) { el.value = next; try { el.setSelectionRange(start, start); } catch (e) {} }
     });
-    nombre.addEventListener("keydown", function (ev) {
-      if (ev.key === "Enter") document.getElementById("btnJugar").click();
+
+    document.addEventListener("keydown", function (ev) {
+      var map = { ArrowLeft:"left", ArrowRight:"right", ArrowUp:"up", ArrowDown:"down", a:"left", d:"right", w:"up", s:"down", A:"left", D:"right", W:"up", S:"down" };
+      if (map[ev.key]) { keys[map[ev.key]] = true; ev.preventDefault(); }
     });
-    btnEntrar.addEventListener("click", function () {
-      if (btnEntrar.dataset.mode === "next") {
-        worldIndex++;
-        openSplash();
-        return;
-      }
-      beginLevel();
+    document.addEventListener("keyup", function (ev) {
+      var map = { ArrowLeft:"left", ArrowRight:"right", ArrowUp:"up", ArrowDown:"down", a:"left", d:"right", w:"up", s:"down", A:"left", D:"right", W:"up", S:"down" };
+      if (map[ev.key]) keys[map[ev.key]] = false;
+    });
+
+    document.getElementById("dpad").querySelectorAll("button").forEach(function (btn) {
+      var k = btn.getAttribute("data-k");
+      function down(ev) { ev.preventDefault(); keys[k] = true; }
+      function up() { keys[k] = false; }
+      btn.addEventListener("pointerdown", down);
+      btn.addEventListener("pointerup", up);
+      btn.addEventListener("pointerleave", up);
+      btn.addEventListener("pointercancel", up);
+    });
+
+    document.getElementById("btnJugar").addEventListener("click", function () {
+      resetWorld();
+      phase = "play";
+      show("play");
+      requestAnimationFrame(function () { resize(); });
+      voice.play().catch(function () {});
     });
     document.getElementById("btnOtra").addEventListener("click", function () {
-      voice.pause();
+      phase = "home";
       show("home");
-      lastVoice = AUDIO + "instrucciones.mp3";
+    });
+    window.addEventListener("resize", resize);
+
+    Promise.all([
+      loadImage(BASE + "patio-suelo.png"),
+      loadImage(BASE + "nina-quiet.png"),
+      loadImage(BASE + "nina-paso.png"),
+      loadImage(BASE + "nino-calma.png"),
+      loadImage(BASE + "nino-susto.png"),
+      loadImage(BASE + "grupo-calma.png"),
+      loadImage(BASE + "grupo-susto.png")
+    ]).then(function (imgs) {
+      sprites.patio = imgs[0];
+      sprites.nina = imgs[1];
+      sprites.paso = imgs[2];
+      sprites.nino = imgs[3];
+      sprites.susto = imgs[4];
+      sprites.gcalma = imgs[5];
+      sprites.gsusto = imgs[6];
+      resize();
+      requestAnimationFrame(loop);
     });
   </script>
 </body>
