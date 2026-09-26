@@ -9,6 +9,7 @@ const {
 const { scoreSocies } = require("./score-socies");
 const { scoreSociv2 } = require("./score-sociv2");
 const { scoreSocpeq } = require("./score-socpeq");
+const { scoreAprend } = require("./score-aprend");
 
 function msg(key, lang) {
   const en = normalizeIdioma(lang) === "EN";
@@ -113,6 +114,19 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: scored.error || "No se pudo calcular el resultado." });
       }
       resultados = scored.resultados;
+    } else if (evalKey === "APREND") {
+      const vals = responses && typeof responses === "object" ? Object.values(responses) : [];
+      const letras = vals.length > 0 && vals.every((v) => {
+        const c = String(v || "").trim().toUpperCase();
+        return c === "MO" || c === "AO" || c === "NM";
+      });
+      if (letras) {
+        const scored = scoreAprend(responses, snapshot.startTime, codigo);
+        if (!scored.ok) {
+          return res.status(400).json({ error: scored.error || "No se pudo calcular el resultado." });
+        }
+        resultados = scored.resultados;
+      }
     }
 
     const nombrePila = snapshot.nombre ? String(snapshot.nombre).trim() : null;

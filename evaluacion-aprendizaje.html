@@ -1031,6 +1031,17 @@ instInput.value  = data.institucion || '';
 grupoInput.value = data.grupo || '';
 cursoInput.value = data.curso || '';
 document.getElementById('lblCurso').textContent = /^PRO/i.test(data.codigo || codigo) ? 'Nivel' : 'Grado/Curso';
+        const bancoOk = await cargarBancoAprendizaje(CODIGO_ACTUAL);
+        if (!bancoOk) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "No se pudo cargar la evaluación. Intenta de nuevo.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
 btnIniciar.disabled = false;
         if (codigoMsg) {
           codigoMsg.textContent = 'Código válido.';
@@ -1064,122 +1075,37 @@ btnIniciar.disabled = false;
     let currentPage = 0;
 
     
-const MPA_MATRIX = {
-  areas: {
-    perceptuales: { label: "Preferencias perceptuales", componentes: ["lenguaje_visual","numerico_visual","lenguaje_auditivo","numerico_auditivo","kinestesico"] },
-    interaccion: { label: "Preferencias de interacción", componentes: ["individual","equipo"] },
-    comunicacion: { label: "Preferencias de comunicación", componentes: ["oral","escrito"] }
-  },
-  componentes: {
-    lenguaje_visual:  { area: "perceptuales", label: "Lenguaje visual",  items: [1,5,10,20,29] },
-    numerico_visual:  { area: "perceptuales", label: "Numérico visual",  items: [3,8,9,15,19] },
-    lenguaje_auditivo:{ area: "perceptuales", label: "Lenguaje auditivo", items: [4,6,11,16,17] },
-    numerico_auditivo:{ area: "perceptuales", label: "Numérico auditivo", items: [2,7,12,14,18] },
-    kinestesico:      { area: "perceptuales", label: "Kinestésico",      items: [21,28,32,38,42] },
-    individual:       { area: "interaccion",  label: "Individual",        items: [23,25,31,39,41] },
-    equipo:           { area: "interaccion",  label: "En equipo",         items: [22,27,34,37,44] },
-    oral:             { area: "comunicacion", label: "Oral",              items: [24,30,33,36,45] },
-    escrito:          { area: "comunicacion", label: "Escrito",           items: [13,26,35,40,43] }
-  }
-};
+    let ITEMS = [];
+    let BANCO_VERSION = "APREND-v1";
 
-const PREGUNTAS_MPA = [
-  { item: 1,  area: "perceptuales", componente: "lenguaje_visual",  texto: "Recuerdo mejor las instrucciones cuando las leo que cuando las escucho." },
-  { item: 2,  area: "perceptuales", componente: "numerico_auditivo", texto: "Entiendo mejor temas de matemáticas cuando escucho que cuando veo la información." },
-  { item: 3,  area: "perceptuales", componente: "numerico_visual",   texto: "Cuando las instrucciones incluyen muchos números, prefiero que estén escritos." },
-  { item: 4,  area: "perceptuales", componente: "lenguaje_auditivo", texto: "Prefiero oír que leer las instrucciones." },
-  { item: 5,  area: "perceptuales", componente: "lenguaje_visual",   texto: "Recuerdo más la información cuando la leo que cuando alguien la lee para mí." },
-  { item: 6,  area: "perceptuales", componente: "lenguaje_auditivo", texto: "Cuando alguien me da instrucciones, tiendo a repetir en voz alta algunos datos para que no se me olviden." },
-  { item: 7,  area: "perceptuales", componente: "numerico_auditivo", texto: "Cuando las instrucciones contienen varios números, recuerdo mejor estos si los digo verbalmente." },
-  { item: 8,  area: "perceptuales", componente: "numerico_visual",   texto: "Si escribo los números después de oírlos, los recuerdo durante más tiempo, por ejemplo, cuando me dan un número telefónico o una cifra." },
-  { item: 9,  area: "perceptuales", componente: "numerico_visual",   texto: "Cuando las instrucciones incluyen números, las prefiero escritas que orales." },
-  { item: 10, area: "perceptuales", componente: "lenguaje_visual",   texto: "Cuando me dan instrucciones escritas y al mismo tiempo alguien las explica en voz alta, prefiero leerlas yo mismo." },
-  { item: 11, area: "perceptuales", componente: "lenguaje_auditivo", texto: "Si quiero comprender algo, prefiero hablar sobre ello que leer sobre ello." },
-  { item: 12, area: "perceptuales", componente: "numerico_auditivo", texto: "Si alguien me dice algunos números, no necesito apuntarlos, los recuerdo sólo con escucharlos." },
-  { item: 13, area: "comunicacion", componente: "escrito",           texto: "Escribo la información para recordarla y comprenderla mejor." },
-  { item: 14, area: "perceptuales", componente: "numerico_auditivo", texto: "Comprendo mejor la información numérica cuando la escucho, que cuando la leo o que cuando hago ejercicios." },
-  { item: 15, area: "perceptuales", componente: "numerico_visual",   texto: "Entiendo y recuerdo mejor los números (por ejemplo, un número telefónico, una cantidad, un registro, etc.) cuando escribo la información." },
-  { item: 16, area: "perceptuales", componente: "lenguaje_auditivo", texto: "Al hacer alguna tarea, prefiero que alguien me diga las instrucciones que leerlas personalmente." },
-  { item: 17, area: "perceptuales", componente: "lenguaje_auditivo", texto: "Entiendo mejor las cosas cuando las comento con los demás que cuando las leo o las escribo." },
-  { item: 18, area: "perceptuales", componente: "numerico_auditivo", texto: "Tiendo a hablar en voz alta cuando deseo comprender algo relacionado con información numérica." },
-  { item: 19, area: "perceptuales", componente: "numerico_visual",   texto: "Comprendo mejor la información numérica cuando la veo y la escribo que cuando solamente la escucho." },
-  { item: 20, area: "perceptuales", componente: "lenguaje_visual",   texto: "Hago mejor las cosas cuando me apoyo en dibujos, gráficas o información que puedo ver." },
-  { item: 21, area: "perceptuales", componente: "kinestesico",       texto: "Disfruto hacer trabajos manuales, por ejemplo, dibujos, envolturas, recortes, etc." },
-  { item: 22, area: "interaccion",  componente: "equipo",            texto: "Me siento bien pidiendo ayuda a un compañero cuando la necesito." },
-  { item: 23, area: "interaccion",  componente: "individual",        texto: "Trabajo mejor solo que en equipo." },
-  { item: 24, area: "comunicacion", componente: "oral",              texto: "Me siento mejor cuando muestro y explico cómo funciona algo que cuando tengo que escribir acerca de ello." },
-  { item: 25, area: "interaccion",  componente: "individual",        texto: "Me pone nervioso trabajar con otras personas." },
-  { item: 26, area: "comunicacion", componente: "escrito",           texto: "Si tengo que hacer un reporte de un trabajo realizado, prefiero escribirlo que decirlo." },
-  { item: 27, area: "interaccion",  componente: "equipo",            texto: "Me gusta trabajar en equipo porque siento que aprendo más." },
-  { item: 28, area: "perceptuales", componente: "kinestesico",       texto: "Disfruto hacer deporte, manualidades o cuestiones artísticas." },
-  { item: 29, area: "perceptuales", componente: "lenguaje_visual",   texto: "Hago mejor un trabajo si recibo instrucciones escritas que verbales." },
-  { item: 30, area: "comunicacion", componente: "oral",              texto: "En una reunión en equipo, prefiero responder preguntas verbalmente que por escrito." },
-  { item: 31, area: "interaccion",  componente: "individual",        texto: "Mi opinión es más importante que la de los demás." },
-  { item: 32, area: "perceptuales", componente: "kinestesico",       texto: "Tiendo a tocar las cosas para comprender más sobre ellas." },
-  { item: 33, area: "comunicacion", componente: "oral",              texto: "Me siento más cómodo al hablar que al escribir sobre un tema." },
-  { item: 34, area: "interaccion",  componente: "equipo",            texto: "Creo que trabajar en equipo es importante y muy útil, procuro hacerlo siempre que se puede." },
-  { item: 35, area: "comunicacion", componente: "escrito",           texto: "Las asignaciones de tareas escritas las comprendo mejor que las orales." },
-  { item: 36, area: "comunicacion", componente: "oral",              texto: "Puedo ayudar mejor a otros cuando les explico las cosas verbalmente que por escrito." },
-  { item: 37, area: "interaccion",  componente: "equipo",            texto: "Disfruto mucho compartir mis conocimientos con otras personas." },
-  { item: 38, area: "perceptuales", componente: "kinestesico",       texto: "Cuando quiero aprender algo nuevo, me gusta hacer experimentos, dibujar o hacer un proyecto, más que leer o escuchar sobre el tema." },
-  { item: 39, area: "interaccion",  componente: "individual",        texto: "Trabajo mejor cuando no tengo que escuchar las opiniones ni los puntos de vista de los demás sobre algún tema." },
-  { item: 40, area: "comunicacion", componente: "escrito",           texto: "Prefiero hacer tareas o reportes escritos que orales." },
-  { item: 41, area: "interaccion",  componente: "individual",        texto: "Prefiero las tareas en las que puedo trabajar solo." },
-  { item: 42, area: "perceptuales", componente: "kinestesico",       texto: "Disfruto trabajar en proyectos que requieren dibujar, construir, armar, hacer cosas." },
-  { item: 43, area: "comunicacion", componente: "escrito",           texto: "Prefiero responder preguntas por escrito que oralmente." },
-  { item: 44, area: "interaccion",  componente: "equipo",            texto: "Si tengo que aprender cosas nuevas y difíciles, prefiero estudiar en grupo." },
-  { item: 45, area: "comunicacion", componente: "oral",              texto: "Prefiero hacer sugerencias verbales en vez de escribirlas." }
-];
+    function choiceOk(v) {
+      const c = String(v || "").toUpperCase();
+      return c === "MO" || c === "AO" || c === "NM" ? c : "";
+    }
 
-let ITEMS = [];
+    function tieneMarcasLetras(state) {
+      const resp = (state && state.responses) || {};
+      return Object.values(resp).some((v) => choiceOk(v));
+    }
 
-function construirPreguntas() {
-  ITEMS = PREGUNTAS_MPA.map(q => ({
-    id: q.item,
-    pregunta: q.texto,
-    bloque: MPA_MATRIX.areas[q.area].label,
-    subhabilidad: MPA_MATRIX.componentes[q.componente].label,
-    area: q.area,
-    componente: q.componente,
-    invertida: "No",
-    value: null
-  }));
-  currentPage = 0;
-  renderPage();
-  updateProgress();
-}
-
-function rawToPctMPA(raw) {
-  if (raw == null || Number.isNaN(raw)) return 0;
-  const RAW_TO_PCT_5_ITEMS = {
-    5: 0,
-    6: 3,
-    7: 9,
-    8: 21,
-    9: 40,
-    10: 61,
-    11: 79,
-    12: 91,
-    13: 97,
-    14: 99,
-    15: 100
-  };
-  const key = Math.round(Number(raw));
-  if (RAW_TO_PCT_5_ITEMS[key] != null) return RAW_TO_PCT_5_ITEMS[key];
-  const min = 5, max = 15;
-  return Math.round(((Number(raw) - min) / (max - min)) * 100);
-}
-
-function rangoMPA(pct) {
-  if (pct <= 40) return "Preferencia baja";
-  if (pct <= 70) return "Preferencia media";
-  return "Preferencia alta";
-}
-
+    async function cargarBancoAprendizaje(codigo) {
+      const r = await fetch(`/api/banco-aprendizaje?codigo=${encodeURIComponent(codigo)}`);
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.ok || !Array.isArray(data.items) || !data.items.length) return false;
+      ITEMS = data.items.map(it => ({
+        id: Number(it.id),
+        pregunta: String(it.pregunta || ""),
+        choice: null
+      })).filter(it => Number.isFinite(it.id) && it.pregunta);
+      ITEMS.sort((a, b) => a.id - b.id);
+      BANCO_VERSION = data.version || "APREND-v1";
+      currentPage = 0;
+      return ITEMS.length > 0;
+    }
 
     function markRowAnswered(rowEl, q) {
       if (!rowEl) return;
-      if (q && q.value != null) rowEl.classList.add("answered");
+      if (q && choiceOk(q.choice)) rowEl.classList.add("answered");
       else rowEl.classList.remove("answered");
     }
 
@@ -1229,7 +1155,7 @@ function updateProgress() {
   const totalPage = Math.max(0, end - start);
   let answeredPage = 0;
   for (let i = start; i < end; i++) {
-    if (ITEMS[i] && ITEMS[i].value != null) answeredPage++;
+    if (ITEMS[i] && choiceOk(ITEMS[i].choice)) answeredPage++;
   }
 
   const pct = totalAll ? Math.round((answeredAll / totalAll) * 100) : 0;
@@ -1286,21 +1212,10 @@ for (let i = start; i < end; i++) {
           r.title = (code==="MO")?labels[0]:(code==="AO")?labels[1]:labels[2];
           r.setAttribute("aria-label", r.title);
 
-          if (q.value != null) {
-            const inv = q.invertida === "Sí";
-            let expectedScore;
-            if (!inv) expectedScore = (code==="MO")?3:(code==="AO")?2:1;
-            else expectedScore = (code==="MO")?1:(code==="AO")?2:3;
-            if (q.value === expectedScore) r.checked = true;
-          }
+          if (choiceOk(q.choice) === code) r.checked = true;
 
           r.addEventListener("change", ()=>{
-            const inv = q.invertida === "Sí";
-            let score;
-            if (!inv) score = (code==="MO")?3:(code==="AO")?2:1;
-            else score = (code==="MO")?1:(code==="AO")?2:3;
-
-            q.value = score;
+            q.choice = code;
             markRowAnswered(row, q);
             updateProgress();
           });
@@ -1323,13 +1238,13 @@ for (let i = start; i < end; i++) {
       const total = ITEMS.length;
       const start = currentPage * PAGE_SIZE;
       const end = Math.min(start + PAGE_SIZE, total);
-      for (let i = start; i < end; i++) if (ITEMS[i].value == null) return false;
+      for (let i = start; i < end; i++) if (!choiceOk(ITEMS[i].choice)) return false;
       return true;
     }
 
     function obtenerRespuestasCrudas() {
       const map = {};
-      ITEMS.forEach(q => { if (q.value != null) map[String(q.id)] = q.value; });
+      ITEMS.forEach(q => { const c = choiceOk(q.choice); if (c) map[String(q.id)] = c; });
       return map;
     }
 
@@ -1357,7 +1272,7 @@ window.scrollTo(0, 0);
       const resp = state.responses || {};
       ITEMS.forEach(q => {
         const v = resp[String(q.id)];
-        q.value = (typeof v === "number") ? v : null;
+        q.choice = choiceOk(v) || null;
       });
 
       currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
@@ -1366,7 +1281,7 @@ window.scrollTo(0, 0);
 
     function iniciarEvaluacionNueva() {
       __startTime = Date.now();
-      ITEMS.forEach(q => { q.value = null; });
+      ITEMS.forEach(q => { q.choice = null; });
       currentPage = 0;
       saveState(false);
       // NOTA: La pantalla de preguntas se muestra después de las pantallas intro/instrucciones.
@@ -1390,97 +1305,6 @@ window.scrollTo(0, 0);
         window.scrollTo(0, 0);      }
     }
 
-    function normalizeBloqueName(name) {
-      if (!name) return "";
-      return name.replace(/\s+/g, " ").trim().toLowerCase();
-    }
-
-    function calcIV1_IV2_categories(items) {
-      const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
-      const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
-      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
-      const stdev = arr => {
-        if (arr.length < 2) return 1;
-        const m = avg(arr);
-        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
-      };
-      const invNorm = invers.map(v => 4 - v);
-      const allNorm = direct.concat(invNorm);
-      if (!allNorm.length) return { iv1Cat: null, iv2Cat: null };
-      const s = stdev(allNorm);
-      const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
-      const diff = Math.abs(avg(direct) - avg(invNorm));
-      const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
-      return { iv1Cat, iv2Cat };
-    }
-
-    
-function calcularResultadosGlobales() {
-  if (!ITEMS.length) return null;
-
-  const totalItems = ITEMS.length;
-  const totalPts = ITEMS.reduce((acc, q) => acc + (q.value ?? 0), 0);
-  const totalMax = totalItems * 3;
-
-  const componentes = {};
-  Object.entries(MPA_MATRIX.componentes).forEach(([key, comp]) => {
-    const qs = ITEMS.filter(q => q.componente === key);
-    const raw = qs.reduce((acc, q) => acc + Number(q.value || 0), 0);
-    const pct = rawToPctMPA(raw);
-    componentes[key] = {
-      area: comp.area,
-      label: comp.label,
-      raw,
-      pct,
-      rango: rangoMPA(pct),
-      total_items: qs.length
-    };
-  });
-
-  const areas = {};
-  Object.entries(MPA_MATRIX.areas).forEach(([areaKey, areaObj]) => {
-    const comps = Object.entries(componentes).filter(([_, c]) => c.area === areaKey).map(([_, c]) => c);
-    const raw = comps.length ? Number((comps.reduce((acc, c) => acc + c.raw, 0) / comps.length).toFixed(2)) : 0;
-    const pct = comps.length ? Math.round(comps.reduce((acc, c) => acc + c.pct, 0) / comps.length) : 0;
-    areas[areaKey] = {
-      label: areaObj.label,
-      raw,
-      pct,
-      rango: rangoMPA(pct),
-      total_componentes: comps.length
-    };
-  });
-
-  const compsOrdenados = Object.entries(componentes).sort((a,b)=>b[1].pct-a[1].pct);
-  const areasOrdenadas = Object.entries(areas).sort((a,b)=>b[1].pct-a[1].pct);
-
-  return {
-    prueba: "MPA",
-    resumen: {
-      total_items: totalItems,
-      total_puntos: totalPts,
-      total_max: totalMax
-    },
-    areas,
-    componentes,
-    meta: {
-      page_size: PAGE_SIZE,
-      escala: {
-        MAYORIA_OCASIONES: 3,
-        ALGUNAS_OCASIONES: 2,
-        NINGUNA_O_MINIMAS_OCASIONES: 1
-      },
-      minutos_aprox: Math.round((Date.now() - (__startTime || Date.now())) / 60000)
-    },
-    resumen_preferencias: {
-      dominante_area: areasOrdenadas[0]?.[0] || "",
-      dominante_componente: compsOrdenados[0]?.[0] || "",
-      secundaria_componente: compsOrdenados[1]?.[0] || ""
-    }
-  };
-}
-
-
     function onFinalizarClick() {
       const nombre = document.getElementById("nombre").value.trim();
       if (!nombre) { alert("Por favor ingresa el nombre."); return; }
@@ -1488,12 +1312,6 @@ function calcularResultadosGlobales() {
       const respuestas = obtenerRespuestasCrudas();
       const total = ITEMS.length;
       if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
-
-const resultados = calcularResultadosGlobales();
-  // PERFIL (para baremación / recomendaciones): PRO vs ESCOLAR
-  const perfil = String(CODIGO_ACTUAL || '').toUpperCase().startsWith('PRO') ? 'PRO' : 'ESCOLAR';
-  resultados.meta = resultados.meta || {};
-  resultados.meta.perfil = perfil;
 
       const payload = {
         codigo: CODIGO_ACTUAL,
@@ -1504,10 +1322,9 @@ const resultados = calcularResultadosGlobales();
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
-          version_banco: "MPA-v1"
-
+          version_banco: BANCO_VERSION,
+          startTime: __startTime || Date.now()
         },
-        resultados,
         responses: respuestas
       };
 
@@ -1553,7 +1370,6 @@ const resultados = calcularResultadosGlobales();
 
     document.addEventListener("DOMContentLoaded", () => {
       inicializarDatosFijos();
-      construirPreguntas();
 
       btnIniciar.disabled = true;
 
@@ -1613,6 +1429,13 @@ btnIniciar.addEventListener("click", async () => {
           alert("Por favor valida el código antes de iniciar.");
           return;
         }
+        if (!ITEMS.length) {
+          const bancoOk = await cargarBancoAprendizaje(CODIGO_ACTUAL);
+          if (!bancoOk) {
+            alert("No se pudo cargar la evaluación. Valida el código de nuevo.");
+            return;
+          }
+        }
 
         const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
 
@@ -1622,7 +1445,7 @@ btnIniciar.addEventListener("click", async () => {
         const localSaved = loadStateForCurrentCode();
         const candidate = serverState || localSaved;
 
-        if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
+        if (candidate && !isStateCompleted(candidate) && tieneMarcasLetras(candidate)) {
           const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
           if (retomar) {
             aplicarState(candidate);
