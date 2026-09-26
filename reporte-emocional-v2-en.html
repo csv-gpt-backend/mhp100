@@ -1209,20 +1209,20 @@ function textoPlanClaro(s){
 
   // Expande abreviaciones frecuentes (solo cuando aparecen como palabra completa o en formatos típicos)
   t = t
-    .replace(/\bsem\b/gi, "semana")
-    .replace(/\bsemanal\b/gi, "semanal")
-    .replace(/\bquincenal\b/gi, "quincenal")
-    .replace(/\bmensual\b/gi, "mensual")
-    .replace(/\bmin\b/gi, "minutos")
-    .replace(/\bmins\b/gi, "minutos")
-    .replace(/\bhr\b/gi, "recursos humanos")
-    .replace(/\bRRHH\b/gi, "recursos humanos");
+    .replace(/\bsem\b/gi, "week")
+    .replace(/\bsemanal\b/gi, "weekly")
+    .replace(/\bquincenal\b/gi, "every two weeks")
+    .replace(/\bmensual\b/gi, "monthly")
+    .replace(/\bmin\b/gi, "minutes")
+    .replace(/\bmins\b/gi, "minutes")
+    .replace(/\bhr\b/gi, "human resources")
+    .replace(/\bRRHH\b/gi, "human resources");
 
   // Formatos tipo "2 veces/sem" o "2/sem"
   t = t
-    .replace(/\b(\d+)\s*veces\s*\/\s*sem\b/gi, "$1 veces por semana")
-    .replace(/\b(\d+)\s*\/\s*sem\b/gi, "$1 por semana")
-    .replace(/\b(\d+)\s*\/\s*min\b/gi, "$1 minutos");
+    .replace(/\b(\d+)\s*veces\s*\/\s*sem\b/gi, "$1 times per week")
+    .replace(/\b(\d+)\s*\/\s*sem\b/gi, "$1 per week")
+    .replace(/\b(\d+)\s*\/\s*min\b/gi, "$1 minutes");
 
   // Evita dobles espacios (por reemplazos)
   t = t.replace(/\s{2,}/g, " ").trim();
@@ -2307,6 +2307,21 @@ if(extras.propCambioVal != null){
 cont.appendChild(lista);
   }
 
+  function planEtiqueta(key){
+    if (key === "AGRESION") return "AGGRESSION";
+    if (key === "TIMIDEZ") return "SHYNESS";
+    if (key === "VINCULOS INTERPERSONALES") return "INTERPERSONAL BONDS";
+    if (key === "DESARROLLO PERSONAL") return "PERSONAL DEVELOPMENT";
+    if (key === "HABILIDADES PARA LA VIDA") return "LIFE SKILLS";
+    return key;
+  }
+  function planNivel(n){
+    if (n === "bajo") return "low";
+    if (n === "medio") return "medium";
+    if (n === "alto") return "high";
+    return n;
+  }
+
   function renderPlanAccion(extras){
     const cont = document.getElementById("planAccion");
     if(!cont) return;
@@ -2320,23 +2335,23 @@ cont.appendChild(lista);
       let t = String(s).replace(/\s+/g, " ").trim();
 
       // Expandir abreviaturas y expresiones cortas
-      t = t.replace(/\b(\d+)\s*min\b/gi, "$1 minutos");
-      t = t.replace(/\b(\d+)\s*veces\/sem\b/gi, "$1 veces por semana");
-      t = t.replace(/\b(\d+)\s*vez\/sem\b/gi, "$1 vez por semana");
-      t = t.replace(/\b(\d+)\s*conversaciones\/sem\b/gi, "$1 conversaciones por semana");
-      t = t.replace(/\b(\d+)\s*prácticas\/sem\b/gi, "$1 prácticas por semana");
-      t = t.replace(/\b(\d+)\s*bloques\/sem\b/gi, "$1 bloques por semana");
-      t = t.replace(/\b(\d+)\s*roles\/sem\b/gi, "$1 roles por semana");
-      t = t.replace(/\b(\d+)\s*rol\/sem\b/gi, "$1 rol por semana");
-      t = t.replace(/\b(\d+)\s*días\/sem\b/gi, "$1 días por semana");
-      t = t.replace(/\bsem\.?\b/gi, "semana");
-      t = t.replace(/\bquincenal\b/gi, "cada dos semanas");
-      t = t.replace(/\bsemanal\b/gi, "cada semana");
-      t = t.replace(/\bmensual\b/gi, "cada mes");
-      t = t.replace(/\bHR\b/g, "recursos humanos");
+      t = t.replace(/\b(\d+)\s*min\b/gi, "$1 minutes");
+      t = t.replace(/\b(\d+)\s*veces\/sem\b/gi, "$1 times per week");
+      t = t.replace(/\b(\d+)\s*vez\/sem\b/gi, "$1 time per week");
+      t = t.replace(/\b(\d+)\s*conversaciones\/sem\b/gi, "$1 conversations per week");
+      t = t.replace(/\b(\d+)\s*prácticas\/sem\b/gi, "$1 practice sessions per week");
+      t = t.replace(/\b(\d+)\s*bloques\/sem\b/gi, "$1 blocks per week");
+      t = t.replace(/\b(\d+)\s*roles\/sem\b/gi, "$1 roles per week");
+      t = t.replace(/\b(\d+)\s*rol\/sem\b/gi, "$1 role per week");
+      t = t.replace(/\b(\d+)\s*días\/sem\b/gi, "$1 days per week");
+      t = t.replace(/\bsem\.?\b/gi, "week");
+      t = t.replace(/\bquincenal\b/gi, "every two weeks");
+      t = t.replace(/\bsemanal\b/gi, "each week");
+      t = t.replace(/\bmensual\b/gi, "each month");
+      t = t.replace(/\bHR\b/g, "human resources");
 
       // Quitar puntos suspensivos o texto truncado
-      t = t.replace(/pr\.\.\./gi, "primero con acciones para la persona evaluada y luego con apoyos");
+      t = t.replace(/pr\.\.\./gi, "first, actions for the person assessed, then support actions");
       t = t.replace(/\.\.\./g, ".");
 
       // Aterrizar actividades (explicando qué hacer / con quién / sobre qué)
@@ -2387,22 +2402,22 @@ cont.appendChild(lista);
 
       t = t.replace(
         /^Bloques de trabajo 20–25 min \(2–3 veces\/sem\):/i,
-        "Bloques de trabajo de veinte a veinticinco minutos (dos a tres veces por semana): elegir una sola tarea concreta (estudiar un tema, hacer una tarea, ordenar materiales, responder pendientes o preparar una actividad), "
+        "Work blocks of twenty to twenty-five minutes (two or three times a week): choose one concrete task (study a topic, do an assignment, organize materials, answer something pending, or prepare an activity), "
       );
 
       t = t.replace(
         /^Bloques de trabajo 20–25 minutos \(2–3 veces por semana\):/i,
-        "Bloques de trabajo de veinte a veinticinco minutos (dos a tres veces por semana): elegir una sola tarea concreta (estudiar un tema, hacer una tarea, ordenar materiales, responder pendientes o preparar una actividad), "
+        "Work blocks of twenty to twenty-five minutes (two or three times a week): choose one concrete task (study a topic, do an assignment, organize materials, answer something pending, or prepare an activity), "
       );
 
       t = t.replace(
         /^Asignar un rol pequeño de iniciativa 1 vez\/sem/i,
-        "Asumir un rol pequeño de iniciativa una vez por semana"
+        "Take on a small initiative role once a week"
       );
 
       t = t.replace(
         /^Asignar un rol pequeño de iniciativa 1 vez por semana/i,
-        "Asumir un rol pequeño de iniciativa una vez por semana"
+        "Take on a small initiative role once a week"
       );
 
       t = t.replace(
@@ -2447,17 +2462,16 @@ cont.appendChild(lista);
 
       // Indicadores y revisiones en lenguaje completo
       if (/^Indicador:/i.test(t) && !/registro|checklist|lista|nota breve/i.test(t)) {
-        t = t + " Registrar cumplimiento en una nota breve o lista de verificación.";
+        t = t + " Record completion in a short note or checklist.";
       }
-      t = t.replace(/\bchecklist\b/gi, "lista de verificación");
 
       t = contextualizaTextoCodigo(t, esProfesional);
       return t.replace(/\s{2,}/g, " ").trim();
     };
 
     const tituloPorCodigo = {
-      hogar: esProfesional ? "En casa / entorno personal (acciones de apoyo sugeridas según puntajes):" : "En el hogar / familia (acciones sugeridas según puntajes):",
-      aula: esProfesional ? "En el trabajo / equipo (acciones sugeridas según puntajes):" : "En el aula / institución educativa (acciones sugeridas según puntajes):",
+      hogar: esProfesional ? "At home / personal setting (suggested support actions based on the scores):" : "At home / family (suggested actions based on the scores):",
+      aula: esProfesional ? "At work / team (suggested actions based on the scores):" : "In the classroom / school (suggested actions based on the scores):",
       apoyo: esProfesional ? "With support from a supervisor / mentor / Human Resources (suggested actions according to scores):" : "With support from the counselor / psychologist / Human Resources (suggested actions according to scores):"
     };
 
@@ -2499,7 +2513,7 @@ const pack = PLAN_ACCION_NIVEL[f.key]?.[f.nivel]?.[perfilPlan];
       const sec = document.createElement("div");
       sec.className = "plan-focus-item";
       sec.innerHTML = `
-<div class="plan-focus-head"><b>${(f.key==="AGRESION"?"AGRESIÓN":(f.key==="VINCULOS INTERPERSONALES"?"VÍNCULOS INTERPERSONALES":f.key))}</b> — ${f.nivel} (${pctTxt(f.pct)})</div>
+<div class="plan-focus-head"><b>${planEtiqueta(f.key)}</b> — ${planNivel(f.nivel)} (${pctTxt(f.pct)})</div>
         <div class="plan-focus-obj"><b>Goal:</b> ${escapeHtml(textoPlanClaro(pack.objetivo))}</div>
         <ul class="recom-list">${pack.acciones.map(a=>`<li>${escapeHtml(textoPlanClaro(a))}</li>`).join("")}</ul>
         <div class="plan-focus-meta"><b>Indicator:</b> ${escapeHtml(textoPlanClaro((()=>{const ind=pack.indicador||""; const needs=!/registro|lista de verificación|nota breve|bitácora|anotar|marcar|record|note|log|check|mark|written|sheet/i.test(ind); return ind + (needs ? " Record it in a short note (date + activity + check mark)." : "");})()))}</div>
@@ -2523,7 +2537,7 @@ const pack = PLAN_ACCION_NIVEL[f.key]?.[f.nivel]?.[perfilPlan];
         if(grp && grp !== lastGrp){
           const liHead=document.createElement("li");
           liHead.className = "sec-head";
-          liHead.textContent = grp + " (prioridad):";
+          liHead.textContent = grp + " (priority):";
           liHead.style.fontWeight = "800";
           liHead.style.listStyle = "none";
           liHead.style.marginTop = (lastGrp===null ? "0" : "10px");
@@ -2549,7 +2563,7 @@ const perfilRol = esProfesional ? "pro" : "esc";
 const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
       if(!pack) return;
 
-      const keyDisp = (f.key === "AGRESION") ? "AGRESIÓN" : (f.key === "VINCULOS INTERPERSONALES") ? "VÍNCULOS INTERPERSONALES" : f.key;
+      const keyDisp = planEtiqueta(f.key);
 
       // Agregamos 1–2 acciones por foco y rol (para que no sea infinito)
       (pack.hogar || []).slice(0,2).forEach(x => hogar.push({ grp: keyDisp, txt: x }));
@@ -2598,16 +2612,16 @@ const pack = PLAN_ROLES_NIVEL[f.key]?.[f.nivel]?.[perfilRol];
     //  "Maintain regular communication between family and school in order to align strategies."
    // ]);
     if (esProfesional) {
-      mkLinks("Recursos de apoyo (Profesional) — opcionales", [
-        { text: "OMS/WHO: salud mental en el trabajo (recomendaciones)", href: "https://www.who.int/news-room/fact-sheets/detail/mental-health-at-work" },
-        { text: "APA: herramientas prácticas para manejo del estrés", href: "https://www.apa.org/topics/stress/manage-stress-tools" },
-        { text: "CDC/NIOSH: estrés en el trabajo (prevención y estrategias)", href: "https://www.cdc.gov/niosh/stress/about/index.html" }
+      mkLinks("Optional support resources (professional)", [
+        { text: "WHO: mental health at work (guidance)", href: "https://www.who.int/news-room/fact-sheets/detail/mental-health-at-work" },
+        { text: "APA: practical tools for managing stress", href: "https://www.apa.org/topics/stress/manage-stress-tools" },
+        { text: "CDC/NIOSH: stress at work (prevention and strategies)", href: "https://www.cdc.gov/niosh/stress/about/index.html" }
       ]);
     } else {
-      mkLinks("Recursos de apoyo (Escolar) — opcionales", [
-        { text: "UNICEF: salud mental en adolescentes (recursos y orientación)", href: "https://www.unicef.org/parenting/mental-health" },
-        { text: "OMS/WHO: habilidades para la vida (Life Skills Education)", href: "https://www.who.int/teams/health-promotion/enhanced-wellbeing/health-skills-and-education/life-skills" },
-        { text: "NHS: ejercicios de respiración para estrés y ansiedad", href: "https://www.nhs.uk/mental-health/self-help/guides-tools-and-activities/breathing-exercises-for-stress/" }
+      mkLinks("Optional support resources (school)", [
+        { text: "UNICEF: adolescent mental health (resources and guidance)", href: "https://www.unicef.org/parenting/mental-health" },
+        { text: "WHO: life skills (Life Skills Education)", href: "https://www.who.int/teams/health-promotion/enhanced-wellbeing/health-skills-and-education/life-skills" },
+        { text: "NHS: breathing exercises for stress and anxiety", href: "https://www.nhs.uk/mental-health/self-help/guides-tools-and-activities/breathing-exercises-for-stress/" }
       ]);
     }
 
@@ -2904,7 +2918,7 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
   }
 
   async function cargarReporte(codigo){
-    document.getElementById("msg").textContent = "Buscando...";
+    document.getElementById("msg").textContent = "Looking up...";
     document.getElementById("msg").className = "msg";
     document.getElementById("reporteContainer").style.display = "none";
     const ingreso = document.getElementById("ingresoPanel");
@@ -2914,22 +2928,22 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
       const r = await fetch(`/api/report?${q.toString()}`);
       const data = await r.json();
       if (r.status === 403 && (data.eval_mismatch || data.idioma_mismatch)) {
-        document.getElementById("msg").textContent = data.error || "Este código no corresponde a este reporte.";
+        document.getElementById("msg").textContent = data.error || "This code does not match this report.";
         document.getElementById("msg").className = "msg err";
         return;
       }
       if(!r.ok || data.error){
-        document.getElementById("msg").textContent = data.error || "No encontrado";
+        document.getElementById("msg").textContent = data.error || "Not found";
         document.getElementById("msg").className = "msg err";
         return;
       }
       if (!data || !data.attempt) {
-        document.getElementById("msg").textContent = "No se encontró un intento registrado para este código.";
+        document.getElementById("msg").textContent = "No assessment attempt was found for this code.";
         document.getElementById("msg").className = "msg err";
         return;
       }
       if (data.puede_ver_resultado !== true) {
-        document.getElementById("msg").textContent = "Este código no está habilitado para ver su reporte. Contacta a la coordinación.";
+        document.getElementById("msg").textContent = "This code is not enabled to view its report. Contact the coordinator.";
         document.getElementById("msg").className = "msg err";
         return;
       }
