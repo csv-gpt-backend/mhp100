@@ -792,7 +792,6 @@ if (typeof PREINTRO === "undefined") {
         <li>Reflexiona.</li>
         <li>Selecciona el alvéolo que corresponda a tu respuesta.</li>
         <li>Una vez que inicies la autoevaluación continúa hasta terminar.</li>
-        <li>Te tomará 20 minutos, aproximadamente.</li>
       </ul>
       <div class="preintro-grid">
         <div class="preintro-box">
@@ -1213,10 +1212,28 @@ currentPage = 0;
     
 
     function getSeccionById(id){
-      // Integridad: 96 ítems. Asumimos 1–32 / 33–64 / 65–96
-      if (id <= 32) return 1;
-      if (id <= 64) return 2;
+      if (id <= 54) return 1;
+      if (id <= 59) return 2;
       return 3;
+    }
+
+    function limitesPagina(page) {
+      const total = ITEMS.length;
+      let start = 0;
+      let idx = 0;
+      while (start < total) {
+        const sec = getSeccionById(ITEMS[start].id);
+        let end = start + 1;
+        while (
+          end < total &&
+          end - start < PAGE_SIZE &&
+          getSeccionById(ITEMS[end].id) === sec
+        ) end++;
+        if (idx === page) return { start, end };
+        idx++;
+        start = end;
+      }
+      return { start: total, end: total };
     }
 
     function labelsPorSeccion(sec){
@@ -1251,8 +1268,9 @@ function renderPage() {
       cont.innerHTML = "";
 
       const total = ITEMS.length;
-      const start = currentPage * PAGE_SIZE;
-      const end = Math.min(start + PAGE_SIZE, total);
+      const rango = limitesPagina(currentPage);
+      const start = rango.start;
+      const end = rango.end;
 
       
 
@@ -1323,11 +1341,9 @@ for (let i = start; i < end; i++) {
     }
 
     function paginaCompleta() {
-      const total = ITEMS.length;
-      const start = currentPage * PAGE_SIZE;
-      const end = Math.min(start + PAGE_SIZE, total);
-      for (let i = start; i < end; i++) if (ITEMS[i].value == null) return false;
-      return true;
+      const rango = limitesPagina(currentPage);
+      for (let i = rango.start; i < rango.end; i++) if (ITEMS[i].value == null) return false;
+      return rango.end > rango.start;
     }
 
     function obtenerRespuestasCrudas() {
@@ -1364,6 +1380,7 @@ window.scrollTo(0, 0);
       });
 
       currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
+      while (currentPage > 0 && limitesPagina(currentPage).end <= limitesPagina(currentPage).start) currentPage--;
       __startTime = state.startTime || Date.now();
     }
 
@@ -1381,8 +1398,7 @@ window.scrollTo(0, 0);
         return;
       }
       const total = ITEMS.length;
-      const start = currentPage * PAGE_SIZE;
-      const end = Math.min(start + PAGE_SIZE, total);
+      const end = limitesPagina(currentPage).end;
 
       if (end >= total) onFinalizarClick();
       else {
