@@ -65,6 +65,7 @@
 
     .page{margin-top:10px}
     .page-break{height:0;margin:0;border:0}
+    #curveMarkerPrint{display:none !important;}
     @media print{
       @page{ size:A4; margin:8mm 8mm }
       .topbar,.hint,.intro-logo-wrap,.ingreso-titulo,.ingreso-panel,#btnImprimir,#btnPDF,.reporte-acciones-pantalla{display:none !important}
@@ -84,6 +85,15 @@
         break-inside:avoid;
         page-break-inside:avoid;
       }
+      #page1 .curve .curve-gauge{
+        width:330px !important;
+        max-width:100%;
+        height:220px !important;
+        margin-left:auto;
+        margin-right:auto;
+      }
+      #curveMarker{display:none !important;}
+      #curveMarkerPrint{display:block !important;}
       #tituloCurvaFrecuencias{font-size:12px !important;white-space:nowrap;letter-spacing:0}
       .mhp-logo{height:72px !important;margin-top:0 !important;margin-left:4px !important}
       #page1 .mhp-logo,
@@ -2952,23 +2962,44 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
     cargarReporte(c);
   });
 
-  function colocarFlechaAhora(){
+  function asegurarFlechaPdf(){
+    if (document.getElementById("curveMarkerPrint")) return;
+    const src = document.getElementById("curveMarker");
+    if (!src) return;
+    const copy = src.cloneNode(true);
+    copy.id = "curveMarkerPrint";
+    copy.querySelectorAll("[id]").forEach((n) => { n.id = n.id + "Pdf"; });
+    copy.innerHTML = copy.innerHTML
+      .replace(/#blkMain\b/g, "#blkMainPdf")
+      .replace(/#blkEdge\b/g, "#blkEdgePdf")
+      .replace(/#blkShadow\b/g, "#blkShadowPdf");
+    src.parentNode.appendChild(copy);
+  }
+  function colocarFlechaPdf(){
+    const v = window.__curveIIEValue;
+    if (v == null || Number.isNaN(Number(v))) return;
+    asegurarFlechaPdf();
+    const mk = document.getElementById("curveMarkerPrint");
+    if (!mk) return;
+    const score = clamp(Number(v) || 0, 1, 100);
+    const drawnW = 330;
+    const drawnH = 220;
+    const padL = drawnW * 0.12;
+    const padR = drawnW * 0.13;
+    const t = (score - 1) / 99;
+    const x = padL + t * (drawnW - padL - padR);
+    const y = 94 + t * (30 - 94);
+    mk.style.left = `${(x / drawnW) * 100}%`;
+    mk.style.bottom = `${(y / drawnH) * 100}%`;
+  }
+  document.getElementById("btnImprimir").addEventListener("click", () => window.print());
+  document.getElementById("btnPDF").addEventListener("click", () => window.print());
+  window.addEventListener("beforeprint", colocarFlechaPdf);
+  window.addEventListener("resize", () => {
     const v = window.__curveIIEValue;
     if (v == null || Number.isNaN(Number(v))) return;
     setCurveMarker(Number(v));
-  }
-  document.getElementById("btnImprimir").addEventListener("click", ()=>{
-    colocarFlechaAhora();
-    window.print();
   });
-  document.getElementById("btnPDF").addEventListener("click", ()=>{
-    colocarFlechaAhora();
-    window.print();
-  });
-
-  window.addEventListener("beforeprint", colocarFlechaAhora);
-  window.addEventListener("afterprint", () => requestAnimationFrame(colocarFlechaAhora));
-  window.addEventListener("resize", colocarFlechaAhora);
 
   (function init(){
     const qp = new URLSearchParams(location.search);
