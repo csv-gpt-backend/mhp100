@@ -148,7 +148,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
         <div class="r3">LIDERAZGO - (LEADERSHIP)</div>
       </div>
 
-      <div id="headerBox1" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
+      <div id="headerBox1" class="box" style="display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:4px 24px"></div>
 
       <div class="grid2" style="margin-top:8px">
         <div>
@@ -209,7 +209,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
         <div class="r3" style="font-size:15px">FACTORES DE LIDERAZGO – INTERPRETACIÓN</div>
       </div>
       <h3>1.- Datos personales.</h3>
-      <div id="headerBox2" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
+      <div id="headerBox2" class="box" style="display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:4px 24px"></div>
 
       <h3>2.- Interpretación por Factores y Perfil global</h3>
       <div class="card">
@@ -883,13 +883,13 @@ function parseFechaHuman(fechaBase){
   }
 }
 function buildHeaderHTML({nombre,curso,grupo,inst,fecha,codigo}){
+  const labelCurso = String(codigo||'').toUpperCase().startsWith('PRO') ? 'Nivel' : 'Grado/Curso';
   return `
     <div><b>Nombre:</b> ${esc(nombre||'—')}</div>
-    <div><b>${String(codigo||'').toUpperCase().startsWith('PRO') ? 'Nivel' : 'Grado/Curso'}:</b> ${esc(curso||'—')}</div>
-    
     <div><b>País:</b> ${esc(grupo||'—')}</div>
     <div><b>Institución:</b> ${esc(inst||'—')}</div>
     <div><b>Fecha:</b> ${esc(fecha||'—')}</div>
+    <div><b>${labelCurso}:</b> ${esc(curso||'—')}</div>
     <div><b>Código:</b> ${esc(codigo||'—')}</div>`;
 }
 function adaptData(data){
@@ -1037,8 +1037,13 @@ function adaptData(data){
   const fechaBase = attempt.created_at || attempt.fecha || snap.fecha || aSnap.fecha || null;
   const f = parseFechaHuman(fechaBase);
 
+  const apellidoRep = String(resultados.apellido || snap.apellido || aSnap.apellido || "").trim();
+  const nombrePila = String(resultados.nombre_pila || "").trim();
+  const nombreUnido = (nombrePila && apellidoRep)
+    ? (nombrePila + " " + apellidoRep)
+    : (snap.nombre || attempt.nombre || aSnap.nombre || participant.nombre || participant.full_name || "—");
   const header = {
-    nombre: snap.nombre || attempt.nombre || aSnap.nombre || participant.nombre || participant.full_name || '—',
+    nombre: nombreUnido,
     curso: snap.curso || attempt.curso || aSnap.curso || participant.curso || participant.grado || '—',
     grupo: snap.grupo || attempt.grupo || aSnap.grupo || participant.grupo || '—',
     inst: snap.institucion || attempt.institucion || aSnap.institucion || participant.institucion || '—',
