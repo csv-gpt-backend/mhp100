@@ -1096,6 +1096,17 @@ function lockNombreApellidoSiHayTexto(nombreVal, apellidoVal) {
         if (nombreGuardado) lockNombreApellidoSiHayTexto(nombreGuardado, apellidoGuardado);
         else setNombreApellidoReadonly(false);
 
+        const bancoOk = await cargarBancoValores(CODIGO_ACTUAL);
+        if (!bancoOk) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "No se pudo cargar la evaluación. Intenta de nuevo.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
         btnIniciar.disabled = false;
 
         if (codigoMsg) {
@@ -1155,158 +1166,56 @@ actualizarLabelCurso(codigoInput.value);
     const PAGE_SIZE = 10;
     let currentPage = 0;
 
-    const PREGUNTAS_CSV = `
-1;Cito de quien fue la idea de algo que me parece bueno.;Integridad;Honestidad;0
-2;Distingo la diferencia entre un favor y un soborno.;Integridad;Honestidad;1
-3;Notifico cuando percibo que no estoy preparado para la tarea que me encomiendan.;Integridad;Rectitud;1
-4;Doy información verdadera, incluyendo la que pueda afectar el resultado que deseo.;Integridad;Veracidad;0
-5;Trato a los demás como quiero ser tratado.;Integridad;Justicia;1
-6;Cumplo mis promesas.;Integridad;Rectitud;1
-7;Hago lo posible para que nadie note mis errores.;Integridad;Honestidad;0
-8;El bien y el mal se me confunden.;Integridad;Rectitud;1
-9;Hago otras cosas en el tiempo que debo dedicar a tareas o responsabilidades que me piden.;Integridad;Rectitud;1
-10;Cuando no sé algo lo invento o finjo que lo sé.;Integridad;Veracidad;1
-11;Digo verdades a medias.;Integridad;Veracidad;1
-12;En las discusiones me inclino a dar la razón al que más me convenga.;Integridad;Justicia;1
-13;Distingo fácilmente lo que es bueno de lo que es malo.;Integridad;Justicia;1
-14;Doy la cara ante los problemas afrontando las consecuencias.;Integridad;Rectitud;1
-15;Presento los hechos tal y como sucedieron aun y cuando esto pueda afectarme negativamente.;Integridad;Veracidad;0
-16;Acepto mis errores sin buscar otros culpables.;Integridad;Honestidad;1
-17;Evito el contacto visual.;Integridad;Veracidad;1
-18;Convenzo a la gente diciéndole lo que quiere oír.;Integridad;Veracidad;0
-19;Trato bien o mal a las personas dependiendo de cómo me caigan.;Integridad;Justicia;1
-20;Miro a los ojos cuando estoy hablando con una persona.;Integridad;Veracidad;0
-21;Enfrento mis errores para que no culpen a terceros.;Integridad;Honestidad;1
-22;Reconozco los méritos de los demás.;Integridad;Honestidad;0
-23;Comparto información confidencial con amigos o familiares.;Integridad;Veracidad;0
-24;No decir toda la verdad me da resultados para obtener lo que deseo.;Integridad;Veracidad;1
-25;Prefiero no opinar, aunque sepa que se está cometiendo una injusticia.;Integridad;Justicia;1
-26;Me doy tiempo suficiente para observar y escuchar antes de juzgar una situación.;Integridad;Justicia;1
-27;Para evitarme problemas prefiero no decir toda la verdad.;Integridad;Veracidad;1
-28;Incluyo a otros como cómplices de mis errores.;Integridad;Honestidad;1
-29;Devuelvo lo que me prestan.;Integridad;Honestidad;0
-30;Expreso los hechos abiertamente.;Integridad;Veracidad;0
-31;Las personas me buscan como árbitro cuando tienen discusiones.;Integridad;Justicia;0
-32;Denuncio aquello que me parece mala práctica, engaño o manipulación.;Integridad;Honestidad;1
-33;Expongo la información que tengo tal y como es independientemente de que me beneficie o me perjudique.;Integridad;Justicia;0
-34;No respeto horarios.;Integridad;Rectitud;1
-35;Reconozco cuando me he equivocado.;Integridad;Honestidad;0
-36;Si estoy seguro de algo lo expongo tal y como es.;Integridad;Justicia;0
-37;El soborno lo entiendo también como un favor especial.;Integridad;Honestidad;1
-38;Me formo una opinión sobre las acciones de las personas o sus situaciones rápidamente y sin mucha profundización.;Integridad;Justicia;0
-39;Ser sincero me parece una buena estrategia para lograr mis objetivos.;Integridad;Veracidad;0
-40;Lo que digo es diferente a lo que pienso.;Integridad;Veracidad;0
-41;El cumplir mis promesas depende de las circunstancias.;Integridad;Rectitud;1
-42;Presento las ideas de otros sin darles el crédito.;Integridad;Honestidad;0
-43;Realizo en tiempo y forma lo que se me pide.;Integridad;Rectitud;1
-44;Trato a los demás dependiendo de mi humor en el momento.;Integridad;Justicia;0
-45;Digo solo lo que me conviene que el otro escuche aunque no sea toda la verdad.;Integridad;Veracidad;1
-46;Le doy la razón a quien la tiene independientemente de mi propia conveniencia.;Integridad;Justicia;1
-47;Disimulo bien cuando no sé hacer algo que los demás piensan que sé.;Integridad;Rectitud;1
-48;Doy a cada quien lo que merece no importa si me cae bien o mal.;Integridad;Justicia;1
-49;Intento que mis errores o negligencias parezcan ser culpa de todo el equipo o de mis jefes.;Integridad;Honestidad;1
-50;Denuncio la injusticia.;Integridad;Justicia;1
-51;Evito la confrontación aun cuando tenga algo que evidenciar o denunciar.;Integridad;Honestidad;1
-52;Confronto a las personas que están mintiendo sobre algo importante.;Integridad;Veracidad;0
-53;Si no me piden las cosas olvido devolverlas.;Integridad;Honestidad;0
-54;Disculpo las malas prácticas que observo.;Integridad;Rectitud;1
-55;Cuido la información catalogada como confidencial.;Integridad;Veracidad;0
-56;Soy coherente con las cosas que digo, hago y pienso.;Integridad;Rectitud;0
-57;La información que tengo la manipulo a mi conveniencia.;Integridad;Honestidad;1
-58;Aun sin vigilancia cumplo las normas.;Integridad;Rectitud;0
-59;Me cuesta trabajo dar a otros el crédito que se merecen.;Integridad;Justicia;0
-60;La vigilancia es lo que me hace seguir las normas establecidas.;Integridad;Rectitud;0
-61;Hay situaciones en que hacer lo que es correcto no me conviene.;Integridad;Rectitud;1
-62;La verdad se debe decir aún y cuando cause conflictos.;Integridad;Veracidad;0
-63;Cumplir las normas depende de las circunstancias.;Integridad;Rectitud;0
-64;Enfrentar los propios errores no ayuda a corregir los problemas.;Integridad;Honestidad;0
-65;Lo ideal es mantener los valores propios aun en situaciones difíciles.;Integridad;Honestidad;0
-66;Me comporto de acuerdo a lo que pienso que es correcto hacer.;Integridad;Rectitud;0
-67;Si sé que algo está mal y no me incumbe, mejor me quedo callado.;Integridad;Honestidad;0
-68;Conviene ir ajustando nuestros valores a las circunstancias.;Integridad;Honestidad;1
-69;Me importa más lograr mis objetivos que hacer lo correcto.;Integridad;Rectitud;0
-70;Si un producto me es de utilidad me da lo mismo si es o no original.;Integridad;Honestidad;0
-71;Que cada uno se defienda solo.;Integridad;Justicia;0
-72;Un documento firmado merece respeto.;Integridad;Justicia;0
-73;Cuando las cosas se ponen difíciles mis principios morales son una brújula para seguir.;Integridad;Rectitud;0
-74;Prefiero quedar mal por decir una verdad, que perder la confianza de alguien por sostener una mentira.;Integridad;Veracidad;1
-75;Las acciones injustas deben denunciarse.;Integridad;Justicia;0
-76;Si alguien dice mentiras que afectan a los demás, es mejor no contradecirlo.;Integridad;Veracidad;1
-77;En las crisis ser justo no es tan importante.;Integridad;Justicia;1
-78;Las normas deben respetarse sin importar las circunstancias.;Integridad;Rectitud;0
-79;Omitir deliberadamente información relevante para la toma de decisiones es una forma de mentir.;Integridad;Veracidad;1
-80;La firma en un documento en realidad no significa gran cosa.;Integridad;Honestidad;0
-81;Hay que adecuar los principios morales a las situaciones que se presentan.;Integridad;Rectitud;0
-82;Cuando es oportuno, es válido ocultar la verdad o decir una mentira.;Integridad;Veracidad;1
-83;Si uno observa injusticias es mejor no involucrarse.;Integridad;Justicia;1
-84;Hacer lo correcto implica voluntad.;Integridad;Rectitud;0
-85;Evito adquirir productos copiados o que son de dudosa procedencia.;Integridad;Honestidad;1
-86;Convencer a las personas de cosas que no son verdad afectaría mi imagen.;Integridad;Veracidad;0
-87;El fin justifica los medios.;Integridad;Honestidad;1
-88;Cuando se trabaja en equipo los méritos personales no deben reconocerse.;Integridad;Justicia;1
-89;Creo que la denuncia oportuna sobre malas prácticas evita muchos problemas.;Integridad;Rectitud;0
-90;El buen juez por su casa empieza.;Integridad;Justicia;0
-91;No se debe compartir toda la información que se sabe si esta te puede afectar, aunque te la pidan.;Integridad;Veracidad;1
-92;La impuntualidad es una falta de respeto al compromiso establecido.;Integridad;Rectitud;0
-93;Cuando ésta puede afectar el resultado que espero, es mejor no decir toda la verdad.;Integridad;Veracidad;1
-94;Se debe reconocer a cada uno lo que merece de acuerdo al esfuerzo que realizó.;Integridad;Justicia;0
-95;Para resolver bien una situación se debe tomar muy en cuenta la justicia.;Integridad;Justicia;0
-96;Hay que hacer lo moralmente correcto aunque no siempre se obtenga un beneficio.;Integridad;Rectitud;1
-`;
-function norm(str) { return (str || "").trim(); }
-
     let ITEMS = [];
+    let BANCO_VERSION = "INTEG-v1";
+    let BANCO_META = { n_bloques: 1, n_subs: 4 };
 
-    function parsePreguntas(csv) {
-      const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      const rows = [];
-      for (const line of lines) {
-        const parts = line.split(";").map(norm);
-        if (parts.length < 5) continue;
-        const id = Number(parts[0]);
-        const invertida = parts[parts.length - 1];
-        const subhab = parts[parts.length - 2];
-        const bloque = parts[parts.length - 3];
-        const pregunta = parts.slice(1, parts.length - 3).join(";");
-        if (!Number.isFinite(id) || !pregunta) continue;
-        rows.push({
-          id, pregunta, bloque,
-          subhabilidad: subhab,
-invertida: (String(invertida).trim() === "1") ? "Sí" : "No",
+    function choiceOk(v) {
+      const c = String(v || "").toUpperCase();
+      return c === "CS" || c === "AV" || c === "RV" ? c : "";
+    }
 
-          value: null
-        });
-      }
-      rows.sort((a,b)=>a.id-b.id);
-      return rows;
+    function tieneMarcasLetras(state) {
+      const resp = (state && state.responses) || {};
+      return Object.values(resp).some((v) => choiceOk(v));
+    }
+
+    async function cargarBancoValores(codigo) {
+      const r = await fetch(`/api/banco-valores?codigo=${encodeURIComponent(codigo)}`);
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.ok || !Array.isArray(data.items) || !data.items.length) return false;
+      ITEMS = data.items.map(it => ({
+        id: Number(it.id),
+        pregunta: String(it.pregunta || ""),
+        choice: null
+      })).filter(it => Number.isFinite(it.id) && it.pregunta);
+      ITEMS.sort((a, b) => a.id - b.id);
+      BANCO_VERSION = data.version || "INTEG-v1";
+      BANCO_META = {
+        n_bloques: Number(data.n_bloques) || 1,
+        n_subs: Number(data.n_subs) || 4
+      };
+      currentPage = 0;
+      return ITEMS.length > 0;
     }
 
     function updateProgress() {
       const total = ITEMS.length;
-      const ans = ITEMS.filter(q => q.value != null).length;
+      const ans = ITEMS.filter(q => choiceOk(q.choice)).length;
       const pct = total ? Math.round((ans / total) * 100) : 0;
 
       document.getElementById("bar").style.width = pct + "%";
       document.getElementById("pillTotal").textContent = "Total: " + ans + " / " + total + " (" + pct + "%)";
 
-      const bloques = new Set(ITEMS.map(q => q.bloque));
-      const subs = new Set(ITEMS.map(q => q.subhabilidad));
-      document.getElementById("metaInfo").textContent = bloques.size + " bloques · " + subs.size + " sub-habilidades";
+      document.getElementById("metaInfo").textContent = BANCO_META.n_bloques + " bloques · " + BANCO_META.n_subs + " sub-habilidades";
 
       document.getElementById("notaContinuar").textContent =
         "NOTA: Para continuar debes contestar todas las preguntas. Contestadas: " + ans + "/" + total + ".";
     }
 
-    function construirPreguntas() {
-      ITEMS = parsePreguntas(PREGUNTAS_CSV);
-currentPage = 0;
-      renderPage();
-      updateProgress();
-    }
-
     function markRowAnswered(rowEl, q) {
       if (!rowEl) return;
-      if (q && q.value != null) rowEl.classList.add("answered");
+      if (q && choiceOk(q.choice)) rowEl.classList.add("answered");
       else rowEl.classList.remove("answered");
     }
 
@@ -1408,21 +1317,10 @@ for (let i = start; i < end; i++) {
           r.title = (code==="CS")?labels[0]:(code==="AV")?labels[1]:labels[2];
           r.setAttribute("aria-label", r.title);
 
-          if (q.value != null) {
-            const inv = q.invertida === "Sí";
-            let expectedScore;
-            if (!inv) expectedScore = (code==="CS")?3:(code==="AV")?2:1;
-            else expectedScore = (code==="CS")?1:(code==="AV")?2:3;
-            if (q.value === expectedScore) r.checked = true;
-          }
+          if (choiceOk(q.choice) === code) r.checked = true;
 
           r.addEventListener("change", ()=>{
-            const inv = q.invertida === "Sí";
-            let score;
-            if (!inv) score = (code==="CS")?3:(code==="AV")?2:1;
-            else score = (code==="CS")?1:(code==="AV")?2:3;
-
-            q.value = score;
+            q.choice = code;
             markRowAnswered(row, q);
             updateProgress();
           });
@@ -1443,13 +1341,13 @@ for (let i = start; i < end; i++) {
 
     function paginaCompleta() {
       const rango = limitesPagina(currentPage);
-      for (let i = rango.start; i < rango.end; i++) if (ITEMS[i].value == null) return false;
+      for (let i = rango.start; i < rango.end; i++) if (!choiceOk(ITEMS[i].choice)) return false;
       return rango.end > rango.start;
     }
 
     function obtenerRespuestasCrudas() {
       const map = {};
-      ITEMS.forEach(q => { if (q.value != null) map[String(q.id)] = q.value; });
+      ITEMS.forEach(q => { const c = choiceOk(q.choice); if (c) map[String(q.id)] = c; });
       return map;
     }
 
@@ -1479,7 +1377,7 @@ window.scrollTo(0, 0);
       const resp = state.responses || {};
       ITEMS.forEach(q => {
         const v = resp[String(q.id)];
-        q.value = (typeof v === "number") ? v : null;
+        q.choice = choiceOk(v) || null;
       });
 
       currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
@@ -1489,7 +1387,7 @@ window.scrollTo(0, 0);
 
     function iniciarEvaluacionNueva() {
       __startTime = Date.now();
-      ITEMS.forEach(q => { q.value = null; });
+      ITEMS.forEach(q => { q.choice = null; });
       currentPage = 0;
       saveState(false);
       // NOTA: La pantalla de preguntas se muestra después de las pantallas intro/instrucciones.
@@ -1512,91 +1410,6 @@ window.scrollTo(0, 0);
         window.scrollTo(0, 0);      }
     }
 
-    function normalizeBloqueName(name) {
-      if (!name) return "";
-      return name.replace(/\s+/g, " ").trim().toLowerCase();
-    }
-
-    function calcIV1_IV2_categories(items) {
-      const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
-      const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
-      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
-      const stdev = arr => {
-        if (arr.length < 2) return 1;
-        const m = avg(arr);
-        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
-      };
-      const invNorm = invers.map(v => 4 - v);
-      const allNorm = direct.concat(invNorm);
-      if (!allNorm.length) return { iv1Cat: null, iv2Cat: null };
-      const s = stdev(allNorm);
-      const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
-      const diff = Math.abs(avg(direct) - avg(invNorm));
-      const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
-      return { iv1Cat, iv2Cat };
-    }
-
-    function mapPctToLexium(pct, sub){
-  // Conversión "Lexium-like" por subescala (heurística calibrable).
-  // Mantiene los valores típicos observados: 11,22,33,44,56,67,78,89,100
-  const vals = [11, 22, 33, 44, 56, 67, 78, 89, 100];
-
-  // Cortes por subescala (en % bruto) para acercar la forma de Lexium.
-  // Ajustables por nivel/grupo cuando tengas más evidencia.
-  const CUTS_BY_SUB = {
-    // Rectitud: tendencia a subir un nivel antes (ej. 76% -> 78)
-    "Rectitud":   [10, 25, 45, 60, 70, 75, 80, 90],
-    // Honestidad: moderado (ej. 71% -> 67)
-    "Honestidad": [10, 25, 45, 60, 70, 75, 85, 92],
-    // Justicia: más estricto para bajar puntuaciones medias (ej. 65% -> 33)
-    "Justicia":   [20, 40, 65, 72, 78, 84, 90, 95],
-    // Veracidad: estricto (ej. 72% -> 44)
-    "Veracidad":  [20, 40, 60, 72, 78, 84, 90, 95],
-  };
-
-  const cuts = CUTS_BY_SUB[sub] || [4, 11, 23, 40, 60, 77, 89, 96];
-  for(let i=0;i<cuts.length;i++){
-    if(pct <= cuts[i]) return vals[i];
-  }
-  return 100;
-}
-
-function calcularResultadosGlobales() {
-  if (!ITEMS.length) return null;
-
-  // Suma por subprueba (Honestidad / Rectitud / Justicia / Veracidad)
-  const subMap = new Map();
-  ITEMS.forEach(q => {
-    if (!subMap.has(q.subhabilidad))
-      subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
-    const s = subMap.get(q.subhabilidad);
-    s.items += 1;
-    s.pts += q.value ?? 0;
-  });
-
-  const subRows = Array.from(subMap.entries())
-    .map(([sub, v]) => {
-      const max = v.items * 3;
-      const pct = max ? Math.round((v.pts / max) * 100) : 0; // % bruto
-      const pctLex = mapPctToLexium(pct, sub);                    // escala Lexium-like
-      return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pctLex };
-    })
-    .sort((a,b)=>(a.sub||"").localeCompare(b.sub||""));
-
-  const ivBruto = subRows.length ? Math.round(subRows.reduce((s,r)=>s+r.pct,0)/subRows.length) : 0;
-  const ivLex = subRows.length ? Math.round(subRows.reduce((s,r)=>s+r.pctLex,0)/subRows.length) : 0;
-
-  return {
-    globales: (()=>{
-      const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
-      const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
-      const iv3Cat = (mins >= 20 && mins <= 30) ? 0 : (mins < 20 ? 1 : 2);
-      return { IVI: ivLex, IVI_BRUTO: ivBruto, IV1: (iv1Cat ?? 0), IV2: (iv2Cat ?? 0), IV3: iv3Cat, TIEMPO_MIN: mins };
-    })(),
-    subhabilidades: subRows
-  };
-}
-
     function onFinalizarClick() {
       const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
       const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
@@ -1606,8 +1419,6 @@ function calcularResultadosGlobales() {
       const respuestas = obtenerRespuestasCrudas();
       const total = ITEMS.length;
       if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
-
-const resultados = calcularResultadosGlobales();
 
       const payload = {
         codigo: CODIGO_ACTUAL,
@@ -1619,10 +1430,9 @@ const resultados = calcularResultadosGlobales();
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
-version_banco: "INTEG-v1"
-
+          version_banco: BANCO_VERSION,
+          startTime: __startTime || Date.now()
         },
-        resultados,
         responses: respuestas
       };
 
@@ -1670,7 +1480,6 @@ version_banco: "INTEG-v1"
 
     document.addEventListener("DOMContentLoaded", () => {
       inicializarDatosFijos();
-      construirPreguntas();
 
       btnIniciar.disabled = true;
 
@@ -1730,6 +1539,13 @@ btnIniciar.addEventListener("click", async () => {
           alert("Por favor valida el código antes de iniciar.");
           return;
         }
+        if (!ITEMS.length) {
+          const bancoOk = await cargarBancoValores(CODIGO_ACTUAL);
+          if (!bancoOk) {
+            alert("No se pudo cargar la evaluación. Valida el código de nuevo.");
+            return;
+          }
+        }
 
         const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
 
@@ -1739,7 +1555,7 @@ btnIniciar.addEventListener("click", async () => {
         const localSaved = loadStateForCurrentCode();
         const candidate = serverState || localSaved;
 
-        if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
+        if (candidate && !isStateCompleted(candidate) && tieneMarcasLetras(candidate)) {
           const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
           if (retomar) {
             aplicarState(candidate);
