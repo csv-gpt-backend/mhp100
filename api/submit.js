@@ -11,6 +11,7 @@ const { scoreSociv2 } = require("./score-sociv2");
 const { scoreSocpeq } = require("./score-socpeq");
 const { scoreAprend } = require("./score-aprend");
 const { scoreIntegr } = require("./score-integr");
+const { scoreLider } = require("./score-lider");
 
 function msg(key, lang) {
   const en = normalizeIdioma(lang) === "EN";
@@ -136,6 +137,19 @@ module.exports = async function handler(req, res) {
       });
       if (letras) {
         const scored = scoreIntegr(responses, snapshot.startTime);
+        if (!scored.ok) {
+          return res.status(400).json({ error: scored.error || "No se pudo calcular el resultado." });
+        }
+        resultados = scored.resultados;
+      }
+    } else if (evalKey === "LIDERA") {
+      const vals = responses && typeof responses === "object" ? Object.values(responses) : [];
+      const letras = vals.length > 0 && vals.every((v) => {
+        const c = String(v || "").trim().toUpperCase();
+        return c === "CS" || c === "AV" || c === "RV";
+      });
+      if (letras) {
+        const scored = scoreLider(responses, snapshot.startTime);
         if (!scored.ok) {
           return res.status(400).json({ error: scored.error || "No se pudo calcular el resultado." });
         }
