@@ -794,6 +794,7 @@ function setCurveMarker(iie){
   const place = () => {
     const rW = wrap.getBoundingClientRect();
     const rI = img.getBoundingClientRect();
+    if(!rW.width || !rI.width || !rW.height) return;
 
     // Tamaño real dibujado dentro del <img> (por object-fit:contain)
     const natW = img.naturalWidth  || 1;
@@ -827,7 +828,10 @@ function setCurveMarker(iie){
     // - bottomAt100: dónde toca la regla cuando score≈100 (lado 100%)
     const bottomAt0 = 94;    // px
     const bottomAt100 = 30;  // px
-    const y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+    const yAlong = bottomAt0 + t * (bottomAt100 - bottomAt0);
+    const drawnH = natH * scale;
+    const drawnBottomFromWrapBottom = (rW.bottom - rI.bottom) + (rI.height - drawnH) / 2;
+    const y = drawnBottomFromWrapBottom + drawnH * (yAlong / 220);
 
     // Porcentajes respecto a .curve-gauge: al imprimir/PDF el zoom cambia el layout;
     // los px fijos quedan desalineados; los % escalan con el mismo contenedor que la imagen.
@@ -837,12 +841,12 @@ function setCurveMarker(iie){
     mk.style.bottom = `${(y / h) * 100}%`;
   };
 
-  // Asegura que se calcule cuando ya hay layout + imagen lista
-  if (img.complete) {
+  const run = () => {
+    place();
     requestAnimationFrame(place);
-  } else {
-    img.addEventListener("load", () => requestAnimationFrame(place), { once:true });
-  }
+  };
+  if (img.complete && img.naturalWidth) run();
+  else img.addEventListener("load", run, { once:true });
 }
 
   function addRow(container, name, pct){
@@ -2948,19 +2952,23 @@ setTimeout(() => setCurveMarker(iieForCurve), 120);
     cargarReporte(c);
   });
 
-  document.getElementById("btnImprimir").addEventListener("click", ()=>window.print());
-  document.getElementById("btnPDF").addEventListener("click", ()=>window.print());
+  function colocarFlechaAhora(){
+    const v = window.__curveIIEValue;
+    if (v == null || Number.isNaN(Number(v))) return;
+    setCurveMarker(Number(v));
+  }
+  document.getElementById("btnImprimir").addEventListener("click", ()=>{
+    colocarFlechaAhora();
+    window.print();
+  });
+  document.getElementById("btnPDF").addEventListener("click", ()=>{
+    colocarFlechaAhora();
+    window.print();
+  });
 
-  window.addEventListener("beforeprint", () => {
-    const v = window.__curveIIEValue;
-    if (v == null || Number.isNaN(Number(v))) return;
-    requestAnimationFrame(() => setCurveMarker(Number(v)));
-  });
-  window.addEventListener("afterprint", () => {
-    const v = window.__curveIIEValue;
-    if (v == null || Number.isNaN(Number(v))) return;
-    requestAnimationFrame(() => setCurveMarker(Number(v)));
-  });
+  window.addEventListener("beforeprint", colocarFlechaAhora);
+  window.addEventListener("afterprint", () => requestAnimationFrame(colocarFlechaAhora));
+  window.addEventListener("resize", colocarFlechaAhora);
 
   (function init(){
     const qp = new URLSearchParams(location.search);
