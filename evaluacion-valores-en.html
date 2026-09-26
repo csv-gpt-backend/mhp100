@@ -22,12 +22,12 @@ html{
 
 }
 
-body { overflow-y: scroll; 
-    margin: 0;
+body {
+  margin: 0;
   padding: 0;
   background: #fff;
   font-size: 16px;
-  overflow-x: hidden;
+  overflow: visible;
 }
 
 
@@ -91,8 +91,7 @@ max-width: 1200px;
       font-weight: 600;
     }
 #pantalla-preguntas .card{
-overflow-x: hidden !important;
-  overflow-y: visible;
+  overflow: visible;
   max-width: 100%;
 }
 
@@ -110,6 +109,12 @@ overflow-x: hidden !important;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px 16px;
+    }
+    .grid-id {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr;
+      gap: 8px 16px;
+      margin-bottom: 8px;
     }
     .field {
       display: flex;
@@ -197,7 +202,7 @@ overflow-x: hidden !important;
 
     .questions-header {
       display: grid;
-      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 80px);
+      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 132px);
       gap: 4px;
       align-items: center;
       font-size: 13px;
@@ -228,7 +233,7 @@ overflow-x: hidden !important;
 
     .question {
       display: grid;
-      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 80px);
+      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 132px);
       gap: 4px;
       align-items: center;
       padding: 6px 0;
@@ -333,8 +338,8 @@ overflow-x: hidden !important;
       margin-top: 6px;
       margin-bottom: 2px;
       display: grid;
-      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 80px);
-      gap: 10px;
+      grid-template-columns: 40px minmax(0, 1fr) repeat(3, 132px);
+      gap: 4px;
       align-items: end;
       width: 100%;
       box-sizing: border-box;
@@ -343,15 +348,26 @@ overflow-x: hidden !important;
     .scale-badge {
       background: #f97316;
       color: #ffffff;
-      padding: 2px 8px 4px;
+      padding: 4px 6px 6px;
       border-radius: 4px 4px 0 0;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
+      line-height: 1.15;
       text-align: center;
       position: relative;
-      min-width: 72px;
-      justify-self: center; /* clave: centrado exacto */
-      width: 72px;          /* mismo ancho de columna */
+      justify-self: stretch;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      height: auto;
+      box-sizing: border-box;
+      overflow: visible;
+      white-space: normal;
+    }
+    .scale-label {
+      display: block;
+      white-space: normal;
+      overflow: visible;
     }
     .scale-badge::after {
       content: "";
@@ -384,17 +400,18 @@ overflow-x: hidden !important;
       }
     }
     @media (max-width: 720px) {
-      .grid-2 {
+      .grid-2, .grid-id {
         grid-template-columns: 1fr;
       }
       .questions-header,
       .question,
       .scale-banner {
-        grid-template-columns: 32px 1fr repeat(3, 64px);
+        grid-template-columns: 28px minmax(0, 1fr) repeat(3, 92px);
       }
       .scale-badge{
-        min-width: 56px;
-        width: 56px;
+        width: 100%;
+        min-width: 0;
+        font-size: 9px;
       }
       .scale-banner { gap: 8px; }
     }
@@ -551,18 +568,22 @@ overflow-x: hidden !important;
 
       <!-- Datos del participante -->
 <section id="datos-participante" class="card" style="margin-top: 50px;"> 
-  <div class="grid-2">
+  <div class="grid-id">
           <div class="field">
             <label for="codigo">Code</label>
             <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
             <small id="codigoMsg" class="muted"></small>
           </div>
-
           <div class="field">
-            <label for="nombre">Name</label>
-            <input id="nombre" type="text" autocomplete="name" />
+            <label for="nombre">First name</label>
+            <input id="nombre" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="E.g. ANA" />
           </div>
-
+          <div class="field">
+            <label for="apellido">Last name</label>
+            <input id="apellido" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="E.g. LOPEZ" />
+          </div>
+        </div>
+        <div class="grid-2">
           <div class="field">
 <label for="curso" id="labelCurso">Grade/Course/Level</label>
             <input id="curso" type="text" readonly />
@@ -605,7 +626,7 @@ overflow-x: hidden !important;
 
               <div class="scale-badge">
                 <span class="scale-num">1</span>
-                <span class="scale-label" id="scaleLabel1">ALWAYS</span>
+                <span class="scale-label" id="scaleLabel1">FREQUENTLY</span>
               </div>
               <div class="scale-badge">
                 <span class="scale-num">2</span>
@@ -792,7 +813,6 @@ if (typeof PREINTRO === "undefined") {
         <li>Reflect.</li>
         <li>Select the option that matches your answer.</li>
         <li>Once you start the self-assessment, continue until you finish.</li>
-        <li>It will take about 20 minutes.</li>
       </ul>
       <div class="preintro-grid">
         <div class="preintro-box">
@@ -840,6 +860,44 @@ const cursoInput  = document.getElementById('curso');
 const labelCurso  = document.getElementById('labelCurso');
 const btnIniciar  = document.getElementById('btnIniciar');
 const codigoMsg   = document.getElementById('codigoMsg');
+
+function toUpperNombre(str) {
+  return String(str || "").toLocaleUpperCase("es-EC");
+}
+function bindUpperInput(el) {
+  if (!el) return;
+  el.addEventListener("input", function () {
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const next = toUpperNombre(el.value);
+    if (el.value !== next) {
+      el.value = next;
+      try { el.setSelectionRange(start, end); } catch (e) {}
+    }
+  });
+}
+function setNombreApellidoReadonly(on) {
+  ["nombre", "apellido"].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.readOnly = !!on;
+    el.setAttribute("autocomplete", "off");
+  });
+}
+function lockNombreApellidoSiHayTexto(nombreVal, apellidoVal) {
+  const nombreEl = document.getElementById("nombre");
+  const apellidoEl = document.getElementById("apellido");
+  if (nombreEl) nombreEl.value = nombreVal || "";
+  if (apellidoEl) apellidoEl.value = apellidoVal || "";
+  if (nombreEl) {
+    nombreEl.readOnly = !!String(nombreVal || "").trim();
+    nombreEl.setAttribute("autocomplete", "off");
+  }
+  if (apellidoEl) {
+    apellidoEl.readOnly = !!String(apellidoVal || "").trim();
+    apellidoEl.setAttribute("autocomplete", "off");
+  }
+}
   function actualizarLabelCurso(codigo = '') {
   const limpio = String(codigo || '').trim().toUpperCase();
   if (!labelCurso) return;
@@ -893,6 +951,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
           responses: state.responses || {},
           snapshot: {
             nombre: state.nombre || "",
+            apellido: state.apellido || "",
             institucion: state.institucion || "",
             grupo: state.grupo || "",
             curso: state.curso || "",
@@ -923,6 +982,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
         return {
           codigo: row.codigo || codigo,
           nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+          apellido: snap.apellido || "",
           institucion: snap.institucion || DATOS_FIJOS.institucion,
           grupo: snap.grupo || DATOS_FIJOS.grupo,
           curso: snap.curso || DATOS_FIJOS.curso,
@@ -947,7 +1007,8 @@ const codigoMsg   = document.getElementById('codigoMsg');
         const state = {
           ...prev,
           codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
-          nombre: document.getElementById("nombre").value.trim(),
+          nombre: toUpperNombre(document.getElementById("nombre").value.trim()),
+          apellido: toUpperNombre(document.getElementById("apellido").value.trim()),
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
@@ -971,6 +1032,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
       actualizarLabelCurso(codigo);
       CODIGO_ACTUAL = null;
       btnIniciar.disabled = true;
+      setNombreApellidoReadonly(false);
 
       if (codigoMsg) {
         codigoMsg.textContent = codigo ? 'Searching...' : 'Enter a code.';
@@ -1022,6 +1084,40 @@ const codigoMsg   = document.getElementById('codigoMsg');
         instInput.value  = data.institucion || '';
         grupoInput.value = data.grupo || '';
         cursoInput.value = data.curso || '';
+
+        let nombreGuardado = "";
+        let apellidoGuardado = "";
+        if (localState && !isStateCompleted(localState) && localState.nombre) {
+          nombreGuardado = toUpperNombre(String(localState.nombre).trim());
+          apellidoGuardado = toUpperNombre(String(localState.apellido || "").trim());
+        }
+        if (!nombreGuardado) {
+          const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
+          if (
+            serverDraft &&
+            !isStateCompleted(serverDraft) &&
+            serverDraft.nombre &&
+            serverDraft.responses &&
+            Object.keys(serverDraft.responses).length > 0
+          ) {
+            nombreGuardado = toUpperNombre(String(serverDraft.nombre).trim());
+            apellidoGuardado = toUpperNombre(String(serverDraft.apellido || "").trim());
+          }
+        }
+        if (nombreGuardado) lockNombreApellidoSiHayTexto(nombreGuardado, apellidoGuardado);
+        else setNombreApellidoReadonly(false);
+
+        const bancoOk = await cargarBancoValores(CODIGO_ACTUAL);
+        if (!bancoOk) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "Could not load the assessment. Try again.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
         btnIniciar.disabled = false;
 
         if (codigoMsg) {
@@ -1030,6 +1126,7 @@ const codigoMsg   = document.getElementById('codigoMsg');
         }
       } catch (e) {
         instInput.value = grupoInput.value = cursoInput.value = '';
+        setNombreApellidoReadonly(false);
         if (codigoMsg) {
           codigoMsg.textContent = (e && e.message) ? e.message : 'Code not found.';
           codigoMsg.className = 'err';
@@ -1043,8 +1140,33 @@ const codigoMsg   = document.getElementById('codigoMsg');
 });
     codigoInput.addEventListener('blur', lookupCodigo);
     codigoInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); lookupCodigo(); }
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      lookupCodigo().then(function () {
+        const nombreEl = document.getElementById("nombre");
+        if (nombreEl && !nombreEl.readOnly) nombreEl.focus();
+      });
     });
+    (function bindEnterNextFields() {
+      const nombreEl = document.getElementById("nombre");
+      const apellidoEl = document.getElementById("apellido");
+      bindUpperInput(nombreEl);
+      bindUpperInput(apellidoEl);
+      if (nombreEl) {
+        nombreEl.addEventListener("keydown", function (e) {
+          if (e.key !== "Enter") return;
+          e.preventDefault();
+          if (apellidoEl && !apellidoEl.readOnly) apellidoEl.focus();
+        });
+      }
+      if (apellidoEl) {
+        apellidoEl.addEventListener("keydown", function (e) {
+          if (e.key !== "Enter") return;
+          e.preventDefault();
+          apellidoEl.blur();
+        });
+      }
+    })();
 actualizarLabelCurso(codigoInput.value);
     const DATOS_FIJOS = {
       institucion: "Default institution",
@@ -1055,168 +1177,84 @@ actualizarLabelCurso(codigoInput.value);
     const PAGE_SIZE = 10;
     let currentPage = 0;
 
-    const PREGUNTAS_CSV = `
-1;I give credit for a good idea to the person who had it.;Integridad;Honestidad;0
-2;I can tell the difference between a favor and a bribe.;Integridad;Honestidad;1
-3;I speak up when I notice I am not prepared for the task I am given.;Integridad;Rectitud;1
-4;I give true information, including information that may affect the outcome I want.;Integridad;Veracidad;0
-5;I treat others as I want to be treated.;Integridad;Justicia;1
-6;I keep my promises.;Integridad;Rectitud;1
-7;I do what I can so that nobody notices my mistakes.;Integridad;Honestidad;0
-8;Right and wrong get mixed up for me.;Integridad;Rectitud;1
-9;I do other things during the time I should devote to the tasks or responsibilities assigned to me.;Integridad;Rectitud;1
-10;When I don't know something I invent it or pretend I know it.;Integridad;Veracidad;1
-11;I tell half-truths.;Integridad;Veracidad;1
-12;In discussions, I tend to side with whoever benefits me most.;Integridad;Justicia;1
-13;I easily tell what is right from what is wrong.;Integridad;Justicia;1
-14;I face problems and take the consequences.;Integridad;Rectitud;1
-15;I present the facts as they happened even when that may affect me negatively.;Integridad;Veracidad;0
-16;I accept my mistakes without looking for others to blame.;Integridad;Honestidad;1
-17;I avoid eye contact.;Integridad;Veracidad;1
-18;I persuade people by telling them what they want to hear.;Integridad;Veracidad;0
-19;I treat people well or badly depending on whether I like them.;Integridad;Justicia;1
-20;I look people in the eye when I am talking with them.;Integridad;Veracidad;0
-21;I own my mistakes so that others are not blamed.;Integridad;Honestidad;1
-22;I recognize other people's merits.;Integridad;Honestidad;0
-23;I share confidential information with friends or family.;Integridad;Veracidad;0
-24;Not telling the whole truth helps me get what I want.;Integridad;Veracidad;1
-25;I prefer not to speak up even when I know an injustice is being committed.;Integridad;Justicia;1
-26;I take enough time to observe and listen before judging a situation.;Integridad;Justicia;1
-27;To avoid problems I prefer not to tell the whole truth.;Integridad;Veracidad;1
-28;I include others as accomplices in my mistakes.;Integridad;Honestidad;1
-29;I return what I borrow.;Integridad;Honestidad;0
-30;I state the facts openly.;Integridad;Veracidad;0
-31;People look to me as a referee when they have arguments.;Integridad;Justicia;0
-32;I report what I see as bad practice, deceit, or manipulation.;Integridad;Honestidad;1
-33;I present the information I have as it is, whether it benefits or harms me.;Integridad;Justicia;0
-34;I do not respect schedules.;Integridad;Rectitud;1
-35;I admit when I have been wrong.;Integridad;Honestidad;0
-36;If I am sure of something I present it as it is.;Integridad;Justicia;0
-37;I also understand bribery as a special favor.;Integridad;Honestidad;1
-38;I form an opinion about people's actions or situations quickly and without much depth.;Integridad;Justicia;0
-39;Being sincere seems to me a good strategy to achieve my goals.;Integridad;Veracidad;0
-40;What I say is different from what I think.;Integridad;Veracidad;0
-41;Whether I keep my promises depends on the circumstances.;Integridad;Rectitud;1
-42;I present other people's ideas without giving them credit.;Integridad;Honestidad;0
-43;I complete what I am asked to do on time and as required.;Integridad;Rectitud;1
-44;I treat others depending on my mood at the moment.;Integridad;Justicia;0
-45;I tell others only what suits me for them to hear, even if it is not the whole truth.;Integridad;Veracidad;1
-46;I acknowledge whoever is right, regardless of my own interests.;Integridad;Justicia;1
-47;I hide it well when I don't know how to do something others think I know.;Integridad;Rectitud;1
-48;I give each person what they deserve, whether I like them or not.;Integridad;Justicia;1
-49;I try to make my mistakes or negligence look like the team's or my bosses' fault.;Integridad;Honestidad;1
-50;I report injustice.;Integridad;Justicia;1
-51;I avoid confrontation even when I have something to expose or report.;Integridad;Honestidad;1
-52;I confront people who are lying about something important.;Integridad;Veracidad;0
-53;If I am not asked, I forget to return things.;Integridad;Honestidad;0
-54;I excuse the bad practices I observe.;Integridad;Rectitud;1
-55;I protect information classified as confidential.;Integridad;Veracidad;0
-56;I am consistent in what I say, do, and think.;Integridad;Rectitud;0
-57;I manipulate the information I have to my advantage.;Integridad;Honestidad;1
-58;Even without supervision I follow the rules.;Integridad;Rectitud;0
-59;I find it hard to give others the credit they deserve.;Integridad;Justicia;0
-60;Supervision is what makes me follow established rules.;Integridad;Rectitud;0
-61;There are situations in which doing what is right does not suit me.;Integridad;Rectitud;1
-62;The truth should be told even when it causes conflict.;Integridad;Veracidad;0
-63;Following the rules depends on the circumstances.;Integridad;Rectitud;0
-64;Facing one's own mistakes does not help to correct problems.;Integridad;Honestidad;0
-65;The ideal is to keep one's own values even in difficult situations.;Integridad;Honestidad;0
-66;I behave according to what I think is the right thing to do.;Integridad;Rectitud;0
-67;If I know something is wrong and it is not my business, I would rather stay silent.;Integridad;Honestidad;0
-68;It is convenient to keep adjusting our values to the circumstances.;Integridad;Honestidad;1
-69;Achieving my goals matters more to me than doing what is right.;Integridad;Rectitud;0
-70;If a product is useful to me, I don't care whether it is original or not.;Integridad;Honestidad;0
-71;Let each person fend for themselves.;Integridad;Justicia;0
-72;A signed document deserves respect.;Integridad;Justicia;0
-73;When things get difficult, my moral principles are a compass to follow.;Integridad;Rectitud;0
-74;I would rather look bad for telling the truth than lose someone's trust by holding up a lie.;Integridad;Veracidad;1
-75;Unjust actions should be reported.;Integridad;Justicia;0
-76;If someone tells lies that affect others, it is better not to contradict them.;Integridad;Veracidad;1
-77;In a crisis, being fair is not that important.;Integridad;Justicia;1
-78;Rules should be respected regardless of the circumstances.;Integridad;Rectitud;0
-79;Deliberately omitting information relevant to a decision is a form of lying.;Integridad;Veracidad;1
-80;A signature on a document does not really mean much.;Integridad;Honestidad;0
-81;Moral principles should be adapted to the situations that arise.;Integridad;Rectitud;0
-82;When it is convenient, it is valid to hide the truth or tell a lie.;Integridad;Veracidad;1
-83;If one observes injustices, it is better not to get involved.;Integridad;Justicia;1
-84;Doing the right thing takes will.;Integridad;Rectitud;0
-85;I avoid buying copied products or products of doubtful origin.;Integridad;Honestidad;1
-86;Convincing people of things that are not true would affect my image.;Integridad;Veracidad;0
-87;The end justifies the means.;Integridad;Honestidad;1
-88;When working as a team, personal merits should not be recognized.;Integridad;Justicia;1
-89;I believe timely reporting of bad practices prevents many problems.;Integridad;Rectitud;0
-90;A good judge starts at home.;Integridad;Justicia;0
-91;You should not share all the information you know if it can affect you, even if you are asked for it.;Integridad;Veracidad;1
-92;Being late is a lack of respect for the established commitment.;Integridad;Rectitud;0
-93;When it may affect the result I expect, it is better not to tell the whole truth.;Integridad;Veracidad;1
-94;Each person should be recognized for what they deserve according to the effort they made.;Integridad;Justicia;0
-95;To resolve a situation well, justice must be taken very much into account.;Integridad;Justicia;0
-96;One must do what is morally right even when there is not always a benefit.;Integridad;Rectitud;1
-`;
-function norm(str) { return (str || "").trim(); }
-
     let ITEMS = [];
+    let BANCO_VERSION = "INTEG-EN-v1";
+    let BANCO_META = { n_bloques: 1, n_subs: 4 };
 
-    function parsePreguntas(csv) {
-      const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      const rows = [];
-      for (const line of lines) {
-        const parts = line.split(";").map(norm);
-        if (parts.length < 5) continue;
-        const id = Number(parts[0]);
-        const invertida = parts[parts.length - 1];
-        const subhab = parts[parts.length - 2];
-        const bloque = parts[parts.length - 3];
-        const pregunta = parts.slice(1, parts.length - 3).join(";");
-        if (!Number.isFinite(id) || !pregunta) continue;
-        rows.push({
-          id, pregunta, bloque,
-          subhabilidad: subhab,
-invertida: (String(invertida).trim() === "1") ? "Sí" : "No",
+    function choiceOk(v) {
+      const c = String(v || "").toUpperCase();
+      return c === "CS" || c === "AV" || c === "RV" ? c : "";
+    }
 
-          value: null
-        });
-      }
-      rows.sort((a,b)=>a.id-b.id);
-      return rows;
+    function tieneMarcasLetras(state) {
+      const resp = (state && state.responses) || {};
+      return Object.values(resp).some((v) => choiceOk(v));
+    }
+
+    async function cargarBancoValores(codigo) {
+      const r = await fetch(`/api/banco-valores?codigo=${encodeURIComponent(codigo)}`);
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.ok || !Array.isArray(data.items) || !data.items.length) return false;
+      ITEMS = data.items.map(it => ({
+        id: Number(it.id),
+        pregunta: String(it.pregunta || ""),
+        choice: null
+      })).filter(it => Number.isFinite(it.id) && it.pregunta);
+      ITEMS.sort((a, b) => a.id - b.id);
+      BANCO_VERSION = data.version || "INTEG-EN-v1";
+      BANCO_META = {
+        n_bloques: Number(data.n_bloques) || 1,
+        n_subs: Number(data.n_subs) || 4
+      };
+      currentPage = 0;
+      return ITEMS.length > 0;
     }
 
     function updateProgress() {
       const total = ITEMS.length;
-      const ans = ITEMS.filter(q => q.value != null).length;
+      const ans = ITEMS.filter(q => choiceOk(q.choice)).length;
       const pct = total ? Math.round((ans / total) * 100) : 0;
 
       document.getElementById("bar").style.width = pct + "%";
       document.getElementById("pillTotal").textContent = "Total: " + ans + " / " + total + " (" + pct + "%)";
 
-      const bloques = new Set(ITEMS.map(q => q.bloque));
-      const subs = new Set(ITEMS.map(q => q.subhabilidad));
-      document.getElementById("metaInfo").textContent = bloques.size + " blocks · " + subs.size + " sub-skills";
+      document.getElementById("metaInfo").textContent = BANCO_META.n_bloques + " blocks · " + BANCO_META.n_subs + " sub-skills";
 
       document.getElementById("notaContinuar").textContent =
         "NOTE: To continue you must answer all statements. Answered: " + ans + "/" + total + ".";
     }
 
-    function construirPreguntas() {
-      ITEMS = parsePreguntas(PREGUNTAS_CSV);
-currentPage = 0;
-      renderPage();
-      updateProgress();
-    }
-
     function markRowAnswered(rowEl, q) {
       if (!rowEl) return;
-      if (q && q.value != null) rowEl.classList.add("answered");
+      if (q && choiceOk(q.choice)) rowEl.classList.add("answered");
       else rowEl.classList.remove("answered");
     }
 
     
 
     function getSeccionById(id){
-      // Integridad: 96 ítems. Asumimos 1–32 / 33–64 / 65–96
-      if (id <= 32) return 1;
-      if (id <= 64) return 2;
+      if (id <= 54) return 1;
+      if (id <= 59) return 2;
       return 3;
+    }
+
+    function limitesPagina(page) {
+      const total = ITEMS.length;
+      let start = 0;
+      let idx = 0;
+      while (start < total) {
+        const sec = getSeccionById(ITEMS[start].id);
+        let end = start + 1;
+        while (
+          end < total &&
+          end - start < PAGE_SIZE &&
+          getSeccionById(ITEMS[end].id) === sec
+        ) end++;
+        if (idx === page) return { start, end };
+        idx++;
+        start = end;
+      }
+      return { start: total, end: total };
     }
 
     function labelsPorSeccion(sec){
@@ -1251,8 +1289,9 @@ function renderPage() {
       cont.innerHTML = "";
 
       const total = ITEMS.length;
-      const start = currentPage * PAGE_SIZE;
-      const end = Math.min(start + PAGE_SIZE, total);
+      const rango = limitesPagina(currentPage);
+      const start = rango.start;
+      const end = rango.end;
 
       
 
@@ -1289,21 +1328,10 @@ for (let i = start; i < end; i++) {
           r.title = (code==="CS")?labels[0]:(code==="AV")?labels[1]:labels[2];
           r.setAttribute("aria-label", r.title);
 
-          if (q.value != null) {
-            const inv = q.invertida === "Sí";
-            let expectedScore;
-            if (!inv) expectedScore = (code==="CS")?3:(code==="AV")?2:1;
-            else expectedScore = (code==="CS")?1:(code==="AV")?2:3;
-            if (q.value === expectedScore) r.checked = true;
-          }
+          if (choiceOk(q.choice) === code) r.checked = true;
 
           r.addEventListener("change", ()=>{
-            const inv = q.invertida === "Sí";
-            let score;
-            if (!inv) score = (code==="CS")?3:(code==="AV")?2:1;
-            else score = (code==="CS")?1:(code==="AV")?2:3;
-
-            q.value = score;
+            q.choice = code;
             markRowAnswered(row, q);
             updateProgress();
           });
@@ -1323,16 +1351,14 @@ for (let i = start; i < end; i++) {
     }
 
     function paginaCompleta() {
-      const total = ITEMS.length;
-      const start = currentPage * PAGE_SIZE;
-      const end = Math.min(start + PAGE_SIZE, total);
-      for (let i = start; i < end; i++) if (ITEMS[i].value == null) return false;
-      return true;
+      const rango = limitesPagina(currentPage);
+      for (let i = rango.start; i < rango.end; i++) if (!choiceOk(ITEMS[i].choice)) return false;
+      return rango.end > rango.start;
     }
 
     function obtenerRespuestasCrudas() {
       const map = {};
-      ITEMS.forEach(q => { if (q.value != null) map[String(q.id)] = q.value; });
+      ITEMS.forEach(q => { const c = choiceOk(q.choice); if (c) map[String(q.id)] = c; });
       return map;
     }
 
@@ -1349,7 +1375,9 @@ window.scrollTo(0, 0);
     function aplicarState(state) {
       if (!state) return;
 
-      document.getElementById("nombre").value = state.nombre || "";
+      const nombreVal = toUpperNombre(state.nombre || "");
+      const apellidoVal = toUpperNombre(state.apellido || "");
+      lockNombreApellidoSiHayTexto(nombreVal, apellidoVal);
       document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
       document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
       document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
@@ -1360,16 +1388,17 @@ window.scrollTo(0, 0);
       const resp = state.responses || {};
       ITEMS.forEach(q => {
         const v = resp[String(q.id)];
-        q.value = (typeof v === "number") ? v : null;
+        q.choice = choiceOk(v) || null;
       });
 
       currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
+      while (currentPage > 0 && limitesPagina(currentPage).end <= limitesPagina(currentPage).start) currentPage--;
       __startTime = state.startTime || Date.now();
     }
 
     function iniciarEvaluacionNueva() {
       __startTime = Date.now();
-      ITEMS.forEach(q => { q.value = null; });
+      ITEMS.forEach(q => { q.choice = null; });
       currentPage = 0;
       saveState(false);
       // NOTA: La pantalla de preguntas se muestra después de las pantallas intro/instrucciones.
@@ -1381,8 +1410,7 @@ window.scrollTo(0, 0);
         return;
       }
       const total = ITEMS.length;
-      const start = currentPage * PAGE_SIZE;
-      const end = Math.min(start + PAGE_SIZE, total);
+      const end = limitesPagina(currentPage).end;
 
       if (end >= total) onFinalizarClick();
       else {
@@ -1393,100 +1421,15 @@ window.scrollTo(0, 0);
         window.scrollTo(0, 0);      }
     }
 
-    function normalizeBloqueName(name) {
-      if (!name) return "";
-      return name.replace(/\s+/g, " ").trim().toLowerCase();
-    }
-
-    function calcIV1_IV2_categories(items) {
-      const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
-      const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
-      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
-      const stdev = arr => {
-        if (arr.length < 2) return 1;
-        const m = avg(arr);
-        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
-      };
-      const invNorm = invers.map(v => 4 - v);
-      const allNorm = direct.concat(invNorm);
-      if (!allNorm.length) return { iv1Cat: null, iv2Cat: null };
-      const s = stdev(allNorm);
-      const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
-      const diff = Math.abs(avg(direct) - avg(invNorm));
-      const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
-      return { iv1Cat, iv2Cat };
-    }
-
-    function mapPctToLexium(pct, sub){
-  // Conversión "Lexium-like" por subescala (heurística calibrable).
-  // Mantiene los valores típicos observados: 11,22,33,44,56,67,78,89,100
-  const vals = [11, 22, 33, 44, 56, 67, 78, 89, 100];
-
-  // Cortes por subescala (en % bruto) para acercar la forma de Lexium.
-  // Ajustables por nivel/grupo cuando tengas más evidencia.
-  const CUTS_BY_SUB = {
-    // Rectitud: tendencia a subir un nivel antes (ej. 76% -> 78)
-    "Rectitud":   [10, 25, 45, 60, 70, 75, 80, 90],
-    // Honestidad: moderado (ej. 71% -> 67)
-    "Honestidad": [10, 25, 45, 60, 70, 75, 85, 92],
-    // Justicia: más estricto para bajar puntuaciones medias (ej. 65% -> 33)
-    "Justicia":   [20, 40, 65, 72, 78, 84, 90, 95],
-    // Veracidad: estricto (ej. 72% -> 44)
-    "Veracidad":  [20, 40, 60, 72, 78, 84, 90, 95],
-  };
-
-  const cuts = CUTS_BY_SUB[sub] || [4, 11, 23, 40, 60, 77, 89, 96];
-  for(let i=0;i<cuts.length;i++){
-    if(pct <= cuts[i]) return vals[i];
-  }
-  return 100;
-}
-
-function calcularResultadosGlobales() {
-  if (!ITEMS.length) return null;
-
-  // Suma por subprueba (Honestidad / Rectitud / Justicia / Veracidad)
-  const subMap = new Map();
-  ITEMS.forEach(q => {
-    if (!subMap.has(q.subhabilidad))
-      subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
-    const s = subMap.get(q.subhabilidad);
-    s.items += 1;
-    s.pts += q.value ?? 0;
-  });
-
-  const subRows = Array.from(subMap.entries())
-    .map(([sub, v]) => {
-      const max = v.items * 3;
-      const pct = max ? Math.round((v.pts / max) * 100) : 0; // % bruto
-      const pctLex = mapPctToLexium(pct, sub);                    // escala Lexium-like
-      return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pctLex };
-    })
-    .sort((a,b)=>(a.sub||"").localeCompare(b.sub||""));
-
-  const ivBruto = subRows.length ? Math.round(subRows.reduce((s,r)=>s+r.pct,0)/subRows.length) : 0;
-  const ivLex = subRows.length ? Math.round(subRows.reduce((s,r)=>s+r.pctLex,0)/subRows.length) : 0;
-
-  return {
-    globales: (()=>{
-      const { iv1Cat, iv2Cat } = calcIV1_IV2_categories(ITEMS);
-      const mins = Math.round((Date.now() - (__startTime || Date.now())) / 60000);
-      const iv3Cat = (mins >= 20 && mins <= 30) ? 0 : (mins < 20 ? 1 : 2);
-      return { IVI: ivLex, IVI_BRUTO: ivBruto, IV1: (iv1Cat ?? 0), IV2: (iv2Cat ?? 0), IV3: iv3Cat, TIEMPO_MIN: mins };
-    })(),
-    subhabilidades: subRows
-  };
-}
-
     function onFinalizarClick() {
-      const nombre = document.getElementById("nombre").value.trim();
-      if (!nombre) { alert("Please enter the name."); return; }
+      const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
+      const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
+      if (!nombre) { alert("Please enter the first name."); return; }
+      if (!apellido) { alert("Please enter the last name."); return; }
 
       const respuestas = obtenerRespuestasCrudas();
       const total = ITEMS.length;
       if (Object.keys(respuestas).length < total) { alert("There are still unanswered statements."); return; }
-
-const resultados = calcularResultadosGlobales();
 
       const payload = {
         codigo: CODIGO_ACTUAL,
@@ -1494,13 +1437,13 @@ const resultados = calcularResultadosGlobales();
         idioma: EVAL_LANG,
         snapshot: {
           nombre,
+          apellido,
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
-version_banco: "INTEG-v1"
-
+          version_banco: BANCO_VERSION,
+          startTime: __startTime || Date.now()
         },
-        resultados,
         responses: respuestas
       };
 
@@ -1513,7 +1456,7 @@ version_banco: "INTEG-v1"
       }).catch(()=>{});
 
       document.getElementById("datos-participante").classList.remove("hidden");
-      document.getElementById("nombre").readOnly = true;
+      setNombreApellidoReadonly(true);
 
       document.getElementById("pantalla-preguntas").classList.add("hidden");
       const pantallaFinal = document.getElementById("pantalla-final");
@@ -1540,13 +1483,14 @@ version_banco: "INTEG-v1"
 
     function validarAntesDeIniciar() {
       const nombre = document.getElementById("nombre").value.trim();
-      if (!nombre) { alert("Please enter your name before starting."); return false; }
+      const apellido = document.getElementById("apellido").value.trim();
+      if (!nombre) { alert("Please enter your first name before starting."); return false; }
+      if (!apellido) { alert("Please enter your last name before starting."); return false; }
       return true;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       inicializarDatosFijos();
-      construirPreguntas();
 
       btnIniciar.disabled = true;
 
@@ -1606,6 +1550,13 @@ btnIniciar.addEventListener("click", async () => {
           alert("Please validate the code before starting.");
           return;
         }
+        if (!ITEMS.length) {
+          const bancoOk = await cargarBancoValores(CODIGO_ACTUAL);
+          if (!bancoOk) {
+            alert("Could not load the assessment. Validate the code again.");
+            return;
+          }
+        }
 
         const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
 
@@ -1615,7 +1566,7 @@ btnIniciar.addEventListener("click", async () => {
         const localSaved = loadStateForCurrentCode();
         const candidate = serverState || localSaved;
 
-        if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
+        if (candidate && !isStateCompleted(candidate) && tieneMarcasLetras(candidate)) {
           const retomar = confirm("An assessment in progress was found for this code. Do you want to continue where you left off?");
           if (retomar) {
             aplicarState(candidate);

@@ -238,8 +238,8 @@
   #page2 .interpToggle{ display:none !important; }
   #page2 .interpBody{ display:block !important; }
   #page2 .rep-box{
-    grid-template-columns:1fr 1fr !important;
-    gap:4px 10px !important;
+    grid-template-columns:minmax(0,1.55fr) minmax(0,1fr) !important;
+    gap:4px 24px !important;
   }
   #iviBox2 .iviHead .iviTitle{
     white-space:normal !important;
@@ -459,7 +459,7 @@
     .rep-subtitle{font-size:13px}
     .rep-meta{font-size:12px;white-space:nowrap}
     .rep-date{display:block;text-align:left;margin:0 0 4px 0;width:100%;max-width:100%;box-sizing:border-box}
-    .rep-box{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin:10px 0 8px}
+    .rep-box{border:1px solid #000;border-radius:0;padding:6px;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:4px 24px;margin:10px 0 8px;font-size:12px}
     .row2{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin:6px 0 10px}
     .mini{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
     .mini-title{font-weight:900;margin-bottom:8px}
@@ -1019,7 +1019,7 @@ h1{ margin:0 0 6px 0; line-height:1.08; letter-spacing:-.2px; }
           <div class="ivline"><b>Contradiction</b>: <span id="repContra">0%</span></div>
           <div class="ivline"><b>Time</b>: <span id="repTiempo">—</span></div>
 <div class="val-note">
-  Note: these indicators assess response consistency and time. If you see “Alert,” interpret the results with greater caution.
+  Note: these indicators assess response consistency and time.
 </div>
 <div class="muted val-note" id="ivNote" style="display:none">
   * Indices calculated automatically from the response pattern.
@@ -2795,7 +2795,11 @@ function renderAll(data){
   document.getElementById("repDateLine").textContent = ahora.toLocaleString("en-US", { dateStyle:"short", timeStyle:"short" });
 
   const fechaTexto = fechaObj ? fechaObj.toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" }) : "—";
-  const nombre = snap.nombre || attempt.nombre || "—";
+  const apellidoRep = String(resultados.apellido || snap.apellido || "").trim();
+  const nombrePila = String(resultados.nombre_pila || "").trim();
+  const nombre = (nombrePila && apellidoRep)
+    ? (nombrePila + " " + apellidoRep)
+    : (snap.nombre || attempt.nombre || "—");
   const codigoActual =
   snap.codigo ||
   attempt.codigo ||
@@ -2805,10 +2809,10 @@ function renderAll(data){
 const labelCurso = String(codigoActual || "").toUpperCase().startsWith("PRO") ? "Level" : "Grade/Course";
 document.getElementById("repHeaderBox").innerHTML = `
   <div><b>Name:</b> ${nombre}</div>
-<div><b>${labelCurso}:</b> ${snap.curso || attempt.curso || "—"}</div>
   <div><b>Country:</b> ${snap.grupo || attempt.grupo || "—"}</div>
   <div><b>Institution:</b> ${snap.institucion || attempt.institucion || "—"}</div>
   <div><b>Date:</b> ${fechaTexto}</div>
+  <div><b>${labelCurso}:</b> ${snap.curso || attempt.curso || "—"}</div>
   <div><b>Code:</b> ${codigoActual}</div>
 `;
   const d1 = document.getElementById("repDateLine");

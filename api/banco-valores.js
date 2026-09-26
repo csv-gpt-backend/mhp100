@@ -4,18 +4,30 @@ const {
   validateCodigoIdioma,
   mismatchErrorMessage,
   idiomaMismatchMessage,
-  normalizeIdioma,
+  parseIdiomaFromCodigo,
+  resolveIdioma,
 } = require("./eval-codigo");
-const bank = require("./data/integr-bank.json");
+const bankEs = require("./data/integr-bank.json");
+const bankEn = require("./data/integr-bank-en.json");
+
+function uiFrom(codigo, row) {
+  if (row) return resolveIdioma(codigo, row) === "EN" ? "EN" : "ES";
+  return parseIdiomaFromCodigo(codigo) === "EN" ? "EN" : "ES";
+}
+
+function say(lang, es, en) {
+  return lang === "EN" ? en : es;
+}
 
 module.exports = async function handler(req, res) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Solo se permite GET" });
-  }
-
   const codigo = String((req.query && req.query.codigo) || "").trim().toUpperCase();
+  const hint = codigo ? uiFrom(codigo, null) : "ES";
+
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: say(hint, "Solo se permite GET", "Only GET is allowed") });
+  }
   if (!codigo) {
-    return res.status(400).json({ error: "Falta el código" });
+    return res.status(400).json({ error: say(hint, "Falta el código", "The code is missing") });
   }
 
   try {
@@ -26,21 +38,23 @@ module.exports = async function handler(req, res) {
       LIMIT 1
     `;
     if (!pRes.rows.length) {
-      return res.status(404).json({ error: "Código no encontrado" });
+      return res.status(404).json({ error: say(hint, "Código no encontrado", "Code not found") });
     }
 
     const participante = pRes.rows[0];
-    const checkI = validateCodigoIdioma(codigo, "ES", participante);
+    const lang = uiFrom(codigo, participante);
+    const bank = lang === "EN" ? bankEn : bankEs;
+    const checkI = validateCodigoIdioma(codigo, lang, participante);
     if (!checkI.ok) {
       return res.status(403).json({
-        error: idiomaMismatchMessage(checkI, normalizeIdioma("ES") || "ES"),
+        error: idiomaMismatchMessage(checkI, lang),
         idioma_mismatch: true,
       });
     }
     const check = validateCodigoEval(codigo, "INTEGR", participante);
     if (!check.ok) {
       return res.status(403).json({
-        error: mismatchErrorMessage(check, "ES"),
+        error: mismatchErrorMessage(check, lang),
         eval_mismatch: true,
       });
     }
@@ -55,7 +69,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       ok: true,
-      version: bank.version || "INTEG-v1",
+      version: bank.version || (lang === "EN" ? "INTEG-EN-v1" : "INTEG-v1"),
       n: items.length,
       n_bloques: bloques.size,
       n_subs: subs.size,
@@ -63,6 +77,9 @@ module.exports = async function handler(req, res) {
     });
   } catch (err) {
     console.error("banco-valores", err);
-    return res.status(500).json({ error: "No se pudo cargar la evaluación." });
+    const lang = uiFrom(codigo, null);
+    return res.status(500).json({
+      error: say(lang, "No se pudo cargar la evaluación.", "The assessment could not be loaded."),
+    });
   }
 };
