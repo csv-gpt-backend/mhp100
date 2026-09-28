@@ -357,6 +357,27 @@
     return Number.isNaN(d.getTime()) ? null : d;
   }
 
+  function diaActividad(r){
+    let dia = 0;
+    const lote = String(r.lote || "");
+    const m = lote.match(/(20\d{6})/);
+    if (m) dia = Number(m[1]);
+    if (r.fecha_intento) {
+      const d = new Date(r.fecha_intento);
+      if (!Number.isNaN(d.getTime())) {
+        const n = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+        if (n > dia) dia = n;
+      }
+    }
+    return dia;
+  }
+
+  function horaUso(r){
+    if (!r.fecha_intento) return 0;
+    const t = new Date(r.fecha_intento).getTime();
+    return Number.isNaN(t) ? 0 : t;
+  }
+
   function filteredBase(){
     const ambito = document.getElementById("ambito").value;
     const evaluacion = document.getElementById("evaluacion").value;
@@ -385,6 +406,14 @@
       }
       if (q && !String(r.codigo).includes(q)) return false;
       return true;
+    }).sort((a, b)=>{
+      const da = diaActividad(a);
+      const db = diaActividad(b);
+      if (da !== db) return db - da;
+      const ha = horaUso(a);
+      const hb = horaUso(b);
+      if (ha !== hb) return hb - ha;
+      return String(a.codigo).localeCompare(String(b.codigo));
     });
   }
 
