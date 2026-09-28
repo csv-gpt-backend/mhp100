@@ -199,6 +199,7 @@
         <thead>
           <tr>
             <th>Código</th>
+            <th>Evaluado</th>
             <th>Ámbito</th>
             <th>Evaluación</th>
             <th>Periodo</th>
@@ -212,7 +213,7 @@
           </tr>
         </thead>
         <tbody id="tbody">
-          <tr><td colspan="11" class="empty">Cargando códigos…</td></tr>
+          <tr><td colspan="12" class="empty">Cargando códigos…</td></tr>
         </tbody>
       </table>
     </div>
@@ -458,7 +459,7 @@
       " · total " + FILAS.length;
 
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="11" class="empty">No hay códigos con esos filtros.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="12" class="empty">No hay códigos con esos filtros.</td></tr>';
       return;
     }
 
@@ -468,6 +469,7 @@
       const estadoTxt = r.estado === "completado" ? "después" : "antes";
       return `<tr>
         <td class="code">${esc(r.codigo)}</td>
+        <td>${esc(r.nombre_evaluado || "—")}</td>
         <td><span class="badge ${ambitoClass}">${esc(r.ambitoLabel)}</span></td>
         <td>${esc(r.evaluacionLabel)}</td>
         <td>${esc(r.periodo || "—")}</td>
@@ -517,11 +519,12 @@
       return;
     }
     const lines = [
-      ["codigo","lote","ambito","evaluacion","periodo","pais","institucion","curso","estado","fecha_intento"].join(";")
+      ["codigo","evaluado","lote","ambito","evaluacion","periodo","pais","institucion","curso","estado","fecha_intento"].join(";")
     ];
     rows.forEach(r=>{
       lines.push([
         csvCell(r.codigo),
+        csvCell(r.nombre_evaluado || ""),
         csvCell(r.lote),
         csvCell(r.ambito),
         csvCell(r.evaluacionKey || r.evaluacionLabel),
@@ -557,7 +560,7 @@
       render();
     }catch(e){
       document.getElementById("tbody").innerHTML =
-        '<tr><td colspan="11" class="empty">Error al cargar códigos.</td></tr>';
+        '<tr><td colspan="12" class="empty">Error al cargar códigos.</td></tr>';
       document.getElementById("meta").textContent = "—";
       msg.textContent = e.message || "Error";
       msg.className = "msg err";

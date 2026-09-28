@@ -26,6 +26,7 @@ function mapFilas(rows, opts) {
       codigo,
       codigo_db: row.codigo,
       nombre: norm(row.nombre) || null,
+      nombre_evaluado: norm(row.nombre_evaluado) || "",
       institucion: norm(row.institucion) || "",
       pais: norm(row.grupo) || "",
       curso: norm(row.curso) || "",
@@ -58,6 +59,13 @@ async function listarCodigos(res) {
           ORDER BY a.created_at DESC
           LIMIT 1
         ) AS fecha_intento,
+        (
+          SELECT a.nombre
+          FROM attempts a
+          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+          ORDER BY a.created_at DESC
+          LIMIT 1
+        ) AS nombre_evaluado,
         (
           SELECT COUNT(*)::int
           FROM attempts a
@@ -96,6 +104,13 @@ async function listarCodigos(res) {
               ORDER BY a.created_at DESC
               LIMIT 1
             ) AS fecha_intento,
+        (
+          SELECT a.nombre
+          FROM attempts a
+          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+          ORDER BY a.created_at DESC
+          LIMIT 1
+        ) AS nombre_evaluado,
             (
               SELECT COUNT(*)::int
               FROM attempts a
@@ -133,6 +148,13 @@ async function listarCodigos(res) {
           ORDER BY a.created_at DESC
           LIMIT 1
         ) AS fecha_intento,
+        (
+          SELECT a.nombre
+          FROM attempts a
+          WHERE UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+          ORDER BY a.created_at DESC
+          LIMIT 1
+        ) AS nombre_evaluado,
         (
           SELECT COUNT(*)::int
           FROM attempts a
