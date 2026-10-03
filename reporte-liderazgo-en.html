@@ -1,6 +1,7 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no" class="notranslate">
 <head>
+<meta name="google" content="notranslate">
 <!-- BUILD: CORREGIDO_V5 pct10 visual+parte2+3+avg0safe 2026-03-04 -->
 
 <meta charset="utf-8"/>
@@ -1093,9 +1094,17 @@ async function cargar(){
   $('#msg').textContent = 'Loading...'; $('#msg').className='msg';
   $('#reporte').classList.add('hidden');
   try{
-    const r = await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+    const q = new URLSearchParams({ codigo, eval: "LIDERA", idioma: "EN" });
+    const r = await fetch(`/api/report?${q.toString()}`);
     const data = await r.json();
-    if (!r.ok || data.error) throw new Error(data.error || 'Not found');
+    if (r.status === 403 && (data.eval_mismatch || data.idioma_mismatch)) {
+      $('#msg').textContent = data.error || "This code does not belong to this report.";
+      $('#msg').className = "msg err";
+      const ingresoMal = document.querySelector(".ingreso-panel");
+      if (ingresoMal) ingresoMal.style.display = "";
+      return;
+    }
+    if (!r.ok || data.error) throw new Error(data.error || "Not found");
     const m = adaptData(data);
 
     renderHeader(m.header, m.fechaTop);

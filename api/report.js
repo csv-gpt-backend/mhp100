@@ -17,6 +17,7 @@ function isIdiomaLockedReportEval(raw) {
   if (t === "SOCIES" || t === "SOCIESC" || t === "SOCIOEMOCIONALESCOLAR" || t === "SOCESC") return true;
   if (t === "INTEGR" || t === "INTEGRIDAD" || t === "VALORES" || t === "INTG") return true;
   if (t === "INTELC" || t === "INTELECTUAL" || t === "INTEL" || t === "INTE") return true;
+  if (t === "LIDERA" || t === "LIDERAZGO" || t === "LIDER" || t === "LIDE" || t === "LID") return true;
   return false;
 }
 
