@@ -104,7 +104,7 @@
   margin-top:16px;
   padding-top:10px;
   border-top:1px solid var(--line);
-  text-align:right;
+  text-align:center;
   font-size:12px;
   color:var(--muted);
 }
@@ -178,7 +178,6 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
             <tr><th>PT</th><td id="pt0">Tiempo adecuado</td><td id="pt1">Demasiado breve</td><td id="pt2">Demasiado lento</td></tr>
           </table>
           <div class="legend"><span><b>NA</b> Nivel de Autoconocimiento</span><span><b>NC</b> Nivel de Contradicción</span><span><b>PT</b> Promedio del Tiempo</span></div>
-          <div class="small" id="contestadasLine" style="margin-top:8px">Contestadas: —</div>
         </div>
       </div>
 
@@ -196,6 +195,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
       <div id="bloqueD"></div>
 
       <div class="iie">ÍNDICE GLOBAL DE FACTORES DE LIDERAZGO (IFL): <span class="badgeB" id="iflBadge">—</span></div>
+      <p class="reporte-pie-adalam">Adalam — Reporte de Liderazgo</p>
       <div style="margin-top:8px;margin-bottom:16px;padding-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;width:100%;border-bottom:1px solid #e5e7eb" class="no-print">
         <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Imprimir / PDF</button>
         <a href="index.html" class="btn" style="background:#0f766e;text-decoration:none;color:#fff">Volver al menú</a>
@@ -227,7 +227,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
 
       <div id="p2detail"></div>
 
-      <p class="reporte-pie-adalam" id="reportePieAdalam">Adalam — Informe De Factores De Liderazgo.</p>
+      <p class="reporte-pie-adalam" id="reportePieAdalam">Adalam — Interpretación de Liderazgo</p>
       <div style="margin-top:8px;margin-bottom:16px;padding-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;width:100%;border-bottom:1px solid #e5e7eb" class="no-print">
         <button type="button" id="btnPDF" class="btn" style="background:#2563eb">Imprimir / PDF</button>
         <a href="index.html" class="btn" style="background:#0f766e;text-decoration:none;color:#fff">Volver al menú</a>
@@ -1110,7 +1110,6 @@ async function cargar(){
     const m = adaptData(data);
 
     renderHeader(m.header, m.fechaTop);
-    $('#contestadasLine').textContent = 'Contestadas: ' + m.contestadas;
 
     setBadge('idxA', m.idxA ?? '—'); setBadge('idxB', m.idxB ?? '—');
     setBadge('idxC', m.idxC ?? '—'); setBadge('idxD', m.idxD ?? '—');
@@ -1136,7 +1135,8 @@ async function cargar(){
     $('#nivelGlobal').textContent = n<=39 ? 'Perfil global con áreas importantes por desarrollar.' :
       (n<=60 ? 'Perfil global presente al momento y áreas por fortalecer.' : 'Perfil global con fortalezas consolidadas y oportunidades por enriquecer.');
     $('#reporte').classList.remove('hidden');
-    $('#msg').textContent = 'OK: datos cargados (Paso 1).'; $('#msg').className='msg ok';
+    const ingreso = document.querySelector('.ingreso-panel');
+    if (ingreso) ingreso.style.display = 'none';
   }catch(e){
     $('#msg').textContent = 'Error: ' + (e.message || e);
     $('#msg').className='msg err';
