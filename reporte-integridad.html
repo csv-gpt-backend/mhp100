@@ -288,6 +288,9 @@
     white-space:normal !important;
     margin:0 !important;
   }
+  #page1 .mini-validacion .iv-box .ivline span{
+    white-space:nowrap !important;
+  }
   #page1 .mini-validacion .val-note,
   #page1 .mini-validacion #ivNote{ font-size:11.5px !important; margin-top:8px !important; line-height:1.35 !important; }
   #page1 .cards2x2{
@@ -479,7 +482,8 @@
     }
     .iv-box .ivline{
       display:grid;
-      grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+      grid-template-columns:auto max-content;
+      justify-content:space-between;
       gap:4px 12px;
       align-items:baseline;
       margin:0;
@@ -488,7 +492,10 @@
     }
     .iv-box .ivline:last-of-type{border-bottom:0;padding-bottom:2px;}
     .iv-box .ivline b{font-weight:700;}
-    .iv-box .ivline span{text-align:right;}
+    .iv-box .ivline span{text-align:right;white-space:nowrap;font-weight:700;}
+    .iv-box .ivline span.iv-ok{color:#15803d;}
+    .iv-box .ivline span.iv-mid{color:#a16207;}
+    .iv-box .ivline span.iv-high{color:#b91c1c;}
     .mini-validacion .val-note{margin-top:12px; line-height:1.45;}
     .mini-validacion #ivNote{margin-top:8px;}
     
@@ -2898,22 +2905,27 @@ if (Number.isFinite(Number(incohFromBackend))) {
 } else {
   incohSafe = null;
 }
+function pintarIndice(id, valor, etiquetas){
+  const el = document.getElementById(id);
+  if (!el) return;
+  const n = Number(valor);
+  el.classList.remove("iv-ok", "iv-mid", "iv-high");
+  if (valor == null || Number.isNaN(n)) {
+    el.textContent = "—";
+    return;
+  }
+  const nivel = n <= 0 ? 0 : (n === 1 ? 1 : 2);
+  el.textContent = etiquetas[nivel] || "—";
+  el.classList.add(nivel === 0 ? "iv-ok" : (nivel === 1 ? "iv-mid" : "iv-high"));
+}
 const iv1Val = (incohSafe == null ? null : Number(incohSafe));
-const iv1Txt = (iv1Val == null || Number.isNaN(iv1Val))
-  ? "—"
-  : `${iv1Val} ${iv1Val === 1 ? "pt" : "pts"}${iv1Val >= 1 ? " — Alerta" : " - Normal"}`;
-
-document.getElementById("repIncoh").textContent = iv1Txt;
+pintarIndice("repIncoh", iv1Val, { 0: "Normal", 1: "Alerta", 2: "Alerta" });
 
   
 const g = (resultados && resultados.globales) ? resultados.globales : {};
 const nc = (g.IV2 == null ? null : Math.round(Number(g.IV2) || 0));
 const iv2Val = (nc == null ? null : Number(nc));
-const iv2Txt = (iv2Val == null || Number.isNaN(iv2Val))
-  ? "—"
-  : `${iv2Val} ${iv2Val === 1 ? "pt" : "pts"}${iv2Val >= 1 ? " — Alerta" : "  - Normal"}`;
-
-document.getElementById("repContra").textContent = iv2Txt;
+pintarIndice("repContra", iv2Val, { 0: "Normal", 1: "Alerta", 2: "Alerta" });
 
   
 // Tiempo (PT) desde BD: resultados.globales.IV3 (0/1/2) con rango 20–30 min
@@ -2929,7 +2941,11 @@ const PT_LABEL = {
   2: "Demasiado lento (>30 min)"
 };
 const elPT = document.getElementById("repTiempo");
-if (elPT) elPT.textContent = (pt == null ? "—" : `${pt} ${pt === 1 ? "pt" : "pts"} — ${PT_LABEL[pt] || ""}`);
+if (elPT) pintarIndice("repTiempo", pt, {
+  0: "Tiempo adecuado (20–30 min)",
+  1: "Demasiado breve (<20 min)",
+  2: "Demasiado lento (>30 min)"
+});
 
   const validIdx = (incohN == null || Number.isNaN(incohN)) && (contraN == null || Number.isNaN(contraN))
     ? null
