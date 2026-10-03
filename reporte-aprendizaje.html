@@ -83,7 +83,7 @@
     #page2 .rep-top{padding-bottom:0;margin-bottom:2px;border-bottom:none}
     .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase}
     .rep-top-row3{text-align:center;font-size:18px;font-weight:800}
-    .rep-ids{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;border:1px solid var(--line);padding:8px;border-radius:12px;background:#fff}
+    .rep-ids{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;background:#fff}
     .rep-ids>div{font-size:13px}
     .section-title{font-weight:800;font-size:18px;margin:14px 0 8px;display:flex;align-items:center;gap:8px}
     .section-dot{width:10px;height:10px;border-radius:999px;background:var(--orange)}
@@ -877,15 +877,19 @@ function contextSuggestions(res, esPro){
     const esProfesional = codigoActual.startsWith('PRO');
     window.__ESPRO__ = esProfesional;
     const labelCurso = esProfesional ? 'Nivel' : 'Grado/Curso';
-    const nombre = attempt.nombre || '—';
+    const apellidoRep = String(resultados.apellido || "").trim();
+    const nombrePila = String(resultados.nombre_pila || "").trim();
+    const nombre = (nombrePila && apellidoRep)
+      ? (nombrePila + " " + apellidoRep)
+      : (attempt.nombre || "—");
     const fechaTexto = fmtDate(attempt.created_at);
     const headerHtml = `
       <div><b>Nombre:</b> ${escapeHtml(nombre)}</div>
-      <div><b>${labelCurso}:</b> ${escapeHtml(attempt.curso || '—')}</div>
       <div><b>País:</b> ${escapeHtml(attempt.grupo || '—')}</div>
       <div><b>Institución:</b> ${escapeHtml(attempt.institucion || '—')}</div>
-      <div><b>Código:</b> ${escapeHtml(attempt.codigo || codigoActual || '—')}</div>
-      <div><b>Fecha:</b> ${escapeHtml(fechaTexto)}</div>`;
+      <div><b>Fecha:</b> ${escapeHtml(fechaTexto)}</div>
+      <div><b>${labelCurso}:</b> ${escapeHtml(attempt.curso || '—')}</div>
+      <div><b>Código:</b> ${escapeHtml(attempt.codigo || codigoActual || '—')}</div>`;
     const header = document.getElementById('repHeaderBox');
     if (header) header.innerHTML = headerHtml;
     const header2 = document.getElementById('repHeaderBox2');
