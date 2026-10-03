@@ -33,6 +33,7 @@
   .msg.err{color:#c00}
   .msg.ok{color:#0a8}
   .header{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
+  #page1 .header{border-bottom:none}
   .r1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px}
   .center{text-align:center;font-weight:800}
   .logo{text-align:right;color:#9ca3af;font-weight:700}
@@ -41,7 +42,7 @@
   .r3{text-align:center;font-weight:800;font-size:17px}
   .box{border:1px solid #000;padding:6px;font-size:12px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .curveBox{position:relative;height:220px;border:1px solid #dbe1ea;border-radius:8px;padding:8px;background:linear-gradient(180deg,#f8fafc,#fff)}
+  .curveBox{position:relative;height:220px;padding:8px}
 .curveGauge{position:relative;width:100%;height:100%}
 .curveGauge img{width:100%;height:100%;object-fit:contain;display:block}
 .curveMarker{position:absolute;left:50%;bottom:26px;width:0;height:0;z-index:3;pointer-events:none}
@@ -76,6 +77,8 @@
     .page{margin-top:0}
     #page1{page-break-after:always;break-after:page}
     #tituloCurvaFrecuencias{font-size:11px !important;white-space:nowrap;letter-spacing:0}
+    .legend{flex-wrap:nowrap !important;gap:2px !important;font-size:9px !important}
+    .legend span{white-space:nowrap}
     .reporte-pie-adalam{break-inside:avoid}
   }
 
@@ -104,7 +107,7 @@
   margin-top:16px;
   padding-top:10px;
   border-top:1px solid var(--line);
-  text-align:right;
+  text-align:center;
   font-size:12px;
   color:var(--muted);
 }
@@ -143,9 +146,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
   <div id="reporte" class="hidden">
     <section id="page1" class="page">
       <div class="header">
-        <div class="r1"><div id="fechaGenTop">—</div><div class="center">INDIVIDUAL CHART</div><div class="logo"><img src="assets/logo_adalam.webp" alt="Adalam logo"></div></div>
-        <div class="r2">SCORE REPORT</div>
-        <div class="r3">LEADERSHIP</div>
+        <div class="r1"><div id="fechaGenTop">—</div><div class="center"><div class="r2">INDIVIDUAL REPORT</div><div class="r3">LEADERSHIP</div></div><div class="logo"><img src="assets/logo_adalam.webp" alt="Adalam logo"></div></div>
       </div>
 
       <div id="headerBox1" class="box" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px"></div>
@@ -178,7 +179,6 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
             <tr><th>PT</th><td id="pt0">Adequate time</td><td id="pt1">Too brief</td><td id="pt2">Too slow</td></tr>
           </table>
           <div class="legend"><span><b>NA</b> Level of Self-Awareness</span><span><b>NC</b> Level of Contradiction</span><span><b>PT</b> Average Time</span></div>
-          <div class="small" id="contestadasLine" style="margin-top:8px">Answered: —</div>
         </div>
       </div>
 
@@ -196,6 +196,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
       <div id="bloqueD"></div>
 
       <div class="iie">GLOBAL LEADERSHIP FACTORS INDEX (IFL): <span class="badgeB" id="iflBadge">—</span></div>
+      <p class="reporte-pie-adalam">Adalam — Leadership Report</p>
       <div style="margin-top:8px;margin-bottom:16px;padding-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;width:100%;border-bottom:1px solid #e5e7eb" class="no-print">
         <button type="button" id="btnImprimir" class="btn" style="background:#2563eb">Print / PDF</button>
         <a href="index-en.html" class="btn" style="background:#0f766e;text-decoration:none;color:#fff">Back to menu</a>
@@ -227,7 +228,7 @@ td .rangoPill{display:inline-block;padding:6px 10px;border-radius:999px;font-wei
 
       <div id="p2detail"></div>
 
-      <p class="reporte-pie-adalam" id="reportePieAdalam">Adalam — Leadership Factors Report.</p>
+      <p class="reporte-pie-adalam" id="reportePieAdalam">Adalam — Leadership Interpretation</p>
       <div style="margin-top:8px;margin-bottom:16px;padding-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;width:100%;border-bottom:1px solid #e5e7eb" class="no-print">
         <button type="button" id="btnPDF" class="btn" style="background:#2563eb">Print / PDF</button>
         <a href="index-en.html" class="btn" style="background:#0f766e;text-decoration:none;color:#fff">Back to menu</a>
@@ -1092,7 +1093,6 @@ async function cargar(){
     const m = adaptData(data);
 
     renderHeader(m.header, m.fechaTop);
-    $('#contestadasLine').textContent = 'Answered: ' + m.contestadas;
 
     setBadge('idxA', m.idxA ?? '—'); setBadge('idxB', m.idxB ?? '—');
     setBadge('idxC', m.idxC ?? '—'); setBadge('idxD', m.idxD ?? '—');
@@ -1118,7 +1118,8 @@ async function cargar(){
     $('#nivelGlobal').textContent = n<=39 ? 'Global profile with important areas to develop.' :
       (n<=60 ? 'Global profile present at this time with areas to strengthen.' : 'Global profile with consolidated strengths and opportunities to enrich.');
     $('#reporte').classList.remove('hidden');
-    $('#msg').textContent = 'OK: data loaded (Step 1).'; $('#msg').className='msg ok';
+    const ingreso = document.querySelector('.ingreso-panel');
+    if (ingreso) ingreso.style.display = 'none';
   }catch(e){
     $('#msg').textContent = 'Error: ' + (e.message || e);
     $('#msg').className='msg err';
