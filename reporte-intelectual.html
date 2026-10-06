@@ -1466,15 +1466,28 @@
     fillTablaGlobales(rows, extras.totales, extras.resultados);
   }
 
+  function nombreEnUnaLinea(resultados, nombreGuardado, apellidoExtra) {
+    const res = resultados || {};
+    const apellidoRep = String(res.apellido || apellidoExtra || "").trim();
+    const nombrePila = String(res.nombre_pila || "").trim();
+    if (nombrePila && apellidoRep) return (nombrePila + " " + apellidoRep).trim();
+    const base = String(nombreGuardado || "").trim();
+    if (!apellidoRep || !base) return base;
+    const baseUp = base.toLocaleUpperCase("es-EC");
+    const apeUp = apellidoRep.toLocaleUpperCase("es-EC");
+    if (baseUp === apeUp || baseUp.endsWith(" " + apeUp)) return base;
+    return (base + " " + apellidoRep).trim();
+  }
+
   function fillHeader(box, ctx) {
     const codigo = ctx.codigo || "—";
-    // Izquierda (largos): Nombre, Institución, Grado/Curso · Derecha (cortos): País, Fecha, Código
+    const labelCurso = String(codigo).toUpperCase().startsWith("PRO") ? "Nivel" : "Grado/Curso";
     box.innerHTML =
       "<div><b>Nombre:</b> " + escHtml(ctx.nombre || "—") + "</div>" +
       "<div><b>País:</b> " + escHtml(ctx.grupo || "—") + "</div>" +
       "<div><b>Institución:</b> " + escHtml(ctx.institucion || "—") + "</div>" +
       "<div><b>Fecha:</b> " + escHtml(ctx.fecha || "—") + "</div>" +
-      "<div><b>Grado/Curso:</b> " + escHtml(ctx.curso || "—") + "</div>" +
+      "<div><b>" + labelCurso + ":</b> " + escHtml(ctx.curso || "—") + "</div>" +
       "<div><b>Código:</b> " + escHtml(codigo) + "</div>";
   }
 
@@ -1661,7 +1674,7 @@
       ? new Date(fechaRaw).toLocaleDateString("es-EC", { year: "numeric", month: "long", day: "numeric" })
       : "—";
     const snap = {
-      nombre: String(att.nombre || part.nombre || "").trim() || "",
+      nombre: nombreEnUnaLinea(resParsed, String(att.nombre || part.nombre || "").trim(), "") || "",
       institucion: String(att.institucion || part.institucion || "").trim() || "",
       grupo: String(att.grupo || part.grupo || "").trim() || "",
       curso: String(att.curso || part.curso || "").trim() || "",
@@ -1675,7 +1688,7 @@
     if (!esInformeIntelAceptable(res)) return null;
     return {
       codigo: codigo,
-      nombre: st.nombre || "",
+      nombre: nombreEnUnaLinea(res, st.nombre || "", st.apellido || ""),
       institucion: st.institucion || "",
       grupo: st.grupo || "",
       curso: st.curso || "",
