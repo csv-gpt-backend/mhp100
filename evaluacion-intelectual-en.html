@@ -1570,6 +1570,7 @@
 
   function responsesComplete(resp) {
     if (!resp || typeof resp !== "object") return false;
+    if (!ITEMS.gf || !ITEMS.gf.length) return false;
     const need = []
       .concat(ITEMS.gf.map((i) => i.id))
       .concat(ITEMS.gc.map((i) => i.id))
@@ -1689,6 +1690,7 @@
     codigoInput.value = codigo;
     actualizarLabelCurso(codigo);
     CODIGO_ACTUAL = null;
+    vaciarBanco();
     updateIniciarEnabled();
 
     if (codigoMsg) {
@@ -1725,11 +1727,25 @@
       }
 
       CODIGO_ACTUAL = data.codigo || codigo;
+      try {
+        await cargarBanco();
+      } catch (bankErr) {
+        vaciarBanco();
+        instInput.value = grupoInput.value = cursoInput.value = "";
+        CODIGO_ACTUAL = null;
+        if (codigoMsg) {
+          codigoMsg.textContent = bankErr.message || "The activities could not be loaded.";
+          codigoMsg.className = "err";
+        }
+        updateIniciarEnabled();
+        return;
+      }
 
       const localState = loadStateForCurrentCode();
       if (isStateCompleted(localState)) {
         instInput.value = grupoInput.value = cursoInput.value = "";
         CODIGO_ACTUAL = null;
+        vaciarBanco();
         if (codigoMsg) {
           codigoMsg.textContent = "This code was already used to complete an assessment on this device.";
           codigoMsg.className = "err";
@@ -1785,7 +1801,7 @@
     gsMarked: new Set()
   };
 
-  const VERSION_BANCO = "CHC-v2.9.2";
+  let VERSION_BANCO = "CHC-v2.9.2";
   /** Etiqueta de versión sin prefijo técnico (solo para textos en pantalla). */
   function etiquetaVersionBancoVisible(v) {
     const s = v != null ? String(v) : String(VERSION_BANCO);
@@ -1874,226 +1890,45 @@
       .replace(/"/g, "&quot;");
   }
 
-  const ITEMS = {
-    gf: [
-      { id: "gf1", text: "Number series: 3, 7, 11, 15, ?", options: [{ v: "a", t: "17" }, { v: "b", t: "19" }, { v: "c", t: "21" }, { v: "d", t: "23" }], correct: "b" },
-      { id: "gf2", gfGraphic: true, gfKind: "symbolCommute", text: "Shape sum: the first row shows the value of ○+□. Complete the cell with the same logic (add the same shapes; order does not matter).", correct: 0 },
-      { id: "gf3", gfGraphic: true, gfKind: "digit7center", text: "Target with rules: one rule applies by priority (7→center; 2 and 5 together 25 → double ring; 3→star; 9→square). Given 731, on which ring does the point land?", correct: 0 },
-      { id: "gf4", gfGraphic: true, gfKind: "masCercaRings", text: "Target: use the rules and criterion: if several apply, the ring with the **lower** ring number wins (**closer** to center). Which value is on the ring **closest** to the center? Choices: 9, 4, 5, 7.", correct: 0, gfNumOpts: [9, 4, 5, 7] },
-      { id: "gf5", gfGraphic: true, gfKind: "masLejosRings", text: "Same rules and figure. Which value is on the ring **farthest** from the center? Choices: 9, 4, 5, 7.", correct: 2, gfNumOpts: [9, 4, 5, 7] },
-      { id: "gf6", text: "If NOT green implies turn the light on, and the light is off, then:", options: [{ v: "a", t: "It must be green" }, { v: "b", t: "Cannot be deduced without more data" }, { v: "c", t: "It must not be green" }, { v: "d", t: "The light is broken" }], correct: "b" },
-      { id: "gf7", text: "Pattern: Z, Y, X, W, ?", options: [{ v: "a", t: "U" }, { v: "b", t: "V" }, { v: "c", t: "T" }, { v: "d", t: "S" }], correct: "b" },
-      { id: "gf8", text: "A painted cube is cut into 8 equal small cubes. What is the maximum number of painted faces on a corner cube?", options: [{ v: "a", t: "1" }, { v: "b", t: "2" }, { v: "c", t: "3" }, { v: "d", t: "4" }], correct: "c" },
-      { id: "gf9", text: "Series: 17, 14, 11, ? (same rule at each step).", options: [{ v: "a", t: "8" }, { v: "b", t: "9" }, { v: "c", t: "10" }, { v: "d", t: "6" }], correct: "a" },
-      { id: "gf10", text: "Series: 2, 4, 8, ? (each term follows the same rule).", options: [{ v: "a", t: "10" }, { v: "b", t: "12" }, { v: "c", t: "14" }, { v: "d", t: "16" }], correct: "d" },
-      { id: "gf11", text: "Series: 5, 6, 4, 5, ? (alternates +1 and −2).", options: [{ v: "a", t: "2" }, { v: "b", t: "3" }, { v: "c", t: "4" }, { v: "d", t: "6" }], correct: "b" },
-      { id: "gf12", text: "You start at 3 and want to end at 7 using exactly two operations, one after the other. You may choose only from: −5, +2, +3, +8, −4. Which pair gives the right net change (in any order of application, adding 4 to the start to reach 7)?", options: [{ v: "a", t: "+8 and −4" }, { v: "b", t: "+3 and +2" }, { v: "c", t: "−5 and +3" }, { v: "d", t: "+2 and +2" }], correct: "a" }
-    ],
-    gc: [
-      { id: "gc1", text: "Choose the term closest in meaning (synonym) to the stimulus.", stimulus: "ephemeral", options: [{ v: "a", t: "eternal" }, { v: "b", t: "fleeting" }, { v: "c", t: "heavy" }, { v: "d", t: "dark" }], correct: "b" },
-      { id: "gc2", text: "Analogy: complete the relationship (verb / use).", stimulus: "book → read · food → ?", options: [{ v: "a", t: "cook" }, { v: "b", t: "eat" }, { v: "c", t: "table" }, { v: "d", t: "hunger" }], correct: "b" },
-      { id: "gc3", text: "Choose the meaning closest to:", stimulus: "mitigate", options: [{ v: "a", t: "increase" }, { v: "b", t: "soften or reduce" }, { v: "c", t: "destroy" }, { v: "d", t: "imitate" }], correct: "b" },
-      { id: "gc4", text: "Choose a synonym of the word in the box.", stimulus: "prudent", options: [{ v: "a", t: "impulsive" }, { v: "b", t: "cautious" }, { v: "c", t: "noisy" }, { v: "d", t: "fast" }], correct: "b" },
-      { id: "gc5", text: "Choose the expression that best completes the sentence (discourse coherence).", stimulus: "Most voted in favor; the decision was ___.", options: [{ v: "a", t: "unanimous" }, { v: "b", t: "controversial" }, { v: "c", t: "by majority" }, { v: "d", t: "illegal" }], correct: "c" },
-      { id: "gc6", text: "«Altruistic» is closest to the definition:", stimulus: "altruistic", options: [{ v: "a", t: "seeks profit" }, { v: "b", t: "acts for others' benefit" }, { v: "c", t: "avoids contact" }, { v: "d", t: "only follows orders" }], correct: "b" },
-      { id: "gc7", text: "Opposite analogy. Complete: cold:heat = dry:?", stimulus: "cold → heat · dry → ?", options: [{ v: "a", t: "wind" }, { v: "b", t: "humid" }, { v: "c", t: "cloud" }, { v: "d", t: "winter" }], correct: "b" },
-      { id: "gc8", text: "Choose the appropriate paraphrase (definition) for:", stimulus: "persevere", options: [{ v: "a", t: "change one's mind often" }, { v: "b", t: "keep effort despite difficulties" }, { v: "c", t: "avoid responsibilities" }, { v: "d", t: "work without rest for a single day" }], correct: "b" },
-      { id: "gc9", text: "Logical bridge: intermediate term in a sequence (development).", stimulus: "baby → ? → adult", options: [{ v: "a", t: "adolescent" }, { v: "b", t: "retiree" }, { v: "c", t: "newborn" }, { v: "d", t: "elder" }], correct: "a" },
-      { id: "gc10", text: "Metamorphosis: indicate the intermediate stage of the stimulus (larva → ? → adult).", stimulus: "caterpillar → ? → butterfly", options: [{ v: "a", t: "chrysalis" }, { v: "b", t: "leaf" }, { v: "c", t: "egg" }, { v: "d", t: "sap" }], correct: "a" },
-      { id: "gc11", text: "Semantic closeness (synonym) with:", stimulus: "excessive", options: [{ v: "a", t: "too much" }, { v: "b", t: "insufficient" }, { v: "c", t: "exact" }, { v: "d", t: "weak" }], correct: "a" },
-      { id: "gc12", text: "Choose the term closest to «icy / frigid» (very cold) shown in the box.", stimulus: "icy · frigid", options: [{ v: "a", t: "lukewarm" }, { v: "b", t: "glacial or very cold" }, { v: "c", t: "warm" }, { v: "d", t: "mild" }], correct: "b" }
-    ],
-    gv: [
-      { id: "gv1", text: "Which figure completes the sequence: circle, square, circle, square, ?", options: [], svgChoice: true, choices: ["circle", "square", "triangle", "hex"], correct: 0 },
-      { id: "gv2", text: "Rotation: the figure in the box, the arrow, and the star are reference. Choose among the four options the oval that matches a 90° clockwise turn relative to the star's position (reference layout).", gvGraphic: true, gvKind: "arrowOval", correct: 1 },
-      { id: "gv3", text: "Same figure: the solid triangle occupies the same “corner type” as the sample. Choose the option showing the same relative placement (rotated like the sample).", gvGraphic: true, gvKind: "sameTri", correct: 0 },
-      { id: "gv4", text: "Visual analogy: use the relationship between the first and third drawing. What fits logically in the blank? (inspired by sock / shoe pairs).", gvGraphic: true, gvKind: "analogy", correct: 0 },
-      { id: "gv5", text: "Legend: circle = liquid, square = solid, hexagon = sweet. «Something sweet inside a liquid» — choose the diagram that represents it.", gvGraphic: true, gvKind: "nest", correct: 0 },
-      { id: "gv6", text: "Perspective: two parallel lines on paper appear as:", options: [{ v: "a", t: "Always perpendicular" }, { v: "b", t: "Parallel or converging depending on perspective" }, { v: "c", t: "Always curved" }, { v: "d", t: "A single point" }], correct: "b" },
-      { id: "gv7", text: "Sequence: triangle, circle, triangle, circle, … (pattern repeats). Which figure comes next?", options: [{ v: "a", t: "triangle" }, { v: "b", t: "circle" }, { v: "c", t: "square" }, { v: "d", t: "pentagon" }], correct: "a" },
-      { id: "gv8", text: "On a standard die (faces 1 to 6), how many faces show an odd number?", options: [{ v: "a", t: "2" }, { v: "b", t: "3" }, { v: "c", t: "1" }, { v: "d", t: "4" }], correct: "b" },
-      { id: "gv9", text: "A square: its two diagonals are drawn inside. How many points do they cross (interior, not counting vertices)?", options: [{ v: "a", t: "1" }, { v: "b", t: "2" }, { v: "c", t: "4" }, { v: "d", t: "0" }], correct: "a" },
-      { id: "gv10", text: "Analog clock: from 3:00 to 6:00, the hour hand rotates, in the usual direction, approximately:", options: [{ v: "a", t: "30°" }, { v: "b", t: "60°" }, { v: "c", t: "90°" }, { v: "d", t: "180°" }], correct: "c" },
-      {
-        id: "gv11",
-        text: "Press Play and watch the oval and reference mark after a 90° clockwise turn around the center. Which option shows how they look at the end?",
-        gvAnimateSvg: true,
-        svgChoice: true,
-        gv11ThumbAngles: [270, 180, 0, 90],
-        correct: 3
-      },
-      {
-        id: "gv13",
-        text: "Press Play. The <strong>arrow</strong> next to the oval is <strong>asymmetric</strong> (stroke like the oval) and the figure makes a <strong>single</strong> clockwise turn around the center; the text <strong>does not say</strong> how many degrees. Pick the only thumbnail that matches the <strong>final</strong> orientation (distractors are only at ±15° or −30°—compare carefully).",
-        gvAnimateSvg: true,
-        gvFineRotation: true,
-        gvFineTargetDeg: 135,
-        svgChoice: true,
-        gv13ThumbAngles: [120, 150, 135, 105],
-        correct: 2
-      }
-    ],
-    glr: [
-      { id: "glr1", glrMotif: "sound", text: "Same capture criterion (pair–response, like the example in the box).", stimulus: "dog → bark · cat → ?", options: [{ v: "a", t: "tail" }, { v: "b", t: "meow" }, { v: "c", t: "fish" }, { v: "d", t: "house" }], correct: "b" },
-      { id: "glr2", glrMotif: "color", text: "Colors: complete the coherent pair (stimulus with arrows in the box).", stimulus: "blue → sky · green → ?", options: [{ v: "a", t: "fire" }, { v: "b", t: "grass" }, { v: "c", t: "night" }, { v: "d", t: "ice" }], correct: "b" },
-      { id: "glr3", glrMotif: "cook", text: "Tool–activity. Complete the second pair (as in the reference box).", stimulus: "bread → oven · fish → ?", options: [{ v: "a", t: "net" }, { v: "b", t: "tree" }, { v: "c", t: "car" }, { v: "d", t: "paper" }], correct: "a" },
-      { id: "glr4", glrMotif: "key", text: "Studied pairs: if «key / door», complete the pair in the box (object: function or complement).", stimulus: "key → ?", options: [{ v: "a", t: "window" }, { v: "b", t: "lock" }, { v: "c", t: "wall" }, { v: "d", t: "floor" }], correct: "b" },
-      { id: "glr5", glrMotif: "sense", text: "Sensory channel (stimulus 1 → stimulus 2). Choose the appropriate sense (box and pills).", stimulus: "music → ear · aroma → ?", options: [{ v: "a", t: "sight" }, { v: "b", t: "smell" }, { v: "c", t: "taste" }, { v: "d", t: "touch" }], correct: "b" },
-      { id: "glr6", glrMotif: "partwhole", text: "Part and whole. Complete in the box, same scheme as in samples (not figures).", stimulus: "finger → hand · branch → ?", options: [{ v: "a", t: "tree" }, { v: "b", t: "leaf" }, { v: "c", t: "flower" }, { v: "d", t: "bark" }], correct: "a" },
-      { id: "glr7", glrMotif: "origin", text: "Product–origin association (main text; pictorial guide for support).", stimulus: "milk → cow · honey → ?", options: [{ v: "a", t: "wood" }, { v: "b", t: "bee" }, { v: "c", t: "leaf" }, { v: "d", t: "ocean" }], correct: "b" },
-      { id: "glr8", glrMotif: "scale", text: "Text analogy (A:B = C:?). Same type of link, not a drawing substitute.", stimulus: "ocean → deep · sky → ?", options: [{ v: "a", t: "high" }, { v: "b", t: "wide" }, { v: "c", t: "distant" }, { v: "d", t: "cloudy" }], correct: "a" }
-    ],
-    gq: [
-      {
-        id: "gq1",
-        gqGraphic: true,
-        gqKind: "numSeries",
-        series: [2, 4, 8, 16],
-        microHint: "Visual series — next number.",
-        options: [
-          { v: "a", t: "18" },
-          { v: "b", t: "24" },
-          { v: "c", t: "32" },
-          { v: "d", t: "28" }
-        ],
-        correct: "c"
-      },
-      {
-        id: "gq2",
-        gqGraphic: true,
-        gqKind: "numSeries",
-        series: [3, 6, 12, 24],
-        microHint: "Next term (same rule).",
-        options: [{ v: "a", t: "30" }, { v: "b", t: "36" }, { v: "c", t: "42" }, { v: "d", t: "48" }],
-        correct: "d"
-      },
-      {
-        id: "gq3",
-        gqGraphic: true,
-        gqKind: "numSeries",
-        series: [17, 14, 11, 8],
-        microHint: "Same rule at each step.",
-        options: [{ v: "a", t: "5" }, { v: "b", t: "7" }, { v: "c", t: "4" }, { v: "d", t: "6" }],
-        correct: "a"
-      },
-      {
-        id: "gq4",
-        gqGraphic: true,
-        gqKind: "symbols",
-        symbolDefs: [
-          ["▲", "2"],
-          ["■", "5"]
-        ],
-        equationTok: ["▲", "+", "■", "+", "▲"],
-        microHint: "Add using the legend.",
-        options: [{ v: "a", t: "7" }, { v: "b", t: "8" }, { v: "c", t: "9" }, { v: "d", t: "10" }],
-        correct: "c"
-      },
-      {
-        id: "gq5",
-        gqGraphic: true,
-        gqKind: "symbols",
-        symbolDefs: [
-          ["●", "4"],
-          ["◆", "3"]
-        ],
-        equationTok: ["●", "+", "◆", "+", "◆"],
-        microHint: "Add using the legend.",
-        options: [{ v: "a", t: "8" }, { v: "b", t: "10" }, { v: "c", t: "11" }, { v: "d", t: "12" }],
-        correct: "b"
-      },
-      {
-        id: "gq6",
-        gqGraphic: true,
-        gqKind: "symbols",
-        symbolDefs: [
-          ["△", "1"],
-          ["□", "4"]
-        ],
-        equationTok: ["△", "+", "□", "+", "□"],
-        microHint: "Add using the legend.",
-        options: [{ v: "a", t: "7" }, { v: "b", t: "8" }, { v: "c", t: "9" }, { v: "d", t: "10" }],
-        correct: "c"
-      },
-      {
-        id: "gq7",
-        gqGraphic: true,
-        gqKind: "dotsCompare",
-        leftDots: 11,
-        rightDots: 7,
-        microHint: "Compare the groups.",
-        options: [
-          { v: "a", t: "More dots on the right" },
-          { v: "b", t: "Equal amount on both sides" },
-          { v: "c", t: "More dots on the left" },
-          { v: "d", t: "Cannot tell" }
-        ],
-        correct: "c"
-      },
-      {
-        id: "gq8",
-        gqGraphic: true,
-        gqKind: "dotsCompare",
-        leftDots: 9,
-        rightDots: 9,
-        microHint: "Compare the groups.",
-        options: [
-          { v: "a", t: "Left is greater" },
-          { v: "b", t: "Right is greater" },
-          { v: "c", t: "Equal amount on both sides" },
-          { v: "d", t: "One dot is missing" }
-        ],
-        correct: "c"
-      },
-      {
-        id: "gq9",
-        gqGraphic: true,
-        gqKind: "barCompare",
-        barPct: [35, 78],
-        labels: ["A", "B"],
-        microHint: "Which bar is proportionally taller?",
-        options: [
-          { v: "a", t: "Bar A is taller" },
-          { v: "b", t: "Both are equal" },
-          { v: "c", t: "Bar B is taller" },
-          { v: "d", t: "They swap if rotated" }
-        ],
-        correct: "c"
-      },
-      {
-        id: "gq10",
-        gqGraphic: true,
-        gqKind: "fourCell",
-        cells: [
-          ["6", "12"],
-          ["2", "?"]
-        ],
-        microHint: "Four cells: same proportion across rows or columns.",
-        options: [{ v: "a", t: "2" }, { v: "b", t: "3" }, { v: "c", t: "4" }, { v: "d", t: "5" }],
-        correct: "c"
-      }
-    ]
-  };
+  let ITEMS = { gf: [], gc: [], gv: [], glr: [], gq: [] };
+  let GWM_TRIALS = [];
+  let GS_TARGET = "★";
+  let GS_ITEMS = [];
+  let bancoListo = false;
 
-  const GWM_TRIALS = [
-    { id: "gwm1", seq: "6 9 9 5 4", mode: "forward" },
-    { id: "gwm2", seq: "7 2 6 2 6 5", mode: "forward" },
-    { id: "gwm3", seq: "8 3 9 9 9 2", mode: "reverse" },
-    { id: "gwm4", seq: "9 4 6 4 3 4", mode: "reverse" }
-  ];
+  function vaciarBanco() {
+    ITEMS = { gf: [], gc: [], gv: [], glr: [], gq: [] };
+    GWM_TRIALS = [];
+    GS_ITEMS = [];
+    GS_TARGET = "★";
+    bancoListo = false;
+  }
 
-  const GS_TARGET = "★";
-  const GS_ITEMS = [
-    { id: "gs0", sym: "★" }, { id: "gs1", sym: "☆" }, { id: "gs2", sym: "★" },
-    { id: "gs3", sym: "●" }, { id: "gs4", sym: "★" }, { id: "gs5", sym: "◆" },
-    { id: "gs6", sym: "★" }, { id: "gs7", sym: "▲" }, { id: "gs8", sym: "★" },
-    { id: "gs9", sym: "■" }, { id: "gs10", sym: "★" }, { id: "gs11", sym: "▼" },
-    { id: "gs12", sym: "★" }, { id: "gs13", sym: "◇" }, { id: "gs14", sym: "★" },
-    { id: "gs15", sym: "○" }, { id: "gs16", sym: "★" }, { id: "gs17", sym: "◎" },
-    { id: "gs18", sym: "★" }, { id: "gs19", sym: "⊕" }
-  ];
+  function aplicarBancoPublico(data) {
+    ITEMS = data.items || { gf: [], gc: [], gv: [], glr: [], gq: [] };
+    GWM_TRIALS = data.gwm || [];
+    GS_ITEMS = data.gsItems || [];
+    GS_TARGET = data.gsTarget || "★";
+    if (data.version) VERSION_BANCO = data.version;
+    bancoListo = !!(ITEMS.gf && ITEMS.gf.length && ITEMS.gc && ITEMS.gc.length);
+  }
+
+  async function cargarBanco() {
+    if (bancoListo) return true;
+    const codigo = CODIGO_ACTUAL || "";
+    if (!codigo) throw new Error("The activities could not be loaded.");
+    const r = await fetch("/api/banco-intelectual?codigo=" + encodeURIComponent(codigo));
+    const data = await r.json().catch(function () { return {}; });
+    if (!r.ok || !data || !data.items) {
+      throw new Error((data && data.error) || "The activities could not be loaded.");
+    }
+    aplicarBancoPublico(data);
+    if (!bancoListo) throw new Error("The activities could not be loaded.");
+    return true;
+  }
 
   let gsTimerId = null;
+
   const gsSeconds = 30;
 
   function el(tag, props, html) {
@@ -3944,6 +3779,12 @@
     if (!CODIGO_ACTUAL) await lookupCodigo();
     if (!CODIGO_ACTUAL) {
       alert("Please validate the code before starting.");
+      return;
+    }
+    try {
+      await cargarBanco();
+    } catch (bankErr) {
+      alert(bankErr.message || "The activities could not be loaded.");
       return;
     }
     const codigo = CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase();

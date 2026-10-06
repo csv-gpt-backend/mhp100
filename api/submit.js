@@ -12,6 +12,7 @@ const { scoreSocpeq } = require("./score-socpeq");
 const { scoreAprend } = require("./score-aprend");
 const { scoreIntegr } = require("./score-integr");
 const { scoreLider } = require("./score-lider");
+const { scoreIntel } = require("./score-intel");
 
 function msg(key, lang) {
   const en = normalizeIdioma(lang) === "EN";
@@ -155,6 +156,13 @@ module.exports = async function handler(req, res) {
         }
         resultados = scored.resultados;
       }
+    } else if (evalKey === "INTELC") {
+      const scored = scoreIntel(responses, uiLang, resultados && resultados.meta);
+      if (!scored.ok) {
+        const fallback = uiLang === "EN" ? "The result could not be calculated." : "No se pudo calcular el resultado.";
+        return res.status(400).json({ error: scored.error || fallback });
+      }
+      resultados = scored.resultados;
     }
 
     const nombrePila = snapshot.nombre ? String(snapshot.nombre).trim() : null;
