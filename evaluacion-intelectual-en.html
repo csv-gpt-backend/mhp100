@@ -208,6 +208,12 @@
       border: none;
       box-shadow: var(--chc-shadow-panel);
     }
+    .grid-id {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr;
+      gap: 8px 16px;
+      margin-bottom: 8px;
+    }
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1371,6 +1377,7 @@
     .hidden { display: none !important; }
     @media (max-width: 840px) {
       .side-strip span { font-size: 18px; }
+      .grid-id { grid-template-columns: 1fr; }
     }
     /* Landing ingreso: compactar (no aplica a bloques CHC ni pantalla final) */
     .chc-landing-disclaimers { margin-bottom: 6px; }
@@ -1427,7 +1434,7 @@
       </div>
 
       <section id="datos-participante" class="card">
-        <div class="grid-2">
+        <div class="grid-id">
           <div class="field">
             <label for="codigo">Code</label>
             <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
@@ -1435,8 +1442,14 @@
           </div>
           <div class="field">
             <label for="nombre">Name</label>
-            <input id="nombre" type="text" autocomplete="name" />
+            <input id="nombre" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="E.g. ANA" />
           </div>
+          <div class="field">
+            <label for="apellido">Last name</label>
+            <input id="apellido" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="E.g. LOPEZ" />
+          </div>
+        </div>
+        <div class="grid-2">
           <div class="field">
             <label for="curso" id="labelCurso">Grade/Level</label>
             <input id="curso" type="text" readonly />
@@ -1480,7 +1493,7 @@
           </table>
         </div>
         <div class="instructions-header">Before you start</div>
-        <p>Validate your <strong>code</strong> and enter your <strong>Name</strong>.</p>
+        <p>Validate your <strong>code</strong> and enter your <strong>Name</strong> and <strong>Last name</strong>.</p>
         <div class="landing-btns">
           <button type="button" id="btnVolverMenuInicio" class="primary">BACK TO MENU</button>
           <button type="button" id="btnIniciar" class="primary" disabled>START</button>
@@ -1600,6 +1613,7 @@
         responses: state.responses || {},
         snapshot: {
           nombre: state.nombre || "",
+          apellido: state.apellido || "",
           institucion: state.institucion || "",
           grupo: state.grupo || "",
           curso: state.curso || "",
@@ -1630,6 +1644,7 @@
       return {
         codigo: row.codigo || codigo,
         nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+        apellido: snap.apellido || "",
         institucion: snap.institucion || DATOS_FIJOS.institucion,
         grupo: snap.grupo || DATOS_FIJOS.grupo,
         curso: snap.curso || DATOS_FIJOS.curso,
@@ -1663,7 +1678,8 @@
       const state = {
         ...prev,
         codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
-        nombre: document.getElementById("nombre").value.trim(),
+        nombre: toUpperNombre(document.getElementById("nombre").value.trim()),
+        apellido: toUpperNombre(document.getElementById("apellido").value.trim()),
         institucion: document.getElementById("institucion").value,
         grupo: document.getElementById("grupo").value,
         curso: document.getElementById("curso").value,
@@ -1685,6 +1701,47 @@
     }
   }
 
+  function toUpperNombre(str) {
+    return String(str || "").toLocaleUpperCase("es-EC");
+  }
+
+  function bindUpperInput(el) {
+    if (!el) return;
+    el.addEventListener("input", function () {
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+      const next = toUpperNombre(el.value);
+      if (el.value !== next) {
+        el.value = next;
+        try { el.setSelectionRange(start, end); } catch (e) {}
+      }
+    });
+  }
+
+  function unlockNombreApellido() {
+    ["nombre", "apellido"].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.readOnly = false;
+      el.setAttribute("autocomplete", "off");
+    });
+  }
+
+  function lockNombreApellidoSiHayTexto(nombreVal, apellidoVal) {
+    const nombreEl = document.getElementById("nombre");
+    const apellidoEl = document.getElementById("apellido");
+    if (nombreEl) nombreEl.value = toUpperNombre(nombreVal || "");
+    if (apellidoEl) apellidoEl.value = toUpperNombre(apellidoVal || "");
+    if (nombreEl) {
+      nombreEl.readOnly = !!String(nombreVal || "").trim();
+      nombreEl.setAttribute("autocomplete", "off");
+    }
+    if (apellidoEl) {
+      apellidoEl.readOnly = !!String(apellidoVal || "").trim();
+      apellidoEl.setAttribute("autocomplete", "off");
+    }
+  }
+
   async function lookupCodigo() {
     const codigo = codigoInput.value.trim().toUpperCase();
     codigoInput.value = codigo;
@@ -1699,6 +1756,7 @@
     }
     if (!codigo) {
       instInput.value = grupoInput.value = cursoInput.value = "";
+      unlockNombreApellido();
       return;
     }
     try {
@@ -1718,6 +1776,7 @@
       if (codigoUsado) {
         instInput.value = grupoInput.value = cursoInput.value = "";
         CODIGO_ACTUAL = null;
+        unlockNombreApellido();
         if (codigoMsg) {
           codigoMsg.textContent = "This code has already been used or is not available.";
           codigoMsg.className = "err";
@@ -1733,6 +1792,7 @@
         vaciarBanco();
         instInput.value = grupoInput.value = cursoInput.value = "";
         CODIGO_ACTUAL = null;
+        unlockNombreApellido();
         if (codigoMsg) {
           codigoMsg.textContent = bankErr.message || "The activities could not be loaded.";
           codigoMsg.className = "err";
@@ -1757,6 +1817,29 @@
       instInput.value = data.institucion || "";
       grupoInput.value = data.grupo || "";
       cursoInput.value = data.curso || "";
+
+      let nombreGuardado = "";
+      let apellidoGuardado = "";
+      if (localState && !isStateCompleted(localState) && localState.nombre) {
+        nombreGuardado = String(localState.nombre).trim();
+        apellidoGuardado = String(localState.apellido || "").trim();
+      }
+      if (!nombreGuardado) {
+        const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
+        if (
+          serverDraft &&
+          !isStateCompleted(serverDraft) &&
+          serverDraft.nombre &&
+          serverDraft.responses &&
+          Object.keys(serverDraft.responses).length > 0
+        ) {
+          nombreGuardado = String(serverDraft.nombre).trim();
+          apellidoGuardado = String(serverDraft.apellido || "").trim();
+        }
+      }
+      if (nombreGuardado) lockNombreApellidoSiHayTexto(nombreGuardado, apellidoGuardado);
+      else unlockNombreApellido();
+
       if (codigoMsg) {
         codigoMsg.textContent = "Valid code.";
         codigoMsg.className = "ok";
@@ -1764,6 +1847,7 @@
     } catch (e) {
       instInput.value = grupoInput.value = cursoInput.value = "";
       CODIGO_ACTUAL = null;
+      unlockNombreApellido();
       if (codigoMsg) {
         codigoMsg.textContent = (e && e.message) ? e.message : "Code not found.";
         codigoMsg.className = "err";
@@ -1782,8 +1866,33 @@
   });
   codigoInput.addEventListener("blur", lookupCodigo);
   codigoInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") { e.preventDefault(); lookupCodigo(); }
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    lookupCodigo().then(function () {
+      const nombreEl = document.getElementById("nombre");
+      if (nombreEl && !nombreEl.readOnly) nombreEl.focus();
+    });
   });
+  (function bindEnterNextFields() {
+    const nombreEl = document.getElementById("nombre");
+    const apellidoEl = document.getElementById("apellido");
+    bindUpperInput(nombreEl);
+    bindUpperInput(apellidoEl);
+    if (nombreEl) {
+      nombreEl.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        if (apellidoEl && !apellidoEl.readOnly) apellidoEl.focus();
+      });
+    }
+    if (apellidoEl) {
+      apellidoEl.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        apellidoEl.blur();
+      });
+    }
+  })();
   actualizarLabelCurso(codigoInput.value);
 
   const DATOS_FIJOS = {
@@ -3639,7 +3748,7 @@
 
   function aplicarEstadoCHC(st) {
     if (!st) return;
-    document.getElementById("nombre").value = st.nombre || "";
+    lockNombreApellidoSiHayTexto(st.nombre || "", st.apellido || "");
     document.getElementById("institucion").value = st.institucion || DATOS_FIJOS.institucion;
     document.getElementById("grupo").value = st.grupo || DATOS_FIJOS.grupo;
     document.getElementById("curso").value = st.curso || DATOS_FIJOS.curso;
@@ -3686,18 +3795,28 @@
   }
 
   function validarAntesDeIniciar() {
-    const nombre = document.getElementById("nombre").value.trim();
+    const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
+    const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
     if (!nombre) {
       alert("Please enter your name before starting.");
+      return false;
+    }
+    if (!apellido) {
+      alert("Please enter your last name before starting.");
       return false;
     }
     return true;
   }
 
   function finalizarYEnviar() {
-    const nombre = document.getElementById("nombre").value.trim();
+    const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
+    const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
     if (!nombre) {
       alert("Name is required.");
+      return;
+    }
+    if (!apellido) {
+      alert("Last name is required.");
       return;
     }
     if (!responsesComplete(stateCHC.answers)) {
@@ -3711,6 +3830,7 @@
         idioma: EVAL_LANG,
       snapshot: {
         nombre: nombre,
+        apellido: apellido,
         institucion: document.getElementById("institucion").value,
         grupo: document.getElementById("grupo").value,
         curso: document.getElementById("curso").value,
@@ -3748,6 +3868,8 @@
       })
       .finally(function () {
         document.getElementById("nombre").readOnly = true;
+        const apellidoFin = document.getElementById("apellido");
+        if (apellidoFin) apellidoFin.readOnly = true;
         document.getElementById("pantalla-preguntas").classList.add("hidden");
         document.getElementById("datos-participante").classList.remove("hidden");
         document.getElementById("pantalla-final").style.display = "block";
@@ -3794,14 +3916,10 @@
     const candidate = serverState || localSaved;
 
     if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
-      const retomar = confirm("There is an attempt in progress for this code. Continue where you left off?");
-      if (retomar) {
-        aplicarEstadoCHC(candidate);
-        mostrarPantallaPreguntas();
-        return;
-      } else {
-        clearState();
-      }
+      alert("There is an attempt in progress for this code. It will continue where you left off.");
+      aplicarEstadoCHC(candidate);
+      mostrarPantallaPreguntas();
+      return;
     }
     iniciarEvaluacionNueva();
   });
