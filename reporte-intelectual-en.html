@@ -1,6 +1,7 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no" class="notranslate">
 <head>
+  <meta name="google" content="notranslate">
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Intellectual Assessment – Report</title>
@@ -41,7 +42,9 @@
     .rep-date{justify-self:flex-start;}
     .rep-top-center{text-align:center;font-weight:700;text-transform:uppercase;}
     .rep-top-logo{justify-self:flex-end;}
-    .mhp-logo{height:200px;margin-left:12px;margin-top:-4px;object-fit:contain;}
+    .mhp-logo{height:90px;margin-left:8px;margin-top:0;object-fit:contain;}
+    #page1 .mhp-logo,
+    #pageInterp .mhp-logo{height:90px;max-height:90px;margin-left:8px;margin-top:0;}
     .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase;}
     .rep-top-row3{text-align:center;font-size:17px;font-weight:800;line-height:1.25;padding:0 8px;}
 
@@ -61,10 +64,10 @@
       #page1 .rep-top,
       #page1 .tres-grupos-promedio-row,
       #page1 .ci-sim-wrap{break-inside:avoid;}
-      .mhp-logo{height:130px !important;margin-top:0 !important}
+      .mhp-logo{height:74px !important;margin-top:0 !important}
       #page1 .rep-top{padding-bottom:2px !important;margin-bottom:4px !important;}
       #page1 .rep-top-row1{margin-bottom:2px !important;}
-      #page1 .mhp-logo{height:92px !important;max-height:92px !important;margin-left:6px !important;margin-top:0 !important;}
+      #page1 .mhp-logo{height:74px !important;max-height:74px !important;margin-left:6px !important;margin-top:0 !important;}
       #page1 .rep-top-row2{font-size:19px !important;margin-bottom:0 !important;}
       #page1 .rep-top-row3{font-size:13px !important;line-height:1.2 !important;padding:0 6px !important;}
       #page1 .rep-ids{margin-top:4px !important;padding:4px 6px !important;}
@@ -99,7 +102,7 @@
         break-inside:avoid;
         page-break-inside:avoid;
       }
-      #pageInterp .mhp-logo{height:88px !important;max-height:88px !important;margin-top:0 !important;}
+      #pageInterp .mhp-logo{height:74px !important;max-height:74px !important;margin-top:0 !important;}
       #pageInterp .rep-top{padding-bottom:2px !important;margin-bottom:4px !important;}
       #pageInterp .rep-top-row2{font-size:19px !important;margin-bottom:0 !important;}
       #pageInterp .rep-top-row3{font-size:13px !important;line-height:1.2 !important;}
@@ -247,7 +250,7 @@
       </div>
 
       <div class="rep-ids" id="repHeaderBox"
-           style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:14px;margin-top:8px"></div>
+           style="display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:14px;margin-top:8px"></div>
 
       <div class="rep-mid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
         <div class="curve">
@@ -377,7 +380,7 @@
 
       <h2 class="interp-title">1.- Personal information</h2>
       <div id="repHeaderBox2" class="rep-ids"
-           style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:14px;margin-top:4px"></div>
+           style="display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;font-size:14px;margin-top:4px"></div>
 
       <h2 class="interp-title">2.- Instrument description and interpretation criteria</h2>
       <div class="interp-bloque">
@@ -447,6 +450,8 @@
   "use strict";
 
   const STORAGE_PREFIX = "eval_chc_state_";
+  const REPORT_PRODUCT_KEY = "INTELC";
+  const REPORT_UI_LANG = "EN";
 
   function clamp(n, a, b) {
     return Math.max(a, Math.min(b, n));
@@ -1437,15 +1442,29 @@
     fillTablaGlobales(rows, extras.totales, extras.resultados);
   }
 
+  function nombreEnUnaLinea(resultados, nombreGuardado, apellidoExtra) {
+    const res = resultados || {};
+    const apellidoRep = String(res.apellido || apellidoExtra || "").trim();
+    const nombrePila = String(res.nombre_pila || "").trim();
+    if (nombrePila && apellidoRep) return (nombrePila + " " + apellidoRep).trim();
+    const base = String(nombreGuardado || "").trim();
+    if (!apellidoRep || !base) return base;
+    const baseUp = base.toLocaleUpperCase("es-EC");
+    const apeUp = apellidoRep.toLocaleUpperCase("es-EC");
+    if (baseUp === apeUp || baseUp.endsWith(" " + apeUp)) return base;
+    return (base + " " + apellidoRep).trim();
+  }
+
   function fillHeader(box, ctx) {
     const codigo = ctx.codigo || "—";
+    const labelCurso = String(codigo).toUpperCase().startsWith("PRO") ? "Level" : "Grade/Course";
     box.innerHTML =
       "<div><b>Name:</b> " + escHtml(ctx.nombre || "—") + "</div>" +
-      "<div><b>Grade/Course:</b> " + escHtml(ctx.curso || "—") + "</div>" +
       "<div><b>Country:</b> " + escHtml(ctx.grupo || "—") + "</div>" +
       "<div><b>Institution:</b> " + escHtml(ctx.institucion || "—") + "</div>" +
-      "<div><b>Code:</b> " + escHtml(codigo) + "</div>" +
-      "<div><b>Date:</b> " + escHtml(ctx.fecha || "—") + "</div>";
+      "<div><b>Date:</b> " + escHtml(ctx.fecha || "—") + "</div>" +
+      "<div><b>" + labelCurso + ":</b> " + escHtml(ctx.curso || "—") + "</div>" +
+      "<div><b>Code:</b> " + escHtml(codigo) + "</div>";
   }
 
   function renderResumenLine(hostId, label, pct) {
@@ -1569,10 +1588,13 @@
   }
 
   async function tryServer(codigo) {
-    const url =
-      "/api/report?codigo=" +
-      encodeURIComponent(codigo) +
-      "&tipo=chc";
+    const q = new URLSearchParams({
+      codigo: codigo,
+      eval: REPORT_PRODUCT_KEY,
+      idioma: REPORT_UI_LANG,
+      tipo: "chc"
+    });
+    const url = "/api/report?" + q.toString();
     let r;
     try {
       r = await fetch(url);
@@ -1591,6 +1613,9 @@
       data = await r.json();
     } catch (e) {
       throw new Error("Invalid server response.");
+    }
+    if (r.status === 403 && (data.eval_mismatch || data.idioma_mismatch)) {
+      throw new Error(data.error || "This code does not belong to this report.");
     }
     if (!r.ok) {
       throw new Error(data.error || "Not found (HTTP " + r.status + ").");
@@ -1618,7 +1643,7 @@
       ? new Date(fechaRaw).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
       : "—";
     const snap = {
-      nombre: String(att.nombre || part.nombre || "").trim() || "",
+      nombre: nombreEnUnaLinea(resParsed, String(att.nombre || part.nombre || "").trim(), "") || "",
       institucion: String(att.institucion || part.institucion || "").trim() || "",
       grupo: String(att.grupo || part.grupo || "").trim() || "",
       curso: String(att.curso || part.curso || "").trim() || "",
@@ -1632,7 +1657,7 @@
     if (!esInformeIntelAceptable(res)) return null;
     return {
       codigo: codigo,
-      nombre: st.nombre || "",
+      nombre: nombreEnUnaLinea(res, st.nombre || "", st.apellido || ""),
       institucion: st.institucion || "",
       grupo: st.grupo || "",
       curso: st.curso || "",
