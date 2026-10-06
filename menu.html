@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Menú ADALAM · Accesos</title>
-  <!-- deploy: menu v3 · enlace index2 interno ES+EN -->
+  <!-- deploy: menu v4 · aviso de solicitudes nuevas -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,700;1,9..40,500&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet"/>
@@ -131,6 +131,54 @@
       font-size:12px;
       color:var(--muted);
     }
+    .aviso{
+      display:none;
+      margin:0 0 16px;
+      padding:14px 16px;
+      background:#fef3c7;
+      border:1px solid #f59e0b;
+      border-radius:14px;
+      color:#78350f;
+      box-shadow:0 8px 22px rgba(120,53,15,.08);
+    }
+    .aviso.is-on{display:block}
+    .aviso strong{
+      display:block;
+      font-size:15px;
+      margin-bottom:4px;
+    }
+    .aviso p{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+    }
+    .aviso a{
+      display:inline-block;
+      margin-top:10px;
+      font-size:13px;
+      font-weight:700;
+      color:#fff;
+      background:#b45309;
+      text-decoration:none;
+      padding:8px 12px;
+      border-radius:999px;
+    }
+    .aviso a:hover{background:#92400e}
+    .n-nuevas{
+      display:none;
+      margin-left:6px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      color:#78350f;
+      background:#fef3c7;
+      border:1px solid #fde68a;
+      border-radius:999px;
+      padding:2px 8px;
+      vertical-align:middle;
+    }
+    .n-nuevas.is-on{display:inline-block}
   </style>
 </head>
 <body>
@@ -140,6 +188,12 @@
       <h1>Menú ADALAM</h1>
       <p>Accesos rápidos a evaluaciones, consultor IA, sitio y operaciones.</p>
     </header>
+
+    <div id="avisoContactos" class="aviso" role="status" aria-live="polite">
+      <strong id="avisoContactosTitulo"></strong>
+      <p>Entra a solicitudes para ver el mensaje. Este aviso sigue hasta que lo abras.</p>
+      <a id="avisoContactosLink" href="https://adalam.vercel.app/contactos?key=AdalamContactos2026" target="_blank" rel="noopener noreferrer">Ver solicitudes</a>
+    </div>
 
     <nav aria-label="Accesos ADALAM">
       <a class="item" href="https://evaluacion-snowy.vercel.app/" target="_blank" rel="noopener noreferrer">
@@ -174,9 +228,9 @@
         <span class="go">Abrir</span>
       </a>
 
-      <a class="item" href="https://adalam.vercel.app/contactos?key=AdalamContactos2026" target="_blank" rel="noopener noreferrer">
+      <a id="linkContactos" class="item" href="https://adalam.vercel.app/contactos?key=AdalamContactos2026" target="_blank" rel="noopener noreferrer">
         <span>
-          <span class="label">Solicitudes de información</span>
+          <span class="label">Solicitudes de información <span id="badgeContactos" class="n-nuevas"></span></span>
           <span class="hint">Bandeja interna de contactos y leads</span>
         </span>
         <span class="go">Abrir</span>
@@ -233,5 +287,66 @@
 
     <footer>ADALAM · uso interno / institucional</footer>
   </div>
+<script>
+  (function () {
+    var SEEN_KEY = "adalam-menu-contactos-seen";
+    var link = document.getElementById("linkContactos");
+    var aviso = document.getElementById("avisoContactos");
+    var titulo = document.getElementById("avisoContactosTitulo");
+    var avisoLink = document.getElementById("avisoContactosLink");
+    var badge = document.getElementById("badgeContactos");
+    if (!link || !aviso || !titulo || !avisoLink || !badge) return;
+
+    var serverAhora = "";
+    var abrio = false;
+
+    function leerVisto() {
+      try { return localStorage.getItem(SEEN_KEY) || ""; } catch (e) { return ""; }
+    }
+
+    function guardarVisto(iso) {
+      if (!iso) return;
+      try { localStorage.setItem(SEEN_KEY, iso); } catch (e) {}
+    }
+
+    function marcarAlAbrir() {
+      abrio = true;
+      guardarVisto(serverAhora);
+    }
+
+    link.addEventListener("click", marcarAlAbrir);
+    avisoLink.addEventListener("click", marcarAlAbrir);
+
+    var since = leerVisto();
+    var api;
+    try {
+      api = new URL("/api/contactos-aviso", link.href);
+      var key = new URL(link.href).searchParams.get("key");
+      if (key) api.searchParams.set("key", key);
+      if (since) api.searchParams.set("since", since);
+    } catch (e) {
+      return;
+    }
+
+    fetch(api.toString(), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !data.ok || !data.ahora) return;
+        serverAhora = data.ahora;
+        var nuevos = Number(data.nuevos) || 0;
+        if (abrio || !since || nuevos < 1) {
+          guardarVisto(serverAhora);
+          return;
+        }
+        titulo.textContent = nuevos === 1
+          ? "Llegó 1 solicitud nueva."
+          : "Llegaron " + nuevos + " solicitudes nuevas.";
+        badge.textContent = nuevos === 1 ? "1 nueva" : nuevos + " nuevas";
+        aviso.classList.add("is-on");
+        badge.classList.add("is-on");
+      })
+      .catch(function () {});
+  })();
+</script>
 </body>
 </html>
