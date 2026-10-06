@@ -208,6 +208,12 @@
       border: none;
       box-shadow: var(--chc-shadow-panel);
     }
+    .grid-id {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr;
+      gap: 8px 16px;
+      margin-bottom: 8px;
+    }
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1371,6 +1377,7 @@
     .hidden { display: none !important; }
     @media (max-width: 840px) {
       .side-strip span { font-size: 18px; }
+      .grid-id { grid-template-columns: 1fr; }
     }
     /* Landing ingreso: compactar (no aplica a bloques CHC ni pantalla final) */
     .chc-landing-disclaimers { margin-bottom: 6px; }
@@ -1423,7 +1430,7 @@
       </header>
 
       <section id="datos-participante" class="card">
-        <div class="grid-2">
+        <div class="grid-id">
           <div class="field">
             <label for="codigo">Código</label>
             <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
@@ -1431,8 +1438,14 @@
           </div>
           <div class="field">
             <label for="nombre">Nombre</label>
-            <input id="nombre" type="text" autocomplete="name" />
+            <input id="nombre" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. ANA" />
           </div>
+          <div class="field">
+            <label for="apellido">Apellido</label>
+            <input id="apellido" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. LÓPEZ" />
+          </div>
+        </div>
+        <div class="grid-2">
           <div class="field">
             <label for="curso" id="labelCurso">Grado/Curso/Nivel</label>
             <input id="curso" type="text" readonly />
@@ -1594,6 +1607,7 @@
         responses: state.responses || {},
         snapshot: {
           nombre: state.nombre || "",
+          apellido: state.apellido || "",
           institucion: state.institucion || "",
           grupo: state.grupo || "",
           curso: state.curso || "",
@@ -1624,6 +1638,7 @@
       return {
         codigo: row.codigo || codigo,
         nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+        apellido: snap.apellido || "",
         institucion: snap.institucion || DATOS_FIJOS.institucion,
         grupo: snap.grupo || DATOS_FIJOS.grupo,
         curso: snap.curso || DATOS_FIJOS.curso,
@@ -1657,7 +1672,8 @@
       const state = {
         ...prev,
         codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
-        nombre: document.getElementById("nombre").value.trim(),
+        nombre: toUpperNombre(document.getElementById("nombre").value.trim()),
+        apellido: toUpperNombre(document.getElementById("apellido").value.trim()),
         institucion: document.getElementById("institucion").value,
         grupo: document.getElementById("grupo").value,
         curso: document.getElementById("curso").value,
@@ -1679,6 +1695,47 @@
     }
   }
 
+  function toUpperNombre(str) {
+    return String(str || "").toLocaleUpperCase("es-EC");
+  }
+
+  function bindUpperInput(el) {
+    if (!el) return;
+    el.addEventListener("input", function () {
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+      const next = toUpperNombre(el.value);
+      if (el.value !== next) {
+        el.value = next;
+        try { el.setSelectionRange(start, end); } catch (e) {}
+      }
+    });
+  }
+
+  function unlockNombreApellido() {
+    ["nombre", "apellido"].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.readOnly = false;
+      el.setAttribute("autocomplete", "off");
+    });
+  }
+
+  function lockNombreApellidoSiHayTexto(nombreVal, apellidoVal) {
+    const nombreEl = document.getElementById("nombre");
+    const apellidoEl = document.getElementById("apellido");
+    if (nombreEl) nombreEl.value = toUpperNombre(nombreVal || "");
+    if (apellidoEl) apellidoEl.value = toUpperNombre(apellidoVal || "");
+    if (nombreEl) {
+      nombreEl.readOnly = !!String(nombreVal || "").trim();
+      nombreEl.setAttribute("autocomplete", "off");
+    }
+    if (apellidoEl) {
+      apellidoEl.readOnly = !!String(apellidoVal || "").trim();
+      apellidoEl.setAttribute("autocomplete", "off");
+    }
+  }
+
   async function lookupCodigo() {
     const codigo = codigoInput.value.trim().toUpperCase();
     codigoInput.value = codigo;
@@ -1693,11 +1750,7 @@
     }
     if (!codigo) {
       instInput.value = grupoInput.value = cursoInput.value = "";
-      const nombreEl0 = document.getElementById("nombre");
-      if (nombreEl0) {
-        nombreEl0.readOnly = false;
-        nombreEl0.setAttribute("autocomplete", "name");
-      }
+      unlockNombreApellido();
       return;
     }
     try {
@@ -1717,6 +1770,7 @@
       if (codigoUsado) {
         instInput.value = grupoInput.value = cursoInput.value = "";
         CODIGO_ACTUAL = null;
+        unlockNombreApellido();
         if (codigoMsg) {
           codigoMsg.textContent = "Este código ya fue utilizado o no está disponible.";
           codigoMsg.className = "err";
@@ -1732,6 +1786,7 @@
         vaciarBanco();
         instInput.value = grupoInput.value = cursoInput.value = "";
         CODIGO_ACTUAL = null;
+        unlockNombreApellido();
         if (codigoMsg) {
           codigoMsg.textContent = bankErr.message || "No se pudieron cargar las actividades.";
           codigoMsg.className = "err";
@@ -1757,11 +1812,11 @@
       grupoInput.value = data.grupo || "";
       cursoInput.value = data.curso || "";
 
-      // Solo: si hay intento en curso, mostrar el nombre ya guardado y bloquear la casilla.
-      const nombreEl = document.getElementById("nombre");
       let nombreGuardado = "";
+      let apellidoGuardado = "";
       if (localState && !isStateCompleted(localState) && localState.nombre) {
         nombreGuardado = String(localState.nombre).trim();
+        apellidoGuardado = String(localState.apellido || "").trim();
       }
       if (!nombreGuardado) {
         const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
@@ -1773,18 +1828,11 @@
           Object.keys(serverDraft.responses).length > 0
         ) {
           nombreGuardado = String(serverDraft.nombre).trim();
+          apellidoGuardado = String(serverDraft.apellido || "").trim();
         }
       }
-      if (nombreEl) {
-        if (nombreGuardado) {
-          nombreEl.value = nombreGuardado;
-          nombreEl.readOnly = true;
-          nombreEl.setAttribute("autocomplete", "off");
-        } else {
-          nombreEl.readOnly = false;
-          nombreEl.setAttribute("autocomplete", "name");
-        }
-      }
+      if (nombreGuardado) lockNombreApellidoSiHayTexto(nombreGuardado, apellidoGuardado);
+      else unlockNombreApellido();
 
       if (codigoMsg) {
         codigoMsg.textContent = "Código válido.";
@@ -1793,11 +1841,7 @@
     } catch (e) {
       instInput.value = grupoInput.value = cursoInput.value = "";
       CODIGO_ACTUAL = null;
-      const nombreElErr = document.getElementById("nombre");
-      if (nombreElErr) {
-        nombreElErr.readOnly = false;
-        nombreElErr.setAttribute("autocomplete", "name");
-      }
+      unlockNombreApellido();
       if (codigoMsg) {
         codigoMsg.textContent = (e && e.message) ? e.message : "Código no encontrado.";
         codigoMsg.className = "err";
@@ -1816,8 +1860,33 @@
   });
   codigoInput.addEventListener("blur", lookupCodigo);
   codigoInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") { e.preventDefault(); lookupCodigo(); }
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    lookupCodigo().then(function () {
+      const nombreEl = document.getElementById("nombre");
+      if (nombreEl && !nombreEl.readOnly) nombreEl.focus();
+    });
   });
+  (function bindEnterNextFields() {
+    const nombreEl = document.getElementById("nombre");
+    const apellidoEl = document.getElementById("apellido");
+    bindUpperInput(nombreEl);
+    bindUpperInput(apellidoEl);
+    if (nombreEl) {
+      nombreEl.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        if (apellidoEl && !apellidoEl.readOnly) apellidoEl.focus();
+      });
+    }
+    if (apellidoEl) {
+      apellidoEl.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        apellidoEl.blur();
+      });
+    }
+  })();
   actualizarLabelCurso(codigoInput.value);
 
   const DATOS_FIJOS = {
@@ -3673,7 +3742,7 @@
 
   function aplicarEstadoCHC(st) {
     if (!st) return;
-    document.getElementById("nombre").value = st.nombre || "";
+    lockNombreApellidoSiHayTexto(st.nombre || "", st.apellido || "");
     document.getElementById("institucion").value = st.institucion || DATOS_FIJOS.institucion;
     document.getElementById("grupo").value = st.grupo || DATOS_FIJOS.grupo;
     document.getElementById("curso").value = st.curso || DATOS_FIJOS.curso;
@@ -3720,18 +3789,28 @@
   }
 
   function validarAntesDeIniciar() {
-    const nombre = document.getElementById("nombre").value.trim();
+    const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
+    const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
     if (!nombre) {
       alert("Por favor ingresa tu nombre antes de iniciar.");
+      return false;
+    }
+    if (!apellido) {
+      alert("Por favor ingresa tu apellido antes de iniciar.");
       return false;
     }
     return true;
   }
 
   function finalizarYEnviar() {
-    const nombre = document.getElementById("nombre").value.trim();
+    const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
+    const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
     if (!nombre) {
       alert("Falta el nombre.");
+      return;
+    }
+    if (!apellido) {
+      alert("Falta el apellido.");
       return;
     }
     if (!responsesComplete(stateCHC.answers)) {
@@ -3745,6 +3824,7 @@
         idioma: EVAL_LANG,
       snapshot: {
         nombre: nombre,
+        apellido: apellido,
         institucion: document.getElementById("institucion").value,
         grupo: document.getElementById("grupo").value,
         curso: document.getElementById("curso").value,
@@ -3782,6 +3862,8 @@
       })
       .finally(function () {
         document.getElementById("nombre").readOnly = true;
+        const apellidoFin = document.getElementById("apellido");
+        if (apellidoFin) apellidoFin.readOnly = true;
         document.getElementById("pantalla-preguntas").classList.add("hidden");
         document.getElementById("datos-participante").classList.remove("hidden");
         document.getElementById("pantalla-final").style.display = "block";
