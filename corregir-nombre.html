@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Corregir nombre · ADALAM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,700;1,9..40,500&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --ink:#0c1a14;
+      --muted:#5a6b62;
+      --line:#c8d4cc;
+      --green:#1a8f3b;
+      --green-deep:#14632b;
+      --paper:#f4f8f5;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;min-height:100%}
+    body{
+      font-family:"DM Sans",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(26,143,59,.16), transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, rgba(20,99,43,.10), transparent 50%),
+        linear-gradient(180deg, #f7fbf8 0%, var(--paper) 45%, #eef5f0 100%);
+    }
+    .wrap{width:min(720px,100%);margin:0 auto;padding:28px 18px 48px}
+    .back{
+      display:inline-block;margin-bottom:10px;font-size:13px;font-weight:700;
+      color:var(--green-deep);text-decoration:none;
+    }
+    .back:hover{text-decoration:underline}
+    .brand{text-align:center;margin:8px 0 22px}
+    .brand img{
+      width:min(220px,70vw);height:auto;display:block;margin:0 auto 12px;
+      filter:drop-shadow(0 14px 28px rgba(12,26,20,.18));
+    }
+    .brand h1{
+      font-family:Fraunces,Georgia,serif;font-size:clamp(1.45rem,4vw,1.95rem);
+      font-weight:700;margin:0 0 6px;
+    }
+    .brand p{margin:0;font-size:14px;color:var(--muted);line-height:1.45}
+    .panel{
+      background:rgba(255,255,255,.85);border:1px solid var(--line);
+      border-radius:14px;padding:16px;
+      box-shadow:0 8px 22px rgba(12,26,20,.05);
+    }
+    .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+    .names{display:none;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-top:14px}
+    .names.is-on{display:grid}
+    @media (max-width:640px){
+      .row,.names{grid-template-columns:1fr}
+    }
+    label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+    input{
+      width:100%;padding:9px 10px;border:1px solid #b7c7bc;border-radius:10px;
+      font-size:15px;font-family:inherit;background:#fff;color:var(--ink);
+    }
+    .btn{
+      border:0;border-radius:999px;padding:10px 16px;font-weight:700;font-size:14px;
+      cursor:pointer;font-family:inherit;background:var(--green);color:#fff;height:40px;
+    }
+    .btn:hover{background:var(--green-deep)}
+    .msg{min-height:18px;margin-top:12px;font-size:13px;font-weight:700}
+    .msg.ok{color:#047857}
+    .msg.err{color:#b91c1c}
+    footer{margin-top:22px;text-align:center;font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="menu.html">← Menú ADALAM</a>
+    <header class="brand">
+      <img src="assets/logo_adalam.webp" alt="Sello ADALAM" width="220" height="88"/>
+      <h1>Corregir nombre</h1>
+      <p>Nombre y apellido de una evaluación ya terminada. El puntaje no cambia.</p>
+    </header>
+    <section class="panel">
+      <div class="row">
+        <div>
+          <label for="codigo">Código</label>
+          <input id="codigo" type="text" autocomplete="off" maxlength="40">
+        </div>
+        <button class="btn" id="buscar" type="button">Buscar</button>
+      </div>
+      <div class="names" id="names">
+        <div>
+          <label for="nombre">Nombre</label>
+          <input id="nombre" type="text" autocomplete="off" maxlength="60" autocapitalize="characters">
+        </div>
+        <div>
+          <label for="apellido">Apellido</label>
+          <input id="apellido" type="text" autocomplete="off" maxlength="60" autocapitalize="characters">
+        </div>
+        <button class="btn" id="guardar" type="button">Guardar</button>
+      </div>
+      <div id="msg" class="msg"></div>
+    </section>
+    <footer>ADALAM · uso interno</footer>
+  </div>
+  <script>
+    (function () {
+      const codigoEl = document.getElementById("codigo");
+      const nombreEl = document.getElementById("nombre");
+      const apellidoEl = document.getElementById("apellido");
+      const namesEl = document.getElementById("names");
+      const msgEl = document.getElementById("msg");
+
+      function upField(el) {
+        const next = String(el.value || "").toLocaleUpperCase("es-EC");
+        if (el.value !== next) el.value = next;
+      }
+      nombreEl.addEventListener("input", function () { upField(nombreEl); });
+      apellidoEl.addEventListener("input", function () { upField(apellidoEl); });
+
+      function say(text, ok) {
+        msgEl.textContent = text || "";
+        msgEl.className = "msg" + (ok ? " ok" : text ? " err" : "");
+      }
+
+      async function pedir(method, codigo, extra) {
+        const q = new URLSearchParams({ codigo: codigo });
+        const opt = { method: method };
+        if (method === "POST") {
+          opt.headers = { "Content-Type": "application/json" };
+          opt.body = JSON.stringify(Object.assign({ codigo: codigo }, extra || {}));
+        }
+        const r = await fetch("/api/corregir-nombre?" + q.toString(), opt);
+        const data = await r.json().catch(function () { return {}; });
+        if (!r.ok || !data.ok) throw new Error(data.error || "No se pudo completar.");
+        return data;
+      }
+
+      document.getElementById("buscar").addEventListener("click", async function () {
+        const codigo = String(codigoEl.value || "").trim().toUpperCase();
+        codigoEl.value = codigo;
+        namesEl.classList.remove("is-on");
+        if (!codigo) { say("Ingresa el código.", false); return; }
+        say("Buscando...", true);
+        try {
+          const data = await pedir("GET", codigo);
+          nombreEl.value = data.nombre_pila || data.nombre || "";
+          apellidoEl.value = data.apellido || "";
+          upField(nombreEl);
+          upField(apellidoEl);
+          namesEl.classList.add("is-on");
+          say("", true);
+          nombreEl.focus();
+        } catch (e) {
+          say(e.message || "No se pudo buscar.", false);
+        }
+      });
+
+      document.getElementById("guardar").addEventListener("click", async function () {
+        const codigo = String(codigoEl.value || "").trim().toUpperCase();
+        upField(nombreEl);
+        upField(apellidoEl);
+        if (!nombreEl.value.trim()) { say("Falta el nombre.", false); return; }
+        if (!apellidoEl.value.trim()) { say("Falta el apellido.", false); return; }
+        say("Guardando...", true);
+        try {
+          const data = await pedir("POST", codigo, {
+            nombre: nombreEl.value.trim(),
+            apellido: apellidoEl.value.trim()
+          });
+          say(data.message || "Nombre actualizado. El puntaje no cambió.", true);
+        } catch (e) {
+          say(e.message || "No se pudo guardar.", false);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

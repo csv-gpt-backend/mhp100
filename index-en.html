@@ -402,45 +402,6 @@
     }
     .pane-button span.icon{ font-size:14px; }
 
-    .corr-box input[type="text"]{
-      width:100%;
-      height:40px;
-      padding:0 14px;
-      font-size:14px;
-      border-radius:999px;
-      border:1px solid #cbd5f5;
-      outline:none;
-    }
-    .corr-box input[type="text"]:focus{
-      border-color:#F97316;
-      box-shadow:0 0 0 1px rgba(249,115,22,0.18);
-    }
-    .corr-row{
-      display:grid;
-      grid-template-columns:1.2fr auto;
-      gap:10px;
-      align-items:end;
-      margin-top:8px;
-    }
-    .corr-names{
-      display:none;
-      grid-template-columns:1fr 1fr auto;
-      gap:10px;
-      align-items:end;
-      margin-top:10px;
-    }
-    .corr-names.is-on{ display:grid; }
-    .corr-box label{
-      display:block;
-      font-size:12px;
-      font-weight:700;
-      margin-bottom:4px;
-    }
-    @media (max-width:720px){
-      .corr-row,
-      .corr-names{ grid-template-columns:1fr; }
-    }
-
     .footer{
       text-align:center;
       font-size:11px;
@@ -548,32 +509,6 @@
 
       <section id="menu" class="menu">
         <div class="catalog">
-
-          <section class="catalog-section corr-box" id="correccionDatos">
-            <h2 class="catalog-title">CORRECT NAME</h2>
-            <article class="pane">
-              <p>Correct the first and last name of a finished assessment. The score does not change.</p>
-              <div class="corr-row">
-                <div>
-                  <label for="corrCodigo">Code</label>
-                  <input id="corrCodigo" type="text" autocomplete="off" maxlength="40" placeholder="Code">
-                </div>
-                <button class="btn" id="corrBuscar" type="button">Search</button>
-              </div>
-              <div class="corr-names" id="corrNames">
-                <div>
-                  <label for="corrNombre">Name</label>
-                  <input id="corrNombre" type="text" autocomplete="off" maxlength="60" autocapitalize="characters">
-                </div>
-                <div>
-                  <label for="corrApellido">Last name</label>
-                  <input id="corrApellido" type="text" autocomplete="off" maxlength="60" autocapitalize="characters">
-                </div>
-                <button class="btn" id="corrGuardar" type="button">Save</button>
-              </div>
-              <div id="corrMsg" class="msg"></div>
-            </article>
-          </section>
 
           <section class="catalog-section" data-block="1">
             <h2 class="catalog-title">SOCIAL-EMOTIONAL ASSESSMENT</h2>
@@ -768,7 +703,7 @@
 
 <script>
   /* Señal interna. Formato: UP + DD + MM + AA + HHMM */
-  const REPORTE_BUILD_ID = "UP0710261835";
+  const REPORTE_BUILD_ID = "UP0710261855";
   (function(){
     const el = document.getElementById("reporteBuildStamp");
     if (el) el.textContent = "· " + REPORTE_BUILD_ID;
@@ -825,14 +760,7 @@
   }
 
   function setAccessSession(blocks) {
-    const clave = (passInput && passInput.value) ? String(passInput.value).trim() : "";
-    const prev = getAccessSession();
-    const payload = {
-      ok: true,
-      blocks: blocks || ALL_BLOCKS.slice(),
-      createdAt: Date.now(),
-      clave: clave || (prev && prev.clave) || ""
-    };
+    const payload = { ok: true, blocks: blocks || ALL_BLOCKS.slice(), createdAt: Date.now() };
     try { sessionStorage.setItem(ACCESS_SESSION_KEY, JSON.stringify(payload)); } catch {}
   }
 
@@ -945,84 +873,6 @@
 
   if (btnSalir) btnSalir.addEventListener("click", cerrarSesion);
   if (btnSalirBottom) btnSalirBottom.addEventListener("click", cerrarSesion);
-
-  (function initCorreccionNombre(){
-    const codigoEl = document.getElementById("corrCodigo");
-    const nombreEl = document.getElementById("corrNombre");
-    const apellidoEl = document.getElementById("corrApellido");
-    const namesEl = document.getElementById("corrNames");
-    const msgEl = document.getElementById("corrMsg");
-    const btnBuscar = document.getElementById("corrBuscar");
-    const btnGuardar = document.getElementById("corrGuardar");
-    if (!codigoEl || !btnBuscar || !btnGuardar) return;
-
-    function upField(el){
-      const next = String(el.value || "").toLocaleUpperCase("es-EC");
-      if (el.value !== next) el.value = next;
-    }
-    nombreEl.addEventListener("input", function(){ upField(nombreEl); });
-    apellidoEl.addEventListener("input", function(){ upField(apellidoEl); });
-
-    function say(text, ok){
-      msgEl.textContent = text || "";
-      msgEl.className = "msg" + (ok ? " ok" : text ? " err" : "");
-    }
-    function clavePortal(){
-      const s = getAccessSession();
-      return (s && s.clave) || (passInput && passInput.value) || "";
-    }
-    async function pedir(method, codigo, extra){
-      const q = new URLSearchParams({ codigo: codigo, idioma: "EN" });
-      const opt = {
-        method: method,
-        headers: { "x-portal-clave": clavePortal() }
-      };
-      if (method === "POST") {
-        opt.headers["Content-Type"] = "application/json";
-        opt.body = JSON.stringify(Object.assign({ codigo: codigo, idioma: "EN" }, extra || {}));
-      }
-      const r = await fetch("/api/corregir-nombre?" + q.toString(), opt);
-      const data = await r.json().catch(function(){ return {}; });
-      if (!r.ok || !data.ok) throw new Error(data.error || "Could not complete the request.");
-      return data;
-    }
-    btnBuscar.addEventListener("click", async function(){
-      const codigo = String(codigoEl.value || "").trim().toUpperCase();
-      codigoEl.value = codigo;
-      namesEl.classList.remove("is-on");
-      if (!codigo) { say("Enter the code.", false); return; }
-      say("Searching...", true);
-      try {
-        const data = await pedir("GET", codigo);
-        nombreEl.value = data.nombre_pila || data.nombre || "";
-        apellidoEl.value = data.apellido || "";
-        upField(nombreEl);
-        upField(apellidoEl);
-        namesEl.classList.add("is-on");
-        say("", true);
-        nombreEl.focus();
-      } catch (e) {
-        say(e.message || "Could not search.", false);
-      }
-    });
-    btnGuardar.addEventListener("click", async function(){
-      const codigo = String(codigoEl.value || "").trim().toUpperCase();
-      upField(nombreEl);
-      upField(apellidoEl);
-      if (!nombreEl.value.trim()) { say("Name is required.", false); return; }
-      if (!apellidoEl.value.trim()) { say("Last name is required.", false); return; }
-      say("Saving...", true);
-      try {
-        const data = await pedir("POST", codigo, {
-          nombre: nombreEl.value.trim(),
-          apellido: apellidoEl.value.trim()
-        });
-        say(data.message || "Name updated. The score was not changed.", true);
-      } catch (e) {
-        say(e.message || "Could not save.", false);
-      }
-    });
-  })();
 
   window.addEventListener("DOMContentLoaded", ()=>{
     captureEntryOrigin();

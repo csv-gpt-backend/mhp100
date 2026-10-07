@@ -9,18 +9,6 @@ function upNombre(value) {
   return String(value || "").trim().toLocaleUpperCase("es-EC");
 }
 
-function portalClaveOk(raw) {
-  const value = String(raw || "").trim().toUpperCase();
-  if (!value.startsWith("ADALAM")) return false;
-  if (value === "ADALAM") return true;
-  const suffix = value.slice(6);
-  if (!suffix) return true;
-  for (const ch of suffix) {
-    if (ch >= "1" && ch <= "7") return true;
-  }
-  return false;
-}
-
 function parseResultados(raw) {
   if (!raw) return null;
   if (typeof raw === "object") return raw;
@@ -36,7 +24,6 @@ function msg(key, lang) {
   const isEn = en(lang);
   const map = {
     method: isEn ? "Method not allowed." : "Método no permitido.",
-    forbidden: isEn ? "Portal password required." : "Falta la contraseña del portal.",
     missing_code: isEn ? "Enter the code." : "Ingresa el código.",
     code_not_found: isEn ? "Code not found." : "Código no encontrado.",
     no_attempt: isEn
@@ -54,11 +41,6 @@ function msg(key, lang) {
   return map[key] || (isEn ? "Error" : "Error");
 }
 
-function readClave(req) {
-  const h = req.headers || {};
-  return h["x-portal-clave"] || h["X-Portal-Clave"] || "";
-}
-
 module.exports = async function handler(req, res) {
   const body = req.body && typeof req.body === "object" ? req.body : {};
   const lang =
@@ -68,9 +50,6 @@ module.exports = async function handler(req, res) {
   try {
     if (req.method !== "GET" && req.method !== "POST") {
       return res.status(405).json({ ok: false, error: msg("method", lang) });
-    }
-    if (!portalClaveOk(readClave(req))) {
-      return res.status(403).json({ ok: false, error: msg("forbidden", lang) });
     }
 
     const codigoRaw = String((req.query && req.query.codigo) || body.codigo || "").trim();
