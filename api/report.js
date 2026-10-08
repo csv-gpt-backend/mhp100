@@ -7,6 +7,7 @@ const {
   normalizeIdioma,
 } = require("./eval-codigo");
 const { validacionDesdeRespuestas } = require("./score-integr");
+const { validacionDesdeRespuestas: validacionEscolarDesdeRespuestas } = require("./score-socies");
 
 function isIdiomaLockedReportEval(raw) {
   const t = String(raw || "").trim().toUpperCase();
@@ -80,6 +81,27 @@ function alinearValidacionIntegridad(attempt) {
   resultados.globales.IV1 = validacion.IV1;
   resultados.globales.IV2 = validacion.IV2;
   attempt.resultados = resultados;
+}
+
+function esIntentoEscolar(attempt) {
+  const codigo = String((attempt && attempt.codigo) || "").toUpperCase();
+  return codigo.includes("SOCIES");
+}
+
+function alinearValidacionEscolar(attempt) {
+  if (!attempt || !esIntentoEscolar(attempt)) return;
+  const responses = asObject(attempt.responses);
+  const validacion = validacionEscolarDesdeRespuestas(responses);
+  if (!validacion) return;
+  const resultados = asObject(attempt.resultados) || {};
+  if (!resultados.globales || typeof resultados.globales !== "object") {
+    resultados.globales = {};
+  }
+  resultados.globales.IV1 = validacion.IV1;
+  resultados.globales.IV2 = validacion.IV2;
+  attempt.resultados = resultados;
+  attempt.iv1 = validacion.IV1;
+  attempt.iv2 = validacion.IV2;
 }
 
 module.exports = async function handler(req, res) {
@@ -199,6 +221,7 @@ module.exports = async function handler(req, res) {
     console.log("API /report -> puede_ver_resultado:", puedeVer, "bank:", bankNorm || "(sin filtro)");
 
     alinearValidacionIntegridad(attempt);
+    alinearValidacionEscolar(attempt);
 
     // 4) Respuesta final
     return res.status(200).json({
