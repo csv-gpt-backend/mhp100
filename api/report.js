@@ -6,6 +6,7 @@ const {
   idiomaMismatchMessage,
   normalizeIdioma,
 } = require("./eval-codigo");
+const { validacionDesdeRespuestas } = require("./score-integr");
 
 function isIdiomaLockedReportEval(raw) {
   const t = String(raw || "").trim().toUpperCase();
@@ -40,6 +41,45 @@ function reportMsg(key, lang, extra) {
     internal: en ? "Internal error" : "Error interno",
   };
   return map[key] || (en ? "Error" : "Error");
+}
+
+function asObject(raw) {
+  if (!raw) return null;
+  if (typeof raw === "object") return raw;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? parsed : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+}
+
+function esIntentoIntegridad(attempt, resultados) {
+  const codigo = String((attempt && attempt.codigo) || "").toUpperCase();
+  if (codigo.includes("INTEGR")) return true;
+  const subs = resultados && resultados.subhabilidades;
+  return Array.isArray(subs) && subs.some((row) => {
+    const sub = String((row && (row.sub || row.subhabilidad)) || "");
+    return sub === "Rectitud" || sub === "Veracidad" || sub === "Honestidad" || sub === "Justicia";
+  });
+}
+
+function alinearValidacionIntegridad(attempt) {
+  if (!attempt) return;
+  const resultados = asObject(attempt.resultados);
+  if (!resultados || !esIntentoIntegridad(attempt, resultados)) return;
+  const responses = asObject(attempt.responses);
+  const validacion = validacionDesdeRespuestas(responses);
+  if (!validacion) return;
+  if (!resultados.globales || typeof resultados.globales !== "object") {
+    resultados.globales = {};
+  }
+  resultados.globales.IV1 = validacion.IV1;
+  resultados.globales.IV2 = validacion.IV2;
+  attempt.resultados = resultados;
 }
 
 module.exports = async function handler(req, res) {
@@ -157,6 +197,8 @@ module.exports = async function handler(req, res) {
       rawFlag === 1;
 
     console.log("API /report -> puede_ver_resultado:", puedeVer, "bank:", bankNorm || "(sin filtro)");
+
+    alinearValidacionIntegridad(attempt);
 
     // 4) Respuesta final
     return res.status(200).json({
