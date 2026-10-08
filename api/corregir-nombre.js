@@ -59,7 +59,7 @@ module.exports = async function handler(req, res) {
     }
 
     const pRes = await sql`
-      SELECT codigo, nombre
+      SELECT codigo, nombre, institucion, grupo, curso
       FROM participants
       WHERE UPPER(codigo) = UPPER(${codigo})
       LIMIT 1
@@ -69,7 +69,7 @@ module.exports = async function handler(req, res) {
     }
 
     const aRes = await sql`
-      SELECT id, nombre, resultados
+      SELECT id, nombre, resultados, institucion, grupo, curso, created_at
       FROM attempts
       WHERE UPPER(codigo) = UPPER(${codigo})
       ORDER BY created_at DESC
@@ -82,15 +82,21 @@ module.exports = async function handler(req, res) {
     const latestRes = parseResultados(latest.resultados) || {};
 
     if (req.method === "GET") {
+      const part = pRes.rows[0];
       const nombrePila = String(latestRes.nombre_pila || "").trim();
       const apellido = String(latestRes.apellido || "").trim();
-      const nombreLinea = String(latest.nombre || pRes.rows[0].nombre || "").trim();
+      const nombreLinea = String(latest.nombre || part.nombre || "").trim();
+      const fecha = latest.created_at ? new Date(latest.created_at).toISOString() : "";
       return res.status(200).json({
         ok: true,
         codigo: codigo,
         nombre_pila: nombrePila,
         apellido: apellido,
         nombre: nombrePila || apellido ? "" : nombreLinea,
+        institucion: String(latest.institucion || part.institucion || "").trim(),
+        pais: String(latest.grupo || part.grupo || "").trim(),
+        curso: String(latest.curso || part.curso || "").trim(),
+        fecha: fecha,
       });
     }
 

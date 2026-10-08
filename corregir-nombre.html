@@ -50,8 +50,12 @@
     .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
     .names{display:none;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-top:14px}
     .names.is-on{display:grid}
+    .datos{display:none;margin-top:14px;padding:10px 12px;border-radius:10px;background:#eef5f0;border:1px solid var(--line);grid-template-columns:1fr 1fr;gap:8px 16px}
+    .datos.is-on{display:grid}
+    .datos b{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700}
+    .datos span{font-size:14px;font-weight:700}
     @media (max-width:640px){
-      .row,.names{grid-template-columns:1fr}
+      .row,.names,.datos{grid-template-columns:1fr}
     }
     label{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
     input{
@@ -85,6 +89,12 @@
         </div>
         <button class="btn" id="buscar" type="button">Buscar</button>
       </div>
+      <div class="datos" id="datos">
+        <div><b>Institución</b><span id="verInstitucion">—</span></div>
+        <div><b>País</b><span id="verPais">—</span></div>
+        <div><b id="verCursoLabel">Grado / curso</b><span id="verCurso">—</span></div>
+        <div><b>Fecha</b><span id="verFecha">—</span></div>
+      </div>
       <div class="names" id="names">
         <div>
           <label for="nombre">Nombre</label>
@@ -106,7 +116,24 @@
       const nombreEl = document.getElementById("nombre");
       const apellidoEl = document.getElementById("apellido");
       const namesEl = document.getElementById("names");
+      const datosEl = document.getElementById("datos");
       const msgEl = document.getElementById("msg");
+
+      function texto(value) {
+        const t = String(value || "").trim();
+        return t || "—";
+      }
+      function pintarDatos(codigo, data) {
+        document.getElementById("verInstitucion").textContent = texto(data && data.institucion);
+        document.getElementById("verPais").textContent = texto(data && data.pais);
+        document.getElementById("verCursoLabel").textContent = String(codigo || "").indexOf("PRO-") === 0 ? "Nivel" : "Grado / curso";
+        document.getElementById("verCurso").textContent = texto(data && data.curso);
+        const fecha = data && data.fecha ? new Date(data.fecha) : null;
+        document.getElementById("verFecha").textContent = fecha && !isNaN(fecha.getTime())
+          ? fecha.toLocaleString("es-EC", { dateStyle: "short", timeStyle: "short" })
+          : "—";
+        datosEl.classList.add("is-on");
+      }
 
       function upField(el) {
         const next = String(el.value || "").toLocaleUpperCase("es-EC");
@@ -137,6 +164,7 @@
         const codigo = String(codigoEl.value || "").trim().toUpperCase();
         codigoEl.value = codigo;
         namesEl.classList.remove("is-on");
+        datosEl.classList.remove("is-on");
         if (!codigo) { say("Ingresa el código.", false); return; }
         say("Buscando...", true);
         try {
@@ -145,6 +173,7 @@
           apellidoEl.value = data.apellido || "";
           upField(nombreEl);
           upField(apellidoEl);
+          pintarDatos(codigo, data);
           namesEl.classList.add("is-on");
           say("", true);
           nombreEl.focus();
