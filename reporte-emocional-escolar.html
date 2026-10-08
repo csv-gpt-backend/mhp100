@@ -804,6 +804,54 @@ function dispBloque(name){
     if(td) td.classList.add("hl");
   }
 
+  const ESCOLAR_INV = new Set([24,32,40,48,52,53,54,55,56,60,71,86,93,107]);
+  function valorEscolarGuardado(raw, id){
+    const c = String(raw == null ? "" : raw).trim().toUpperCase();
+    const inv = ESCOLAR_INV.has(Number(id));
+    if (c === "CS") return inv ? 1 : 3;
+    if (c === "AV") return 2;
+    if (c === "RV") return inv ? 3 : 1;
+    const n = Number(c);
+    if (n === 1 || n === 2 || n === 3) return n;
+    return null;
+  }
+  function leerRespuestaEscolar(resp, id){
+    if (Array.isArray(resp)) {
+      if (resp[id] != null) return resp[id];
+      if (resp[id - 1] != null) return resp[id - 1];
+      return undefined;
+    }
+    if (resp[String(id)] != null) return resp[String(id)];
+    if (resp[id] != null) return resp[id];
+    return undefined;
+  }
+  function validacionEscolarEnReporte(raw){
+    let resp = raw;
+    for (let i = 0; i < 2 && typeof resp === "string"; i++) {
+      try { resp = JSON.parse(resp); } catch (e) { return null; }
+    }
+    if (!resp || typeof resp !== "object") return null;
+    const vals = [];
+    const direct = [];
+    const invers = [];
+    for (let id = 1; id <= 107; id++) {
+      const value = valorEscolarGuardado(leerRespuestaEscolar(resp, id), id);
+      if (value == null) return null;
+      vals.push(value);
+      if (ESCOLAR_INV.has(id)) invers.push(value);
+      else direct.push(value);
+    }
+    const avg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+    const mean = avg(vals);
+    const variance = vals.reduce((s, x) => s + (x - mean) * (x - mean), 0) / vals.length;
+    const spread = Math.sqrt(variance);
+    const diff = Math.abs(avg(direct) - avg(invers));
+    return {
+      IV1: spread < 0.45 ? 0 : spread < 0.9 ? 1 : 2,
+      IV2: diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2
+    };
+  }
+
   function ivToCol(v){
     if (v === null || v === undefined) return 2;
     const n = Number(v);
@@ -2914,9 +2962,15 @@ requestAnimationFrame(() => setCurveMarker(iieForCurve));
 
 // 3) reintento extra por si la imagen tarda un poco en cargar/renderizar
 setTimeout(() => setCurveMarker(iieForCurve), 120);
-    const iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1 ?? (resultados.globales && resultados.globales.IV1);
-    const iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2 ?? (resultados.globales && resultados.globales.IV2);
+    let iv1Val = attempt.iv1Cat ?? attempt.iv1_cat ?? attempt.iv1 ?? attempt.IV1 ?? (resultados.globales && resultados.globales.IV1);
+    let iv2Val = attempt.iv2Cat ?? attempt.iv2_cat ?? attempt.iv2 ?? attempt.IV2 ?? (resultados.globales && resultados.globales.IV2);
     const iv3Val = attempt.iv3Cat ?? attempt.iv3_cat ?? attempt.iv3 ?? attempt.IV3 ?? (resultados.globales && resultados.globales.IV3);
+    const respEscolar = attempt.responses || attempt.respuestas || (resultados && resultados.responses);
+    const validacionEscolar = validacionEscolarEnReporte(respEscolar);
+    if (validacionEscolar) {
+      iv1Val = validacionEscolar.IV1;
+      iv2Val = validacionEscolar.IV2;
+    }
 
     highlightIV("iv1Row", ivToCol(iv1Val));
     highlightIV("iv2Row", ivToCol(iv2Val));

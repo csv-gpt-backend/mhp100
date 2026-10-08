@@ -127,13 +127,32 @@ function scoreSocies(responses, startTime) {
   };
 }
 
+function leerRespuesta(resp, id) {
+  if (Array.isArray(resp)) {
+    if (resp[id] != null) return resp[id];
+    if (resp[id - 1] != null) return resp[id - 1];
+    return undefined;
+  }
+  if (resp[String(id)] != null) return resp[String(id)];
+  if (resp[id] != null) return resp[id];
+  return undefined;
+}
+
+function valorGuardado(raw, inv) {
+  const c = String(raw ?? "").trim().toUpperCase();
+  if (c === "CS" || c === "AV" || c === "RV") return scoreChoice(c, inv);
+  const n = Number(c);
+  if (n === 1 || n === 2 || n === 3) return n;
+  return null;
+}
+
 function validacionDesdeRespuestas(responses) {
   const resp = responses && typeof responses === "object" ? responses : null;
   const items = bank.items || [];
   if (!resp || !items.length) return null;
   const scored = [];
   for (const it of items) {
-    const value = scoreChoice(resp[String(it.id)], isInv(it.inv));
+    const value = valorGuardado(leerRespuesta(resp, it.id), isInv(it.inv));
     if (value == null) return null;
     scored.push({ invFlag: isInv(it.inv), value });
   }

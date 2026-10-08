@@ -45,17 +45,16 @@ function reportMsg(key, lang, extra) {
 }
 
 function asObject(raw) {
-  if (!raw) return null;
-  if (typeof raw === "object") return raw;
-  if (typeof raw === "string") {
+  let value = raw;
+  for (let i = 0; i < 2 && typeof value === "string"; i++) {
     try {
-      const parsed = JSON.parse(raw);
-      return parsed && typeof parsed === "object" ? parsed : null;
+      value = JSON.parse(value);
     } catch (e) {
       return null;
     }
   }
-  return null;
+  if (!value || typeof value !== "object") return null;
+  return value;
 }
 
 function esIntentoIntegridad(attempt, resultados) {
@@ -90,10 +89,10 @@ function esIntentoEscolar(attempt) {
 
 function alinearValidacionEscolar(attempt) {
   if (!attempt || !esIntentoEscolar(attempt)) return;
-  const responses = asObject(attempt.responses);
+  const resultados = asObject(attempt.resultados) || {};
+  const responses = asObject(attempt.responses) || asObject(resultados.responses);
   const validacion = validacionEscolarDesdeRespuestas(responses);
   if (!validacion) return;
-  const resultados = asObject(attempt.resultados) || {};
   if (!resultados.globales || typeof resultados.globales !== "object") {
     resultados.globales = {};
   }
@@ -102,6 +101,10 @@ function alinearValidacionEscolar(attempt) {
   attempt.resultados = resultados;
   attempt.iv1 = validacion.IV1;
   attempt.iv2 = validacion.IV2;
+  attempt.IV1 = validacion.IV1;
+  attempt.IV2 = validacion.IV2;
+  attempt.iv1Cat = validacion.IV1;
+  attempt.iv2Cat = validacion.IV2;
 }
 
 module.exports = async function handler(req, res) {
