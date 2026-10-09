@@ -794,6 +794,10 @@ function dispBloque(name){
     if (p<=70) return {txt:"41–70 Riesgo medio", cls:"b-orange"};
     return {txt:"71–100 Riesgo alto", cls:"b-red"};
   }
+  function invertRiskPctForDisplay(p){
+    if (p == null || Number.isNaN(Number(p))) return p;
+    return Math.round((400 / 3) - Number(p));
+  }
 
   function highlightIV(rowId, colIndex){
     const row = document.getElementById(rowId);
@@ -1129,7 +1133,8 @@ function setCurveMarker(iie){
       const bloqueNorm = canonBloque(bloque);
       const subNorm = normalizeName(sub);
 
-      const pct = adjScore(pctRaw, {bloqueNorm, subNorm});
+      let pct = adjScore(pctRaw, {bloqueNorm, subNorm});
+      if (isRiskScale(bloqueNorm, subNorm)) pct = invertRiskPctForDisplay(pct);
 
       let badge;
       if (isRiskScale(bloqueNorm, subNorm)) badge = rangoBadgeRiesgo(pct);
@@ -1158,7 +1163,9 @@ function setCurveMarker(iie){
     if(!row) return null;
     const vRaw = Number(row.percent ?? row.pct ?? row.porcentaje ?? row.value);
     if(Number.isNaN(vRaw)) return null;
-    return adjScore(vRaw, {bloqueNorm: bloqueKey, subNorm: subKey});
+    const v = adjScore(vRaw, {bloqueNorm: bloqueKey, subNorm: subKey});
+    if (isRiskScale(bloqueKey, subKey)) return invertRiskPctForDisplay(v);
+    return v;
   }
 
   const BLOQUE_DESCS = {
