@@ -8,6 +8,7 @@ const {
 } = require("./eval-codigo");
 const { validacionDesdeRespuestas } = require("./score-integr");
 const { validacionDesdeRespuestas: validacionEscolarDesdeRespuestas } = require("./score-socies");
+const { validacionDesdeRespuestas: validacionSociv2DesdeRespuestas } = require("./score-sociv2");
 
 function isIdiomaLockedReportEval(raw) {
   const t = String(raw || "").trim().toUpperCase();
@@ -92,6 +93,31 @@ function alinearValidacionEscolar(attempt) {
   const resultados = asObject(attempt.resultados) || {};
   const responses = asObject(attempt.responses) || asObject(resultados.responses);
   const validacion = validacionEscolarDesdeRespuestas(responses);
+  if (!validacion) return;
+  if (!resultados.globales || typeof resultados.globales !== "object") {
+    resultados.globales = {};
+  }
+  resultados.globales.IV1 = validacion.IV1;
+  resultados.globales.IV2 = validacion.IV2;
+  attempt.resultados = resultados;
+  attempt.iv1 = validacion.IV1;
+  attempt.iv2 = validacion.IV2;
+  attempt.IV1 = validacion.IV1;
+  attempt.IV2 = validacion.IV2;
+  attempt.iv1Cat = validacion.IV1;
+  attempt.iv2Cat = validacion.IV2;
+}
+
+function esIntentoSociv2(attempt) {
+  const codigo = String((attempt && attempt.codigo) || "").toUpperCase();
+  return codigo.includes("SOCIV2");
+}
+
+function alinearValidacionSociv2(attempt) {
+  if (!attempt || !esIntentoSociv2(attempt)) return;
+  const resultados = asObject(attempt.resultados) || {};
+  const responses = asObject(attempt.responses) || asObject(resultados.responses);
+  const validacion = validacionSociv2DesdeRespuestas(responses);
   if (!validacion) return;
   if (!resultados.globales || typeof resultados.globales !== "object") {
     resultados.globales = {};
@@ -225,6 +251,7 @@ module.exports = async function handler(req, res) {
 
     alinearValidacionIntegridad(attempt);
     alinearValidacionEscolar(attempt);
+    alinearValidacionSociv2(attempt);
 
     // 4) Respuesta final
     return res.status(200).json({

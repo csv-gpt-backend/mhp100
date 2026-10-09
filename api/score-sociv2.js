@@ -26,12 +26,12 @@ function calcIV1_IV2(items) {
     const m = avg(arr);
     return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
   };
-  const invNorm = invers.map((v) => 4 - v);
-  const allNorm = direct.concat(invNorm);
-  if (!allNorm.length) return { iv1Cat: null, iv2Cat: null };
-  const s = stdev(allNorm);
+  // value ya está en la misma dirección (3 = favorable), también en las invertidas.
+  const all = direct.concat(invers);
+  if (!all.length) return { iv1Cat: null, iv2Cat: null };
+  const s = stdev(all);
   const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
-  const diff = Math.abs(avg(direct) - avg(invNorm));
+  const diff = Math.abs(avg(direct) - avg(invers));
   const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
   return { iv1Cat, iv2Cat };
 }
@@ -127,4 +127,38 @@ function scoreSociv2(responses, startTime) {
   };
 }
 
-module.exports = { scoreSociv2 };
+function leerRespuesta(resp, id) {
+  if (Array.isArray(resp)) {
+    if (resp[id] != null) return resp[id];
+    if (resp[id - 1] != null) return resp[id - 1];
+    return undefined;
+  }
+  if (resp[String(id)] != null) return resp[String(id)];
+  if (resp[id] != null) return resp[id];
+  return undefined;
+}
+
+function valorGuardado(raw, inv) {
+  const c = String(raw ?? "").trim().toUpperCase();
+  if (c === "CS" || c === "AV" || c === "RV") return scoreChoice(c, inv);
+  const n = Number(c);
+  if (n === 1 || n === 2 || n === 3) return n;
+  return null;
+}
+
+function validacionDesdeRespuestas(responses) {
+  const resp = responses && typeof responses === "object" ? responses : null;
+  const items = bank.items || [];
+  if (!resp || !items.length) return null;
+  const scored = [];
+  for (const it of items) {
+    const value = valorGuardado(leerRespuesta(resp, it.id), isInv(it.inv));
+    if (value == null) return null;
+    scored.push({ invFlag: isInv(it.inv), value });
+  }
+  const { iv1Cat, iv2Cat } = calcIV1_IV2(scored);
+  if (iv1Cat == null || iv2Cat == null) return null;
+  return { IV1: iv1Cat, IV2: iv2Cat };
+}
+
+module.exports = { scoreSociv2, validacionDesdeRespuestas };
