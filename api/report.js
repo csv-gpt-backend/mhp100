@@ -9,6 +9,7 @@ const {
 const { validacionDesdeRespuestas } = require("./score-integr");
 const { validacionDesdeRespuestas: validacionEscolarDesdeRespuestas } = require("./score-socies");
 const { validacionDesdeRespuestas: validacionSociv2DesdeRespuestas } = require("./score-sociv2");
+const { validacionDesdeRespuestas: validacionLiderDesdeRespuestas } = require("./score-lider");
 
 function isIdiomaLockedReportEval(raw) {
   const t = String(raw || "").trim().toUpperCase();
@@ -118,6 +119,31 @@ function alinearValidacionSociv2(attempt) {
   const resultados = asObject(attempt.resultados) || {};
   const responses = asObject(attempt.responses) || asObject(resultados.responses);
   const validacion = validacionSociv2DesdeRespuestas(responses);
+  if (!validacion) return;
+  if (!resultados.globales || typeof resultados.globales !== "object") {
+    resultados.globales = {};
+  }
+  resultados.globales.IV1 = validacion.IV1;
+  resultados.globales.IV2 = validacion.IV2;
+  attempt.resultados = resultados;
+  attempt.iv1 = validacion.IV1;
+  attempt.iv2 = validacion.IV2;
+  attempt.IV1 = validacion.IV1;
+  attempt.IV2 = validacion.IV2;
+  attempt.iv1Cat = validacion.IV1;
+  attempt.iv2Cat = validacion.IV2;
+}
+
+function esIntentoLiderazgo(attempt) {
+  const codigo = String((attempt && attempt.codigo) || "").toUpperCase();
+  return codigo.includes("LIDERA");
+}
+
+function alinearValidacionLiderazgo(attempt) {
+  if (!attempt || !esIntentoLiderazgo(attempt)) return;
+  const resultados = asObject(attempt.resultados) || {};
+  const responses = asObject(attempt.responses) || asObject(resultados.responses);
+  const validacion = validacionLiderDesdeRespuestas(responses);
   if (!validacion) return;
   if (!resultados.globales || typeof resultados.globales !== "object") {
     resultados.globales = {};
@@ -252,6 +278,7 @@ module.exports = async function handler(req, res) {
     alinearValidacionIntegridad(attempt);
     alinearValidacionEscolar(attempt);
     alinearValidacionSociv2(attempt);
+    alinearValidacionLiderazgo(attempt);
 
     // 4) Respuesta final
     return res.status(200).json({

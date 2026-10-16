@@ -952,6 +952,53 @@ function buildHeaderHTML({nombre,curso,grupo,inst,fecha,codigo}){
     <div><b>${labelCurso}:</b> ${esc(curso||'—')}</div>
     <div><b>Código:</b> ${esc(codigo||'—')}</div>`;
 }
+const LIDER_INV = new Set([26, 35, 76]);
+function valorLiderGuardado(raw, id){
+  const c = String(raw == null ? "" : raw).trim().toUpperCase();
+  const inv = LIDER_INV.has(Number(id));
+  if (c === "CS") return inv ? 1 : 3;
+  if (c === "AV") return 2;
+  if (c === "RV") return inv ? 3 : 1;
+  const n = Number(c);
+  if (n === 1 || n === 2 || n === 3) return n;
+  return null;
+}
+function leerRespuestaLider(resp, id){
+  if (Array.isArray(resp)) {
+    if (resp[id] != null) return resp[id];
+    if (resp[id - 1] != null) return resp[id - 1];
+    return undefined;
+  }
+  if (resp[String(id)] != null) return resp[String(id)];
+  if (resp[id] != null) return resp[id];
+  return undefined;
+}
+function validacionLiderEnReporte(raw){
+  let resp = raw;
+  for (let i = 0; i < 2 && typeof resp === "string"; i++) {
+    try { resp = JSON.parse(resp); } catch (e) { return null; }
+  }
+  if (!resp || typeof resp !== "object") return null;
+  const vals = [];
+  const direct = [];
+  const invers = [];
+  for (let id = 1; id <= 132; id++) {
+    const value = valorLiderGuardado(leerRespuestaLider(resp, id), id);
+    if (value == null) return null;
+    vals.push(value);
+    if (LIDER_INV.has(id)) invers.push(value);
+    else direct.push(value);
+  }
+  const avg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+  const mean = avg(vals);
+  const variance = vals.reduce((s, x) => s + (x - mean) * (x - mean), 0) / vals.length;
+  const spread = Math.sqrt(variance);
+  const diff = Math.abs(avg(direct) - avg(invers));
+  return {
+    IV1: spread < 0.45 ? 0 : spread < 0.9 ? 1 : 2,
+    IV2: diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2
+  };
+}
 function adaptData(data){
   const attempt = data.attempt || {};
   const autosave = data.autosave || data.auto || {};
@@ -1056,8 +1103,14 @@ function adaptData(data){
     ifl = Math.round((idxA + idxB + idxC + idxD) / 4);
   }
 
-    const iv1 = Number(globales.IV1 ?? data.iv1 ?? attempt.iv1 ?? 0); // NA
-  const iv2 = Number(globales.IV2 ?? data.iv2 ?? attempt.iv2 ?? 0); // NC
+    let iv1 = Number(globales.IV1 ?? data.iv1 ?? attempt.iv1 ?? 0); // NA
+  let iv2 = Number(globales.IV2 ?? data.iv2 ?? attempt.iv2 ?? 0); // NC
+  const respLider = attempt.responses || attempt.respuestas || (resultados && resultados.responses);
+  const validacionLider = validacionLiderEnReporte(respLider);
+  if (validacionLider) {
+    iv1 = validacionLider.IV1;
+    iv2 = validacionLider.IV2;
+  }
 
   // =============================================================
   // PT (Promedio del Tiempo)
