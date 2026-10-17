@@ -111,6 +111,12 @@ overflow-x: hidden !important;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px 16px;
     }
+    .grid-id {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr;
+      gap: 8px 16px;
+      margin-bottom: 8px;
+    }
     .field {
       display: flex;
       flex-direction: column;
@@ -384,7 +390,7 @@ overflow-x: hidden !important;
       }
     }
     @media (max-width: 720px) {
-      .grid-2 {
+      .grid-2, .grid-id {
         grid-template-columns: 1fr;
       }
       .questions-header,
@@ -524,7 +530,7 @@ overflow-x: hidden !important;
 
 @media (min-width: 980px){
   #datos-participante .grid-2{
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px 18px;
   }
 }
@@ -579,18 +585,22 @@ overflow-x: hidden !important;
 
       <!-- Datos del participante -->
 <section id="datos-participante" class="card" style="margin-top: 50px;"> 
-  <div class="grid-2">
+  <div class="grid-id">
           <div class="field">
             <label for="codigo">Código</label>
             <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
             <small id="codigoMsg" class="muted"></small>
           </div>
-
           <div class="field">
             <label for="nombre">Nombre</label>
-            <input id="nombre" type="text" autocomplete="name" />
+            <input id="nombre" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. ANA" />
           </div>
-
+          <div class="field">
+            <label for="apellido">Apellido</label>
+            <input id="apellido" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. LÓPEZ" />
+          </div>
+        </div>
+        <div class="grid-2">
           <div class="field">
 <label for="curso" id="lblCurso">Grado/Curso/Nivel</label>
             <input id="curso" type="text" readonly />
@@ -681,7 +691,7 @@ overflow-x: hidden !important;
       <section id="pantalla-final">
         <div class="check-icon">✔</div>
         <h2>Evaluación terminada</h2>
-        <p>Felicidades, has concluido tu evaluación de factores de hábitos.</p>
+        <p>Felicidades, has concluido tu evaluación de hábitos.</p>
         <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
       </section>
     </main>
@@ -847,7 +857,7 @@ let __startTime = Date.now();
     const EVAL_PRODUCT_KEY = "HABITO";
     const EVAL_LANG = "ES";
     let CODIGO_ACTUAL = null;
-const STORAGE_PREFIX = "eval_lid_state_";
+const STORAGE_PREFIX = "eval_hab_state_";
 
     const codigoInput = document.getElementById('codigo');
     const instInput   = document.getElementById('institucion');
@@ -855,6 +865,44 @@ const STORAGE_PREFIX = "eval_lid_state_";
     const cursoInput  = document.getElementById('curso');
     const btnIniciar  = document.getElementById('btnIniciar');
     const codigoMsg   = document.getElementById('codigoMsg');
+
+function toUpperNombre(str) {
+  return String(str || "").toLocaleUpperCase("es-EC");
+}
+function bindUpperInput(el) {
+  if (!el) return;
+  el.addEventListener("input", function () {
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const next = toUpperNombre(el.value);
+    if (el.value !== next) {
+      el.value = next;
+      try { el.setSelectionRange(start, end); } catch (e) {}
+    }
+  });
+}
+function setNombreApellidoReadonly(on) {
+  ["nombre", "apellido"].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.readOnly = !!on;
+    el.setAttribute("autocomplete", "off");
+  });
+}
+function lockNombreApellidoSiHayTexto(nombreVal, apellidoVal) {
+  const nombreEl = document.getElementById("nombre");
+  const apellidoEl = document.getElementById("apellido");
+  if (nombreEl) nombreEl.value = nombreVal || "";
+  if (apellidoEl) apellidoEl.value = apellidoVal || "";
+  if (nombreEl) {
+    nombreEl.readOnly = !!String(nombreVal || "").trim();
+    nombreEl.setAttribute("autocomplete", "off");
+  }
+  if (apellidoEl) {
+    apellidoEl.readOnly = !!String(apellidoVal || "").trim();
+    apellidoEl.setAttribute("autocomplete", "off");
+  }
+}
 
     function getStorageKey() {
       const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
@@ -884,7 +932,7 @@ const STORAGE_PREFIX = "eval_lid_state_";
       if (!state) return false;
       if (state.completed) return true;
       const resp = state.responses || {};
-      return ITEMS.length > 0 && Object.keys(resp).length >= ITEMS.length;
+      return ITEMS.length > 0 && Object.keys(resp).length >= ITEMS.length && Object.values(resp).every((v) => choiceOk(v));
     }
 
     async function syncAutosaveToServer(state) {
@@ -898,6 +946,7 @@ const STORAGE_PREFIX = "eval_lid_state_";
           responses: state.responses || {},
           snapshot: {
             nombre: state.nombre || "",
+            apellido: state.apellido || "",
             institucion: state.institucion || "",
             grupo: state.grupo || "",
             curso: state.curso || "",
@@ -928,6 +977,7 @@ const STORAGE_PREFIX = "eval_lid_state_";
         return {
           codigo: row.codigo || codigo,
           nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+          apellido: snap.apellido || document.getElementById("apellido").value.trim(),
           institucion: snap.institucion || DATOS_FIJOS.institucion,
           grupo: snap.grupo || DATOS_FIJOS.grupo,
           curso: snap.curso || DATOS_FIJOS.curso,
@@ -952,7 +1002,8 @@ const STORAGE_PREFIX = "eval_lid_state_";
         const state = {
           ...prev,
           codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
-          nombre: document.getElementById("nombre").value.trim(),
+          nombre: toUpperNombre(document.getElementById("nombre").value.trim()),
+          apellido: toUpperNombre(document.getElementById("apellido").value.trim()),
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
@@ -982,7 +1033,8 @@ const STORAGE_PREFIX = "eval_lid_state_";
       }
      if (!codigo) {
   instInput.value = grupoInput.value = cursoInput.value = '';
-  document.getElementById('lblCurso').textContent = 'Grado/Curso';
+  setNombreApellidoReadonly(false);
+  document.getElementById('lblCurso').textContent = 'Grado/Curso/Nivel';
   return;
 }
       try {
@@ -1001,6 +1053,7 @@ const STORAGE_PREFIX = "eval_lid_state_";
 
         if (codigoUsado) {
           instInput.value = grupoInput.value = cursoInput.value = '';
+          setNombreApellidoReadonly(false);
           CODIGO_ACTUAL = null;
           btnIniciar.disabled = true;
           if (codigoMsg) {
@@ -1015,6 +1068,7 @@ const STORAGE_PREFIX = "eval_lid_state_";
         const localState = loadStateForCurrentCode();
         if (isStateCompleted(localState)) {
           instInput.value = grupoInput.value = cursoInput.value = '';
+          setNombreApellidoReadonly(false);
           CODIGO_ACTUAL = null;
           btnIniciar.disabled = true;
           if (codigoMsg) {
@@ -1028,6 +1082,41 @@ instInput.value  = data.institucion || '';
 grupoInput.value = data.grupo || '';
 cursoInput.value = data.curso || '';
 document.getElementById('lblCurso').textContent = /^PRO/i.test(data.codigo || codigo) ? 'Nivel' : 'Grado/Curso';
+
+        let nombreGuardado = "";
+        let apellidoGuardado = "";
+        if (localState && !isStateCompleted(localState) && localState.nombre) {
+          nombreGuardado = toUpperNombre(String(localState.nombre).trim());
+          apellidoGuardado = toUpperNombre(String(localState.apellido || "").trim());
+        }
+        if (!nombreGuardado) {
+          const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
+          if (
+            serverDraft &&
+            !isStateCompleted(serverDraft) &&
+            serverDraft.nombre &&
+            serverDraft.responses &&
+            Object.keys(serverDraft.responses).length > 0
+          ) {
+            nombreGuardado = toUpperNombre(String(serverDraft.nombre).trim());
+            apellidoGuardado = toUpperNombre(String(serverDraft.apellido || "").trim());
+          }
+        }
+        if (nombreGuardado) lockNombreApellidoSiHayTexto(nombreGuardado, apellidoGuardado);
+        else setNombreApellidoReadonly(false);
+
+        const bancoOk = await cargarBancoHabitos(CODIGO_ACTUAL);
+        if (!bancoOk) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          setNombreApellidoReadonly(false);
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "No se pudo cargar la evaluación. Intenta de nuevo.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
 btnIniciar.disabled = false;
         if (codigoMsg) {
           codigoMsg.textContent = 'Código válido.';
@@ -1035,7 +1124,8 @@ btnIniciar.disabled = false;
         }
       } catch (e) {
         instInput.value = grupoInput.value = cursoInput.value = '';
-        document.getElementById('lblCurso').textContent = 'Grado/Curso';
+        setNombreApellidoReadonly(false);
+        document.getElementById('lblCurso').textContent = 'Grado/Curso/Nivel';
         if (codigoMsg) {
           codigoMsg.textContent = (e && e.message) ? e.message : 'Código no encontrado.';
           codigoMsg.className = 'err';
@@ -1048,171 +1138,94 @@ btnIniciar.disabled = false;
     });
     codigoInput.addEventListener('blur', lookupCodigo);
     codigoInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); lookupCodigo(); }
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      lookupCodigo().then(function () {
+        const nombreEl = document.getElementById("nombre");
+        if (nombreEl && !nombreEl.readOnly) nombreEl.focus();
+      });
     });
+    (function bindEnterNextFields() {
+      const nombreEl = document.getElementById("nombre");
+      const apellidoEl = document.getElementById("apellido");
+      bindUpperInput(nombreEl);
+      bindUpperInput(apellidoEl);
+      if (nombreEl) {
+        nombreEl.addEventListener("keydown", function (e) {
+          if (e.key !== "Enter") return;
+          e.preventDefault();
+          if (apellidoEl && !apellidoEl.readOnly) apellidoEl.focus();
+        });
+      }
+      if (apellidoEl) {
+        apellidoEl.addEventListener("keydown", function (e) {
+          if (e.key !== "Enter") return;
+          e.preventDefault();
+          apellidoEl.blur();
+        });
+      }
+    })();
 
     const DATOS_FIJOS = {
-      institucion: "Institución por defecto",
-      grupo: "Grupo por defecto",
-      curso: "Grado/Curso/Nivel por defecto"
+      institucion: "",
+      grupo: "",
+      curso: ""
     };
 
     const PAGE_SIZE = 10;
     let currentPage = 0;
 
-    const REF_NORM = {
-      "Consistencia": [71, 50, 100, 96, 71, 100, 50, 80, 70, 100, 96, 71, 100, 50, 96, 71, 60, 96, 96, 100, 30, 30, 50, 40, 40, 40, 70, 60, 30, 70, 50, 60, 40, 50, 40, 80, 80, 20, 60, 40],
-      "Persistencia": [80, 60, 35, 100, 80, 100, 60, 62, 70, 35, 100, 80, 100, 60, 100, 80, 50, 100, 100, 100, 70, 50, 60, 40, 60, 50, 60, 50, 10, 70, 50, 40, 70, 70, 50, 60, 62, 30, 70, 70],
-      "Prudencia": [58, 70, 100, 67, 58, 100, 70, 75, 50, 100, 67, 58, 100, 70, 67, 58, 50, 67, 67, 100, 20, 60, 40, 40, 20, 40, 40, 30, 40, 50, 40, 40, 30, 40, 50, 100, 75, 20, 70, 60],
-      "Cooperacion": [62, 40, 100, 75, 62, 100, 40, 80, 40, 100, 75, 62, 100, 40, 75, 62, 50, 75, 75, 100, 40, 40, 40, 30, 60, 80, 60, 30, 40, 40, 60, 40, 70, 60, 40, 90, 80, 30, 50, 50],
-      "IndiceGeneral": [68, 55, 84, 85, 68, 100, 55, 74, 58, 84, 85, 68, 100, 55, 85, 68, 53, 85, 85, 100, 40, 45, 48, 38, 45, 53, 58, 43, 30, 58, 50, 45, 53, 55, 45, 83, 74, 25, 63, 55],
-    };
-    function pctToOldNorm(pctRaw){
-      // Conversión monotónica anclada para aproximar el modelo antiguo (ESCOLAR)
-      // Ancla: 84 -> 63, 100 -> 100, 0 -> 0
-      const anchorRaw = 84;
-      const anchorOut = 63;
-      let out;
-      if(pctRaw <= anchorRaw){
-        out = Math.round((pctRaw/anchorRaw) * anchorOut);
-      } else {
-        out = Math.round(anchorOut + ((pctRaw-anchorRaw)/(100-anchorRaw)) * (100-anchorOut));
-      }
-      if(out < 0) out = 0;
-      if(out > 100) out = 100;
-      return out;
-    }
-function normPct(pctRaw, perfil){
-  return pctToOldNorm(pctRaw);
-}
-    
-const PREGUNTAS_CSV = `
-1;Tengo paciencia para hablar con la persona adecuada sobre el asunto adecuado.;Prudencia;Prudencia;0
-2;Termino lo que empiezo, aun cuando las cosas se ponen difíciles.;Persistencia;Persistencia;0
-3;Cumplir lo que digo no me es posible.;Consistencia;Consistencia;1
-4;Confío en mis decisiones.;Prudencia;Prudencia;0
-5;Hago todo lo que está en mis manos para cumplir lo que prometo.;Consistencia;Consistencia;0
-6;Identifico las situaciones en las que mi apoyo y trabajo pueden ser de utilidad.;Cooperación;Cooperación;0
-7;Comento cosas privadas con personas ajenas al tema.;Prudencia;Prudencia;1
-8;Hago cosas diferentes a las que pacté con alguien, porque conviene a mis intereses.;Consistencia;Consistencia;1
-9;Las personas tienden a contarme sus asuntos privados.;Consistencia;Consistencia;0
-10;Dialogo para construir ideas o acciones en equipo.;Cooperación;Cooperación;0
-11;Reacciono en forma parecida en situaciones similares.;Consistencia;Consistencia;0
-12;Mantengo mi punto de vista, una vez que he analizado el tema y tomado una decisión.;Consistencia;Consistencia;0
-13;Busco retos en mi vida.;Persistencia;Persistencia;0
-14;Utilizo códigos (passwords) para guardar la información importante de mis archivos electrónicos.;Prudencia;Prudencia;0
-15;La construcción en equipo me parece de poca utilidad.;Cooperación;Cooperación;1
-16;Participo activamente en aportar ideas que puedan lograr los objetivos del grupo.;Cooperación;Cooperación;0
-17;Tiendo a tomar en cuenta lo que yo hago, sin considerar mucho el trabajo que otros han hecho.;Cooperación;Cooperación;1
-18;Le doy información personal a cualquiera que me pregunte.;Prudencia;Prudencia;1
-19;Las opiniones de los demás hacen que cambie mi punto de vista fácilmente.;Consistencia;Consistencia;1
-20;Las personas pueden predecir mis posibles conductas.;Consistencia;Consistencia;0
-21;Evito que la gente me cuente cosas que no debo saber.;Prudencia;Prudencia;0
-22;En situaciones difíciles, defiendo mis ideas.;Persistencia;Persistencia;0
-23;Tomo decisiones casi sin pensar.;Prudencia;Prudencia;1
-24;Prefiero dar mi opinión solamente si me preguntan directamente.;Cooperación;Cooperación;1
-25;Cuando trabajo en equipo tomo en cuenta las ideas y trabajo que los miembros aportan.;Cooperación;Cooperación;0
-26;En el ámbito social, evito conversaciones que no se sustentan en hechos verdaderos.;Prudencia;Prudencia;0
-27;Me apego a rutinas diarias que me facilitan dedicarme a lo importante.;Persistencia;Persistencia;0
-28;Dedico tiempo para tener un punto de vista personal sobre temas importantes para mí.;Prudencia;Prudencia;0
-29;Continúo mis tareas hasta terminarlas.;Persistencia;Persistencia;0
-30;Desconozco sobre los temas que se manejan en mi equipo.;Cooperación;Cooperación;1
-31;Entrego a tiempo lo que acordé.;Persistencia;Persistencia;0
-32;Doy la cara y acepto las consecuencias si hice algo mal.;Consistencia;Consistencia;0
-33;Pienso en las posibles consecuencias que puede presentar una situación dada.;Prudencia;Prudencia;0
-34;Tengo rutinas para hacer las cosas cotidianas fácilmente.;Persistencia;Persistencia;0
-35;Sé lo que debo hacer.;Persistencia;Persistencia;0
-36;Manejo mi vida siguiendo códigos éticos claros y precisos.;Prudencia;Prudencia;0
-37;Dedico tiempo a resolver los problemas que yo mismo provoqué.;Persistencia;Persistencia;0
-38;Para hacer mi trabajo o tareas tomo muy en cuenta lo que otros miembros del equipo aportan.;Cooperación;Cooperación;0
-39;Reviso el progreso de mis deberes.;Persistencia;Persistencia;0
-40;Me cuesta trabajo ceder el liderazgo a alguien más preparado.;Cooperación;Cooperación;1
-41;Me siento parte de los equipos a los que me asignan.;Cooperación;Cooperación;0
-42;Evito que otros imiten mis actitudes y comportamientos.;Consistencia;Consistencia;1
-43;Me enfrento a las consecuencias de mis actos.;Persistencia;Persistencia;0
-44;Cambio mis rutinas.;Consistencia;Consistencia;1
-45;La gente sabe qué esperar de mí.;Consistencia;Consistencia;0
-46;Saldo mis dudas a tiempo.;Persistencia;Persistencia;0
-47;Prefiero alejarme de situaciones incorrectas en lugar de denunciarlas.;Prudencia;Prudencia;1
-48;No son de mi interés las motivaciones de las otras personas.;Cooperación;Cooperación;1
-49;Acepto retos a largo plazo.;Persistencia;Persistencia;0
-50;Dedico tiempo a reflexionar antes de tomar decisiones.;Prudencia;Prudencia;0
-51;Sorprendo a las personas con nuevos comportamientos.;Consistencia;Consistencia;1
-52;Me informo del papel que desempeña cada persona en un equipo antes de comentar sobre algún asunto.;Cooperación;Cooperación;0
-53;Tiendo a evitar las actividades que implican retos difíciles.;Persistencia;Persistencia;1
-54;Me involucro en comentarios privados que no se relacionan conmigo.;Prudencia;Prudencia;1
-55;Soy voluble, cambio fácilmente de estado de ánimo o de opinión.;Consistencia;Consistencia;1
-56;Pienso que mi comportamiento debe ser un modelo a seguir.;Consistencia;Consistencia;0
-57;Dedico tiempo a enterarme sobre lo que otros miembros de mi equipo están haciendo.;Cooperación;Cooperación;0
-58;Me detengo a pensar las consecuencias de lo que voy a decir.;Prudencia;Prudencia;0
-59;Hago lo que digo que voy a hacer.;Consistencia;Consistencia;0
-60;Tiendo a compartir mis ideas con los demás.;Consistencia;Consistencia;0
-61;Dejo para después las tareas aburridas.;Persistencia;Persistencia;1
-62;De manera intencionada, me involucro en situaciones en las cuales se propicia una relación ganar – ganar.;Cooperación;Cooperación;0
-63;Tengo paciencia y espero el mejor momento para comentar algo delicado.;Prudencia;Prudencia;0
-64;Tiendo a evitar el enfrentarme a situaciones difíciles que yo provoqué.;Persistencia;Persistencia;1
-65;Puedo ceder el liderazgo a alguien que sabe más que yo sobre algún asunto.;Cooperación;Cooperación;0
-66;Alguien debe supervisarme para que avance.;Persistencia;Persistencia;1
-67;Busco la manera de denunciar situaciones en las que la información presentada no es correcta.;Prudencia;Prudencia;0
-68;La gente que me conoce puede predecir la forma en la que me comportaré.;Consistencia;Consistencia;0
-69;De forma intencionada incluyo a los demás en las conversaciones del grupo.;Cooperación;Cooperación;0
-70;Pido nuevos plazos para entregar trabajos o propuestas.;Persistencia;Persistencia;1
-71;Identifico las motivaciones de las personas con las que estoy.;Cooperación;Cooperación;0
-72;Interpreto situaciones de dudosa ética de acuerdo a lo que me convenga.;Prudencia;Prudencia;1
-`;
-function norm(str) { return (str || "").trim(); }
-
     let ITEMS = [];
+    let BANCO_VERSION = "HAB-v1-banco-servidor";
+    let BANCO_META = { bloques: 0, subs: 0 };
 
-    function parsePreguntas(csv) {
-      const lines = csv.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      const rows = [];
-      for (const line of lines) {
-        const parts = line.split(";").map(norm);
-        if (parts.length < 5) continue;
-        const id = Number(parts[0]);
-        const invertida = parts[parts.length - 1];
-        const subhab = parts[parts.length - 2];
-        const bloque = parts[parts.length - 3];
-        const pregunta = parts.slice(1, parts.length - 3).join(";");
-        if (!Number.isFinite(id) || !pregunta) continue;
-        rows.push({
-          id, pregunta, bloque,
-          subhabilidad: subhab,
-invertida: (String(invertida).trim() === "1") ? "Sí" : "No",
-          value: null
-        });
-      }
-      rows.sort((a,b)=>a.id-b.id);
-      return rows;
+    function choiceOk(v) {
+      const c = String(v || "").toUpperCase();
+      return c === "CS" || c === "AV" || c === "RV" ? c : "";
+    }
+
+    function tieneMarcasLetras(state) {
+      const resp = (state && state.responses) || {};
+      return Object.values(resp).some((v) => choiceOk(v));
+    }
+
+    async function cargarBancoHabitos(codigo) {
+      const r = await fetch(`/api/banco-habitos?codigo=${encodeURIComponent(codigo)}`);
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.ok || !Array.isArray(data.items) || !data.items.length) return false;
+      ITEMS = data.items.map(it => ({
+        id: Number(it.id),
+        pregunta: String(it.pregunta || ""),
+        choice: null
+      })).filter(it => Number.isFinite(it.id) && it.pregunta);
+      ITEMS.sort((a, b) => a.id - b.id);
+      BANCO_VERSION = data.version || "HAB-v1-banco-servidor";
+      BANCO_META = {
+        bloques: Number(data.n_bloques) || 0,
+        subs: Number(data.n_subs) || 0
+      };
+      currentPage = 0;
+      return ITEMS.length > 0;
     }
 
     function updateProgress() {
       const total = ITEMS.length;
-      const ans = ITEMS.filter(q => q.value != null).length;
+      const ans = ITEMS.filter(q => choiceOk(q.choice)).length;
       const pct = total ? Math.round((ans / total) * 100) : 0;
 
       document.getElementById("bar").style.width = pct + "%";
       document.getElementById("pillTotal").textContent = "Total: " + ans + " / " + total + " (" + pct + "%)";
 
-      const bloques = new Set(ITEMS.map(q => q.bloque));
-      const subs = new Set(ITEMS.map(q => q.subhabilidad));
-      document.getElementById("metaInfo").textContent = bloques.size + " bloques · " + subs.size + " sub-habilidades";
+      document.getElementById("metaInfo").textContent =
+        (BANCO_META.bloques || 0) + " bloques · " + (BANCO_META.subs || 0) + " sub-habilidades";
 
       document.getElementById("notaContinuar").textContent =
         "NOTA: Para continuar debes contestar todas las preguntas. Contestadas: " + ans + "/" + total + ".";
     }
 
-    function construirPreguntas() {
-      ITEMS = parsePreguntas(PREGUNTAS_CSV);
-currentPage = 0;
-      renderPage();
-      updateProgress();
-    }
-
     function markRowAnswered(rowEl, q) {
       if (!rowEl) return;
-      if (q && q.value != null) rowEl.classList.add("answered");
+      if (q && choiceOk(q.choice)) rowEl.classList.add("answered");
       else rowEl.classList.remove("answered");
     }
 
@@ -1289,23 +1302,13 @@ for (let i = start; i < end; i++) {
           r.title = (code==="CS")?labels[0]:(code==="AV")?labels[1]:labels[2];
           r.setAttribute("aria-label", r.title);
 
-          if (q.value != null) {
-            const inv = q.invertida === "Sí";
-            let expectedScore;
-            if (!inv) expectedScore = (code==="CS")?3:(code==="AV")?2:1;
-            else expectedScore = (code==="CS")?1:(code==="AV")?2:3;
-            if (q.value === expectedScore) r.checked = true;
-          }
+          if (choiceOk(q.choice) === code) r.checked = true;
 
           r.addEventListener("change", ()=>{
-            const inv = q.invertida === "Sí";
-            let score;
-            if (!inv) score = (code==="CS")?3:(code==="AV")?2:1;
-            else score = (code==="CS")?1:(code==="AV")?2:3;
-
-            q.value = score;
+            q.choice = code;
             markRowAnswered(row, q);
             updateProgress();
+            saveState(false);
           });
 
           cell.appendChild(r);
@@ -1326,13 +1329,13 @@ for (let i = start; i < end; i++) {
       const total = ITEMS.length;
       const start = currentPage * PAGE_SIZE;
       const end = Math.min(start + PAGE_SIZE, total);
-      for (let i = start; i < end; i++) if (ITEMS[i].value == null) return false;
+      for (let i = start; i < end; i++) if (!choiceOk(ITEMS[i].choice)) return false;
       return true;
     }
 
     function obtenerRespuestasCrudas() {
       const map = {};
-      ITEMS.forEach(q => { if (q.value != null) map[String(q.id)] = q.value; });
+      ITEMS.forEach(q => { const c = choiceOk(q.choice); if (c) map[String(q.id)] = c; });
       return map;
     }
 
@@ -1349,7 +1352,9 @@ window.scrollTo(0, 0);
     function aplicarState(state) {
       if (!state) return;
 
-      document.getElementById("nombre").value = state.nombre || "";
+      const nombreVal = toUpperNombre(state.nombre || "");
+      const apellidoVal = toUpperNombre(state.apellido || "");
+      lockNombreApellidoSiHayTexto(nombreVal, apellidoVal);
       document.getElementById("institucion").value = state.institucion || DATOS_FIJOS.institucion;
       document.getElementById("grupo").value = state.grupo || DATOS_FIJOS.grupo;
       document.getElementById("curso").value = state.curso || DATOS_FIJOS.curso;
@@ -1360,7 +1365,7 @@ window.scrollTo(0, 0);
       const resp = state.responses || {};
       ITEMS.forEach(q => {
         const v = resp[String(q.id)];
-        q.value = (typeof v === "number") ? v : null;
+        q.choice = choiceOk(v) || null;
       });
 
       currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
@@ -1369,7 +1374,7 @@ window.scrollTo(0, 0);
 
     function iniciarEvaluacionNueva() {
       __startTime = Date.now();
-      ITEMS.forEach(q => { q.value = null; });
+      ITEMS.forEach(q => { q.choice = null; });
       currentPage = 0;
       saveState(false);
       // NOTA: La pantalla de preguntas se muestra después de las pantallas intro/instrucciones.
@@ -1393,119 +1398,15 @@ window.scrollTo(0, 0);
         window.scrollTo(0, 0);      }
     }
 
-    function normalizeBloqueName(name) {
-      if (!name) return "";
-      return name.replace(/\s+/g, " ").trim().toLowerCase();
-    }
-
-    function calcIV1_IV2_categories(items) {
-      const direct = items.filter(q => q.invertida === "No" && q.value != null).map(q => q.value);
-      const invers = items.filter(q => q.invertida === "Sí" && q.value != null).map(q => q.value);
-      const avg = arr => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
-      const stdev = arr => {
-        if (arr.length < 2) return 1;
-        const m = avg(arr);
-        return Math.sqrt(arr.reduce((s, x) => s + (x - m) * (x - m), 0) / arr.length);
-      };
-      const invNorm = invers.map(v => 4 - v);
-      const allNorm = direct.concat(invNorm);
-      if (!allNorm.length) return { iv1Cat: null, iv2Cat: null };
-      const s = stdev(allNorm);
-      const iv1Cat = s < 0.45 ? 0 : s < 0.9 ? 1 : 2;
-      const diff = Math.abs(avg(direct) - avg(invNorm));
-      const iv2Cat = diff < 0.4 ? 0 : diff < 0.9 ? 1 : 2;
-      return { iv1Cat, iv2Cat };
-    }
-
-    function calcularResultadosGlobales() {
-      if (!ITEMS.length) return null;
-
-      const perfil = String(CODIGO_ACTUAL || '').toUpperCase().startsWith('PRO') ? 'PRO' : 'ESCOLAR';
-
-      const subMap = new Map();
-      ITEMS.forEach(q => {
-        if (!subMap.has(q.subhabilidad)) {
-          subMap.set(q.subhabilidad, { bloque: q.bloque, items: 0, pts: 0 });
-        }
-        const s = subMap.get(q.subhabilidad);
-        s.items += 1;
-        s.pts += (q.value ?? 0);
-      });
-
-      const subRows = Array.from(subMap.entries())
-        .map(([sub, v]) => {
-          const max = v.items * 3;
-          const pct_raw = max ? Math.round((v.pts / max) * 100) : 0;
-          const pct = normPct(pct_raw, perfil);
-          return { bloque: v.bloque, sub, items: v.items, pts: v.pts, pct, pct_raw };
-        })
-        .sort((a, b) =>
-          (a.bloque || "").localeCompare(b.bloque || "") ||
-          (a.sub || "").localeCompare(b.sub || "")
-        );
-
-      const bloqMap = new Map();
-      subRows.forEach(r => {
-        if (!bloqMap.has(r.bloque)) bloqMap.set(r.bloque, { sumPct: 0, n: 0, pts: 0, items: 0 });
-        const b = bloqMap.get(r.bloque);
-        b.sumPct += r.pct;
-        b.n += 1;
-        b.pts += r.pts;
-        b.items += r.items;
-      });
-
-      const bloqPercents = {};
-      const bloques = {};
-      Array.from(bloqMap.entries()).forEach(([bloque, a]) => {
-        const pct = a.n ? Math.round(a.sumPct / a.n) : 0;
-        bloqPercents[bloque] = pct;
-        bloques[bloque] = { pct, pts: a.pts, items: a.items, max: a.items * 3 };
-      });
-
-      const totalItems = ITEMS.length;
-      const totalPts = ITEMS.reduce((acc, q) => acc + (q.value ?? 0), 0);
-      const totalMax = totalItems * 3;
-      const totalPct_raw = totalMax ? Math.round((totalPts / totalMax) * 100) : 0;
-      const totalPct = normPct(totalPct_raw, perfil);
-
-      const directCount = ITEMS.filter(q => q.invertida === "No").length;
-      const invertidasCount = ITEMS.filter(q => q.invertida === "Sí").length;
-
-      return {
-        prueba: "Habitos",
-        resumen: {
-          total_items: totalItems,
-          total_puntos: totalPts,
-          total_max: totalMax,
-          total_pct: totalPct,
-          total_pct_raw: totalPct_raw
-        },
-        bloques,
-        bloqPercents,
-        subhabilidades: subRows,
-        meta: {
-          page_size: PAGE_SIZE,
-          escala: { SIEMPRE: 3, "ALGUNAS VECES": 2, "RARA VEZ": 1 },
-          conteo_invertidas: invertidasCount,
-          conteo_directas: directCount,
-          minutos_aprox: Math.round((Date.now() - (__startTime || Date.now())) / 60000)
-        }
-      };
-    }
-
     function onFinalizarClick() {
-      const nombre = document.getElementById("nombre").value.trim();
+      const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
+      const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
       if (!nombre) { alert("Por favor ingresa el nombre."); return; }
+      if (!apellido) { alert("Por favor ingresa el apellido."); return; }
 
       const respuestas = obtenerRespuestasCrudas();
       const total = ITEMS.length;
       if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
-
-const resultados = calcularResultadosGlobales();
-  // PERFIL (para baremación / recomendaciones): PRO vs ESCOLAR
-  const perfil = String(CODIGO_ACTUAL || '').toUpperCase().startsWith('PRO') ? 'PRO' : 'ESCOLAR';
-  resultados.meta = resultados.meta || {};
-  resultados.meta.perfil = perfil;
 
       const payload = {
         codigo: CODIGO_ACTUAL,
@@ -1513,13 +1414,13 @@ const resultados = calcularResultadosGlobales();
         idioma: EVAL_LANG,
         snapshot: {
           nombre,
+          apellido,
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
-          version_banco: "HAB-v1"
-
+          version_banco: BANCO_VERSION,
+          startTime: __startTime || Date.now()
         },
-        resultados,
         responses: respuestas
       };
 
@@ -1532,7 +1433,7 @@ const resultados = calcularResultadosGlobales();
       }).catch(()=>{});
 
       document.getElementById("datos-participante").classList.remove("hidden");
-      document.getElementById("nombre").readOnly = true;
+      setNombreApellidoReadonly(true);
 
       document.getElementById("pantalla-preguntas").classList.add("hidden");
       const pantallaFinal = document.getElementById("pantalla-final");
@@ -1558,14 +1459,15 @@ const resultados = calcularResultadosGlobales();
     }
 
     function validarAntesDeIniciar() {
-      const nombre = document.getElementById("nombre").value.trim();
+      const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
+      const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
       if (!nombre) { alert("Por favor ingresa tu nombre antes de iniciar."); return false; }
+      if (!apellido) { alert("Por favor ingresa tu apellido antes de iniciar."); return false; }
       return true;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       inicializarDatosFijos();
-      construirPreguntas();
 
       btnIniciar.disabled = true;
 
@@ -1625,6 +1527,13 @@ btnIniciar.addEventListener("click", async () => {
           alert("Por favor valida el código antes de iniciar.");
           return;
         }
+        if (!ITEMS.length) {
+          const bancoOk = await cargarBancoHabitos(CODIGO_ACTUAL);
+          if (!bancoOk) {
+            alert("No se pudo cargar la evaluación. Valida el código de nuevo.");
+            return;
+          }
+        }
 
         const codigo = (CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase());
 
@@ -1634,15 +1543,11 @@ btnIniciar.addEventListener("click", async () => {
         const localSaved = loadStateForCurrentCode();
         const candidate = serverState || localSaved;
 
-        if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
-          const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
-          if (retomar) {
-            aplicarState(candidate);
-            mostrarPantallaPreguntas();
-            return;
-          } else {
-            clearState();
-          }
+        if (candidate && !isStateCompleted(candidate) && tieneMarcasLetras(candidate)) {
+          alert("Hay un intento en curso para este código. Continuará donde lo dejó.");
+          aplicarState(candidate);
+          mostrarPantallaPreguntas();
+          return;
         }
         iniciarEvaluacionNueva();
         runPreintroAntesDePreguntas(() => {
@@ -1676,6 +1581,5 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
 
 
 
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">CORREGIDO Habitos norma ESCOLAR</div>
 </body>
 </html>

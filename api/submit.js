@@ -13,6 +13,7 @@ const { scoreAprend } = require("./score-aprend");
 const { scoreIntegr } = require("./score-integr");
 const { scoreLider } = require("./score-lider");
 const { scoreIntel } = require("./score-intel");
+const { scoreHabito } = require("./score-habito");
 
 function msg(key, lang) {
   const en = normalizeIdioma(lang) === "EN";
@@ -163,6 +164,19 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: scored.error || fallback });
       }
       resultados = scored.resultados;
+    } else if (evalKey === "HABITO" || evalKey === "HABITOS" || evalKey === "HABIT" || evalKey === "HAB") {
+      const vals = responses && typeof responses === "object" ? Object.values(responses) : [];
+      const letras = vals.length > 0 && vals.every((v) => {
+        const c = String(v || "").trim().toUpperCase();
+        return c === "CS" || c === "AV" || c === "RV";
+      });
+      if (letras) {
+        const scored = scoreHabito(responses, snapshot.startTime, codigo);
+        if (!scored.ok) {
+          return res.status(400).json({ error: scored.error || "No se pudo calcular el resultado." });
+        }
+        resultados = scored.resultados;
+      }
     }
 
     const nombrePila = snapshot.nombre ? String(snapshot.nombre).trim() : null;
