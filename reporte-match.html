@@ -183,8 +183,8 @@
   <div class="toolbar no-print">
     <small>Reporte Match · motor local · curva ADALAM sin modificar</small>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button type="button" id="btnAnaLuis">Cargar Ana × Luis</button>
-      <button type="button" id="btnFromDemo">Desde maqueta (A×B)</button>
+      <button type="button" id="btnEmparejar">Elegir otra pareja</button>
+      <button type="button" id="btnFromDemo">Cargar última pareja</button>
       <button type="button" class="primary" id="btnPrint">Imprimir / PDF</button>
     </div>
   </div>
@@ -192,8 +192,8 @@
   <article class="sheet" id="sheet" hidden>
     <header class="brand">
       <div class="brand-left">
-        <img class="brand-logo" src="assets/logo-adalam.png" alt="ADALAM"
-             onerror="this.onerror=null;this.src='../assets/logo_adalam.png'" />
+        <img class="brand-logo" src="match-assets/logo-adalam.png" alt="ADALAM"
+             onerror="this.onerror=null;this.src='assets/logo_adalam.png'" />
         <div>
           <h1>ADALAM · Match de Fundadores</h1>
           <p class="sub">Reporte de compatibilidad — orientación para conversar. No predice éxito ni emite veredicto automático.</p>
@@ -218,7 +218,7 @@
       <div class="curve-title">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS · Índice de pareja (I) = <span id="iflCurveInline">—</span></div>
       <div class="curveBox">
         <div class="curveGauge">
-          <img id="freqCurveImg" src="../assets/curva_metal.png" alt="Curva de distribución de frecuencias" width="800" height="220" />
+          <img id="freqCurveImg" src="assets/curva_metal.png" alt="Curva de distribución de frecuencias" width="800" height="220" />
           <div id="curveMarker" class="curveMarker" aria-hidden="true">
             <svg width="30" height="54" viewBox="0 0 18 30" style="position:absolute;left:0;bottom:0;transform:translateX(-50%);display:block;overflow:visible;">
               <defs>
@@ -262,9 +262,6 @@
     </p>
   </article>
 
-  <script src="demo-rules.js"></script>
-  <script src="demo-data.js"></script>
-  <script src="engine/match-engine.browser.js"></script>
   <script>
 (function () {
   const DOMAINS = [
@@ -512,45 +509,18 @@
       "<div>Mediación de roles: <span class=\"" + (needMed ? "yes" : "no") + "\">" + (needMed ? "Recomendable" : "Opcional") + "</span></div>" +
       "<div>Bloquear entrega: <span class=\"" + (blocked ? "yes" : "no") + "\">" + (blocked ? "Sí (ATT-FAIL)" : "No") + "</span></div>";
 
-    $("footSource").textContent = source === "smoke"
-      ? " Ejemplo ilustrativo (Ana / Luis) — no es un caso real."
-      : " Origen: maqueta local (perfiles A×B).";
+    $("footSource").textContent = source === "hit"
+      ? " Origen: Hit (perfiles individuales emparejados)."
+      : (source === "smoke" ? " Ejemplo ilustrativo." : " Origen: sesión local.");
 
     setMarker(I == null ? 0 : I);
     window.__matchI = I;
   }
 
-  function loadAnaLuis() {
-    const smoke = MATCH_RULES.smoke_ana_luis;
-    const profileA = {
-      bars: Object.assign({}, smoke.bars_A),
-      subBars: { buen_manejo_agresion: 55, asertividad: 60, buen_manejo_timidez: 50 },
-      eco: { RA: 70, PA: 80, CAP: smoke.CAP_A, ctrl_step: 1 },
-      aciertos: smoke.aciertos_A,
-      flags: []
-    };
-    const profileB = {
-      bars: Object.assign({}, smoke.bars_B),
-      subBars: { buen_manejo_agresion: 55, asertividad: 60, buen_manejo_timidez: 50 },
-      eco: { RA: 55, PA: 32.6, CAP: smoke.CAP_B, ctrl_step: 1 },
-      aciertos: smoke.aciertos_B,
-      flags: []
-    };
-    const pair = MatchEngine.scorePairFromProfiles(profileA, profileB, MATCH_RULES);
-    render({
-      nombreA: "Ana",
-      nombreB: "Luis",
-      barsA: smoke.bars_A,
-      barsB: smoke.bars_B,
-      pair: pair,
-      source: "smoke"
-    });
-  }
-
   function loadFromDemo() {
     try {
       const raw = sessionStorage.getItem("matchDemo.lastReport");
-      if (!raw) throw new Error("No hay pareja guardada. En la maqueta: Guardar A y B → Calcular índice.");
+      if (!raw) throw new Error("No hay pareja cargada. Use Emparejar perfiles Match.");
       const data = JSON.parse(raw);
       if (!data.pair) throw new Error("Payload incompleto.");
       render(data);
@@ -561,7 +531,7 @@
     }
   }
 
-  $("btnAnaLuis").onclick = loadAnaLuis;
+  $("btnEmparejar").onclick = () => { location.href = "match-emparejar.html"; };
   $("btnFromDemo").onclick = loadFromDemo;
   $("btnPrint").onclick = () => window.print();
   window.addEventListener("resize", function () {
@@ -569,8 +539,12 @@
   });
 
   const q = new URLSearchParams(location.search);
-  if (q.get("from") === "storage") loadFromDemo();
-  else loadAnaLuis();
+  if (q.get("from") === "storage" || sessionStorage.getItem("matchDemo.lastReport")) loadFromDemo();
+  else {
+    $("sheet").hidden = true;
+    $("loadErr").hidden = false;
+    $("loadErr").innerHTML = 'Primero empareje dos perfiles en <a href="match-emparejar.html">Emparejar Match</a>.';
+  }
 })();
   </script>
 </body>
