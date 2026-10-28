@@ -1,0 +1,101 @@
+const { sql } = require("@vercel/postgres");
+const {
+  validateCodigoEval,
+  validateCodigoIdioma,
+  mismatchErrorMessage,
+  idiomaMismatchMessage,
+  parseIdiomaFromCodigo,
+  resolveIdioma,
+} = require("./eval-codigo");
+const bank = require("./data/match-bank.json");
+
+function uiFrom(codigo, row) {
+  if (row) return resolveIdioma(codigo, row) === "EN" ? "EN" : "ES";
+  return parseIdiomaFromCodigo(codigo) === "EN" ? "EN" : "ES";
+}
+
+function say(lang, es, en) {
+  return lang === "EN" ? en : es;
+}
+
+/** Ítems seguros para el navegador: sin invertida, correct, expected_x, v_formula. */
+function publicItem(it) {
+  const out = {
+    id: it.id,
+    bank_id: it.bank_id,
+    item_id: it.item_id,
+    domain: it.domain,
+    sub: it.sub,
+    format: it.format,
+    text: it.text,
+    title: it.title || null,
+  };
+  if (it.options) out.options = it.options;
+  if (it.i_min != null) out.i_min = it.i_min;
+  if (it.i_max != null) out.i_max = it.i_max;
+  if (it.anchor_0) out.anchor_0 = it.anchor_0;
+  if (it.anchor_10) out.anchor_10 = it.anchor_10;
+  if (it.series) out.series = it.series;
+  if (it.cells) out.cells = it.cells;
+  if (it.approx_position != null) out.approx_position = it.approx_position;
+  return out;
+}
+
+module.exports = async function handler(req, res) {
+  const codigo = String((req.query && req.query.codigo) || "").trim().toUpperCase();
+  const hint = codigo ? uiFrom(codigo, null) : "ES";
+
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: say(hint, "Solo se permite GET", "Only GET is allowed") });
+  }
+  if (!codigo) {
+    return res.status(400).json({ error: say(hint, "Falta el código", "The code is missing") });
+  }
+
+  try {
+    const pRes = await sql`
+      SELECT *
+      FROM participants
+      WHERE UPPER(codigo) = UPPER(${codigo})
+      LIMIT 1
+    `;
+    if (!pRes.rows.length) {
+      return res.status(404).json({ error: say(hint, "Código no encontrado", "Code not found") });
+    }
+
+    const participante = pRes.rows[0];
+    const lang = uiFrom(codigo, participante);
+    const checkI = validateCodigoIdioma(codigo, lang, participante);
+    if (!checkI.ok) {
+      return res.status(403).json({
+        error: idiomaMismatchMessage(checkI, lang),
+        idioma_mismatch: true,
+      });
+    }
+    const check = validateCodigoEval(codigo, "MATCH", participante);
+    if (!check.ok) {
+      return res.status(403).json({
+        error: mismatchErrorMessage(check, lang),
+        eval_mismatch: true,
+      });
+    }
+
+    const items = (bank.items || []).map(publicItem);
+
+    return res.status(200).json({
+      ok: true,
+      version: bank.version || "MATCH-v1-plan50plus-r2",
+      n: items.length,
+      n_scoring: bank.n_scoring,
+      n_attention: bank.n_attention,
+      cupos: bank.cupos || null,
+      items,
+    });
+  } catch (err) {
+    console.error("banco-match", err);
+    const lang = uiFrom(codigo, null);
+    return res.status(500).json({
+      error: say(lang, "No se pudo cargar la evaluación.", "The assessment could not be loaded."),
+    });
+  }
+};

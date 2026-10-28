@@ -1,0 +1,1239 @@
+<!doctype html>
+<html lang="es" data-fmt="a">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="google" content="notranslate" />
+  <title>ADALAM Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --font: Manrope, system-ui, sans-serif; }
+    /* A · Corporativo centrado (sin riel). Membrete azul + sello del logo. */
+    html[data-fmt="a"] {
+      --bg: #dce6f0; --bg2: #c5d4e4; --paper: #ffffff; --ink: #152033;
+      --muted: #5a6b80; --line: #c8d4e2; --chip: #ffffff;
+      --chrome1: #2a7ab8; --chrome2: #1e4f8a; --chrome3: #163a66;
+      --ok: #ffffff; --soft: #eef3f9; --shadow: 0 20px 50px rgba(15, 45, 82, .14);
+      --brand: #0f2d52; --brand2: #1e4f8a; --accent: #2a7ab8; --gold: #c4a96a;
+    }
+    /* B · Corporativo (2026-10-27): panel marca + azul ADALAM. No es el dossier viejo. */
+    html[data-fmt="b"] {
+      --bg: #e8eef5; --bg2: #d5e0ec; --paper: #ffffff; --ink: #1a2332;
+      --muted: #5a6b7d; --line: #c5d0dc; --chip: #ffffff;
+      --chrome1: #1e4f8a; --chrome2: #1a4578; --chrome3: #163a66;
+      --ok: #ffffff; --soft: #eef3f8; --shadow: 0 12px 40px rgba(22, 58, 102, .10);
+      --brand: #0f2d52; --brand2: #1e4f8a; --accent: #2a7ab8; --gold: #b8a06a;
+      --font: Manrope, system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: var(--font); color: var(--ink);
+      background: radial-gradient(1100px 480px at 8% -8%, var(--bg2), transparent 50%), var(--bg);
+    }
+    .picker {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(12px);
+    }
+    .picker small { color: var(--muted); font-size: 12px; font-weight: 600; }
+    .seg { display: flex; gap: 6px; }
+    .seg button, .ghost, .chrome {
+      font-family: inherit; cursor: pointer;
+    }
+    .seg button {
+      font-weight: 700; font-size: 13px; border: 1px solid var(--line);
+      background: var(--chip); color: var(--ink); border-radius: 999px; padding: 8px 14px;
+    }
+    .seg button.on {
+      background: linear-gradient(180deg, var(--chrome1), var(--chrome2) 55%, var(--chrome3));
+      color: var(--ok); border-color: transparent;
+    }
+    .stage { max-width: 800px; margin: 24px auto 72px; padding: 0 18px; }
+    .card {
+      background: var(--paper); border: 1px solid var(--line); border-radius: 28px;
+      box-shadow: var(--shadow); padding: 32px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
+      padding-bottom: 16px; border-bottom: 1px solid var(--line);
+    }
+    .brand-seal { display: contents; }
+    .brand img { height: 64px; width: auto; }
+    .brand h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -.03em; }
+    .brand p { margin: 3px 0 0; color: var(--muted); font-weight: 600; font-size: 13px; }
+    .kicker { font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+    h2 { margin: 6px 0 12px; font-size: 26px; line-height: 1.18; letter-spacing: -.03em; }
+    .lead { color: var(--muted); line-height: 1.55; margin: 0 0 20px; }
+    .grid { display: grid; gap: 12px; }
+    @media (min-width: 700px) {
+      .grid.two { grid-template-columns: 1fr 1fr; }
+      .grid.three { grid-template-columns: 1fr 1fr 1fr; }
+      .full { grid-column: 1 / -1; }
+    }
+    label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"] {
+      width: 100%; font-family: inherit; font-size: 16px; font-weight: 600;
+      padding: 13px 14px; border-radius: 14px; border: 1px solid var(--line);
+      background: var(--chip); color: var(--ink);
+    }
+    input[readonly] { background: var(--soft); color: var(--muted); }
+    .msg { min-height: 18px; font-size: 12px; font-weight: 700; margin-top: 6px; }
+    .msg.ok { color: #3d6b4f; }
+    .msg.bad { color: #8a3b32; }
+    .hint { margin-top: 16px; padding: 14px 16px; border-radius: 16px; background: var(--soft); color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .actions { display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap; margin-top: 22px; }
+    .chrome {
+      font-weight: 800; font-size: 15px; border: 0; color: var(--ok);
+      background: linear-gradient(180deg, var(--chrome1), var(--chrome2) 48%, var(--chrome3) 52%, #dfe5eb);
+      border-radius: 999px; padding: 13px 22px;
+      box-shadow: 0 8px 18px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.65);
+    }
+    .chrome:disabled { opacity: .45; cursor: not-allowed; }
+    .ghost {
+      font-weight: 700; font-size: 14px; border: 1px solid var(--line);
+      background: transparent; color: var(--ink); border-radius: 999px; padding: 12px 18px;
+    }
+    .topq { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .progress { flex: 1; height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+    .progress > i { display: block; height: 100%; background: linear-gradient(90deg, var(--chrome3), var(--chrome1)); }
+    .count { font-size: 12px; font-weight: 800; color: var(--muted); white-space: nowrap; }
+    .q { font-size: 22px; font-weight: 800; line-height: 1.3; margin: 0 0 8px; letter-spacing: -.02em; color: var(--ink); }
+    .subq { color: var(--muted); font-size: 13px; font-weight: 600; margin: 0 0 16px; }
+    .opts { display: grid; gap: 8px; }
+    .opts.many { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .opts.many .opt { padding: 14px 16px; font-size: 17px; }
+    .opts.many .opt.wide { grid-column: 1 / -1; text-align: left; justify-content: flex-start; }
+    .opt {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      padding: 16px 18px; border-radius: 16px; border: 1px solid var(--line);
+      background: var(--chip); color: var(--ink);
+      font-weight: 700; font-size: 18px; text-align: center; cursor: pointer;
+    }
+    .opt.on {
+      border-color: transparent;
+      background: linear-gradient(180deg, var(--chrome1), var(--chrome2));
+      color: var(--ok);
+    }
+    .scale { display: grid; grid-template-columns: repeat(11, 1fr); gap: 5px; }
+    .scale button {
+      font-family: inherit; font-weight: 800; aspect-ratio: 1; border-radius: 10px;
+      border: 1px solid var(--line); background: var(--chip); color: var(--ink); cursor: pointer;
+    }
+    .scale button.on { background: linear-gradient(180deg, var(--chrome1), var(--chrome3)); color: var(--ok); border: 0; }
+    .anchors { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; font-weight: 600; margin-top: 8px; }
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table th, .table td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+    .table tr { cursor: pointer; }
+    .table tr.on { background: color-mix(in srgb, var(--chrome2) 45%, var(--paper)); font-weight: 700; }
+    .series, .cells { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
+    .pill {
+      min-width: 52px; text-align: center; padding: 12px 10px; border-radius: 14px;
+      background: var(--soft); font-weight: 800; font-size: 18px;
+    }
+    .cells { display: grid; grid-template-columns: 64px 64px; gap: 8px; }
+    .hidden { display: none !important; }
+    .err { color: #8a3b32; font-size: 13px; font-weight: 700; min-height: 18px; }
+    #load-err { max-width: 800px; margin: 40px auto; padding: 20px; }
+
+    /* A: centrado, sin riel. Encabezado corporativo con sello (logo integrado). */
+    html[data-fmt="a"] body {
+      background:
+        radial-gradient(900px 420px at 15% -10%, rgba(42, 122, 184, .22), transparent 55%),
+        radial-gradient(700px 380px at 90% 10%, rgba(15, 45, 82, .12), transparent 50%),
+        linear-gradient(180deg, #e8eef6 0%, #d5e0ec 100%);
+    }
+    html[data-fmt="a"] .rail { display: none !important; }
+    html[data-fmt="a"] .stage { max-width: 1040px; margin: 20px auto 64px; }
+    html[data-fmt="a"] .card {
+      overflow: hidden;
+      border: 0;
+      border-radius: 22px;
+      padding: 0 0 28px;
+      box-shadow: var(--shadow), 0 0 0 1px rgba(30, 79, 138, .12);
+    }
+    html[data-fmt="a"] .brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      margin: 0 0 8px;
+      padding: 32px 36px 30px;
+      border: 0;
+      background:
+        linear-gradient(145deg, #0c2748 0%, #163a66 42%, #1e4f8a 78%, #2569a8 100%);
+      position: relative;
+    }
+    html[data-fmt="a"] .brand::after {
+      content: "";
+      position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
+      background: linear-gradient(90deg, #8a7340, #c4a96a 45%, #e8d5a3 50%, #c4a96a 55%, #8a7340);
+    }
+    html[data-fmt="a"] .brand-seal {
+      display: flex; align-items: center; justify-content: center;
+      background: #fff;
+      border-radius: 20px;
+      padding: 10px 16px;
+      box-shadow:
+        0 0 0 3px rgba(196, 169, 106, .55),
+        0 12px 32px rgba(0, 0, 0, .30);
+    }
+    html[data-fmt="a"] .brand img {
+      height: 128px; width: auto; display: block;
+      background: transparent; border: 0; padding: 0; box-shadow: none;
+    }
+    html[data-fmt="a"] .brand-copy h1 {
+      color: #fff; font-size: 24px; letter-spacing: .04em; text-transform: uppercase;
+    }
+    html[data-fmt="a"] .brand-copy p {
+      color: #b7cce0; font-size: 14px; font-weight: 600;
+    }
+    html[data-fmt="a"] .card > .kicker,
+    html[data-fmt="a"] .card > h2,
+    html[data-fmt="a"] .card > .lead,
+    html[data-fmt="a"] .card > .grid,
+    html[data-fmt="a"] .card > .hint,
+    html[data-fmt="a"] .card > .actions,
+    html[data-fmt="a"] .card > .topq,
+    html[data-fmt="a"] .card > .subq,
+    html[data-fmt="a"] .card > .q,
+    html[data-fmt="a"] .card > #qBody,
+    html[data-fmt="a"] .card > .err {
+      margin-left: 40px; margin-right: 40px;
+    }
+    html[data-fmt="a"] .kicker {
+      color: var(--accent); margin-top: 18px; letter-spacing: .18em;
+    }
+    html[data-fmt="a"] h2 { color: var(--brand); font-weight: 800; }
+    html[data-fmt="a"] .q { color: var(--ink); font-size: 24px; }
+    html[data-fmt="a"] .subq { color: var(--accent); font-weight: 700; }
+    html[data-fmt="a"] .chrome {
+      border-radius: 12px; color: #fff;
+      background: linear-gradient(180deg, #2a7ab8, #1e4f8a 52%, #163a66);
+      box-shadow: 0 10px 22px rgba(30, 79, 138, .30);
+    }
+    html[data-fmt="a"] .ghost {
+      border-radius: 12px; border-color: #a8bdd4; color: var(--brand2); font-weight: 700;
+    }
+    html[data-fmt="a"] input[type="text"] {
+      border-radius: 12px; border-color: #b8c8da;
+    }
+    html[data-fmt="a"] input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(42, 122, 184, .18);
+    }
+    html[data-fmt="a"] .hint {
+      border-radius: 14px; background: #eef3f9;
+      border-left: 4px solid var(--brand2);
+    }
+    html[data-fmt="a"] .progress {
+      height: 10px; border-radius: 99px; background: #e8edf3;
+    }
+    html[data-fmt="a"] .progress > i {
+      background: linear-gradient(90deg, #5a9ec9, #7eb6d8);
+    }
+    html[data-fmt="a"] .count { color: var(--brand2); font-weight: 800; }
+    html[data-fmt="a"] .opt {
+      border-radius: 14px; border: 2px solid #c8d4e2; min-height: 58px;
+      font-size: 18px;
+    }
+    html[data-fmt="a"] .opt:hover {
+      border-color: var(--accent); background: #f4f8fc;
+    }
+    html[data-fmt="a"] .opt.on {
+      background: linear-gradient(180deg, #2a7ab8, #1e4f8a);
+      color: #fff; border-color: #163a66;
+      box-shadow: 0 10px 22px rgba(30, 79, 138, .26);
+    }
+    html[data-fmt="a"] .opt small { display: none; }
+    html[data-fmt="a"] .opts.likert3 { grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    html[data-fmt="a"] .opts.likert3 .opt { min-height: 96px; }
+    html[data-fmt="a"] .scale button {
+      border-radius: 10px; border: 2px solid #c8d4e2;
+    }
+    html[data-fmt="a"] .scale button.on {
+      background: var(--brand2); color: #fff; border-color: var(--brand);
+    }
+    html[data-fmt="a"] .pill {
+      background: #e8eef5; color: var(--brand); border: 1px solid #c8d4e2;
+    }
+    html[data-fmt="a"] .seg button.on {
+      background: linear-gradient(180deg, #2a7ab8, #1e4f8a);
+      color: #fff;
+    }
+    html[data-fmt="a"] .msg.ok { color: #1e4f8a; }
+
+    /* B: riel corporativo con logo */
+    .rail { display: none; }
+    html[data-fmt="b"] body {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: auto 1fr;
+      background: linear-gradient(160deg, #e8eef5 0%, #f4f7fb 45%, #e4ecf5 100%);
+      color: var(--ink);
+    }
+    html[data-fmt="b"] .picker {
+      grid-column: 1 / -1;
+      background: rgba(255,255,255,.92);
+      border-bottom: 1px solid #c5d0dc;
+    }
+    html[data-fmt="b"] .rail {
+      display: flex; flex-direction: column; gap: 20px;
+      grid-row: 2; grid-column: 1;
+      position: sticky; top: 52px; align-self: start;
+      min-height: calc(100vh - 52px);
+      padding: 36px 28px;
+      background: linear-gradient(180deg, #0f2d52 0%, #163a66 55%, #1e4f8a 100%);
+      border-right: 0;
+      color: #e8eef5;
+      box-shadow: 8px 0 32px rgba(15, 45, 82, .18);
+    }
+    html[data-fmt="b"] .rail img {
+      width: 100%; max-width: 240px; height: auto;
+      background: #fff; padding: 16px 18px; border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.22);
+    }
+    html[data-fmt="b"] .rail strong {
+      font-size: 12px; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--gold); font-weight: 800;
+    }
+    html[data-fmt="b"] .rail .rail-tag {
+      font-size: 13px; font-weight: 600; color: #a8bfd6; line-height: 1.4; margin: 0;
+    }
+    html[data-fmt="b"] .rail ol { list-style: none; margin: 12px 0 0; padding: 0; }
+    html[data-fmt="b"] .rail li {
+      font-size: 15px; font-weight: 650; color: #9eb4cc;
+      padding: 12px 14px; margin-bottom: 6px;
+      border-radius: 10px; border: 1px solid transparent;
+    }
+    html[data-fmt="b"] .rail li.on {
+      color: #fff; font-weight: 800;
+      background: rgba(255,255,255,.12);
+      border-color: rgba(184, 160, 106, .45);
+      box-shadow: inset 3px 0 0 var(--gold);
+    }
+    html[data-fmt="b"] .stage {
+      grid-row: 2; grid-column: 2;
+      max-width: 1040px; margin: 24px auto 64px; padding: 0 28px;
+    }
+    html[data-fmt="b"] .brand { display: none; }
+    html[data-fmt="b"] .card {
+      border-radius: 18px; border: 1px solid #c5d0dc; padding: 34px 36px;
+      box-shadow: var(--shadow); background: #fff;
+      border-top: 4px solid var(--brand2);
+    }
+    html[data-fmt="b"] .brand h1 { color: var(--brand); }
+    html[data-fmt="b"] h2 {
+      font-family: Manrope, system-ui, sans-serif; font-weight: 800;
+      color: var(--brand); letter-spacing: -.02em;
+    }
+    html[data-fmt="b"] .q {
+      font-family: Manrope, system-ui, sans-serif; font-weight: 800;
+      font-size: 23px; line-height: 1.35; color: var(--ink); letter-spacing: -.02em;
+    }
+    html[data-fmt="b"] .kicker {
+      color: var(--accent); letter-spacing: .18em; font-weight: 800;
+    }
+    html[data-fmt="b"] .subq { color: var(--accent); font-weight: 700; }
+    html[data-fmt="b"] .lead { color: var(--muted); }
+    html[data-fmt="b"] .chrome {
+      border-radius: 12px; color: #fff;
+      background: linear-gradient(180deg, #2a7ab8, #1e4f8a 55%, #163a66);
+      box-shadow: 0 8px 20px rgba(30, 79, 138, .28);
+    }
+    html[data-fmt="b"] .ghost {
+      border-radius: 12px; border-color: #a8bdd0; color: var(--brand2); font-weight: 700;
+    }
+    html[data-fmt="b"] input[type="text"] {
+      border-radius: 12px; border-color: #b8c8d8; background: #fff;
+    }
+    html[data-fmt="b"] input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(42, 122, 184, .18);
+    }
+    html[data-fmt="b"] .hint {
+      border-radius: 12px; background: #eef3f8;
+      border-left: 4px solid var(--brand2); color: var(--muted);
+    }
+    html[data-fmt="b"] .progress { height: 10px; border-radius: 99px; background: #e8edf3; }
+    html[data-fmt="b"] .progress > i {
+      background: linear-gradient(90deg, #5a9ec9, #7eb6d8);
+    }
+    html[data-fmt="b"] .count { color: var(--brand2); }
+    html[data-fmt="b"] .opts.likert3 { grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    html[data-fmt="b"] .opts.likert3 .opt { min-height: 100px; font-size: 18px; }
+    html[data-fmt="b"] .opt {
+      border-radius: 14px; flex-direction: column; align-items: center;
+      text-align: center; justify-content: center;
+      border: 2px solid #c5d0dc; font-weight: 700; background: #fff; color: var(--ink);
+      font-size: 18px;
+    }
+    html[data-fmt="b"] .opt:hover { border-color: var(--accent); background: #f4f8fc; }
+    html[data-fmt="b"] .opt small {
+      display: block; font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 8px; font-weight: 800;
+    }
+    html[data-fmt="b"] .opt.on {
+      background: linear-gradient(180deg, #2a7ab8, #1e4f8a);
+      color: #fff; border-color: #163a66;
+      box-shadow: 0 10px 22px rgba(30, 79, 138, .28);
+    }
+    html[data-fmt="b"] .opt.on small { color: #cfe4f5; }
+    html[data-fmt="b"] .scale button {
+      border-radius: 10px; background: #fff; border: 2px solid #c5d0dc; color: var(--ink);
+    }
+    html[data-fmt="b"] .scale button.on {
+      background: var(--brand2); color: #fff; border-color: var(--brand);
+    }
+    html[data-fmt="b"] .pill {
+      border-radius: 12px; background: #e8eef5; color: var(--brand); border: 1px solid #c5d0dc;
+    }
+    html[data-fmt="b"] .table th { background: #e8eef5; color: var(--brand); }
+    html[data-fmt="b"] .table tr.on { background: #dce8f4; }
+    html[data-fmt="b"] .seg button { border-radius: 999px; }
+    html[data-fmt="b"] .seg button.on {
+      background: linear-gradient(180deg, #2a7ab8, #1e4f8a);
+      color: #fff;
+    }
+    html[data-fmt="b"] .msg.ok { color: #1e4f8a; }
+
+    /* Resultados motor (cableado local) */
+    .score-box {
+      margin: 8px 40px 0; padding: 16px 18px; border-radius: 14px;
+      background: #eef3f9; border: 1px solid #c8d4e2;
+    }
+    html[data-fmt="b"] .score-box { margin: 12px 0 0; }
+    .score-box h3 { margin: 0 0 10px; font-size: 15px; color: var(--brand); }
+    .score-row {
+      display: grid; grid-template-columns: 110px 1fr 48px; gap: 10px;
+      align-items: center; margin-bottom: 8px; font-size: 13px; font-weight: 700;
+    }
+    .score-row .track {
+      height: 10px; border-radius: 99px; background: #d5e0ec; overflow: hidden;
+    }
+    .score-row .track > i {
+      display: block; height: 100%;
+      background: linear-gradient(90deg, #5a9ec9, #7eb6d8);
+    }
+    .score-flags { margin: 10px 0 0; font-size: 13px; color: var(--muted); line-height: 1.45; }
+    .score-flags b { color: var(--brand2); }
+    .pair-box {
+      margin: 14px 40px 0; padding: 16px 18px; border-radius: 14px;
+      background: #f7faf4; border: 1px solid #c5d6b8;
+    }
+    html[data-fmt="b"] .pair-box { margin: 14px 0 0; }
+    .pair-box .I {
+      font-size: 28px; font-weight: 800; color: var(--brand); letter-spacing: -.03em;
+    }
+    .pair-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .pair-actions .ghost, .pair-actions .chrome { font-size: 13px; padding: 10px 14px; }
+    @media (max-width: 900px) {
+      html[data-fmt="b"] body { grid-template-columns: 1fr; }
+      html[data-fmt="b"] .rail {
+        position: relative; top: 0; min-height: 0;
+        flex-direction: row; flex-wrap: wrap; align-items: center;
+        gap: 12px; padding: 16px 18px;
+      }
+      html[data-fmt="b"] .rail img { max-width: 120px; padding: 8px 10px; }
+      html[data-fmt="b"] .rail ol { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; margin: 0; }
+      html[data-fmt="b"] .rail li { margin: 0; padding: 8px 12px; }
+      html[data-fmt="b"] .stage { grid-column: 1; margin: 20px 14px 64px; padding: 0; }
+      html[data-fmt="b"] .opts.likert3 { grid-template-columns: 1fr; }
+      .opts.many { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="picker" hidden>
+    <small>Match · use su código Hit · 62 preguntas</small>
+    <div class="seg" id="fmt">
+      <button type="button" data-fmt="a" class="on">A · Corporativo</button>
+      <button type="button" data-fmt="b">B · Corporativo</button>
+    </div>
+  </div>
+
+  <p id="load-err" class="hidden card">No se pudo leer el banco. Abra esta página desde la carpeta Match (el archivo JSON tiene que estar junto).</p>
+
+  <aside class="rail">
+    <img src="match-assets/logo-adalam.png" alt="ADALAM" />
+    <strong>ADALAM Match</strong>
+    <p class="rail-tag">Compatibilidad entre socios · evaluación profesional</p>
+    <ol>
+      <li data-step="ingreso">Registro</li>
+      <li data-step="inst">Instrucciones</li>
+      <li data-step="q">Cuestionario</li>
+      <li data-step="end">Cierre</li>
+    </ol>
+  </aside>
+
+  <main class="stage">
+    <section class="card" id="v-ingreso">
+      <div class="brand">
+        <div class="brand-seal"><img src="match-assets/logo-adalam.png" alt="ADALAM" /></div>
+        <div class="brand-copy">
+          <h1>ADALAM Match</h1>
+          <p>Perfil de compatibilidad entre socios</p>
+        </div>
+      </div>
+      <div class="kicker">Registro</div>
+      <h2>Datos de quien responde</h2>
+      <p class="lead">Ingrese el código que le entregaron. Nombre y apellido van en mayúsculas. Institución, país y grado se llenan al validar el código.</p>
+      <div class="grid three">
+        <div>
+          <label for="codigo">Código</label>
+          <input id="codigo" type="text" autocomplete="off" maxlength="32" placeholder="MATCH-…" />
+          <div class="msg" id="codigoMsg"></div>
+        </div>
+        <div>
+          <label for="nombre">Nombre</label>
+          <input id="nombre" type="text" autocomplete="off" spellcheck="false" />
+        </div>
+        <div>
+          <label for="apellido">Apellido</label>
+          <input id="apellido" type="text" autocomplete="off" spellcheck="false" />
+        </div>
+        <div>
+          <label for="curso">Grado / curso</label>
+          <input id="curso" type="text" readonly />
+        </div>
+        <div>
+          <label for="institucion">Institución</label>
+          <input id="institucion" type="text" readonly />
+        </div>
+        <div>
+          <label for="pais">País</label>
+          <input id="pais" type="text" readonly />
+        </div>
+        <div class="full">
+          <label for="fecha">Fecha</label>
+          <input id="fecha" type="text" readonly />
+        </div>
+      </div>
+      <div class="actions">
+        <button class="ghost" type="button" id="btnMenu">Regresar al menú</button>
+        <button class="chrome" type="button" id="btnDatos">Siguiente</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="v-inst">
+      <div class="brand">
+        <div class="brand-seal"><img src="match-assets/logo-adalam.png" alt="ADALAM" /></div>
+        <div class="brand-copy">
+          <h1>ADALAM Match</h1>
+          <p>Perfil de compatibilidad entre socios</p>
+        </div>
+      </div>
+      <div class="kicker">Instrucciones</div>
+      <h2>Cómo se responde</h2>
+      <p class="lead">Hay frases sobre el trato, el trabajo y cómo se lleva con otras personas. No hay respuestas buenas ni malas. Elija lo que realmente haría, no lo que suena mejor.</p>
+      <p class="lead">Más adelante el formato cambia: montos, plazos y unas preguntas cortas de razonamiento. En las frases use <b>Rara vez</b>, <b>A veces</b> o <b>Casi siempre</b>.</p>
+      <p class="hint">Tiempo estimado: 25 a 35 minutos. 62 preguntas en total.</p>
+      <div class="actions">
+        <span></span>
+        <button class="chrome" type="button" id="btnIniciar">Iniciar</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="v-gate">
+      <div class="brand">
+        <div class="brand-seal"><img src="match-assets/logo-adalam.png" alt="ADALAM" /></div>
+        <div class="brand-copy">
+          <h1>ADALAM Match</h1>
+          <p>Perfil de compatibilidad entre socios</p>
+        </div>
+      </div>
+      <div class="kicker" id="gateKicker">Siguiente bloque</div>
+      <h2 id="gateTitle"></h2>
+      <p class="lead" id="gateLead"></p>
+      <div class="actions">
+        <span></span>
+        <button class="chrome" type="button" id="btnGateGo">Continuar</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="v-q">
+      <div class="brand">
+        <div class="brand-seal"><img src="match-assets/logo-adalam.png" alt="ADALAM" /></div>
+        <div class="brand-copy">
+          <h1>ADALAM Match</h1>
+          <p>Perfil de compatibilidad entre socios</p>
+        </div>
+      </div>
+      <div class="topq">
+        <div class="progress"><i id="bar"></i></div>
+        <div class="count" id="count">0 / 62</div>
+      </div>
+      <p class="subq" id="blockTag"></p>
+      <p class="q" id="qText"></p>
+      <div id="qBody"></div>
+      <p class="err" id="qErr"></p>
+      <div class="actions">
+        <span></span>
+        <button class="chrome" type="button" id="btnNext">Siguiente</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="v-end">
+      <div class="brand">
+        <div class="brand-seal"><img src="match-assets/logo-adalam.png" alt="ADALAM" /></div>
+        <div class="brand-copy">
+          <h1>ADALAM Match</h1>
+          <p>Perfil de compatibilidad entre socios</p>
+        </div>
+      </div>
+      <div class="kicker">Listo</div>
+      <h2>Evaluación terminada</h2>
+      <p class="lead" id="endLead">Felicidades, has concluido tu evaluación de Match.</p>
+      <div class="score-box" id="personScore">
+        <h3>Tu perfil (barras 0–100)</h3>
+        <div id="personBars"></div>
+        <p class="score-flags" id="personFlags"></p>
+      </div>
+      <div class="pair-box" id="pairScore">
+        <h3>Índice de pareja</h3>
+        <p class="lead" style="margin:0 0 8px">Match compara dos perfiles. Guarde este como A o B; cuando haya los dos, calcule el índice.</p>
+        <div id="pairSlots" class="score-flags"></div>
+        <div id="pairResult" class="hidden">
+          <div class="I" id="pairI">—</div>
+          <p class="score-flags" id="pairDetail"></p>
+        </div>
+        <div class="pair-actions">
+          <button class="ghost" type="button" id="btnSaveA">Guardar como perfil A</button>
+          <button class="ghost" type="button" id="btnSaveB">Guardar como perfil B</button>
+          <button class="chrome" type="button" id="btnPair">Calcular índice A×B</button>
+          <button class="ghost" type="button" id="btnSmokePair">Probar I Ana×Luis (números Word)</button>
+          <button class="chrome" type="button" id="btnReportInd">Reporte individual</button>
+          <button class="ghost" type="button" id="btnReport">Reporte de pareja</button>
+        </div>
+      </div>
+      <p class="hint">Evaluación Match en Hit. Al terminar se guarda el perfil individual en el servidor.</p>
+      <div class="actions">
+        <span></span>
+        <button class="chrome" type="button" id="btnEnd">Regresar al menú</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const html = document.documentElement;
+    const answers = {};
+    let queue = [];
+    let ix = 0;
+    let lastProfile = null;
+    const SLOT_A = "matchDemo.profileA";
+    const SLOT_B = "matchDemo.profileB";
+    const BAR_ORDER = [
+      ["V", "Valores"],
+      ["S", "Socioemocional"],
+      ["H", "Hábitos"],
+      ["E", "Económico"],
+      ["L", "Liderazgo"],
+      ["C", "Intelectual"]
+    ];
+    const GATES = {
+      eco: {
+        kicker: "Cambio de formato",
+        title: "Decisiones de negocio",
+        lead: "Las siguientes 10 preguntas no son frases de «rara vez / a veces / casi siempre». Son montos, plazos y preferencias. Elija una sola opción, según lo que usted haría."
+      },
+      lid: {
+        kicker: "De nuevo, frases",
+        title: "Ocho frases más",
+        lead: "Vuelve la escala de tres opciones. Siga eligiendo lo que realmente haría."
+      },
+      int: {
+        kicker: "Razonamiento",
+        title: "Seis preguntas cortas",
+        lead: "Hay una respuesta por ítem. No es un examen largo: series, lógica y proporciones."
+      }
+    };
+
+    document.getElementById("fmt").addEventListener("click", e => {
+      const b = e.target.closest("button[data-fmt]"); if (!b) return;
+      html.dataset.fmt = b.dataset.fmt;
+      e.currentTarget.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+    });
+
+    function cap(el) {
+      el.addEventListener("input", () => {
+        const s = el.selectionStart;
+        el.value = el.value.toLocaleUpperCase("es-ES");
+        if (s != null) el.setSelectionRange(s, s);
+      });
+    }
+    cap($("nombre")); cap($("apellido"));
+    $("codigo").addEventListener("input", () => { $("codigo").value = $("codigo").value.toUpperCase(); });
+    $("codigo").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); validar(); } });
+    $("nombre").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("apellido").focus(); } });
+
+    const hoy = new Date();
+    $("fecha").value = hoy.toLocaleDateString("es-EC", { day: "2-digit", month: "long", year: "numeric" });
+
+    async function validar() { return lookupCodigo(); }
+    $("codigo").addEventListener("blur", () => { validar(); });
+
+    function show(id) {
+      ["v-ingreso","v-inst","v-gate","v-q","v-end"].forEach(k => $(k).classList.toggle("hidden", k !== id));
+      const step = id === "v-ingreso" ? "ingreso" : id === "v-inst" ? "inst" : id === "v-end" ? "end" : "q";
+      document.querySelectorAll(".rail li").forEach(li => li.classList.toggle("on", li.dataset.step === step));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    $("btnDatos").onclick = async () => {
+      const ok = await validar();
+      if (!ok) return;
+      if (!$("nombre").value.trim() || !$("apellido").value.trim()) {
+        $("codigoMsg").className = "msg bad";
+        $("codigoMsg").textContent = "Nombre y apellido son obligatorios.";
+        return;
+      }
+      try {
+        await loadBankForCode();
+      } catch (e) {
+        $("codigoMsg").className = "msg bad";
+        $("codigoMsg").textContent = (e && e.message) || "No se pudo cargar el banco.";
+        return;
+      }
+      if (!START_TIME) START_TIME = Date.now();
+      saveLocal();
+      show("v-inst");
+    };
+
+    $("btnIniciar").onclick = () => {
+      if (!Object.keys(answers).length) ix = 0;
+      renderQ();
+      saveLocal();
+    };
+    $("btnNext").onclick = () => {
+      if (!answers[queue[ix].id]) { $("qErr").textContent = "Elija una opción para continuar."; return; }
+      $("qErr").textContent = "";
+      if (ix >= queue.length - 1) {
+        const nom = $("nombre").value.trim() + " " + $("apellido").value.trim();
+        $("endLead").textContent = "Felicidades, " + nom + ", has concluido tu evaluación de Match.";
+        $("btnNext").disabled = true;
+        saveLocal();
+        submitMatch().then(() => {
+          show("v-end");
+          const box = document.getElementById("personScore");
+          if (box) {
+            box.innerHTML = "<h3>Evaluación guardada</h3><p class=\"score-flags\">Ya puede abrir su <a href=\"reporte-match-individual.html?codigo=" +
+              encodeURIComponent(CODIGO_ACTUAL) + "\">reporte individual</a>.</p>";
+          }
+          const pair = document.getElementById("pairScore");
+          if (pair) pair.classList.add("hidden");
+        }).catch((e) => {
+          $("btnNext").disabled = false;
+          $("qErr").textContent = (e && e.message) || "No se pudo guardar. Intente de nuevo.";
+        });
+        return;
+      }
+      const cur = queue[ix];
+      const nxt = queue[ix + 1];
+      if (nxt._block !== cur._block && GATES[nxt._block]) {
+        openGate(nxt._block, ix + 1);
+        return;
+      }
+      ix += 1; renderQ();
+    };
+
+    function openGate(key, targetIx) {
+      const g = GATES[key];
+      $("gateKicker").textContent = g.kicker;
+      $("gateTitle").textContent = g.title;
+      $("gateLead").textContent = g.lead;
+      $("btnGateGo").onclick = () => { ix = targetIx; renderQ(); };
+      show("v-gate");
+    }
+
+    function seedShuffle(arr, seed) {
+      const a = arr.slice();
+      let s = seed >>> 0;
+      const rnd = () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+      for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+      return a;
+    }
+
+    function buildQueue(items) {
+      const by = k => items.filter(it => it.bank_id === k);
+      const likert = seedShuffle([...by("VAL"), ...by("SOC"), ...by("HAB")], 50);
+      const att1 = items.find(it => it.id === "ATT-1");
+      const att2 = items.find(it => it.id === "ATT-2");
+      likert.splice(11, 0, att1);
+      likert.splice(27, 0, att2);
+      likert.forEach(it => it._block = "mix");
+      const eco = by("ECO"); eco.forEach(it => it._block = "eco");
+      const lid = by("LID"); lid.forEach(it => it._block = "lid");
+      const cog = by("INT"); cog.forEach(it => it._block = "int");
+      return [...likert, ...eco, ...lid, ...cog];
+    }
+
+    function optLabel(o) {
+      if (o == null) return "";
+      if (typeof o === "string") return o;
+      if (o.t) return o.t;
+      if (o.text) return (o.code ? o.code + " · " : "") + o.text;
+      return JSON.stringify(o);
+    }
+
+    function setAnswer(id, val, node) {
+      answers[id] = val;
+      $("qErr").textContent = "";
+      if (node) {
+        node.parentElement.querySelectorAll(".opt,.on").forEach(x => x.classList && x.classList.remove("on"));
+        node.classList.add("on");
+      }
+    }
+
+    function renderQ() {
+      const it = queue[ix];
+      const n = queue.length;
+      $("count").textContent = (ix + 1) + " / " + n;
+      $("bar").style.width = ((ix + 1) / n * 100) + "%";
+      $("blockTag").textContent = it._block === "mix" ? "Frases" : it._block === "eco" ? "Negocio" : it._block === "lid" ? "Frases" : "Razonamiento";
+      $("qText").textContent = it.text;
+      $("qErr").textContent = "";
+      const body = $("qBody");
+      body.innerHTML = "";
+      const fmt = it.format === "attention" ? "likert" : it.format;
+
+      if (fmt === "likert") {
+        const labs = ["Rara vez", "A veces", "Casi siempre"];
+        const wrap = document.createElement("div"); wrap.className = "opts likert3";
+        labs.forEach((lab, i) => {
+          const el = document.createElement("label"); el.className = "opt";
+          if (answers[it.id] === i + 1) el.classList.add("on");
+          el.innerHTML = "<small>" + (i + 1) + "</small><span>" + lab + "</span>";
+          el.onclick = () => { setAnswer(it.id, i + 1, el); wrap.querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === el)); };
+          wrap.appendChild(el);
+        });
+        body.appendChild(wrap);
+      } else if (fmt === "scale_0_10") {
+        const sc = document.createElement("div"); sc.className = "scale";
+        for (let i = it.i_min; i <= it.i_max; i++) {
+          const b = document.createElement("button"); b.type = "button"; b.textContent = i;
+          if (answers[it.id] === i) b.classList.add("on");
+          b.onclick = () => { setAnswer(it.id, i); sc.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); };
+          sc.appendChild(b);
+        }
+        body.appendChild(sc);
+        const an = document.createElement("div"); an.className = "anchors";
+        an.innerHTML = "<span>0 · " + (it.anchor_0 || "") + "</span><span>10 · " + (it.anchor_10 || "") + "</span>";
+        body.appendChild(an);
+      } else if (it.id === "ECO-E08") {
+        const tbl = document.createElement("table"); tbl.className = "table";
+        tbl.innerHTML = "<thead><tr><th></th><th>Participación</th><th>Empresa</th><th>Su parte</th><th>Control</th></tr></thead>";
+        const tb = document.createElement("tbody");
+        it.options.forEach((o, i) => {
+          const tr = document.createElement("tr");
+          if (answers[it.id] === i) tr.classList.add("on");
+          tr.innerHTML = "<td>○</td><td>" + o.participacion + "</td><td>" + o.valor_empresa + "</td><td>" + o.valor_participacion + "</td><td>" + o.control + "</td>";
+          tr.onclick = () => { setAnswer(it.id, i); tb.querySelectorAll("tr").forEach(x => x.classList.toggle("on", x === tr)); };
+          tb.appendChild(tr);
+        });
+        tbl.appendChild(tb); body.appendChild(tbl);
+      } else if (fmt === "cognitive") {
+        if (it.series) {
+          const s = document.createElement("div"); s.className = "series";
+          it.series.concat(["?"]).forEach(n => { const p = document.createElement("div"); p.className = "pill"; p.textContent = n; s.appendChild(p); });
+          body.appendChild(s);
+        }
+        if (it.cells) {
+          const s = document.createElement("div"); s.className = "cells";
+          it.cells.flat().forEach(n => { const p = document.createElement("div"); p.className = "pill"; p.textContent = n; s.appendChild(p); });
+          body.appendChild(s);
+        }
+        const wrap = document.createElement("div"); wrap.className = "opts many";
+        it.options.forEach(o => {
+          const el = document.createElement("label"); el.className = "opt";
+          if (answers[it.id] === o.v) el.classList.add("on");
+          el.textContent = o.v.toUpperCase() + ")  " + o.t;
+          el.onclick = () => { setAnswer(it.id, o.v, el); wrap.querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === el)); };
+          wrap.appendChild(el);
+        });
+        body.appendChild(wrap);
+      } else {
+        const n = (it.options || []).length;
+        const wrap = document.createElement("div");
+        wrap.className = "opts" + (n >= 4 ? " many" : "");
+        (it.options || []).forEach((o, i) => {
+          const el = document.createElement("label"); el.className = "opt";
+          const lab = optLabel(o);
+          if (lab.length > 48) el.classList.add("wide");
+          if (answers[it.id] === i) el.classList.add("on");
+          el.textContent = lab;
+          el.onclick = () => { setAnswer(it.id, i, el); wrap.querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === el)); };
+          wrap.appendChild(el);
+        });
+        body.appendChild(wrap);
+      }
+      show("v-q");
+    }
+
+    function fmtBar(v) {
+      if (v == null || !Number.isFinite(v)) return "—";
+      return (Math.round(v * 10) / 10).toLocaleString("es-EC", { maximumFractionDigits: 1 });
+    }
+
+    function renderPersonBars(profile) {
+      const host = $("personBars");
+      host.innerHTML = "";
+      BAR_ORDER.forEach(([k, lab]) => {
+        const v = profile.bars[k];
+        const row = document.createElement("div");
+        row.className = "score-row";
+        const w = v == null ? 0 : Math.max(0, Math.min(100, v));
+        row.innerHTML = "<span>" + lab + "</span><div class=\"track\"><i style=\"width:" + w + "%\"></i></div><span>" + fmtBar(v) + "</span>";
+        host.appendChild(row);
+      });
+      const flags = (profile.flags || []).slice();
+      $("personFlags").innerHTML = flags.length
+        ? "<b>Señales:</b> " + flags.join(" · ")
+        : "Sin señales de atención ni deseabilidad en este perfil.";
+    }
+
+    function finishScoring(nombre) {
+      if (!window.MatchEngine || !window.MATCH_RULES || !window.MATCH_BANK) {
+        $("personFlags").textContent = "No se pudo cargar el motor.";
+        return;
+      }
+      lastProfile = {
+        nombre: nombre,
+        answers: Object.assign({}, answers),
+        scored: MatchEngine.scorePerson(answers, MATCH_BANK, MATCH_RULES)
+      };
+      renderPersonBars(lastProfile.scored);
+      refreshPairSlots();
+      $("pairResult").classList.add("hidden");
+      sessionStorage.setItem("matchDemo.lastIndividual", JSON.stringify({
+        nombre: nombre,
+        institucion: $("institucion").value || "—",
+        fecha: $("fecha").value || "—",
+        profile: lastProfile.scored,
+        source: "demo"
+      }));
+    }
+
+    function readSlot(key) {
+      try {
+        const raw = sessionStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) { return null; }
+    }
+
+    function refreshPairSlots() {
+      const a = readSlot(SLOT_A);
+      const b = readSlot(SLOT_B);
+      $("pairSlots").innerHTML =
+        "<div><b>Perfil A:</b> " + (a ? a.nombre : "vacío") + "</div>" +
+        "<div><b>Perfil B:</b> " + (b ? b.nombre : "vacío") + "</div>";
+    }
+
+    function saveSlot(key, label) {
+      if (!lastProfile) return;
+      const payload = {
+        nombre: lastProfile.nombre,
+        answers: lastProfile.answers,
+        at: new Date().toISOString()
+      };
+      sessionStorage.setItem(key, JSON.stringify(payload));
+      refreshPairSlots();
+      $("pairDetail").textContent = "Guardado como perfil " + label + ".";
+      $("pairResult").classList.remove("hidden");
+      $("pairI").textContent = "—";
+    }
+
+    $("btnSaveA").onclick = () => saveSlot(SLOT_A, "A");
+    $("btnSaveB").onclick = () => saveSlot(SLOT_B, "B");
+    function saveReportPayload(payload) {
+      sessionStorage.setItem("matchDemo.lastReport", JSON.stringify(payload));
+    }
+
+    $("btnSmokePair").onclick = () => {
+      const smoke = MATCH_RULES.smoke_ana_luis;
+      const profileA = {
+        bars: Object.assign({}, smoke.bars_A),
+        subBars: { buen_manejo_agresion: 55, asertividad: 60, buen_manejo_timidez: 50 },
+        eco: { RA: 70, PA: 80, CAP: smoke.CAP_A, ctrl_step: 1 },
+        aciertos: smoke.aciertos_A,
+        flags: []
+      };
+      const profileB = {
+        bars: Object.assign({}, smoke.bars_B),
+        subBars: { buen_manejo_agresion: 55, asertividad: 60, buen_manejo_timidez: 50 },
+        eco: { RA: 55, PA: 32.6, CAP: smoke.CAP_B, ctrl_step: 1 },
+        aciertos: smoke.aciertos_B,
+        flags: []
+      };
+      const pair = MatchEngine.scorePairFromProfiles(profileA, profileB, MATCH_RULES);
+      $("pairResult").classList.remove("hidden");
+      $("pairI").textContent = "I = " + pair.I.toLocaleString("es-EC", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " · " + pair.band;
+      const sd = pair.S;
+      $("pairDetail").innerHTML =
+        "Humo Word: debe ser <b>71,09 Media</b>. " +
+        "S<sub>V</sub> " + fmtBar(sd.V) +
+        " · S<sub>S</sub> " + fmtBar(sd.S) +
+        " · S<sub>H</sub> " + fmtBar(sd.H) +
+        " · S<sub>E</sub> " + fmtBar(sd.E) +
+        " · S<sub>L</sub> " + fmtBar(sd.L) +
+        " · S<sub>C</sub> " + fmtBar(sd.C) +
+        "<br><b>Banderas:</b> " + pair.flags.join(" · ");
+      saveReportPayload({
+        nombreA: "Ana",
+        nombreB: "Luis",
+        barsA: smoke.bars_A,
+        barsB: smoke.bars_B,
+        pair: pair,
+        source: "smoke"
+      });
+    };
+    $("btnPair").onclick = () => {
+      const a = readSlot(SLOT_A);
+      const b = readSlot(SLOT_B);
+      if (!a || !b) {
+        $("pairResult").classList.remove("hidden");
+        $("pairI").textContent = "—";
+        $("pairDetail").textContent = "Falta el perfil A o el B. Conteste dos veces (o use dos navegadores) y guarde cada uno.";
+        return;
+      }
+      const pair = MatchEngine.scorePair(a.answers, b.answers, MATCH_RULES, MATCH_BANK);
+      $("pairResult").classList.remove("hidden");
+      if (pair.blocked) {
+        $("pairI").textContent = "Bloqueado";
+        $("pairDetail").textContent = "ATT-FAIL: las dos de atención fallaron en al menos un perfil. No se entrega índice.";
+        saveReportPayload({
+          nombreA: a.nombre,
+          nombreB: b.nombre,
+          barsA: pair.profileA.bars,
+          barsB: pair.profileB.bars,
+          pair: pair,
+          source: "demo"
+        });
+        return;
+      }
+      if (pair.I == null) {
+        $("pairI").textContent = "Sin índice";
+        $("pairDetail").textContent = "Faltan Valores o Socioemocional (o hay demasiados ítems sin respuesta). Solo perfiles lado a lado.";
+        return;
+      }
+      $("pairI").textContent = "I = " + pair.I.toLocaleString("es-EC", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " · " + pair.band;
+      const sd = pair.S;
+      $("pairDetail").innerHTML =
+        "S<sub>V</sub> " + fmtBar(sd.V) +
+        " · S<sub>S</sub> " + fmtBar(sd.S) +
+        " · S<sub>H</sub> " + fmtBar(sd.H) +
+        " · S<sub>E</sub> " + fmtBar(sd.E) +
+        " · S<sub>L</sub> " + fmtBar(sd.L) +
+        " · S<sub>C</sub> " + fmtBar(sd.C) +
+        "<br><b>Banderas:</b> " + ((pair.flags && pair.flags.length) ? pair.flags.join(" · ") : "ninguna") +
+        "<br>" + a.nombre + " × " + b.nombre +
+        (pair.confidence === "parcial" ? " · confianza parcial" : "");
+      saveReportPayload({
+        nombreA: a.nombre,
+        nombreB: b.nombre,
+        barsA: pair.profileA.bars,
+        barsB: pair.profileB.bars,
+        pair: pair,
+        source: "demo"
+      });
+    };
+    $("btnReportInd").onclick = () => {
+      if (lastProfile) {
+        sessionStorage.setItem("matchDemo.lastIndividual", JSON.stringify({
+          nombre: lastProfile.nombre,
+          institucion: $("institucion").value || "—",
+          fecha: $("fecha").value || "—",
+          profile: lastProfile.scored,
+          source: "demo"
+        }));
+      }
+      window.open("reporte-match-individual.html?from=storage", "_blank");
+    };
+    $("btnReport").onclick = () => {
+      window.open("reporte-match.html?from=storage", "_blank");
+    };
+
+    refreshPairSlots();
+
+
+    const EVAL_PRODUCT_KEY = "MATCH";
+    const EVAL_LANG = "ES";
+    const STORAGE_PREFIX = "adalam_match_";
+    let CODIGO_ACTUAL = null;
+    let START_TIME = null;
+    let BANK_VERSION = "";
+
+    function storageKey() {
+      const c = CODIGO_ACTUAL || ($("codigo").value || "").trim().toUpperCase();
+      return c ? STORAGE_PREFIX + c : null;
+    }
+
+    function saveLocal() {
+      const k = storageKey();
+      if (!k) return;
+      const snap = {
+        codigo: CODIGO_ACTUAL,
+        nombre: ($("nombre").value || "").trim(),
+        apellido: ($("apellido").value || "").trim(),
+        institucion: $("institucion").value,
+        curso: $("curso").value,
+        pais: $("pais").value,
+        answers: answers,
+        ix: ix,
+        startTime: START_TIME,
+        completed: false,
+        version: BANK_VERSION
+      };
+      try { localStorage.setItem(k, JSON.stringify(snap)); } catch (e) {}
+      fetch("/api/autosave", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          codigo: CODIGO_ACTUAL,
+          evaluacion: EVAL_PRODUCT_KEY,
+          idioma: EVAL_LANG,
+          snapshot: snap
+        })
+      }).catch(() => {});
+    }
+
+    async function loadServerDraft(codigo) {
+      try {
+        const r = await fetch("/api/autosave?codigo=" + encodeURIComponent(codigo));
+        const data = await r.json();
+        if (!r.ok || !data.ok || !data.autosave) return null;
+        const row = data.autosave;
+        const snap = typeof row.snapshot === "string" ? JSON.parse(row.snapshot) : (row.snapshot || row);
+        return snap;
+      } catch (e) { return null; }
+    }
+
+    async function lookupCodigo() {
+      const codigo = ($("codigo").value || "").trim().toUpperCase();
+      $("codigo").value = codigo;
+      CODIGO_ACTUAL = null;
+      if (codigo.length < 5) {
+        $("codigoMsg").className = "msg bad";
+        $("codigoMsg").textContent = "Ingrese un código válido.";
+        $("institucion").value = $("pais").value = $("curso").value = "";
+        return false;
+      }
+      $("codigoMsg").className = "msg";
+      $("codigoMsg").textContent = "Buscando…";
+      try {
+        const r = await fetch("/api/lookup?codigo=" + encodeURIComponent(codigo) +
+          "&eval=" + encodeURIComponent(EVAL_PRODUCT_KEY) +
+          "&idioma=" + encodeURIComponent(EVAL_LANG));
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || "Código no válido");
+        const usado =
+          data.usado === true || data.usado === "true" ||
+          (typeof data.disponible === "boolean" && data.disponible === false) ||
+          (data.estado && String(data.estado).toLowerCase() !== "activo") ||
+          (typeof data.intentos_max === "number" && typeof data.intentos_usados === "number" &&
+            data.intentos_usados >= data.intentos_max);
+        if (usado) {
+          $("codigoMsg").className = "msg bad";
+          $("codigoMsg").textContent = "Este código ya fue utilizado o no está disponible.";
+          $("institucion").value = $("pais").value = $("curso").value = "";
+          return false;
+        }
+        CODIGO_ACTUAL = data.codigo || codigo;
+        $("institucion").value = data.institucion || "";
+        $("pais").value = data.pais || data.grupo || "";
+        $("curso").value = data.curso || "";
+        $("codigoMsg").className = "msg ok";
+        $("codigoMsg").textContent = "Código válido." + (data.institucion ? (" · " + data.institucion) : "");
+
+        const localRaw = localStorage.getItem(storageKey());
+        let local = null;
+        try { local = localRaw ? JSON.parse(localRaw) : null; } catch (e) {}
+        const server = await loadServerDraft(CODIGO_ACTUAL);
+        const draft = server || local;
+        if (draft && draft.answers && !draft.completed) {
+          if (draft.nombre) {
+            $("nombre").value = String(draft.nombre).toLocaleUpperCase("es-ES");
+            $("nombre").readOnly = true;
+          }
+          if (draft.apellido) {
+            $("apellido").value = String(draft.apellido).toLocaleUpperCase("es-ES");
+            $("apellido").readOnly = true;
+          }
+          Object.keys(draft.answers).forEach((id) => { answers[id] = draft.answers[id]; });
+          ix = Number(draft.ix) || 0;
+          START_TIME = draft.startTime || Date.now();
+          alert("Tiene una evaluación en curso. Continuará donde la dejó.");
+        }
+        return true;
+      } catch (e) {
+        $("codigoMsg").className = "msg bad";
+        $("codigoMsg").textContent = (e && e.message) || "Código no encontrado.";
+        $("institucion").value = $("pais").value = $("curso").value = "";
+        return false;
+      }
+    }
+
+    async function loadBankForCode() {
+      const codigo = CODIGO_ACTUAL;
+      const r = await fetch("/api/banco-match?codigo=" + encodeURIComponent(codigo));
+      const data = await r.json();
+      if (!r.ok || !data.ok) throw new Error(data.error || "No se pudo cargar el banco");
+      BANK_VERSION = data.version || "";
+      queue = buildQueue(data.items || []);
+    }
+
+    function submitMatch() {
+      const nombre = ($("nombre").value || "").trim();
+      const apellido = ($("apellido").value || "").trim();
+      const payload = {
+        codigo: CODIGO_ACTUAL,
+        evaluacion: EVAL_PRODUCT_KEY,
+        idioma: EVAL_LANG,
+        snapshot: {
+          nombre: nombre,
+          apellido: apellido,
+          institucion: $("institucion").value,
+          curso: $("curso").value,
+          grupo: $("pais").value,
+          startTime: START_TIME,
+          evaluacion: EVAL_PRODUCT_KEY,
+          idioma: EVAL_LANG,
+          version_banco: BANK_VERSION
+        },
+        responses: answers
+      };
+      return fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(async (r) => {
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || "No se pudo guardar");
+        try {
+          const k = storageKey();
+          if (k) {
+            const raw = localStorage.getItem(k);
+            const snap = raw ? JSON.parse(raw) : {};
+            snap.completed = true;
+            localStorage.setItem(k, JSON.stringify(snap));
+          }
+        } catch (e) {}
+        return data;
+      });
+    }
+
+
+    function boot(bank) {
+      queue = buildQueue(bank.items);
+    }
+    // Banco desde /api/banco-match tras código válido.
+    $("btnMenu").onclick = () => { location.href = "index.html"; };
+    if ($("btnEnd")) $("btnEnd").onclick = () => { location.href = "index.html"; };
+
+  </script>
+</body>
+</html>

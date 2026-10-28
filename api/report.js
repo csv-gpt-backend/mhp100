@@ -22,6 +22,7 @@ function isIdiomaLockedReportEval(raw) {
   if (t === "INTEGR" || t === "INTEGRIDAD" || t === "VALORES" || t === "INTG") return true;
   if (t === "INTELC" || t === "INTELECTUAL" || t === "INTEL" || t === "INTE") return true;
   if (t === "LIDERA" || t === "LIDERAZGO" || t === "LIDER" || t === "LIDE" || t === "LID") return true;
+  if (t === "MATCH" || t === "MATCHP" || t === "ADMATCH" || t === "COMPAT") return true;
   return false;
 }
 

@@ -8,6 +8,7 @@ const EVAL_CATALOG = [
   { key: "SOCIES", label: "Socioemocional Escolar", labelEn: "Social-emotional (school)", aliases: ["SOCIESC", "SOCIOEMOCIONALESCOLAR", "SOCESC"] },
   { key: "LIDERA", label: "Liderazgo", labelEn: "Leadership", aliases: ["LIDERAZGO", "LIDER", "LIDE", "LID"] },
   { key: "HABITO", label: "Hábitos", labelEn: "Habits", aliases: ["HABITOS", "HABIT", "HAB"] },
+  { key: "MATCH", label: "Match", labelEn: "Match", aliases: ["MATCHP", "ADMATCH", "COMPAT"] },
   { key: "APREND", label: "Aprendizaje", labelEn: "Learning", aliases: ["APRENDIZAJE", "APREN", "APR"] },
   { key: "VOCACI", label: "Vocacional", labelEn: "Career", aliases: ["VOCACIONAL", "VOCAC", "VOC"] },
 ];
