@@ -195,8 +195,9 @@
         <img class="brand-logo" src="match-assets/logo-adalam.png" alt="ADALAM"
              onerror="this.onerror=null;this.src='assets/logo_adalam.png'" />
         <div>
-          <h1>ADALAM · Match de Fundadores</h1>
-          <p class="sub">Reporte de compatibilidad — orientación para conversar. No predice éxito ni emite veredicto automático.</p>
+          <h1>Reporte de compatibilidad — Match de Fundadores</h1>
+          <p class="sub">Orientación estructurada para conversar antes de asociarse. No es predicción de éxito ni veredicto automático.</p>
+          <p class="sub" style="margin-top:4px;font-size:12px">Este reporte requiere revisión y aprobación de un profesional antes de entregarse a los participantes.</p>
         </div>
       </div>
       <div class="badge" id="badge">
@@ -209,7 +210,7 @@
     <div class="meta">
       <div><span>Participante A</span><b id="nameA">—</b></div>
       <div><span>Participante B</span><b id="nameB">—</b></div>
-      <div><span>Reglas</span><b>Match Plan 50+ · r2</b></div>
+      <div><span>Reglas</span><b>Match Plan 50 · v1 (r2)</b></div>
     </div>
 
     <div class="band-box" id="bandBox">—</div>
@@ -256,14 +257,21 @@
 
     <div class="actions" id="actions"></div>
 
-    <p class="foot">
-      ADALAM Match no certifica idoneidad moral ni éxito empresarial. Resultados según reglas Match Plan 50+ (F-01…F-16 + Económico).
-      <span id="footSource"></span>
-    </p>
+    <div class="q-box" style="margin-top:14px">
+      <strong>Revisión profesional</strong>
+      <p style="margin:8px 0 0;font-size:13px;color:var(--muted)">☐ Aprobar entrega &nbsp; · &nbsp; ☐ Aprobar con mediación &nbsp; · &nbsp; ☐ Bloquear entrega</p>
+      <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">Nombre del revisor: _______________ · Fecha: _______________</p>
+    </div>
+
+    <p class="foot" id="footDisclaimer">—</p>
+    <p class="foot" style="margin-top:4px" id="footParticipant">—</p>
+    <p class="foot" style="margin-top:4px"><span id="footSource"></span></p>
   </article>
 
+  <script src="match-demo-report-pair.js"></script>
   <script>
 (function () {
+  const COPY = window.MATCH_PAIR_COPY;
   const DOMAINS = [
     { k: "V", name: "Valores", w: "27 %" },
     { k: "S", name: "Socioemocional", w: "21 %" },
@@ -272,45 +280,11 @@
     { k: "L", name: "Liderazgo", w: "12 %" },
     { k: "C", name: "Intelectual", w: "8 %" }
   ];
-
-  /* Textos claros (modelo Ana/Luis + alertas del plan). EC-CRISIS no se lista como alarma. */
-  const FLAG_COPY = {
-    "ATT-FAIL": { level: "bad", title: "Atención", text: "Fallaron las dos preguntas de control de atención. No se entrega el índice." },
-    "ATT-INFO": { level: "warn", title: "Atención", text: "Una de las dos preguntas de atención no coincidió. Revisar el perfil con cuidado." },
-    "VAL-EXT": { level: "warn", title: "Deseabilidad", text: "Perfil muy extremo en Valores y Hábitos. Nota profesional; no cambia el índice." },
-    "AV-AM": { level: "warn", title: "Valores", text: "Al menos uno de los dos queda bajo en Valores (piso amarillo). Conviene hablar de límites y coherencia antes de acuerdos formales." },
-    "AV-RO": { level: "bad", title: "Valores", text: "Piso rojo en Valores. Riesgo alto de choque ético o de confianza." },
-    "SO-AM": { level: "warn", title: "Socioemocional", text: "Piso amarillo en el dominio socioemocional. Revisar cómo manejan tensión y trato diario." },
-    "SO-RO": { level: "bad", title: "Socioemocional", text: "Piso rojo en socioemocional. Conversación guiada obligatoria antes de avanzar." },
-    "SO-AM-AGR": { level: "warn", title: "Agresión", text: "Buen manejo de agresión bajo en al menos uno. Acordar cómo se discuten los conflictos." },
-    "SO-RO-AGR": { level: "bad", title: "Agresión", text: "Agresión en cero con asertividad baja en la misma persona. Tope del índice; mediación recomendable." },
-    "SO-INFO-TIM": { level: "warn", title: "Timidez", text: "Timidez en el piso (solo información). Asegurar que las ideas del más callado se escuchen." },
-    "LI-AM": { level: "warn", title: "Liderazgo", text: "Ninguno llega al umbral de cobertura de liderazgo. Definir quién empuja y con qué mandato." },
-    "LI-INFO": { level: "warn", title: "Liderazgo", text: "Hay cobertura de liderazgo en uno de los dos. Explicitar roles para no chocar en la operación diaria." },
-    "EC-AM-CAP": { level: "warn", title: "Económico", text: "Uno puede permitirse perder bastante más que el otro. Acordar temprano salarios, quién cubre faltantes de caja y cómo afecta al reparto de participación." },
-    "EC-AM-RUNWAY": { level: "warn", title: "Económico", text: "Ambos tienen poca capacidad de absorción de pérdida. Revisar runway y aportes." },
-    "EC-AM-CTRL": { level: "warn", title: "Control", text: "Preferencias de control de la empresa distan dos escalones. Hablar de gobierno y veto." },
-    "EC-RO": { level: "bad", title: "Control", text: "Preferencias de control en extremos opuestos. Tope del índice; no firmar sin mediación." },
-    "IN-AM": { level: "warn", title: "Intelectual", text: "Brecha de aciertos de dos o más ítems. Alinear cómo se deciden temas técnicos." },
-    "HA-AM": { level: "warn", title: "Hábitos", text: "Piso amarillo en hábitos de trabajo. Acordar ritmos y plazos visibles para ambos." },
-    "HA-RO": { level: "bad", title: "Hábitos", text: "Piso rojo en hábitos. Alto riesgo operativo si no hay reglas claras de entrega." }
-  };
-
-  const BAND_TEXT = {
-    Alta: "La pareja muestra compatibilidad alta. Aun así, revisar las señales marcadas antes de acuerdos formales.",
-    Media: "La pareja muestra compatibilidad media. Conviene una conversación guiada sobre los puntos marcados antes de avanzar en acuerdos formales.",
-    Reservada: "La pareja queda en banda reservada. No avanzar a una sociedad amplia sin mediación sobre los dominios en amarillo o rojo.",
-    Baja: "Compatibilidad baja según el índice. Priorizar una conversación estructurada; no firmar por inercia."
-  };
-
-  const BASE_QUESTIONS = [
-    "¿Quién tiene la última palabra cuando no hay acuerdo?",
-    "¿Quién lleva visión/comercial y quién operación/producto?",
-    "Si el que lidera menos discrepa, ¿cómo se escucha sin frenar todo?",
-    "¿Qué información del negocio debe ser siempre visible para ambos?",
-    "¿Qué plazos son sagrados y cuáles se pueden renegociar?",
-    "¿Quién cubre faltantes de caja y cómo afecta eso al reparto de participación?"
-  ];
+  const FLAG_COPY = COPY.flags;
+  const BAND_TEXT = COPY.bands;
+  const RECS = COPY.recommendations;
+  const E10 = COPY.e10_options || {};
+  const GEN_Q = COPY.questions_generales_media || [];
 
   function $(id) { return document.getElementById(id); }
   function fmt(v) {
@@ -355,77 +329,47 @@
     else img.addEventListener("load", function () { requestAnimationFrame(place); }, { once: true });
   }
 
-  function domainRecs(flags, S) {
+  function e10Label(code) {
+    if (code == null || code === "") return "—";
+    var k = String(code).trim().toUpperCase();
+    return E10[k] || String(code);
+  }
+
+  function domainRecs(flags) {
     const out = [];
     const has = (f) => flags.includes(f);
-    // Tres pistas por dominio tocado (F-16); base = conversar. Textos alineados al modelo Ana/Luis.
-    if (has("AV-AM") || has("AV-RO") || (S.V != null && S.V < 60)) {
-      out.push({
-        title: "Valores",
-        items: [
-          "Escribir juntos tres límites que ninguno cruzará en el negocio.",
-          "Acordar qué información se declara siempre, aunque incomode.",
-          "Definir qué pasa si uno percibe que el otro dobló una regla."
-        ]
-      });
-    }
+    if (has("AV-AM") || has("AV-RO")) out.push({ title: "Valores", items: RECS.V.slice() });
     if (has("SO-AM") || has("SO-RO") || has("SO-AM-AGR") || has("SO-RO-AGR") || has("SO-INFO-TIM")) {
-      out.push({
-        title: "Socioemocional",
-        items: [
-          "Acordar cómo se discute cuando hay enojo (tiempo fuera, mediador).",
-          "Garantizar turno de voz al más callado en cada reunión clave.",
-          "Separar el conflicto de la persona: hechos primero, juicio después."
-        ]
-      });
+      out.push({ title: "Socioemocional", items: RECS.S.slice() });
     }
-    if (has("HA-AM") || has("HA-RO") || (S.H != null && S.H < 55)) {
-      out.push({
-        title: "Hábitos",
-        items: [
-          "Fijar un tablero visible de plazos sagrados vs renegociables.",
-          "Definir quién avisa con cuánta anticipación si se atrasa una entrega.",
-          "Probar dos semanas con ritual corto de avance (15 minutos)."
-        ]
-      });
+    if (has("HA-AM") || has("HA-RO")) out.push({ title: "Hábitos", items: RECS.H.slice() });
+    if (has("EC-AM-CAP") || has("EC-AM-RUNWAY") || has("EC-AM-CTRL") || has("EC-RO") || has("EC-CRISIS")) {
+      out.push({ title: "Económico", items: RECS.E.slice() });
     }
-    if (has("EC-AM-CAP") || has("EC-AM-RUNWAY") || has("EC-AM-CTRL") || has("EC-RO")) {
-      out.push({
-        title: "Económico",
-        items: [
-          "Acordar salarios y aportes si hay meses sin caja.",
-          "Dejar por escrito quién cubre faltantes y cómo afecta la participación.",
-          "Alinear preferencia de control (veto, directorio) antes de captar capital."
-        ]
-      });
-    }
-    if (has("LI-AM") || has("LI-INFO")) {
-      out.push({
-        title: "Liderazgo",
-        items: [
-          "Explicitar quién lidera visión/comercial y quién operación/producto.",
-          "Definir la última palabra cuando no hay acuerdo.",
-          "Si el que lidera menos discrepa, cómo se escucha sin frenar todo."
-        ]
-      });
-    }
-    if (has("IN-AM")) {
-      out.push({
-        title: "Intelectual",
-        items: [
-          "Acordar cuándo se pide una tercera opinión técnica.",
-          "No usar la brecha de razonamiento como arma en la discusión."
-        ]
-      });
-    }
+    if (has("LI-AM") || has("LI-INFO")) out.push({ title: "Liderazgo", items: RECS.L.slice() });
+    if (has("IN-AM")) out.push({ title: "Intelectual", items: RECS.C.slice() });
     return out;
+  }
+
+  function flagText(code, data) {
+    const c = FLAG_COPY[code];
+    if (!c) return { level: "warn", title: code, text: "Revisar esta bandera con el revisor." };
+    if (code === "EC-CRISIS") {
+      const a = e10Label(data.crisisA);
+      const b = e10Label(data.crisisB);
+      const tpl = c.text_template || "Ante una crisis de caja, A haría primero: {crisisA}; B haría primero: {crisisB}. ¿Cuál de las dos harían juntos y quién decide?";
+      return { level: "info", title: c.title, text: tpl.replace("{crisisA}", a).replace("{crisisB}", b) };
+    }
+    return c;
   }
 
   function render(data) {
     $("loadErr").hidden = true;
     $("sheet").hidden = false;
     const { nombreA, nombreB, barsA, barsB, pair, source } = data;
-    const flags = (pair.flags || []).filter((f) => f !== "EC-CRISIS");
+    const rawFlags = pair.flags || [];
+    const flags = rawFlags.slice();
+    if (!flags.includes("EC-CRISIS")) flags.push("EC-CRISIS");
     const blocked = !!pair.blocked;
     const band = blocked ? "Bloqueado" : (pair.band || "—");
     const I = blocked ? null : pair.I;
@@ -447,7 +391,7 @@
     box.className = "band-box";
     if (blocked) {
       box.classList.add("blocked");
-      box.textContent = "Entrega bloqueada por ATT-FAIL. No se publica el índice hasta repetir con atención válida.";
+      box.textContent = FLAG_COPY["ATT-FAIL"].text;
     } else {
       if (band === "Alta") box.classList.add("alta");
       if (band === "Reservada" || band === "Baja") box.classList.add(band.toLowerCase());
@@ -474,11 +418,12 @@
 
     const sig = $("signals");
     sig.innerHTML = "";
-    if (!flags.length) {
+    const showFlags = flags.filter((f) => f !== "EC-OK");
+    if (!showFlags.length) {
       sig.innerHTML = '<div class="signal"><strong>Sin señales fuertes.</strong> Mantener la conversación de roles y caja de todos modos.</div>';
     } else {
-      flags.forEach((f) => {
-        const c = FLAG_COPY[f] || { level: "warn", title: f, text: "Revisar esta bandera con el revisor." };
+      showFlags.forEach((f) => {
+        const c = flagText(f, data);
         const el = document.createElement("div");
         el.className = "signal " + (c.level === "bad" ? "bad" : c.level === "warn" ? "warn" : "");
         el.innerHTML = "<strong>" + c.title + ".</strong> " + c.text;
@@ -487,7 +432,7 @@
     }
 
     const recHost = $("recs");
-    const recs = domainRecs(flags, pair.S || {});
+    const recs = domainRecs(flags);
     if (!recs.length) {
       recHost.innerHTML = "";
     } else {
@@ -496,22 +441,28 @@
       ).join("");
     }
 
-    const qs = BASE_QUESTIONS.slice();
-    if (flags.includes("EC-AM-CAP") || flags.includes("EC-RO")) {
-      /* ya están en BASE */
+    const qs = [];
+    recs.forEach((r) => r.items.forEach((i) => {
+      const q = i.endsWith("?") ? i : (i.replace(/\.$/, "") + "?");
+      if (qs.indexOf(q) < 0) qs.push(q);
+    }));
+    if (band === "Media" || band === "Alta") {
+      GEN_Q.forEach((q) => { if (qs.indexOf(q) < 0) qs.push(q); });
     }
     $("questions").innerHTML = qs.map((q) => "<li>" + q + "</li>").join("");
 
-    const needMed = flags.some((f) => /RO|AM-AGR|LI-INFO|EC-AM|IN-AM|AV-AM|SO-AM|HA-AM/.test(f));
+    const needMed = flags.some((f) => /RO|AM-AGR|LI-|EC-AM|IN-AM|AV-AM|SO-AM|HA-AM/.test(f));
     $("actions").innerHTML =
-      "<div>Presentar a la pareja: <span class=\"" + (blocked ? "no" : "yes") + "\">" + (blocked ? "No" : "Sí") + "</span>" + (blocked ? "" : " (con conversación guiada)") + "</div>" +
-      "<div>Firmar sociedad amplia ya: <span class=\"no\">No</span> sin esa conversación</div>" +
-      "<div>Mediación de roles: <span class=\"" + (needMed ? "yes" : "no") + "\">" + (needMed ? "Recomendable" : "Opcional") + "</span></div>" +
-      "<div>Bloquear entrega: <span class=\"" + (blocked ? "yes" : "no") + "\">" + (blocked ? "Sí (ATT-FAIL)" : "No") + "</span></div>";
+      "<div>Presentar a la pareja: <span class=\"" + (blocked ? "no" : "yes") + "\">" + (blocked ? "No" : "Sí, con conversación guiada") + "</span></div>" +
+      "<div>Firmar sociedad amplia ya: <span class=\"no\">No sin esa conversación</span></div>" +
+      "<div>Taller / mediación de roles: <span class=\"" + (needMed ? "yes" : "no") + "\">" + (needMed ? "Recomendable" : "Opcional") + "</span></div>" +
+      "<div>Bloquear entrega del reporte: <span class=\"" + (blocked ? "yes" : "no") + "\">" + (blocked ? "Sí (ATT-FAIL)" : "No (salvo criterio del revisor)") + "</span></div>";
 
+    $("footDisclaimer").textContent = COPY.disclaimer;
+    $("footParticipant").textContent = COPY.participant_note;
     $("footSource").textContent = source === "hit"
-      ? " Origen: Hit (perfiles individuales emparejados)."
-      : (source === "smoke" ? " Ejemplo ilustrativo." : " Origen: sesión local.");
+      ? "Origen: Hit (perfiles individuales emparejados)."
+      : (source === "smoke" ? "Ejemplo ilustrativo." : "Origen: sesión local.");
 
     setMarker(I == null ? 0 : I);
     window.__matchI = I;
@@ -523,6 +474,8 @@
       if (!raw) throw new Error("No hay pareja cargada. Use Emparejar perfiles Match.");
       const data = JSON.parse(raw);
       if (!data.pair) throw new Error("Payload incompleto.");
+      if (data.crisisA == null && data.ecoA && data.ecoA.CRISIS != null) data.crisisA = data.ecoA.CRISIS;
+      if (data.crisisB == null && data.ecoB && data.ecoB.CRISIS != null) data.crisisB = data.ecoB.CRISIS;
       render(data);
     } catch (e) {
       $("sheet").hidden = true;

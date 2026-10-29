@@ -131,6 +131,8 @@ function pairFromProfiles(pa, pb) {
     codigoB: pb.codigo,
     barsA: pa.bars,
     barsB: pb.bars,
+    crisisA: (pa.eco && pa.eco.CRISIS != null) ? pa.eco.CRISIS : null,
+    crisisB: (pb.eco && pb.eco.CRISIS != null) ? pb.eco.CRISIS : null,
     pair,
     source: "hit",
   };
