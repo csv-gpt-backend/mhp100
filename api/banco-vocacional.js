@@ -7,7 +7,8 @@ const {
   parseIdiomaFromCodigo,
   resolveIdioma,
 } = require("./eval-codigo");
-const bank = require("./data/vocac-bank.json");
+const bankEs = require("./data/vocac-bank.json");
+const bankEn = require("./data/vocac-bank-en.json");
 
 function uiFrom(codigo, row) {
   if (row) return resolveIdioma(codigo, row) === "EN" ? "EN" : "ES";
@@ -42,6 +43,7 @@ module.exports = async function handler(req, res) {
 
     const participante = pRes.rows[0];
     const lang = uiFrom(codigo, participante);
+    const bank = lang === "EN" ? bankEn : bankEs;
     const checkI = validateCodigoIdioma(codigo, lang, participante);
     if (!checkI.ok) {
       return res.status(403).json({
@@ -83,7 +85,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       ok: true,
-      version: bank.version || "VOC-v1-banco-servidor",
+      version: bank.version || (lang === "EN" ? "VOC-EN-v1-banco-servidor" : "VOC-v1-banco-servidor"),
       n: items.length,
       section_meta: bank.section_meta || {},
       items,

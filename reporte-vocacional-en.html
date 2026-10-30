@@ -1,6 +1,7 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no" class="notranslate">
 <head>
+  <meta name="google" content="notranslate">
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Career Orientation – Report</title>
@@ -46,11 +47,11 @@
     .rep-top{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:6px}
     .rep-top-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px;margin-bottom:6px}
     .rep-date{justify-self:flex-start}.rep-top-center{text-align:center;font-weight:700;text-transform:uppercase}.rep-top-logo{justify-self:flex-end}
-    .mhp-logo{height:170px;margin-left:12px;margin-top:-4px;object-fit:contain}
+    .mhp-logo{height:90px;margin-left:12px;margin-top:-4px;object-fit:contain}
     .rep-top-row2{display:flex;justify-content:center;align-items:center;gap:12px;font-size:26px;font-weight:800;margin-bottom:2px;text-transform:uppercase}
     .rep-top-row3{text-align:center;font-size:18px;font-weight:800}
-    .rep-ids{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;border:1px solid var(--line);padding:8px;border-radius:12px;background:#fff}
-    .rep-ids>div{font-size:13px}
+    .rep-ids{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:4px 24px;border:1px solid #000;border-radius:0;padding:6px;background:#fff}
+    .rep-ids>div{font-size:13px;line-height:1.35}
     .section-title{font-weight:800;font-size:18px;margin:14px 0 8px;display:flex;align-items:center;gap:8px}
     .section-dot{width:10px;height:10px;border-radius:999px;background:var(--orange)}
     .rep-mid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
@@ -109,7 +110,7 @@
       .page{break-inside:auto;margin-top:0}
       .page-break{page-break-before:always}
       #page1{page-break-after:always}
-      .mhp-logo{height:130px}
+      .mhp-logo{height:74px !important}
       .rep-top-row2{font-size:22px}.rep-top-row3{font-size:16px}
       #tituloCurvaFrecuencias{font-size:12px !important;white-space:nowrap}
     }
@@ -550,19 +551,25 @@
     return Math.round((topAvg*0.75)+(compAvg*0.25));
   }
 
-  function buildHeader(attempt){
+  function buildHeader(attempt, resultados){
     const codigoActual = String(document.getElementById('codigoInput')?.value || attempt.codigo || '').trim().toUpperCase();
     const esProfesional = codigoActual.startsWith('PRO');
     window.__ESPRO__ = esProfesional;
     const labelCurso = esProfesional ? 'Level' : 'Grade/Course';
     const fechaTexto = fmtDate(attempt.created_at);
+    const res = resultados || parseMaybeJSON(attempt.resultados) || {};
+    const apellidoRep = String(res.apellido || "").trim();
+    const nombrePila = String(res.nombre_pila || "").trim();
+    const nombre = (nombrePila && apellidoRep)
+      ? (nombrePila + " " + apellidoRep)
+      : (attempt.nombre || "—");
     const headerHtml = `
-      <div><b>Name:</b> ${escapeHtml(attempt.nombre || '—')}</div>
-      <div><b>${labelCurso}:</b> ${escapeHtml(attempt.curso || '—')}</div>
+      <div><b>Name:</b> ${escapeHtml(nombre)}</div>
       <div><b>Country:</b> ${escapeHtml(attempt.grupo || '—')}</div>
       <div><b>Institution:</b> ${escapeHtml(attempt.institucion || '—')}</div>
-      <div><b>Code:</b> ${escapeHtml(attempt.codigo || codigoActual || '—')}</div>
-      <div><b>Date:</b> ${escapeHtml(fechaTexto)}</div>`;
+      <div><b>Date:</b> ${escapeHtml(fechaTexto)}</div>
+      <div><b>${labelCurso}:</b> ${escapeHtml(attempt.curso || '—')}</div>
+      <div><b>Code:</b> ${escapeHtml(attempt.codigo || codigoActual || '—')}</div>`;
     const header = document.getElementById('repHeaderBox');
     if (header) header.innerHTML = headerHtml;
     const header2 = document.getElementById('repHeaderBox2');
@@ -876,11 +883,14 @@ function buildContexts(resultados){
 
   box.innerHTML = blocks;
 }
+  const REPORT_PRODUCT_KEY = "VOCACI";
+  const REPORT_UI_LANG = "EN";
+
   function renderAll(data){
     window.__LAST_REPORT__ = data;
     const attempt = data.attempt || {};
     const resultados = parseMaybeJSON(attempt.resultados) || {};
-    buildHeader(attempt);
+    buildHeader(attempt, resultados);
     const overall = overallVocScore(resultados);
     const co = coherenceLevel(resultados);
     const nc = contradictionLevel(resultados);
@@ -909,8 +919,14 @@ function buildContexts(resultados){
     const introLogo = document.querySelector('.intro-logo-wrap');
     if (introLogo) introLogo.style.display = '';
     try{
-      const r=await fetch(`/api/report?codigo=${encodeURIComponent(codigo)}`);
+      const q=new URLSearchParams({ codigo, eval: REPORT_PRODUCT_KEY, idioma: REPORT_UI_LANG });
+      const r=await fetch(`/api/report?${q.toString()}`);
       const data=await r.json();
+      if(r.status===403 && (data.eval_mismatch || data.idioma_mismatch)){
+        document.getElementById('msg').textContent=data.error || 'This code does not match this assessment.';
+        document.getElementById('msg').className='msg err';
+        return;
+      }
       if(!r.ok || data.error){ document.getElementById('msg').textContent=data.error || 'Not found'; document.getElementById('msg').className='msg err'; return; }
       if(!data || !data.attempt){ document.getElementById('msg').textContent='No registered attempt was found for this code.'; document.getElementById('msg').className='msg err'; return; }
       if(data.puede_ver_resultado !== true){ document.getElementById('msg').textContent='This code is not enabled to view its report. Contact your coordinator.'; document.getElementById('msg').className='msg err'; return; }
