@@ -14,6 +14,7 @@ const { scoreIntegr } = require("./score-integr");
 const { scoreLider } = require("./score-lider");
 const { scoreIntel } = require("./score-intel");
 const { scoreHabito } = require("./score-habito");
+const { scoreVocac } = require("./score-vocac");
 const { scoreMatch } = require("./score-match");
 
 function msg(key, lang) {
@@ -173,6 +174,19 @@ module.exports = async function handler(req, res) {
       });
       if (letras) {
         const scored = scoreHabito(responses, snapshot.startTime, codigo);
+        if (!scored.ok) {
+          return res.status(400).json({ error: scored.error || "No se pudo calcular el resultado." });
+        }
+        resultados = scored.resultados;
+      }
+    } else if (evalKey === "VOCACI" || evalKey === "VOCACIONAL" || evalKey === "VOCAC" || evalKey === "VOC") {
+      const vals = responses && typeof responses === "object" ? Object.values(responses) : [];
+      const letras = vals.length > 0 && vals.every((v) => {
+        const c = String(v || "").trim().toUpperCase();
+        return c === "CS" || c === "AV" || c === "RV" || c === "A" || c === "B" || c === "C";
+      });
+      if (letras) {
+        const scored = scoreVocac(responses, snapshot.startTime, codigo);
         if (!scored.ok) {
           return res.status(400).json({ error: scored.error || "No se pudo calcular el resultado." });
         }

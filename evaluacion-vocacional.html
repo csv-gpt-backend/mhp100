@@ -1,7 +1,8 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" translate="no" class="notranslate">
 <head>
   <meta charset="utf-8" />
+  <meta name="google" content="notranslate">
   <title>Evaluación Orientación Vocacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
@@ -727,18 +728,22 @@ body.tema-pro .option-letter{
 
       <!-- Datos del participante -->
 <section id="datos-participante" class="card" style="margin-top: 50px;"> 
-  <div class="grid-2">
+  <div class="grid-id">
           <div class="field">
             <label for="codigo">Código</label>
             <input id="codigo" type="text" autocomplete="off" style="text-transform: uppercase;" />
             <small id="codigoMsg" class="muted"></small>
           </div>
-
           <div class="field">
             <label for="nombre">Nombre</label>
-            <input id="nombre" type="text" autocomplete="name" />
+            <input id="nombre" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. ANA" />
           </div>
-
+          <div class="field">
+            <label for="apellido">Apellido</label>
+            <input id="apellido" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Ej. LÓPEZ" />
+          </div>
+        </div>
+        <div class="grid-2">
           <div class="field">
 <label for="curso" id="lblCurso">Grado/Curso/Nivel</label>
             <input id="curso" type="text" readonly />
@@ -760,7 +765,8 @@ body.tema-pro .option-letter{
 
       <!-- Pantalla de instrucciones -->
       <section id="pantalla-inicio" class="card instructions">
-<div style="margin-top: 12px; text-align: right;">
+<div style="margin-top: 12px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <button type="button" id="btnVolverMenuInicio" class="primary">REGRESAR AL MENÚ</button>
           <button id="btnIniciar" class="primary" disabled>Siguiente</button>
         </div>
       </section>
@@ -828,7 +834,7 @@ body.tema-pro .option-letter{
       <section id="pantalla-final">
         <div class="check-icon">✔</div>
         <h2>Evaluación terminada</h2>
-        <p>Felicidades, has concluido tu evaluación del Orientación Vocacional.</p>
+        <p>Felicidades, has concluido tu evaluación de Orientación Vocacional.</p>
         <button id="btnRegresarMenu" class="secondary">REGRESAR AL MENÚ</button>
       </section>
     </main>
@@ -1186,7 +1192,7 @@ function aplicarTemaPorCodigo(codigo){
     const EVAL_PRODUCT_KEY = "VOCACI";
     const EVAL_LANG = "ES";
     let CODIGO_ACTUAL = null;
-const STORAGE_PREFIX = "eval_mpa_state_";
+const STORAGE_PREFIX = "eval_voc_state_";
 
     const codigoInput = document.getElementById('codigo');
     const instInput   = document.getElementById('institucion');
@@ -1223,7 +1229,7 @@ const STORAGE_PREFIX = "eval_mpa_state_";
       if (!state) return false;
       if (state.completed) return true;
       const resp = state.responses || {};
-      return ITEMS.length > 0 && Object.keys(resp).length >= ITEMS.length;
+      return ITEMS.length > 0 && Object.keys(resp).length >= ITEMS.length && Object.values(resp).every((v) => choiceOk(v));
     }
 
     async function syncAutosaveToServer(state) {
@@ -1237,6 +1243,7 @@ const STORAGE_PREFIX = "eval_mpa_state_";
           responses: state.responses || {},
           snapshot: {
             nombre: state.nombre || "",
+            apellido: state.apellido || "",
             institucion: state.institucion || "",
             grupo: state.grupo || "",
             curso: state.curso || "",
@@ -1267,6 +1274,7 @@ const STORAGE_PREFIX = "eval_mpa_state_";
         return {
           codigo: row.codigo || codigo,
           nombre: snap.nombre || document.getElementById("nombre").value.trim(),
+          apellido: snap.apellido || (document.getElementById("apellido") ? document.getElementById("apellido").value.trim() : ""),
           institucion: snap.institucion || DATOS_FIJOS.institucion,
           grupo: snap.grupo || DATOS_FIJOS.grupo,
           curso: snap.curso || DATOS_FIJOS.curso,
@@ -1291,7 +1299,8 @@ const STORAGE_PREFIX = "eval_mpa_state_";
         const state = {
           ...prev,
           codigo: CODIGO_ACTUAL || codigoInput.value.trim().toUpperCase(),
-          nombre: document.getElementById("nombre").value.trim(),
+          nombre: toUpperNombre(document.getElementById("nombre").value.trim()),
+          apellido: toUpperNombre(document.getElementById("apellido").value.trim()),
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
@@ -1321,6 +1330,7 @@ const STORAGE_PREFIX = "eval_mpa_state_";
       }
      if (!codigo) {
   instInput.value = grupoInput.value = cursoInput.value = '';
+  setNombreApellidoReadonly(false);
   document.getElementById('lblCurso').textContent = 'Grado/Curso/Nivel';
   aplicarTemaPorCodigo('');
   return;
@@ -1341,6 +1351,7 @@ const STORAGE_PREFIX = "eval_mpa_state_";
 
         if (codigoUsado) {
           instInput.value = grupoInput.value = cursoInput.value = '';
+          setNombreApellidoReadonly(false);
           CODIGO_ACTUAL = null;
           btnIniciar.disabled = true;
           if (codigoMsg) {
@@ -1355,6 +1366,7 @@ const STORAGE_PREFIX = "eval_mpa_state_";
         const localState = loadStateForCurrentCode();
         if (isStateCompleted(localState)) {
           instInput.value = grupoInput.value = cursoInput.value = '';
+          setNombreApellidoReadonly(false);
           CODIGO_ACTUAL = null;
           btnIniciar.disabled = true;
           if (codigoMsg) {
@@ -1369,6 +1381,41 @@ grupoInput.value = data.grupo || '';
 cursoInput.value = data.curso || '';
 document.getElementById('lblCurso').textContent = /^PRO/i.test(data.codigo || codigo) ? 'Nivel' : 'Grado/Curso';
 aplicarTemaPorCodigo(data.codigo || codigo);
+
+        let nombreGuardado = "";
+        let apellidoGuardado = "";
+        if (localState && !isStateCompleted(localState) && localState.nombre) {
+          nombreGuardado = toUpperNombre(String(localState.nombre).trim());
+          apellidoGuardado = toUpperNombre(String(localState.apellido || "").trim());
+        }
+        if (!nombreGuardado) {
+          const serverDraft = await cargarAutosaveServidor(CODIGO_ACTUAL);
+          if (
+            serverDraft &&
+            !isStateCompleted(serverDraft) &&
+            serverDraft.nombre &&
+            serverDraft.responses &&
+            Object.keys(serverDraft.responses).length > 0
+          ) {
+            nombreGuardado = toUpperNombre(String(serverDraft.nombre).trim());
+            apellidoGuardado = toUpperNombre(String(serverDraft.apellido || "").trim());
+          }
+        }
+        if (nombreGuardado) lockNombreApellidoSiHayTexto(nombreGuardado, apellidoGuardado);
+        else setNombreApellidoReadonly(false);
+
+        const bancoOk = await cargarBancoVocacional(CODIGO_ACTUAL);
+        if (!bancoOk) {
+          instInput.value = grupoInput.value = cursoInput.value = '';
+          setNombreApellidoReadonly(false);
+          CODIGO_ACTUAL = null;
+          btnIniciar.disabled = true;
+          if (codigoMsg) {
+            codigoMsg.textContent = "No se pudo cargar la evaluación. Intenta de nuevo.";
+            codigoMsg.className = "err";
+          }
+          return;
+        }
 btnIniciar.disabled = false;
         if (codigoMsg) {
           codigoMsg.textContent = 'Código válido.';
@@ -1376,6 +1423,7 @@ btnIniciar.disabled = false;
         }
       } catch (e) {
         instInput.value = grupoInput.value = cursoInput.value = '';
+        setNombreApellidoReadonly(false);
         document.getElementById('lblCurso').textContent = 'Grado/Curso/Nivel';
         aplicarTemaPorCodigo('');
         if (codigoMsg) {
@@ -1403,257 +1451,9 @@ btnIniciar.disabled = false;
     let currentPage = 0;
 
     
-const MPA_MATRIX = {
-  areas: {
-    perceptuales: { label: "Preferencias perceptuales", componentes: ["lenguaje_visual","numerico_visual","lenguaje_auditivo","numerico_auditivo","kinestesico"] },
-    interaccion: { label: "Preferencias de interacción", componentes: ["individual","equipo"] },
-    comunicacion: { label: "Preferencias de comunicación", componentes: ["oral","escrito"] }
-  },
-  componentes: {
-    lenguaje_visual:  { area: "perceptuales", label: "Lenguaje visual",  items: [1,5,10,20,29] },
-    numerico_visual:  { area: "perceptuales", label: "Numérico visual",  items: [3,8,9,15,19] },
-    lenguaje_auditivo:{ area: "perceptuales", label: "Lenguaje auditivo", items: [4,6,11,16,17] },
-    numerico_auditivo:{ area: "perceptuales", label: "Numérico auditivo", items: [2,7,12,14,18] },
-    kinestesico:      { area: "perceptuales", label: "Kinestésico",      items: [21,28,32,38,42] },
-    individual:       { area: "interaccion",  label: "Individual",        items: [23,25,31,39,41] },
-    equipo:           { area: "interaccion",  label: "En equipo",         items: [22,27,34,37,44] },
-    oral:             { area: "comunicacion", label: "Oral",              items: [24,30,33,36,45] },
-    escrito:          { area: "comunicacion", label: "Escrito",           items: [13,26,35,40,43] }
-  }
-};
-
-const PREGUNTAS_MPA = [
-  { item: 1,  area: "perceptuales", componente: "lenguaje_visual",  texto: "Recuerdo mejor las instrucciones cuando las leo que cuando las escucho." },
-  { item: 2,  area: "perceptuales", componente: "numerico_auditivo", texto: "Entiendo mejor temas de matemáticas cuando escucho que cuando veo la información." },
-  { item: 3,  area: "perceptuales", componente: "numerico_visual",   texto: "Cuando las instrucciones incluyen muchos números, prefiero que estén escritos." },
-  { item: 4,  area: "perceptuales", componente: "lenguaje_auditivo", texto: "Prefiero oír que leer las instrucciones." },
-  { item: 5,  area: "perceptuales", componente: "lenguaje_visual",   texto: "Recuerdo más la información cuando la leo que cuando alguien la lee para mí." },
-  { item: 6,  area: "perceptuales", componente: "lenguaje_auditivo", texto: "Cuando alguien me da instrucciones, tiendo a repetir en voz alta algunos datos para que no se me olviden." },
-  { item: 7,  area: "perceptuales", componente: "numerico_auditivo", texto: "Cuando las instrucciones contienen varios números, recuerdo mejor estos si los digo verbalmente." },
-  { item: 8,  area: "perceptuales", componente: "numerico_visual",   texto: "Si escribo los números después de oírlos, los recuerdo durante más tiempo, por ejemplo, cuando me dan un número telefónico o una cifra." },
-  { item: 9,  area: "perceptuales", componente: "numerico_visual",   texto: "Cuando las instrucciones incluyen números, las prefiero escritas que orales." },
-  { item: 10, area: "perceptuales", componente: "lenguaje_visual",   texto: "Cuando me dan instrucciones escritas y al mismo tiempo alguien las explica en voz alta, prefiero leerlas yo mismo." },
-  { item: 11, area: "perceptuales", componente: "lenguaje_auditivo", texto: "Si quiero comprender algo, prefiero hablar sobre ello que leer sobre ello." },
-  { item: 12, area: "perceptuales", componente: "numerico_auditivo", texto: "Si alguien me dice algunos números, no necesito apuntarlos, los recuerdo sólo con escucharlos." },
-  { item: 13, area: "comunicacion", componente: "escrito",           texto: "Escribo la información para recordarla y comprenderla mejor." },
-  { item: 14, area: "perceptuales", componente: "numerico_auditivo", texto: "Comprendo mejor la información numérica cuando la escucho, que cuando la leo o que cuando hago ejercicios." },
-  { item: 15, area: "perceptuales", componente: "numerico_visual",   texto: "Entiendo y recuerdo mejor los números (por ejemplo, un número telefónico, una cantidad, un registro, etc.) cuando escribo la información." },
-  { item: 16, area: "perceptuales", componente: "lenguaje_auditivo", texto: "Al hacer alguna tarea, prefiero que alguien me diga las instrucciones que leerlas personalmente." },
-  { item: 17, area: "perceptuales", componente: "lenguaje_auditivo", texto: "Entiendo mejor las cosas cuando las comento con los demás que cuando las leo o las escribo." },
-  { item: 18, area: "perceptuales", componente: "numerico_auditivo", texto: "Tiendo a hablar en voz alta cuando deseo comprender algo relacionado con información numérica." },
-  { item: 19, area: "perceptuales", componente: "numerico_visual",   texto: "Comprendo mejor la información numérica cuando la veo y la escribo que cuando solamente la escucho." },
-  { item: 20, area: "perceptuales", componente: "lenguaje_visual",   texto: "Hago mejor las cosas cuando me apoyo en dibujos, gráficas o información que puedo ver." },
-  { item: 21, area: "perceptuales", componente: "kinestesico",       texto: "Disfruto hacer trabajos manuales, por ejemplo, dibujos, envolturas, recortes, etc." },
-  { item: 22, area: "interaccion",  componente: "equipo",            texto: "Me siento bien pidiendo ayuda a un compañero cuando la necesito." },
-  { item: 23, area: "interaccion",  componente: "individual",        texto: "Trabajo mejor solo que en equipo." },
-  { item: 24, area: "comunicacion", componente: "oral",              texto: "Me siento mejor cuando muestro y explico cómo funciona algo que cuando tengo que escribir acerca de ello." },
-  { item: 25, area: "interaccion",  componente: "individual",        texto: "Me pone nervioso trabajar con otras personas." },
-  { item: 26, area: "comunicacion", componente: "escrito",           texto: "Si tengo que hacer un reporte de un trabajo realizado, prefiero escribirlo que decirlo." },
-  { item: 27, area: "interaccion",  componente: "equipo",            texto: "Me gusta trabajar en equipo porque siento que aprendo más." },
-  { item: 28, area: "perceptuales", componente: "kinestesico",       texto: "Disfruto hacer deporte, manualidades o cuestiones artísticas." },
-  { item: 29, area: "perceptuales", componente: "lenguaje_visual",   texto: "Hago mejor un trabajo si recibo instrucciones escritas que verbales." },
-  { item: 30, area: "comunicacion", componente: "oral",              texto: "En una reunión en equipo, prefiero responder preguntas verbalmente que por escrito." },
-  { item: 31, area: "interaccion",  componente: "individual",        texto: "Mi opinión es más importante que la de los demás." },
-  { item: 32, area: "perceptuales", componente: "kinestesico",       texto: "Tiendo a tocar las cosas para comprender más sobre ellas." },
-  { item: 33, area: "comunicacion", componente: "oral",              texto: "Me siento más cómodo al hablar que al escribir sobre un tema." },
-  { item: 34, area: "interaccion",  componente: "equipo",            texto: "Creo que trabajar en equipo es importante y muy útil, procuro hacerlo siempre que se puede." },
-  { item: 35, area: "comunicacion", componente: "escrito",           texto: "Las asignaciones de tareas escritas las comprendo mejor que las orales." },
-  { item: 36, area: "comunicacion", componente: "oral",              texto: "Puedo ayudar mejor a otros cuando les explico las cosas verbalmente que por escrito." },
-  { item: 37, area: "interaccion",  componente: "equipo",            texto: "Disfruto mucho compartir mis conocimientos con otras personas." },
-  { item: 38, area: "perceptuales", componente: "kinestesico",       texto: "Cuando quiero aprender algo nuevo, me gusta hacer experimentos, dibujar o hacer un proyecto, más que leer o escuchar sobre el tema." },
-  { item: 39, area: "interaccion",  componente: "individual",        texto: "Trabajo mejor cuando no tengo que escuchar las opiniones ni los puntos de vista de los demás sobre algún tema." },
-  { item: 40, area: "comunicacion", componente: "escrito",           texto: "Prefiero hacer tareas o reportes escritos que orales." },
-  { item: 41, area: "interaccion",  componente: "individual",        texto: "Prefiero las tareas en las que puedo trabajar solo." },
-  { item: 42, area: "perceptuales", componente: "kinestesico",       texto: "Disfruto trabajar en proyectos que requieren dibujar, construir, armar, hacer cosas." },
-  { item: 43, area: "comunicacion", componente: "escrito",           texto: "Prefiero responder preguntas por escrito que oralmente." },
-  { item: 44, area: "interaccion",  componente: "equipo",            texto: "Si tengo que aprender cosas nuevas y difíciles, prefiero estudiar en grupo." },
-  { item: 45, area: "comunicacion", componente: "oral",              texto: "Prefiero hacer sugerencias verbales en vez de escribirlas." }
-];
-
-
 let ITEMS = [];
-const RIASEC_QUESTIONS = [
-  { id: 1, pregunta: "Me gusta trabajar con herramientas, equipos o maquinaria.", seccion: 1, tipo: "pregunta", eje: "R" },
-  { id: 2, pregunta: "Prefiero actividades prácticas donde pueda hacer o manipular algo.", seccion: 1, tipo: "pregunta", eje: "R" },
-  { id: 3, pregunta: "Disfruto armar, reparar o construir cosas.", seccion: 1, tipo: "pregunta", eje: "R" },
-  { id: 4, pregunta: "Me siento cómodo realizando tareas manuales, técnicas o de operación.", seccion: 1, tipo: "pregunta", eje: "R" },
-  { id: 5, pregunta: "Disfruto actividades donde debo intervenir directamente y poner manos a la obra.", seccion: 1, tipo: "pregunta", eje: "R" },
-  { id: 6, pregunta: "Me interesa entender cómo funcionan los objetos o sistemas físicos.", seccion: 1, tipo: "pregunta", eje: "R" },
-
-  { id: 7, pregunta: "Me gusta analizar problemas para encontrar cómo resolverlos.", seccion: 1, tipo: "pregunta", eje: "I" },
-  { id: 8, pregunta: "Disfruto investigar temas que despiertan mi curiosidad.", seccion: 1, tipo: "pregunta", eje: "I" },
-  { id: 9, pregunta: "Me interesa comprender por qué ocurren las cosas.", seccion: 1, tipo: "pregunta", eje: "I" },
-  { id: 10, pregunta: "Me atraen actividades donde debo pensar, analizar y reflexionar antes de actuar.", seccion: 1, tipo: "pregunta", eje: "I" },
-  { id: 11, pregunta: "Disfruto trabajar con ideas, teorías o conceptos.", seccion: 1, tipo: "pregunta", eje: "I" },
-  { id: 12, pregunta: "Me gusta observar detalles para llegar a conclusiones.", seccion: 1, tipo: "pregunta", eje: "I" },
-
-  { id: 13, pregunta: "Me gusta expresar ideas de forma creativa.", seccion: 1, tipo: "pregunta", eje: "A" },
-  { id: 14, pregunta: "Disfruto crear cosas originales.", seccion: 1, tipo: "pregunta", eje: "A" },
-  { id: 15, pregunta: "Me atraen actividades donde puedo imaginar, crear y proponer algo nuevo.", seccion: 1, tipo: "pregunta", eje: "A" },
-  { id: 16, pregunta: "Me gusta buscar maneras originales o poco comunes de hacer las cosas.", seccion: 1, tipo: "pregunta", eje: "A" },
-  { id: 17, pregunta: "Disfruto ambientes donde hay libertad para crear.", seccion: 1, tipo: "pregunta", eje: "A" },
-  { id: 18, pregunta: "Me interesa el diseño, el arte o la expresión personal.", seccion: 1, tipo: "pregunta", eje: "A" },
-
-  { id: 19, pregunta: "Me gusta ayudar a otras personas.", seccion: 1, tipo: "pregunta", eje: "S" },
-  { id: 20, pregunta: "Disfruto enseñar o explicar cosas a otros.", seccion: 1, tipo: "pregunta", eje: "S" },
-  { id: 21, pregunta: "Me siento cómodo en actividades que implican trato directo con otras personas.", seccion: 1, tipo: "pregunta", eje: "S" },
-  { id: 22, pregunta: "Me interesa apoyar a otros en sus problemas o necesidades.", seccion: 1, tipo: "pregunta", eje: "S" },
-  { id: 23, pregunta: "Prefiero actividades donde pueda colaborar o acompañar.", seccion: 1, tipo: "pregunta", eje: "S" },
-  { id: 24, pregunta: "Me gusta escuchar y orientar a otras personas.", seccion: 1, tipo: "pregunta", eje: "S" },
-
-  { id: 25, pregunta: "Me gusta liderar o tomar decisiones importantes.", seccion: 1, tipo: "pregunta", eje: "E" },
-  { id: 26, pregunta: "Me siento cómodo persuadiendo, motivando o influyendo en otras personas.", seccion: 1, tipo: "pregunta", eje: "E" },
-  { id: 27, pregunta: "Me siento cómodo organizando actividades o proyectos.", seccion: 1, tipo: "pregunta", eje: "E" },
-  { id: 28, pregunta: "Me motivan actividades donde debo impulsar metas, resultados o avances visibles.", seccion: 1, tipo: "pregunta", eje: "E" },
-  { id: 29, pregunta: "Me gusta asumir retos donde debo tomar iniciativa.", seccion: 1, tipo: "pregunta", eje: "E" },
-  { id: 30, pregunta: "Disfruto situaciones donde debo negociar o proponer ideas.", seccion: 1, tipo: "pregunta", eje: "E" },
-
-  { id: 31, pregunta: "Me gusta organizar información o datos.", seccion: 1, tipo: "pregunta", eje: "C" },
-  { id: 32, pregunta: "Prefiero seguir instrucciones claras y ordenadas.", seccion: 1, tipo: "pregunta", eje: "C" },
-  { id: 33, pregunta: "Disfruto trabajar con listas, registros o detalles.", seccion: 1, tipo: "pregunta", eje: "C" },
-  { id: 34, pregunta: "Me siento cómodo realizando tareas estructuradas.", seccion: 1, tipo: "pregunta", eje: "C" },
-  { id: 35, pregunta: "Prefiero ambientes donde todo está bien organizado.", seccion: 1, tipo: "pregunta", eje: "C" },
-  { id: 36, pregunta: "Me gusta mantener orden en mis actividades o espacios.", seccion: 1, tipo: "pregunta", eje: "C" }
-];
-//---     
-    //----FIN
-
-function seqHtml(arr){
-  return `<div class="visual-stimulus"><div class="seq-line">${arr.map((s,i)=>`${i?'<span class="seq-arrow">→</span>':''}<span>${s}</span>`).join('')}</div></div>`;
-}
-function stairsHtml(start, letters, steps){
-  const heights = [40,56,72,88,104];
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div class="stairs">${letters.map((l,i)=>`<div class="stair" style="height:${heights[i]||88}px">${l}</div>`).join('')}</div></div></div>`;
-}
-function pathHtml(start, nodes, steps){
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px;">${nodes.map((n,i)=>`<div style="display:flex;align-items:center;gap:8px;"><div style="width:42px;height:42px;border-radius:999px;border:2px solid ${n===start?'#2563eb':'#cbd5e1'};background:${n===start?'#dbeafe':'#fff'};color:#111827;font-weight:800;display:flex;align-items:center;justify-content:center;">${n}</div>${i<nodes.length-1?'<span style="font-size:20px;color:#94a3b8;">→</span>':''}</div>`).join('')}</div></div></div>`;
-}
-function gridPosHtml(start, cells, steps){
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(3,54px);gap:8px;justify-content:center;margin-top:12px;">${cells.map(c=>`<div style="width:54px;height:54px;border-radius:12px;border:2px solid ${c===start?'#16a34a':'#cbd5e1'};background:${c===start?'#dcfce7':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;color:#111827;">${c}</div>`).join('')}</div></div></div>`;
-}
-function gridNHtml(start, cells, steps, cols=4){
-  const size = cols === 4 ? 50 : 54;
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(${cols},${size}px);gap:8px;justify-content:center;margin-top:12px;">${cells.map(c=>`<div style="width:${size}px;height:${size}px;border-radius:12px;border:2px solid ${c===start?'#16a34a':'#cbd5e1'};background:${c===start?'#dcfce7':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;color:#111827;">${c}</div>`).join('')}</div></div></div>`;
-}
-function axisMoveHtml(start, labels, steps, orient){
-  const dir = orient === 'vertical' ? 'column' : 'row';
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:flex;flex-direction:${dir};align-items:center;justify-content:center;gap:10px;margin-top:12px;">${labels.map((l,i)=>`<div style="display:flex;${orient === 'vertical' ? 'flex-direction:column;' : 'align-items:center;'}gap:10px;">${orient === 'vertical' && i>0 ? '<span style="font-size:18px;color:#94a3b8;">↓</span>' : ''}${orient !== 'vertical' && i>0 ? '<span style="font-size:18px;color:#94a3b8;">→</span>' : ''}<div style="width:48px;height:48px;border-radius:12px;border:2px solid ${l===start?'#7c3aed':'#cbd5e1'};background:${l===start?'#ede9fe':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;color:#111827;">${l}</div></div>`).join('')}</div></div></div>`;
-}
-function relHtml(model, opts){
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Modelo</strong></div><div class="rel-grid">${model.map(x=>`<div class="rel-cell">${x}</div>`).join('')}</div></div></div>`;
-}
-function scenarioHtml(lines){
-  return `<div class="visual-stimulus"><div class="scenario-list">${lines.map(t=>`<div class="scenario-line" style="text-align:center;font-size:17px;line-height:1.7;font-weight:700;max-width:760px;margin:0 auto;">${t}</div>`).join('')}</div></div>`;
-}
-
-
-function miniGridOption(pos, cells=['A','B','C','D','E','F','G','H','I']){
-  return `<div style="display:grid;grid-template-columns:repeat(3,28px);gap:4px;justify-content:center;">${cells.map(c=>`<div style="width:28px;height:28px;border-radius:8px;border:2px solid ${c===pos?'#0f766e':'#cbd5e1'};background:${c===pos?'#ccfbf1':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#0f172a;">${c===pos?'●':''}</div>`).join('')}</div>`;
-}
-function directionTrackHtml(startArrow, steps){
-  const dirs = [['↖','↑','↗'],['←','●','→'],['↙','↓','↘']];
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Orientación inicial:</strong> <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:999px;border:2px solid #0f766e;background:#ccfbf1;font-size:20px;font-weight:800;">${startArrow}</span></div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(3,42px);gap:8px;justify-content:center;margin-top:12px;">${dirs.flat().map(d=>`<div style="width:42px;height:42px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;font-size:${d==='●'?'12px':'22px'};font-weight:800;color:#334155;">${d}</div>`).join('')}</div></div></div>`;
-}
-function coordGridHtml(start, cols, rows, steps, blocked=[]){
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const cells=[];
-  for(let r=rows; r>=1; r--){
-    for(let c=0; c<cols; c++) cells.push(`${letters[c]}${r}`);
-  }
-  const blockedSet = new Set(blocked);
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(${cols},58px);gap:8px;justify-content:center;margin-top:12px;">${cells.map(c=>{
-    const isBlocked = blockedSet.has(c);
-    const isStart = c===start;
-    return `<div style="width:58px;height:58px;border-radius:12px;border:2px solid ${isStart?'#0f766e':'#cbd5e1'};background:${isBlocked?'#e2e8f0':(isStart?'#ccfbf1':'#fff')};display:flex;align-items:center;justify-content:center;font-weight:800;color:#0f172a;${isBlocked?'text-decoration:line-through;':''}">${c}</div>`;
-  }).join('')}</div>${blocked.length?'<div style="margin-top:8px;font-size:12px;color:#475569;text-align:center;">Las celdas sombreadas no se pueden ocupar.</div>':''}</div></div>`;
-}
-function frameSequenceHtml(frames){
-  const cells=['A','B','C','D','E','F','G','H','I'];
-  const frame = pos => `<div style="display:grid;grid-template-columns:repeat(3,24px);gap:4px;padding:6px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;">${cells.map(c=>`<div style="width:24px;height:24px;border-radius:6px;border:1px solid ${c===pos?'#0f766e':'#cbd5e1'};background:${c===pos?'#ccfbf1':'#fff'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0f172a;">${c===pos?'●':''}</div>`).join('')}</div>`;
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Secuencia:</strong> observa el desplazamiento del punto y elige el panel que continúa.</div><div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px;">${frames.map((p,i)=>`${frame(p)}${i<frames.length-1?'<span style="font-size:18px;color:#94a3b8;">→</span>':''}`).join('')}<div style="width:36px;height:36px;border-radius:999px;border:2px dashed #94a3b8;display:flex;align-items:center;justify-content:center;font-weight:800;color:#64748b;">?</div></div></div></div>`;
-}
-function ringRouteHtml(start, steps){
-  const labels=['A','B','C','D','E','F','G','H'];
-  const pos={A:[50,6],B:[78,20],C:[90,50],D:[78,80],E:[50,94],F:[22,80],G:[10,50],H:[22,20]};
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:flex;justify-content:center;margin-top:12px;"><svg width="220" height="220" viewBox="0 0 100 100" style="overflow:visible;">
-    <circle cx="50" cy="50" r="40" fill="none" stroke="#cbd5e1" stroke-width="2.2" />
-    ${labels.map(l=>`<circle cx="${pos[l][0]}" cy="${pos[l][1]}" r="8" fill="${l===start?'#ccfbf1':'#fff'}" stroke="${l===start?'#0f766e':'#94a3b8'}" stroke-width="1.8"/><text x="${pos[l][0]}" y="${pos[l][1]+1.5}" text-anchor="middle" dominant-baseline="middle" font-size="7" font-weight="800" fill="#0f172a">${l}</text>`).join('')}
-  </svg></div></div></div>`;
-}
-function mirrorRouteHtml(modelStart, testStart, steps){
-  const cells=['A','B','C','D','E','F','G','H','I'];
-  const one = start => `<div style="display:grid;grid-template-columns:repeat(3,34px);gap:5px;">${cells.map(c=>`<div style="width:34px;height:34px;border-radius:8px;border:2px solid ${c===start?'#0f766e':'#cbd5e1'};background:${c===start?'#ccfbf1':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#0f172a;">${c}</div>`).join('')}</div>`;
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Aplicación paralela:</strong> replica la misma ruta desde el segundo punto de inicio.</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:12px;"><div><div style="text-align:center;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Modelo</div>${one(modelStart)}</div><div><div style="text-align:center;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Aplicar desde</div>${one(testStart)}</div></div></div></div>`;
-}
-function rowColCodeHtml(start, steps){
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(4,56px);gap:8px;justify-content:center;margin-top:12px;">${['A4','B4','C4','D4','A3','B3','C3','D3','A2','B2','C2','D2','A1','B1','C1','D1'].map(c=>`<div style="width:56px;height:56px;border-radius:12px;border:2px solid ${c===start?'#0f766e':'#cbd5e1'};background:${c===start?'#ccfbf1':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;color:#0f172a;">${c}</div>`).join('')}</div><div style="margin-top:8px;font-size:12px;color:#475569;text-align:center;">La letra indica la columna y el número indica la fila. F mueve filas (↑ o ↓) y C mueve columnas (← o →).</div></div></div>`;
-}
-function symbolCoordRouteHtml(start, legend, sequence, correct){
-  const cells=['A4','B4','C4','D4','A3','B3','C3','D3','A2','B2','C2','D2','A1','B1','C1','D1'];
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px;">${legend.map(x=>`<span class="step-badge">${x}</span>`).join('')}</div><div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px;">${sequence.map(s=>`<span style="background:#fff7ed;color:#9a3412;border:1px solid #fdba74;border-radius:999px;padding:4px 12px;font-weight:800;font-size:14px;">${s}</span>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(4,56px);gap:8px;justify-content:center;margin-top:12px;">${cells.map(c=>`<div style="width:56px;height:56px;border-radius:12px;border:2px solid ${c===start?'#0f766e':(c===correct?'#cbd5e1':'#cbd5e1')};background:${c===start?'#ccfbf1':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;color:#0f172a;">${c}</div>`).join('')}</div></div></div>`;
-}
-function symbolPairRouteHtml(start, legend, sequence){
-  const cells=['A','B','C','D','E','F','G','H','I'];
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px;">${legend.map(x=>`<span class="step-badge">${x}</span>`).join('')}</div><div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px;">${sequence.map(s=>`<span style="background:#fff7ed;color:#9a3412;border:1px solid #fdba74;border-radius:999px;padding:4px 12px;font-weight:800;font-size:14px;">${s}</span>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(3,54px);gap:8px;justify-content:center;margin-top:12px;">${cells.map(c=>`<div style="width:54px;height:54px;border-radius:12px;border:2px solid ${c===start?'#16a34a':'#cbd5e1'};background:${c===start?'#dcfce7':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;color:#111827;">${c}</div>`).join('')}</div></div></div>`;
-}
-function diagonalRouteHtml(start, steps){
-  return `<div class="visual-stimulus"><div class="step-wrap"><div><strong>Inicio:</strong> ${start}</div><div class="step-badges">${steps.map(s=>`<span class="step-badge">${s}</span>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(4,56px);gap:8px;justify-content:center;margin-top:12px;">${['A4','B4','C4','D4','A3','B3','C3','D3','A2','B2','C2','D2','A1','B1','C1','D1'].map(c=>`<div style="width:56px;height:56px;border-radius:12px;border:2px solid ${c===start?'#0f766e':'#cbd5e1'};background:${c===start?'#ccfbf1':'#fff'};display:flex;align-items:center;justify-content:center;font-weight:800;color:#0f172a;">${c}</div>`).join('')}</div><div style="margin-top:8px;font-size:12px;color:#475569;text-align:center;">Sigue toda la ruta en orden y marca la coordenada final.</div></div></div>`;
-}
-
-function relGridOnly(cells){
-  return `<div class="rel-grid">${cells.map(x=>`<div class="rel-cell">${x}</div>`).join('')}</div>`;
-}
-function relCompareHtml(modelA, modelB, target){
-  return `<div class="visual-stimulus"><div class="step-wrap"><div style="font-weight:800;">Observa la transformación del primer modelo al segundo y aplícala al tercero.</div><div style="display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:12px;"><div><div style="text-align:center;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Modelo 1</div>${relGridOnly(modelA)}</div><div style="font-size:22px;color:#94a3b8;">→</div><div><div style="text-align:center;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Modelo 2</div>${relGridOnly(modelB)}</div><div style="font-size:22px;color:#94a3b8;">::</div><div><div style="text-align:center;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Aplicar a</div>${relGridOnly(target)}</div></div></div></div>`;
-}
-function relStructureHtml(model){
-  return `<div class="visual-stimulus"><div class="step-wrap"><div style="font-weight:800;">Identifica la opción que conserva la misma estructura de distribución.</div><div style="margin-top:12px;">${relGridOnly(model)}</div></div></div>`;
-}
-function relEquivalentHtml(modelA, modelB){
-  return `<div class="visual-stimulus"><div class="step-wrap"><div style="font-weight:800;">La segunda figura es equivalente a la primera porque conserva la misma relación entre sus partes.</div><div style="display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:12px;"><div><div style="text-align:center;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Figura base</div>${relGridOnly(modelA)}</div><div style="font-size:22px;color:#94a3b8;">≡</div><div><div style="text-align:center;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px;">Figura equivalente</div>${relGridOnly(modelB)}</div></div></div></div>`;
-}
-
-const VOC_VISUAL_ITEMS = [
-  { id:201, seccion:2, tipo:'visual', titulo:'Completa la secuencia visual', ayuda:'Observa la secuencia y selecciona la opción que la completa.', correcta:'B', renderStimulus:()=>seqHtml(['●','▲','■','?']), opciones:[{key:'A', html:'<div style="font-size:28px">▲</div>'},{key:'B', html:'<div style="font-size:28px">●</div>'},{key:'C', html:'<div style="font-size:28px">■</div>'}] },
-  { id:202, seccion:2, tipo:'visual', titulo:'Continúa la secuencia numérica', ayuda:'Selecciona la respuesta correcta.', correcta:'C', renderStimulus:()=>seqHtml(['2','4','8','16','?']), opciones:[{key:'A', html:'<div style="font-size:26px">18</div>'},{key:'B', html:'<div style="font-size:26px">24</div>'},{key:'C', html:'<div style="font-size:26px">32</div>'}] },
-  { id:203, seccion:2, tipo:'visual', titulo:'Patrón alternado', ayuda:'Selecciona la figura que continúa el patrón.', correcta:'A', renderStimulus:()=>seqHtml(['○','□','○','□','?']), opciones:[{key:'A', html:'<div style="font-size:28px">○</div>'},{key:'B', html:'<div style="font-size:28px">△</div>'},{key:'C', html:'<div style="font-size:28px">□</div>'}] },
-  { id:204, seccion:2, tipo:'visual', titulo:'Crecimiento lógico', ayuda:'La cantidad de lados aumenta. Elige la opción correcta.', correcta:'B', renderStimulus:()=>seqHtml(['△','□','⬟','?']), opciones:[{key:'A', html:'<div style="font-size:28px">○</div>'},{key:'B', html:'<div style="font-size:28px">⬢</div>'},{key:'C', html:'<div style="font-size:28px">△</div>'}] },
-  { id:205, seccion:2, tipo:'visual', titulo:'Secuencia alfabética', ayuda:'Observa el salto entre letras.', correcta:'A', renderStimulus:()=>seqHtml(['A','C','E','?']), opciones:[{key:'A', html:'<div style="font-size:26px">G</div>'},{key:'B', html:'<div style="font-size:26px">F</div>'},{key:'C', html:'<div style="font-size:26px">H</div>'}] },
-  { id:206, seccion:2, tipo:'visual', titulo:'Suma progresiva', ayuda:'Cada término suma uno más que el anterior.', correcta:'C', renderStimulus:()=>seqHtml(['1','3','6','10','?']), opciones:[{key:'A', html:'<div style="font-size:26px">12</div>'},{key:'B', html:'<div style="font-size:26px">13</div>'},{key:'C', html:'<div style="font-size:26px">15</div>'}] },
-  { id:207, seccion:2, tipo:'visual', titulo:'Alternancia de símbolo', ayuda:'Selecciona el símbolo que falta.', correcta:'B', renderStimulus:()=>seqHtml(['★','●','★','●','?']), opciones:[{key:'A', html:'<div style="font-size:28px">●</div>'},{key:'B', html:'<div style="font-size:28px">★</div>'},{key:'C', html:'<div style="font-size:28px">■</div>'}] },
-  { id:208, seccion:2, tipo:'visual', titulo:'Relación de tamaño', ayuda:'El tamaño crece de menor a mayor.', correcta:'C', renderStimulus:()=>seqHtml(['·','•','●','?']), opciones:[{key:'A', html:'<div style="font-size:18px">•</div>'},{key:'B', html:'<div style="font-size:22px">●</div>'},{key:'C', html:'<div style="font-size:30px">⬤</div>'}] }
-];
-
-const VOC_STAIRS_ITEMS = [
-  { id:301, seccion:3, tipo:'visual', titulo:'Orientación final por giros', ayuda:'Parte con la flecha orientada hacia arriba y aplica cada giro en orden.', correcta:'B', renderStimulus:()=>directionTrackHtml('↑',['↻90°','↺45°','↺45°','↻90°']), opciones:[{key:'A', html:'↗'},{key:'B', html:'→'},{key:'C', html:'↘'}] },
-  { id:302, seccion:3, tipo:'visual', titulo:'Coordenada final en plano', ayuda:'Empieza en B2. Usa la clave rápida y aplica cada símbolo en orden.', correcta:'C', renderStimulus:()=>symbolCoordRouteHtml('B2',['∞ = mover 1 a la derecha','▲ = subir 1 fila','● = bajar 1 fila'],['∞','▲','∞','●'],'D2'), opciones:[{key:'A', html:'C3'},{key:'B', html:'D3'},{key:'C', html:'D2'}] },
-  { id:303, seccion:3, tipo:'visual', titulo:'Ruta con celdas bloqueadas', ayuda:'Empieza en C2. Si una instrucción te lleva a una celda sombreada, te mantienes en tu posición y sigues con el paso siguiente.', correcta:'A', renderStimulus:()=>coordGridHtml('C2',4,4,['↑1','←1','↑1','→1'],['B3','D4']), opciones:[{key:'A', html:'C4'},{key:'B', html:'B4'},{key:'C', html:'D3'}] },
-  { id:304, seccion:3, tipo:'visual', titulo:'Panel secuencial de posición', ayuda:'Observa cómo se desplaza el punto entre paneles y elige la continuación correcta.', correcta:'C', renderStimulus:()=>frameSequenceHtml(['A','E','I','F']), opciones:[{key:'A', html:miniGridOption('B')},{key:'B', html:miniGridOption('H')},{key:'C', html:miniGridOption('C')}] },
-  { id:305, seccion:3, tipo:'visual', titulo:'Recorrido perimetral', ayuda:'Empieza en H y sigue el recorrido sobre el perímetro del circuito.', correcta:'B', renderStimulus:()=>ringRouteHtml('H',['+2','-3','+4','-1']), opciones:[{key:'A', html:'G'},{key:'B', html:'B'},{key:'C', html:'D'}] },
-  { id:306, seccion:3, tipo:'visual', titulo:'Desplazamientos en pares', ayuda:'Empieza en E. Usa la clave rápida: cada símbolo representa dos movimientos seguidos.', correcta:'A', renderStimulus:()=>symbolPairRouteHtml('E',['◆ = subir 1 y mover 1 a la derecha','● = bajar 1 y mover 1 a la izquierda','▲ = mover 1 a la izquierda y subir 1'],['◆','●','▲']), opciones:[{key:'A', html:'A'},{key:'B', html:'C'},{key:'C', html:'D'}] },
-  { id:307, seccion:3, tipo:'visual', titulo:'Ruta oblicua combinada', ayuda:'Empieza en B2 y sigue toda la secuencia. Hay trayectorias horizontales, verticales y oblicuas.', correcta:'C', renderStimulus:()=>diagonalRouteHtml('B2',['↗','↘','↖','→']), opciones:[{key:'A', html:'C4'},{key:'B', html:'C2'},{key:'C', html:'D3'}] },
-  { id:308, seccion:3, tipo:'visual', titulo:'Código fila-columna', ayuda:'Empieza en C3. Recuerda: la letra es la columna y el número es la fila. Aplica cada instrucción en orden.', correcta:'A', renderStimulus:()=>rowColCodeHtml('C3',['F↑1','C←2','F↓1','C→1']), opciones:[{key:'A', html:'B3'},{key:'B', html:'B2'},{key:'C', html:'C2'}] }
-];
-
-const VOC_REL_ITEMS = [
-  { id:401, seccion:4, tipo:'visual', titulo:'Mismo patrón visual', ayuda:'Selecciona la opción exactamente igual al modelo.', correcta:'B', renderStimulus:()=>relHtml(['○','▲','▲','○']), opciones:[{key:'A', html:'<div class="rel-grid"><div class="rel-cell">○</div><div class="rel-cell">▲</div><div class="rel-cell">○</div><div class="rel-cell">▲</div></div>'},{key:'B', html:'<div class="rel-grid"><div class="rel-cell">○</div><div class="rel-cell">▲</div><div class="rel-cell">▲</div><div class="rel-cell">○</div></div>'},{key:'C', html:'<div class="rel-grid"><div class="rel-cell">▲</div><div class="rel-cell">○</div><div class="rel-cell">○</div><div class="rel-cell">▲</div></div>'}] },
-  { id:402, seccion:4, tipo:'visual', titulo:'Transformación visual', ayuda:'Aplica al tercer modelo la misma transformación que ocurre del primero al segundo.', correcta:'C', renderStimulus:()=>relCompareHtml(['○','△','△','○'],['●','△','△','●'],['□','★','★','□']), opciones:[{key:'A', html:'<div class="rel-grid"><div class="rel-cell">□</div><div class="rel-cell">★</div><div class="rel-cell">★</div><div class="rel-cell">●</div></div>'},{key:'B', html:'<div class="rel-grid"><div class="rel-cell">★</div><div class="rel-cell">□</div><div class="rel-cell">□</div><div class="rel-cell">★</div></div>'},{key:'C', html:'<div class="rel-grid"><div class="rel-cell">●</div><div class="rel-cell">★</div><div class="rel-cell">★</div><div class="rel-cell">●</div></div>'}] },
-  { id:403, seccion:4, tipo:'visual', titulo:'Conservación de estructura', ayuda:'Selecciona la opción que mantiene la misma distribución, aunque cambien los símbolos.', correcta:'B', renderStimulus:()=>relStructureHtml(['□','○','○','□']), opciones:[{key:'A', html:'<div class="rel-grid"><div class="rel-cell">★</div><div class="rel-cell">●</div><div class="rel-cell">●</div><div class="rel-cell">★</div></div>'},{key:'B', html:'<div class="rel-grid"><div class="rel-cell">●</div><div class="rel-cell">★</div><div class="rel-cell">★</div><div class="rel-cell">●</div></div>'},{key:'C', html:'<div class="rel-grid"><div class="rel-cell">★</div><div class="rel-cell">●</div><div class="rel-cell">★</div><div class="rel-cell">●</div></div>'}] },
-{ id:404, seccion:4, tipo:'visual', titulo:'Equivalencia real', ayuda:'Marca la alternativa equivalente: debe conservar la misma relación entre pares opuestos, aunque cambien los símbolos.', correcta:'A', renderStimulus:()=>relEquivalentHtml(['△','★','★','△'],['○','■','■','○']), opciones:[{key:'A', html:'<div class="rel-grid"><div class="rel-cell">◆</div><div class="rel-cell">●</div><div class="rel-cell">●</div><div class="rel-cell">◆</div></div>'},{key:'B', html:'<div class="rel-grid"><div class="rel-cell">◆</div><div class="rel-cell">●</div><div class="rel-cell">◆</div><div class="rel-cell">●</div></div>'},{key:'C', html:'<div class="rel-grid"><div class="rel-cell">●</div><div class="rel-cell">◆</div><div class="rel-cell">●</div><div class="rel-cell">●</div></div>'}] }
-];
-
-const VOC_SCENARIO_ITEMS = [
-  { id:501, seccion:5, tipo:'visual', titulo:'Actividad de mayor interés', ayuda:'Selecciona la actividad que más te atrae o con la que te sientas más identificado.', eje:'A', renderStimulus:()=>scenarioHtml(['A continuación encontrarás tres actividades. Elige solo una, pensando en la que más se relaciona con tu interés personal.']), opciones:[{key:'A', html:'Construir o reparar un objeto.'},{key:'B', html:'Analizar datos para resolver un problema.'},{key:'C', html:'Diseñar una propuesta visual o creativa.'}] },
-  { id:502, seccion:5, tipo:'visual', titulo:'Tarea que preferirías realizar', ayuda:'Selecciona la tarea que preferirías realizar con mayor gusto o motivación.', eje:'S', renderStimulus:()=>scenarioHtml(['Lee las tres opciones y elige la que más se ajuste a lo que te gustaría hacer.']), opciones:[{key:'A', html:'Atendiendo y acompañando a personas.'},{key:'B', html:'Organizando archivos y procedimientos.'},{key:'C', html:'Dirigiendo un equipo o proyecto.'}] },
-  { id:503, seccion:5, tipo:'visual', titulo:'Entorno en el que te sentirías más cómodo', ayuda:'Selecciona el entorno o tipo de actividad en el que te sentirías más cómodo.', eje:'I', renderStimulus:()=>scenarioHtml(['A continuación encontrarás tres opciones. Elige la que mejor represente el ambiente o situación con la que más te identificas.']), opciones:[{key:'A', html:'Investigar por qué ocurre algo.'},{key:'B', html:'Negociar y convencer a otros.'},{key:'C', html:'Clasificar información detallada.'}] },
-  { id:504, seccion:5, tipo:'visual', titulo:'Situación que más se relaciona contigo', ayuda:'Selecciona la situación que más se relacione con tu forma de actuar o con tus intereses.', eje:'E', renderStimulus:()=>scenarioHtml(['Lee las tres situaciones y marca solo una: la que más se acerque a tu afinidad personal.']), opciones:[{key:'A', html:'Coordinar personas y tomar decisiones.'},{key:'B', html:'Crear una idea novedosa.'},{key:'C', html:'Ejecutar tareas prácticas con herramientas.'}] },
-  { id:505, seccion:5, tipo:'visual', titulo:'Rol que preferirías asumir', ayuda:'Selecciona el rol o tipo de participación que preferirías asumir.', eje:'R', renderStimulus:()=>scenarioHtml(['Elige la opción que mejor represente la forma en que te gustaría participar o desenvolverte.']), opciones:[{key:'A', html:'Armar o probar algo con tus manos.'},{key:'B', html:'Explicar a alguien cómo mejorar.'},{key:'C', html:'Llevar un registro ordenado.'}] },
-  { id:506, seccion:5, tipo:'visual', titulo:'Proyecto con mayor afinidad', ayuda:'Selecciona el proyecto o actividad que más despierte tu interés.', eje:'C', renderStimulus:()=>scenarioHtml(['A continuación encontrarás tres propuestas. Elige solo una, pensando en la que más te motive o atraiga.']), opciones:[{key:'A', html:'Tener procesos ordenados y precisos.'},{key:'B', html:'Explorar nuevas ideas y expresarte.'},{key:'C', html:'Comprender a fondo un tema complejo.'}] },
-  { id:507, seccion:5, tipo:'visual', titulo:'Área en la que te imaginarías participando', ayuda:'Selecciona el área en la que te imaginarías participando con mayor interés.', eje:'S', renderStimulus:()=>scenarioHtml(['Lee las tres alternativas y elige la que más se relacione con tu afinidad o proyección personal.']), opciones:[{key:'A', html:'Acompañar a una persona en una dificultad.'},{key:'B', html:'Desarrollar un plan de ventas o negociación.'},{key:'C', html:'Diseñar una pieza visual o artística.'}] },
-  { id:508, seccion:5, tipo:'visual', titulo:'Opción que más se acerca a tu afinidad vocacional', ayuda:'Selecciona la opción que más se acerque a tu afinidad vocacional.', eje:'I', renderStimulus:()=>scenarioHtml(['Elige solo una alternativa: aquella que mejor represente tus intereses, preferencias o inclinación actual.']), opciones:[{key:'A', html:'Investigar y llegar a conclusiones.'},{key:'B', html:'Guiar a otros hacia una meta.'},{key:'C', html:'Seguir normas y procedimientos.'}] }
-];
-
-const SECTION_META = {
+let BANCO_VERSION = "VOC-v1-banco-servidor";
+let SECTION_META = {
   1:{title:'SECCIÓN 1 DE 5 — INTERESES VOCACIONALES', labels:['Casi siempre','Algunas veces','Rara vez']},
   2:{title:'SECCIÓN 2 DE 5 — PATRONES Y SECUENCIAS VISUALES', labels:['A','B','C']},
   3:{title:'SECCIÓN 3 DE 5 — SEGUIMIENTO SECUENCIAL', labels:['A','B','C']},
@@ -1661,30 +1461,46 @@ const SECTION_META = {
   5:{title:'SECCIÓN 5 DE 5 — ESCENARIOS VOCACIONALES', labels:['A','B','C']}
 };
 
-const SCENARIO_KEY_MAP = {
-  501:{A:'R',B:'I',C:'A'}, 502:{A:'S',B:'C',C:'E'}, 503:{A:'I',B:'E',C:'C'}, 504:{A:'E',B:'A',C:'R'},
-  505:{A:'R',B:'S',C:'C'}, 506:{A:'C',B:'A',C:'I'}, 507:{A:'S',B:'E',C:'A'}, 508:{A:'I',B:'E',C:'C'}
-};
-
-function construirPreguntas() {
-  ITEMS = [];
-  RIASEC_QUESTIONS.forEach(q => ITEMS.push({ ...q, invertida:'No', value:null }));
-  VOC_VISUAL_ITEMS.forEach(q => ITEMS.push({ ...q, value:null }));
-  VOC_STAIRS_ITEMS.forEach(q => ITEMS.push({ ...q, value:null }));
-  VOC_REL_ITEMS.forEach(q => ITEMS.push({ ...q, value:null }));
-  VOC_SCENARIO_ITEMS.forEach(q => ITEMS.push({ ...q, value:null }));
+function choiceOk(v) {
+  const c = String(v || "").toUpperCase();
+  if (c === "CS" || c === "AV" || c === "RV" || c === "A" || c === "B" || c === "C") return c;
+  return "";
+}
+function tieneMarcasLetras(state) {
+  const resp = (state && state.responses) || {};
+  return Object.values(resp).some((v) => choiceOk(v));
+}
+async function cargarBancoVocacional(codigo) {
+  const r = await fetch('/api/banco-vocacional?codigo=' + encodeURIComponent(codigo));
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || !data.ok || !Array.isArray(data.items) || !data.items.length) return false;
+  if (data.section_meta) SECTION_META = data.section_meta;
+  ITEMS = data.items.map(it => ({
+    id: Number(it.id),
+    seccion: Number(it.seccion) || 1,
+    tipo: it.tipo || 'riasec',
+    pregunta: String(it.pregunta || it.titulo || ''),
+    titulo: String(it.titulo || it.pregunta || ''),
+    ayuda: String(it.ayuda || ''),
+    stimulus_html: String(it.stimulus_html || ''),
+    opciones: Array.isArray(it.opciones) ? it.opciones : [],
+    choice: null
+  })).filter(it => Number.isFinite(it.id));
+  ITEMS.sort((a,b) => a.id - b.id);
+  BANCO_VERSION = data.version || "VOC-v1-banco-servidor";
   currentPage = 0;
-  renderPage();
-  updateProgress();
+  return ITEMS.length > 0;
 }
 
 function markRowAnswered(rowEl, q) {
   if (!rowEl) return;
-  if (q && q.value != null && q.value !== '') rowEl.classList.add('answered');
+  if (q && choiceOk(q.choice)) rowEl.classList.add('answered');
   else rowEl.classList.remove('answered');
 }
 
 function getSeccionById(id){
+  const q = ITEMS.find(x => Number(x.id) === Number(id));
+  if (q && q.seccion) return Number(q.seccion);
   if (id >= 1 && id <= 36) return 1;
   if (id >= 201 && id <= 299) return 2;
   if (id >= 301 && id <= 399) return 3;
@@ -1751,7 +1567,7 @@ function updateProgress() {
   const end = bounds.end;
   const totalPage = Math.max(0, end - start);
   let answeredPage = 0;
-  for (let i = start; i < end; i++) if (ITEMS[i] && ITEMS[i].value != null && ITEMS[i].value !== '') answeredPage++;
+  for (let i = start; i < end; i++) if (ITEMS[i] && choiceOk(ITEMS[i].choice)) answeredPage++;
   const pct = totalAll ? Math.round((answeredAll / totalAll) * 100) : 0;
   const bar = document.getElementById('bar');
   const pill = document.getElementById('pillTotal');
@@ -1781,9 +1597,8 @@ function renderQuestionRow(q){
     cell.className = 'q-cell';
     const r = document.createElement('input');
     r.type='radio'; r.name='q_'+q.id; r.value=code;
-    const score = code==='CS' ? 3 : code==='AV' ? 2 : 1;
-    if (q.value === score) r.checked = true;
-    r.addEventListener('change', ()=>{ q.value = score; markRowAnswered(row,q); updateProgress(); saveState(false); });
+    if (choiceOk(q.choice) === code) r.checked = true;
+    r.addEventListener('change', ()=>{ q.choice = code; markRowAnswered(row,q); updateProgress(); saveState(false); });
     cell.appendChild(r); row.appendChild(cell);
   });
   markRowAnswered(row,q);
@@ -1800,7 +1615,8 @@ function renderVisualRow(q){
   const subtitleStyle = sec === 2
     ? 'style="font-size:16px;font-weight:500;color:#475569;margin-bottom:12px"'
     : '';
-  card.innerHTML = `<div class="visual-title">${visibleNumber}. ${q.titulo}</div><div class="visual-subtitle" ${subtitleStyle}>${q.ayuda || ''}</div>${q.renderStimulus ? q.renderStimulus() : ''}<div class="visual-row">${q.opciones.map(op => `<div class="option-card ${q.value===op.key?'active':''}" data-qid="${q.id}" data-value="${op.key}"><div class="option-letter">${op.key}</div><div>${op.html}</div></div>`).join('')}</div>`;
+  const ops = Array.isArray(q.opciones) ? q.opciones : [];
+  card.innerHTML = '<div class="visual-title">' + visibleNumber + '. ' + (q.titulo || '') + '</div><div class="visual-subtitle" ' + subtitleStyle + '>' + (q.ayuda || '') + '</div>' + (q.stimulus_html || '') + '<div class="visual-row">' + ops.map(op => '<div class="option-card ' + (choiceOk(q.choice)===op.key?'active':'') + '" data-qid="' + q.id + '" data-value="' + op.key + '"><div class="option-letter">' + op.key + '</div><div>' + (op.html || '') + '</div></div>').join('') + '</div>';
   wrap.appendChild(card);
   return wrap;
 }
@@ -2042,7 +1858,7 @@ function renderPage() {
 
   for (let i = start; i < end; i++) {
     const q = ITEMS[i];
-    cont.appendChild(q.tipo === 'pregunta' ? renderQuestionRow(q) : renderVisualRow(q));
+    cont.appendChild((q.tipo === 'riasec' || q.tipo === 'pregunta') ? renderQuestionRow(q) : renderVisualRow(q));
   }
   cont.querySelectorAll('.option-card').forEach(card => {
     card.addEventListener('click', () => {
@@ -2050,7 +1866,7 @@ function renderPage() {
       const value = card.dataset.value;
       const item = ITEMS.find(x => x.id === qid);
       if (!item) return;
-      item.value = value;
+      item.choice = value;
       cont.querySelectorAll(`.option-card[data-qid="${qid}"]`).forEach(el => el.classList.remove('active'));
       card.classList.add('active');
       updateProgress();
@@ -2062,20 +1878,18 @@ function renderPage() {
 }
 
 function paginaCompleta() {
-  const total = ITEMS.length;
   const bounds = getPageBounds(currentPage);
   const start = bounds.start;
   const end = bounds.end;
   for (let i = start; i < end; i++) {
-    const v = ITEMS[i].value;
-    if (v === null || v === undefined || v === '') return false;
+    if (!choiceOk(ITEMS[i].choice)) return false;
   }
   return true;
 }
 
 function obtenerRespuestasCrudas() {
   const map = {};
-  ITEMS.forEach(q => { if (q.value != null && q.value !== '') map[String(q.id)] = q.value; });
+  ITEMS.forEach(q => { const c = choiceOk(q.choice); if (c) map[String(q.id)] = c; });
   return map;
 }
 
@@ -2091,7 +1905,9 @@ function mostrarPantallaPreguntas() {
 
 function aplicarState(state) {
   if (!state) return;
-  document.getElementById('nombre').value = state.nombre || '';
+  const nombreVal = toUpperNombre(state.nombre || '');
+  const apellidoVal = toUpperNombre(state.apellido || '');
+  lockNombreApellidoSiHayTexto(nombreVal, apellidoVal);
   document.getElementById('institucion').value = state.institucion || DATOS_FIJOS.institucion;
   document.getElementById('grupo').value = state.grupo || DATOS_FIJOS.grupo;
   document.getElementById('curso').value = state.curso || DATOS_FIJOS.curso;
@@ -2100,7 +1916,7 @@ function aplicarState(state) {
   const resp = state.responses || {};
   ITEMS.forEach(q => {
     const v = resp[String(q.id)];
-    q.value = (v !== undefined) ? v : null;
+    q.choice = choiceOk(v) || null;
   });
   currentPage = Number.isFinite(state.currentPage) ? state.currentPage : 0;
   __startTime = state.startTime || Date.now();
@@ -2108,7 +1924,7 @@ function aplicarState(state) {
 
 function iniciarEvaluacionNueva() {
   __startTime = Date.now();
-  ITEMS.forEach(q => { q.value = null; });
+  ITEMS.forEach(q => { q.choice = null; });
   currentPage = 0;
   saveState(false);
 }
@@ -2135,62 +1951,15 @@ function onSiguienteClick() {
   }
 }
 
-function calcularResultadosGlobales() {
-  if (!ITEMS.length) return null;
-  const respuestas = obtenerRespuestasCrudas();
-  const riasec = { R:0, I:0, A:0, S:0, E:0, C:0 };
-  RIASEC_QUESTIONS.forEach(q => { riasec[q.eje] += Number(respuestas[String(q.id)] || 0); });
-  const maxRiasec = 18;
-  const riasec_pct = {};
-  Object.keys(riasec).forEach(k => riasec_pct[k] = Math.round((riasec[k] / maxRiasec) * 100));
-  const sec2Correctas = VOC_VISUAL_ITEMS.reduce((acc,q)=>acc + ((respuestas[String(q.id)] === q.correcta)?1:0), 0);
-  const sec3Correctas = VOC_STAIRS_ITEMS.reduce((acc,q)=>acc + ((respuestas[String(q.id)] === q.correcta)?1:0), 0);
-  const sec4Correctas = VOC_REL_ITEMS.reduce((acc,q)=>acc + ((respuestas[String(q.id)] === q.correcta)?1:0), 0);
-  const escenarios = { R:0, I:0, A:0, S:0, E:0, C:0 };
-  VOC_SCENARIO_ITEMS.forEach(q => {
-    const ans = respuestas[String(q.id)];
-    const eje = SCENARIO_KEY_MAP[q.id] && SCENARIO_KEY_MAP[q.id][ans];
-    if (eje) escenarios[eje] += 1;
-  });
-  const orden = Object.entries(riasec).sort((a,b)=>b[1]-a[1]);
-  const codigo = orden.slice(0,3).map(([k])=>k).join('');
-  return {
-    prueba: 'VOCACIONAL',
-    resumen: {
-      riasec_raw: riasec,
-      riasec_pct,
-      visual_correctas: sec2Correctas,
-      visual_total: VOC_VISUAL_ITEMS.length,
-      secuencia_correctas: sec3Correctas,
-      secuencia_total: VOC_STAIRS_ITEMS.length,
-      relacion_correctas: sec4Correctas,
-      relacion_total: VOC_REL_ITEMS.length,
-      codigo_riasec: codigo,
-      total_items: ITEMS.length,
-      minutos_aprox: Math.max(1, Math.round((Date.now() - (__startTime || Date.now())) / 60000))
-    },
-    escenarios,
-    meta: {
-      page_size: PAGE_SIZE,
-      version_banco: 'VOC-v1'
-    }
-  };
-}
-
-
-    function onFinalizarClick() {
-      const nombre = document.getElementById("nombre").value.trim();
+function onFinalizarClick() {
+      const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
+      const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
       if (!nombre) { alert("Por favor ingresa el nombre."); return; }
+      if (!apellido) { alert("Por favor ingresa el apellido."); return; }
 
       const respuestas = obtenerRespuestasCrudas();
       const total = ITEMS.length;
       if (Object.keys(respuestas).length < total) { alert("Aún hay preguntas sin responder."); return; }
-
-const resultados = calcularResultadosGlobales();
-  // PERFIL (para baremación / recomendaciones): PRO vs ESCOLAR
-  const perfil = String(CODIGO_ACTUAL || '').toUpperCase().startsWith('PRO') ? 'PRO' : 'ESCOLAR';
-  resultados.meta = resultados.meta || {};
-  resultados.meta.perfil = perfil;
 
       const payload = {
         codigo: CODIGO_ACTUAL,
@@ -2198,13 +1967,13 @@ const resultados = calcularResultadosGlobales();
         idioma: EVAL_LANG,
         snapshot: {
           nombre,
+          apellido,
           institucion: document.getElementById("institucion").value,
           grupo: document.getElementById("grupo").value,
           curso: document.getElementById("curso").value,
-          version_banco: "VOC-v1"
-
+          version_banco: BANCO_VERSION,
+          startTime: __startTime || Date.now()
         },
-        resultados,
         responses: respuestas
       };
 
@@ -2217,7 +1986,7 @@ const resultados = calcularResultadosGlobales();
       }).catch(()=>{});
 
       document.getElementById("datos-participante").classList.remove("hidden");
-      document.getElementById("nombre").readOnly = true;
+      setNombreApellidoReadonly(true);
 
       document.getElementById("pantalla-preguntas").classList.add("hidden");
       const pantallaFinal = document.getElementById("pantalla-final");
@@ -2243,14 +2012,15 @@ const resultados = calcularResultadosGlobales();
     }
 
     function validarAntesDeIniciar() {
-      const nombre = document.getElementById("nombre").value.trim();
+      const nombre = toUpperNombre(document.getElementById("nombre").value.trim());
+      const apellido = toUpperNombre(document.getElementById("apellido").value.trim());
       if (!nombre) { alert("Por favor ingresa tu nombre antes de iniciar."); return false; }
+      if (!apellido) { alert("Por favor ingresa tu apellido antes de iniciar."); return false; }
       return true;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       inicializarDatosFijos();
-      construirPreguntas();
 
       btnIniciar.disabled = true;
 
@@ -2319,14 +2089,24 @@ btnIniciar.addEventListener("click", async () => {
         const localSaved = loadStateForCurrentCode();
         const candidate = serverState || localSaved;
 
-        if (candidate && !isStateCompleted(candidate) && candidate.responses && Object.keys(candidate.responses).length > 0) {
-          const retomar = confirm("Se encontró una evaluación en curso para este código. ¿Deseas continuar donde la dejaste?");
-          if (retomar) {
-            aplicarState(candidate);
-            mostrarPantallaPreguntas();
+        if (candidate && !isStateCompleted(candidate) && tieneMarcasLetras(candidate)) {
+          if (!ITEMS.length) {
+            const bancoOk = await cargarBancoVocacional(CODIGO_ACTUAL);
+            if (!bancoOk) {
+              alert("No se pudo cargar la evaluación. Valida el código de nuevo.");
+              return;
+            }
+          }
+          alert("Hay un intento en curso para este código. Continuará donde lo dejó.");
+          aplicarState(candidate);
+          mostrarPantallaPreguntas();
+          return;
+        }
+        if (!ITEMS.length) {
+          const bancoOk = await cargarBancoVocacional(CODIGO_ACTUAL);
+          if (!bancoOk) {
+            alert("No se pudo cargar la evaluación. Valida el código de nuevo.");
             return;
-          } else {
-            clearState();
           }
         }
         iniciarEvaluacionNueva();
@@ -2339,6 +2119,12 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
       document.getElementById("btnRegresarMenu").addEventListener("click", () => {
         window.location.href = "index.html";
       });
+      const btnVolverMenuInicio = document.getElementById("btnVolverMenuInicio");
+      if (btnVolverMenuInicio) {
+        btnVolverMenuInicio.addEventListener("click", () => {
+          window.location.href = "index.html";
+        });
+      }
     });
   </script>
 
@@ -2355,6 +2141,5 @@ document.getElementById("btnSiguiente").addEventListener("click", onSiguienteCli
 
 
 
-<div style="position:fixed;bottom:6px;left:10px;font-size:10px;opacity:.6;z-index:9999;">EVALUACIÓN VOCACIONAL</div>
 </body>
 </html>
