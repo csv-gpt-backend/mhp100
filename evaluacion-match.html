@@ -859,6 +859,21 @@
           wrap.appendChild(el);
         });
         body.appendChild(wrap);
+      } else if (fmt === "category") {
+        /* E10: guardar código A…E (no índice 0…4) */
+        const wrap = document.createElement("div");
+        wrap.className = "opts many";
+        (it.options || []).forEach((o, i) => {
+          const el = document.createElement("label"); el.className = "opt";
+          const code = (o && o.code != null) ? String(o.code) : String(i);
+          const lab = optLabel(o);
+          if (lab.length > 48) el.classList.add("wide");
+          if (answers[it.id] === code || answers[it.id] === i) el.classList.add("on");
+          el.textContent = lab;
+          el.onclick = () => { setAnswer(it.id, code, el); wrap.querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === el)); };
+          wrap.appendChild(el);
+        });
+        body.appendChild(wrap);
       } else {
         const n = (it.options || []).length;
         const wrap = document.createElement("div");

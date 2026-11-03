@@ -74,7 +74,16 @@ function itemV(item, raw, rules) {
     return evalVFormula(item.v_formula, i);
   }
   if (item.format === "category") {
-    // E10: código A…; no entra a barra E
+    // E10: código A…E. Si vino índice 0…n-1 (intentos viejos), normalizar a .code
+    if (Array.isArray(item.options) && item.options.length && item.options[0] && item.options[0].code != null) {
+      const i = Number(raw);
+      if (Number.isFinite(i) && i >= 0 && i < item.options.length && String(raw).trim() !== "" && !/^[A-Za-z]$/.test(String(raw).trim())) {
+        return item.options[i].code;
+      }
+      const asStr = String(raw).trim().toUpperCase();
+      const hit = item.options.find((o) => String(o.code).toUpperCase() === asStr);
+      if (hit) return hit.code;
+    }
     return raw;
   }
   return null;

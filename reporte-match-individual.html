@@ -282,6 +282,23 @@
   };
 
   function $(id) { return document.getElementById(id); }
+  const E10_TEXT = {
+    A: "Recortar costos para que el efectivo dure más tiempo",
+    B: "Aportar dinero propio y mantener el plan original",
+    C: "Buscar inversionistas externos, aunque sea a cambio de una participación importante en la empresa",
+    D: "Cambiar rápidamente el producto o el mercado objetivo para mejorar las ventas",
+    E: "Cerrar de manera ordenada para limitar las pérdidas"
+  };
+  function crisisLabel(code) {
+    if (code == null || code === "" || code === "—") return "—";
+    var k = String(code).trim().toUpperCase();
+    if (/^\d+$/.test(k)) {
+      var letters = ["A", "B", "C", "D", "E"];
+      var i = Number(k);
+      if (i >= 0 && i < letters.length) k = letters[i];
+    }
+    return E10_TEXT[k] || String(code);
+  }
   function fmt(v) {
     if (v == null || !Number.isFinite(Number(v))) return "—";
     return (Math.round(Number(v) * 10) / 10).toLocaleString("es-EC", { maximumFractionDigits: 1 });
@@ -452,7 +469,7 @@
       "<div><span>Paciencia (PA)</span><b>" + fmt(eco.PA) + "</b></div>" +
       "<div><span>Capacidad de pérdida (CAP)</span><b>" + fmt(eco.CAP) + "</b></div>" +
       "<div><span>Control (paso E08)</span><b>" + (eco.ctrl_step == null ? "—" : eco.ctrl_step) + "</b></div>" +
-      "<div><span>Crisis (E10)</span><b>" + (eco.CRISIS == null ? "—" : String(eco.CRISIS)) + "</b></div>" +
+      "<div><span>Crisis (E10)</span><b>" + crisisLabel(eco.CRISIS) + "</b></div>" +
       "<div><span>Intelectual aciertos</span><b>" + (ac == null ? "—" : (ac + " / " + acMax)) + "</b></div>";
 
     const sig = $("signals");
