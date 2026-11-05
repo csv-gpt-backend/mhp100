@@ -9,7 +9,8 @@ const EVAL_CATALOG = [
   { key: "LIDERA", label: "Liderazgo", labelEn: "Leadership", aliases: ["LIDERAZGO", "LIDER", "LIDE", "LID"] },
   { key: "HABITO", label: "Hábitos", labelEn: "Habits", aliases: ["HABITOS", "HABIT", "HAB"] },
   { key: "MATCH", label: "Match", labelEn: "Match", aliases: ["MATCHP", "ADMATCH", "COMPAT"] },
-  { key: "MATCHC", label: "Match Capas", labelEn: "Match Layers", aliases: ["MATCHCAPAS", "MATCH3", "ADMATCHC"] },
+  { key: "MATCHC", label: "Match Capas", labelEn: "Match Layers", aliases: ["MATCHCAPAS", "ADMATCHC"] },
+  { key: "MATCHE", label: "Match Ver 3", labelEn: "Match v3", aliases: ["MATCHV3", "ADMATCHE"] },
   { key: "APREND", label: "Aprendizaje", labelEn: "Learning", aliases: ["APRENDIZAJE", "APREN", "APR"] },
   { key: "VOCACI", label: "Vocacional", labelEn: "Career", aliases: ["VOCACIONAL", "VOCAC", "VOC"] },
 ];

@@ -42,7 +42,7 @@ function evalVFormula(formula, i) {
   if (!formula || typeof formula !== "string") return null;
   const f = formula.replace(/\s+/g, "");
   // Solo patrones del banco Match (ECO-E01…E10).
-  const safe = /^(10\*i|25\*i|100\*i\/3|100\*\(8-i\)\/8|100\*\(11-i\)\/11|100\*\(6-i\)\/6)$/;
+  const safe = /^(10\*i|20\*i|25\*i|100\*i\/3|100\*i\/7|100\*\(7-i\)\/7|100\*\(8-i\)\/8|100\*\(11-i\)\/11|100\*\(6-i\)\/6)$/;
   if (!safe.test(f)) throw new Error("v_formula no admitida: " + formula);
   // eslint-disable-next-line no-new-func
   return Number(Function("i", "return " + formula)(i));
