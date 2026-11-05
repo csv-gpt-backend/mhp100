@@ -16,6 +16,7 @@ const { scoreIntel } = require("./score-intel");
 const { scoreHabito } = require("./score-habito");
 const { scoreVocac } = require("./score-vocac");
 const { scoreMatch } = require("./score-match");
+const { scoreMatchCapas } = require("./score-match-capas");
 
 function msg(key, lang) {
   const en = normalizeIdioma(lang) === "EN";
@@ -194,6 +195,13 @@ module.exports = async function handler(req, res) {
       }
     } else if (evalKey === "MATCH" || evalKey === "MATCHP" || evalKey === "ADMATCH" || evalKey === "COMPAT") {
       const scored = scoreMatch(responses, snapshot.startTime);
+      if (!scored.ok) {
+        const fallback = uiLang === "EN" ? "The result could not be calculated." : "No se pudo calcular el resultado.";
+        return res.status(400).json({ error: scored.error || fallback });
+      }
+      resultados = scored.resultados;
+    } else if (evalKey === "MATCHC") {
+      const scored = scoreMatchCapas(responses, snapshot.startTime);
       if (!scored.ok) {
         const fallback = uiLang === "EN" ? "The result could not be calculated." : "No se pudo calcular el resultado.";
         return res.status(400).json({ error: scored.error || fallback });

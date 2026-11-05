@@ -10,6 +10,7 @@ const EVAL_KEYS = new Set([
   "LIDERA",
   "HABITO",
   "MATCH",
+  "MATCHC",
   "APREND",
   "VOCACI"
 ]);

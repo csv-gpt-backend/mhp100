@@ -72,7 +72,9 @@ module.exports = async function handler(req, res) {
         idioma_mismatch: true,
       });
     }
-    const check = validateCodigoEval(codigo, "MATCH", participante);
+    // MATCH original o MATCHC (Capas): mismo banco de ítems; productos distintos.
+    const want = String(codigo || "").toUpperCase().includes("MATCHC") ? "MATCHC" : "MATCH";
+    const check = validateCodigoEval(codigo, want, participante);
     if (!check.ok) {
       return res.status(403).json({
         error: mismatchErrorMessage(check, lang),
