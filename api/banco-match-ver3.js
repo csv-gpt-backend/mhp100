@@ -36,6 +36,12 @@ function publicItem(it) {
   if (it.anchor_10) out.anchor_10 = it.anchor_10;
   if (it.series) out.series = it.series;
   if (it.cells) out.cells = it.cells;
+  if (it.stimulus) out.stimulus = it.stimulus;
+  if (it.gfKind) out.gfKind = it.gfKind;
+  if (it.gfNumOpts) out.gfNumOpts = it.gfNumOpts;
+  if (it.gvKind) out.gvKind = it.gvKind;
+  if (it.svgChoice) out.svgChoice = true;
+  if (it.choices) out.choices = it.choices;
   if (it.approx_position != null) out.approx_position = it.approx_position;
   return out;
 }
