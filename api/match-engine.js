@@ -57,7 +57,7 @@ function itemV(item, raw, rules) {
   }
   if (item.format === "cognitive") {
     const ans = String(raw).toLowerCase();
-    const ok = String(item.correct || "").toLowerCase();
+    const ok = String(item.correct == null ? "" : item.correct).toLowerCase();
     return ans === ok ? 1 : 0; // acierto 0/1; la barra C se arma aparte
   }
   if (item.format === "attention") {

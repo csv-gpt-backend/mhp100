@@ -245,4 +245,15 @@ function applySeV12(pair, ecoA, ecoB, responsesA, responsesB, shadow) {
   return next;
 }
 
-module.exports = { scoreMatchVer3, profileComposite, shadowPerson, shadowPair, applySeV12 };
+function cognitiveRecount(responses) {
+  if (!responses || typeof responses !== "object") return null;
+  const profile = scorePerson(responses, bank, rules);
+  if (!profile || profile.aciertos == null) return null;
+  return {
+    aciertos: profile.aciertos,
+    aciertos_max: profile.aciertos_max,
+    bar: profile.bars ? profile.bars.C : null,
+  };
+}
+
+module.exports = { scoreMatchVer3, profileComposite, shadowPerson, shadowPair, applySeV12, cognitiveRecount };

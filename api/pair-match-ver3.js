@@ -12,7 +12,7 @@ const {
   scorePairFromProfilesCapas,
   scorePerson,
 } = require("./match-engine-capas");
-const { shadowPair, applySeV12 } = require("./score-match-ver3");
+const { shadowPair, applySeV12, cognitiveRecount } = require("./score-match-ver3");
 
 function asObject(raw) {
   let value = raw;
@@ -55,6 +55,14 @@ function profileFromAttempt(attempt) {
     subBars = p.subBars || {};
     aciertos = p.aciertos;
     flags = p.flags || [];
+  }
+
+  if (responses) {
+    const cog = cognitiveRecount(responses);
+    if (cog && bars) {
+      bars = Object.assign({}, bars, { C: cog.bar });
+      aciertos = cog.aciertos;
+    }
   }
 
   if (!bars || bars.V == null || bars.S == null) {

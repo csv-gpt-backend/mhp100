@@ -10,6 +10,7 @@ const { validacionDesdeRespuestas } = require("./score-integr");
 const { validacionDesdeRespuestas: validacionEscolarDesdeRespuestas } = require("./score-socies");
 const { validacionDesdeRespuestas: validacionSociv2DesdeRespuestas } = require("./score-sociv2");
 const { validacionDesdeRespuestas: validacionLiderDesdeRespuestas } = require("./score-lider");
+const { cognitiveRecount } = require("./score-match-ver3");
 
 function isIdiomaLockedReportEval(raw) {
   const t = String(raw || "").trim().toUpperCase();
@@ -45,6 +46,18 @@ function reportMsg(key, lang, extra) {
     internal: en ? "Internal error" : "Error interno",
   };
   return map[key] || (en ? "Error" : "Error");
+}
+
+function alinearIntelectualVer3(attempt) {
+  const resultados = asObject(attempt.resultados);
+  if (!resultados || resultados.product !== "MATCHE" || !resultados.bars) return;
+  const responses = asObject(attempt.responses);
+  const cog = cognitiveRecount(responses);
+  if (!cog) return;
+  resultados.bars.C = cog.bar;
+  resultados.aciertos = cog.aciertos;
+  resultados.aciertos_max = cog.aciertos_max;
+  attempt.resultados = resultados;
 }
 
 function asObject(raw) {
@@ -280,6 +293,7 @@ module.exports = async function handler(req, res) {
     alinearValidacionEscolar(attempt);
     alinearValidacionSociv2(attempt);
     alinearValidacionLiderazgo(attempt);
+    alinearIntelectualVer3(attempt);
 
     // 4) Respuesta final
     return res.status(200).json({
