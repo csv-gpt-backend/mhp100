@@ -6,7 +6,7 @@
 
 const bank = require("./data/match-bank-ver3.json");
 const rules = require("./data/plan50plus-capas.json");
-const { scorePerson, round2 } = require("./match-engine-capas");
+const { scorePerson, round2, clip, comboText, bandOf } = require("./match-engine-capas");
 
 function profileComposite(bars) {
   const w = rules.index_weights || {};
@@ -199,4 +199,50 @@ function scoreMatchVer3(responses, startTime) {
   };
 }
 
-module.exports = { scoreMatchVer3, profileComposite, shadowPerson, shadowPair };
+/**
+ * S_E v1.2 de la ficha. Solo el reparto (S_REP, pregunta 13) entra en la barra.
+ * E11, E12, E14, E15 y E16 siguen en la lectura: la ficha no les da peso aquí.
+ * d13 = 5 no pone la pareja en rojo.
+ */
+function applySeV12(pair, ecoA, ecoB, responsesA, responsesB, shadow) {
+  if (!pair || pair.I == null || !pair.S || pair.S.E == null) return pair;
+  if (!shadow || shadow.S_REP == null || !ecoA || !ecoB || ecoA.RA == null || ecoB.RA == null) return pair;
+  const p = rules.economic.pair;
+  const S_RA = clip(100 - p.ra_pendiente * Math.max(0, Math.abs(ecoA.RA - ecoB.RA) - p.ra_tol));
+  const S_PA = clip(100 - p.pa_pendiente * Math.max(0, Math.abs((ecoA.PA || 0) - (ecoB.PA || 0)) - p.pa_tol));
+  let dCtrl = 0;
+  if (ecoA.ctrl_step != null && ecoB.ctrl_step != null) {
+    dCtrl = Math.min(3, Math.abs(Number(ecoA.ctrl_step) - Number(ecoB.ctrl_step)));
+  }
+  const penCtrl = p.pen_ctrl[String(dCtrl)] != null ? p.pen_ctrl[String(dCtrl)] : 0;
+  const nMin = [responsesA, responsesB].reduce((n, r) => {
+    const e06 = Number(r && r["ECO-E06"]);
+    const e07 = Number(r && r["ECO-E07"]);
+    return n + (e06 === 0 && e07 === 0 ? 1 : 0);
+  }, 0);
+  const penCap = nMin === 2 ? 12 : nMin === 1 ? 6 : 0;
+  const SE = round2(clip(0.45 * S_RA + 0.15 * S_PA + 20 - penCap + 0.2 * shadow.S_REP - penCtrl));
+  const S = Object.assign({}, pair.S, { E: SE });
+  const w0 = rules.index_weights;
+  let wSum = 0;
+  for (const d of ["V", "S", "H", "E", "L", "C"]) if (S[d] != null) wSum += w0[d];
+  let I = 0;
+  for (const d of ["V", "S", "H", "E", "L", "C"]) {
+    if (S[d] == null) continue;
+    I += (w0[d] / wSum) * S[d];
+  }
+  const redHit = (rules.red_cap.flags || []).some((f) => (pair.flags || []).includes(f));
+  if (redHit) I = Math.min(I, rules.red_cap.max_index);
+  I = round2(I);
+  const next = Object.assign({}, pair, {
+    S,
+    I,
+    band: bandOf(I, rules),
+    economic_version: "1.2",
+    S_E_v11: pair.S.E,
+  });
+  next.combo_text = comboText(I, pair.C_comp, rules);
+  return next;
+}
+
+module.exports = { scoreMatchVer3, profileComposite, shadowPerson, shadowPair, applySeV12 };

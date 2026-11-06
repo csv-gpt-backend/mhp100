@@ -12,7 +12,7 @@ const {
   scorePairFromProfilesCapas,
   scorePerson,
 } = require("./match-engine-capas");
-const { shadowPair } = require("./score-match-ver3");
+const { shadowPair, applySeV12 } = require("./score-match-ver3");
 
 function asObject(raw) {
   let value = raw;
@@ -128,7 +128,15 @@ function pairFromProfiles(pa, pb) {
     aciertos: pb.aciertos,
     flags: pb.flags || [],
   };
-  const pair = scorePairFromProfilesCapas(profileA, profileB, rules);
+  const shadow = shadowPair(pa.responses, pb.responses);
+  const pair = applySeV12(
+    scorePairFromProfilesCapas(profileA, profileB, rules),
+    pa.eco,
+    pb.eco,
+    pa.responses,
+    pb.responses,
+    shadow
+  );
   return {
     ok: true,
     product: "MATCHE",
@@ -143,7 +151,7 @@ function pairFromProfiles(pa, pb) {
     crisisA: pa.eco && pa.eco.CRISIS != null ? pa.eco.CRISIS : null,
     crisisB: pb.eco && pb.eco.CRISIS != null ? pb.eco.CRISIS : null,
     pair,
-    shadow: shadowPair(pa.responses, pb.responses),
+    shadow,
     source: "hit",
   };
 }
