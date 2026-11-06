@@ -12,6 +12,7 @@ const {
   scorePairFromProfilesCapas,
   scorePerson,
 } = require("./match-engine-capas");
+const { shadowPair } = require("./score-match-ver3");
 
 function asObject(raw) {
   let value = raw;
@@ -69,6 +70,7 @@ function profileFromAttempt(attempt) {
     subBars,
     aciertos: aciertos != null ? aciertos : null,
     flags,
+    responses: responses || null,
     institucion: attempt.institucion || null,
   };
 }
@@ -141,6 +143,7 @@ function pairFromProfiles(pa, pb) {
     crisisA: pa.eco && pa.eco.CRISIS != null ? pa.eco.CRISIS : null,
     crisisB: pb.eco && pb.eco.CRISIS != null ? pb.eco.CRISIS : null,
     pair,
+    shadow: shadowPair(pa.responses, pb.responses),
     source: "hit",
   };
 }

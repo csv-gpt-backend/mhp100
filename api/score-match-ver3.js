@@ -22,6 +22,107 @@ function profileComposite(bars) {
   return round2(acc / ws);
 }
 
+function idxOf(raw, n) {
+  const i = Number(raw);
+  if (!Number.isFinite(i) || i < 0 || i >= n) return null;
+  return i;
+}
+
+function e10Code(raw) {
+  if (raw == null || raw === "") return null;
+  const s = String(raw).trim().toUpperCase();
+  if (/^[A-E]$/.test(s)) return s;
+  const i = Number(raw);
+  const codes = ["A", "B", "C", "D", "E"];
+  if (Number.isFinite(i) && i >= 0 && i < codes.length) return codes[i];
+  return null;
+}
+
+function aportePerfil(i14, i16) {
+  if (i14 == null || i16 == null) return null;
+  if (i14 >= 3 && i16 <= 1) return "Capital";
+  if (i14 <= 1 && i16 >= 2) return "Conocimiento";
+  return "Mixto";
+}
+
+/** Lectura de una persona. No entra al I ni a C_comp. */
+function shadowPerson(responses) {
+  const r = responses || {};
+  const i11 = idxOf(r["ECO-E11"], 8);
+  const i12a = idxOf(r["ECO-E12A"], 8);
+  const i12b = idxOf(r["ECO-E12B"], 8);
+  const i13 = idxOf(r["ECO-E13"], 6);
+  const i14 = idxOf(r["ECO-E14"], 6);
+  const i16 = idxOf(r["ECO-E16"], 4);
+  const i06 = idxOf(r["ECO-E06"], 5);
+  const e10 = e10Code(r["ECO-E10"]);
+  const v11 = i11 == null ? null : round2((100 * i11) / 7);
+  const v12a = i12a == null ? null : round2((100 * (7 - i12a)) / 7);
+  const v12b = i12b == null ? null : round2((100 * (7 - i12b)) / 7);
+  const v13 = i13 == null ? null : round2(20 * i13);
+  const v14 = i14 == null ? null : round2(20 * i14);
+  const v16 = i16 == null ? null : round2((100 * i16) / 3);
+  const realIds = ["ECO-E15-1", "ECO-E15-2", "ECO-E15-3", "ECO-E15-4", "ECO-E15-5", "ECO-E15-6"];
+  const foilIds = ["ECO-E15-7", "ECO-E15-8", "ECO-E15-9"];
+  const realI = realIds.map((id) => idxOf(r[id], 4)).filter((x) => x != null);
+  const know_acc = realI.length ? round2((100 * (realI.reduce((a, b) => a + b, 0) / realI.length)) / 3) : null;
+  const oct_bias = foilIds.reduce((n, id) => {
+    const i = idxOf(r[id], 4);
+    return n + (i != null && i >= 2 ? 1 : 0);
+  }, 0);
+  const deltaRaw = v12a != null && v12b != null ? (100 * (7 - i12b)) / 7 - (100 * (7 - i12a)) / 7 : null;
+  const delta_agen = deltaRaw == null ? null : round2(deltaRaw);
+  const flags = [];
+  if (i11 != null && i11 >= 6 && e10 === "B") flags.push("EC-INFO-ESCAL");
+  if (i12a != null && i12b != null && i12a - i12b >= 2) flags.push("EC-AM-AGEN");
+  if (i12a != null && i12b != null && i12b - i12a >= 2) flags.push("EC-INFO-AGEN-NEG");
+  if (i06 === 0 && i14 != null && i14 >= 3) flags.push("EC-INC-CAP");
+  if (oct_bias >= 2) flags.push("EC-OVER");
+  else if (oct_bias === 1) flags.push("EC-INFO-OVER");
+  if (i16 === 3 && oct_bias >= 2) flags.push("EC-INC-KNOW");
+  return {
+    i11, i12a, i12b, i13, i14, i16, i06, e10,
+    v11, v12a, v12b, v13, v14, v16,
+    know_acc,
+    oct_bias,
+    delta_agen,
+    perfil: aportePerfil(i14, i16),
+    flags,
+  };
+}
+
+/** Pareja. S_REP y coberturas se ven; no mueven I ni C_comp. Sin reloj, ATT-OCT no sale. */
+function shadowPair(responsesA, responsesB) {
+  const A = shadowPerson(responsesA);
+  const B = shadowPerson(responsesB);
+  const d11 = A.i11 != null && B.i11 != null ? Math.abs(A.i11 - B.i11) : null;
+  const d13 = A.i13 != null && B.i13 != null ? Math.abs(A.i13 - B.i13) : null;
+  const S_REP = d13 == null ? null : round2(100 - 20 * d13);
+  const cobertura_cap = A.v14 == null && B.v14 == null ? null : round2(Math.max(A.v14 || 0, B.v14 || 0));
+  const cobertura_know = A.know_acc == null && B.know_acc == null ? null : round2(Math.max(A.know_acc || 0, B.know_acc || 0));
+  const cobertura_evid = A.v16 == null && B.v16 == null ? null : round2(Math.max(A.v16 || 0, B.v16 || 0));
+  const flags = [];
+  if (d11 != null && d11 >= 3) flags.push("EC-AM-PERD");
+  if (d13 != null && d13 >= 2) flags.push("EC-AM-REP");
+  const max14 = A.i14 == null && B.i14 == null ? null : Math.max(A.i14 == null ? -1 : A.i14, B.i14 == null ? -1 : B.i14);
+  const max16 = A.i16 == null && B.i16 == null ? null : Math.max(A.i16 == null ? -1 : A.i16, B.i16 == null ? -1 : B.i16);
+  if (max14 != null && max16 != null && max14 <= 1 && max16 <= 1 && max14 >= 0 && max16 >= 0) flags.push("EC-AM-BASE");
+  flags.push.apply(flags, A.flags);
+  flags.push.apply(flags, B.flags);
+  return {
+    mode: "sombra",
+    moves_index: false,
+    S_REP,
+    d13,
+    cobertura_cap,
+    cobertura_know,
+    cobertura_evid,
+    A: { perfil: A.perfil, delta_agen: A.delta_agen, know_acc: A.know_acc, v14: A.v14, v16: A.v16 },
+    B: { perfil: B.perfil, delta_agen: B.delta_agen, know_acc: B.know_acc, v14: B.v14, v16: B.v16 },
+    flags,
+  };
+}
+
 function shadowPack(responses, profile) {
   const scored = profile.scored || {};
   const byId = {};
@@ -98,4 +199,4 @@ function scoreMatchVer3(responses, startTime) {
   };
 }
 
-module.exports = { scoreMatchVer3, profileComposite };
+module.exports = { scoreMatchVer3, profileComposite, shadowPerson, shadowPair };

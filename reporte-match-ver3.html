@@ -216,6 +216,7 @@
 
     <div class="band-box" id="bandBox">—</div>
     <div class="band-box" id="capaBox" style="margin-top:8px;background:#fdf2f8;border:1px solid #C0007A;color:#7a004d">—</div>
+    <div class="band-box" id="shadowBox" style="margin-top:8px;background:#f3fbfb;border:1px solid #0D7377;color:#134e4a">—</div>
 
     <div class="curve-block">
       <div class="curve-title">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS · Índice de pareja (I) = <span id="iflCurveInline">—</span></div>
@@ -378,6 +379,52 @@ function flagText(code, data) {
     return c;
   }
 
+  const SHADOW_FLAG = {
+    "EC-AM-PERD": "En cerrar o litigar, las respuestas están a 3 pasos o más.",
+    "EC-INFO-ESCAL": "Aceptaría un pago seguro muy alto y, en la crisis de caja, aportaría dinero propio.",
+    "EC-AM-AGEN": "Exige menos probabilidad de éxito cuando el dinero es del otro socio.",
+    "EC-INFO-AGEN-NEG": "Exige más probabilidad de éxito cuando el dinero es del otro socio.",
+    "EC-AM-REP": "El porcentaje que darían a quien pone trabajo y conocimiento está a 2 pasos o más.",
+    "EC-INC-CAP": "Dijo que no podría perder ahorros y, a la vez, aportaría un monto alto de capital.",
+    "EC-AM-BASE": "Entre los dos, capital y evidencia quedan en los peldaños más bajos.",
+    "EC-OVER": "Marcó dos o más conceptos que no existen como si los conociera.",
+    "EC-INFO-OVER": "Marcó un concepto que no existe.",
+    "EC-INC-KNOW": "Dice que puede mostrar resultados verificables y marcó conceptos que no existen. Conviene pedir referencias antes de la reunión."
+  };
+
+  function fmtDelta(n) {
+    if (n == null || !Number.isFinite(Number(n))) return "—";
+    const x = Number(n);
+    return (x > 0 ? "+" : "") + fmt(x);
+  }
+
+  function renderShadow(sh, nombreA, nombreB) {
+    const box = $("shadowBox");
+    if (!box) return;
+    if (!sh) {
+      box.textContent = "Preguntas 11 a 16: sin lectura. El índice y el complemento no cambian.";
+      return;
+    }
+    const line = (k, v) => "<div><b>" + k + ".</b> " + v + "</div>";
+    const nums = [
+      "S_REP " + fmt(sh.S_REP),
+      "Cobertura de capital " + fmt(sh.cobertura_cap),
+      "Cobertura de conocimiento " + fmt(sh.cobertura_know),
+      "Cobertura de evidencia " + fmt(sh.cobertura_evid)
+    ].join(" · ");
+    const who = (name, p) => name + ": perfil " + (p && p.perfil ? p.perfil : "—")
+      + ", agencia " + fmtDelta(p && p.delta_agen);
+    const flags = (sh.flags || []).filter((f, i, arr) => arr.indexOf(f) === i);
+    const flagHtml = flags.length
+      ? flags.map((f) => "<div>" + f + ". " + (SHADOW_FLAG[f] || "") + "</div>").join("")
+      : "<div>Sin banderas en estas preguntas.</div>";
+    box.innerHTML =
+      "<div style=\"font-weight:700;margin-bottom:6px\">Preguntas 11 a 16 · para el profesional · no mueven el I ni el C_comp</div>" +
+      line("Lectura", nums) +
+      line("Aporte", who(nombreA, sh.A) + ". " + who(nombreB, sh.B)) +
+      flagHtml;
+  }
+
   function render(data) {
     $("loadErr").hidden = true;
     $("sheet").hidden = false;
@@ -409,6 +456,7 @@ function flagText(code, data) {
       capaBox.textContent = bits.join(" ");
       if (pair.no_apto_socios) capaBox.style.background = "#fef2f2";
     }
+    renderShadow(data.shadow, nombreA, nombreB);
     $("iflCurveInline").textContent = I == null ? "—" : fmtI(I);
 
     const badge = $("badge");
