@@ -392,36 +392,25 @@ function flagText(code, data) {
     "EC-INC-KNOW": "Dice que puede mostrar resultados verificables y marcó conceptos que no existen. Conviene pedir referencias antes de la reunión."
   };
 
-  function fmtDelta(n) {
-    if (n == null || !Number.isFinite(Number(n))) return "—";
-    const x = Number(n);
-    return (x > 0 ? "+" : "") + fmt(x);
-  }
-
   function renderShadow(sh, nombreA, nombreB) {
     const box = $("shadowBox");
     if (!box) return;
     if (!sh) {
-      box.textContent = "Preguntas 11 a 16: sin lectura. El índice y el complemento no cambian.";
+      box.textContent = "Preguntas nuevas: sin lectura. El índice y el complemento no cambian.";
       return;
     }
-    const line = (k, v) => "<div><b>" + k + ".</b> " + v + "</div>";
-    const nums = [
-      "S_REP " + fmt(sh.S_REP),
-      "Cobertura de capital " + fmt(sh.cobertura_cap),
-      "Cobertura de conocimiento " + fmt(sh.cobertura_know),
-      "Cobertura de evidencia " + fmt(sh.cobertura_evid)
-    ].join(" · ");
-    const who = (name, p) => name + ": perfil " + (p && p.perfil ? p.perfil : "—")
-      + ", agencia " + fmtDelta(p && p.delta_agen);
+    const perfil = (name, p) => name + " queda en perfil " + ((p && p.perfil) || "—") + ".";
     const flags = (sh.flags || []).filter((f, i, arr) => arr.indexOf(f) === i);
     const flagHtml = flags.length
-      ? flags.map((f) => "<div>" + f + ". " + (SHADOW_FLAG[f] || "") + "</div>").join("")
-      : "<div>Sin banderas en estas preguntas.</div>";
+      ? flags.map((f) => "<div>" + (SHADOW_FLAG[f] || "") + "</div>").join("")
+      : "<div>En estas preguntas no hay una señal aparte.</div>";
     box.innerHTML =
-      "<div style=\"font-weight:700;margin-bottom:6px\">Preguntas 11 a 16 · para el profesional · no mueven el I ni el C_comp</div>" +
-      line("Lectura", nums) +
-      line("Aporte", who(nombreA, sh.A) + ". " + who(nombreB, sh.B)) +
+      "<div style=\"font-weight:700;margin-bottom:6px\">Preguntas nuevas, para quien revisa la pareja. No cambian el índice ni el complemento.</div>" +
+      "<div>En el reparto, la cercanía es " + fmt(sh.S_REP) + ".</div>" +
+      "<div>El mayor capital que uno de los dos podría aportar llega a " + fmt(sh.cobertura_cap) + ".</div>" +
+      "<div>El mayor conocimiento de los conceptos reales llega a " + fmt(sh.cobertura_know) + ".</div>" +
+      "<div>La mayor evidencia que uno puede mostrar llega a " + fmt(sh.cobertura_evid) + ".</div>" +
+      "<div>" + perfil(nombreA, sh.A) + " " + perfil(nombreB, sh.B) + "</div>" +
       flagHtml;
   }
 
