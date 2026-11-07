@@ -121,6 +121,18 @@ async function listProfiles(limit) {
     .filter((p) => p.tiene_barras);
 }
 
+function ctrlStep(eco, responses) {
+  if (eco && eco.ctrl_step != null && eco.ctrl_step !== "") {
+    const n = Number(eco.ctrl_step);
+    if (Number.isFinite(n)) return n;
+  }
+  if (!responses) return null;
+  const raw = responses["ECO-E08"];
+  if (raw == null || raw === "") return null;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
 function pairFromProfiles(pa, pb) {
   const profileA = {
     bars: pa.bars,
@@ -158,6 +170,8 @@ function pairFromProfiles(pa, pb) {
     ecoB: pb.eco,
     crisisA: pa.eco && pa.eco.CRISIS != null ? pa.eco.CRISIS : null,
     crisisB: pb.eco && pb.eco.CRISIS != null ? pb.eco.CRISIS : null,
+    ctrlA: ctrlStep(pa.eco, pa.responses),
+    ctrlB: ctrlStep(pb.eco, pb.responses),
     pair,
     shadow,
     source: "hit",

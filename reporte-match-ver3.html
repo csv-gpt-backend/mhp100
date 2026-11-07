@@ -330,6 +330,33 @@
     else img.addEventListener("load", function () { requestAnimationFrame(place); }, { once: true });
   }
 
+  const E08 = [
+    "100 % de la empresa y todas las decisiones",
+    "60 % y control mayoritario",
+    "30 % y decisiones compartidas con los inversionistas",
+    "10 % y los inversionistas controlan el directorio"
+  ];
+
+  function e08Label(step) {
+    const n = Number(step);
+    if (!Number.isFinite(n) || n < 0 || n >= E08.length) return "sin respuesta";
+    return E08[n];
+  }
+
+  function e08Line(nombreA, nombreB, stepA, stepB) {
+    const a = Number(stepA);
+    const b = Number(stepB);
+    const both = Number.isFinite(a) && Number.isFinite(b);
+    let dist = "No se puede contar la distancia.";
+    if (both) {
+      const d = Math.min(3, Math.abs(a - b));
+      if (d === 0) dist = "Están en el mismo peldaño.";
+      else if (d === 1) dist = "Están a 1 peldaño.";
+      else dist = "Están a " + d + " peldaños.";
+    }
+    return nombreA + " eligió: " + e08Label(stepA) + ". " + nombreB + " eligió: " + e08Label(stepB) + ". " + dist;
+  }
+
   function e10Label(code) {
     if (code == null || code === "") return "—";
     var k = String(code).trim().toUpperCase();
@@ -509,9 +536,16 @@ function flagText(code, data) {
 
     const sig = $("signals");
     sig.innerHTML = "";
+    const ctrlEl = document.createElement("div");
+    ctrlEl.className = "signal";
+    ctrlEl.innerHTML = "<strong>Participación frente a crecimiento.</strong> " + e08Line(nombreA, nombreB, data.ctrlA, data.ctrlB);
+    sig.appendChild(ctrlEl);
     const showFlags = flags.filter((f) => f !== "EC-OK");
     if (!showFlags.length) {
-      sig.innerHTML = '<div class="signal"><strong>Sin señales fuertes.</strong> Mantener la conversación de roles y caja de todos modos.</div>';
+      const empty = document.createElement("div");
+      empty.className = "signal";
+      empty.innerHTML = "<strong>Sin señales fuertes.</strong> Mantener la conversación de roles y caja de todos modos.";
+      sig.appendChild(empty);
     } else {
       showFlags.forEach((f) => {
         const c = flagText(f, data);
