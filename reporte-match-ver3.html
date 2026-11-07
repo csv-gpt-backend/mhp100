@@ -342,19 +342,46 @@
     return E10[k] || String(code);
   }
 
-  function domainRecs(flags) {
+  function domainState(a, b) {
+    const vals = [a, b].filter(function (v) { return v != null && !isNaN(v); });
+    if (!vals.length) return "—";
+    const min = Math.min.apply(null, vals);
+    if (min < 45) return "En piso";
+    if (min < 60) return "A revisar";
+    return "Bien";
+  }
+
+  function domainRecs(barsA, barsB) {
+    const spec = [
+      { k: "V", title: "Valores", items: RECS.V },
+      { k: "S", title: "Socioemocional", items: RECS.S },
+      { k: "H", title: "Hábitos", items: RECS.H },
+      { k: "E", title: "Económico", items: RECS.E },
+      { k: "L", title: "Liderazgo", items: RECS.L },
+      { k: "C", title: "Intelectual", items: RECS.C }
+    ];
+    return spec.map(function (d) {
+      return {
+        title: d.title,
+        state: domainState(barsA[d.k], barsB[d.k]),
+        items: d.items.slice()
+      };
+    });
+  }
+
+  function flaggedRecs(flags) {
     const out = [];
     const has = (f) => flags.includes(f);
-    if (has("AV-AM") || has("AV-RO")) out.push({ title: "Valores", items: RECS.V.slice() });
+    if (has("AV-AM") || has("AV-RO")) out.push({ items: RECS.V.slice() });
     if (has("SO-AM") || has("SO-RO") || has("SO-AM-AGR") || has("SO-RO-AGR") || has("SO-INFO-TIM")) {
-      out.push({ title: "Socioemocional", items: RECS.S.slice() });
+      out.push({ items: RECS.S.slice() });
     }
-    if (has("HA-AM") || has("HA-RO")) out.push({ title: "Hábitos", items: RECS.H.slice() });
+    if (has("HA-AM") || has("HA-RO")) out.push({ items: RECS.H.slice() });
     if (has("EC-AM-CAP") || has("EC-AM-RUNWAY") || has("EC-AM-CTRL") || has("EC-RO") || has("EC-CRISIS")) {
-      out.push({ title: "Económico", items: RECS.E.slice() });
+      out.push({ items: RECS.E.slice() });
     }
-    if (has("LI-AM") || has("LI-INFO") || has("COMP-AM") || has("COMP-RO") || has("COMP-DIFF")) out.push({ title: "Liderazgo / complemento", items: RECS.L.slice() });
-    if (has("IN-AM")) out.push({ title: "Intelectual", items: RECS.C.slice() });
+    if (has("LI-AM") || has("LI-INFO") || has("COMP-AM") || has("COMP-RO") || has("COMP-DIFF")) out.push({ items: RECS.L.slice() });
+    if (has("IN-AM")) out.push({ items: RECS.C.slice() });
     return out;
   }
 
@@ -496,17 +523,13 @@ function flagText(code, data) {
     }
 
     const recHost = $("recs");
-    const recs = domainRecs(flags);
-    if (!recs.length) {
-      recHost.innerHTML = "";
-    } else {
-      recHost.innerHTML = "<h2>Recomendaciones por dominio</h2>" + recs.map((r) =>
-        "<h3>" + r.title + "</h3><ul>" + r.items.map((i) => "<li>" + i + "</li>").join("") + "</ul>"
-      ).join("");
-    }
+    const recs = domainRecs(barsA, barsB);
+    recHost.innerHTML = "<h2>Recomendaciones por dominio</h2>" + recs.map((r) =>
+      "<h3>" + r.title + " · " + r.state + "</h3><ul>" + r.items.map((i) => "<li>" + i + "</li>").join("") + "</ul>"
+    ).join("");
 
     const qs = [];
-    recs.forEach((r) => r.items.forEach((i) => {
+    flaggedRecs(flags).forEach((r) => r.items.forEach((i) => {
       const q = i.endsWith("?") ? i : (i.replace(/\.$/, "") + "?");
       if (qs.indexOf(q) < 0) qs.push(q);
     }));
