@@ -379,6 +379,72 @@
   }
 
   function domainRecs(barsA, barsB) {
+    const extra = {
+      Bien: {
+        V: [
+          "Los dos cuidan las mismas reglas del negocio. Conviene dejarlas escritas para no darlas por sabidas.",
+          "La información importante ya puede verse entre los dos. Mantener ese hábito.",
+          "Si algo sale mal, el reparto de crédito y de responsabilidad ya se parece. Revisarlo solo si el negocio cambia."
+        ],
+        S: [
+          "Los dos avisan y se escuchan cuando hay tensión. Mantener ese modo de hablar.",
+          "El conflicto no llega a gritos, silencios ni amenazas. Dejar claro que eso sigue siendo el límite.",
+          "Los dos pueden decir que no y seguir. No hace falta un protocolo nuevo."
+        ],
+        H: [
+          "Los plazos y el reparto de tareas ya se parecen. Mantenerlos por escrito cuando el trabajo crezca.",
+          "Si uno no va a cumplir, ya hay forma de avisarlo. Seguir usándola.",
+          "El trabajo de los dos se está usando. No hace falta rearmar el equipo por este punto."
+        ],
+        E: [
+          "Salario, caja y participación ya están cerca. Revisarlos solo si entra un inversionista o cambia la caja.",
+          "Los dos aceptarían un camino parecido si el dinero se aprieta.",
+          "La diferencia de colchón no obliga a un acuerdo nuevo."
+        ],
+        L: [
+          "Entre los dos hay quien decide y quien ejecuta. Dejar los mandatos escritos para no pisarse.",
+          "La última palabra ya tiene dueño en los temas importantes.",
+          "El que lidera menos igual tiene cómo hacerse oír."
+        ],
+        C: [
+          "Los dos entienden los problemas a un nivel parecido. Seguir bajando las decisiones a ejemplos.",
+          "Pueden revisar números y supuestos juntos.",
+          "No hay una brecha que obligue a traducir cada decisión."
+        ]
+      },
+      "En piso": {
+        V: [
+          "Antes de asociarse, definir qué información del negocio será visible para ambos.",
+          "Acordar qué pasa si uno incumple una promesa al otro o a un cliente.",
+          "Uno de los dos queda muy por debajo en este punto. El otro puede cubrirlo, pero tiene que quedar dicho quién mira las cuentas y las promesas."
+        ],
+        S: [
+          "Definir cómo avisa cada uno cuando hay tensión y en cuánto tiempo se habla.",
+          "Acordar qué no se acepta en un conflicto: gritos, silencio o amenazas.",
+          "Un piso bajo aquí puede equilibrarse si el otro baja el tono. Igual hay que acordarlo antes de firmar."
+        ],
+        H: [
+          "Definir qué plazos no se mueven y cuáles se pueden renegociar.",
+          "Acordar cómo se avisan si no van a cumplir.",
+          "Uno puede cubrir el orden del otro. Tiene que quedar dicho quién lleva los plazos."
+        ],
+        E: [
+          "Acordar salarios, quién cubre un faltante de caja y cómo afecta eso a la participación.",
+          "Decidir, antes de buscar capital, si se aceptan inversionistas y en qué condiciones.",
+          "Si uno no puede aguantar sin sueldo, el otro puede cubrir un tramo. Eso se escribe antes de empezar."
+        ],
+        L: [
+          "Definir quién tiene la última palabra cuando no hay acuerdo.",
+          "Acordar quién lleva la visión o lo comercial y quién la operación o el producto.",
+          "Si uno no cubre el mando, el otro puede cubrirlo. El mandato tiene que quedar por escrito."
+        ],
+        C: [
+          "Explicar una decisión difícil hasta que los dos la entiendan igual.",
+          "Revisar juntos los números o los supuestos antes de invertir.",
+          "Si uno ve el problema más rápido, el otro pide ejemplos antes de decidir. Esa diferencia puede servir, si se usa así."
+        ]
+      }
+    };
     const spec = [
       { k: "V", title: "Valores", items: RECS.V },
       { k: "S", title: "Socioemocional", items: RECS.S },
@@ -388,10 +454,12 @@
       { k: "C", title: "Intelectual", items: RECS.C }
     ];
     return spec.map(function (d) {
+      const state = domainState(barsA[d.k], barsB[d.k]);
+      const list = (extra[state] && extra[state][d.k]) || d.items;
       return {
         title: d.title,
-        state: domainState(barsA[d.k], barsB[d.k]),
-        items: d.items.slice()
+        state: state,
+        items: list.slice()
       };
     });
   }
