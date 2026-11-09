@@ -117,8 +117,8 @@ function shadowPair(responsesA, responsesB) {
     cobertura_cap,
     cobertura_know,
     cobertura_evid,
-    A: { perfil: A.perfil, delta_agen: A.delta_agen, know_acc: A.know_acc, v14: A.v14, v16: A.v16 },
-    B: { perfil: B.perfil, delta_agen: B.delta_agen, know_acc: B.know_acc, v14: B.v14, v16: B.v16 },
+    A: { perfil: A.perfil, delta_agen: A.delta_agen, know_acc: A.know_acc, v14: A.v14, v16: A.v16, i13: A.i13, flags: A.flags },
+    B: { perfil: B.perfil, delta_agen: B.delta_agen, know_acc: B.know_acc, v14: B.v14, v16: B.v16, i13: B.i13, flags: B.flags },
     flags,
   };
 }

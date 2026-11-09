@@ -444,6 +444,12 @@ function flagText(code, data) {
     "EC-INC-KNOW": "Dice que puede mostrar resultados verificables y marcó conceptos que no existen. Conviene pedir referencias antes de la reunión."
   };
 
+  const E13L = ["10 % o menos", "20 %", "30 %", "40 %", "50 %", "60 % o más"];
+  const PERSON_SHADOW = {
+    "EC-INFO-ESCAL": 1, "EC-AM-AGEN": 1, "EC-INFO-AGEN-NEG": 1, "EC-INC-CAP": 1,
+    "EC-OVER": 1, "EC-INFO-OVER": 1, "EC-INC-KNOW": 1
+  };
+
   function renderShadow(sh, nombreA, nombreB) {
     const box = $("shadowBox");
     if (!box) return;
@@ -452,13 +458,18 @@ function flagText(code, data) {
       return;
     }
     const perfil = (name, p) => name + " queda en perfil " + ((p && p.perfil) || "—") + ".";
-    const flags = (sh.flags || []).filter((f, i, arr) => arr.indexOf(f) === i);
-    const flagHtml = flags.length
-      ? flags.map((f) => "<div>" + (SHADOW_FLAG[f] || "") + "</div>").join("")
-      : "<div>En estas preguntas no hay una señal aparte.</div>";
+    const dar = (p) => (p && p.i13 != null && E13L[p.i13]) ? E13L[p.i13] : "—";
+    const pairFlags = (sh.flags || []).filter((f, i, arr) => arr.indexOf(f) === i && !PERSON_SHADOW[f]);
+    const named = (name, p) => ((p && p.flags) || [])
+      .filter((f) => PERSON_SHADOW[f] && SHADOW_FLAG[f])
+      .map((f) => "<div>" + name + ": " + SHADOW_FLAG[f] + "</div>")
+      .join("");
+    const pairHtml = pairFlags.map((f) => "<div>" + (SHADOW_FLAG[f] || "") + "</div>").join("");
+    const personHtml = named(nombreA, sh.A) + named(nombreB, sh.B);
+    const flagHtml = (pairHtml + personHtml) || "<div>En estas preguntas no hay una señal aparte.</div>";
     box.innerHTML =
       "<div style=\"font-weight:700;margin-bottom:6px\">Preguntas nuevas, para quien revisa la pareja. El reparto, la pregunta 11 y la 12a entran en la barra económica. Lo demás no cambia el complemento.</div>" +
-      "<div>En el reparto, la cercanía es " + fmt(sh.S_REP) + ". Ese número entra en la barra económica y por eso puede mover el índice.</div>" +
+      "<div>En el reparto, " + nombreA + " daría " + dar(sh.A) + ". " + nombreB + " daría " + dar(sh.B) + ". La cercanía es " + fmt(sh.S_REP) + ". Ese número entra en la barra económica y por eso puede mover el índice.</div>" +
       "<div>El mayor capital que uno de los dos podría aportar llega a " + fmt(sh.cobertura_cap) + ".</div>" +
       "<div>El mayor conocimiento de los conceptos reales llega a " + fmt(sh.cobertura_know) + ".</div>" +
       "<div>La mayor evidencia que uno puede mostrar llega a " + fmt(sh.cobertura_evid) + ".</div>" +
