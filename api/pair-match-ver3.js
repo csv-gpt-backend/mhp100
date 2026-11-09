@@ -12,7 +12,7 @@ const {
   scorePairFromProfilesCapas,
   scorePerson,
 } = require("./match-engine-capas");
-const { shadowPair, applySeV12, cognitiveRecount } = require("./score-match-ver3");
+const { shadowPair, applySeV12, cognitiveRecount, foldRiskIntoProfile } = require("./score-match-ver3");
 
 function asObject(raw) {
   let value = raw;
@@ -133,7 +133,11 @@ function ctrlStep(eco, responses) {
   return Number.isFinite(n) ? n : null;
 }
 
-function pairFromProfiles(pa, pb) {
+function pairFromProfiles(pa0, pb0) {
+  const fa = foldRiskIntoProfile({ bars: pa0.bars, eco: pa0.eco }, pa0.responses);
+  const fb = foldRiskIntoProfile({ bars: pb0.bars, eco: pb0.eco }, pb0.responses);
+  const pa = Object.assign({}, pa0, { bars: fa.bars, eco: fa.eco });
+  const pb = Object.assign({}, pb0, { bars: fb.bars, eco: fb.eco });
   const profileA = {
     bars: pa.bars,
     eco: pa.eco,

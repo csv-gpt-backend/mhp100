@@ -151,6 +151,33 @@ function shadowPack(responses, profile) {
   };
 }
 
+/**
+ * La 11 y la 12a entran al promedio de riesgo, cada una con la misma parte que las cinco viejas.
+ * La 12b no entra. Solo MATCHE. Si el perfil ya trae risk_version, no se suma dos veces.
+ */
+function foldRiskIntoProfile(profile, responses) {
+  if (!profile || !profile.eco || profile.eco.RA == null) return profile;
+  if (profile.eco.risk_version === "11-12a") return profile;
+  const i11 = Number(responses && responses["ECO-E11"]);
+  const i12 = Number(responses && responses["ECO-E12A"]);
+  if (!Number.isFinite(i11) || i11 < 0 || i11 > 7) return profile;
+  if (!Number.isFinite(i12) || i12 < 0 || i12 > 7) return profile;
+  const v11 = (100 * i11) / 7;
+  const v12 = (100 * (7 - i12)) / 7;
+  const old = Number(profile.eco.RA);
+  const RA = round2((old * 5 + v11 + v12) / 7);
+  const be = rules.economic.barra_E;
+  const barE = round2(be.RA * RA + be.PA * Number(profile.eco.PA) + be.CAP * Number(profile.eco.CAP));
+  return Object.assign({}, profile, {
+    bars: Object.assign({}, profile.bars, { E: barE }),
+    eco: Object.assign({}, profile.eco, {
+      RA,
+      RA_sin_11_12: round2(old),
+      risk_version: "11-12a",
+    }),
+  });
+}
+
 function scoreMatchVer3(responses, startTime) {
   if (!responses || typeof responses !== "object") {
     return { ok: false, error: "Faltan respuestas." };
@@ -167,7 +194,7 @@ function scoreMatchVer3(responses, startTime) {
     }
   }
 
-  const profile = scorePerson(responses, bank, rules);
+  const profile = foldRiskIntoProfile(scorePerson(responses, bank, rules), responses);
   const composite = profileComposite(profile.bars || {});
   const end = Date.now();
   const start = startTime ? Number(startTime) : null;
@@ -200,8 +227,8 @@ function scoreMatchVer3(responses, startTime) {
 }
 
 /**
- * S_E v1.2 de la ficha. Solo el reparto (S_REP, pregunta 13) entra en la barra.
- * E11, E12, E14, E15 y E16 siguen en la lectura: la ficha no les da peso aquí.
+ * S_E v1.2. El reparto entra en la barra. La 11 y la 12a ya van dentro de RA.
+ * E12b, E14, E15 y E16 siguen en la lectura.
  * d13 = 5 no pone la pareja en rojo.
  */
 function applySeV12(pair, ecoA, ecoB, responsesA, responsesB, shadow) {
@@ -256,4 +283,4 @@ function cognitiveRecount(responses) {
   };
 }
 
-module.exports = { scoreMatchVer3, profileComposite, shadowPerson, shadowPair, applySeV12, cognitiveRecount };
+module.exports = { scoreMatchVer3, profileComposite, shadowPerson, shadowPair, applySeV12, cognitiveRecount, foldRiskIntoProfile };
