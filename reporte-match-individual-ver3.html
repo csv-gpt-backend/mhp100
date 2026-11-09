@@ -207,7 +207,7 @@
     </header>
 
     <div class="meta">
-      <div><span>Nombre</span><b id="metaName">—</b></div>
+      <div><span>Nombre</span><b id="metaName">—</b><div id="metaRisk" style="font-size:12px;font-weight:600;margin-top:4px">Disposición al riesgo: —</div></div>
       <div><span>Institución</span><b id="metaInst">—</b></div>
       <div><span>Fecha</span><b id="metaFecha">—</b></div>
     </div>
@@ -215,6 +215,8 @@
     <div class="note-box" id="noteBox">
       Este hoja describe cómo se ve la persona en los seis dominios Match. Para comparar con un socio, abra el reporte de pareja (A×B).
     </div>
+
+    <div class="note-box" id="personBox" style="margin-top:8px;background:#f3fbfb;border:1px solid #0D7377;color:#134e4a">—</div>
 
     <div class="curve-block">
       <div class="curve-title">CURVA DE DISTRIBUCIÓN DE FRECUENCIAS · Perfil compuesto = <span id="curveValInline">—</span></div>
@@ -416,18 +418,110 @@
     sum.innerHTML = html;
   }
 
+  function idxOf(raw, n) {
+    const i = Number(raw);
+    if (!Number.isFinite(i) || i < 0 || i >= n) return null;
+    return i;
+  }
+
+  const E08L = [
+    "100 % de la empresa y todas las decisiones",
+    "60 % y control mayoritario",
+    "30 % y decisiones compartidas con los inversionistas",
+    "10 % y los inversionistas controlan el directorio"
+  ];
+  const E10L = {
+    A: "Recortar costos para que el efectivo dure más tiempo",
+    B: "Aportar dinero propio y mantener el plan original",
+    C: "Buscar inversionistas externos, aunque sea a cambio de una participación importante",
+    D: "Cambiar el producto o el mercado para mejorar las ventas",
+    E: "Cerrar de manera ordenada para limitar las pérdidas"
+  };
+  const E13L = ["10 % o menos", "20 %", "30 %", "40 %", "50 %", "60 % o más"];
+  const E14L = ["US$0", "Hasta US$10,000", "US$10,001–25,000", "US$25,001–50,000", "US$50,001–100,000", "Más de US$100,000"];
+  const E16L = [
+    "Nada concreto, sobre todo una idea",
+    "Documentos propios",
+    "Producto, demo o portafolio",
+    "Resultados verificables por terceros"
+  ];
+
+  function e10Of(raw) {
+    if (raw == null || raw === "") return null;
+    const s = String(raw).trim().toUpperCase();
+    if (E10L[s]) return E10L[s];
+    const i = Number(raw);
+    const letters = ["A", "B", "C", "D", "E"];
+    if (Number.isFinite(i) && letters[i]) return E10L[letters[i]];
+    return null;
+  }
+
+  function personReading(responses, eco) {
+    const r = responses || {};
+    const i11 = idxOf(r["ECO-E11"], 8);
+    const i12a = idxOf(r["ECO-E12A"], 8);
+    const i12b = idxOf(r["ECO-E12B"], 8);
+    const i13 = idxOf(r["ECO-E13"], 6);
+    const i14 = idxOf(r["ECO-E14"], 6);
+    const i16 = idxOf(r["ECO-E16"], 4);
+    const i08 = idxOf(r["ECO-E08"], 4);
+    const realIds = ["ECO-E15-1", "ECO-E15-2", "ECO-E15-3", "ECO-E15-4", "ECO-E15-5", "ECO-E15-6"];
+    const foilIds = ["ECO-E15-7", "ECO-E15-8", "ECO-E15-9"];
+    const realI = realIds.map((id) => idxOf(r[id], 4)).filter((x) => x != null);
+    const know = realI.length ? Math.round((100 * (realI.reduce((a, b) => a + b, 0) / realI.length) / 3) * 100) / 100 : null;
+    const foils = foilIds.reduce((n, id) => n + ((idxOf(r[id], 4) || 0) >= 2 ? 1 : 0), 0);
+    let ra = eco && eco.RA != null ? Number(eco.RA) : null;
+    if (eco && eco.risk_version !== "11-12a" && ra != null && i11 != null && i12a != null) {
+      const v11 = (100 * i11) / 7;
+      const v12 = (100 * (7 - i12a)) / 7;
+      ra = Math.round(((ra * 5 + v11 + v12) / 7) * 100) / 100;
+    }
+    let perfil = "—";
+    if (i14 != null && i16 != null) {
+      if (i14 >= 3 && i16 <= 1) perfil = "Capital";
+      else if (i14 <= 1 && i16 >= 2) perfil = "Conocimiento";
+      else perfil = "Mixto";
+    }
+    const notes = [];
+    if (i12a != null && i12b != null && i12a - i12b >= 2) notes.push("Exige menos probabilidad de éxito cuando el dinero es del otro socio.");
+    if (i12a != null && i12b != null && i12b - i12a >= 2) notes.push("Exige más probabilidad de éxito cuando el dinero es del otro socio.");
+    if (foils >= 2) notes.push("Marcó dos o más conceptos que no existen como si los conociera.");
+    else if (foils === 1) notes.push("Marcó un concepto que no existe.");
+    if (i16 === 3 && foils >= 2) notes.push("Dice que puede mostrar resultados verificables y marcó conceptos que no existen.");
+    return { ra, know, perfil, i13, i14, i16, i08, crisis: e10Of(r["ECO-E10"]), notes };
+  }
+
   function render(data) {
     $("loadErr").hidden = true;
     $("sheet").hidden = false;
     const p = data.profile || {};
-    const bars = p.bars || {};
     const flags = p.flags || [];
     const eco = p.eco || {};
+    const read = personReading(data.responses, eco);
+    const bars = Object.assign({}, p.bars || {});
+    if (read.ra != null && eco.PA != null && eco.CAP != null && eco.risk_version !== "11-12a") {
+      bars.E = Math.round((0.6 * read.ra + 0.2 * Number(eco.PA) + 0.2 * Number(eco.CAP)) * 100) / 100;
+    }
 
     $("badgeName").textContent = (data.nombre || "—").split(" ")[0];
     $("metaName").textContent = data.nombre || "—";
+    $("metaRisk").textContent = "Disposición al riesgo: " + fmt(read.ra);
     $("metaInst").textContent = data.institucion || "—";
     $("metaFecha").textContent = data.fecha || "—";
+
+    const lines = [
+      "Capital que podría aportar: " + (read.i14 == null ? "—" : E14L[read.i14]) + ".",
+      "Conocimiento de los conceptos reales: " + fmt(read.know) + ".",
+      "Lo que puede mostrar: " + (read.i16 == null ? "—" : E16L[read.i16]) + ".",
+      "Perfil de aporte: " + read.perfil + ".",
+      "En el reparto, le daría a quien aporta trabajo y conocimiento: " + (read.i13 == null ? "—" : E13L[read.i13]) + ".",
+      "Dentro de siete años preferiría: " + (read.i08 == null ? "—" : E08L[read.i08]) + ".",
+      "Ante una crisis de caja haría primero: " + (read.crisis || "—") + "."
+    ];
+    $("personBox").innerHTML =
+      "<div style=\"font-weight:700;margin-bottom:6px\">Lectura de esta persona. No es el índice ni el complemento: esos salen al emparejar.</div>" +
+      lines.map((t) => "<div>" + t + "</div>").join("") +
+      (read.notes.length ? read.notes.map((t) => "<div>" + t + "</div>").join("") : "<div>En las preguntas nuevas no hay una señal aparte.</div>");
 
     const note = $("noteBox");
     note.className = "note-box";
@@ -511,6 +605,7 @@
       if (!r.ok) throw new Error(data.error || "No se pudo cargar el reporte");
       const attempt = data.attempt || {};
       const res = typeof attempt.resultados === "string" ? JSON.parse(attempt.resultados) : (attempt.resultados || {});
+      const responses = typeof attempt.responses === "string" ? JSON.parse(attempt.responses) : (attempt.responses || {});
       const part = data.participant || {};
       const nombre =
         [res.nombre_pila, res.apellido].filter(Boolean).join(" ") ||
@@ -529,6 +624,7 @@
           aciertos_max: res.aciertos_max || 6,
           flags: res.flags || []
         },
+        responses: responses,
         source: "hit"
       });
     } catch (e) {
