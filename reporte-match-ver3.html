@@ -64,11 +64,12 @@
       display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
       border-bottom: 3px solid var(--teal); padding-bottom: 14px; margin-bottom: 18px;
     }
-    .brand-left { display: flex; align-items: flex-start; gap: 14px; min-width: 0; }
+    .brand-left { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; }
     .brand-logo {
       height: 90px; width: auto; max-width: 180px; object-fit: contain; display: block; flex-shrink: 0;
     }
-    .brand h1 { margin: 0; font-size: 20px; line-height: 1.25; letter-spacing: 0.02em; color: var(--teal); }
+    .brand-title { flex: 1; text-align: center; }
+    .brand h1 { margin: 0; font-size: 18px; line-height: 1.3; letter-spacing: 0.04em; color: var(--teal); }
     .brand .sub { margin: 4px 0 0; font-size: 12px; color: var(--muted); max-width: 360px; }
     .badge {
       background: var(--amber-soft); color: var(--amber); border: 1px solid #fcd34d;
@@ -77,7 +78,9 @@
     }
     .badge.alta { background: #ecfdf5; color: #047857; border-color: #6ee7b7; }
     .badge.reservada, .badge.baja { background: var(--red-soft); color: var(--red); border-color: #fecaca; }
-    .badge strong { display: block; font-size: 28px; line-height: 1.1; color: var(--ink); }
+    .badge strong { display: block; font-size: 26px; line-height: 1.1; color: var(--ink); font-weight: 800; }
+    .badge .idx { display: block; margin: 2px 0 8px; font-size: 13px; font-weight: 700; }
+    .badge .idx:last-child { margin-bottom: 0; }
     .meta {
       display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; font-size: 12px; margin-bottom: 16px;
     }
@@ -207,15 +210,15 @@
       <div class="brand-left">
         <img class="brand-logo" src="match-assets/logo-adalam.png" alt="ADALAM"
              onerror="this.onerror=null;this.src='assets/logo_adalam.png'" />
-        <div>
-          <h1>Reporte de compatibilidad<br>Match de Fundadores</h1>
+        <div class="brand-title">
+          <h1>REPORTE DE COMPATIBILIDAD<br>MATCH DE FUNDADORES</h1>
         </div>
       </div>
       <div class="badge" id="badge">
-        BANDA I
         <strong id="badgeBand">—</strong>
-        <span id="badgeI" style="display:block;margin-top:6px;font-size:12px">Índice de compatibilidad: —</span>
-        <span id="badgeC" style="display:block;margin-top:4px;font-size:12px">Índice de complementariedad: —</span>
+        <span id="badgeI" class="idx">Índice de compatibilidad: —</span>
+        <strong id="badgeCBand">—</strong>
+        <span id="badgeC" class="idx">Índice de complementariedad: —</span>
       </div>
     </header>
 
@@ -637,7 +640,9 @@ function flagText(code, data) {
     const Cc = pair.C_comp;
     const CcBand = pair.C_comp_band || "—";
     const badgeC = $("badgeC");
-    if (badgeC) badgeC.textContent = Cc == null ? "Índice de complementariedad: —" : ("Índice de complementariedad: " + fmtI(Cc) + " · " + CcBand);
+    const badgeCBand = $("badgeCBand");
+    if (badgeCBand) badgeCBand.textContent = Cc == null ? "—" : CcBand;
+    if (badgeC) badgeC.textContent = Cc == null ? "Índice de complementariedad: —" : ("Índice de complementariedad: " + fmtI(Cc));
     const capaBox = $("capaBox");
     if (capaBox) {
       const bits = [];
