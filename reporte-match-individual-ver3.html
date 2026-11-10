@@ -482,13 +482,16 @@
       else if (i14 <= 1 && i16 >= 2) perfil = "Conocimiento";
       else perfil = "Mixto";
     }
+    let av = ra == null ? null : 100 - ra;
+    if (av != null && i12a != null && i12b != null && i12a > i12b) av -= (100 * (i12a - i12b)) / 7;
+    if (av != null) av = Math.max(0, Math.min(100, Math.round(av * 100) / 100));
     const notes = [];
     if (i12a != null && i12b != null && i12a - i12b >= 2) notes.push("Exige menos probabilidad de éxito cuando el dinero es del otro socio.");
     if (i12a != null && i12b != null && i12b - i12a >= 2) notes.push("Exige más probabilidad de éxito cuando el dinero es del otro socio.");
     if (foils >= 2) notes.push("Marcó dos o más conceptos que no existen como si los conociera.");
     else if (foils === 1) notes.push("Marcó un concepto que no existe.");
     if (i16 === 3 && foils >= 2) notes.push("Dice que puede mostrar resultados verificables y marcó conceptos que no existen.");
-    return { ra, know, perfil, i13, i14, i16, i08, crisis: e10Of(r["ECO-E10"]), notes };
+    return { ra, av, know, perfil, i13, i14, i16, i08, crisis: e10Of(r["ECO-E10"]), notes };
   }
 
   function render(data) {
@@ -505,7 +508,7 @@
 
     $("badgeName").textContent = (data.nombre || "—").split(" ")[0];
     $("metaName").textContent = data.nombre || "—";
-    $("metaRisk").textContent = "Aversión al riesgo: " + fmt(read.ra == null ? null : 100 - read.ra);
+    $("metaRisk").textContent = "Aversión al riesgo: " + fmt(read.av);
     $("metaInst").textContent = data.institucion || "—";
     $("metaFecha").textContent = data.fecha || "—";
 

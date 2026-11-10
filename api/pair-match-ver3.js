@@ -12,7 +12,7 @@ const {
   scorePairFromProfilesCapas,
   scorePerson,
 } = require("./match-engine-capas");
-const { shadowPair, applySeV12, cognitiveRecount, foldRiskIntoProfile } = require("./score-match-ver3");
+const { shadowPair, applySeV12, cognitiveRecount, foldRiskIntoProfile, aversionShown } = require("./score-match-ver3");
 
 function asObject(raw) {
   let value = raw;
@@ -176,6 +176,8 @@ function pairFromProfiles(pa0, pb0) {
     crisisB: pb.eco && pb.eco.CRISIS != null ? pb.eco.CRISIS : null,
     ctrlA: ctrlStep(pa.eco, pa.responses),
     ctrlB: ctrlStep(pb.eco, pb.responses),
+    aversionA: aversionShown(pa.eco && pa.eco.RA, pa.responses),
+    aversionB: aversionShown(pb.eco && pb.eco.RA, pb.responses),
     pair,
     shadow,
     source: "hit",

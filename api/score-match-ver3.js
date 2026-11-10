@@ -151,6 +151,36 @@ function shadowPack(responses, profile) {
   };
 }
 
+function aversionShown(ra, responses) {
+  if (ra == null || !Number.isFinite(Number(ra))) return null;
+  let a = 100 - Number(ra);
+  const i12a = idxOf(responses && responses["ECO-E12A"], 8);
+  const i12b = idxOf(responses && responses["ECO-E12B"], 8);
+  if (i12a != null && i12b != null && i12a > i12b) {
+    a -= (100 * (i12a - i12b)) / 7;
+  }
+  return round2(clip(a));
+}
+
+function knowNet(responses) {
+  const r = responses || {};
+  const realIds = ["ECO-E15-1", "ECO-E15-2", "ECO-E15-3", "ECO-E15-4", "ECO-E15-5", "ECO-E15-6"];
+  const foilIds = ["ECO-E15-7", "ECO-E15-8", "ECO-E15-9"];
+  const realI = realIds.map((id) => idxOf(r[id], 4)).filter((x) => x != null);
+  if (!realI.length) return 0;
+  const know = (100 * (realI.reduce((s, x) => s + x, 0) / realI.length)) / 3;
+  const foils = foilIds.reduce((n, id) => n + ((idxOf(r[id], 4) || 0) >= 2 ? 1 : 0), 0);
+  return clip(know - foils * (100 / 3));
+}
+
+function bandComp(c) {
+  if (c == null) return null;
+  if (c >= 75) return "Alta";
+  if (c >= 60) return "Media";
+  if (c >= 45) return "Reservada";
+  return "Baja";
+}
+
 /**
  * La 11 y la 12a entran al promedio de riesgo, cada una con la misma parte que las cinco viejas.
  * La 12b no entra. Solo MATCHE. Si el perfil ya trae risk_version, no se suma dos veces.
@@ -228,7 +258,8 @@ function scoreMatchVer3(responses, startTime) {
 
 /**
  * S_E v1.2. El reparto entra en la barra. La 11 y la 12a ya van dentro de RA.
- * E12b, E14, E15 y E16 siguen en la lectura.
+ * La 12b no entra al I: solo baja la aversión que se muestra si exige menos con el dinero del socio.
+ * La 14, la 15 y la 16 suman un peso chico al C_comp. No reemplazan mando, criterio ni ejecución.
  * d13 = 5 no pone la pareja en rojo.
  */
 function applySeV12(pair, ecoA, ecoB, responsesA, responsesB, shadow) {
@@ -261,14 +292,28 @@ function applySeV12(pair, ecoA, ecoB, responsesA, responsesB, shadow) {
   const redHit = (rules.red_cap.flags || []).some((f) => (pair.flags || []).includes(f));
   if (redHit) I = Math.min(I, rules.red_cap.max_index);
   I = round2(I);
+  let C_comp = pair.C_comp;
+  let C_comp_band = pair.C_comp_band;
+  let C_comp_roles = pair.C_comp;
+  if (C_comp != null && shadow) {
+    const cap = shadow.cobertura_cap == null ? 0 : Number(shadow.cobertura_cap);
+    const evid = shadow.cobertura_evid == null ? 0 : Number(shadow.cobertura_evid);
+    const know = Math.max(knowNet(responsesA), knowNet(responsesB));
+    const extra = 0.08 * cap + 0.05 * know + 0.03 * evid;
+    C_comp = round2(clip(C_comp + extra));
+    C_comp_band = bandComp(C_comp);
+  }
   const next = Object.assign({}, pair, {
     S,
     I,
     band: bandOf(I, rules),
     economic_version: "1.2",
     S_E_v11: pair.S.E,
+    C_comp,
+    C_comp_band,
+    C_comp_roles,
   });
-  next.combo_text = comboText(I, pair.C_comp, rules);
+  next.combo_text = comboText(I, C_comp, rules);
   return next;
 }
 
@@ -283,4 +328,4 @@ function cognitiveRecount(responses) {
   };
 }
 
-module.exports = { scoreMatchVer3, profileComposite, shadowPerson, shadowPair, applySeV12, cognitiveRecount, foldRiskIntoProfile };
+module.exports = { scoreMatchVer3, profileComposite, shadowPerson, shadowPair, applySeV12, cognitiveRecount, foldRiskIntoProfile, aversionShown };
