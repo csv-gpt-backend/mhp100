@@ -570,16 +570,16 @@ function flagText(code, data) {
   }
 
   const SHADOW_FLAG = {
-    "EC-AM-PERD": "En cerrar o litigar, las respuestas están a 3 pasos o más.",
+    "EC-AM-PERD": "En cerrar o litigar están a 3 pasos o más.",
     "EC-INFO-ESCAL": "Aceptaría un pago seguro muy alto y, en la crisis de caja, aportaría dinero propio.",
-    "EC-AM-AGEN": "Exige menos probabilidad de éxito cuando el dinero es del otro socio.",
-    "EC-INFO-AGEN-NEG": "Exige más probabilidad de éxito cuando el dinero es del otro socio.",
+    "EC-AM-AGEN": "Pide menos certeza cuando el dinero es del socio.",
+    "EC-INFO-AGEN-NEG": "Pide más certeza cuando el dinero es del socio.",
     "EC-AM-REP": "El porcentaje que darían a quien pone trabajo y conocimiento está a 2 pasos o más.",
-    "EC-INC-CAP": "Dijo que no podría perder ahorros y, a la vez, aportaría un monto alto de capital.",
-    "EC-AM-BASE": "Entre los dos, capital y evidencia quedan en los peldaños más bajos.",
-    "EC-OVER": "Marcó dos o más conceptos que no existen como si los conociera.",
+    "EC-INC-CAP": "Dijo que no podría perder ahorros y, a la vez, aportaría un monto alto.",
+    "EC-AM-BASE": "Capital y evidencia quedan en los peldaños más bajos.",
+    "EC-OVER": "Marcó dos o más conceptos que no existen.",
     "EC-INFO-OVER": "Marcó un concepto que no existe.",
-    "EC-INC-KNOW": "Dice que puede mostrar resultados verificables y marcó conceptos que no existen. Conviene pedir referencias antes de la reunión."
+    "EC-INC-KNOW": "Marcó conceptos que no existen y dice que puede mostrar resultados verificables. Conviene pedir referencias."
   };
 
   const E13L = ["10 % o menos", "20 %", "30 %", "40 %", "50 %", "60 % o más"];
@@ -595,24 +595,23 @@ function flagText(code, data) {
       box.textContent = "Preguntas nuevas: sin lectura. El índice y el complemento no cambian.";
       return;
     }
-    const perfil = (name, p) => name + " queda en perfil " + ((p && p.perfil) || "—") + ".";
     const dar = (p) => (p && p.i13 != null && E13L[p.i13]) ? E13L[p.i13] : "—";
-    const pairFlags = (sh.flags || []).filter((f, i, arr) => arr.indexOf(f) === i && !PERSON_SHADOW[f]);
-    const named = (name, p) => ((p && p.flags) || [])
-      .filter((f) => PERSON_SHADOW[f] && SHADOW_FLAG[f])
-      .map((f) => "<div>" + name + ": " + SHADOW_FLAG[f] + "</div>")
-      .join("");
-    const pairHtml = pairFlags.map((f) => "<div>" + (SHADOW_FLAG[f] || "") + "</div>").join("");
-    const personHtml = named(nombreA, sh.A) + named(nombreB, sh.B);
-    const flagHtml = (pairHtml + personHtml) || "<div>En estas preguntas no hay una señal aparte.</div>";
+    const pairFlags = (sh.flags || []).filter((f, i, arr) => arr.indexOf(f) === i && !PERSON_SHADOW[f] && SHADOW_FLAG[f]);
+    const linesOf = (p) => {
+      const has = {};
+      ((p && p.flags) || []).forEach((f) => { if (PERSON_SHADOW[f]) has[f] = 1; });
+      if (has["EC-INC-KNOW"]) { delete has["EC-OVER"]; delete has["EC-INFO-OVER"]; }
+      return Object.keys(has).filter((f) => SHADOW_FLAG[f]).map((f) => SHADOW_FLAG[f]);
+    };
+    const block = (title, lines) => lines.length
+      ? "<div style=\"margin-top:8px\"><b>" + title + "</b> " + lines.join(" ") + "</div>"
+      : "";
+    const pairLines = [nombreA + " daría " + dar(sh.A) + " y " + nombreB + " daría " + dar(sh.B) + "."]
+      .concat(pairFlags.map((f) => SHADOW_FLAG[f]));
     box.innerHTML =
-      "<div style=\"font-weight:700;margin-bottom:6px\">Preguntas nuevas, para quien revisa la pareja. El reparto, la pregunta 11 y la 12a entran en la barra económica. La 12b baja la aversión si exige menos con el dinero del socio. El capital, los conceptos y lo que pueden mostrar suman al complemento.</div>" +
-      "<div>En el reparto, " + nombreA + " daría " + dar(sh.A) + ". " + nombreB + " daría " + dar(sh.B) + ". La cercanía es " + fmt(sh.S_REP) + ". Ese número entra en la barra económica y por eso puede mover el índice.</div>" +
-      "<div>El mayor capital que uno de los dos podría aportar llega a " + fmt(sh.cobertura_cap) + ".</div>" +
-      "<div>El mayor conocimiento de los conceptos reales llega a " + fmt(sh.cobertura_know) + ".</div>" +
-      "<div>La mayor evidencia que uno puede mostrar llega a " + fmt(sh.cobertura_evid) + ".</div>" +
-      "<div>" + perfil(nombreA, sh.A) + " " + perfil(nombreB, sh.B) + "</div>" +
-      flagHtml;
+      block("Los dos.", pairLines) +
+      block(nombreA + ".", linesOf(sh.A)) +
+      block(nombreB + ".", linesOf(sh.B));
   }
 
   function render(data) {
