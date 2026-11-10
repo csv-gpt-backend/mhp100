@@ -531,9 +531,35 @@
     "COMP-RO": { level: "bad", title: "Vacío de complemento", text: "Vacío de complemento: riesgo de equipo sin cobertura." },
     "COMP-DIFF": { level: "info", title: "Diferencia útil de roles", text: "Diferencia útil de roles: documentar mandatos." }
   };
+const SOFT_FLAG = {
+    "AV-RO": "Uno queda muy por debajo en valores. El otro puede cubrir la revisión de promesas, información y trato. Queda definido quién la hace.",
+    "SO-RO": "Uno queda muy por debajo en el trato. El otro puede equilibrarlo si baja el tono. Antes de firmar queda dicho quién pide la pausa.",
+    "HA-RO": "Uno queda muy por debajo en cumplir lo pactado. El otro puede cubrir plazos y avisos. Queda definido quién revisa lo pendiente.",
+    "SO-RO-AGR": "Uno confronta cuando se enoja y, en esa misma persona, le cuesta decirlo sin subir el tono. Eso se acuerda antes de asociarse.",
+    "EC-RO": "Están a tres pasos. Uno quiere el control total y el otro cedería el directorio a inversionistas. Se escribe quién decide antes de cualquier acuerdo.",
+    "ATT-FAIL": "Respuestas de atención fallidas. Considerar repetir la aplicación."
+  };
+
+  function sealText(flags) {
+    const has = (f) => flags.includes(f);
+    if (has("ATT-FAIL")) return "Sello Capa 1: no apto socios (hay veto). Revisar antes de entregar.";
+    const parts = [];
+    if (has("AV-RO") || has("SO-RO") || has("HA-RO")) {
+      parts.push("Uno queda bajo en un punto que el otro puede cubrir. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista.");
+    }
+    if (has("SO-RO-AGR")) {
+      parts.push("Uno maneja el enojo por confrontación y, en esa misma persona, le cuesta decirlo con calma. Eso se resuelve antes de firmar. Esta pareja no se entrega como lista.");
+    }
+    if (has("EC-RO")) {
+      parts.push("Uno quiere conservar el control total y el otro aceptaría que los inversionistas controlen el directorio. Eso se escribe antes de firmar. Esta pareja no se entrega como lista.");
+    }
+    return parts.join(" ") || "Sello Capa 1: no apto socios (hay veto). Revisar antes de entregar.";
+  }
+
 function flagText(code, data) {
     const c = FLAG_COPY[code] || COMP_COPY[code];
-    if (!c) return { level: "warn", title: code, text: "Revisar esta bandera con el revisor." };
+    if (!c && !SOFT_FLAG[code]) return { level: "warn", title: code, text: "Revisar esta bandera con el revisor." };
+    if (SOFT_FLAG[code]) return { level: (c && c.level) || "bad", title: (c && c.title) || code, text: SOFT_FLAG[code] };
     if (code === "EC-CRISIS") {
       const a = e10Label(data.crisisA);
       const b = e10Label(data.crisisB);
@@ -615,10 +641,10 @@ function flagText(code, data) {
     const capaBox = $("capaBox");
     if (capaBox) {
       const bits = [];
-      if (pair.no_apto_socios) bits.push("Sello Capa 1: no apto socios (hay veto). Revisar antes de entregar.");
+      if (pair.no_apto_socios) bits.push(sealText(rawFlags));
       else bits.push("Capa 1: sin veto bloqueante de aptitud.");
-      if (pair.combo_text) bits.push("Lectura I + C_comp: " + pair.combo_text);
-      else bits.push("Capa 3: complemento de roles (C_comp) junto al I de alineación.");
+      if (!pair.no_apto_socios && pair.combo_text) bits.push("Lectura I + C_comp: " + pair.combo_text);
+      else if (!pair.no_apto_socios) bits.push("Capa 3: complemento de roles (C_comp) junto al I de alineación.");
       capaBox.textContent = bits.join(" ");
       if (pair.no_apto_socios) capaBox.style.background = "#fef2f2";
     }
