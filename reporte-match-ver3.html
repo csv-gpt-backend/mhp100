@@ -411,7 +411,7 @@
           "Ambos pueden expresar un desacuerdo y continuar. No se requiere un protocolo adicional."
         ],
         H: [
-          "Los dos manejan plazos y reparto del trabajo de forma parecida. Conviene dejarlos por escrito cuando crezca el trabajo.",
+          "Los dos manejan los plazos de forma parecida. Conviene dejarlos por escrito cuando crezca el trabajo.",
           "Si uno no va a llegar a tiempo, ya saben cómo avisarse. Conviene mantener esa práctica.",
           "Los dos aprovechan el trabajo del otro. No hace falta cambiar cómo se organizan."
         ],
@@ -422,11 +422,11 @@
         ],
         L: [
           "Entre los dos ya hay quien decide y quien ejecuta. Conviene dejar por escrito qué le toca a cada uno para no duplicar esfuerzos.",
-          "En los temas importantes, ya se sabe quién tiene la última palabra.",
+          "Si no coinciden en un tema importante, ya tienen una forma de resolverlo.",
           "Quien lidera menos también tiene espacio para hacerse escuchar."
         ],
         C: [
-          "Los dos analizan los problemas a un nivel parecido. Conviene seguir explicando cada decisión con un ejemplo.",
+          "Los dos analizan los problemas a un nivel parecido y se entienden con facilidad.",
           "Pueden revisar los números juntos.",
           "No hay una diferencia que obligue a explicar cada decisión paso a paso."
         ]
@@ -475,8 +475,8 @@
           "Ese acuerdo se cierra antes de asociarse, no en la primera pelea."
         ],
         H: [
-          "Uno de los dos cumple mucho menos con plazos y compromisos. El otro puede llevar el control de las fechas.",
-          "Antes de empezar se define quién vigila las fechas.",
+          "Uno de los dos cumple mucho menos con plazos y compromisos. El otro puede encargarse de recordar y revisar los plazos.",
+          "Antes de empezar se escribe qué fechas se vigilan y cómo se revisan.",
           "Quien lleva los plazos avisa a tiempo; no espera a que el atraso se note."
         ],
         E: [
@@ -497,7 +497,42 @@
       }
   };
 
-  function domainRecs(barsA, barsB) {
+  // Bajo con nombres. b = quien queda bajo, o = la otra persona (llega a 60 o más).
+  const BAJO_NAMED = {
+    V: (b, o, t) => [
+      t[0],
+      b + " no se encarga de esa revisión. La hace " + o + ".",
+      b + " queda muy por debajo en este punto. " + o + " puede cubrirlo, y queda definido quién revisa las finanzas y con lo que se ha comprometido."
+    ],
+    S: (b, o, t) => [b + " maneja mucho peor el conflicto. " + o + " puede equilibrarlo manteniendo la calma.", t[1], t[2]],
+    H: (b, o, t) => [b + " cumple mucho menos con plazos y compromisos. " + o + " puede encargarse de recordar y revisar los plazos.", t[1], t[2]],
+    E: (b, o, t) => [b + " no puede estar sin sueldo. " + o + " puede cubrirlo por un tiempo.", t[1], t[2]],
+    L: (b, o, t) => [b + " no asume el rol de mando. " + o + " puede asumirlo.", t[1], t[2]],
+    C: (b, o, t) => [o + " entiende los problemas mucho antes. " + b + " puede confirmar si se lo explican con un ejemplo.", t[1], t[2]]
+  };
+  // Bajo cuando la otra persona tampoco llega a 60: nadie cubre a nadie.
+  const BAJO_LOS_DOS = {
+    V: (t) => [
+      t[0],
+      "Los dos quedan bajos en este punto. Ninguno puede cubrir al otro.",
+      "Antes de asociarse queda definido cómo se revisan las finanzas y los compromisos, con apoyo externo."
+    ],
+    S: (t) => ["Los dos manejan mal el conflicto. Ninguno puede equilibrar al otro.", t[1], t[2]],
+    H: (t) => ["Los dos cumplen poco con plazos y compromisos. Ninguno puede cubrir al otro.", t[1], t[2]],
+    E: (t) => [
+      "Los dos tienen poco respaldo si falta el sueldo. Ninguno puede cubrir al otro.",
+      "Antes de empezar se escribe de dónde saldrá el dinero que falte, por cuánto tiempo y cómo cambia la participación.",
+      t[2]
+    ],
+    L: (t) => ["Los dos asumen poco el rol de mando. Ninguno puede cubrir al otro.", t[1], t[2]],
+    C: (t) => [
+      "Los dos tardan en entender los problemas. Ninguno puede confirmar por el otro.",
+      t[1],
+      "Se define cómo se revisan las decisiones importantes antes de invertir."
+    ]
+  };
+
+  function domainRecs(barsA, barsB, nombreA, nombreB) {
     const spec = [
       { k: "V", title: "Valores", items: RECS.V },
       { k: "S", title: "Socioemocional", items: RECS.S },
@@ -508,7 +543,20 @@
     ];
     return spec.map(function (d) {
       const state = domainState(barsA[d.k], barsB[d.k]);
-      const list = (DOMAIN_TEXT[state] && DOMAIN_TEXT[state][d.k]) || d.items;
+      let list = (DOMAIN_TEXT[state] && DOMAIN_TEXT[state][d.k]) || d.items;
+      if (state === "En piso") {
+        const a = barsA[d.k];
+        const b = barsB[d.k];
+        if (a != null && b != null && !isNaN(a) && !isNaN(b) && nombreA && nombreB) {
+          const base = DOMAIN_TEXT["En piso"][d.k];
+          const aEsBajo = a <= b;
+          if (Math.max(a, b) >= 60) {
+            list = BAJO_NAMED[d.k](aEsBajo ? nombreA : nombreB, aEsBajo ? nombreB : nombreA, base);
+          } else {
+            list = BAJO_LOS_DOS[d.k](base);
+          }
+        }
+      }
       return {
         title: d.title,
         state: state,
@@ -753,7 +801,7 @@ function flagText(code, data) {
     }
 
     const recHost = $("recs");
-    const recs = domainRecs(barsA, barsB);
+    const recs = domainRecs(barsA, barsB, nombreA, nombreB);
     const stateClass = { "Bien": "st-bien", "A revisar": "st-rev", "En piso": "st-piso" };
     const stateLabel = { "En piso": "Bajo" };
     recHost.innerHTML = "<h2>Recomendaciones por dominio</h2>" + recs.map((r) =>
