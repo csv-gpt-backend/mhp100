@@ -259,7 +259,7 @@ function scoreMatchVer3(responses, startTime) {
 /**
  * S_E v1.2. El reparto entra en la barra. La 11 y la 12a ya van dentro de RA.
  * La 12b no entra al I: solo baja la aversión que se muestra si exige menos con el dinero del socio.
- * La 14, la 15 y la 16 suman un peso chico al C_comp. No reemplazan mando, criterio ni ejecución.
+ * La 14, la 15 y la 16 entran al C_comp con peso 8 / 5 / 3; los roles pesan 84 (suma 100). No reemplazan mando, criterio ni ejecución.
  * d13 = 5 no pone la pareja en rojo.
  */
 function applySeV12(pair, ecoA, ecoB, responsesA, responsesB, shadow) {
@@ -299,8 +299,8 @@ function applySeV12(pair, ecoA, ecoB, responsesA, responsesB, shadow) {
     const cap = shadow.cobertura_cap == null ? 0 : Number(shadow.cobertura_cap);
     const evid = shadow.cobertura_evid == null ? 0 : Number(shadow.cobertura_evid);
     const know = Math.max(knowNet(responsesA), knowNet(responsesB));
-    const extra = 0.08 * cap + 0.05 * know + 0.03 * evid;
-    C_comp = round2(clip(C_comp + extra));
+    // Reparto 84 / 8 / 5 / 3: suma 100. El 100 solo sale si todo está en 100.
+    C_comp = round2(clip(0.84 * C_comp + 0.08 * cap + 0.05 * know + 0.03 * evid));
     C_comp_band = bandComp(C_comp);
   }
   const next = Object.assign({}, pair, {
