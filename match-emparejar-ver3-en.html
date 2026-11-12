@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="google" content="notranslate" />
+  <title>ADALAM — Match Ver 3 Pairing</title>
+  <style>
+    :root {
+      --ink: #1a2332; --muted: #5c6b7a; --line: #c5d0dc; --bg: #e8eef5;
+      --paper: #fff; --brand: #0f2d52; --brand2: #1e4f8a; --accent: #2a7ab8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #e8eef6, #d5e0ec);
+    }
+    .wrap { max-width: 720px; margin: 28px auto 64px; padding: 0 16px; }
+    .card {
+      background: var(--paper); border-radius: 18px; padding: 28px 28px 24px;
+      box-shadow: 0 16px 40px rgba(15, 45, 82, .12);
+      border-top: 4px solid var(--brand2);
+    }
+    h1 { margin: 0 0 6px; font-size: 22px; color: var(--brand); }
+    .lead { margin: 0 0 18px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+    label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+    input, select {
+      width: 100%; font: inherit; font-weight: 650; font-size: 15px;
+      padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line);
+      background: #fff; color: var(--ink);
+    }
+    .grid { display: grid; gap: 14px; margin-bottom: 16px; }
+    @media (min-width: 640px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    button {
+      font: inherit; font-weight: 800; cursor: pointer; border-radius: 12px;
+      padding: 12px 18px; border: 1px solid var(--line); background: #fff; color: var(--brand2);
+    }
+    button.primary {
+      border: 0; color: #fff;
+      background: linear-gradient(180deg, #2a7ab8, #1e4f8a 55%, #163a66);
+    }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .msg { min-height: 18px; font-size: 13px; font-weight: 700; margin-top: 8px; }
+    .msg.bad { color: #8a3b32; }
+    .msg.ok { color: #1e4f8a; }
+    .hint {
+      margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: #eef3f8;
+      border-left: 4px solid var(--brand2); color: var(--muted); font-size: 13px; line-height: 1.45;
+    }
+    .list {
+      margin-top: 18px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+    }
+    .list h2 {
+      margin: 0; padding: 10px 14px; font-size: 12px; letter-spacing: .08em;
+      text-transform: uppercase; background: #eef3f8; color: var(--brand2);
+    }
+    .list table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .list th, .list td { padding: 10px 12px; border-top: 1px solid var(--line); text-align: left; }
+    .list tr { cursor: pointer; }
+    .list tr:hover { background: #f4f8fc; }
+    .list code { font-weight: 800; color: var(--brand); }
+    .top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 8px; }
+    .top a { color: var(--brand2); font-weight: 700; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div>
+          <h1>Pair Match Ver 3 profiles</h1>
+          <p class="lead">Choose two completed individual assessments (A and B). The Match engine calculates the pair index; you do not need to answer the questionnaire again.</p>
+        </div>
+        <a href="index-en.html">Back to menu</a>
+      </div>
+
+      <div class="grid two">
+        <div>
+          <label for="codigoA">Profile A — code</label>
+          <input id="codigoA" type="text" maxlength="32" autocomplete="off" placeholder="PRO-MATCHE-EN-…" />
+          <div class="msg" id="nameA"></div>
+        </div>
+        <div>
+          <label for="codigoB">Profile B — code</label>
+          <input id="codigoB" type="text" maxlength="32" autocomplete="off" placeholder="PRO-MATCHE-EN-…" />
+          <div class="msg" id="nameB"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="primary" id="btnPair">Calculate Match A×B</button>
+        <button type="button" id="btnRefresh">Refresh list</button>
+      </div>
+      <p class="msg" id="msg"></p>
+
+      <div class="hint">
+        Click a row in the list to assign it to A; click another row for B. Or enter the codes manually.
+      </div>
+
+      <div class="list">
+        <h2>Recent Match profiles</h2>
+        <table>
+          <thead><tr><th>Code</th><th>Name</th><th>Institution</th></tr></thead>
+          <tbody id="tbody"><tr><td colspan="3">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let pick = "A";
+  let profiles = [];
+
+  function up(el) {
+    el.addEventListener("input", () => { el.value = el.value.toUpperCase(); });
+  }
+  up($("codigoA")); up($("codigoB"));
+
+  function setMsg(text, ok) {
+    $("msg").textContent = text || "";
+    $("msg").className = "msg " + (ok ? "ok" : text ? "bad" : "");
+  }
+
+  function fillNames() {
+    const a = profiles.find((p) => p.codigo === $("codigoA").value.trim().toUpperCase());
+    const b = profiles.find((p) => p.codigo === $("codigoB").value.trim().toUpperCase());
+    $("nameA").textContent = a ? a.nombre : "";
+    $("nameB").textContent = b ? b.nombre : "";
+    $("nameA").className = "msg " + (a ? "ok" : "");
+    $("nameB").className = "msg " + (b ? "ok" : "");
+  }
+
+  async function loadList() {
+    $("tbody").innerHTML = "<tr><td colspan=\"3\">Loading…</td></tr>";
+    try {
+      const r = await fetch("/api/pair-match-ver3?list=1&limit=60");
+      const data = await r.json();
+      if (!r.ok || !data.ok) throw new Error(data.error || "Could not load the list");
+      profiles = data.profiles || [];
+      if (!profiles.length) {
+        $("tbody").innerHTML = "<tr><td colspan=\"3\">No completed Match profiles yet.</td></tr>";
+        return;
+      }
+      $("tbody").innerHTML = "";
+      profiles.forEach((p) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = "<td><code>" + p.codigo + "</code></td><td>" + (p.nombre || "—") + "</td><td>" + (p.institucion || "—") + "</td>";
+        tr.onclick = () => {
+          if (pick === "A") {
+            $("codigoA").value = p.codigo;
+            pick = "B";
+          } else {
+            $("codigoB").value = p.codigo;
+            pick = "A";
+          }
+          fillNames();
+          setMsg("The next click fills profile " + pick + ".", true);
+        };
+        $("tbody").appendChild(tr);
+      });
+      fillNames();
+    } catch (e) {
+      $("tbody").innerHTML = "<tr><td colspan=\"3\">" + ((e && e.message) || "Error") + "</td></tr>";
+    }
+  }
+
+  $("codigoA").addEventListener("blur", fillNames);
+  $("codigoB").addEventListener("blur", fillNames);
+  $("btnRefresh").onclick = loadList;
+
+  $("btnPair").onclick = async () => {
+    const codigoA = $("codigoA").value.trim().toUpperCase();
+    const codigoB = $("codigoB").value.trim().toUpperCase();
+    if (!codigoA || !codigoB) {
+      setMsg("Enter both codes.");
+      return;
+    }
+    if (codigoA === codigoB) {
+      setMsg("Choose two different codes.");
+      return;
+    }
+    $("btnPair").disabled = true;
+    setMsg("Calculating…", true);
+    try {
+      const r = await fetch("/api/pair-match-ver3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ codigoA, codigoB })
+      });
+      const data = await r.json();
+      if (!r.ok || !data.ok) throw new Error(data.error || "Could not calculate the pair index");
+      sessionStorage.setItem("matchDemo.lastReport", JSON.stringify({
+        nombreA: data.nombreA,
+        nombreB: data.nombreB,
+        codigoA: data.codigoA,
+        codigoB: data.codigoB,
+        barsA: data.barsA,
+        barsB: data.barsB,
+        aciertosA: data.aciertosA != null ? data.aciertosA : null,
+        aciertosB: data.aciertosB != null ? data.aciertosB : null,
+        crisisA: data.crisisA != null ? data.crisisA : null,
+        crisisB: data.crisisB != null ? data.crisisB : null,
+        ctrlA: data.ctrlA != null ? data.ctrlA : null,
+        ctrlB: data.ctrlB != null ? data.ctrlB : null,
+    raA: data.ecoA && data.ecoA.RA != null ? data.ecoA.RA : null,
+    raB: data.ecoB && data.ecoB.RA != null ? data.ecoB.RA : null,
+    capA: data.ecoA && data.ecoA.CAP != null ? data.ecoA.CAP : null,
+    capB: data.ecoB && data.ecoB.CAP != null ? data.ecoB.CAP : null,
+    aversionA: data.aversionA != null ? data.aversionA : null,
+    aversionB: data.aversionB != null ? data.aversionB : null,
+        flagsA: data.flagsA || [],
+        flagsB: data.flagsB || [],
+        subBarsA: data.subBarsA || {},
+        subBarsB: data.subBarsB || {},
+        pair: data.pair,
+        shadow: data.shadow || null,
+        source: "hit"
+      }));
+      location.href = "reporte-match-ver3-en.html?from=storage";
+    } catch (e) {
+      setMsg((e && e.message) || "Error");
+      $("btnPair").disabled = false;
+    }
+  };
+
+  loadList();
+})();
+  </script>
+</body>
+</html>
