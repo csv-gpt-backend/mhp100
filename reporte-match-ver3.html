@@ -695,6 +695,31 @@ function flagText(code, data) {
         : c.text;
       return { level: c.level, title: c.title, text: text };
     }
+    if (code === "ATT-INFO") {
+      const nA = (data && data.nombreA) || "A";
+      const nB = (data && data.nombreB) || "B";
+      const hitA = !!(data && data.flagsA && data.flagsA.indexOf("ATT-INFO") >= 0);
+      const hitB = !!(data && data.flagsB && data.flagsB.indexOf("ATT-INFO") >= 0);
+      const who = hitA && hitB ? (nA + " y " + nB) : hitA ? nA : hitB ? nB : null;
+      const text = who
+        ? ("En " + who + ", una de las dos respuestas de atención no coincidió. Nota informativa para el profesional; no bloquea la entrega.")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "SO-INFO-TIM") {
+      const nA = (data && data.nombreA) || "A";
+      const nB = (data && data.nombreB) || "B";
+      const tA = data && data.subBarsA ? Number(data.subBarsA.buen_manejo_timidez) : NaN;
+      const tB = data && data.subBarsB ? Number(data.subBarsB.buen_manejo_timidez) : NaN;
+      const hitA = Number.isFinite(tA) && tA === 0;
+      const hitB = Number.isFinite(tB) && tB === 0;
+      const both = hitA && hitB;
+      const who = both ? (nA + " y " + nB) : hitA ? nA : hitB ? nB : null;
+      const text = who
+        ? (who + (both ? " tienden a decir «sí» cuando deberían decir «no»" : " tiende a decir «sí» cuando debería decir «no»") + ". Definir cómo se piden y se reciben los «no» en la sociedad.")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
     return c;
   }
 
