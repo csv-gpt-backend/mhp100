@@ -835,8 +835,11 @@ function flagText(code, data) {
       const who = (Number.isFinite(lA) && Number.isFinite(lB) && lB > lA) ? nB
         : (Number.isFinite(lA) && Number.isFinite(lB) && lA > lB) ? nA
         : null;
+      const ambosBien = Number.isFinite(lA) && Number.isFinite(lB) && Math.min(lA, lB) >= 60;
       const text = who
-        ? ("Hay cobertura de liderazgo en " + who + ". Explicitar roles para no chocar en la operación diaria.")
+        ? (ambosBien
+          ? ("Hay cobertura de liderazgo en los dos; " + who + " queda más arriba. Explicitar roles para no chocar en la operación diaria.")
+          : ("Hay cobertura de liderazgo en " + who + ". Explicitar roles para no chocar en la operación diaria."))
         : c.text;
       return { level: c.level, title: c.title, text: text };
     }
@@ -923,8 +926,11 @@ function flagText(code, data) {
       let bajo = null;
       if (Number.isFinite(aC) && Number.isFinite(bC) && aC !== bC) bajo = aC < bC ? nA : nB;
       else if (Number.isFinite(barA) && Number.isFinite(barB) && barA !== barB) bajo = barA < barB ? nA : nB;
+      const ambosBien = Number.isFinite(barA) && Number.isFinite(barB) && Math.min(barA, barB) >= 60;
       const text = bajo
-        ? ("Hay una brecha de criterio/razonamiento de al menos 2 ítems. " + bajo + " queda con menos aciertos. No invalida la pareja sola, pero pueden necesitar más tiempo y ejemplos concretos al decidir.")
+        ? (ambosBien
+          ? ("Hay una brecha de criterio/razonamiento de al menos 2 ítems. " + bajo + " queda con menos aciertos. Los dos llegan a un nivel usable; conviene más tiempo y ejemplos concretos al decidir.")
+          : ("Hay una brecha de criterio/razonamiento de al menos 2 ítems. " + bajo + " queda con menos aciertos. No invalida la pareja sola, pero pueden necesitar más tiempo y ejemplos concretos al decidir."))
         : c.text;
       return { level: c.level, title: c.title, text: text };
     }
