@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="google" content="notranslate" />
+  <title>ADALAM Match — Pair report</title>
+  <style>
+    :root {
+      --ink: #1a2332;
+      --muted: #5c6b7a;
+      --line: #d8e0e8;
+      --bg: #f4f7fa;
+      --card: #ffffff;
+      --teal: #0d7a6f;
+      --teal-soft: #e6f5f3;
+      --amber: #b45309;
+      --amber-soft: #fff7ed;
+      --red-soft: #fef2f2;
+      --red: #b91c1c;
+      --ana: #2563eb;
+      --luis: #7c3aed;
+      --ok: #15803d;
+      --brand: #0f2d52;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.35;
+    }
+    .sheet {
+      width: min(820px, 100%);
+      margin: 24px auto;
+      background: var(--card);
+      box-shadow: 0 8px 32px rgba(26, 35, 50, 0.12);
+      border-radius: 4px;
+      padding: 36px 40px 32px;
+    }
+    @media print {
+      body { background: #fff; }
+      .sheet { box-shadow: none; margin: 0; width: 100%; }
+      .no-print { display: none !important; }
+      .score { box-shadow: none; border: 1px solid #c5d0dc; }
+    }
+    .toolbar {
+      width: min(820px, 100%);
+      margin: 16px auto 0;
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+    }
+    .toolbar small { color: var(--muted); font-size: 12px; font-weight: 600; }
+    .toolbar button {
+      font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer;
+      border-radius: 10px; padding: 10px 14px; border: 1px solid #a8bdd4;
+      background: #fff; color: var(--brand);
+    }
+    .toolbar button.primary {
+      background: linear-gradient(180deg, #2a7ab8, #1e4f8a);
+      color: #fff; border: 0;
+    }
+    .brand {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+      border-bottom: 3px solid var(--teal); padding-bottom: 14px; margin-bottom: 18px;
+    }
+    .brand-left { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; }
+    .brand-logo {
+      height: 90px; width: auto; max-width: 180px; object-fit: contain; display: block; flex-shrink: 0;
+    }
+    .brand-title { flex: 1; text-align: center; }
+    .brand h1 { margin: 0; font-size: 18px; line-height: 1.3; letter-spacing: 0.04em; color: var(--teal); }
+    .brand .sub { margin: 4px 0 0; font-size: 12px; color: var(--muted); max-width: 360px; }
+    .badge {
+      background: var(--amber-soft); color: var(--amber); border: 1px solid #fcd34d;
+      font-weight: 800; font-size: 13px; padding: 8px 14px; border-radius: 8px;
+      text-align: center; min-width: 250px;
+    }
+    .badge.alta { background: #ecfdf5; color: #047857; border-color: #6ee7b7; }
+    .badge.reservada, .badge.baja { background: var(--red-soft); color: var(--red); border-color: #fecaca; }
+    .badge strong { display: block; font-size: 26px; line-height: 1.1; color: var(--ink); font-weight: 800; }
+    .badge .idx { display: block; margin: 2px 0 8px; font-size: 13px; font-weight: 700; }
+    .badge .idx:last-child { margin-bottom: 0; }
+    .badge .alert-word {
+      display: none; font-size: 18px; font-weight: 900; letter-spacing: 0.1em;
+      color: #b91c1c; margin: 0 0 8px; padding: 0 0 6px; line-height: 1.15;
+      border-bottom: 1px solid #fca5a5;
+    }
+    .badge .alert-word.on { display: block; }
+    .meta {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; margin-bottom: 16px;
+    }
+    .meta div { background: var(--bg); padding: 10px 12px; border-radius: 6px; text-align: center; }
+    .meta span { color: var(--muted); display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .meta b { display: block; font-size: 16px; margin-top: 2px; }
+    .band-box {
+      background: var(--amber-soft); border-left: 4px solid var(--amber);
+      padding: 10px 14px; font-size: 13px; margin-bottom: 20px; border-radius: 0 6px 6px 0;
+    }
+    .band-box.alta { background: #ecfdf5; border-color: #047857; }
+    .band-box.blocked, .band-box.baja, .band-box.reservada {
+      background: var(--red-soft); border-color: var(--red);
+    }
+    .capa-read { text-align: center; border-left-width: 1px; border-radius: 6px; }
+    .scale-box {
+      background: #fff; border: 1px solid #e2e7ee; border-radius: 8px;
+      padding: 10px 14px; margin-bottom: 14px; font-size: 12px; line-height: 1.4;
+      box-shadow: 0 6px 16px rgba(43, 55, 78, .10);
+    }
+    .scale-title { font-weight: 800; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+    .scale-table { width: 100%; border-collapse: collapse; }
+    .scale-table th, .scale-table td {
+      text-align: left; vertical-align: top; padding: 6px 8px;
+      border-bottom: 1px solid #e8edf3; font-size: 11.5px;
+    }
+    .scale-table th {
+      font-size: 10px; letter-spacing: .04em; text-transform: uppercase;
+      color: var(--muted); font-weight: 700; border-bottom-color: #d5dde8;
+    }
+    .scale-table td:first-child { font-weight: 700; color: var(--ink); white-space: nowrap; width: 22%; }
+    .scale-table tr:last-child td { border-bottom: 0; }
+    @media print {
+      .scale-box { box-shadow: none; border-color: #c5d0dc; }
+      .scale-table th, .scale-table td { font-size: 10px; padding: 4px 6px; }
+    }
+    .curve-block { margin: 0 0 18px; }
+    .curve-block .curve-title { font-weight: 700; font-size: 12px; margin-bottom: 6px; }
+    .curve-block .curve-note { font-size: 11px; color: var(--muted); margin: 6px 0 0; }
+    .curveBox {
+      position: relative; height: 220px; border: 1px solid #dbe1ea; border-radius: 8px;
+      padding: 8px; background: linear-gradient(180deg, #f8fafc, #fff);
+    }
+    .curveGauge { position: relative; width: 100%; height: 100%; }
+    .curveGauge img { width: 100%; height: 220px; object-fit: contain; display: block; }
+    .curveMarker {
+      position: absolute; width: 30px; height: 54px; pointer-events: none; z-index: 2;
+      transform: translateX(-50%);
+    }
+    h2 {
+      margin: 0 0 10px; font-size: 13px; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--teal);
+    }
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 16px; font-size: 11px; margin-bottom: 8px; color: var(--muted);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+    .dot.ana { background: var(--ana); }
+    .dot.luis { background: var(--luis); }
+    .row {
+      display: grid; grid-template-columns: 120px 1fr 58px; gap: 8px;
+      align-items: center; margin-bottom: 10px; font-size: 12px;
+    }
+    .row.head {
+      margin-bottom: 4px; align-items: end;
+    }
+    .row.head .col-title {
+      font-size: 10px; font-weight: 700; letter-spacing: .04em;
+      text-transform: uppercase; color: var(--muted); text-align: right;
+    }
+    .row.head .col-title.pair { text-align: center; color: var(--teal); }
+    .row .name { font-weight: 700; }
+    .row .weight { color: var(--muted); font-weight: 400; font-size: 10px; }
+    .bars { display: flex; flex-direction: column; gap: 3px; }
+    .bar-line {
+      display: grid; grid-template-columns: 1fr 36px; gap: 6px; align-items: center;
+    }
+    .bar-num {
+      font-size: 11px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums;
+    }
+    .bar-num.ana { color: var(--ana); }
+    .bar-num.luis { color: var(--luis); }
+    .track {
+      height: 14px; background: #e8eef3; border-radius: 3px; overflow: hidden; position: relative;
+    }
+    .fill { height: 100%; border-radius: 3px; }
+    .fill.ana { background: var(--ana); }
+    .fill.luis { background: var(--luis); }
+    .score {
+      font-weight: 800; text-align: center; color: var(--teal); font-size: 13px;
+      background: #fff; border: 1px solid #e2e7ee; border-radius: 8px;
+      padding: 8px 4px; line-height: 1.1;
+      box-shadow: 0 6px 16px rgba(43, 55, 78, .10);
+    }
+    .signal {
+      margin-top: 12px; padding: 12px 14px; background: var(--teal-soft);
+      border-radius: 6px; font-size: 12px;
+    }
+    .signal.warn { background: var(--amber-soft); }
+    .signal.bad { background: var(--red-soft); }
+    .signal strong { color: var(--teal); }
+    .signal.warn strong { color: var(--amber); }
+    .signal.bad strong { color: var(--red); }
+    .signal.att-fail { background: #fee2e2; border: 1px solid #fca5a5; color: var(--red); }
+    .signal.att-fail strong { color: #b91c1c; }
+    .q-box {
+      margin-top: 16px; border: 1px solid var(--line); border-radius: 6px;
+      padding: 12px 14px; font-size: 12px;
+    }
+    .q-box ol { margin: 6px 0 0; padding-left: 18px; }
+    .q-box li { margin-bottom: 4px; }
+    .rec-box {
+      margin-top: 14px; font-size: 12px;
+    }
+    .rec-box h3 { margin: 0 0 6px; font-size: 12px; color: var(--teal); text-transform: uppercase; letter-spacing: .04em; }
+    .rec-box h3.st-bien { color: #0D7377; }
+    .rec-box h3.st-rev { color: #C45C12; }
+    .rec-box h3.st-piso { color: #9B3A3A; }
+    @media print {
+      .rec-box h3.st-bien, .rec-box h3.st-rev, .rec-box h3.st-piso { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+    .rec-box ul { margin: 0 0 12px; padding-left: 18px; }
+    .actions {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; font-size: 11px;
+    }
+    .actions div { border: 1px solid var(--line); padding: 8px 10px; border-radius: 6px; }
+    .yes { color: var(--ok); font-weight: 700; }
+    .no { color: var(--amber); font-weight: 700; }
+    .foot {
+      margin-top: 14px; font-size: 10px; color: var(--muted);
+      border-top: 1px solid var(--line); padding-top: 10px;
+    }
+    .err {
+      width: min(820px, 100%); margin: 40px auto; padding: 20px;
+      background: #fff; border-radius: 8px; color: var(--red); font-weight: 700;
+    }
+    @media (max-width: 640px) {
+      .meta { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+      .actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar no-print">
+    <small>Match report · local engine · ADALAM curve unchanged</small>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" id="btnEmparejar">Choose another pair</button>
+      <button type="button" id="btnFromDemo">Load last pair</button>
+      <button type="button" id="btnMenu">Back to menu</button>
+      <button type="button" class="primary" id="btnPrint">Print / PDF</button>
+    </div>
+  </div>
+  <p id="loadErr" class="err" hidden></p>
+  <article class="sheet" id="sheet" hidden>
+    <header class="brand">
+      <div class="brand-left">
+        <img class="brand-logo" src="match-assets/logo-adalam.png" alt="ADALAM"
+             onerror="this.onerror=null;this.src='assets/logo_adalam.png'" />
+        <div class="brand-title">
+          <h1>COMPATIBILITY REPORT<br>FOUNDER MATCH</h1>
+        </div>
+      </div>
+      <div class="badge" id="badge">
+        <div class="alert-word" id="badgeAlert">ALERT</div>
+        <strong id="badgeBand">—</strong>
+        <span id="badgeI" class="idx">Compatibility index: —</span>
+        <strong id="badgeCBand">—</strong>
+        <span id="badgeC" class="idx">Complementarity index: —</span>
+      </div>
+    </header>
+
+    <div class="meta">
+      <div><span>Participante A</span><b id="nameA">—</b><div id="riskA" style="font-size:12px;font-weight:600;margin-top:4px">Risk appetite: —</div></div>
+      <div><span>Participante B</span><b id="nameB">—</b><div id="riskB" style="font-size:12px;font-weight:600;margin-top:4px">Risk appetite: —</div></div>
+    </div>
+
+    <div class="scale-box">
+      <div class="scale-title">Reading guide</div>
+      <table class="scale-table">
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th>What it measures</th>
+            <th>Scale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Compatibility</td>
+            <td>How alike they are in values, interpersonal style, habits, money, leadership, and reasoning.</td>
+            <td>0–100 · High ≥75 · Medium 60–74 · Reserved 45–59 · Low &lt;45</td>
+          </tr>
+          <tr>
+            <td>Complementarity</td>
+            <td>Whether together they cover command, judgment, and execution.</td>
+            <td>0–100 · High ≥75 · Medium 60–74 · Reserved 45–59 · Low &lt;45</td>
+          </tr>
+          <tr>
+            <td>Risk appetite</td>
+            <td>How willing each person is to take risk. Neither good nor bad; closeness matters.</td>
+            <td>0–100 · higher = more willing</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="band-box" id="bandBox">—</div>
+    <div class="band-box capa-read" id="capaBox" style="margin-top:8px;background:#fdf2f8;border:1px solid #C0007A;color:#7a004d">—</div>
+
+    <div class="curve-block">
+      <div class="curve-title">FREQUENCY DISTRIBUTION CURVE · Pair index (I) = <span id="iflCurveInline">—</span></div>
+      <div class="curveBox">
+        <div class="curveGauge">
+          <img id="freqCurveImg" src="assets/curva_metal.png" alt="Frequency distribution curve" width="800" height="220" />
+          <div id="curveMarker" class="curveMarker" aria-hidden="true">
+            <svg width="30" height="54" viewBox="0 0 18 30" style="position:absolute;left:0;bottom:0;transform:translateX(-50%);display:block;overflow:visible;">
+              <defs>
+                <linearGradient id="blkMain" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#1a1a1a"/><stop offset="28%" stop-color="#2b2b2b"/><stop offset="55%" stop-color="#111"/><stop offset="78%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/>
+                </linearGradient>
+              </defs>
+              <rect x="6" y="0" width="6" height="16" rx="1.2" fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+              <path d="M9 30 L2 16 H16 Z" fill="url(#blkMain)" stroke="#050505" stroke-width="0.55"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <p class="curve-note" style="text-align:center">The arrow shows the association index.</p>
+    </div>
+
+    <h2>Dyad profile (congruence)</h2>
+    <div class="legend">
+      <span><i class="dot ana"></i> <span id="legA">A</span></span>
+      <span><i class="dot luis"></i> <span id="legB">B</span></span>
+    </div>
+    <div class="row head">
+      <div></div>
+      <div class="col-title">Individual</div>
+      <div class="col-title pair">Pair</div>
+    </div>
+    <div id="rows"></div>
+
+    <div class="band-box" id="shadowBox" style="margin-top:14px;background:#f3fbfb;border:1px solid #0D7377;color:#134e4a">—</div>
+
+    <h2>Signals</h2>
+    <div id="signals"></div>
+
+    <div class="rec-box" id="recs"></div>
+
+    <div class="q-box">
+      <strong>Questions for the first meeting</strong>
+      <ol id="questions"></ol>
+    </div>
+
+    <div class="actions" id="actions"></div>
+
+    <div class="q-box" style="margin-top:14px">
+      <strong>Professional review</strong>
+      <p style="margin:8px 0 0;font-size:13px;color:var(--muted)">☐ Approve delivery &nbsp; · &nbsp; ☐ Approve with mediation &nbsp; · &nbsp; ☐ Block delivery</p>
+      <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">Reviewer name: _______________ · Fecha: _______________</p>
+    </div>
+
+    <p class="foot" style="margin-top:4px"><span id="footSource"></span></p>
+  </article>
+
+  <script src="match-demo-report-pair-en.js"></script>
+  <script>
+(function () {
+  const COPY = window.MATCH_PAIR_COPY;
+  const DOMAINS = [
+    { k: "V", name: "Values", w: "27 %" },
+    { k: "S", name: "Socioemotional", w: "21 %" },
+    { k: "H", name: "Habits", w: "17 %" },
+    { k: "E", name: "Economic", w: "15 %" },
+    { k: "L", name: "Leadership", w: "12 %" },
+    { k: "C", name: "Intellectual", w: "8 %" }
+  ];
+  const FLAG_COPY = Object.assign({}, COPY.flags);
+  FLAG_COPY["EC-AM-CAP"] = Object.assign({}, FLAG_COPY["EC-AM-CAP"], {
+    text: "One person can afford to lose considerably more than the other. Agree early on salaries, who covers cash shortfalls, and how that affects the equity split."
+  });
+  const BAND_TEXT = Object.assign({}, COPY.bands, {
+    Alta: "The pair shows a high compatibility profile across the assessed domains.",
+    Media: "The pair shows medium compatibility. A guided conversation about this report's signals and recommendations is advisable before formal agreements.",
+    Reservada: "Compatibility falls in the reserved zone. Advance only after agreeing to discuss open issues—perhaps a limited-scope project first, not a broad equity partnership.",
+    Baja: "Compatibility is low in this framework. Forming a company on this profile is not recommended; each person may explore other options."
+  });
+  const RECS = COPY.recommendations;
+  const E10 = COPY.e10_options || {};
+  function $(id) { return document.getElementById(id); }
+  function fmt(v) {
+    if (v == null || !Number.isFinite(Number(v))) return "—";
+    return (Math.round(Number(v) * 10) / 10).toLocaleString("en-US", { maximumFractionDigits: 1 });
+  }
+  function bandLabel(band) {
+    const m = { Alta: "High", Media: "Medium", Reservada: "Reserved", Baja: "Low",
+      High: "High", Medium: "Medium", Reserved: "Reserved", Low: "Low" };
+    return (band == null || band === "—") ? "—" : (m[band] || band);
+  }
+  function fmtI(v) {
+    if (v == null || !Number.isFinite(Number(v))) return "—";
+    return Number(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function setMarker(p) {
+    var s = Math.max(0, Math.min(100, Number(p) || 0));
+    var wrap = document.querySelector(".curveGauge");
+    var img = $("freqCurveImg");
+    var mk = $("curveMarker");
+    if (!wrap || !img || !mk) return;
+    var place = function () {
+      var rW = wrap.getBoundingClientRect();
+      var rI = img.getBoundingClientRect();
+      var natW = img.naturalWidth || 1;
+      var natH = img.naturalHeight || 1;
+      var scale = Math.min(rI.width / natW, rI.height / natH);
+      var drawnW = natW * scale;
+      var offsetXInsideImg = (rI.width - drawnW) / 2;
+      var leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+      var padL = drawnW * 0.10;
+      var padR = drawnW * 0.22;
+      var minX = leftInWrap + padL;
+      var maxX = leftInWrap + drawnW - padR;
+      var t = s / 100;
+      var x = minX + t * (maxX - minX);
+      var bottomAt0 = 89;
+      var bottomAt100 = 23;
+      var y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+      var w = rW.width || 1;
+      var h = rW.height || 1;
+      mk.style.left = (x / w) * 100 + "%";
+      mk.style.bottom = (y / h) * 100 + "%";
+    };
+    if (img.complete) requestAnimationFrame(place);
+    else img.addEventListener("load", function () { requestAnimationFrame(place); }, { once: true });
+  }
+
+  const E08 = [
+    "100% of the company and all decisions",
+    "60% and majority control",
+    "30% and shared decisions with investors",
+    "10% and investors control the board"
+  ];
+
+  function e08Label(step) {
+    const n = Number(step);
+    if (!Number.isFinite(n) || n < 0 || n >= E08.length) return "no answer";
+    return E08[n];
+  }
+
+  function e08Line(nombreA, nombreB, stepA, stepB) {
+    const a = Number(stepA);
+    const b = Number(stepB);
+    const both = Number.isFinite(a) && Number.isFinite(b);
+    let dist = "Distance cannot be counted.";
+    if (both) {
+      const d = Math.min(3, Math.abs(a - b));
+      if (d === 0) dist = "They are on the same step.";
+      else if (d === 1) dist = "They are 1 step apart.";
+      else dist = "They are " + d + " steps apart.";
+    }
+    return nombreA + " chose: " + e08Label(stepA) + ". " + nombreB + " chose: " + e08Label(stepB) + ". " + dist;
+  }
+
+  function e10Label(code) {
+    if (code == null || code === "") return "—";
+    var k = String(code).trim().toUpperCase();
+    // Legacy attempts stored index 0…4 en vez de A…E
+    if (/^\d+$/.test(k)) {
+      var letters = ["A", "B", "C", "D", "E"];
+      var i = Number(k);
+      if (i >= 0 && i < letters.length) k = letters[i];
+    }
+    return E10[k] || String(code);
+  }
+
+  function domainState(a, b) {
+    const vals = [a, b].filter(function (v) { return v != null && !isNaN(v); });
+    if (!vals.length) return "—";
+    const min = Math.min.apply(null, vals);
+    if (min < 45) return "Low";
+    if (min < 60) return "Review";
+    return "Good";
+  }
+
+  const DOMAIN_TEXT = {
+      Good: {
+        V: [
+          "Both hold equivalent business rules. Put them in writing so they are not assumed.",
+          "Relevant information can already be consulted between them. Keep that practice.",
+          "If something goes wrong, both already share merit and blame similarly. Revisit only if the business changes."
+        ],
+        S: [
+          "Both communicate tension and listen. Keep that way of talking.",
+          "Conflict is not expressed with violence (yelling or threats).",
+          "Both can disagree and continue. No extra protocol is required."
+        ],
+        H: [
+          "Both handle deadlines similarly. Put them in writing as work grows.",
+          "If one will miss a deadline, they already know how to notify each other. Keep that practice.",
+          "Both use each other's work. No need to change how they organize."
+        ],
+        E: [
+          "Both think similarly about salaries, cash, and equity. Revisit if an investor enters or cash changes.",
+          "If money is tight, both would choose a similar path.",
+          "The gap in how much each can lose does not force a new agreement."
+        ],
+        L: [
+          "Together they have leadership coverage. Put in writing what each owns to avoid duplicate effort.",
+          "If they disagree on something important, they already have a way to resolve it.",
+          "Whoever leads less still has room to be heard."
+        ],
+        C: [
+          "Both analyze problems at a similar level and understand each other easily.",
+          "They can review numbers together.",
+          "No gap forces step-by-step explanation of every decision."
+        ]
+      },
+      Review: {
+        V: [
+          "Define what business information must always be visible to both.",
+          "Agree what happens if someone breaks a promise to the other or a client.",
+          "Set how responsibilities are shared when something goes wrong."
+        ],
+        S: [
+          "Agree how each tells the other when upset or tense, and how soon you talk.",
+          "Agree what is unacceptable in conflict (yelling, silence, threats).",
+          "Agree how to say no and receive a no so disagreement does not break the partnership."
+        ],
+        H: [
+          "Define which dates are fixed and which can change.",
+          "Agree how you notify each other if you will miss a deadline.",
+          "Clarify what each does alone and what you do together."
+        ],
+        E: [
+          "Agree from the start on salaries, who covers cash shortfalls, and how that changes equity.",
+          "Before seeking capital, decide whether to accept investors and on what terms.",
+          "In a cash crisis: what each would do first, which path you would take together, and who decides."
+        ],
+        L: [
+          "Define who has the final word when you disagree.",
+          "Agree who leads vision or sales and who leads operations or product.",
+          "Agree how the person who leads less is heard without stalling work."
+        ],
+        C: [
+          "Explain a hard decision until both understand it the same way.",
+          "Review numbers together before investing.",
+          "If one sees the problem faster, the other asks for an example before deciding."
+        ]
+      },
+      Low: {
+        V: [
+          "Do not assume both will guard this point equally.",
+          "Whoever scores lower does not own that review. The other does.",
+          "One is far below on this point. The other may cover it; define who reviews finances and commitments."
+        ],
+        S: [
+          "One handles conflict much worse. The other can balance by staying calm.",
+          "Before signing, define who calls a pause when the discussion heats up.",
+          "Close that agreement before partnering, not in the first fight."
+        ],
+        H: [
+          "One follows through on deadlines and commitments much less. The other can remind and review deadlines.",
+          "Before starting, write which dates are watched and how they are reviewed.",
+          "Whoever owns deadlines warns in time; do not wait until delay shows."
+        ],
+        E: [
+          "One cannot go without salary. The other can cover for a while.",
+          "Before starting, write how much is covered, for how long, and how equity changes.",
+          "Do not leave that decision for the month money runs out."
+        ],
+        L: [
+          "One does not take the command role. The other can take it.",
+          "Put in writing what each decides.",
+          "Before signing, define who breaks ties when you disagree."
+        ],
+        C: [
+          "One understands problems much sooner. The other can confirm if explained with an example.",
+          "Do not invest based on a single reading of the numbers.",
+          "Define who proposes and who confirms. Use that difference."
+        ]
+      }
+  };
+
+  const BAJO_NAMED = {
+    V: (b, o, t) => [
+      t[0],
+      b + " does not own that review. " + o + " does.",
+      b + " is far below on this point. " + o + " may cover it, and " + o + " reviews finances and commitments."
+    ],
+    S: (b, o, t) => [
+      b + " handles conflict much worse. " + o + " can balance by staying calm.",
+      "Before signing: " + o + " calls a pause when the discussion heats up.",
+      t[2]
+    ],
+    H: (b, o, t) => [
+      b + " follows through much less on deadlines and commitments. " + o + " can remind and review deadlines.",
+      t[1],
+      o + " owns deadlines and warns in time; does not wait until delay shows."
+    ],
+    E: (b, o, t) => [b + " cannot go without salary. " + o + " can cover for a while.", t[1], t[2]],
+    L: (b, o, t) => [
+      b + " does not take the command role. " + o + " can take it.",
+      t[1],
+      "Before signing: " + o + " breaks ties when you disagree."
+    ],
+    C: (b, o, t) => [
+      o + " understands problems much sooner. " + b + " can confirm if explained with an example.",
+      t[1],
+      "Defined: " + o + " proposes and " + b + " confirms. Use that difference."
+    ]
+  };
+  const BAJO_LOS_DOS = {
+    V: (t) => [
+      t[0],
+      "Both score low on this point. Neither can cover the other.",
+      "Before partnering, define how finances and commitments are reviewed, with outside support."
+    ],
+    S: (t) => ["Both handle conflict poorly. Neither can balance the other.", t[1], t[2]],
+    H: (t) => ["Both follow through little on deadlines and commitments. Neither can cover the other.", t[1], t[2]],
+    E: (t) => [
+      "Both have little backup if salary is missing. Neither can cover the other.",
+      "Before starting, write where missing money will come from, for how long, and how equity changes.",
+      t[2]
+    ],
+    L: (t) => ["Both take little command role. Neither can cover the other.", t[1], t[2]],
+    C: (t) => [
+      "Both are slow to understand problems. Neither can confirm for the other.",
+      t[1],
+      "Define how important decisions are reviewed before investing."
+    ]
+  };
+
+  function domainRecs(barsA, barsB, nombreA, nombreB) {
+    const spec = [
+      { k: "V", title: "Values", items: RECS.V },
+      { k: "S", title: "Socioemotional", items: RECS.S },
+      { k: "H", title: "Habits", items: RECS.H },
+      { k: "E", title: "Economic", items: RECS.E },
+      { k: "L", title: "Leadership", items: RECS.L },
+      { k: "C", title: "Intellectual", items: RECS.C }
+    ];
+    return spec.map(function (d) {
+      const state = domainState(barsA[d.k], barsB[d.k]);
+      let list = (DOMAIN_TEXT[state] && DOMAIN_TEXT[state][d.k]) || d.items;
+      if (state === "Good" && d.k === "L" && nombreA && nombreB) {
+        const lA = barsA.L;
+        const lB = barsB.L;
+        const menos = (lA != null && lB != null && !isNaN(lA) && !isNaN(lB) && lA !== lB)
+          ? (lA < lB ? nombreA : nombreB)
+          : null;
+        list = [
+          "Between " + nombreA + " and " + nombreB + " there is leadership coverage on both sides. Put in writing what each owns to avoid duplicate effort.",
+          list[1],
+          menos
+            ? (menos + " leads less and still has room to be heard.")
+            : list[2]
+        ];
+      }
+      if (state === "Review" && d.k === "C" && nombreA && nombreB) {
+        const cA = barsA.C;
+        const cB = barsB.C;
+        if (cA != null && cB != null && !isNaN(cA) && !isNaN(cB) && cA !== cB) {
+          const rapido = cA > cB ? nombreA : nombreB;
+          const otro = cA > cB ? nombreB : nombreA;
+          list = [
+            list[0],
+            list[1],
+            "If " + rapido + " sees the problem faster, " + otro + " asks for an example before deciding."
+          ];
+        }
+      }
+      if (state === "Low") {
+        const a = barsA[d.k];
+        const b = barsB[d.k];
+        if (a != null && b != null && !isNaN(a) && !isNaN(b) && nombreA && nombreB) {
+          const base = DOMAIN_TEXT["Low"][d.k];
+          const aEsBajo = a <= b;
+          if (Math.max(a, b) >= 60) {
+            list = BAJO_NAMED[d.k](aEsBajo ? nombreA : nombreB, aEsBajo ? nombreB : nombreA, base);
+          } else {
+            list = BAJO_LOS_DOS[d.k](base);
+          }
+        }
+      }
+      return {
+        title: d.title,
+        state: state,
+        items: list.slice()
+      };
+    });
+  }
+
+  const QUESTIONS = {
+    V: [
+      "What business information must always be visible to both?",
+      "What happens if someone breaks a promise to the other party, or to a client?",
+      "How are responsibilities shared when something goes wrong?"
+    ],
+    S: [
+      "How does each party express upset or tension toward the other, and how do they talk it through?",
+      "What is unacceptable in conflict (disrespect, no response, or threats)?",
+      "How do the parties respond so a disagreement does not break the spirit of the partnership?"
+    ],
+    H: [
+      "In agreements, which terms are fixed and which can be changed?",
+      "How do the parties notify each other if they will miss agreement deadlines?",
+      "What role does each have and what do they do together?"
+    ],
+    E: [
+      "How are equity, salaries, and who covers cash shortfalls defined from the start, and how does that change equity?",
+      "Before seeking capital, will you accept investors and on what terms?",
+      "In a cash crisis, what would each party do and how would they contribute to solving it?"
+    ],
+    L: [
+      "Who has the final word when you disagree?",
+      "Who keeps the company's vision and who runs operations?",
+      "What protections does the minority shareholder have and how are they respected?"
+    ],
+    C: [
+      "How do you communicate decisions so there is mutual understanding?",
+      "How do you review finances together before investing?",
+      "If one sees the problem quickly, how is it shown to the other before deciding?"
+    ]
+  };
+
+  function flaggedRecs(flags) {
+    const out = [];
+    const has = (f) => flags.includes(f);
+    const rev = QUESTIONS;
+    if (has("AV-AM") || has("AV-RO")) out.push({ items: rev.V.slice() });
+    if (has("SO-AM") || has("SO-RO") || has("SO-AM-AGR") || has("SO-RO-AGR") || has("SO-INFO-TIM")) {
+      out.push({ items: rev.S.slice() });
+    }
+    if (has("HA-AM") || has("HA-RO")) out.push({ items: rev.H.slice() });
+    if (has("EC-AM-CAP") || has("EC-AM-RUNWAY") || has("EC-AM-CTRL") || has("EC-RO") || has("EC-CRISIS")) {
+      out.push({ items: rev.E.slice() });
+    }
+    if (has("LI-AM") || has("LI-INFO") || has("COMP-AM") || has("COMP-RO") || has("COMP-DIFF")) out.push({ items: rev.L.slice() });
+    if (has("IN-AM")) out.push({ items: rev.C.slice() });
+    return out;
+  }
+
+  
+  const COMP_COPY = {
+    "COMP-OK": { level: "info", title: "Usable complement", text: "There is usable role coverage; put in writing who has the final word, who reviews the numbers, and who tracks deadlines." },
+    "COMP-AM": { level: "warn", title: "Weak complement", text: "Weak complement: check whether together they cover command, judgment, and execution." },
+    "COMP-RO": { level: "bad", title: "Complement gap", text: "Complement gap: risk of a team without coverage." },
+    "COMP-DIFF": { level: "info", title: "Useful role difference", text: "There is a useful role difference. Document mandates." }
+  };
+const SOFT_FLAG = {
+    "AV-RO": "One is far below on values. The other can cover review of promises, information, and fair treatment. Define who does it.",
+    "SO-RO": "One is far below on interpersonal style. The other can balance it by lowering the tone. Before signing, define who calls a pause.",
+    "HA-RO": "One is far below on follow-through. The other can cover deadlines and notices. Define who reviews what is pending.",
+    "SO-RO-AGR": "One confronts when angry and, in that same person, struggles to say it without raising the tone. Agree on this before partnering.",
+    "EC-RO": "They are three steps apart. One wants full control and the other would give the board to investors. Write who decides before any agreement.",
+    "ATT-FAIL": "Failed attention responses. Consider repeating the assessment."
+  };
+
+  function pairNames(data) {
+    return { nA: (data && data.nombreA) || "A", nB: (data && data.nombreB) || "B" };
+  }
+  function whoHigherBar(data, key) {
+    const { nA, nB } = pairNames(data);
+    const a = data && data.barsA ? Number(data.barsA[key]) : NaN;
+    const b = data && data.barsB ? Number(data.barsB[key]) : NaN;
+    if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+    if (a === b) return "both";
+    return a > b ? nA : nB;
+  }
+  function joinWho(list) {
+    if (!list || !list.length) return null;
+    if (list.length === 1) return list[0];
+    return list[0] + " and " + list[1];
+  }
+  function whoByFlag(data, code) {
+    const { nA, nB } = pairNames(data);
+    const hitA = !!(data && data.flagsA && data.flagsA.indexOf(code) >= 0);
+    const hitB = !!(data && data.flagsB && data.flagsB.indexOf(code) >= 0);
+    return joinWho([hitA ? nA : null, hitB ? nB : null].filter(Boolean));
+  }
+  function whoBelowBar(data, key, lim) {
+    const { nA, nB } = pairNames(data);
+    const a = data && data.barsA ? Number(data.barsA[key]) : NaN;
+    const b = data && data.barsB ? Number(data.barsB[key]) : NaN;
+    const list = [];
+    if (Number.isFinite(a) && a < lim) list.push(nA);
+    if (Number.isFinite(b) && b < lim) list.push(nB);
+    if (list.length) return joinWho(list);
+    if (Number.isFinite(a) && Number.isFinite(b)) return a <= b ? nA : nB;
+    return null;
+  }
+  function whoOther(data, who) {
+    const { nA, nB } = pairNames(data);
+    if (!who) return null;
+    if (who === nA) return nB;
+    if (who === nB) return nA;
+    return null;
+  }
+  function namedSoft(code, data) {
+    const { nA, nB } = pairNames(data);
+    if (code === "ATT-FAIL") {
+      const who = whoByFlag(data, "ATT-FAIL");
+      return who
+        ? ("For " + who + ", failed attention responses. Consider repeating the assessment.")
+        : SOFT_FLAG[code];
+    }
+    if (code === "AV-RO") {
+      const b = whoBelowBar(data, "V", 20);
+      const o = whoOther(data, b);
+      return b && o
+        ? (b + " is far below on values. " + o + " can cover review of promises, information, and fair treatment. Defined: " + o + " does it.")
+        : SOFT_FLAG[code];
+    }
+    if (code === "SO-RO") {
+      const b = whoBelowBar(data, "S", 15);
+      const o = whoOther(data, b);
+      return b && o
+        ? (b + " is far below on interpersonal style. " + o + " can balance it by lowering the tone. Before signing: " + o + " calls the pause.")
+        : SOFT_FLAG[code];
+    }
+    if (code === "HA-RO") {
+      const b = whoBelowBar(data, "H", 15);
+      const o = whoOther(data, b);
+      return b && o
+        ? (b + " is far below on follow-through. " + o + " can cover deadlines and notices. Defined: " + o + " reviews what is pending.")
+        : SOFT_FLAG[code];
+    }
+    if (code === "SO-RO-AGR") {
+      const agrA = data && data.subBarsA ? Number(data.subBarsA.buen_manejo_agresion) : NaN;
+      const agrB = data && data.subBarsB ? Number(data.subBarsB.buen_manejo_agresion) : NaN;
+      const asA = data && data.subBarsA ? Number(data.subBarsA.asertividad) : NaN;
+      const asB = data && data.subBarsB ? Number(data.subBarsB.asertividad) : NaN;
+      const hitA = agrA === 0 && Number.isFinite(asA) && asA <= 50;
+      const hitB = agrB === 0 && Number.isFinite(asB) && asB <= 50;
+      const who = joinWho([hitA ? nA : null, hitB ? nB : null].filter(Boolean));
+      return who
+        ? (who + " confronts when angry and struggles to say it without raising the tone. Agree on this before partnering.")
+        : SOFT_FLAG[code];
+    }
+    if (code === "EC-RO") {
+      const cA = data && data.ctrlA != null ? Number(data.ctrlA) : NaN;
+      const cB = data && data.ctrlB != null ? Number(data.ctrlB) : NaN;
+      if (!Number.isFinite(cA) || !Number.isFinite(cB) || cA === cB) return SOFT_FLAG[code];
+      const keep = cA < cB ? nA : nB;
+      const cede = cA < cB ? nB : nA;
+      return "They are three steps apart. " + keep + " wants full control and " + cede + " would give the board to investors. Write who decides before any agreement.";
+    }
+    return SOFT_FLAG[code] || null;
+  }
+
+  function onlyAttentionFail(flags) {
+    const vetos = ["AV-RO", "SO-RO", "HA-RO", "SO-RO-AGR", "EC-RO", "ATT-FAIL"];
+    const hit = vetos.filter((f) => (flags || []).indexOf(f) >= 0);
+    return hit.length === 1 && hit[0] === "ATT-FAIL";
+  }
+
+  function comboTextVer3(I, C_comp) {
+    if (I == null || C_comp == null) return null;
+    if (!Number.isFinite(Number(I)) || !Number.isFinite(Number(C_comp))) return null;
+    const iAlto = Number(I) >= 60;
+    const cAlto = Number(C_comp) >= 60;
+    if (iAlto && cAlto) return "Aligned and the parties mutually cover different roles.";
+    if (iAlto && !cAlto) return "They are compatible, but if one party is weak the other cannot cover those gaps.";
+    if (!iAlto && cAlto) return "They complement each other in roles, but friction remains because compatibility is limited.";
+    return "There is not enough compatibility or complementarity.";
+  }
+
+  function sealText(flags, data) {
+    const has = (f) => flags.includes(f);
+    // ATT-FAIL takes priority for seal text.
+    if (has("ATT-FAIL")) {
+      return "Attention signal. Repeating the assessment is suggested.";
+    }
+    const parts = [];
+    if (has("AV-RO") || has("SO-RO") || has("HA-RO")) {
+      parts.push("If one party is low on these sub-skills, the other may compensate those weaknesses.");
+    }
+    if (has("SO-RO-AGR")) {
+      parts.push("When one handles aggression by confronting, the other tries to calm things while staying calm. Agree on this before signing. This pair is not delivered as a ready-made fit.");
+    }
+    if (has("EC-RO")) {
+      parts.push("One wants to keep full control and the other would accept investors controlling the board. Write this before signing. This pair is not delivered as a ready-made fit.");
+    }
+    return parts.join(" ") || "Not suitable to partner. Review before delivery.";
+  }
+
+function flagText(code, data) {
+    const c = FLAG_COPY[code] || COMP_COPY[code];
+    if (!c && !SOFT_FLAG[code]) return { level: "warn", title: code, text: "Review this flag with the reviewer." };
+    if (SOFT_FLAG[code]) {
+      return { level: (c && c.level) || "bad", title: (c && c.title) || code, text: namedSoft(code, data) };
+    }
+    if (code === "EC-CRISIS") {
+      const a = e10Label(data.crisisA);
+      const b = e10Label(data.crisisB);
+      const { nA, nB } = pairNames(data);
+      const tpl = "In a cash crisis, " + nA + " would act first: {crisisA}; " + nB + " would act first: {crisisB}. Which would you do together and who decides?";
+      return { level: "info", title: c.title, text: tpl.replace("{crisisA}", a).replace("{crisisB}", b) };
+    }
+    if (code === "LI-INFO") {
+      const { nA, nB } = pairNames(data);
+      const lA = data && data.barsA ? Number(data.barsA.L) : NaN;
+      const lB = data && data.barsB ? Number(data.barsB.L) : NaN;
+      const who = (Number.isFinite(lA) && Number.isFinite(lB) && lB > lA) ? nB
+        : (Number.isFinite(lA) && Number.isFinite(lB) && lA > lB) ? nA
+        : null;
+      const ambosBien = Number.isFinite(lA) && Number.isFinite(lB) && Math.min(lA, lB) >= 60;
+      const text = who
+        ? (ambosBien
+          ? ("There is leadership coverage on both; " + who + " is higher. Clarify roles to avoid daily operations clashes.")
+          : ("There is leadership coverage in " + who + ". Clarify roles to avoid daily operations clashes."))
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "COMP-OK") {
+      const lead = whoHigherBar(data, "L");
+      const nums = whoHigherBar(data, "C");
+      const plazos = whoHigherBar(data, "H");
+      const role = (who, uno, dos) => (who === "both" ? dos : (who + " " + uno));
+      if (lead && nums && plazos) {
+        return {
+          level: c.level,
+          title: c.title,
+          text: "There is usable role coverage; put in writing that " +
+            role(lead, "has the final word", "both have the final word") + ", " +
+            role(nums, "reviews the numbers", "both review the numbers") + " y " +
+            role(plazos, "tracks deadlines", "both track deadlines") + "."
+        };
+      }
+      return { level: c.level, title: c.title, text: c.text };
+    }
+    if (code === "COMP-DIFF") {
+      const { nA, nB } = pairNames(data);
+      return {
+        level: c.level,
+        title: c.title,
+        text: "Between " + nA + " and " + nB + " there is a useful role difference. Document mandates."
+      };
+    }
+    if (code === "COMP-AM") {
+      const { nA, nB } = pairNames(data);
+      return {
+        level: c.level,
+        title: c.title,
+        text: "Entre " + nA + " and " + nB + " complement is weak: check whether together they cover command, judgment, and execution."
+      };
+    }
+    if (code === "COMP-RO") {
+      const { nA, nB } = pairNames(data);
+      return {
+        level: c.level,
+        title: c.title,
+        text: "Entre " + nA + " and " + nB + " there is a complement gap: risk of a team without coverage."
+      };
+    }
+    if (code === "ATT-INFO") {
+      const who = whoByFlag(data, "ATT-INFO");
+      const text = who
+        ? ("For " + who + ", one of the two attention responses did not match. Informational note for the professional; does not block delivery.")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "SO-INFO-TIM") {
+      const { nA, nB } = pairNames(data);
+      const tA = data && data.subBarsA ? Number(data.subBarsA.buen_manejo_timidez) : NaN;
+      const tB = data && data.subBarsB ? Number(data.subBarsB.buen_manejo_timidez) : NaN;
+      const hitA = Number.isFinite(tA) && tA === 0;
+      const hitB = Number.isFinite(tB) && tB === 0;
+      const both = hitA && hitB;
+      const who = both ? (nA + " and " + nB) : hitA ? nA : hitB ? nB : null;
+      const text = who
+        ? (who + (both ? " tend to say yes when they should say no" : " tends to say yes when they should say no") + ". Define how nos are asked for and received in the partnership.")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "SO-AM-AGR") {
+      const { nA, nB } = pairNames(data);
+      const agrA = data && data.subBarsA ? Number(data.subBarsA.buen_manejo_agresion) : NaN;
+      const agrB = data && data.subBarsB ? Number(data.subBarsB.buen_manejo_agresion) : NaN;
+      const list = [];
+      if (Number.isFinite(agrA) && agrA < 40) list.push(nA);
+      if (Number.isFinite(agrB) && agrB < 40) list.push(nB);
+      const who = joinWho(list);
+      const text = who
+        ? ("Signal of harshness or escalation in anger management in " + who + ". Agree in writing what is unacceptable in a discussion and how to pause.")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "EC-AM-CAP") {
+      const { nA, nB } = pairNames(data);
+      const capA = data && data.capA != null ? Number(data.capA) : (data && data.ecoA ? Number(data.ecoA.CAP) : NaN);
+      const capB = data && data.capB != null ? Number(data.capB) : (data && data.ecoB ? Number(data.ecoB.CAP) : NaN);
+      const who = (Number.isFinite(capA) && Number.isFinite(capB) && capA !== capB)
+        ? (capA > capB ? nA : nB)
+        : null;
+      const other = who === nA ? nB : who === nB ? nA : null;
+      const text = who && other
+        ? (who + " can afford to lose considerably more than " + other + ". Agree early on salaries, who covers cash shortfalls, and how that affects the equity split.")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "VAL-EXT") {
+      const who = whoByFlag(data, "VAL-EXT");
+      const text = who
+        ? ("For " + who + ", very favorable integrity and habits profile. Confirm with concrete examples in the interview before approving the report. (Professional only.)")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "AV-AM" || code === "SO-AM" || code === "HA-AM") {
+      const key = code === "AV-AM" ? "V" : code === "SO-AM" ? "S" : "H";
+      const { nA, nB } = pairNames(data);
+      const a = data && data.barsA ? Number(data.barsA[key]) : NaN;
+      const b = data && data.barsB ? Number(data.barsB[key]) : NaN;
+      const who = (Number.isFinite(a) && Number.isFinite(b) && a !== b) ? (a < b ? nA : nB) : null;
+      const lead = {
+        "AV-AM": "There is a values/integrity signal",
+        "SO-AM": "There is a socioemotional signal",
+        "HA-AM": "There is a signal in follow-through and cooperation habits"
+      };
+      const tail = {
+        "AV-AM": "Talk openly about promises, information, and fair treatment.",
+        "SO-AM": "Review how they handle conflict and pressure.",
+        "HA-AM": "Review deadlines, commitments, and teamwork."
+      };
+      const text = who
+        ? (lead[code] + " (low floor or marked gap). For " + who + " the score is lower. " + tail[code])
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "IN-AM") {
+      const { nA, nB } = pairNames(data);
+      const aC = data && data.aciertosA != null ? Number(data.aciertosA) : NaN;
+      const bC = data && data.aciertosB != null ? Number(data.aciertosB) : NaN;
+      const barA = data && data.barsA ? Number(data.barsA.C) : NaN;
+      const barB = data && data.barsB ? Number(data.barsB.C) : NaN;
+      let bajo = null;
+      if (Number.isFinite(aC) && Number.isFinite(bC) && aC !== bC) bajo = aC < bC ? nA : nB;
+      else if (Number.isFinite(barA) && Number.isFinite(barB) && barA !== barB) bajo = barA < barB ? nA : nB;
+      const ambosBien = Number.isFinite(barA) && Number.isFinite(barB) && Math.min(barA, barB) >= 60;
+      const text = bajo
+        ? (ambosBien
+          ? ("There is a reasoning gap of at least 2 items. " + bajo + " has fewer correct answers. Both reach a usable level; allow more time and concrete examples when deciding.")
+          : ("There is a reasoning gap of at least 2 items. " + bajo + " has fewer correct answers. It does not invalidate the pair alone, but they may need more time and concrete examples when deciding."))
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "EC-AM-CTRL") {
+      const { nA, nB } = pairNames(data);
+      const cA = data && data.ctrlA != null ? Number(data.ctrlA) : NaN;
+      const cB = data && data.ctrlB != null ? Number(data.ctrlB) : NaN;
+      if (!Number.isFinite(cA) || !Number.isFinite(cB) || cA === cB) return c;
+      const keep = cA < cB ? nA : nB;
+      const cede = cA < cB ? nB : nA;
+      return {
+        level: c.level,
+        title: c.title,
+        text: keep + " would give up less ownership for growth; " + cede + " would give up more. Before seeking capital, decide whether to accept outside investors and on what terms."
+      };
+    }
+    return c;
+  }
+
+  const SHADOW_FLAG = {
+    "EC-AM-PERD": "On shutdown or litigation they are 3+ steps apart.",
+    "EC-INFO-ESCAL": "Would accept a very high safe payout and, in a cash crisis, would put in personal money.",
+    "EC-AM-AGEN": "Asks for less certainty when the money is the partner's.",
+    "EC-INFO-AGEN-NEG": "Asks for more certainty when the money is the partner's.",
+    "EC-AM-REP": "The percentage they would give to whoever contributes work and know-how is 2+ steps apart.",
+    "EC-INC-CAP": "Said they could not lose savings and, at the same time, would contribute a large amount.",
+    "EC-AM-BASE": "Capital and evidence fall on the lowest steps.",
+    "EC-OVER": "Marked two or more concepts that do not exist.",
+    "EC-INFO-OVER": "Marked a concept that does not exist.",
+    "EC-INC-KNOW": "Marked concepts that do not exist and says they can show verifiable results. Ask for references."
+  };
+
+  const E13L = ["10% or less", "20%", "30%", "40%", "50%", "60% or more"];
+  const PERSON_SHADOW = {
+    "EC-INFO-ESCAL": 1, "EC-AM-AGEN": 1, "EC-INFO-AGEN-NEG": 1, "EC-INC-CAP": 1,
+    "EC-OVER": 1, "EC-INFO-OVER": 1, "EC-INC-KNOW": 1
+  };
+
+  function renderShadow(sh, nombreA, nombreB) {
+    const box = $("shadowBox");
+    if (!box) return;
+    if (!sh) {
+      box.textContent = "New questions: no reading. Compatibility and complement indices do not change.";
+      return;
+    }
+    const dar = (p) => (p && p.i13 != null && E13L[p.i13]) ? E13L[p.i13] : "—";
+    const pairFlags = (sh.flags || []).filter((f, i, arr) => arr.indexOf(f) === i && !PERSON_SHADOW[f] && SHADOW_FLAG[f]);
+    const linesOf = (p) => {
+      const has = {};
+      ((p && p.flags) || []).forEach((f) => { if (PERSON_SHADOW[f]) has[f] = 1; });
+      if (has["EC-INC-KNOW"]) { delete has["EC-OVER"]; delete has["EC-INFO-OVER"]; }
+      return Object.keys(has).filter((f) => SHADOW_FLAG[f]).map((f) => SHADOW_FLAG[f]);
+    };
+    const block = (title, lines) => lines.length
+      ? "<div style=\"margin-top:8px\"><b>" + title + "</b> " + lines.join(" ") + "</div>"
+      : "";
+    const pairLines = [nombreA + " would give " + dar(sh.A) + " and " + nombreB + " would give " + dar(sh.B) + "."]
+      .concat(pairFlags.map((f) => SHADOW_FLAG[f]));
+    box.innerHTML =
+      block("Both.", pairLines) +
+      block(nombreA + ".", linesOf(sh.A)) +
+      block(nombreB + ".", linesOf(sh.B));
+  }
+
+  function render(data) {
+    $("loadErr").hidden = true;
+    $("sheet").hidden = false;
+    const { nombreA, nombreB, barsA, barsB, pair, source } = data;
+    const rawFlags = pair.flags || [];
+    const flags = rawFlags.slice();
+    if (!flags.includes("EC-CRISIS")) flags.push("EC-CRISIS");
+    const attFail = rawFlags.indexOf("ATT-FAIL") >= 0;
+    const hardSeal = !!pair.no_apto_socios && !onlyAttentionFail(rawFlags);
+    const band = pair.band || "—";
+    const I = pair.I;
+
+    $("nameA").textContent = nombreA;
+    $("nameB").textContent = nombreB;
+    const avA = data.aversionA != null ? data.aversionA : (data.raA == null ? null : 100 - data.raA);
+    const avB = data.aversionB != null ? data.aversionB : (data.raB == null ? null : 100 - data.raB);
+    $("riskA").textContent = "Risk appetite: " + fmt(avA == null ? null : 100 - avA);
+    $("riskB").textContent = "Risk appetite: " + fmt(avB == null ? null : 100 - avB);
+    $("legA").textContent = nombreA.split(" ")[0] || "A";
+    $("legB").textContent = nombreB.split(" ")[0] || "B";
+    $("badgeBand").textContent = bandLabel(band);
+    $("badgeI").textContent = I == null ? "Compatibility index: —" : ("Compatibility index: " + fmtI(I));
+    const Cc = pair.C_comp;
+    const CcBand = pair.C_comp_band || "—";
+    const badgeC = $("badgeC");
+    const badgeCBand = $("badgeCBand");
+    if (badgeCBand) badgeCBand.textContent = Cc == null ? "—" : bandLabel(CcBand);
+    if (badgeC) badgeC.textContent = Cc == null ? "Complementarity index: —" : ("Complementarity index: " + fmtI(Cc));
+    const capaBox = $("capaBox");
+    if (capaBox) {
+      const bits = [];
+      if (attFail || hardSeal) bits.push(sealText(rawFlags, data));
+      else {
+        const combo = comboTextVer3(I, Cc) || pair.combo_text;
+        if (combo) bits.push(combo);
+      }
+      capaBox.hidden = bits.length === 0;
+      capaBox.textContent = bits.join(" ");
+      if (attFail || hardSeal) capaBox.style.background = "#fef2f2";
+      else capaBox.style.background = "";
+    }
+    renderShadow(data.shadow, nombreA, nombreB);
+    $("iflCurveInline").textContent = I == null ? "—" : fmtI(I);
+
+    const badge = $("badge");
+    badge.className = "badge";
+    if (band === "Alta") badge.classList.add("alta");
+    if (band === "Reservada" || band === "Baja") badge.classList.add("baja");
+    const badgeAlert = $("badgeAlert");
+    if (badgeAlert) {
+      badgeAlert.className = "alert-word" + (attFail ? " on" : "");
+    }
+
+    const box = $("bandBox");
+    box.className = "band-box";
+    if (band === "Alta") box.classList.add("alta");
+    if (band === "Reservada" || band === "Baja") box.classList.add(band.toLowerCase());
+    box.textContent = BAND_TEXT[band] || "Review signals and talk before formal agreements.";
+
+    const rows = $("rows");
+    rows.innerHTML = "";
+    DOMAINS.forEach((d) => {
+      const a = barsA[d.k];
+      const b = barsB[d.k];
+      const sd = pair.S ? pair.S[d.k] : null;
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML =
+        '<div class="name">' + d.name + ' <span class="weight">' + d.w + '</span></div>' +
+        '<div class="bars">' +
+          '<div class="bar-line"><div class="track"><div class="fill ana" style="width:' + (a || 0) + '%"></div></div><span class="bar-num ana">' + fmt(a) + '</span></div>' +
+          '<div class="bar-line"><div class="track"><div class="fill luis" style="width:' + (b || 0) + '%"></div></div><span class="bar-num luis">' + fmt(b) + '</span></div>' +
+        '</div>' +
+        '<div class="score">' + (sd == null ? "—" : fmt(sd)) + '</div>';
+      rows.appendChild(row);
+    });
+
+    const sig = $("signals");
+    sig.innerHTML = "";
+    const ctrlEl = document.createElement("div");
+    ctrlEl.className = "signal";
+    ctrlEl.innerHTML = "<strong>Ownership vs. growth.</strong> " + e08Line(nombreA, nombreB, data.ctrlA, data.ctrlB);
+    sig.appendChild(ctrlEl);
+    const showFlags = flags.filter((f) => f !== "EC-OK");
+    if (!showFlags.length) {
+      const empty = document.createElement("div");
+      empty.className = "signal";
+      empty.innerHTML = "<strong>No strong signals.</strong> Keep the roles and cash conversation anyway.";
+      sig.appendChild(empty);
+    } else {
+      showFlags.forEach((f) => {
+        const c = flagText(f, data);
+        const el = document.createElement("div");
+        el.className = "signal " + (c.level === "bad" ? "bad" : c.level === "warn" ? "warn" : "") + (f === "ATT-FAIL" ? " att-fail" : "");
+        el.innerHTML = "<strong>" + c.title + ".</strong> " + c.text;
+        sig.appendChild(el);
+      });
+    }
+
+    const recHost = $("recs");
+    const recs = domainRecs(barsA, barsB, nombreA, nombreB);
+    const stateClass = { "Good": "st-bien", "Review": "st-rev", "Low": "st-piso" };
+    const stateLabel = {};
+    recHost.innerHTML = "<h2>Recommendations by domain</h2>" + recs.map((r) =>
+      "<h3 class=\"" + (stateClass[r.state] || "") + "\">" + r.title + " · " + (stateLabel[r.state] || r.state) + "</h3><ul>" + r.items.map((i) => "<li>" + i + "</li>").join("") + "</ul>"
+    ).join("");
+
+    const qs = [];
+    flaggedRecs(flags).forEach((r) => r.items.forEach((i) => {
+      const q = i.endsWith("?") ? i : (i.replace(/\.$/, "") + "?");
+      if (qs.indexOf(q) < 0) qs.push(q);
+    }));
+    $("questions").innerHTML = qs.map((q) => "<li>" + q + "</li>").join("");
+
+    const needRoles = flags.some((f) => /LI-|COMP-/.test(f));
+    $("actions").innerHTML =
+      "<div>Present to the pair: <span class=\"yes\">Yes, with guided conversation</span></div>" +
+      "<div>Sign broad partnership now: <span class=\"no\">Not without that conversation</span></div>" +
+      "<div>Put roles in writing before signing: <span class=\"" + (needRoles ? "yes" : "no") + "\">" + (needRoles ? "Recommended" : "Optional") + "</span></div>" +
+      "<div>Repeat assessment (attention): <span class=\"" + (attFail ? "yes" : "no") + "\">" + (attFail ? "Recommended" : "N/A") + "</span></div>" +
+      "<div>Block report delivery: <span class=\"no\">No (unless reviewer decides)</span></div>";
+
+    $("footSource").textContent = source === "hit"
+      ? "Source: hosted (paired individual profiles)."
+      : (source === "smoke" ? "Illustrative example." : "Source: local session.");
+
+    setMarker(I == null ? 0 : I);
+    window.__matchI = I;
+  }
+
+  function loadFromDemo() {
+    try {
+      const raw = sessionStorage.getItem("matchDemo.lastReport");
+      if (!raw) throw new Error("No pair loaded. Use Match Ver 3 pairing.");
+      const data = JSON.parse(raw);
+      if (!data.pair) throw new Error("Incomplete payload.");
+      if (data.crisisA == null && data.ecoA && data.ecoA.CRISIS != null) data.crisisA = data.ecoA.CRISIS;
+      if (data.crisisB == null && data.ecoB && data.ecoB.CRISIS != null) data.crisisB = data.ecoB.CRISIS;
+      render(data);
+    } catch (e) {
+      $("sheet").hidden = true;
+      $("loadErr").hidden = false;
+      $("loadErr").textContent = e.message || String(e);
+    }
+  }
+
+  $("btnEmparejar").onclick = () => { location.href = "match-emparejar-ver3-en.html"; };
+  $("btnFromDemo").onclick = loadFromDemo;
+  $("btnMenu").onclick = () => { location.href = "index-en.html"; };
+  $("btnPrint").onclick = () => window.print();
+  window.addEventListener("resize", function () {
+    if (window.__matchI != null) setMarker(window.__matchI);
+  });
+
+  const q = new URLSearchParams(location.search);
+  if (q.get("from") === "storage" || sessionStorage.getItem("matchDemo.lastReport")) loadFromDemo();
+  else {
+    $("sheet").hidden = true;
+    $("loadErr").hidden = false;
+    $("loadErr").innerHTML = 'Pair two profiles first in <a href="match-emparejar-ver3-en.html">Match Ver 3 pairing</a>.';
+  }
+})();
+  </script>
+</body>
+</html>
