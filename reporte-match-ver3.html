@@ -518,12 +518,24 @@
     V: (b, o, t) => [
       t[0],
       b + " no se encarga de esa revisión. La hace " + o + ".",
-      b + " queda muy por debajo en este punto. " + o + " puede cubrirlo, y queda definido quién revisa las finanzas y con lo que se ha comprometido."
+      b + " queda muy por debajo en este punto. " + o + " puede cubrirlo, y " + o + " revisa las finanzas y con lo que se ha comprometido."
     ],
-    S: (b, o, t) => [b + " maneja mucho peor el conflicto. " + o + " puede equilibrarlo manteniendo la calma.", t[1], t[2]],
-    H: (b, o, t) => [b + " cumple mucho menos con plazos y compromisos. " + o + " puede encargarse de recordar y revisar los plazos.", t[1], t[2]],
+    S: (b, o, t) => [
+      b + " maneja mucho peor el conflicto. " + o + " puede equilibrarlo manteniendo la calma.",
+      "Antes de firmar se define: " + o + " pide una pausa cuando la discusión se calienta.",
+      t[2]
+    ],
+    H: (b, o, t) => [
+      b + " cumple mucho menos con plazos y compromisos. " + o + " puede encargarse de recordar y revisar los plazos.",
+      t[1],
+      o + " lleva los plazos y avisa a tiempo; no espera a que el atraso se note."
+    ],
     E: (b, o, t) => [b + " no puede estar sin sueldo. " + o + " puede cubrirlo por un tiempo.", t[1], t[2]],
-    L: (b, o, t) => [b + " no asume el rol de mando. " + o + " puede asumirlo.", t[1], t[2]],
+    L: (b, o, t) => [
+      b + " no asume el rol de mando. " + o + " puede asumirlo.",
+      t[1],
+      "Antes de firmar se define: " + o + " desempata cuando no estén de acuerdo."
+    ],
     C: (b, o, t) => [
       o + " entiende los problemas mucho antes. " + b + " puede confirmar si se lo explican con un ejemplo.",
       t[1],
@@ -722,21 +734,21 @@ const SOFT_FLAG = {
       const b = whoBelowBar(data, "V", 20);
       const o = whoOther(data, b);
       return b && o
-        ? (b + " queda muy por debajo en valores. " + o + " puede cubrir la revisión de promesas, información y trato. Queda definido quién la hace.")
+        ? (b + " queda muy por debajo en valores. " + o + " puede cubrir la revisión de promesas, información y trato. Queda definido: " + o + " la hace.")
         : SOFT_FLAG[code];
     }
     if (code === "SO-RO") {
       const b = whoBelowBar(data, "S", 15);
       const o = whoOther(data, b);
       return b && o
-        ? (b + " queda muy por debajo en el trato. " + o + " puede equilibrarlo si baja el tono. Antes de firmar queda dicho quién pide la pausa.")
+        ? (b + " queda muy por debajo en el trato. " + o + " puede equilibrarlo si baja el tono. Antes de firmar queda dicho: " + o + " pide la pausa.")
         : SOFT_FLAG[code];
     }
     if (code === "HA-RO") {
       const b = whoBelowBar(data, "H", 15);
       const o = whoOther(data, b);
       return b && o
-        ? (b + " queda muy por debajo en cumplir lo pactado. " + o + " puede cubrir plazos y avisos. Queda definido quién revisa lo pendiente.")
+        ? (b + " queda muy por debajo en cumplir lo pactado. " + o + " puede cubrir plazos y avisos. Queda definido: " + o + " revisa lo pendiente.")
         : SOFT_FLAG[code];
     }
     if (code === "SO-RO-AGR") {
@@ -777,9 +789,16 @@ const SOFT_FLAG = {
       if (has("SO-RO")) { const w = whoBelowBar(data, "S", 15); if (w) lows.push(w); }
       if (has("HA-RO")) { const w = whoBelowBar(data, "H", 15); if (w) lows.push(w); }
       const uniq = lows.filter((x, i, a) => a.indexOf(x) === i);
-      parts.push(uniq.length
-        ? (joinWho(uniq) + " queda bajo en un punto que el otro puede cubrir. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista.")
-        : "Uno queda bajo en un punto que el otro puede cubrir. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista.");
+      if (uniq.length === 1) {
+        const o = whoOther(data, uniq[0]);
+        parts.push(o
+          ? (uniq[0] + " queda bajo en un punto que " + o + " puede cubrir. Antes de asociarse queda dicho: " + o + " revisa ese punto. Esta pareja no se entrega como lista.")
+          : (uniq[0] + " queda bajo en un punto. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista."));
+      } else if (uniq.length > 1) {
+        parts.push(joinWho(uniq) + " quedan bajos en un punto. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista.");
+      } else {
+        parts.push("Uno queda bajo en un punto que el otro puede cubrir. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista.");
+      }
     }
     if (has("SO-RO-AGR")) {
       const soft = namedSoft("SO-RO-AGR", data);
@@ -861,8 +880,9 @@ function flagText(code, data) {
       const who = (Number.isFinite(capA) && Number.isFinite(capB) && capA !== capB)
         ? (capA > capB ? nA : nB)
         : null;
-      const text = who
-        ? (who + " tiene capacidad para perder bastante más que el otro. Acordar temprano salarios, quién cubre faltantes de caja y cómo afecta eso al reparto de participación.")
+      const other = who === nA ? nB : who === nB ? nA : null;
+      const text = who && other
+        ? (who + " tiene capacidad para perder bastante más que " + other + ". Acordar temprano salarios, quién cubre faltantes de caja y cómo afecta eso al reparto de participación.")
         : c.text;
       return { level: c.level, title: c.title, text: text };
     }
