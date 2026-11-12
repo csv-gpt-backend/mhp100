@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="google" content="notranslate" />
+  <title>ADALAM — Match Ver 3 individual report</title>
+  <style>
+    :root {
+      --ink: #1a2332;
+      --muted: #5c6b7a;
+      --line: #d8e0e8;
+      --bg: #f4f7fa;
+      --card: #ffffff;
+      --teal: #0d7a6f;
+      --teal-soft: #e6f5f3;
+      --amber: #b45309;
+      --amber-soft: #fff7ed;
+      --red-soft: #fef2f2;
+      --red: #b91c1c;
+      --bar: #1e4f8a;
+      --ok: #15803d;
+      --brand: #0f2d52;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.35;
+    }
+    .sheet {
+      width: min(820px, 100%);
+      margin: 24px auto;
+      background: var(--card);
+      box-shadow: 0 8px 32px rgba(26, 35, 50, 0.12);
+      border-radius: 4px;
+      padding: 36px 40px 32px;
+    }
+    @media print {
+      body { background: #fff; }
+      .sheet { box-shadow: none; margin: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+    .toolbar {
+      width: min(820px, 100%);
+      margin: 16px auto 0;
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+    }
+    .toolbar small { color: var(--muted); font-size: 12px; font-weight: 600; }
+    .toolbar button {
+      font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer;
+      border-radius: 10px; padding: 10px 14px; border: 1px solid #a8bdd4;
+      background: #fff; color: var(--brand);
+    }
+    .toolbar button.primary {
+      background: linear-gradient(180deg, #2a7ab8, #1e4f8a);
+      color: #fff; border: 0;
+    }
+    .brand {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+      border-bottom: 3px solid var(--teal); padding-bottom: 14px; margin-bottom: 18px;
+    }
+    .brand-left { display: flex; align-items: flex-start; gap: 14px; min-width: 0; }
+    .brand-logo {
+      height: 74px; width: auto; max-width: 160px; object-fit: contain; display: block; flex-shrink: 0;
+    }
+    .brand h1 { margin: 0; font-size: 20px; letter-spacing: 0.02em; color: var(--teal); }
+    .brand .sub { margin: 4px 0 0; font-size: 12px; color: var(--muted); max-width: 380px; }
+    .badge {
+      background: #eef3f9; color: var(--brand); border: 1px solid #c8d4e2;
+      font-weight: 800; font-size: 12px; padding: 8px 14px; border-radius: 8px;
+      text-align: center; min-width: 120px;
+    }
+    .badge .alert-word {
+      display: none; font-size: 18px; font-weight: 900; letter-spacing: 0.1em;
+      color: #b91c1c; margin: 0 0 6px; padding: 0 0 6px; line-height: 1.15;
+      border-bottom: 1px solid #fca5a5;
+    }
+    .badge .alert-word.on { display: block; }
+    .badge strong { display: block; font-size: 18px; line-height: 1.2; color: var(--ink); margin-top: 2px; }
+    .meta {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; font-size: 12px; margin-bottom: 16px;
+    }
+    .meta div { background: var(--bg); padding: 8px 10px; border-radius: 6px; }
+    .meta span { color: var(--muted); display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .note-box {
+      background: var(--teal-soft); border-left: 4px solid var(--teal);
+      padding: 10px 14px; font-size: 13px; margin-bottom: 20px; border-radius: 0 6px 6px 0;
+    }
+    .note-box.warn { background: var(--amber-soft); border-color: var(--amber); }
+    .note-box.bad { background: var(--red-soft); border-color: var(--red); }
+    .curve-block { margin: 0 0 18px; }
+    .curve-block .curve-title { font-weight: 700; font-size: 12px; margin-bottom: 6px; }
+    .curve-block .curve-note { font-size: 11px; color: var(--muted); margin: 6px 0 0; }
+    .curveBox {
+      position: relative; height: 220px; border: 1px solid #dbe1ea; border-radius: 8px;
+      padding: 8px; background: linear-gradient(180deg, #f8fafc, #fff);
+    }
+    .curveGauge { position: relative; width: 100%; height: 100%; }
+    .curveGauge img { width: 100%; height: 220px; object-fit: contain; display: block; }
+    .curveMarker {
+      position: absolute; width: 30px; height: 54px; pointer-events: none; z-index: 2;
+      transform: translateX(-50%);
+    }
+    h2 {
+      margin: 0 0 10px; font-size: 13px; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--teal);
+    }
+    .pilot { font-size: 11px; color: var(--muted); margin: 0 0 12px; }
+    .row {
+      display: grid; grid-template-columns: 140px 1fr 44px; gap: 10px;
+      align-items: center; margin-bottom: 12px; font-size: 13px;
+    }
+    .row .name { font-weight: 700; }
+    .row .weight { color: var(--muted); font-weight: 400; font-size: 10px; display: block; }
+    .track {
+      height: 16px; background: #e8eef3; border-radius: 4px; overflow: hidden;
+    }
+    .fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #163a66, #2a7ab8); }
+    .num {
+      font-weight: 800; text-align: right; color: var(--brand);
+      font-variant-numeric: tabular-nums; font-size: 14px;
+    }
+    .subgrid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+      margin: 8px 0 18px; font-size: 12px;
+    }
+    .subgrid div {
+      background: var(--bg); border-radius: 6px; padding: 8px 10px;
+    }
+    .subgrid span { display: block; font-size: 10px; color: var(--muted); text-transform: uppercase; }
+    .subgrid b { font-size: 16px; color: var(--brand); }
+    .signal {
+      margin-top: 10px; padding: 12px 14px; background: var(--teal-soft);
+      border-radius: 6px; font-size: 12px;
+    }
+    .signal.warn { background: var(--amber-soft); }
+    .signal.bad { background: var(--red-soft); }
+    .signal strong { color: var(--teal); }
+    .signal.warn strong { color: var(--amber); }
+    .signal.bad strong { color: var(--red); }
+    .signal.att-fail { background: #fee2e2; border: 1px solid #fca5a5; color: var(--red); }
+    .signal.att-fail strong { color: #b91c1c; }
+    .interp-summary {
+      margin: 0 0 16px; padding: 14px 16px; border-radius: 8px;
+      background: #f0f7f6; border: 1px solid #c5ddd8; font-size: 13px;
+    }
+    .interp-summary strong { color: var(--teal); }
+    .interp-card {
+      margin-bottom: 12px; padding: 12px 14px; border-radius: 8px;
+      border: 1px solid var(--line); background: #fff; font-size: 12px;
+    }
+    .interp-card header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 8px; margin-bottom: 8px;
+    }
+    .interp-card header b { color: var(--brand); font-size: 13px; }
+    .interp-card .tag {
+      font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 999px;
+    }
+    .tag.alta { background: #ecfdf5; color: #047857; }
+    .tag.media { background: #eef3f9; color: #1e4f8a; }
+    .tag.reservada { background: var(--amber-soft); color: var(--amber); }
+    .tag.baja { background: var(--red-soft); color: var(--red); }
+    .interp-card p { margin: 0 0 6px; }
+    .interp-card p:last-child { margin: 0; }
+    .interp-card .lab { font-weight: 700; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+    .next-box {
+      margin-top: 18px; border: 1px dashed var(--line); border-radius: 6px;
+      padding: 12px 14px; font-size: 12px; color: var(--muted);
+    }
+    .foot {
+      margin-top: 14px; font-size: 10px; color: var(--muted);
+      border-top: 1px solid var(--line); padding-top: 10px;
+    }
+    .err {
+      width: min(820px, 100%); margin: 40px auto; padding: 20px;
+      background: #fff; border-radius: 8px; color: var(--red); font-weight: 700;
+    }
+    @media (max-width: 640px) {
+      .meta, .subgrid { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar no-print">
+    <small>Match individual report · no pair index I</small>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input id="codigoGate" type="text" maxlength="32" placeholder="MATCHE code…" autocomplete="off"
+             style="font:inherit;font-weight:700;padding:10px 12px;border:1px solid #a8bdd4;border-radius:10px;text-transform:uppercase;min-width:180px" />
+      <button type="button" id="btnLoadCodigo">Load code</button>
+      <button type="button" id="btnPair">Pair report</button>
+      <button type="button" id="btnMenu">Back to menu</button>
+      <button type="button" class="primary" id="btnPrint">Print / PDF</button>
+    </div>
+  </div>
+  <p id="loadErr" class="err" hidden></p>
+  <article class="sheet" id="sheet" hidden>
+    <header class="brand">
+      <div class="brand-left">
+        <img class="brand-logo" src="match-assets/logo-adalam.png" alt="ADALAM"
+             onerror="this.onerror=null;this.src='assets/logo_adalam.png'" />
+        <div>
+          <h1>ADALAM · Match — Individual profile</h1>
+          <p class="sub">Domain bars for this person. The compatibility index (I) and its curve appear on the pair report.</p>
+        </div>
+      </div>
+      <div class="badge" id="profileBadge">
+        <div class="alert-word" id="badgeAlert">ALERT</div>
+        PROFILE
+        <strong id="badgeName">—</strong>
+      </div>
+    </header>
+
+    <div class="meta">
+      <div><span>Name</span><b id="metaName">—</b><div id="metaRisk" style="font-size:12px;font-weight:600;margin-top:4px">Risk appetite: —</div></div>
+      <div><span>Organization</span><b id="metaInst">—</b></div>
+      <div><span>Date</span><b id="metaFecha">—</b></div>
+    </div>
+
+    <div class="note-box" id="noteBox">
+      This sheet shows how the person looks across the six Match domains. To compare with a partner, open the pair report (A×B).
+    </div>
+
+    <div class="note-box" id="personBox" style="margin-top:8px;background:#f3fbfb;border:1px solid #0D7377;color:#134e4a">—</div>
+
+    <div class="curve-block">
+      <div class="curve-title">FREQUENCY DISTRIBUTION CURVE · Composite profile = <span id="curveValInline">—</span></div>
+      <div class="curveBox">
+        <div class="curveGauge">
+          <img id="freqCurveImg" src="assets/curva_metal.png" alt="Frequency distribution curve" width="800" height="220" />
+          <div id="curveMarker" class="curveMarker" aria-hidden="true">
+            <svg width="30" height="54" viewBox="0 0 18 30" style="position:absolute;left:0;bottom:0;transform:translateX(-50%);display:block;overflow:visible;">
+              <defs>
+                <linearGradient id="blkMainInd" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#1a1a1a"/><stop offset="28%" stop-color="#2b2b2b"/><stop offset="55%" stop-color="#111"/><stop offset="78%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/>
+                </linearGradient>
+              </defs>
+              <rect x="6" y="0" width="6" height="16" rx="1.2" fill="url(#blkMainInd)" stroke="#050505" stroke-width="0.55"/>
+              <path d="M9 30 L2 16 H16 Z" fill="url(#blkMainInd)" stroke="#050505" stroke-width="0.55"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <p class="curve-note">The arrow marks this person's <b>composite profile</b> (weighted average 27/21/17/15/12/8 of their bars). <b>It is not the pair index I</b>; that appears on the pair report. Same ADALAM report curve PNG (unchanged).</p>
+    </div>
+
+    <h2>Domain bars</h2>
+    <p class="pilot">Unnormed bars (pilot version). Scale 0–100.</p>
+    <div id="rows"></div>
+
+    <h2>Orientation notes</h2>
+    <p class="pilot">Not a clinical diagnosis or partnership verdict. Provisional bands 75 / 60 / 45. Working Match copy; can be adjusted per plan documentation.</p>
+    <div class="interp-summary" id="interpSummary"></div>
+    <div id="interpCards"></div>
+
+    <h2>Economic and intellectual detail</h2>
+    <div class="subgrid" id="detail"></div>
+
+    <h2>Signals for this profile</h2>
+    <div id="signals"></div>
+
+    <div class="next-box">
+      <b>Next step:</b> when another profile is saved, generate the <b>pair report</b>
+      (index I + ADALAM curve). One profile can be compared with several partners (A×B, A×C, …).
+    </div>
+
+    <p class="foot">
+      ADALAM Match — individual report. Not the pair index. Plan 50+ r2 rules.
+      <span id="footSource"></span>
+    </p>
+  </article>
+
+  <script src="match-demo-interp-en.js"></script>
+  <script>
+(function () {
+  const DOMAINS = [
+    { k: "V", name: "Values", w: "index weight 27%" },
+    { k: "S", name: "Interpersonal", w: "index weight 21%" },
+    { k: "H", name: "Work habits", w: "index weight 17%" },
+    { k: "E", name: "Economic", w: "index weight 15%" },
+    { k: "L", name: "Leadership", w: "index weight 12%" },
+    { k: "C", name: "Intellectual", w: "index weight 8%" }
+  ];
+
+  const FLAG_COPY = {
+    "ATT-FAIL": { level: "bad", title: "Attention", text: "Both control questions failed. Do not use this profile to deliver a Match until the assessment is repeated with valid attention responses." },
+    "ATT-INFO": { level: "warn", title: "Attention", text: "One of the two attention questions did not match. Review this profile carefully." },
+    "VAL-EXT": { level: "warn", title: "Social desirability", text: "Very extreme responses on Values and Work habits. Professional note only; does not change pair bars." }
+  };
+
+  function $(id) { return document.getElementById(id); }
+  const E10_TEXT = {
+    A: "Cut costs so cash lasts longer",
+    B: "Put in personal money and keep the original plan",
+    C: "Seek outside investors, even for a large equity stake",
+    D: "Quickly change the product or target market to boost sales",
+    E: "Shut down in an orderly way to limit losses"
+  };
+  function crisisLabel(code) {
+    if (code == null || code === "" || code === "—") return "—";
+    var k = String(code).trim().toUpperCase();
+    if (/^\d+$/.test(k)) {
+      var letters = ["A", "B", "C", "D", "E"];
+      var i = Number(k);
+      if (i >= 0 && i < letters.length) k = letters[i];
+    }
+    return E10_TEXT[k] || String(code);
+  }
+  function fmt(v) {
+    if (v == null || !Number.isFinite(Number(v))) return "—";
+    return (Math.round(Number(v) * 10) / 10).toLocaleString("en-US", { maximumFractionDigits: 1 });
+  }
+  function fmt2(v) {
+    if (v == null || !Number.isFinite(Number(v))) return "—";
+    return Number(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  /** Weighted profile average (index weights). Not pair I. */
+  function profileComposite(bars) {
+    const w = { V: 0.27, S: 0.21, H: 0.17, E: 0.15, L: 0.12, C: 0.08 };
+    let acc = 0;
+    let ws = 0;
+    for (const k of Object.keys(w)) {
+      const v = bars[k];
+      if (v == null || !Number.isFinite(Number(v))) continue;
+      acc += w[k] * Number(v);
+      ws += w[k];
+    }
+    if (ws <= 0) return null;
+    return Math.round((acc / ws) * 100) / 100;
+  }
+
+  function setMarker(p) {
+    var s = Math.max(0, Math.min(100, Number(p) || 0));
+    var wrap = document.querySelector(".curveGauge");
+    var img = $("freqCurveImg");
+    var mk = $("curveMarker");
+    if (!wrap || !img || !mk) return;
+    var place = function () {
+      var rW = wrap.getBoundingClientRect();
+      var rI = img.getBoundingClientRect();
+      var natW = img.naturalWidth || 1;
+      var natH = img.naturalHeight || 1;
+      var scale = Math.min(rI.width / natW, rI.height / natH);
+      var drawnW = natW * scale;
+      var offsetXInsideImg = (rI.width - drawnW) / 2;
+      var leftInWrap = (rI.left - rW.left) + offsetXInsideImg;
+      var padL = drawnW * 0.10;
+      var padR = drawnW * 0.22;
+      var minX = leftInWrap + padL;
+      var maxX = leftInWrap + drawnW - padR;
+      var t = s / 100;
+      var x = minX + t * (maxX - minX);
+      var bottomAt0 = 94;
+      var bottomAt100 = 28;
+      var y = bottomAt0 + t * (bottomAt100 - bottomAt0);
+      var w = rW.width || 1;
+      var h = rW.height || 1;
+      mk.style.left = (x / w) * 100 + "%";
+      mk.style.bottom = (y / h) * 100 + "%";
+    };
+    if (img.complete) requestAnimationFrame(place);
+    else img.addEventListener("load", function () { requestAnimationFrame(place); }, { once: true });
+  }
+
+  function bandOf(v, bands) {
+    if (v == null || !Number.isFinite(Number(v))) return null;
+    const x = Number(v);
+    if (x >= bands.alta_min) return "alta";
+    if (x >= bands.media_min) return "media";
+    if (x >= bands.reservada_min) return "reservada";
+    return "baja";
+  }
+
+  function bandLabel(b) {
+    const m = { alta: "High", media: "Medium", reservada: "Reserved", baja: "Low",
+      Alta: "High", Media: "Medium", Reservada: "Reserved", Baja: "Low" };
+    return (b == null || b === "—") ? "—" : (m[b] || b);
+  }
+
+  function renderInterp(bars, nombre) {
+    const interp = window.MATCH_INTERP;
+    const host = $("interpCards");
+    const sum = $("interpSummary");
+    if (!interp || !interp.domains) {
+      sum.textContent = "Interpretation bank did not load.";
+      host.innerHTML = "";
+      return;
+    }
+    const bands = interp.bands;
+    const scored = [];
+    host.innerHTML = "";
+    DOMAINS.forEach((d) => {
+      const v = bars[d.k];
+      const b = bandOf(v, bands);
+      const pack = interp.domains[d.k];
+      if (!b || !pack || !pack[b]) return;
+      scored.push({ k: d.k, name: pack.name || d.name, v: v, band: b, text: pack[b] });
+      const card = document.createElement("div");
+      card.className = "interp-card";
+      card.innerHTML =
+        "<header><b>" + (pack.name || d.name) + " · " + fmt(v) + "</b>" +
+        "<span class=\"tag " + b + "\">" + bandLabel(b) + "</span></header>" +
+        "<p><span class=\"lab\">Strength</span><br>" + pack[b].cualidad + "</p>" +
+        "<p><span class=\"lab\">Watch for</span><br>" + pack[b].falencia + "</p>" +
+        "<p><span class=\"lab\">Tends to</span><br>" + pack[b].tiende + "</p>";
+      host.appendChild(card);
+    });
+
+    const byVal = scored.slice().sort((a, c) => c.v - a.v);
+    const strengths = byVal.filter((x) => x.band === "alta" || x.band === "media").slice(0, 2);
+    const cares2 = byVal.slice().sort((a, c) => a.v - c.v).slice(0, 2);
+
+    const who = (nombre || "This person").split(" ")[0];
+    let html = "<strong>Quick read — " + who + ".</strong> ";
+    if (strengths.length) {
+      html += "Relies most on <b>" + strengths.map((x) => x.name).join(" and ") + "</b>. ";
+    }
+    if (cares2.length && cares2[0].v < bands.media_min) {
+      html += "Look more closely at <b>" + cares2.map((x) => x.name).join(" and ") + "</b> before partnering. ";
+    } else {
+      html += "No domain stands out in the low zone; still review nuances below. ";
+    }
+    html += "Use this for conversation, not as a verdict.";
+    sum.innerHTML = html;
+  }
+
+  function idxOf(raw, n) {
+    const i = Number(raw);
+    if (!Number.isFinite(i) || i < 0 || i >= n) return null;
+    return i;
+  }
+
+  const E08L = [
+    "100% of the company and all decisions",
+    "60% and majority control",
+    "30% and shared decisions with investors",
+    "10% and investors control the board"
+  ];
+  const E10L = {
+    A: "Cut costs so cash lasts longer",
+    B: "Put in personal money and keep the original plan",
+    C: "Seek outside investors, even for a large equity stake",
+    D: "Change product or market to improve sales",
+    E: "Shut down in an orderly way to limit losses"
+  };
+  const E13L = ["10% or less", "20%", "30%", "40%", "50%", "60% or more"];
+  const E14L = ["US$0", "Up to US$10,000", "US$10,001–25,000", "US$25,001–50,000", "US$50,001–100,000", "More than US$100,000"];
+  const E16L = [
+    "Nothing concrete, mostly an idea",
+    "Own documents",
+    "Product, demo, or portfolio",
+    "Results verifiable by third parties"
+  ];
+
+  function e10Of(raw) {
+    if (raw == null || raw === "") return null;
+    const s = String(raw).trim().toUpperCase();
+    if (E10L[s]) return E10L[s];
+    const i = Number(raw);
+    const letters = ["A", "B", "C", "D", "E"];
+    if (Number.isFinite(i) && letters[i]) return E10L[letters[i]];
+    return null;
+  }
+
+  function personReading(responses, eco) {
+    const r = responses || {};
+    const i11 = idxOf(r["ECO-E11"], 8);
+    const i12a = idxOf(r["ECO-E12A"], 8);
+    const i12b = idxOf(r["ECO-E12B"], 8);
+    const i13 = idxOf(r["ECO-E13"], 6);
+    const i14 = idxOf(r["ECO-E14"], 6);
+    const i16 = idxOf(r["ECO-E16"], 4);
+    const i08 = idxOf(r["ECO-E08"], 4);
+    const realIds = ["ECO-E15-1", "ECO-E15-2", "ECO-E15-3", "ECO-E15-4", "ECO-E15-5", "ECO-E15-6"];
+    const foilIds = ["ECO-E15-7", "ECO-E15-8", "ECO-E15-9"];
+    const realI = realIds.map((id) => idxOf(r[id], 4)).filter((x) => x != null);
+    const know = realI.length ? Math.round((100 * (realI.reduce((a, b) => a + b, 0) / realI.length) / 3) * 100) / 100 : null;
+    const foils = foilIds.reduce((n, id) => n + ((idxOf(r[id], 4) || 0) >= 2 ? 1 : 0), 0);
+    let ra = eco && eco.RA != null ? Number(eco.RA) : null;
+    if (eco && eco.risk_version !== "11-12a" && ra != null && i11 != null && i12a != null) {
+      const v11 = (100 * i11) / 7;
+      const v12 = (100 * (7 - i12a)) / 7;
+      ra = Math.round(((ra * 5 + v11 + v12) / 7) * 100) / 100;
+    }
+    let perfil = "—";
+    if (i14 != null && i16 != null) {
+      if (i14 >= 3 && i16 <= 1) perfil = "Capital";
+      else if (i14 <= 1 && i16 >= 2) perfil = "Knowledge";
+      else perfil = "Mixed";
+    }
+    let av = ra == null ? null : 100 - ra;
+    if (av != null && i12a != null && i12b != null && i12a > i12b) av -= (100 * (i12a - i12b)) / 7;
+    if (av != null) av = Math.max(0, Math.min(100, Math.round(av * 100) / 100));
+    const notes = [];
+    if (i12a != null && i12b != null && i12a - i12b >= 2) notes.push("Requires a lower success probability when the money is the partner's.");
+    if (i12a != null && i12b != null && i12b - i12a >= 2) notes.push("Requires a higher success probability when the money is the partner's.");
+    if (foils >= 2) notes.push("Marked two or more nonexistent concepts as if known.");
+    else if (foils === 1) notes.push("Marked one concept that does not exist.");
+    if (i16 === 3 && foils >= 2) notes.push("Claims verifiable results but marked nonexistent concepts.");
+    return { ra, av, know, perfil, i13, i14, i16, i08, crisis: e10Of(r["ECO-E10"]), notes };
+  }
+
+  function render(data) {
+    $("loadErr").hidden = true;
+    $("sheet").hidden = false;
+    const p = data.profile || {};
+    const flags = p.flags || [];
+    const eco = p.eco || {};
+    const read = personReading(data.responses, eco);
+    const bars = Object.assign({}, p.bars || {});
+    if (read.ra != null && eco.PA != null && eco.CAP != null && eco.risk_version !== "11-12a") {
+      bars.E = Math.round((0.6 * read.ra + 0.2 * Number(eco.PA) + 0.2 * Number(eco.CAP)) * 100) / 100;
+    }
+
+    $("badgeName").textContent = (data.nombre || "—").split(" ")[0];
+    $("metaName").textContent = data.nombre || "—";
+    $("metaRisk").textContent = "Risk appetite: " + fmt(read.av == null ? null : 100 - read.av);
+    const alertEl = $("badgeAlert");
+    if (alertEl) alertEl.classList.toggle("on", flags.includes("ATT-FAIL"));
+    $("metaInst").textContent = data.institucion || "—";
+    $("metaFecha").textContent = data.fecha || "—";
+
+    const lines = [
+      "Capital they could contribute: " + (read.i14 == null ? "—" : E14L[read.i14]) + ".",
+      "Knowledge of real concepts: " + fmt(read.know) + ".",
+      "What they can show: " + (read.i16 == null ? "—" : E16L[read.i16]) + ".",
+      "Contribution profile: " + read.perfil + ".",
+      "In the split, would give work-and-knowledge contributor: " + (read.i13 == null ? "—" : E13L[read.i13]) + ".",
+      "In seven years would prefer: " + (read.i08 == null ? "—" : E08L[read.i08]) + ".",
+      "First move in a cash crisis: " + (read.crisis || "—") + "."
+    ];
+    $("personBox").innerHTML =
+      "<div style=\"font-weight:700;margin-bottom:6px\">Reading for this person. Not the index or complementarity; those appear when pairing.</div>" +
+      lines.map((t) => "<div>" + t + "</div>").join("") +
+      (read.notes.length ? read.notes.map((t) => "<div>" + t + "</div>").join("") : "<div>No separate signal on the new questions.</div>");
+
+    const note = $("noteBox");
+    note.className = "note-box";
+    if (flags.includes("ATT-FAIL")) {
+      note.classList.add("bad");
+      note.textContent = "Profile with ATT-FAIL: do not deliver a pair Match until the assessment is repeated with correct attention questions.";
+    } else if (flags.includes("ATT-INFO") || flags.includes("VAL-EXT")) {
+      note.classList.add("warn");
+      note.textContent = "Signals to review on this profile. Bars still show; index I appears only when paired with someone else.";
+    } else {
+      note.textContent = "Profile ready to pair. Compatibility index (I) and its curve are on the pair report.";
+    }
+
+    const composite = profileComposite(bars);
+    $("curveValInline").textContent = composite == null ? "—" : fmt2(composite);
+    setMarker(composite == null ? 0 : composite);
+    window.__matchComposite = composite;
+
+    const rows = $("rows");
+    rows.innerHTML = "";
+    DOMAINS.forEach((d) => {
+      const v = bars[d.k];
+      const w = v == null ? 0 : Math.max(0, Math.min(100, v));
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML =
+        '<div class="name">' + d.name + '<span class="weight">' + d.w + '</span></div>' +
+        '<div class="track"><div class="fill" style="width:' + w + '%"></div></div>' +
+        '<div class="num">' + fmt(v) + '</div>';
+      rows.appendChild(row);
+    });
+
+    renderInterp(bars, data.nombre);
+
+    const ac = p.aciertos;
+    const acMax = p.aciertos_max || 6;
+    $("detail").innerHTML =
+      "<div><span>Risk / attitude (RA)</span><b>" + fmt(eco.RA) + "</b></div>" +
+      "<div><span>Patience (PA)</span><b>" + fmt(eco.PA) + "</b></div>" +
+      "<div><span>Loss capacity (CAP)</span><b>" + fmt(eco.CAP) + "</b></div>" +
+      "<div><span>Control (E08 step)</span><b>" + (eco.ctrl_step == null ? "—" : eco.ctrl_step) + "</b></div>" +
+      "<div><span>Crisis (E10)</span><b>" + crisisLabel(eco.CRISIS) + "</b></div>" +
+      "<div><span>Intellectual correct</span><b>" + (ac == null ? "—" : (ac + " / " + acMax)) + "</b></div>";
+
+    const sig = $("signals");
+    sig.innerHTML = "";
+    const show = flags.filter((f) => FLAG_COPY[f]);
+    if (!show.length) {
+      sig.innerHTML = '<div class="signal"><strong>No attention or desirability signals.</strong> Profile usable for pairing.</div>';
+    } else {
+      show.forEach((f) => {
+        const c = FLAG_COPY[f];
+        const el = document.createElement("div");
+        el.className = "signal " + (c.level === "bad" ? "bad" : "warn") + (f === "ATT-FAIL" ? " att-fail" : "");
+        el.innerHTML = "<strong>" + c.title + ".</strong> " + c.text;
+        sig.appendChild(el);
+      });
+    }
+
+    $("footSource").textContent = data.source === "demo" ? " Source: local demo." : (data.source === "hit" ? " Source: hosted attempt." : (data.source === "smoke" ? " Illustrative example." : ""));
+  }
+
+  function loadFromDemo() {
+    try {
+      const raw = sessionStorage.getItem("matchDemo.lastIndividual");
+      if (!raw) throw new Error("No individual profile saved in this browser.");
+      render(JSON.parse(raw));
+    } catch (e) {
+      $("sheet").hidden = true;
+      $("loadErr").hidden = false;
+      $("loadErr").textContent = e.message || String(e);
+    }
+  }
+
+  async function loadFromCodigo(codigo) {
+    $("loadErr").hidden = true;
+    try {
+      const q = new URLSearchParams({ codigo: codigo, eval: "MATCHE", idioma: "EN" });
+      const r = await fetch("/api/report?" + q.toString());
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Could not load report");
+      const attempt = data.attempt || {};
+      const res = typeof attempt.resultados === "string" ? JSON.parse(attempt.resultados) : (attempt.resultados || {});
+      const responses = typeof attempt.responses === "string" ? JSON.parse(attempt.responses) : (attempt.responses || {});
+      const part = data.participant || {};
+      const nombre =
+        [res.nombre_pila, res.apellido].filter(Boolean).join(" ") ||
+        attempt.nombre ||
+        "—";
+      render({
+        nombre: nombre,
+        institucion: attempt.institucion || part.institucion || "—",
+        fecha: attempt.created_at
+          ? new Date(attempt.created_at).toLocaleDateString("en-US", { day: "2-digit", month: "long", year: "numeric" })
+          : "—",
+        profile: {
+          bars: res.bars || {},
+          eco: res.eco || {},
+          aciertos: res.aciertos,
+          aciertos_max: res.aciertos_max || 6,
+          flags: res.flags || []
+        },
+        responses: responses,
+        source: "hit"
+      });
+    } catch (e) {
+      $("sheet").hidden = true;
+      $("loadErr").hidden = false;
+      $("loadErr").textContent = e.message || String(e);
+    }
+  }
+
+  function loadAnaSample() {
+    render({
+      nombre: "Ana",
+      institucion: "ADALAM",
+      fecha: new Date().toLocaleDateString("en-US", { day: "2-digit", month: "long", year: "numeric" }),
+      profile: {
+        bars: { V: 72, S: 68, H: 65, E: 61.53, L: 55, C: 66.67 },
+        eco: { RA: 70, PA: 80, CAP: 62.5, ctrl_step: 1, CRISIS: "—" },
+        aciertos: 4,
+        aciertos_max: 6,
+        flags: []
+      },
+      source: "smoke"
+    });
+  }
+
+  $("btnLoadCodigo").onclick = () => {
+    const c = ($("codigoGate").value || "").trim().toUpperCase();
+    $("codigoGate").value = c;
+    if (!c) { $("loadErr").hidden = false; $("loadErr").textContent = "Enter a code."; return; }
+    loadFromCodigo(c);
+  };
+  $("codigoGate").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); $("btnLoadCodigo").click(); }
+  });
+  $("btnPair").onclick = () => { location.href = "reporte-match-ver3-en.html"; };
+  $("btnMenu").onclick = () => { location.href = "index-en.html"; };
+  $("btnPrint").onclick = () => window.print();
+  window.addEventListener("resize", function () {
+    if (window.__matchComposite != null) setMarker(window.__matchComposite);
+  });
+
+  const q = new URLSearchParams(location.search);
+  if (q.get("codigo")) {
+    $("codigoGate").value = String(q.get("codigo")).trim().toUpperCase();
+    loadFromCodigo($("codigoGate").value);
+  } else if (q.get("from") === "storage") loadFromDemo();
+  else {
+    $("sheet").hidden = true;
+    $("loadErr").hidden = false;
+    $("loadErr").textContent = "Enter a Match Ver 3 code (ESC-MATCHE-EN-… / PRO-MATCHE-EN-…) and click Load code.";
+  }
+})();
+  </script>
+</body>
+</html>
