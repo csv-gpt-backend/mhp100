@@ -6,7 +6,7 @@
 
 const bank = require("./data/match-bank-ver3.json");
 const rules = require("./data/plan50plus-capas.json");
-const { scorePerson, round2, clip, comboText, bandOf } = require("./match-engine-capas");
+const { scorePerson, round2, clip, bandOf } = require("./match-engine-capas");
 
 function profileComposite(bars) {
   const w = rules.index_weights || {};
@@ -347,8 +347,19 @@ function applySeV12(pair, ecoA, ecoB, responsesA, responsesB, shadow, bars) {
     C_comp_band,
     C_comp_roles,
   });
-  next.combo_text = comboText(I, C_comp, rules);
+  // Textos de combinación solo Ver 3 (MATCH/MATCHC siguen con plan50plus-capas).
+  next.combo_text = comboTextVer3(I, C_comp);
   return next;
+}
+
+function comboTextVer3(I, C_comp) {
+  if (I == null || C_comp == null) return null;
+  const iAlto = Number(I) >= 60;
+  const cAlto = Number(C_comp) >= 60;
+  if (iAlto && cAlto) return "Alineados y las partes cubren mutuamente los diferentes roles.";
+  if (iAlto && !cAlto) return "Son compatibles, pero si una parte tiene debilidades la otra no las puede cubrir.";
+  if (!iAlto && cAlto) return "Las partes se complementan en sus roles; pero existe fricción pues no hay compatibilidad.";
+  return "No hay compatibilidad ni complementariedad suficiente.";
 }
 
 function cognitiveRecount(responses) {
@@ -362,4 +373,4 @@ function cognitiveRecount(responses) {
   };
 }
 
-module.exports = { scoreMatchVer3, profileComposite, shadowPerson, shadowPair, applySeV12, cognitiveRecount, foldRiskIntoProfile, aversionShown };
+module.exports = { scoreMatchVer3, profileComposite, shadowPerson, shadowPair, applySeV12, cognitiveRecount, foldRiskIntoProfile, aversionShown, comboTextVer3 };

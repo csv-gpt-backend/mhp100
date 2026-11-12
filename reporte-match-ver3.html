@@ -835,6 +835,17 @@ const SOFT_FLAG = {
     return hit.length === 1 && hit[0] === "ATT-FAIL";
   }
 
+  function comboTextVer3(I, C_comp) {
+    if (I == null || C_comp == null) return null;
+    if (!Number.isFinite(Number(I)) || !Number.isFinite(Number(C_comp))) return null;
+    const iAlto = Number(I) >= 60;
+    const cAlto = Number(C_comp) >= 60;
+    if (iAlto && cAlto) return "Alineados y las partes cubren mutuamente los diferentes roles.";
+    if (iAlto && !cAlto) return "Son compatibles, pero si una parte tiene debilidades la otra no las puede cubrir.";
+    if (!iAlto && cAlto) return "Las partes se complementan en sus roles; pero existe fricción pues no hay compatibilidad.";
+    return "No hay compatibilidad ni complementariedad suficiente.";
+  }
+
   function sealText(flags, data) {
     const has = (f) => flags.includes(f);
     // ATT-FAIL manda: si está, es el único texto del sello (con o sin otros vetos).
@@ -1066,7 +1077,10 @@ function flagText(code, data) {
     if (capaBox) {
       const bits = [];
       if (attFail || hardSeal) bits.push(sealText(rawFlags, data));
-      else if (pair.combo_text) bits.push(pair.combo_text);
+      else {
+        const combo = comboTextVer3(I, Cc) || pair.combo_text;
+        if (combo) bits.push(combo);
+      }
       capaBox.hidden = bits.length === 0;
       capaBox.textContent = bits.join(" ");
       if (attFail || hardSeal) capaBox.style.background = "#fef2f2";
