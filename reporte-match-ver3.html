@@ -745,18 +745,8 @@ const SOFT_FLAG = {
     "ATT-FAIL": "Respuestas de atención fallidas. Considerar repetir la aplicación."
   };
 
-  function tidyName(n) {
-    const p = String(n || "").trim().split(/\s+/).filter(Boolean);
-    if (p.length >= 2 && p[0].toLocaleUpperCase("es") === p[1].toLocaleUpperCase("es")) {
-      return [p[0]].concat(p.slice(2)).join(" ");
-    }
-    return p.join(" ") || String(n || "").trim();
-  }
   function pairNames(data) {
-    return {
-      nA: tidyName((data && data.nombreA) || "A") || "A",
-      nB: tidyName((data && data.nombreB) || "B") || "B"
-    };
+    return { nA: (data && data.nombreA) || "A", nB: (data && data.nombreB) || "B" };
   }
   function whoHigherBar(data, key) {
     const { nA, nB } = pairNames(data);
@@ -1107,10 +1097,7 @@ function flagText(code, data) {
   function render(data) {
     $("loadErr").hidden = true;
     $("sheet").hidden = false;
-    const names = pairNames(data);
-    const nombreA = names.nA;
-    const nombreB = names.nB;
-    const { barsA, barsB, pair, source } = data;
+    const { nombreA, nombreB, barsA, barsB, pair, source } = data;
     const rawFlags = pair.flags || [];
     const flags = rawFlags.slice();
     if (!flags.includes("EC-CRISIS")) flags.push("EC-CRISIS");
