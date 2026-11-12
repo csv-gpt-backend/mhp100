@@ -654,18 +654,120 @@ const SOFT_FLAG = {
     "ATT-FAIL": "Respuestas de atención fallidas. Considerar repetir la aplicación."
   };
 
-  function sealText(flags) {
+  function pairNames(data) {
+    return { nA: (data && data.nombreA) || "A", nB: (data && data.nombreB) || "B" };
+  }
+  function joinWho(list) {
+    if (!list || !list.length) return null;
+    if (list.length === 1) return list[0];
+    return list[0] + " y " + list[1];
+  }
+  function whoByFlag(data, code) {
+    const { nA, nB } = pairNames(data);
+    const hitA = !!(data && data.flagsA && data.flagsA.indexOf(code) >= 0);
+    const hitB = !!(data && data.flagsB && data.flagsB.indexOf(code) >= 0);
+    return joinWho([hitA ? nA : null, hitB ? nB : null].filter(Boolean));
+  }
+  function whoBelowBar(data, key, lim) {
+    const { nA, nB } = pairNames(data);
+    const a = data && data.barsA ? Number(data.barsA[key]) : NaN;
+    const b = data && data.barsB ? Number(data.barsB[key]) : NaN;
+    const list = [];
+    if (Number.isFinite(a) && a < lim) list.push(nA);
+    if (Number.isFinite(b) && b < lim) list.push(nB);
+    if (list.length) return joinWho(list);
+    if (Number.isFinite(a) && Number.isFinite(b)) return a <= b ? nA : nB;
+    return null;
+  }
+  function whoOther(data, who) {
+    const { nA, nB } = pairNames(data);
+    if (!who) return null;
+    if (who === nA) return nB;
+    if (who === nB) return nA;
+    return null;
+  }
+  function namedSoft(code, data) {
+    const { nA, nB } = pairNames(data);
+    if (code === "ATT-FAIL") {
+      const who = whoByFlag(data, "ATT-FAIL");
+      return who
+        ? ("En " + who + ", respuestas de atención fallidas. Considerar repetir la aplicación.")
+        : SOFT_FLAG[code];
+    }
+    if (code === "AV-RO") {
+      const b = whoBelowBar(data, "V", 20);
+      const o = whoOther(data, b);
+      return b && o
+        ? (b + " queda muy por debajo en valores. " + o + " puede cubrir la revisión de promesas, información y trato. Queda definido quién la hace.")
+        : SOFT_FLAG[code];
+    }
+    if (code === "SO-RO") {
+      const b = whoBelowBar(data, "S", 15);
+      const o = whoOther(data, b);
+      return b && o
+        ? (b + " queda muy por debajo en el trato. " + o + " puede equilibrarlo si baja el tono. Antes de firmar queda dicho quién pide la pausa.")
+        : SOFT_FLAG[code];
+    }
+    if (code === "HA-RO") {
+      const b = whoBelowBar(data, "H", 15);
+      const o = whoOther(data, b);
+      return b && o
+        ? (b + " queda muy por debajo en cumplir lo pactado. " + o + " puede cubrir plazos y avisos. Queda definido quién revisa lo pendiente.")
+        : SOFT_FLAG[code];
+    }
+    if (code === "SO-RO-AGR") {
+      const agrA = data && data.subBarsA ? Number(data.subBarsA.buen_manejo_agresion) : NaN;
+      const agrB = data && data.subBarsB ? Number(data.subBarsB.buen_manejo_agresion) : NaN;
+      const asA = data && data.subBarsA ? Number(data.subBarsA.asertividad) : NaN;
+      const asB = data && data.subBarsB ? Number(data.subBarsB.asertividad) : NaN;
+      const hitA = agrA === 0 && Number.isFinite(asA) && asA <= 50;
+      const hitB = agrB === 0 && Number.isFinite(asB) && asB <= 50;
+      const who = joinWho([hitA ? nA : null, hitB ? nB : null].filter(Boolean));
+      return who
+        ? (who + " confronta cuando se enoja y, en esa misma persona, le cuesta decirlo sin subir el tono. Eso se acuerda antes de asociarse.")
+        : SOFT_FLAG[code];
+    }
+    if (code === "EC-RO") {
+      const cA = data && data.ctrlA != null ? Number(data.ctrlA) : NaN;
+      const cB = data && data.ctrlB != null ? Number(data.ctrlB) : NaN;
+      if (!Number.isFinite(cA) || !Number.isFinite(cB) || cA === cB) return SOFT_FLAG[code];
+      const keep = cA < cB ? nA : nB;
+      const cede = cA < cB ? nB : nA;
+      return "Están a tres pasos. " + keep + " quiere el control total y " + cede + " cedería el directorio a inversionistas. Se escribe quién decide antes de cualquier acuerdo.";
+    }
+    return SOFT_FLAG[code] || null;
+  }
+
+  function sealText(flags, data) {
     const has = (f) => flags.includes(f);
-    if (has("ATT-FAIL")) return "No apto para socios. Revisar antes de entregar.";
+    if (has("ATT-FAIL")) {
+      const who = whoByFlag(data, "ATT-FAIL");
+      return who
+        ? ("No apto para socios. En " + who + ", respuestas de atención fallidas. Revisar antes de entregar.")
+        : "No apto para socios. Revisar antes de entregar.";
+    }
     const parts = [];
     if (has("AV-RO") || has("SO-RO") || has("HA-RO")) {
-      parts.push("Uno queda bajo en un punto que el otro puede cubrir. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista.");
+      const lows = [];
+      if (has("AV-RO")) { const w = whoBelowBar(data, "V", 20); if (w) lows.push(w); }
+      if (has("SO-RO")) { const w = whoBelowBar(data, "S", 15); if (w) lows.push(w); }
+      if (has("HA-RO")) { const w = whoBelowBar(data, "H", 15); if (w) lows.push(w); }
+      const uniq = lows.filter((x, i, a) => a.indexOf(x) === i);
+      parts.push(uniq.length
+        ? (joinWho(uniq) + " queda bajo en un punto que el otro puede cubrir. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista.")
+        : "Uno queda bajo en un punto que el otro puede cubrir. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista.");
     }
     if (has("SO-RO-AGR")) {
-      parts.push("Uno maneja el enojo por confrontación y, en esa misma persona, le cuesta decirlo con calma. Eso se resuelve antes de firmar. Esta pareja no se entrega como lista.");
+      const soft = namedSoft("SO-RO-AGR", data);
+      parts.push(soft.replace(/ Eso se acuerda antes de asociarse\.$/, "") + " Eso se resuelve antes de firmar. Esta pareja no se entrega como lista.");
     }
     if (has("EC-RO")) {
-      parts.push("Uno quiere conservar el control total y el otro aceptaría que los inversionistas controlen el directorio. Eso se escribe antes de firmar. Esta pareja no se entrega como lista.");
+      const soft = namedSoft("EC-RO", data);
+      if (soft && soft !== SOFT_FLAG["EC-RO"]) {
+        parts.push(soft.replace(/^Están a tres pasos\. /, "").replace(/ Se escribe quién decide antes de cualquier acuerdo\.$/, "") + " Eso se escribe antes de firmar. Esta pareja no se entrega como lista.");
+      } else {
+        parts.push("Uno quiere conservar el control total y el otro aceptaría que los inversionistas controlen el directorio. Eso se escribe antes de firmar. Esta pareja no se entrega como lista.");
+      }
     }
     return parts.join(" ") || "No apto para socios. Revisar antes de entregar.";
   }
@@ -673,18 +775,18 @@ const SOFT_FLAG = {
 function flagText(code, data) {
     const c = FLAG_COPY[code] || COMP_COPY[code];
     if (!c && !SOFT_FLAG[code]) return { level: "warn", title: code, text: "Revisar esta bandera con el revisor." };
-    if (SOFT_FLAG[code]) return { level: (c && c.level) || "bad", title: (c && c.title) || code, text: SOFT_FLAG[code] };
+    if (SOFT_FLAG[code]) {
+      return { level: (c && c.level) || "bad", title: (c && c.title) || code, text: namedSoft(code, data) };
+    }
     if (code === "EC-CRISIS") {
       const a = e10Label(data.crisisA);
       const b = e10Label(data.crisisB);
-      const nA = (data && data.nombreA) || "A";
-      const nB = (data && data.nombreB) || "B";
+      const { nA, nB } = pairNames(data);
       const tpl = "Ante una crisis de caja, " + nA + " haría primero: {crisisA}; " + nB + " haría primero: {crisisB}. ¿Cuál de las dos harían juntos y quién decide?";
       return { level: "info", title: c.title, text: tpl.replace("{crisisA}", a).replace("{crisisB}", b) };
     }
     if (code === "LI-INFO") {
-      const nA = (data && data.nombreA) || "A";
-      const nB = (data && data.nombreB) || "B";
+      const { nA, nB } = pairNames(data);
       const lA = data && data.barsA ? Number(data.barsA.L) : NaN;
       const lB = data && data.barsB ? Number(data.barsB.L) : NaN;
       const who = (Number.isFinite(lA) && Number.isFinite(lB) && lB > lA) ? nB
@@ -696,19 +798,14 @@ function flagText(code, data) {
       return { level: c.level, title: c.title, text: text };
     }
     if (code === "ATT-INFO") {
-      const nA = (data && data.nombreA) || "A";
-      const nB = (data && data.nombreB) || "B";
-      const hitA = !!(data && data.flagsA && data.flagsA.indexOf("ATT-INFO") >= 0);
-      const hitB = !!(data && data.flagsB && data.flagsB.indexOf("ATT-INFO") >= 0);
-      const who = hitA && hitB ? (nA + " y " + nB) : hitA ? nA : hitB ? nB : null;
+      const who = whoByFlag(data, "ATT-INFO");
       const text = who
         ? ("En " + who + ", una de las dos respuestas de atención no coincidió. Nota informativa para el profesional; no bloquea la entrega.")
         : c.text;
       return { level: c.level, title: c.title, text: text };
     }
     if (code === "SO-INFO-TIM") {
-      const nA = (data && data.nombreA) || "A";
-      const nB = (data && data.nombreB) || "B";
+      const { nA, nB } = pairNames(data);
       const tA = data && data.subBarsA ? Number(data.subBarsA.buen_manejo_timidez) : NaN;
       const tB = data && data.subBarsB ? Number(data.subBarsB.buen_manejo_timidez) : NaN;
       const hitA = Number.isFinite(tA) && tA === 0;
@@ -717,6 +814,38 @@ function flagText(code, data) {
       const who = both ? (nA + " y " + nB) : hitA ? nA : hitB ? nB : null;
       const text = who
         ? (who + (both ? " tienden a decir «sí» cuando deberían decir «no»" : " tiende a decir «sí» cuando debería decir «no»") + ". Definir cómo se piden y se reciben los «no» en la sociedad.")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "SO-AM-AGR") {
+      const { nA, nB } = pairNames(data);
+      const agrA = data && data.subBarsA ? Number(data.subBarsA.buen_manejo_agresion) : NaN;
+      const agrB = data && data.subBarsB ? Number(data.subBarsB.buen_manejo_agresion) : NaN;
+      const list = [];
+      if (Number.isFinite(agrA) && agrA < 40) list.push(nA);
+      if (Number.isFinite(agrB) && agrB < 40) list.push(nB);
+      const who = joinWho(list);
+      const text = who
+        ? ("Hay señal de dureza o escalada en el manejo del enojo en " + who + ". Acordar por escrito qué es inaceptable en una discusión y cómo se hace una pausa.")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "EC-AM-CAP") {
+      const { nA, nB } = pairNames(data);
+      const capA = data && data.capA != null ? Number(data.capA) : (data && data.ecoA ? Number(data.ecoA.CAP) : NaN);
+      const capB = data && data.capB != null ? Number(data.capB) : (data && data.ecoB ? Number(data.ecoB.CAP) : NaN);
+      const who = (Number.isFinite(capA) && Number.isFinite(capB) && capA !== capB)
+        ? (capA > capB ? nA : nB)
+        : null;
+      const text = who
+        ? (who + " tiene capacidad para perder bastante más que el otro. Acordar temprano salarios, quién cubre faltantes de caja y cómo afecta eso al reparto de participación.")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "VAL-EXT") {
+      const who = whoByFlag(data, "VAL-EXT");
+      const text = who
+        ? ("En " + who + ", perfil muy favorable en integridad y hábitos. Confirmar con ejemplos concretos en la entrevista antes de aprobar el reporte. (Solo visible para el profesional.)")
         : c.text;
       return { level: c.level, title: c.title, text: text };
     }
@@ -798,7 +927,7 @@ function flagText(code, data) {
     const capaBox = $("capaBox");
     if (capaBox) {
       const bits = [];
-      if (pair.no_apto_socios) bits.push(sealText(rawFlags));
+      if (pair.no_apto_socios) bits.push(sealText(rawFlags, data));
       else if (pair.combo_text) bits.push(pair.combo_text);
       capaBox.hidden = bits.length === 0;
       capaBox.textContent = bits.join(" ");
@@ -816,7 +945,7 @@ function flagText(code, data) {
     box.className = "band-box";
     if (blocked) {
       box.classList.add("blocked");
-      box.textContent = SOFT_FLAG["ATT-FAIL"] + " (Bloquea la entrega hasta decisión del profesional.)";
+      box.textContent = namedSoft("ATT-FAIL", data) + " (Bloquea la entrega hasta decisión del profesional.)";
     } else {
       if (band === "Alta") box.classList.add("alta");
       if (band === "Reservada" || band === "Baja") box.classList.add(band.toLowerCase());
