@@ -151,15 +151,22 @@ function shadowPack(responses, profile) {
   };
 }
 
+/**
+ * Aversión que se muestra. Si exige menos probabilidad con el dinero del socio
+ * (i12a > i12b), la 12b entra al riesgo mostrado con peso 1/8, igual que 11 y 12a
+ * entre las siete del índice: RA' = (7·RA + v12b) / 8. Así no se suma encima ni
+ * se corta en 100. Si exige igual o más, se deja RA. El índice no usa esto.
+ */
 function aversionShown(ra, responses) {
   if (ra == null || !Number.isFinite(Number(ra))) return null;
-  let a = 100 - Number(ra);
+  let raShown = Number(ra);
   const i12a = idxOf(responses && responses["ECO-E12A"], 8);
   const i12b = idxOf(responses && responses["ECO-E12B"], 8);
   if (i12a != null && i12b != null && i12a > i12b) {
-    a -= (100 * (i12a - i12b)) / 7;
+    const v12b = (100 * (7 - i12b)) / 7;
+    raShown = (7 * raShown + v12b) / 8;
   }
-  return round2(clip(a));
+  return round2(clip(100 - raShown));
 }
 
 function knowNet(responses) {
@@ -258,11 +265,34 @@ function scoreMatchVer3(responses, startTime) {
 
 /**
  * S_E v1.2. El reparto entra en la barra. La 11 y la 12a ya van dentro de RA.
- * La 12b no entra al I: solo baja la aversión que se muestra si exige menos con el dinero del socio.
+ * La 12b no entra al I: si exige menos con el dinero del socio, entra al riesgo mostrado con peso 1/8.
  * La 14, la 15 y la 16 entran al C_comp con peso 8 / 5 / 3; los roles pesan 84 (suma 100). No reemplazan mando, criterio ni ejecución.
  * d13 = 5 no pone la pareja en rojo.
  */
-function applySeV12(pair, ecoA, ecoB, responsesA, responsesB, shadow) {
+/**
+ * Las tres señales COMP-OK / COMP-AM / COMP-RO se deciden con el número mezclado
+ * (el mismo que se ve en pantalla), con las mismas reglas del motor de Capas.
+ * COMP-DIFF no cambia. Si faltan las barras, se dejan las señales como vienen.
+ */
+function compFlagsFromBlend(flags, C, barsA, barsB, parts) {
+  if (C == null || !barsA || !barsB) return flags;
+  const c3 = rules.capa3;
+  const maxL = Math.max(barsA.L == null ? -1 : barsA.L, barsB.L == null ? -1 : barsB.L);
+  const maxH = Math.max(barsA.H == null ? -1 : barsA.H, barsB.H == null ? -1 : barsB.H);
+  const anyVacioUtil =
+    !!(parts && parts.L && parts.L.vacio) ||
+    (barsA.L != null && barsB.L != null && Math.max(barsA.L, barsB.L) < c3.piso_util) ||
+    (barsA.C != null && barsB.C != null && Math.max(barsA.C, barsB.C) < c3.piso_util) ||
+    (barsA.H != null && barsB.H != null && Math.max(barsA.H, barsB.H) < c3.piso_util);
+  const next = (flags || []).filter((f) => f !== "COMP-OK" && f !== "COMP-AM" && f !== "COMP-RO");
+  if (C < 45) next.push("COMP-RO");
+  else if (maxL >= 0 && maxH >= 0 && maxL < c3.piso_vacio && maxH < c3.piso_vacio) next.push("COMP-RO");
+  else if (C >= 60 && !anyVacioUtil) next.push("COMP-OK");
+  else next.push("COMP-AM");
+  return next;
+}
+
+function applySeV12(pair, ecoA, ecoB, responsesA, responsesB, shadow, bars) {
   if (!pair || pair.I == null || !pair.S || pair.S.E == null) return pair;
   if (!shadow || shadow.S_REP == null || !ecoA || !ecoB || ecoA.RA == null || ecoB.RA == null) return pair;
   const p = rules.economic.pair;
@@ -303,7 +333,11 @@ function applySeV12(pair, ecoA, ecoB, responsesA, responsesB, shadow) {
     C_comp = round2(clip(0.84 * C_comp + 0.08 * cap + 0.05 * know + 0.03 * evid));
     C_comp_band = bandComp(C_comp);
   }
+  const flagsOut = bars && C_comp != null
+    ? compFlagsFromBlend(pair.flags, C_comp, bars.A, bars.B, pair.capa3 && pair.capa3.parts)
+    : pair.flags;
   const next = Object.assign({}, pair, {
+    flags: flagsOut,
     S,
     I,
     band: bandOf(I, rules),

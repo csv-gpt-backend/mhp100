@@ -159,7 +159,8 @@ function pairFromProfiles(pa0, pb0) {
     pb.eco,
     pa.responses,
     pb.responses,
-    shadow
+    shadow,
+    { A: pa.bars, B: pb.bars }
   );
   return {
     ok: true,
