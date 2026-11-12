@@ -837,46 +837,21 @@ const SOFT_FLAG = {
 
   function sealText(flags, data) {
     const has = (f) => flags.includes(f);
-    if (has("ATT-FAIL") && onlyAttentionFail(flags)) {
-      return namedSoft("ATT-FAIL", data);
-    }
+    // ATT-FAIL manda: si está, es el único texto del sello (con o sin otros vetos).
     if (has("ATT-FAIL")) {
-      const who = whoByFlag(data, "ATT-FAIL");
-      return who
-        ? ("No apto para socios. En " + who + ", respuestas de atención fallidas. Revisar antes de entregar.")
-        : "No apto para socios. Revisar antes de entregar.";
+      return "Señal de atención. No apto para asociarse hasta repetir la aplicación.";
     }
     const parts = [];
     if (has("AV-RO") || has("SO-RO") || has("HA-RO")) {
-      const lows = [];
-      if (has("AV-RO")) { const w = whoBelowBar(data, "V", 20); if (w) lows.push(w); }
-      if (has("SO-RO")) { const w = whoBelowBar(data, "S", 15); if (w) lows.push(w); }
-      if (has("HA-RO")) { const w = whoBelowBar(data, "H", 15); if (w) lows.push(w); }
-      const uniq = lows.filter((x, i, a) => a.indexOf(x) === i);
-      if (uniq.length === 1) {
-        const o = whoOther(data, uniq[0]);
-        parts.push(o
-          ? (uniq[0] + " queda bajo en un punto que " + o + " puede cubrir. Antes de asociarse queda dicho: " + o + " revisa ese punto. Esta pareja no se entrega como lista.")
-          : (uniq[0] + " queda bajo en un punto. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista."));
-      } else if (uniq.length > 1) {
-        parts.push(joinWho(uniq) + " quedan bajos en un punto. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista.");
-      } else {
-        parts.push("Uno queda bajo en un punto que el otro puede cubrir. Antes de asociarse queda dicho quién revisa ese punto. Esta pareja no se entrega como lista.");
-      }
+      parts.push("Si una parte queda baja en estas subhabilidades, la otra puede compensar esas debilidades.");
     }
     if (has("SO-RO-AGR")) {
-      const soft = namedSoft("SO-RO-AGR", data);
-      parts.push(soft.replace(/ Eso se acuerda antes de asociarse\.$/, "") + " Eso se resuelve antes de firmar. Esta pareja no se entrega como lista.");
+      parts.push("Cuando una parte maneja la agresividad confrontando, la otra parte intenta hacerla entrar en razón, manteniendo la calma. Eso se acuerda antes de firmar. Esta pareja no se entrega como lista.");
     }
     if (has("EC-RO")) {
-      const soft = namedSoft("EC-RO", data);
-      if (soft && soft !== SOFT_FLAG["EC-RO"]) {
-        parts.push(soft.replace(/^Están a tres pasos\. /, "").replace(/ Se escribe quién decide antes de cualquier acuerdo\.$/, "") + " Eso se escribe antes de firmar. Esta pareja no se entrega como lista.");
-      } else {
-        parts.push("Uno quiere conservar el control total y el otro aceptaría que los inversionistas controlen el directorio. Eso se escribe antes de firmar. Esta pareja no se entrega como lista.");
-      }
+      parts.push("Uno quiere conservar el control total y el otro aceptaría que los inversionistas controlen el directorio. Eso se escribe antes de firmar. Esta pareja no se entrega como lista.");
     }
-    return parts.join(" ") || "No apto para socios. Revisar antes de entregar.";
+    return parts.join(" ") || "No apto para asociarse. Revisar antes de entregar.";
   }
 
 function flagText(code, data) {
@@ -1090,11 +1065,11 @@ function flagText(code, data) {
     const capaBox = $("capaBox");
     if (capaBox) {
       const bits = [];
-      if (hardSeal) bits.push(sealText(rawFlags, data));
+      if (attFail || hardSeal) bits.push(sealText(rawFlags, data));
       else if (pair.combo_text) bits.push(pair.combo_text);
       capaBox.hidden = bits.length === 0;
       capaBox.textContent = bits.join(" ");
-      if (hardSeal) capaBox.style.background = "#fef2f2";
+      if (attFail || hardSeal) capaBox.style.background = "#fef2f2";
       else capaBox.style.background = "";
     }
     renderShadow(data.shadow, nombreA, nombreB);
