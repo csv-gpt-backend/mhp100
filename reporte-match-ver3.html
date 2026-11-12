@@ -682,6 +682,19 @@ function flagText(code, data) {
       const tpl = "Ante una crisis de caja, " + nA + " haría primero: {crisisA}; " + nB + " haría primero: {crisisB}. ¿Cuál de las dos harían juntos y quién decide?";
       return { level: "info", title: c.title, text: tpl.replace("{crisisA}", a).replace("{crisisB}", b) };
     }
+    if (code === "LI-INFO") {
+      const nA = (data && data.nombreA) || "A";
+      const nB = (data && data.nombreB) || "B";
+      const lA = data && data.barsA ? Number(data.barsA.L) : NaN;
+      const lB = data && data.barsB ? Number(data.barsB.L) : NaN;
+      const who = (Number.isFinite(lA) && Number.isFinite(lB) && lB > lA) ? nB
+        : (Number.isFinite(lA) && Number.isFinite(lB) && lA > lB) ? nA
+        : null;
+      const text = who
+        ? ("Hay cobertura de liderazgo en " + who + ". Explicitar roles para no chocar en la operación diaria.")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
     return c;
   }
 
