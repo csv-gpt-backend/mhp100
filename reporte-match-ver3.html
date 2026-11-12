@@ -734,7 +734,7 @@
     "COMP-OK": { level: "info", title: "Complemento utilizable", text: "Hay cobertura de roles utilizable; conviene dejar por escrito quién tiene la última palabra, quién revisa los números y quién da seguimiento a los plazos." },
     "COMP-AM": { level: "warn", title: "Complemento flojo", text: "Complemento flojo: revisar si entre los dos cubren mando, criterio y ejecución." },
     "COMP-RO": { level: "bad", title: "Vacío de complemento", text: "Vacío de complemento: riesgo de equipo sin cobertura." },
-    "COMP-DIFF": { level: "info", title: "Diferencia útil de roles", text: "Diferencia útil de roles: documentar mandatos." }
+    "COMP-DIFF": { level: "info", title: "Diferencia útil de roles", text: "Hay una diferencia útil de roles. Documentar mandatos." }
   };
 const SOFT_FLAG = {
     "AV-RO": "Uno queda muy por debajo en valores. El otro puede cubrir la revisión de promesas, información y trato. Queda definido quién la hace.",
@@ -745,8 +745,26 @@ const SOFT_FLAG = {
     "ATT-FAIL": "Respuestas de atención fallidas. Considerar repetir la aplicación."
   };
 
+  function tidyName(n) {
+    const p = String(n || "").trim().split(/\s+/).filter(Boolean);
+    if (p.length >= 2 && p[0].toLocaleUpperCase("es") === p[1].toLocaleUpperCase("es")) {
+      return [p[0]].concat(p.slice(2)).join(" ");
+    }
+    return p.join(" ") || String(n || "").trim();
+  }
   function pairNames(data) {
-    return { nA: (data && data.nombreA) || "A", nB: (data && data.nombreB) || "B" };
+    return {
+      nA: tidyName((data && data.nombreA) || "A") || "A",
+      nB: tidyName((data && data.nombreB) || "B") || "B"
+    };
+  }
+  function whoHigherBar(data, key) {
+    const { nA, nB } = pairNames(data);
+    const a = data && data.barsA ? Number(data.barsA[key]) : NaN;
+    const b = data && data.barsB ? Number(data.barsB[key]) : NaN;
+    if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+    if (a === b) return "ambos";
+    return a > b ? nA : nB;
   }
   function joinWho(list) {
     if (!list || !list.length) return null;
@@ -892,6 +910,47 @@ function flagText(code, data) {
           : ("Hay cobertura de liderazgo en " + who + ". Explicitar roles para no chocar en la operación diaria."))
         : c.text;
       return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "COMP-OK") {
+      const lead = whoHigherBar(data, "L");
+      const nums = whoHigherBar(data, "C");
+      const plazos = whoHigherBar(data, "H");
+      const role = (who, uno, dos) => (who === "ambos" ? dos : (who + " " + uno));
+      if (lead && nums && plazos) {
+        return {
+          level: c.level,
+          title: c.title,
+          text: "Hay cobertura de roles utilizable; conviene dejar por escrito que " +
+            role(lead, "tiene la última palabra", "ambos tienen la última palabra") + ", " +
+            role(nums, "revisa los números", "ambos revisan los números") + " y " +
+            role(plazos, "da seguimiento a los plazos", "ambos dan seguimiento a los plazos") + "."
+        };
+      }
+      return { level: c.level, title: c.title, text: c.text };
+    }
+    if (code === "COMP-DIFF") {
+      const { nA, nB } = pairNames(data);
+      return {
+        level: c.level,
+        title: c.title,
+        text: "Entre " + nA + " y " + nB + " hay una diferencia útil de roles. Documentar mandatos."
+      };
+    }
+    if (code === "COMP-AM") {
+      const { nA, nB } = pairNames(data);
+      return {
+        level: c.level,
+        title: c.title,
+        text: "Entre " + nA + " y " + nB + " el complemento queda flojo: revisar si entre los dos cubren mando, criterio y ejecución."
+      };
+    }
+    if (code === "COMP-RO") {
+      const { nA, nB } = pairNames(data);
+      return {
+        level: c.level,
+        title: c.title,
+        text: "Entre " + nA + " y " + nB + " hay vacío de complemento: riesgo de equipo sin cobertura."
+      };
     }
     if (code === "ATT-INFO") {
       const who = whoByFlag(data, "ATT-INFO");
@@ -1048,7 +1107,10 @@ function flagText(code, data) {
   function render(data) {
     $("loadErr").hidden = true;
     $("sheet").hidden = false;
-    const { nombreA, nombreB, barsA, barsB, pair, source } = data;
+    const names = pairNames(data);
+    const nombreA = names.nA;
+    const nombreB = names.nB;
+    const { barsA, barsB, pair, source } = data;
     const rawFlags = pair.flags || [];
     const flags = rawFlags.slice();
     if (!flags.includes("EC-CRISIS")) flags.push("EC-CRISIS");
