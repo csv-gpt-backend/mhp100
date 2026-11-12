@@ -171,6 +171,8 @@ function pairFromProfiles(pa0, pb0) {
     codigoB: pb.codigo,
     barsA: pa.bars,
     barsB: pb.bars,
+    aciertosA: pa.aciertos != null ? pa.aciertos : null,
+    aciertosB: pb.aciertos != null ? pb.aciertos : null,
     ecoA: pa.eco,
     ecoB: pb.eco,
     crisisA: pa.eco && pa.eco.CRISIS != null ? pa.eco.CRISIS : null,

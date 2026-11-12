@@ -565,11 +565,31 @@
       const state = domainState(barsA[d.k], barsB[d.k]);
       let list = (DOMAIN_TEXT[state] && DOMAIN_TEXT[state][d.k]) || d.items;
       if (state === "Bien" && d.k === "L" && nombreA && nombreB) {
+        const lA = barsA.L;
+        const lB = barsB.L;
+        const menos = (lA != null && lB != null && !isNaN(lA) && !isNaN(lB) && lA !== lB)
+          ? (lA < lB ? nombreA : nombreB)
+          : null;
         list = [
           "Entre " + nombreA + " y " + nombreB + " hay cobertura de liderazgo en los dos. Conviene dejar por escrito qué le toca a cada uno para no duplicar esfuerzos.",
           list[1],
-          list[2]
+          menos
+            ? (menos + " lidera menos y también tiene espacio para hacerse escuchar.")
+            : list[2]
         ];
+      }
+      if (state === "A revisar" && d.k === "C" && nombreA && nombreB) {
+        const cA = barsA.C;
+        const cB = barsB.C;
+        if (cA != null && cB != null && !isNaN(cA) && !isNaN(cB) && cA !== cB) {
+          const rapido = cA > cB ? nombreA : nombreB;
+          const otro = cA > cB ? nombreB : nombreA;
+          list = [
+            list[0],
+            list[1],
+            "Si " + rapido + " ve el problema más rápido, " + otro + " pide un ejemplo antes de decidir."
+          ];
+        }
       }
       if (state === "En piso") {
         const a = barsA[d.k];
@@ -852,6 +872,54 @@ function flagText(code, data) {
         ? ("En " + who + ", perfil muy favorable en integridad y hábitos. Confirmar con ejemplos concretos en la entrevista antes de aprobar el reporte. (Solo visible para el profesional.)")
         : c.text;
       return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "AV-AM" || code === "SO-AM" || code === "HA-AM") {
+      const key = code === "AV-AM" ? "V" : code === "SO-AM" ? "S" : "H";
+      const { nA, nB } = pairNames(data);
+      const a = data && data.barsA ? Number(data.barsA[key]) : NaN;
+      const b = data && data.barsB ? Number(data.barsB[key]) : NaN;
+      const who = (Number.isFinite(a) && Number.isFinite(b) && a !== b) ? (a < b ? nA : nB) : null;
+      const lead = {
+        "AV-AM": "Hay una señal en valores/integridad",
+        "SO-AM": "Hay una señal socioemocional",
+        "HA-AM": "Hay una señal en hábitos de cumplimiento y cooperación"
+      };
+      const tail = {
+        "AV-AM": "Conviene hablar con franqueza de promesas, información y trato justo.",
+        "SO-AM": "Revisar cómo manejan conflicto y presión.",
+        "HA-AM": "Conviene revisar plazos, lo pactado y el trabajo en equipo."
+      };
+      const text = who
+        ? (lead[code] + " (piso bajo o diferencia marcada). En " + who + " el puntaje queda más bajo. " + tail[code])
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "IN-AM") {
+      const { nA, nB } = pairNames(data);
+      const aC = data && data.aciertosA != null ? Number(data.aciertosA) : NaN;
+      const bC = data && data.aciertosB != null ? Number(data.aciertosB) : NaN;
+      const barA = data && data.barsA ? Number(data.barsA.C) : NaN;
+      const barB = data && data.barsB ? Number(data.barsB.C) : NaN;
+      let bajo = null;
+      if (Number.isFinite(aC) && Number.isFinite(bC) && aC !== bC) bajo = aC < bC ? nA : nB;
+      else if (Number.isFinite(barA) && Number.isFinite(barB) && barA !== barB) bajo = barA < barB ? nA : nB;
+      const text = bajo
+        ? ("Hay una brecha de criterio/razonamiento de al menos 2 ítems. " + bajo + " queda con menos aciertos. No invalida la pareja sola, pero pueden necesitar más tiempo y ejemplos concretos al decidir.")
+        : c.text;
+      return { level: c.level, title: c.title, text: text };
+    }
+    if (code === "EC-AM-CTRL") {
+      const { nA, nB } = pairNames(data);
+      const cA = data && data.ctrlA != null ? Number(data.ctrlA) : NaN;
+      const cB = data && data.ctrlB != null ? Number(data.ctrlB) : NaN;
+      if (!Number.isFinite(cA) || !Number.isFinite(cB) || cA === cB) return c;
+      const keep = cA < cB ? nA : nB;
+      const cede = cA < cB ? nB : nA;
+      return {
+        level: c.level,
+        title: c.title,
+        text: keep + " cedería menos propiedad a cambio de crecimiento; " + cede + " cedería más. Decidir antes de buscar capital si se aceptan inversionistas externos y en qué condiciones."
+      };
     }
     return c;
   }
