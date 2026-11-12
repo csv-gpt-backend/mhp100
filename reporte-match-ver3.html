@@ -361,10 +361,17 @@
   FLAG_COPY["EC-AM-CAP"] = Object.assign({}, FLAG_COPY["EC-AM-CAP"], {
     text: "Uno de los dos tiene capacidad para perder bastante más que el otro. Acordar temprano salarios, quién cubre faltantes de caja y cómo afecta eso al reparto de participación."
   });
+  FLAG_COPY["ATT-FAIL"] = Object.assign({}, FLAG_COPY["ATT-FAIL"], {
+    title: "Señal de atención",
+    text: "Respuestas de atención fallidas. Considerar repetir la aplicación y/o emparejar con otro prospecto - candidato."
+  });
   const BAND_TEXT = Object.assign({}, COPY.bands, {
     Alta: "La pareja muestra un perfil de compatibilidad alto en los dominios evaluados.",
+    Media: "La pareja muestra compatibilidad media. Conviene un diálogo guiado entre las partes sobre las señales y recomendaciones de este reporte antes de avanzar con acuerdos formales.",
+    Reservada: "La compatibilidad queda en zona reservada. Solo se recomienda avanzar cuando las partes han acordado dialogar sobre los temas inconclusos, pudiendo inicialmente emprender un proyecto de alcance limitado, pero no en una sociedad con participaciones amplias.",
     Baja: "La compatibilidad resulta baja en este marco. No se recomienda formalizar la sociedad con base en este perfil; cada persona puede explorar otras opciones."
   });
+  const ATT_FAIL_BANNER = "Señal de atención. Respuestas de atención fallidas. Considerar repetir la aplicación y/o emparejar con otro prospecto - candidato.";
   const RECS = COPY.recommendations;
   const E10 = COPY.e10_options || {};
   const GEN_Q = COPY.questions_generales_media || [];
@@ -733,7 +740,7 @@ const SOFT_FLAG = {
     "HA-RO": "Uno queda muy por debajo en cumplir lo pactado. El otro puede cubrir plazos y avisos. Queda definido quién revisa lo pendiente.",
     "SO-RO-AGR": "Uno confronta cuando se enoja y, en esa misma persona, le cuesta decirlo sin subir el tono. Eso se acuerda antes de asociarse.",
     "EC-RO": "Están a tres pasos. Uno quiere el control total y el otro cedería el directorio a inversionistas. Se escribe quién decide antes de cualquier acuerdo.",
-    "ATT-FAIL": "Respuestas de atención fallidas. Considerar repetir la aplicación."
+    "ATT-FAIL": "Respuestas de atención fallidas. Considerar repetir la aplicación y/o emparejar con otro prospecto - candidato."
   };
 
   function pairNames(data) {
@@ -773,7 +780,7 @@ const SOFT_FLAG = {
     if (code === "ATT-FAIL") {
       const who = whoByFlag(data, "ATT-FAIL");
       return who
-        ? ("En " + who + ", respuestas de atención fallidas. Considerar repetir la aplicación.")
+        ? ("En " + who + ", respuestas de atención fallidas. Considerar repetir la aplicación y/o emparejar con otro prospecto - candidato.")
         : SOFT_FLAG[code];
     }
     if (code === "AV-RO") {
@@ -829,13 +836,13 @@ const SOFT_FLAG = {
   function sealText(flags, data) {
     const has = (f) => flags.includes(f);
     if (has("ATT-FAIL") && onlyAttentionFail(flags)) {
-      return namedSoft("ATT-FAIL", data);
+      return ATT_FAIL_BANNER;
     }
     if (has("ATT-FAIL")) {
       const who = whoByFlag(data, "ATT-FAIL");
       return who
-        ? ("No apto para socios. En " + who + ", respuestas de atención fallidas. Revisar antes de entregar.")
-        : "No apto para socios. Revisar antes de entregar.";
+        ? ("No apto para socios. " + ATT_FAIL_BANNER + " En " + who + ". Revisar antes de entregar.")
+        : ("No apto para socios. " + ATT_FAIL_BANNER + " Revisar antes de entregar.");
     }
     const parts = [];
     if (has("AV-RO") || has("SO-RO") || has("HA-RO")) {
@@ -1081,12 +1088,20 @@ function flagText(code, data) {
     const capaBox = $("capaBox");
     if (capaBox) {
       const bits = [];
-      if (hardSeal) bits.push(sealText(rawFlags, data));
+      if (attFail && onlyAttentionFail(rawFlags)) bits.push(ATT_FAIL_BANNER);
+      else if (hardSeal) bits.push(sealText(rawFlags, data));
       else if (pair.combo_text) bits.push(pair.combo_text);
       capaBox.hidden = bits.length === 0;
       capaBox.textContent = bits.join(" ");
-      if (hardSeal) capaBox.style.background = "#fef2f2";
-      else capaBox.style.background = "";
+      if (attFail || hardSeal) {
+        capaBox.style.background = "#fef2f2";
+        capaBox.style.borderColor = "#b91c1c";
+        capaBox.style.color = "#7f1d1d";
+      } else {
+        capaBox.style.background = "";
+        capaBox.style.borderColor = "";
+        capaBox.style.color = "";
+      }
     }
     renderShadow(data.shadow, nombreA, nombreB);
     $("iflCurveInline").textContent = I == null ? "—" : fmtI(I);
