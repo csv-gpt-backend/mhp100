@@ -17,6 +17,9 @@
       --chrome1: #2b374e; --chrome2: #2b374e; --chrome3: #2b374e;
       --ok: #ffffff; --soft: #f6f8fb; --shadow: 0 8px 24px rgba(43, 55, 78, .08);
       --brand: #2b374e; --brand2: #2b374e; --accent: #f87010; --gold: #60c8c0;
+      /* CFO Case: naranja + lavanda + menta */
+      --cfo-orange: #f87010; --cfo-lavender: #9b8fd4; --cfo-mint: #60c8c0;
+      --block-accent: var(--cfo-orange);
     }
     /* B · Corporativo (2026-10-27): panel marca + azul ADALAM. No es el dossier viejo. */
     html[data-fmt="b"] {
@@ -179,8 +182,8 @@
     }
     html[data-fmt="a"] .brand::after {
       content: "";
-      position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
-      background: linear-gradient(90deg, #8d939c 0%, #d5d8de 28%, #f4f6f8 50%, #d5d8de 72%, #8d939c 100%);
+      position: absolute; left: 0; right: 0; bottom: 0; height: 5px;
+      background: linear-gradient(90deg, var(--cfo-orange) 0%, var(--cfo-lavender) 50%, var(--cfo-mint) 100%);
     }
     html[data-fmt="a"] .brand-seal {
       display: flex; align-items: center; justify-content: center;
@@ -220,9 +223,44 @@
     html[data-fmt="a"] .subq { color: var(--accent); font-weight: 700; }
     html[data-fmt="a"] .chrome {
       border-radius: 12px; color: #fff;
-      background: #2b374e;
-      box-shadow: 0 8px 18px rgba(43, 55, 78, .16);
+      background: linear-gradient(180deg, #ff8a2b, var(--cfo-orange) 55%, #e0650c);
+      box-shadow: 0 8px 18px rgba(248, 112, 16, .28);
     }
+    html[data-fmt="a"] #v-q {
+      position: relative;
+    }
+    html[data-fmt="a"] #v-q::before {
+      content: "";
+      display: block;
+      height: 6px;
+      background: var(--block-accent);
+    }
+    html[data-fmt="a"] #v-q[data-block="mix"] { --block-accent: var(--cfo-orange); }
+    html[data-fmt="a"] #v-q[data-block="eco"] { --block-accent: var(--cfo-lavender); }
+    html[data-fmt="a"] #v-q[data-block="lid"],
+    html[data-fmt="a"] #v-q[data-block="int"] { --block-accent: var(--cfo-mint); }
+    html[data-fmt="a"] #v-q[data-block="mix"] .subq { color: var(--cfo-orange); }
+    html[data-fmt="a"] #v-q[data-block="eco"] .subq { color: var(--cfo-lavender); }
+    html[data-fmt="a"] #v-q[data-block="lid"] .subq,
+    html[data-fmt="a"] #v-q[data-block="int"] .subq { color: var(--cfo-mint); }
+    html[data-fmt="a"] #v-q[data-block="eco"] .opt.on {
+      border-color: var(--cfo-lavender);
+      box-shadow: inset 0 4px 0 var(--cfo-lavender), 0 8px 24px rgba(43, 55, 78, .08);
+    }
+    html[data-fmt="a"] #v-q[data-block="lid"] .opt.on,
+    html[data-fmt="a"] #v-q[data-block="int"] .opt.on,
+    html[data-fmt="a"] #v-q[data-block="lid"] .scale button.on,
+    html[data-fmt="a"] #v-q[data-block="int"] .scale button.on,
+    html[data-fmt="a"] #v-q[data-block="lid"] .fig-opt.on,
+    html[data-fmt="a"] #v-q[data-block="int"] .fig-opt.on,
+    html[data-fmt="a"] #v-q[data-block="lid"] .num-opt.on,
+    html[data-fmt="a"] #v-q[data-block="int"] .num-opt.on {
+      border-color: var(--cfo-mint);
+      box-shadow: inset 0 4px 0 var(--cfo-mint), 0 8px 24px rgba(43, 55, 78, .08);
+    }
+    html[data-fmt="a"] #v-q[data-block="eco"] .opt:hover { border-color: var(--cfo-lavender); }
+    html[data-fmt="a"] #v-q[data-block="lid"] .opt:hover,
+    html[data-fmt="a"] #v-q[data-block="int"] .opt:hover { border-color: var(--cfo-mint); }
     html[data-fmt="a"] .ghost {
       border-radius: 12px; border-color: #e2e7ee; color: #2b374e; font-weight: 700; background: #fff;
     }
@@ -242,7 +280,7 @@
       height: 8px; border-radius: 99px; background: #e2e7ee;
     }
     html[data-fmt="a"] .progress > i {
-      background: #f87010;
+      background: linear-gradient(90deg, var(--cfo-orange), #ff9a3c);
     }
     html[data-fmt="a"] .count { color: var(--brand2); font-weight: 800; }
     html[data-fmt="a"] .opt {
@@ -800,6 +838,8 @@
       $("count").textContent = (ix + 1) + " / " + n;
       $("bar").style.width = ((ix + 1) / n * 100) + "%";
       $("blockTag").textContent = it._block === "mix" ? "Frases" : it._block === "eco" ? "Negocio" : it._block === "lid" ? "Frases" : "Razonamiento";
+      const vq = $("v-q");
+      if (vq) vq.setAttribute("data-block", it._block || "mix");
       $("qText").textContent = it.text;
       $("qErr").textContent = "";
       const body = $("qBody");
