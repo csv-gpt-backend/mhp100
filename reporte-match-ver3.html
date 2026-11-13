@@ -377,6 +377,12 @@
   FLAG_COPY["IN-AM"] = Object.assign({}, FLAG_COPY["IN-AM"], {
     text: "Hay una brecha de criterio/razonamiento de al menos 2 ítems. No invalida la pareja sola, pero al decidir (precio, contratar, crédito o un cliente grande) conviene más tiempo y apoyarse en números o un caso concreto, no solo en la idea."
   });
+  FLAG_COPY["LI-INFO"] = Object.assign({}, FLAG_COPY["LI-INFO"], {
+    text: "Hay cobertura de liderazgo en uno de los dos. Antes de operar juntos, dejar por escrito quién decide el día a día y quién ejecuta, para no chocar."
+  });
+  FLAG_COPY["VAL-EXT"] = Object.assign({}, FLAG_COPY["VAL-EXT"], {
+    text: "Perfil muy favorable en integridad y hábitos. En la entrevista, pedir 2 o 3 hechos concretos (una promesa cumplida, un plazo real) antes de aprobar el reporte. (Solo visible para el profesional.)"
+  });
   const BAND_TEXT = Object.assign({}, COPY.bands, {
     Alta: "La pareja muestra un perfil de compatibilidad alto en los dominios evaluados.",
     Media: "La pareja muestra compatibilidad media. Conviene un diálogo guiado entre las partes sobre las señales y recomendaciones de este reporte antes de avanzar con acuerdos formales.",
@@ -739,15 +745,15 @@
   
   const COMP_COPY = {
     "COMP-OK": { level: "info", title: "Complemento utilizable", text: "Hay cobertura de roles utilizable; conviene dejar por escrito quién tiene la última palabra en las decisiones, quién revisa los números y quién da seguimiento a los plazos." },
-    "COMP-AM": { level: "warn", title: "Complemento flojo", text: "Complemento flojo: revisar si entre los dos cubren mando, criterio y ejecución." },
-    "COMP-RO": { level: "bad", title: "Vacío de complemento", text: "Vacío de complemento: riesgo de equipo sin cobertura." },
+    "COMP-AM": { level: "warn", title: "Complemento flojo", text: "Complemento flojo: comprobar si entre los dos cubren decidir, revisar números y cumplir plazos; si falta alguno, definir cómo se cubre antes de firmar." },
+    "COMP-RO": { level: "bad", title: "Vacío de complemento", text: "Vacío de complemento: no hay cobertura clara de mando, criterio o ejecución. No asociarse hasta definir roles o sumar apoyo." },
     "COMP-DIFF": { level: "info", title: "Diferencia útil de roles", text: "Hay una diferencia útil de roles (mando o seguimiento). Conviene dejar por escrito quién decide, quién revisa los números y quién da seguimiento a los plazos." }
   };
 const SOFT_FLAG = {
     "AV-RO": "Uno queda muy por debajo en valores. El otro puede cubrir la revisión de promesas, información y trato. Queda definido quién la hace.",
     "SO-RO": "Uno queda muy por debajo en el trato. El otro puede equilibrarlo si baja el tono. Antes de firmar queda dicho quién pide la pausa.",
     "HA-RO": "Uno queda muy por debajo en cumplir lo pactado. El otro puede cubrir plazos y avisos. Queda definido quién revisa lo pendiente.",
-    "SO-RO-AGR": "Uno confronta cuando se enoja y, en esa misma persona, le cuesta decirlo sin subir el tono. Eso se acuerda antes de asociarse.",
+    "SO-RO-AGR": "Uno confronta cuando se enoja y, en esa misma persona, le cuesta decirlo sin subir el tono. Antes de asociarse, acordar por escrito qué es inaceptable en una discusión y cómo se hace una pausa.",
     "EC-RO": "Uno quiere conservar el control total de la empresa y el otro aceptaría ceder el control del directorio a inversionistas. Se escribe quién decide antes de cualquier acuerdo.",
     "ATT-FAIL": "Respuestas de atención fallidas. Considerar repetir la aplicación."
   };
@@ -830,7 +836,7 @@ const SOFT_FLAG = {
       const hitB = agrB === 0 && Number.isFinite(asB) && asB <= 50;
       const who = joinWho([hitA ? nA : null, hitB ? nB : null].filter(Boolean));
       return who
-        ? (who + " confronta cuando se enoja y, en esa misma persona, le cuesta decirlo sin subir el tono. Eso se acuerda antes de asociarse.")
+        ? (who + " confronta cuando se enoja y, en esa misma persona, le cuesta decirlo sin subir el tono. Antes de asociarse, acordar por escrito qué es inaceptable en una discusión y cómo se hace una pausa.")
         : SOFT_FLAG[code];
     }
     if (code === "EC-RO") {
@@ -903,8 +909,8 @@ function flagText(code, data) {
       const ambosBien = Number.isFinite(lA) && Number.isFinite(lB) && Math.min(lA, lB) >= 60;
       const text = who
         ? (ambosBien
-          ? ("Hay cobertura de liderazgo en los dos; " + who + " queda más arriba. Explicitar roles para no chocar en la operación diaria.")
-          : ("Hay cobertura de liderazgo en " + who + ". Explicitar roles para no chocar en la operación diaria."))
+          ? ("Hay cobertura de liderazgo en los dos; " + who + " queda más arriba. Antes de operar juntos, dejar por escrito quién decide el día a día y quién ejecuta, para no chocar.")
+          : ("Hay cobertura de liderazgo en " + who + ". Antes de operar juntos, dejar por escrito quién decide el día a día y quién ejecuta, para no chocar."))
         : c.text;
       return { level: c.level, title: c.title, text: text };
     }
@@ -938,7 +944,7 @@ function flagText(code, data) {
       return {
         level: c.level,
         title: c.title,
-        text: "Entre " + nA + " y " + nB + " el complemento queda flojo: revisar si entre los dos cubren mando, criterio y ejecución."
+        text: "Entre " + nA + " y " + nB + " el complemento queda flojo: comprobar si entre los dos cubren decidir, revisar números y cumplir plazos; si falta alguno, definir cómo se cubre antes de firmar."
       };
     }
     if (code === "COMP-RO") {
@@ -946,7 +952,7 @@ function flagText(code, data) {
       return {
         level: c.level,
         title: c.title,
-        text: "Entre " + nA + " y " + nB + " hay vacío de complemento: riesgo de equipo sin cobertura."
+        text: "Entre " + nA + " y " + nB + " hay vacío de complemento: no hay cobertura clara de mando, criterio o ejecución. No asociarse hasta definir roles o sumar apoyo."
       };
     }
     if (code === "ATT-INFO") {
@@ -998,7 +1004,7 @@ function flagText(code, data) {
     if (code === "VAL-EXT") {
       const who = whoByFlag(data, "VAL-EXT");
       const text = who
-        ? ("En " + who + ", perfil muy favorable en integridad y hábitos. Confirmar con ejemplos concretos en la entrevista antes de aprobar el reporte. (Solo visible para el profesional.)")
+        ? ("En " + who + ", perfil muy favorable en integridad y hábitos. En la entrevista, pedir 2 o 3 hechos concretos (una promesa cumplida, un plazo real) antes de aprobar el reporte. (Solo visible para el profesional.)")
         : c.text;
       return { level: c.level, title: c.title, text: text };
     }
@@ -1015,8 +1021,8 @@ function flagText(code, data) {
       };
       const tail = {
         "AV-AM": "Conviene hablar con franqueza de promesas, información y trato justo.",
-        "SO-AM": "Revisar cómo manejan conflicto y presión.",
-        "HA-AM": "Conviene revisar plazos, lo pactado y el trabajo en equipo."
+        "SO-AM": "Acordar cómo bajan el tono bajo presión y quién pide la pausa en un conflicto.",
+        "HA-AM": "Conviene revisar plazos, lo pactado y el trabajo en equipo, y dejar claro quién da seguimiento."
       };
       const text = who
         ? (lead[code] + " (piso bajo o diferencia marcada). En " + who + " el puntaje queda más bajo. " + tail[code])
@@ -1062,7 +1068,7 @@ function flagText(code, data) {
     "EC-AM-AGEN": "Pide menos certeza de éxito cuando el dinero en riesgo es del socio.",
     "EC-INFO-AGEN-NEG": "Pide más certeza de éxito cuando el dinero en riesgo es del socio.",
     "EC-INC-CAP": "Dijo que no podría perder ahorros y, a la vez, aportaría un monto alto.",
-    "EC-AM-BASE": "Capital y evidencia quedan en los niveles más bajos.",
+    "EC-AM-BASE": "Capital y evidencia quedan en los niveles más bajos. Contrastar aportes y referencias antes de firmar.",
     "EC-OVER": "Marcó dos o más conceptos que no existen.",
     "EC-INFO-OVER": "Marcó un concepto que no existe.",
     "EC-INC-KNOW": "Marcó conceptos que no existen y dice que puede mostrar resultados verificables. Conviene pedir referencias."

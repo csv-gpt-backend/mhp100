@@ -378,6 +378,12 @@
   FLAG_COPY["IN-AM"] = Object.assign({}, FLAG_COPY["IN-AM"], {
     text: "There is a reasoning gap of at least 2 items. It does not invalidate the pair alone, but when deciding (pricing, hiring, credit, or a large client) allow more time and rely on numbers or a concrete case, not just the idea."
   });
+  FLAG_COPY["LI-INFO"] = Object.assign({}, FLAG_COPY["LI-INFO"], {
+    text: "There is leadership coverage in one of the two. Before working together, put in writing who decides day to day and who executes, to avoid clashes."
+  });
+  FLAG_COPY["VAL-EXT"] = Object.assign({}, FLAG_COPY["VAL-EXT"], {
+    text: "Very favorable integrity and habits profile. In the interview, ask for 2 or 3 concrete facts (a kept promise, a real deadline) before approving the report. (Professional only.)"
+  });
   const BAND_TEXT = Object.assign({}, COPY.bands, {
     Alta: "The pair shows a high compatibility profile across the assessed domains.",
     Media: "The pair shows medium compatibility. A guided conversation about this report's signals and recommendations is advisable before formal agreements.",
@@ -743,15 +749,15 @@
   
   const COMP_COPY = {
     "COMP-OK": { level: "info", title: "Usable complement", text: "There is usable role coverage; put in writing who has the final say on decisions, who reviews the numbers, and who tracks deadlines." },
-    "COMP-AM": { level: "warn", title: "Weak complement", text: "Weak complement: check whether together they cover command, judgment, and execution." },
-    "COMP-RO": { level: "bad", title: "Complement gap", text: "Complement gap: risk of a team without coverage." },
+    "COMP-AM": { level: "warn", title: "Weak complement", text: "Weak complement: check whether together they cover deciding, reviewing numbers, and meeting deadlines; if any is missing, define how it is covered before signing." },
+    "COMP-RO": { level: "bad", title: "Complement gap", text: "Complement gap: no clear coverage of command, judgment, or execution. Do not partner until roles are defined or support is added." },
     "COMP-DIFF": { level: "info", title: "Useful role difference", text: "There is a useful role difference (command or follow-through). Put in writing who decides, who reviews the numbers, and who tracks deadlines." }
   };
 const SOFT_FLAG = {
     "AV-RO": "One is far below on values. The other can cover review of promises, information, and fair treatment. Define who does it.",
     "SO-RO": "One is far below on interpersonal style. The other can balance it by lowering the tone. Before signing, define who calls a pause.",
     "HA-RO": "One is far below on follow-through. The other can cover deadlines and notices. Define who reviews what is pending.",
-    "SO-RO-AGR": "One confronts when angry and, in that same person, struggles to say it without raising the tone. Agree on this before partnering.",
+    "SO-RO-AGR": "One confronts when angry and, in that same person, struggles to say it without raising the tone. Before partnering, put in writing what is unacceptable in a disagreement and how a pause is called.",
     "EC-RO": "One wants to keep full control of the company and the other would accept giving board control to investors. Write who decides before any agreement.",
     "ATT-FAIL": "Failed attention responses. Consider repeating the assessment."
   };
@@ -834,7 +840,7 @@ const SOFT_FLAG = {
       const hitB = agrB === 0 && Number.isFinite(asB) && asB <= 50;
       const who = joinWho([hitA ? nA : null, hitB ? nB : null].filter(Boolean));
       return who
-        ? (who + " confronts when angry and struggles to say it without raising the tone. Agree on this before partnering.")
+        ? (who + " confronts when angry and struggles to say it without raising the tone. Before partnering, put in writing what is unacceptable in a disagreement and how a pause is called.")
         : SOFT_FLAG[code];
     }
     if (code === "EC-RO") {
@@ -907,8 +913,8 @@ function flagText(code, data) {
       const ambosBien = Number.isFinite(lA) && Number.isFinite(lB) && Math.min(lA, lB) >= 60;
       const text = who
         ? (ambosBien
-          ? ("There is leadership coverage on both; " + who + " is higher. Clarify roles to avoid daily operations clashes.")
-          : ("There is leadership coverage in " + who + ". Clarify roles to avoid daily operations clashes."))
+          ? ("There is leadership coverage on both; " + who + " is higher. Before working together, put in writing who decides day to day and who executes, to avoid clashes.")
+          : ("There is leadership coverage in " + who + ". Before working together, put in writing who decides day to day and who executes, to avoid clashes."))
         : c.text;
       return { level: c.level, title: c.title, text: text };
     }
@@ -942,7 +948,7 @@ function flagText(code, data) {
       return {
         level: c.level,
         title: c.title,
-        text: "Entre " + nA + " and " + nB + " complement is weak: check whether together they cover command, judgment, and execution."
+        text: "Between " + nA + " and " + nB + " complement is weak: check whether together they cover deciding, reviewing numbers, and meeting deadlines; if any is missing, define how it is covered before signing."
       };
     }
     if (code === "COMP-RO") {
@@ -950,7 +956,7 @@ function flagText(code, data) {
       return {
         level: c.level,
         title: c.title,
-        text: "Entre " + nA + " and " + nB + " there is a complement gap: risk of a team without coverage."
+        text: "Between " + nA + " and " + nB + " there is a complement gap: no clear coverage of command, judgment, or execution. Do not partner until roles are defined or support is added."
       };
     }
     if (code === "ATT-INFO") {
@@ -1002,7 +1008,7 @@ function flagText(code, data) {
     if (code === "VAL-EXT") {
       const who = whoByFlag(data, "VAL-EXT");
       const text = who
-        ? ("For " + who + ", very favorable integrity and habits profile. Confirm with concrete examples in the interview before approving the report. (Professional only.)")
+        ? ("For " + who + ", very favorable integrity and habits profile. In the interview, ask for 2 or 3 concrete facts (a kept promise, a real deadline) before approving the report. (Professional only.)")
         : c.text;
       return { level: c.level, title: c.title, text: text };
     }
@@ -1019,8 +1025,8 @@ function flagText(code, data) {
       };
       const tail = {
         "AV-AM": "Talk openly about promises, information, and fair treatment.",
-        "SO-AM": "Review how they handle conflict and pressure.",
-        "HA-AM": "Review deadlines, commitments, and teamwork."
+        "SO-AM": "Agree how they lower the tone under pressure and who calls a pause in a conflict.",
+        "HA-AM": "Review deadlines, commitments, and teamwork, and make clear who follows up."
       };
       const text = who
         ? (lead[code] + " (low floor or marked gap). For " + who + " the score is lower. " + tail[code])
@@ -1066,7 +1072,7 @@ function flagText(code, data) {
     "EC-AM-AGEN": "Asks for less certainty of success when the money at risk is the partner's.",
     "EC-INFO-AGEN-NEG": "Asks for more certainty of success when the money at risk is the partner's.",
     "EC-INC-CAP": "Said they could not lose savings and, at the same time, would contribute a large amount.",
-    "EC-AM-BASE": "Capital and evidence fall on the lowest levels.",
+    "EC-AM-BASE": "Capital and evidence fall on the lowest levels. Cross-check contributions and references before signing.",
     "EC-OVER": "Marked two or more concepts that do not exist.",
     "EC-INFO-OVER": "Marked a concept that does not exist.",
     "EC-INC-KNOW": "Marked concepts that do not exist and says they can show verifiable results. Ask for references."
