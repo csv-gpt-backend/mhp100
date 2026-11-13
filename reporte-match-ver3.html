@@ -368,6 +368,12 @@
   FLAG_COPY["EC-AM-CAP"] = Object.assign({}, FLAG_COPY["EC-AM-CAP"], {
     text: "Uno de los dos tiene capacidad para perder bastante más que el otro. Acordar temprano salarios, quién cubre faltantes de caja y cómo afecta eso al reparto de participación."
   });
+  FLAG_COPY["EC-AM-CTRL"] = Object.assign({}, FLAG_COPY["EC-AM-CTRL"], {
+    text: "Difieren en cuánta propiedad de la empresa cederían a cambio de crecer con capital externo. Antes de buscar capital, decidir si se aceptan inversionistas externos y en qué condiciones."
+  });
+  FLAG_COPY["EC-RO"] = Object.assign({}, FLAG_COPY["EC-RO"], {
+    text: "Desacuerdo fuerte: uno quiere conservar el control total de la empresa; el otro aceptaría ceder el control del directorio a inversionistas. Debe resolverse antes de cualquier acuerdo formal."
+  });
   const BAND_TEXT = Object.assign({}, COPY.bands, {
     Alta: "La pareja muestra un perfil de compatibilidad alto en los dominios evaluados.",
     Media: "La pareja muestra compatibilidad media. Conviene un diálogo guiado entre las partes sobre las señales y recomendaciones de este reporte antes de avanzar con acuerdos formales.",
@@ -729,17 +735,17 @@
 
   
   const COMP_COPY = {
-    "COMP-OK": { level: "info", title: "Complemento utilizable", text: "Hay cobertura de roles utilizable; conviene dejar por escrito quién tiene la última palabra, quién revisa los números y quién da seguimiento a los plazos." },
+    "COMP-OK": { level: "info", title: "Complemento utilizable", text: "Hay cobertura de roles utilizable; conviene dejar por escrito quién tiene la última palabra en las decisiones, quién revisa los números y quién da seguimiento a los plazos." },
     "COMP-AM": { level: "warn", title: "Complemento flojo", text: "Complemento flojo: revisar si entre los dos cubren mando, criterio y ejecución." },
     "COMP-RO": { level: "bad", title: "Vacío de complemento", text: "Vacío de complemento: riesgo de equipo sin cobertura." },
-    "COMP-DIFF": { level: "info", title: "Diferencia útil de roles", text: "Hay una diferencia útil de roles. Documentar mandatos." }
+    "COMP-DIFF": { level: "info", title: "Diferencia útil de roles", text: "Hay una diferencia útil de roles (mando o seguimiento). Conviene dejar por escrito quién decide, quién revisa los números y quién da seguimiento a los plazos." }
   };
 const SOFT_FLAG = {
     "AV-RO": "Uno queda muy por debajo en valores. El otro puede cubrir la revisión de promesas, información y trato. Queda definido quién la hace.",
     "SO-RO": "Uno queda muy por debajo en el trato. El otro puede equilibrarlo si baja el tono. Antes de firmar queda dicho quién pide la pausa.",
     "HA-RO": "Uno queda muy por debajo en cumplir lo pactado. El otro puede cubrir plazos y avisos. Queda definido quién revisa lo pendiente.",
     "SO-RO-AGR": "Uno confronta cuando se enoja y, en esa misma persona, le cuesta decirlo sin subir el tono. Eso se acuerda antes de asociarse.",
-    "EC-RO": "Uno quiere el control total y el otro cedería el directorio a inversionistas. Se escribe quién decide antes de cualquier acuerdo.",
+    "EC-RO": "Uno quiere conservar el control total de la empresa y el otro aceptaría ceder el control del directorio a inversionistas. Se escribe quién decide antes de cualquier acuerdo.",
     "ATT-FAIL": "Respuestas de atención fallidas. Considerar repetir la aplicación."
   };
 
@@ -830,7 +836,7 @@ const SOFT_FLAG = {
       if (!Number.isFinite(cA) || !Number.isFinite(cB) || cA === cB) return SOFT_FLAG[code];
       const keep = cA < cB ? nA : nB;
       const cede = cA < cB ? nB : nA;
-      return keep + " quiere el control total y " + cede + " cedería el directorio a inversionistas. Se escribe quién decide antes de cualquier acuerdo.";
+      return keep + " quiere conservar el control total de la empresa y " + cede + " aceptaría ceder el control del directorio a inversionistas. Se escribe quién decide antes de cualquier acuerdo.";
     }
     return SOFT_FLAG[code] || null;
   }
@@ -866,7 +872,7 @@ const SOFT_FLAG = {
       parts.push("Cuando una parte maneja la agresividad confrontando, la otra parte intenta hacerla entrar en razón, manteniendo la calma. Eso se acuerda antes de firmar. Esta pareja no se entrega como lista.");
     }
     if (has("EC-RO")) {
-      parts.push("Uno quiere conservar el control total y el otro aceptaría que los inversionistas controlen el directorio. Eso se escribe antes de firmar. Esta pareja no se entrega como lista.");
+      parts.push("Uno quiere conservar el control total de la empresa y el otro aceptaría ceder el control del directorio a inversionistas. Eso se escribe antes de firmar. Esta pareja no se entrega como lista.");
     }
     return parts.join(" ") || "No apto para asociarse. Revisar antes de entregar.";
   }
@@ -909,7 +915,7 @@ function flagText(code, data) {
           level: c.level,
           title: c.title,
           text: "Hay cobertura de roles utilizable; conviene dejar por escrito que " +
-            role(lead, "tiene la última palabra", "ambos tienen la última palabra") + ", " +
+            role(lead, "tiene la última palabra en las decisiones", "ambos tienen la última palabra en las decisiones") + ", " +
             role(nums, "revisa los números", "ambos revisan los números") + " y " +
             role(plazos, "da seguimiento a los plazos", "ambos dan seguimiento a los plazos") + "."
         };
@@ -921,7 +927,7 @@ function flagText(code, data) {
       return {
         level: c.level,
         title: c.title,
-        text: "Entre " + nA + " y " + nB + " hay una diferencia útil de roles. Documentar mandatos."
+        text: "Entre " + nA + " y " + nB + " hay una diferencia útil de roles (mando o seguimiento). Conviene dejar por escrito quién decide, quién revisa los números y quién da seguimiento a los plazos."
       };
     }
     if (code === "COMP-AM") {
@@ -1041,17 +1047,17 @@ function flagText(code, data) {
       return {
         level: c.level,
         title: c.title,
-        text: keep + " cedería menos propiedad a cambio de crecimiento; " + cede + " cedería más. Decidir antes de buscar capital si se aceptan inversionistas externos y en qué condiciones."
+        text: keep + " cedería menos propiedad de la empresa a cambio de crecer con capital externo; " + cede + " cedería más propiedad de la empresa. Antes de buscar capital, decidir si se aceptan inversionistas externos y en qué condiciones."
       };
     }
     return c;
   }
 
   const SHADOW_FLAG = {
-    "EC-AM-PERD": "En cerrar o litigar eligen opciones muy distintas.",
+    "EC-AM-PERD": "En la pregunta de cerrar el conflicto o ir a juicio, eligen opciones muy distintas.",
     "EC-INFO-ESCAL": "Aceptaría un pago seguro muy alto y, en la crisis de caja, aportaría dinero propio.",
-    "EC-AM-AGEN": "Pide menos certeza cuando el dinero es del socio.",
-    "EC-INFO-AGEN-NEG": "Pide más certeza cuando el dinero es del socio.",
+    "EC-AM-AGEN": "Pide menos certeza de éxito cuando el dinero en riesgo es del socio.",
+    "EC-INFO-AGEN-NEG": "Pide más certeza de éxito cuando el dinero en riesgo es del socio.",
     "EC-INC-CAP": "Dijo que no podría perder ahorros y, a la vez, aportaría un monto alto.",
     "EC-AM-BASE": "Capital y evidencia quedan en los niveles más bajos.",
     "EC-OVER": "Marcó dos o más conceptos que no existen.",
@@ -1083,7 +1089,7 @@ function flagText(code, data) {
     const block = (title, lines) => lines.length
       ? "<div style=\"margin-top:8px\"><b>" + title + "</b> " + lines.join(" ") + "</div>"
       : "";
-    const pairLines = [nombreA + " daría " + dar(sh.A) + " y " + nombreB + " daría " + dar(sh.B) + " de participación a quien aporta trabajo y conocimiento."]
+    const pairLines = [nombreA + " daría " + dar(sh.A) + " y " + nombreB + " daría " + dar(sh.B) + " de participación en la empresa a quien aporta trabajo y conocimiento."]
       .concat(pairFlags.map((f) => SHADOW_FLAG[f]));
     box.innerHTML =
       block("Los dos.", pairLines) +
@@ -1172,7 +1178,7 @@ function flagText(code, data) {
     sig.innerHTML = "";
     const ctrlEl = document.createElement("div");
     ctrlEl.className = "signal";
-    ctrlEl.innerHTML = "<strong>Participación frente a crecimiento.</strong> " + e08Line(nombreA, nombreB, data.ctrlA, data.ctrlB);
+    ctrlEl.innerHTML = "<strong>Cuánta propiedad cederían a cambio de crecimiento.</strong> " + e08Line(nombreA, nombreB, data.ctrlA, data.ctrlB);
     sig.appendChild(ctrlEl);
     const showFlags = flags.filter((f) => f !== "EC-OK");
     if (!showFlags.length) {

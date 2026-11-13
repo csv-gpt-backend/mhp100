@@ -369,6 +369,12 @@
   FLAG_COPY["EC-AM-CAP"] = Object.assign({}, FLAG_COPY["EC-AM-CAP"], {
     text: "One person can afford to lose considerably more than the other. Agree early on salaries, who covers cash shortfalls, and how that affects the equity split."
   });
+  FLAG_COPY["EC-AM-CTRL"] = Object.assign({}, FLAG_COPY["EC-AM-CTRL"], {
+    text: "They differ on how much company ownership they would give up in exchange for growing with outside capital. Before seeking capital, decide whether to accept outside investors and on what terms."
+  });
+  FLAG_COPY["EC-RO"] = Object.assign({}, FLAG_COPY["EC-RO"], {
+    text: "Strong disagreement: one wants to keep full control of the company; the other would accept giving board control to investors. Resolve this before any formal agreement."
+  });
   const BAND_TEXT = Object.assign({}, COPY.bands, {
     Alta: "The pair shows a high compatibility profile across the assessed domains.",
     Media: "The pair shows medium compatibility. A guided conversation about this report's signals and recommendations is advisable before formal agreements.",
@@ -733,17 +739,17 @@
 
   
   const COMP_COPY = {
-    "COMP-OK": { level: "info", title: "Usable complement", text: "There is usable role coverage; put in writing who has the final word, who reviews the numbers, and who tracks deadlines." },
+    "COMP-OK": { level: "info", title: "Usable complement", text: "There is usable role coverage; put in writing who has the final say on decisions, who reviews the numbers, and who tracks deadlines." },
     "COMP-AM": { level: "warn", title: "Weak complement", text: "Weak complement: check whether together they cover command, judgment, and execution." },
     "COMP-RO": { level: "bad", title: "Complement gap", text: "Complement gap: risk of a team without coverage." },
-    "COMP-DIFF": { level: "info", title: "Useful role difference", text: "There is a useful role difference. Document mandates." }
+    "COMP-DIFF": { level: "info", title: "Useful role difference", text: "There is a useful role difference (command or follow-through). Put in writing who decides, who reviews the numbers, and who tracks deadlines." }
   };
 const SOFT_FLAG = {
     "AV-RO": "One is far below on values. The other can cover review of promises, information, and fair treatment. Define who does it.",
     "SO-RO": "One is far below on interpersonal style. The other can balance it by lowering the tone. Before signing, define who calls a pause.",
     "HA-RO": "One is far below on follow-through. The other can cover deadlines and notices. Define who reviews what is pending.",
     "SO-RO-AGR": "One confronts when angry and, in that same person, struggles to say it without raising the tone. Agree on this before partnering.",
-    "EC-RO": "One wants full control and the other would give the board to investors. Write who decides before any agreement.",
+    "EC-RO": "One wants to keep full control of the company and the other would accept giving board control to investors. Write who decides before any agreement.",
     "ATT-FAIL": "Failed attention responses. Consider repeating the assessment."
   };
 
@@ -834,7 +840,7 @@ const SOFT_FLAG = {
       if (!Number.isFinite(cA) || !Number.isFinite(cB) || cA === cB) return SOFT_FLAG[code];
       const keep = cA < cB ? nA : nB;
       const cede = cA < cB ? nB : nA;
-      return keep + " wants full control and " + cede + " would give the board to investors. Write who decides before any agreement.";
+      return keep + " wants to keep full control of the company and " + cede + " would accept giving board control to investors. Write who decides before any agreement.";
     }
     return SOFT_FLAG[code] || null;
   }
@@ -870,7 +876,7 @@ const SOFT_FLAG = {
       parts.push("When one handles aggression by confronting, the other tries to calm things while staying calm. Agree on this before signing. This pair is not delivered as a ready-made fit.");
     }
     if (has("EC-RO")) {
-      parts.push("One wants to keep full control and the other would accept investors controlling the board. Write this before signing. This pair is not delivered as a ready-made fit.");
+      parts.push("One wants to keep full control of the company and the other would accept giving board control to investors. Write this before signing. This pair is not delivered as a ready-made fit.");
     }
     return parts.join(" ") || "Not suitable to partner. Review before delivery.";
   }
@@ -913,8 +919,8 @@ function flagText(code, data) {
           level: c.level,
           title: c.title,
           text: "There is usable role coverage; put in writing that " +
-            role(lead, "has the final word", "both have the final word") + ", " +
-            role(nums, "reviews the numbers", "both review the numbers") + " y " +
+            role(lead, "has the final say on decisions", "both have the final say on decisions") + ", " +
+            role(nums, "reviews the numbers", "both review the numbers") + " and " +
             role(plazos, "tracks deadlines", "both track deadlines") + "."
         };
       }
@@ -925,7 +931,7 @@ function flagText(code, data) {
       return {
         level: c.level,
         title: c.title,
-        text: "Between " + nA + " and " + nB + " there is a useful role difference. Document mandates."
+        text: "Between " + nA + " and " + nB + " there is a useful role difference (command or follow-through). Put in writing who decides, who reviews the numbers, and who tracks deadlines."
       };
     }
     if (code === "COMP-AM") {
@@ -1045,17 +1051,17 @@ function flagText(code, data) {
       return {
         level: c.level,
         title: c.title,
-        text: keep + " would give up less ownership for growth; " + cede + " would give up more. Before seeking capital, decide whether to accept outside investors and on what terms."
+        text: keep + " would give up less company ownership in exchange for growing with outside capital; " + cede + " would give up more company ownership. Before seeking capital, decide whether to accept outside investors and on what terms."
       };
     }
     return c;
   }
 
   const SHADOW_FLAG = {
-    "EC-AM-PERD": "On settling or litigating they chose very different options.",
+    "EC-AM-PERD": "On the settle-or-litigate question they chose very different options.",
     "EC-INFO-ESCAL": "Would accept a very high safe payout and, in a cash crisis, would put in personal money.",
-    "EC-AM-AGEN": "Asks for less certainty when the money is the partner's.",
-    "EC-INFO-AGEN-NEG": "Asks for more certainty when the money is the partner's.",
+    "EC-AM-AGEN": "Asks for less certainty of success when the money at risk is the partner's.",
+    "EC-INFO-AGEN-NEG": "Asks for more certainty of success when the money at risk is the partner's.",
     "EC-INC-CAP": "Said they could not lose savings and, at the same time, would contribute a large amount.",
     "EC-AM-BASE": "Capital and evidence fall on the lowest levels.",
     "EC-OVER": "Marked two or more concepts that do not exist.",
@@ -1087,7 +1093,7 @@ function flagText(code, data) {
     const block = (title, lines) => lines.length
       ? "<div style=\"margin-top:8px\"><b>" + title + "</b> " + lines.join(" ") + "</div>"
       : "";
-    const pairLines = [nombreA + " would give " + dar(sh.A) + " and " + nombreB + " would give " + dar(sh.B) + " ownership to whoever contributes work and know-how."]
+    const pairLines = [nombreA + " would give " + dar(sh.A) + " and " + nombreB + " would give " + dar(sh.B) + " ownership in the company to whoever contributes work and know-how."]
       .concat(pairFlags.map((f) => SHADOW_FLAG[f]));
     box.innerHTML =
       block("Both.", pairLines) +
@@ -1176,7 +1182,7 @@ function flagText(code, data) {
     sig.innerHTML = "";
     const ctrlEl = document.createElement("div");
     ctrlEl.className = "signal";
-    ctrlEl.innerHTML = "<strong>Ownership vs. growth.</strong> " + e08Line(nombreA, nombreB, data.ctrlA, data.ctrlB);
+    ctrlEl.innerHTML = "<strong>How much ownership they would give up for growth.</strong> " + e08Line(nombreA, nombreB, data.ctrlA, data.ctrlB);
     sig.appendChild(ctrlEl);
     const showFlags = flags.filter((f) => f !== "EC-OK");
     if (!showFlags.length) {
