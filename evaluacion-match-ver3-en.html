@@ -110,6 +110,8 @@
     .opts.many { grid-template-columns: 1fr 1fr; gap: 8px; }
     .opts.many .opt { padding: 14px 16px; font-size: 17px; }
     .opts.many .opt.wide { grid-column: 1 / -1; text-align: left; justify-content: flex-start; }
+    .opts.many.stack { grid-template-columns: 1fr; }
+    .opts.many.stack .opt { text-align: left; justify-content: flex-start; }
     .opt {
       display: flex; align-items: center; justify-content: center; gap: 12px;
       padding: 16px 18px; border-radius: 16px; border: 1px solid var(--line);
@@ -871,7 +873,7 @@
         body.appendChild(an);
       } else if (it.id === "ECO-E08") {
         const tbl = document.createElement("table"); tbl.className = "table";
-        tbl.innerHTML = "<thead><tr><th></th><th>Your ownership %</th><th>Company value</th><th>Value of your share</th><th>Who decides</th></tr></thead>";
+        tbl.innerHTML = "<thead><tr><th></th><th>Your ownership %</th><th>Company</th><th>Value of your share</th><th>Who decides</th></tr></thead>";
         const tb = document.createElement("tbody");
         it.options.forEach((o, i) => {
           const tr = document.createElement("tr");
@@ -1011,13 +1013,16 @@
         }
       } else if (fmt === "category") {
         /* E10: store code A…E (not index 0…4) */
+        const opts = it.options || [];
+        const labs = opts.map(optLabel);
+        const stack = labs.some(l => l.length > 48);
         const wrap = document.createElement("div");
-        wrap.className = "opts many";
-        (it.options || []).forEach((o, i) => {
+        wrap.className = "opts many" + (stack ? " stack" : "");
+        opts.forEach((o, i) => {
           const el = document.createElement("label"); el.className = "opt";
           const code = (o && o.code != null) ? String(o.code) : String(i);
-          const lab = optLabel(o);
-          if (lab.length > 48) el.classList.add("wide");
+          const lab = labs[i];
+          if (!stack && lab.length > 48) el.classList.add("wide");
           if (answers[it.id] === code || answers[it.id] === i) el.classList.add("on");
           el.textContent = lab;
           el.onclick = () => { setAnswer(it.id, code, el); wrap.querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === el)); };
@@ -1025,13 +1030,16 @@
         });
         body.appendChild(wrap);
       } else {
-        const n = (it.options || []).length;
+        const opts = it.options || [];
+        const n = opts.length;
+        const labs = opts.map(optLabel);
+        const stack = n >= 4 && labs.some(l => l.length > 48);
         const wrap = document.createElement("div");
-        wrap.className = "opts" + (n >= 4 ? " many" : "");
-        (it.options || []).forEach((o, i) => {
+        wrap.className = "opts" + (n >= 4 ? " many" : "") + (stack ? " stack" : "");
+        opts.forEach((o, i) => {
           const el = document.createElement("label"); el.className = "opt";
-          const lab = optLabel(o);
-          if (lab.length > 48) el.classList.add("wide");
+          const lab = labs[i];
+          if (!stack && lab.length > 48) el.classList.add("wide");
           if (answers[it.id] === i) el.classList.add("on");
           el.textContent = lab;
           el.onclick = () => { setAnswer(it.id, i, el); wrap.querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === el)); };
