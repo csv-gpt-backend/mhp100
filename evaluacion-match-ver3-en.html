@@ -1030,7 +1030,8 @@
         /* E10: store code A…E (not index 0…4) */
         const opts = it.options || [];
         const labs = opts.map(optLabel);
-        const stack = labs.some(l => l.length > 48);
+        const longN = labs.filter(l => l.length > 48).length;
+        const stack = longN > 0 && longN >= Math.ceil(labs.length / 2);
         const wrap = document.createElement("div");
         wrap.className = "opts many" + (stack ? " stack" : "");
         opts.forEach((o, i) => {
@@ -1048,7 +1049,8 @@
         const opts = it.options || [];
         const n = opts.length;
         const labs = opts.map(optLabel);
-        const stack = n >= 4 && labs.some(l => l.length > 48);
+        const longN = labs.filter(l => l.length > 48).length;
+        const stack = n >= 4 && longN > 0 && longN >= Math.ceil(n / 2);
         const wrap = document.createElement("div");
         wrap.className = "opts" + (n >= 4 ? " many" : "") + (stack ? " stack" : "");
         opts.forEach((o, i) => {
