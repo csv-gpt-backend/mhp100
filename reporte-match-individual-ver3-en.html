@@ -191,7 +191,13 @@
     <small>Match individual report · no pair index I</small>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <input id="codigoGate" type="text" maxlength="32" placeholder="MATCHE code…" autocomplete="off"
-             style="font:inherit;font-weight:700;padding:10px 12px;border:1px solid #a8bdd4;border-radius:10px;text-transform:uppercase;min-width:180px" />
+             style="font:inherit;font-weight:700;padding:10px 12px;border:1px solid #a8bdd4;border-radius:10px;text-transform:uppercase;min-width:160px" />
+      <input id="nameSearch" type="text" placeholder="Search by name…" autocomplete="off"
+             style="font:inherit;font-weight:600;padding:10px 12px;border:1px solid #a8bdd4;border-radius:10px;min-width:160px" />
+      <select id="nameSelect"
+              style="font:inherit;font-weight:700;padding:10px 12px;border:1px solid #a8bdd4;border-radius:10px;min-width:200px;max-width:280px;background:#fff;color:var(--brand)">
+        <option value="">Choose by name…</option>
+      </select>
       <button type="button" id="btnLoadCodigo">Load code</button>
       <button type="button" id="btnPair">Pair report</button>
       <button type="button" id="btnMenu">Back to menu</button>
@@ -667,6 +673,39 @@
     });
   }
 
+  let profiles = [];
+
+  function fillNameSelect(filter) {
+    const sel = $("nameSelect");
+    const q = String(filter || "").trim().toUpperCase();
+    const cur = sel.value;
+    const rows = profiles
+      .filter((p) => !q || String(p.nombre || "").toUpperCase().indexOf(q) >= 0)
+      .slice()
+      .sort((a, b) => String(a.nombre || "").localeCompare(String(b.nombre || ""), "en", { sensitivity: "base" }));
+    sel.innerHTML = "<option value=\"\">Choose by name…</option>";
+    rows.forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.codigo;
+      opt.textContent = (p.nombre || "—") + " · " + p.codigo;
+      sel.appendChild(opt);
+    });
+    if (cur && [].some.call(sel.options, (o) => o.value === cur)) sel.value = cur;
+  }
+
+  async function loadProfileList() {
+    try {
+      const r = await fetch("/api/pair-match-ver3?list=1&limit=100");
+      const data = await r.json();
+      if (!r.ok || !data.ok) throw new Error(data.error || "Could not load list");
+      profiles = data.profiles || [];
+      fillNameSelect($("nameSearch").value);
+    } catch (e) {
+      profiles = [];
+      fillNameSelect("");
+    }
+  }
+
   $("btnLoadCodigo").onclick = () => {
     const c = ($("codigoGate").value || "").trim().toUpperCase();
     $("codigoGate").value = c;
@@ -676,12 +715,21 @@
   $("codigoGate").addEventListener("keydown", (e) => {
     if (e.key === "Enter") { e.preventDefault(); $("btnLoadCodigo").click(); }
   });
-  $("btnPair").onclick = () => { location.href = "reporte-match-ver3-en.html"; };
+  $("nameSearch").addEventListener("input", () => fillNameSelect($("nameSearch").value));
+  $("nameSelect").addEventListener("change", () => {
+    const c = ($("nameSelect").value || "").trim().toUpperCase();
+    if (!c) return;
+    $("codigoGate").value = c;
+    loadFromCodigo(c);
+  });
+  $("btnPair").onclick = () => { location.href = "match-emparejar-ver3-en.html"; };
   $("btnMenu").onclick = () => { location.href = "menu-adalmax.html"; };
   $("btnPrint").onclick = () => window.print();
   window.addEventListener("resize", function () {
     if (window.__matchComposite != null) setMarker(window.__matchComposite);
   });
+
+  loadProfileList();
 
   const q = new URLSearchParams(location.search);
   if (q.get("codigo")) {
@@ -691,7 +739,7 @@
   else {
     $("sheet").hidden = true;
     $("loadErr").hidden = false;
-    $("loadErr").textContent = "Enter a Match Ver 3 code (ESC-MATCHE-EN-… / PRO-MATCHE-EN-…) and click Load code.";
+    $("loadErr").textContent = "Enter a Match Ver 3 code (ESC-MATCHE-EN-… / PRO-MATCHE-EN-…) and click Load code. You can also search or choose by name.";
   }
 })();
   </script>
