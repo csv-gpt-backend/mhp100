@@ -137,7 +137,11 @@
       min-width: 52px; text-align: center; padding: 12px 10px; border-radius: 14px;
       background: var(--soft); font-weight: 800; font-size: 18px;
     }
-    .cells { display: grid; grid-template-columns: 72px 72px; gap: 10px; width: max-content; }
+    .cells {
+      display: grid; grid-template-columns: 72px 72px; gap: 10px; width: max-content;
+      padding: 14px; border: 1px solid var(--line); border-radius: 16px;
+      background: #fff; box-shadow: 0 4px 12px rgba(43, 55, 78, .08);
+    }
     .stim-word { display: table; margin: 0 auto 14px; padding: 12px 22px; border-radius: 8px; background: #1e3a5f; color: #fff; font-weight: 800; letter-spacing: .04em; font-size: 22px; }
     .diana-fig { display: flex; justify-content: center; margin: 8px 0 14px; }
     .diana-fig svg { width: 210px; height: 236px; }
@@ -999,11 +1003,13 @@
           it.cells.flat().forEach(n => { const p = document.createElement("div"); p.className = "pill"; p.textContent = n; s.appendChild(p); });
           body.appendChild(s);
         }
-        const wrap = document.createElement("div"); wrap.className = "opts";
-        (it.options || []).forEach(o => {
+        const cogOpts = it.options || [];
+        const wrap = document.createElement("div");
+        wrap.className = "opts" + (cogOpts.length >= 4 ? " many" : "");
+        cogOpts.forEach(o => {
           const el = document.createElement("label"); el.className = "opt";
           if (answers[it.id] === o.v) el.classList.add("on");
-          el.textContent = o.v.toUpperCase() + ")  " + o.t;
+          el.textContent = o.v.toUpperCase() + ") " + o.t;
           el.onclick = () => { setAnswer(it.id, o.v, el); wrap.querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === el)); };
           wrap.appendChild(el);
         });
