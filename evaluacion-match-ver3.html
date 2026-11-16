@@ -782,10 +782,12 @@
       const cur = queue[ix];
       const nxt = queue[ix + 1];
       if (nxt._block !== cur._block && GATES[nxt._block]) {
+        saveLocal();
         openGate(nxt._block, ix + 1);
         return;
       }
       ix += 1; renderQ();
+      saveLocal();
     };
 
     function openGate(key, targetIx) {
@@ -793,7 +795,7 @@
       $("gateKicker").textContent = g.kicker;
       $("gateTitle").textContent = g.title;
       $("gateLead").textContent = g.lead;
-      $("btnGateGo").onclick = () => { ix = targetIx; renderQ(); };
+      $("btnGateGo").onclick = () => { ix = targetIx; renderQ(); saveLocal(); };
       show("v-gate");
     }
 
@@ -834,6 +836,7 @@
         node.parentElement.querySelectorAll(".opt,.on").forEach(x => x.classList && x.classList.remove("on"));
         node.classList.add("on");
       }
+      saveLocal();
     }
 
     function renderQ() {
