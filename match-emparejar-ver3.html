@@ -91,12 +91,20 @@
 
       <div class="grid two">
         <div>
-          <label for="codigoA">Perfil A — código</label>
+          <label for="busqA">Perfil A — buscar / escribir nombre</label>
+          <input id="busqA" type="text" autocomplete="off" placeholder="Ej. MARCELO…" />
+          <label for="selA" style="margin-top:10px">O elegir por nombre</label>
+          <select id="selA"><option value="">Elegir por nombre…</option></select>
+          <label for="codigoA" style="margin-top:10px">Código</label>
           <input id="codigoA" type="text" maxlength="32" autocomplete="off" placeholder="ESC-MATCHE-…" />
           <div class="msg" id="nameA"></div>
         </div>
         <div>
-          <label for="codigoB">Perfil B — código</label>
+          <label for="busqB">Perfil B — buscar / escribir nombre</label>
+          <input id="busqB" type="text" autocomplete="off" placeholder="Ej. ANA…" />
+          <label for="selB" style="margin-top:10px">O elegir por nombre</label>
+          <select id="selB"><option value="">Elegir por nombre…</option></select>
+          <label for="codigoB" style="margin-top:10px">Código</label>
           <input id="codigoB" type="text" maxlength="32" autocomplete="off" placeholder="ESC-MATCHE-…" />
           <div class="msg" id="nameB"></div>
         </div>
@@ -109,7 +117,7 @@
       <p class="msg" id="msg"></p>
 
       <div class="hint">
-        Pulse una fila de la lista para ponerla en A; pulse otra para B. O escriba los códigos a mano.
+        Escriba o elija el nombre de A y de B (también puede pegar el código). O pulse filas de la lista: primera = A, segunda = B.
       </div>
 
       <div class="list">
@@ -161,6 +169,56 @@
     $("nameB").textContent = b ? b.nombre : "";
     $("nameA").className = "msg " + (a ? "ok" : "");
     $("nameB").className = "msg " + (b ? "ok" : "");
+    if (a) {
+      $("busqA").value = a.nombre || "";
+      $("selA").value = a.codigo;
+    }
+    if (b) {
+      $("busqB").value = b.nombre || "";
+      $("selB").value = b.codigo;
+    }
+  }
+
+  function fillNameSelect(selId, filter) {
+    const sel = $(selId);
+    const q = String(filter || "").trim().toUpperCase();
+    const cur = sel.value;
+    const rows = profiles
+      .filter((p) => !q || String(p.nombre || "").toUpperCase().indexOf(q) >= 0 || String(p.codigo || "").toUpperCase().indexOf(q) >= 0)
+      .slice()
+      .sort((a, b) => String(a.nombre || "").localeCompare(String(b.nombre || ""), "es", { sensitivity: "base" }));
+    sel.innerHTML = "<option value=\"\">Elegir por nombre…</option>";
+    rows.forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.codigo;
+      opt.textContent = (p.nombre || "—") + " · " + p.codigo;
+      sel.appendChild(opt);
+    });
+    if (cur && [].some.call(sel.options, (o) => o.value === cur)) sel.value = cur;
+  }
+
+  function resolveByName(raw) {
+    const q = String(raw || "").trim().toUpperCase();
+    if (!q) return null;
+    const exactCode = profiles.find((p) => String(p.codigo || "").toUpperCase() === q);
+    if (exactCode) return exactCode;
+    if (q.indexOf("MATCHE") >= 0) return null;
+    const hits = profiles.filter((p) => String(p.nombre || "").toUpperCase().indexOf(q) >= 0);
+    if (hits.length === 1) return hits[0];
+    if (hits.length > 1) {
+      const exact = hits.filter((p) => String(p.nombre || "").toUpperCase() === q);
+      if (exact.length === 1) return exact[0];
+    }
+    return null;
+  }
+
+  function applyProfile(side, p) {
+    if (!p) return;
+    $(side === "A" ? "codigoA" : "codigoB").value = p.codigo;
+    $(side === "A" ? "busqA" : "busqB").value = p.nombre || "";
+    fillNameSelect(side === "A" ? "selA" : "selB", "");
+    $(side === "A" ? "selA" : "selB").value = p.codigo;
+    fillNames();
   }
 
   function fmtFecha(raw) {
@@ -202,13 +260,12 @@
         "<td class=\"fecha\">" + fmtFecha(p.fecha) + "</td>";
       tr.onclick = () => {
         if (pick === "A") {
-          $("codigoA").value = p.codigo;
+          applyProfile("A", p);
           pick = "B";
         } else {
-          $("codigoB").value = p.codigo;
+          applyProfile("B", p);
           pick = "A";
         }
-        fillNames();
         setMsg("Siguiente clic llena el perfil " + pick + ".", true);
       };
       $("tbody").appendChild(tr);
@@ -223,14 +280,44 @@
       const data = await r.json();
       if (!r.ok || !data.ok) throw new Error(data.error || "No se pudo listar");
       profiles = data.profiles || [];
+      fillNameSelect("selA", $("busqA").value);
+      fillNameSelect("selB", $("busqB").value);
       renderList();
     } catch (e) {
       $("tbody").innerHTML = "<tr><td colspan=\"4\">" + ((e && e.message) || "Error") + "</td></tr>";
     }
   }
 
-  $("codigoA").addEventListener("blur", fillNames);
-  $("codigoB").addEventListener("blur", fillNames);
+  $("busqA").addEventListener("input", () => fillNameSelect("selA", $("busqA").value));
+  $("busqB").addEventListener("input", () => fillNameSelect("selB", $("busqB").value));
+  $("busqA").addEventListener("blur", () => {
+    const p = resolveByName($("busqA").value) || resolveByName($("codigoA").value);
+    if (p) applyProfile("A", p);
+    else fillNames();
+  });
+  $("busqB").addEventListener("blur", () => {
+    const p = resolveByName($("busqB").value) || resolveByName($("codigoB").value);
+    if (p) applyProfile("B", p);
+    else fillNames();
+  });
+  $("selA").addEventListener("change", () => {
+    const p = profiles.find((x) => x.codigo === $("selA").value);
+    if (p) applyProfile("A", p);
+  });
+  $("selB").addEventListener("change", () => {
+    const p = profiles.find((x) => x.codigo === $("selB").value);
+    if (p) applyProfile("B", p);
+  });
+  $("codigoA").addEventListener("blur", () => {
+    const p = resolveByName($("codigoA").value);
+    if (p) applyProfile("A", p);
+    else fillNames();
+  });
+  $("codigoB").addEventListener("blur", () => {
+    const p = resolveByName($("codigoB").value);
+    if (p) applyProfile("B", p);
+    else fillNames();
+  });
   $("fCodigo").addEventListener("input", renderList);
   $("fNombre").addEventListener("input", renderList);
   $("fInst").addEventListener("input", renderList);
