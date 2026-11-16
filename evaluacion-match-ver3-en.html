@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en" data-fmt="a">
 <head>
   <meta charset="utf-8" />
@@ -139,7 +139,11 @@
       min-width: 52px; text-align: center; padding: 12px 10px; border-radius: 14px;
       background: var(--soft); font-weight: 800; font-size: 18px;
     }
-    .cells { display: grid; grid-template-columns: 72px 72px; gap: 10px; width: max-content; }
+    .cells {
+      display: grid; grid-template-columns: 72px 72px; gap: 10px; width: max-content;
+      padding: 14px; border: 1px solid var(--line); border-radius: 16px;
+      background: #fff; box-shadow: 0 4px 12px rgba(43, 55, 78, .08);
+    }
     .stim-word { display: table; margin: 0 auto 14px; padding: 12px 22px; border-radius: 8px; background: #1e3a5f; color: #fff; font-weight: 800; letter-spacing: .04em; font-size: 22px; }
     .diana-fig { display: flex; justify-content: center; margin: 8px 0 14px; }
     .diana-fig svg { width: 210px; height: 236px; }
@@ -162,7 +166,7 @@
       background: #f0f4f8;
     }
     html[data-fmt="a"] .rail { display: none !important; }
-    html[data-fmt="a"] .stage { max-width: 1040px; margin: 20px auto 64px; }
+    html[data-fmt="a"] .stage { max-width: 1040px; margin: 8px auto 64px; }
     html[data-fmt="a"] .card {
       overflow: hidden;
       border: 0;
@@ -175,34 +179,34 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 16px;
-      margin: 0 0 8px;
-      padding: 32px 36px 30px;
+      gap: 6px;
+      margin: 0 0 4px;
+      padding: 10px 16px 12px;
       border: 0;
       background: #ffffff;
       position: relative;
     }
     html[data-fmt="a"] .brand::after {
       content: "";
-      position: absolute; left: 0; right: 0; bottom: 0; height: 5px;
+      position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
       background: linear-gradient(90deg, var(--cfo-orange) 0%, var(--cfo-lavender) 50%, var(--cfo-mint) 100%);
     }
     html[data-fmt="a"] .brand-seal {
       display: flex; align-items: center; justify-content: center;
       background: #fff;
-      border-radius: 20px;
-      padding: 10px 16px;
-      box-shadow: 0 8px 24px rgba(43, 55, 78, .08), 0 0 0 1px #e2e7ee;
+      border-radius: 12px;
+      padding: 2px 6px;
+      box-shadow: 0 2px 8px rgba(43, 55, 78, .06), 0 0 0 1px #e2e7ee;
     }
     html[data-fmt="a"] .brand img {
       height: 128px; width: auto; display: block;
       background: transparent; border: 0; padding: 0; box-shadow: none;
     }
     html[data-fmt="a"] .brand-copy h1 {
-      color: #2b374e; font-size: 24px; letter-spacing: .04em; text-transform: uppercase;
+      color: #2b374e; font-size: 22px; letter-spacing: .02em; text-transform: none;
     }
     html[data-fmt="a"] .brand-copy p {
-      color: #747d8c; font-size: 14px; font-weight: 600;
+      color: #747d8c; font-size: 13px; font-weight: 600; margin: 2px 0 0;
     }
     html[data-fmt="a"] .card > .kicker,
     html[data-fmt="a"] .card > h2,
@@ -523,7 +527,7 @@
       <div class="brand">
         <div class="brand-seal"><img src="match-assets/logo-adalam.png" alt="ADALAM" /></div>
         <div class="brand-copy">
-          <h1>ADALAM Match Ver 3</h1>
+          <h1>ADALMAx</h1>
           <p>Partner compatibility profile</p>
         </div>
       </div>
@@ -571,7 +575,7 @@
       <div class="brand">
         <div class="brand-seal"><img src="match-assets/logo-adalam.png" alt="ADALAM" /></div>
         <div class="brand-copy">
-          <h1>ADALAM Match Ver 3</h1>
+          <h1>ADALMAx</h1>
           <p>Partner compatibility profile</p>
         </div>
       </div>
@@ -590,7 +594,7 @@
       <div class="brand">
         <div class="brand-seal"><img src="match-assets/logo-adalam.png" alt="ADALAM" /></div>
         <div class="brand-copy">
-          <h1>ADALAM Match Ver 3</h1>
+          <h1>ADALMAx</h1>
           <p>Partner compatibility profile</p>
         </div>
       </div>
@@ -607,7 +611,7 @@
       <div class="brand">
         <div class="brand-seal"><img src="match-assets/logo-adalam.png" alt="ADALAM" /></div>
         <div class="brand-copy">
-          <h1>ADALAM Match Ver 3</h1>
+          <h1>ADALMAx</h1>
           <p>Partner compatibility profile</p>
         </div>
       </div>
@@ -629,7 +633,7 @@
       <div class="brand">
         <div class="brand-seal"><img src="match-assets/logo-adalam.png" alt="ADALAM" /></div>
         <div class="brand-copy">
-          <h1>ADALAM Match Ver 3</h1>
+          <h1>ADALMAx</h1>
           <p>Partner compatibility profile</p>
         </div>
       </div>
@@ -743,6 +747,12 @@
       }
       if (!START_TIME) START_TIME = Date.now();
       saveLocal();
+      if (resumeDraft) {
+        if (!Object.keys(answers).length) ix = 0;
+        renderQ();
+        saveLocal();
+        return;
+      }
       show("v-inst");
     };
 
@@ -780,10 +790,12 @@
       const cur = queue[ix];
       const nxt = queue[ix + 1];
       if (nxt._block !== cur._block && GATES[nxt._block]) {
+        saveLocal();
         openGate(nxt._block, ix + 1);
         return;
       }
       ix += 1; renderQ();
+      saveLocal();
     };
 
     function openGate(key, targetIx) {
@@ -791,7 +803,7 @@
       $("gateKicker").textContent = g.kicker;
       $("gateTitle").textContent = g.title;
       $("gateLead").textContent = g.lead;
-      $("btnGateGo").onclick = () => { ix = targetIx; renderQ(); };
+      $("btnGateGo").onclick = () => { ix = targetIx; renderQ(); saveLocal(); };
       show("v-gate");
     }
 
@@ -832,6 +844,7 @@
         node.parentElement.querySelectorAll(".opt,.on").forEach(x => x.classList && x.classList.remove("on"));
         node.classList.add("on");
       }
+      saveLocal();
     }
 
     function renderQ() {
@@ -1001,11 +1014,13 @@
           it.cells.flat().forEach(n => { const p = document.createElement("div"); p.className = "pill"; p.textContent = n; s.appendChild(p); });
           body.appendChild(s);
         }
-        const wrap = document.createElement("div"); wrap.className = "opts";
-        (it.options || []).forEach(o => {
+        const cogOpts = it.options || [];
+        const wrap = document.createElement("div");
+        wrap.className = "opts" + (cogOpts.length >= 4 ? " many" : "");
+        cogOpts.forEach(o => {
           const el = document.createElement("label"); el.className = "opt";
           if (answers[it.id] === o.v) el.classList.add("on");
-          el.textContent = o.v.toUpperCase() + ")  " + o.t;
+          el.textContent = o.v.toUpperCase() + ") " + o.t;
           el.onclick = () => { setAnswer(it.id, o.v, el); wrap.querySelectorAll(".opt").forEach(x => x.classList.toggle("on", x === el)); };
           wrap.appendChild(el);
         });
@@ -1242,6 +1257,8 @@
     let CODIGO_ACTUAL = null;
     let START_TIME = null;
     let BANK_VERSION = "";
+    let resumeDraft = false;
+    let resumeAlertShown = false;
 
     function storageKey() {
       const c = CODIGO_ACTUAL || ($("codigo").value || "").trim().toUpperCase();
@@ -1292,6 +1309,7 @@
       const codigo = ($("codigo").value || "").trim().toUpperCase();
       $("codigo").value = codigo;
       CODIGO_ACTUAL = null;
+      resumeDraft = false;
       if (codigo.length < 5) {
         $("codigoMsg").className = "msg bad";
         $("codigoMsg").textContent = "Enter a valid code.";
@@ -1331,6 +1349,7 @@
         const server = await loadServerDraft(CODIGO_ACTUAL);
         const draft = server || local;
         if (draft && draft.answers && !draft.completed) {
+          resumeDraft = true;
           if (draft.nombre) {
             $("nombre").value = String(draft.nombre).toLocaleUpperCase("en-US");
             $("nombre").readOnly = true;
@@ -1342,7 +1361,12 @@
           Object.keys(draft.answers).forEach((id) => { answers[id] = draft.answers[id]; });
           ix = Number(draft.ix) || 0;
           START_TIME = draft.startTime || Date.now();
-          alert("You have an assessment in progress. You will continue where you left off.");
+          if (!resumeAlertShown) {
+            resumeAlertShown = true;
+            alert("You have an assessment in progress. You will continue where you left off.");
+          }
+        } else {
+          resumeAlertShown = false;
         }
         return true;
       } catch (e) {
