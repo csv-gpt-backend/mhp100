@@ -98,12 +98,17 @@ async function latestAttempt(codigo) {
 
 async function listProfiles(limit) {
   const lim = Math.min(Math.max(Number(limit) || 40, 1), 100);
+  /* DISTINCT ON exige ORDER BY codigo; luego reordenamos por último registro. */
   const r = await sql`
-    SELECT DISTINCT ON (UPPER(codigo))
-      codigo, nombre, institucion, resultados, created_at
-    FROM attempts
-    WHERE UPPER(codigo) LIKE '%MATCHE%'
-    ORDER BY UPPER(codigo), created_at DESC
+    SELECT *
+    FROM (
+      SELECT DISTINCT ON (UPPER(codigo))
+        codigo, nombre, institucion, resultados, created_at
+      FROM attempts
+      WHERE UPPER(codigo) LIKE '%MATCHE%'
+      ORDER BY UPPER(codigo), created_at DESC
+    ) t
+    ORDER BY created_at DESC NULLS LAST
     LIMIT ${lim}
   `;
   return (r.rows || [])

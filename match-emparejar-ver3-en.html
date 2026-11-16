@@ -16,7 +16,20 @@
       color: var(--ink);
       background: linear-gradient(180deg, #e8eef6, #d5e0ec);
     }
-    .wrap { max-width: 720px; margin: 28px auto 64px; padding: 0 16px; }
+    .wrap { max-width: 900px; margin: 28px auto 64px; padding: 0 16px; }
+    .filters {
+      display: grid; gap: 10px; margin: 14px 0 0;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 720px) {
+      .filters { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .list .filters-bar {
+      padding: 10px 12px; background: #f7fafc; border-bottom: 1px solid var(--line);
+    }
+    .list .filters-bar label { margin-bottom: 4px; }
+    .list .filters-bar input { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
+    .list td.fecha { white-space: nowrap; color: var(--muted); font-size: 12px; }
     .card {
       background: var(--paper); border-radius: 18px; padding: 28px 28px 24px;
       box-shadow: 0 16px 40px rgba(15, 45, 82, .12);
@@ -100,10 +113,26 @@
       </div>
 
       <div class="list">
-        <h2>Recent Match profiles</h2>
+        <h2>Recent Match profiles · newest first</h2>
+        <div class="filters-bar">
+          <div class="filters">
+            <div>
+              <label for="fCodigo">Filter code</label>
+              <input id="fCodigo" type="text" autocomplete="off" placeholder="PRO-MATCHE…" />
+            </div>
+            <div>
+              <label for="fNombre">Filter name</label>
+              <input id="fNombre" type="text" autocomplete="off" placeholder="Name…" />
+            </div>
+            <div>
+              <label for="fInst">Filter institution</label>
+              <input id="fInst" type="text" autocomplete="off" placeholder="Institution…" />
+            </div>
+          </div>
+        </div>
         <table>
-          <thead><tr><th>Code</th><th>Name</th><th>Institution</th></tr></thead>
-          <tbody id="tbody"><tr><td colspan="3">Loading…</td></tr></tbody>
+          <thead><tr><th>Code</th><th>Name</th><th>Institution</th><th>Registered</th></tr></thead>
+          <tbody id="tbody"><tr><td colspan="4">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -118,6 +147,7 @@
     el.addEventListener("input", () => { el.value = el.value.toUpperCase(); });
   }
   up($("codigoA")); up($("codigoB"));
+  up($("fCodigo"));
 
   function setMsg(text, ok) {
     $("msg").textContent = text || "";
@@ -133,42 +163,77 @@
     $("nameB").className = "msg " + (b ? "ok" : "");
   }
 
+  function fmtFecha(raw) {
+    if (!raw) return "—";
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return "—";
+    return d.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+  }
+
+  function filteredProfiles() {
+    const c = ($("fCodigo").value || "").trim().toUpperCase();
+    const n = ($("fNombre").value || "").trim().toUpperCase();
+    const i = ($("fInst").value || "").trim().toUpperCase();
+    return profiles.filter((p) => {
+      if (c && String(p.codigo || "").toUpperCase().indexOf(c) < 0) return false;
+      if (n && String(p.nombre || "").toUpperCase().indexOf(n) < 0) return false;
+      if (i && String(p.institucion || "").toUpperCase().indexOf(i) < 0) return false;
+      return true;
+    });
+  }
+
+  function renderList() {
+    const rows = filteredProfiles();
+    if (!profiles.length) {
+      $("tbody").innerHTML = "<tr><td colspan=\"4\">No completed Match profiles yet.</td></tr>";
+      return;
+    }
+    if (!rows.length) {
+      $("tbody").innerHTML = "<tr><td colspan=\"4\">No profiles match the filters.</td></tr>";
+      return;
+    }
+    $("tbody").innerHTML = "";
+    rows.forEach((p) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td><code>" + p.codigo + "</code></td>" +
+        "<td>" + (p.nombre || "—") + "</td>" +
+        "<td>" + (p.institucion || "—") + "</td>" +
+        "<td class=\"fecha\">" + fmtFecha(p.fecha) + "</td>";
+      tr.onclick = () => {
+        if (pick === "A") {
+          $("codigoA").value = p.codigo;
+          pick = "B";
+        } else {
+          $("codigoB").value = p.codigo;
+          pick = "A";
+        }
+        fillNames();
+        setMsg("The next click fills profile " + pick + ".", true);
+      };
+      $("tbody").appendChild(tr);
+    });
+    fillNames();
+  }
+
   async function loadList() {
-    $("tbody").innerHTML = "<tr><td colspan=\"3\">Loading…</td></tr>";
+    $("tbody").innerHTML = "<tr><td colspan=\"4\">Loading…</td></tr>";
     try {
-      const r = await fetch("/api/pair-match-ver3?list=1&limit=60");
+      const r = await fetch("/api/pair-match-ver3?list=1&limit=100");
       const data = await r.json();
       if (!r.ok || !data.ok) throw new Error(data.error || "Could not load the list");
       profiles = data.profiles || [];
-      if (!profiles.length) {
-        $("tbody").innerHTML = "<tr><td colspan=\"3\">No completed Match profiles yet.</td></tr>";
-        return;
-      }
-      $("tbody").innerHTML = "";
-      profiles.forEach((p) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = "<td><code>" + p.codigo + "</code></td><td>" + (p.nombre || "—") + "</td><td>" + (p.institucion || "—") + "</td>";
-        tr.onclick = () => {
-          if (pick === "A") {
-            $("codigoA").value = p.codigo;
-            pick = "B";
-          } else {
-            $("codigoB").value = p.codigo;
-            pick = "A";
-          }
-          fillNames();
-          setMsg("The next click fills profile " + pick + ".", true);
-        };
-        $("tbody").appendChild(tr);
-      });
-      fillNames();
+      renderList();
     } catch (e) {
-      $("tbody").innerHTML = "<tr><td colspan=\"3\">" + ((e && e.message) || "Error") + "</td></tr>";
+      $("tbody").innerHTML = "<tr><td colspan=\"4\">" + ((e && e.message) || "Error") + "</td></tr>";
     }
   }
 
   $("codigoA").addEventListener("blur", fillNames);
   $("codigoB").addEventListener("blur", fillNames);
+  $("fCodigo").addEventListener("input", renderList);
+  $("fNombre").addEventListener("input", renderList);
+  $("fInst").addEventListener("input", renderList);
   $("btnRefresh").onclick = loadList;
 
   $("btnPair").onclick = async () => {
