@@ -640,7 +640,18 @@
     ]
   };
 
-  function domainRecs(barsA, barsB, nombreA, nombreB) {
+  /** Si hay señal que contradice el tono “Bien”, no mostrar Bien en ese dominio. */
+  function domainStateWithFlags(k, barA, barB, flags) {
+    let state = domainState(barA, barB);
+    if (state !== "Bien") return state;
+    const has = (f) => (flags || []).indexOf(f) >= 0;
+    if (k === "S" && (has("SO-AM-AGR") || has("SO-RO-AGR") || has("SO-INFO-TIM"))) return "A revisar";
+    if (k === "E" && (has("EC-AM-CAP") || has("EC-AM-CTRL") || has("EC-RO") || has("EC-AM-RUNWAY"))) return "A revisar";
+    if (k === "C" && has("IN-AM")) return "A revisar";
+    return state;
+  }
+
+  function domainRecs(barsA, barsB, nombreA, nombreB, flags) {
     const spec = [
       { k: "V", title: "Valores", items: RECS.V },
       { k: "S", title: "Socioemocional", items: RECS.S },
@@ -650,7 +661,7 @@
       { k: "C", title: "Intelectual", items: RECS.C }
     ];
     return spec.map(function (d) {
-      const state = domainState(barsA[d.k], barsB[d.k]);
+      const state = domainStateWithFlags(d.k, barsA[d.k], barsB[d.k], flags);
       let list = (DOMAIN_TEXT[state] && DOMAIN_TEXT[state][d.k]) || d.items;
       const a = barsA[d.k];
       const b = barsB[d.k];
@@ -1299,7 +1310,7 @@ function flagText(code, data) {
     }
 
     const recHost = $("recs");
-    const recs = domainRecs(barsA, barsB, nombreA, nombreB);
+    const recs = domainRecs(barsA, barsB, nombreA, nombreB, flags);
     const stateClass = { "Bien": "st-bien", "A revisar": "st-rev", "En piso": "st-piso" };
     const stateLabel = { "En piso": "Bajo" };
     recHost.innerHTML = "<h2>Recomendaciones por dominio</h2>" + recs.map((r) =>
