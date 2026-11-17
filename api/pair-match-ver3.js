@@ -32,10 +32,26 @@ function isMatchCapasCodigo(codigo) {
   return c.includes("MATCHE");
 }
 
-function displayName(attempt, resultados) {
+function nameParts(attempt, resultados) {
   const r = resultados || {};
-  const joined = [r.nombre_pila, r.apellido].filter(Boolean).join(" ").trim();
+  const pila = String(r.nombre_pila || "").trim();
+  const ape = String(r.apellido || "").trim();
+  return { pila, ape };
+}
+
+function displayName(attempt, resultados) {
+  const { pila, ape } = nameParts(attempt, resultados);
+  const joined = [pila, ape].filter(Boolean).join(" ").trim();
   return joined || attempt.nombre || attempt.codigo || "—";
+}
+
+/** Etiqueta de lista/selector: Apellido Nombre (el apellido manda al buscar). */
+function listLabel(attempt, resultados) {
+  const { pila, ape } = nameParts(attempt, resultados);
+  if (ape && pila) return `${ape} ${pila}`;
+  if (ape) return ape;
+  if (pila) return pila;
+  return displayName(attempt, resultados);
 }
 
 function profileFromAttempt(attempt) {
@@ -96,34 +112,60 @@ async function latestAttempt(codigo) {
   return r.rows[0] || null;
 }
 
+function mapListRow(row) {
+  const res = asObject(row.resultados) || {};
+  const parts = nameParts(row, res);
+  return {
+    codigo: row.codigo,
+    nombre: displayName(row, res),
+    label: listLabel(row, res),
+    nombre_pila: parts.pila || null,
+    apellido: parts.ape || null,
+    institucion: row.institucion || null,
+    lote: row.lote ? String(row.lote).trim() : null,
+    fecha: row.created_at || null,
+    tiene_barras: !!(res.bars && res.bars.V != null),
+    product: res.product || null,
+  };
+}
+
 async function listProfiles(limit) {
-  const lim = Math.min(Math.max(Number(limit) || 40, 1), 100);
+  const lim = Math.min(Math.max(Number(limit) || 200, 1), 500);
   /* DISTINCT ON exige ORDER BY codigo; luego reordenamos por último registro. */
-  const r = await sql`
-    SELECT *
-    FROM (
-      SELECT DISTINCT ON (UPPER(codigo))
-        codigo, nombre, institucion, resultados, created_at
-      FROM attempts
-      WHERE UPPER(codigo) LIKE '%MATCHE%'
-      ORDER BY UPPER(codigo), created_at DESC
-    ) t
-    ORDER BY created_at DESC NULLS LAST
-    LIMIT ${lim}
-  `;
-  return (r.rows || [])
-    .map((row) => {
-      const res = asObject(row.resultados) || {};
-      return {
-        codigo: row.codigo,
-        nombre: displayName(row, res),
-        institucion: row.institucion || null,
-        fecha: row.created_at || null,
-        tiene_barras: !!(res.bars && res.bars.V != null),
-        product: res.product || null,
-      };
-    })
-    .filter((p) => p.tiene_barras);
+  let rows;
+  try {
+    const r = await sql`
+      SELECT *
+      FROM (
+        SELECT DISTINCT ON (UPPER(a.codigo))
+          a.codigo, a.nombre, a.institucion, a.resultados, a.created_at,
+          p.lote
+        FROM attempts a
+        LEFT JOIN participants p
+          ON UPPER(TRIM(a.codigo)) = UPPER(TRIM(p.codigo))
+        WHERE UPPER(a.codigo) LIKE '%MATCHE%'
+        ORDER BY UPPER(a.codigo), a.created_at DESC
+      ) t
+      ORDER BY created_at DESC NULLS LAST
+      LIMIT ${lim}
+    `;
+    rows = r.rows || [];
+  } catch (e) {
+    const r = await sql`
+      SELECT *
+      FROM (
+        SELECT DISTINCT ON (UPPER(codigo))
+          codigo, nombre, institucion, resultados, created_at
+        FROM attempts
+        WHERE UPPER(codigo) LIKE '%MATCHE%'
+        ORDER BY UPPER(codigo), created_at DESC
+      ) t
+      ORDER BY created_at DESC NULLS LAST
+      LIMIT ${lim}
+    `;
+    rows = r.rows || [];
+  }
+  return rows.map(mapListRow).filter((p) => p.tiene_barras);
 }
 
 function ctrlStep(eco, responses) {

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -22,14 +22,21 @@
       grid-template-columns: 1fr;
     }
     @media (min-width: 720px) {
-      .filters { grid-template-columns: 1fr 1fr 1fr; }
+      .filters { grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 980px) {
+      .filters { grid-template-columns: 1.2fr 1fr 1fr 1fr; }
     }
     .list .filters-bar {
       padding: 10px 12px; background: #f7fafc; border-bottom: 1px solid var(--line);
     }
     .list .filters-bar label { margin-bottom: 4px; }
-    .list .filters-bar input { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
+    .list .filters-bar input,
+    .list .filters-bar select { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
+    .list .filters-bar select[multiple] { min-height: 88px; }
+    .list .filters-bar .mini { margin-top: 6px; padding: 6px 10px; font-size: 12px; border-radius: 8px; }
     .list td.fecha { white-space: nowrap; color: var(--muted); font-size: 12px; }
+    .list td.lote { font-size: 11px; color: var(--muted); word-break: break-all; }
     .card {
       background: var(--paper); border-radius: 18px; padding: 28px 28px 24px;
       box-shadow: 0 16px 40px rgba(15, 45, 82, .12);
@@ -91,19 +98,19 @@
 
       <div class="grid two">
         <div>
-          <label for="busqA">Profile A — search / type name</label>
-          <input id="busqA" type="text" autocomplete="off" placeholder="e.g. MARCEL…" />
-          <label for="selA" style="margin-top:10px">Or pick by name</label>
-          <select id="selA"><option value="">Choose by name…</option></select>
+          <label for="busqA">Profile A — search / type (last or first name)</label>
+          <input id="busqA" type="text" autocomplete="off" placeholder="e.g. SMITH…" />
+          <label for="selA" style="margin-top:10px">Or pick (Last First)</label>
+          <select id="selA"><option value="">Choose by last name…</option></select>
           <label for="codigoA" style="margin-top:10px">Code</label>
           <input id="codigoA" type="text" maxlength="32" autocomplete="off" placeholder="PRO-MATCHE-EN-…" />
           <div class="msg" id="nameA"></div>
         </div>
         <div>
-          <label for="busqB">Profile B — search / type name</label>
-          <input id="busqB" type="text" autocomplete="off" placeholder="e.g. ANA…" />
-          <label for="selB" style="margin-top:10px">Or pick by name</label>
-          <select id="selB"><option value="">Choose by name…</option></select>
+          <label for="busqB">Profile B — search / type (last or first name)</label>
+          <input id="busqB" type="text" autocomplete="off" placeholder="e.g. JONES…" />
+          <label for="selB" style="margin-top:10px">Or pick (Last First)</label>
+          <select id="selB"><option value="">Choose by last name…</option></select>
           <label for="codigoB" style="margin-top:10px">Code</label>
           <input id="codigoB" type="text" maxlength="32" autocomplete="off" placeholder="PRO-MATCHE-EN-…" />
           <div class="msg" id="nameB"></div>
@@ -117,30 +124,41 @@
       <p class="msg" id="msg"></p>
 
       <div class="hint">
-        Type or pick the name for A and B (you can also paste the code). Or click list rows: first = A, second = B.
+        Filter by one, several, or all batches. Type or pick last/first name and institution. For A and B: Last First (or code). Rows: first = A, second = B.
       </div>
 
       <div class="list">
-        <h2>Recent Match profiles · newest first</h2>
+        <h2>Match profiles · filterable · newest first</h2>
         <div class="filters-bar">
           <div class="filters">
             <div>
-              <label for="fCodigo">Filter code</label>
-              <input id="fCodigo" type="text" autocomplete="off" placeholder="PRO-MATCHE…" />
+              <label for="fLote">Batches (Ctrl/Cmd = several; empty = all)</label>
+              <select id="fLote" multiple></select>
+              <button type="button" class="mini" id="btnLoteAll">All batches</button>
             </div>
             <div>
-              <label for="fNombre">Filter name</label>
-              <input id="fNombre" type="text" autocomplete="off" placeholder="Name…" />
+              <label for="fNombre">Type last / first name</label>
+              <input id="fNombre" type="text" autocomplete="off" placeholder="Last or first name…" />
+              <label for="selFiltroNombre" style="margin-top:8px">Or pick a person</label>
+              <select id="selFiltroNombre"><option value="">All…</option></select>
             </div>
             <div>
-              <label for="fInst">Filter institution</label>
+              <label for="fInst">Type institution</label>
               <input id="fInst" type="text" autocomplete="off" placeholder="Institution…" />
+              <label for="selFiltroInst" style="margin-top:8px">Or pick institution</label>
+              <select id="selFiltroInst"><option value="">All…</option></select>
+            </div>
+            <div>
+              <label for="fCodigo">Type code</label>
+              <input id="fCodigo" type="text" autocomplete="off" placeholder="PRO-MATCHE…" />
+              <label for="selFiltroCodigo" style="margin-top:8px">Or pick code</label>
+              <select id="selFiltroCodigo"><option value="">All…</option></select>
             </div>
           </div>
         </div>
         <table>
-          <thead><tr><th>Code</th><th>Name</th><th>Institution</th><th>Registered</th></tr></thead>
-          <tbody id="tbody"><tr><td colspan="4">Loading…</td></tr></tbody>
+          <thead><tr><th>Code</th><th>Last First</th><th>Institution</th><th>Batch</th><th>Registered</th></tr></thead>
+          <tbody id="tbody"><tr><td colspan="5">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -162,51 +180,127 @@
     $("msg").className = "msg " + (ok ? "ok" : text ? "bad" : "");
   }
 
+  function personLabel(p) {
+    return (p && (p.label || p.nombre)) || "—";
+  }
+
+  function searchBlob(p) {
+    return [p.label, p.nombre, p.apellido, p.nombre_pila, p.codigo].filter(Boolean).join(" ").toUpperCase();
+  }
+
+  function sortByApellido(a, b) {
+    return personLabel(a).localeCompare(personLabel(b), "en", { sensitivity: "base" });
+  }
+
+  function selectedLotes() {
+    const sel = $("fLote");
+    return [].filter.call(sel.options, (o) => o.selected).map((o) => o.value);
+  }
+
   function fillNames() {
     const a = profiles.find((p) => p.codigo === $("codigoA").value.trim().toUpperCase());
     const b = profiles.find((p) => p.codigo === $("codigoB").value.trim().toUpperCase());
-    $("nameA").textContent = a ? a.nombre : "";
-    $("nameB").textContent = b ? b.nombre : "";
+    $("nameA").textContent = a ? personLabel(a) : "";
+    $("nameB").textContent = b ? personLabel(b) : "";
     $("nameA").className = "msg " + (a ? "ok" : "");
     $("nameB").className = "msg " + (b ? "ok" : "");
     if (a) {
-      $("busqA").value = a.nombre || "";
+      $("busqA").value = personLabel(a);
       $("selA").value = a.codigo;
     }
     if (b) {
-      $("busqB").value = b.nombre || "";
+      $("busqB").value = personLabel(b);
       $("selB").value = b.codigo;
     }
   }
 
-  function fillNameSelect(selId, filter) {
+  function fillNameSelect(selId, filter, emptyLabel) {
     const sel = $(selId);
     const q = String(filter || "").trim().toUpperCase();
     const cur = sel.value;
-    const rows = profiles
-      .filter((p) => !q || String(p.nombre || "").toUpperCase().indexOf(q) >= 0 || String(p.codigo || "").toUpperCase().indexOf(q) >= 0)
+    const rows = filteredProfiles(true)
+      .filter((p) => !q || searchBlob(p).indexOf(q) >= 0)
       .slice()
-      .sort((a, b) => String(a.nombre || "").localeCompare(String(b.nombre || ""), "en", { sensitivity: "base" }));
-    sel.innerHTML = "<option value=\"\">Choose by name…</option>";
+      .sort(sortByApellido);
+    sel.innerHTML = "<option value=\"\">" + (emptyLabel || "Choose by last name…") + "</option>";
     rows.forEach((p) => {
       const opt = document.createElement("option");
       opt.value = p.codigo;
-      opt.textContent = (p.nombre || "—") + " · " + p.codigo;
+      opt.textContent = personLabel(p) + " · " + p.codigo;
       sel.appendChild(opt);
     });
     if (cur && [].some.call(sel.options, (o) => o.value === cur)) sel.value = cur;
   }
 
+  function fillFilterSelects() {
+    const lotes = [];
+    const insts = [];
+    profiles.forEach((p) => {
+      if (p.lote && lotes.indexOf(p.lote) < 0) lotes.push(p.lote);
+      if (p.institucion && insts.indexOf(p.institucion) < 0) insts.push(p.institucion);
+    });
+    lotes.sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }));
+    insts.sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }));
+
+    const prevLotes = selectedLotes();
+    const fLote = $("fLote");
+    fLote.innerHTML = "";
+    lotes.forEach((lote) => {
+      const opt = document.createElement("option");
+      opt.value = lote;
+      opt.textContent = lote;
+      if (prevLotes.indexOf(lote) >= 0) opt.selected = true;
+      fLote.appendChild(opt);
+    });
+
+    const curInst = $("selFiltroInst").value;
+    $("selFiltroInst").innerHTML = "<option value=\"\">All…</option>";
+    insts.forEach((inst) => {
+      const opt = document.createElement("option");
+      opt.value = inst;
+      opt.textContent = inst;
+      $("selFiltroInst").appendChild(opt);
+    });
+    if (curInst && [].some.call($("selFiltroInst").options, (o) => o.value === curInst)) {
+      $("selFiltroInst").value = curInst;
+    }
+
+    refreshDependentFilters();
+  }
+
+  function refreshDependentFilters() {
+    const rows = filteredProfiles(true).slice().sort(sortByApellido);
+    const curN = $("selFiltroNombre").value;
+    const curC = $("selFiltroCodigo").value;
+    $("selFiltroNombre").innerHTML = "<option value=\"\">All…</option>";
+    $("selFiltroCodigo").innerHTML = "<option value=\"\">All…</option>";
+    rows.forEach((p) => {
+      const on = document.createElement("option");
+      on.value = p.codigo;
+      on.textContent = personLabel(p) + " · " + p.codigo;
+      $("selFiltroNombre").appendChild(on);
+      const oc = document.createElement("option");
+      oc.value = p.codigo;
+      oc.textContent = p.codigo + " · " + personLabel(p);
+      $("selFiltroCodigo").appendChild(oc);
+    });
+    if (curN && [].some.call($("selFiltroNombre").options, (o) => o.value === curN)) $("selFiltroNombre").value = curN;
+    if (curC && [].some.call($("selFiltroCodigo").options, (o) => o.value === curC)) $("selFiltroCodigo").value = curC;
+    fillNameSelect("selA", $("busqA").value);
+    fillNameSelect("selB", $("busqB").value);
+  }
+
   function resolveByName(raw) {
     const q = String(raw || "").trim().toUpperCase();
     if (!q) return null;
-    const exactCode = profiles.find((p) => String(p.codigo || "").toUpperCase() === q);
+    const pool = filteredProfiles(true);
+    const exactCode = pool.find((p) => String(p.codigo || "").toUpperCase() === q);
     if (exactCode) return exactCode;
     if (q.indexOf("MATCHE") >= 0) return null;
-    const hits = profiles.filter((p) => String(p.nombre || "").toUpperCase().indexOf(q) >= 0);
+    const hits = pool.filter((p) => searchBlob(p).indexOf(q) >= 0);
     if (hits.length === 1) return hits[0];
     if (hits.length > 1) {
-      const exact = hits.filter((p) => String(p.nombre || "").toUpperCase() === q);
+      const exact = hits.filter((p) => personLabel(p).toUpperCase() === q || String(p.apellido || "").toUpperCase() === q);
       if (exact.length === 1) return exact[0];
     }
     return null;
@@ -215,7 +309,7 @@
   function applyProfile(side, p) {
     if (!p) return;
     $(side === "A" ? "codigoA" : "codigoB").value = p.codigo;
-    $(side === "A" ? "busqA" : "busqB").value = p.nombre || "";
+    $(side === "A" ? "busqA" : "busqB").value = personLabel(p);
     fillNameSelect(side === "A" ? "selA" : "selB", "");
     $(side === "A" ? "selA" : "selB").value = p.codigo;
     fillNames();
@@ -228,26 +322,35 @@
     return d.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
   }
 
-  function filteredProfiles() {
+  function filteredProfiles(forPickers) {
+    const lotes = selectedLotes();
     const c = ($("fCodigo").value || "").trim().toUpperCase();
     const n = ($("fNombre").value || "").trim().toUpperCase();
     const i = ($("fInst").value || "").trim().toUpperCase();
+    const pickCodigo = forPickers ? "" : (($("selFiltroCodigo").value || "").trim().toUpperCase());
+    const pickNombre = forPickers ? "" : (($("selFiltroNombre").value || "").trim().toUpperCase());
+    const pickInst = ($("selFiltroInst").value || "").trim();
     return profiles.filter((p) => {
+      if (lotes.length && lotes.indexOf(p.lote || "") < 0) return false;
       if (c && String(p.codigo || "").toUpperCase().indexOf(c) < 0) return false;
-      if (n && String(p.nombre || "").toUpperCase().indexOf(n) < 0) return false;
+      if (n && searchBlob(p).indexOf(n) < 0) return false;
       if (i && String(p.institucion || "").toUpperCase().indexOf(i) < 0) return false;
+      if (pickInst && String(p.institucion || "") !== pickInst) return false;
+      if (pickCodigo && String(p.codigo || "").toUpperCase() !== pickCodigo) return false;
+      if (pickNombre && String(p.codigo || "").toUpperCase() !== pickNombre) return false;
       return true;
     });
   }
 
   function renderList() {
-    const rows = filteredProfiles();
+    refreshDependentFilters();
+    const rows = filteredProfiles(false);
     if (!profiles.length) {
-      $("tbody").innerHTML = "<tr><td colspan=\"4\">No completed Match profiles yet.</td></tr>";
+      $("tbody").innerHTML = "<tr><td colspan=\"5\">No completed Match profiles yet.</td></tr>";
       return;
     }
     if (!rows.length) {
-      $("tbody").innerHTML = "<tr><td colspan=\"4\">No profiles match the filters.</td></tr>";
+      $("tbody").innerHTML = "<tr><td colspan=\"5\">No profiles match the filters.</td></tr>";
       return;
     }
     $("tbody").innerHTML = "";
@@ -255,8 +358,9 @@
       const tr = document.createElement("tr");
       tr.innerHTML =
         "<td><code>" + p.codigo + "</code></td>" +
-        "<td>" + (p.nombre || "—") + "</td>" +
+        "<td>" + personLabel(p) + "</td>" +
         "<td>" + (p.institucion || "—") + "</td>" +
+        "<td class=\"lote\">" + (p.lote || "—") + "</td>" +
         "<td class=\"fecha\">" + fmtFecha(p.fecha) + "</td>";
       tr.onclick = () => {
         if (pick === "A") {
@@ -274,17 +378,16 @@
   }
 
   async function loadList() {
-    $("tbody").innerHTML = "<tr><td colspan=\"4\">Loading…</td></tr>";
+    $("tbody").innerHTML = "<tr><td colspan=\"5\">Loading…</td></tr>";
     try {
-      const r = await fetch("/api/pair-match-ver3?list=1&limit=100");
+      const r = await fetch("/api/pair-match-ver3?list=1&limit=500");
       const data = await r.json();
       if (!r.ok || !data.ok) throw new Error(data.error || "Could not load the list");
       profiles = data.profiles || [];
-      fillNameSelect("selA", $("busqA").value);
-      fillNameSelect("selB", $("busqB").value);
+      fillFilterSelects();
       renderList();
     } catch (e) {
-      $("tbody").innerHTML = "<tr><td colspan=\"4\">" + ((e && e.message) || "Error") + "</td></tr>";
+      $("tbody").innerHTML = "<tr><td colspan=\"5\">" + ((e && e.message) || "Error") + "</td></tr>";
     }
   }
 
@@ -321,6 +424,20 @@
   $("fCodigo").addEventListener("input", renderList);
   $("fNombre").addEventListener("input", renderList);
   $("fInst").addEventListener("input", renderList);
+  $("fLote").addEventListener("change", renderList);
+  $("selFiltroNombre").addEventListener("change", renderList);
+  $("selFiltroInst").addEventListener("change", () => {
+    if ($("selFiltroInst").value) $("fInst").value = $("selFiltroInst").value;
+    renderList();
+  });
+  $("selFiltroCodigo").addEventListener("change", () => {
+    if ($("selFiltroCodigo").value) $("fCodigo").value = $("selFiltroCodigo").value;
+    renderList();
+  });
+  $("btnLoteAll").onclick = () => {
+    [].forEach.call($("fLote").options, (o) => { o.selected = false; });
+    renderList();
+  };
   $("btnRefresh").onclick = loadList;
 
   $("btnPair").onclick = async () => {
@@ -343,7 +460,7 @@
         body: JSON.stringify({ codigoA, codigoB })
       });
       const data = await r.json();
-      if (!r.ok || !data.ok) throw new Error(data.error || "Could not calculate the pair index");
+      if (!r.ok || !data.ok) throw new Error(data.error || "Could not calculate");
       sessionStorage.setItem("matchDemo.lastReport", JSON.stringify({
         nombreA: data.nombreA,
         nombreB: data.nombreB,

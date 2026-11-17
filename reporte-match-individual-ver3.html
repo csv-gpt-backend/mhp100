@@ -184,11 +184,18 @@
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <input id="codigoGate" type="text" maxlength="32" placeholder="Código MATCHE…" autocomplete="off"
              style="font:inherit;font-weight:700;padding:10px 12px;border:1px solid #a8bdd4;border-radius:10px;text-transform:uppercase;min-width:160px" />
-      <input id="nameSearch" type="text" placeholder="Buscar por nombre…" autocomplete="off"
+      <select id="loteSelect" multiple title="Lotes: Ctrl/Cmd varios; vacío = todos"
+              style="font:inherit;font-weight:600;padding:6px 10px;border:1px solid #a8bdd4;border-radius:10px;min-width:180px;max-width:240px;min-height:64px;background:#fff;color:var(--brand)"></select>
+      <button type="button" id="btnLoteAll" style="padding:8px 10px">Todos los lotes</button>
+      <input id="nameSearch" type="text" placeholder="Escribir apellido / nombre…" autocomplete="off"
              style="font:inherit;font-weight:600;padding:10px 12px;border:1px solid #a8bdd4;border-radius:10px;min-width:160px" />
       <select id="nameSelect"
               style="font:inherit;font-weight:700;padding:10px 12px;border:1px solid #a8bdd4;border-radius:10px;min-width:200px;max-width:280px;background:#fff;color:var(--brand)">
-        <option value="">Elegir por nombre…</option>
+        <option value="">Elegir por apellido…</option>
+      </select>
+      <select id="instSelect"
+              style="font:inherit;font-weight:700;padding:10px 12px;border:1px solid #a8bdd4;border-radius:10px;min-width:160px;max-width:220px;background:#fff;color:var(--brand)">
+        <option value="">Institución…</option>
       </select>
       <button type="button" id="btnLoadCodigo">Cargar código</button>
       <button type="button" id="btnPair">Reporte de pareja</button>
@@ -661,19 +668,73 @@
 
   let profiles = [];
 
-  function fillNameSelect(filter) {
+  function personLabel(p) {
+    return (p && (p.label || p.nombre)) || "—";
+  }
+
+  function searchBlob(p) {
+    return [p.label, p.nombre, p.apellido, p.nombre_pila, p.codigo].filter(Boolean).join(" ").toUpperCase();
+  }
+
+  function selectedLotes() {
+    return [].filter.call($("loteSelect").options, (o) => o.selected).map((o) => o.value);
+  }
+
+  function filteredProfiles() {
+    const lotes = selectedLotes();
+    const q = String($("nameSearch").value || "").trim().toUpperCase();
+    const inst = String($("instSelect").value || "").trim();
+    return profiles.filter((p) => {
+      if (lotes.length && lotes.indexOf(p.lote || "") < 0) return false;
+      if (inst && String(p.institucion || "") !== inst) return false;
+      if (q && searchBlob(p).indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+
+  function fillLoteAndInst() {
+    const lotes = [];
+    const insts = [];
+    profiles.forEach((p) => {
+      if (p.lote && lotes.indexOf(p.lote) < 0) lotes.push(p.lote);
+      if (p.institucion && insts.indexOf(p.institucion) < 0) insts.push(p.institucion);
+    });
+    lotes.sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+    insts.sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+    const prev = selectedLotes();
+    const loteSel = $("loteSelect");
+    loteSel.innerHTML = "";
+    lotes.forEach((lote) => {
+      const opt = document.createElement("option");
+      opt.value = lote;
+      opt.textContent = lote;
+      if (prev.indexOf(lote) >= 0) opt.selected = true;
+      loteSel.appendChild(opt);
+    });
+    const curInst = $("instSelect").value;
+    $("instSelect").innerHTML = "<option value=\"\">Institución…</option>";
+    insts.forEach((inst) => {
+      const opt = document.createElement("option");
+      opt.value = inst;
+      opt.textContent = inst;
+      $("instSelect").appendChild(opt);
+    });
+    if (curInst && [].some.call($("instSelect").options, (o) => o.value === curInst)) {
+      $("instSelect").value = curInst;
+    }
+  }
+
+  function fillNameSelect() {
     const sel = $("nameSelect");
-    const q = String(filter || "").trim().toUpperCase();
     const cur = sel.value;
-    const rows = profiles
-      .filter((p) => !q || String(p.nombre || "").toUpperCase().indexOf(q) >= 0)
-      .slice()
-      .sort((a, b) => String(a.nombre || "").localeCompare(String(b.nombre || ""), "es", { sensitivity: "base" }));
-    sel.innerHTML = "<option value=\"\">Elegir por nombre…</option>";
+    const rows = filteredProfiles().slice().sort((a, b) =>
+      personLabel(a).localeCompare(personLabel(b), "es", { sensitivity: "base" })
+    );
+    sel.innerHTML = "<option value=\"\">Elegir por apellido…</option>";
     rows.forEach((p) => {
       const opt = document.createElement("option");
       opt.value = p.codigo;
-      opt.textContent = (p.nombre || "—") + " · " + p.codigo;
+      opt.textContent = personLabel(p) + " · " + p.codigo;
       sel.appendChild(opt);
     });
     if (cur && [].some.call(sel.options, (o) => o.value === cur)) sel.value = cur;
@@ -681,14 +742,16 @@
 
   async function loadProfileList() {
     try {
-      const r = await fetch("/api/pair-match-ver3?list=1&limit=100");
+      const r = await fetch("/api/pair-match-ver3?list=1&limit=500");
       const data = await r.json();
       if (!r.ok || !data.ok) throw new Error(data.error || "No se pudo listar");
       profiles = data.profiles || [];
-      fillNameSelect($("nameSearch").value);
+      fillLoteAndInst();
+      fillNameSelect();
     } catch (e) {
       profiles = [];
-      fillNameSelect("");
+      fillLoteAndInst();
+      fillNameSelect();
     }
   }
 
@@ -701,7 +764,13 @@
   $("codigoGate").addEventListener("keydown", (e) => {
     if (e.key === "Enter") { e.preventDefault(); $("btnLoadCodigo").click(); }
   });
-  $("nameSearch").addEventListener("input", () => fillNameSelect($("nameSearch").value));
+  $("nameSearch").addEventListener("input", fillNameSelect);
+  $("loteSelect").addEventListener("change", fillNameSelect);
+  $("instSelect").addEventListener("change", fillNameSelect);
+  $("btnLoteAll").onclick = () => {
+    [].forEach.call($("loteSelect").options, (o) => { o.selected = false; });
+    fillNameSelect();
+  };
   $("nameSelect").addEventListener("change", () => {
     const c = ($("nameSelect").value || "").trim().toUpperCase();
     if (!c) return;
@@ -724,7 +793,7 @@
   else {
     $("sheet").hidden = true;
     $("loadErr").hidden = false;
-    $("loadErr").textContent = "Ingrese un código Match Ver 3 (ESC-MATCHE-… / PRO-MATCHE-…) y pulse Cargar código. También puede buscar o elegir por nombre.";
+    $("loadErr").textContent = "Ingrese un código Match Ver 3, filtre por lote (uno/varios/todos) o elija por apellido. También puede escribir el nombre.";
   }
 })();
   </script>
