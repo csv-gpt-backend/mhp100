@@ -938,7 +938,15 @@ const SOFT_FLAG = {
     el.innerHTML = bulletsBlock("", lines);
   }
 
-  /** Separa hallazgo / acción (u otros avisos) dentro de una misma señal. */
+  function isFollowUpQuestion(part) {
+    const s = String(part || "").trim();
+    if (!s) return false;
+    if (/^[¿]/.test(s)) return true;
+    if (/\?\s*$/.test(s) && /^(Which|What|How|Who|When|Where|Why|Cu[aá]l|Qu[eé]|C[oó]mo|Qui[eé]n)\b/i.test(s)) return true;
+    return false;
+  }
+
+  /** Separa hallazgo / acción; la pregunta de seguimiento (¿…?) se queda con el hecho. */
   function splitSignalLines(text) {
     const t = String(text || "").trim();
     if (!t) return [];
@@ -953,7 +961,15 @@ const SOFT_FLAG = {
         parts = [a, b];
       }
     }
-    return parts.map((s) => s.trim()).filter(Boolean);
+    const merged = [];
+    parts.map((s) => s.trim()).filter(Boolean).forEach((p) => {
+      if (merged.length && isFollowUpQuestion(p)) {
+        merged[merged.length - 1] = merged[merged.length - 1] + " " + p;
+      } else {
+        merged.push(p);
+      }
+    });
+    return merged;
   }
 
   function signalHtml(title, text) {
