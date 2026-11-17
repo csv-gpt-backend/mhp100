@@ -10,7 +10,7 @@
   },
   "bands": {
     "Alta": "La pareja muestra un perfil de compatibilidad alto en los dominios evaluados. Se recomienda la presentación y usar las preguntas de este reporte en la primera reunión.",
-    "Media": "La pareja muestra compatibilidad media. Conviene una conversación guiada sobre los puntos marcados antes de avanzar en acuerdos formales.",
+    "Media": "La pareja muestra compatibilidad media. Conviene una conversación sobre los puntos marcados antes de avanzar en acuerdos formales.",
     "Reservada": "La compatibilidad queda en zona reservada. Solo se recomienda avanzar con mediación profesional o en un proyecto de alcance limitado, no en una sociedad con participación amplia sin más diálogo.",
     "Baja": "La compatibilidad resulta baja en este marco. No se recomienda formalizar la sociedad con base en este perfil; cada persona puede explorar otros encajes."
   },
