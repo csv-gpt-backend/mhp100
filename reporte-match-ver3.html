@@ -102,6 +102,14 @@
       background: var(--red-soft); border-color: var(--red);
     }
     .capa-read { text-align: center; border-left-width: 1px; border-radius: 6px; }
+    .note-block { margin-top: 8px; text-align: left; }
+    .note-bullets {
+      margin: 6px 0 0; padding-left: 1.25em; text-align: left;
+      list-style: disc;
+    }
+    .note-bullets li { margin: 0 0 6px; line-height: 1.4; }
+    .note-bullets li:last-child { margin-bottom: 0; }
+    .capa-read .note-bullets { display: inline-block; text-align: left; margin-top: 0; }
     .scale-box {
       background: #fff; border: 1px solid #e2e7ee; border-radius: 8px;
       padding: 10px 14px; margin-bottom: 14px; font-size: 12px; line-height: 1.4;
@@ -891,11 +899,11 @@ const SOFT_FLAG = {
     return "No hay compatibilidad ni complementariedad suficiente.";
   }
 
-  function sealText(flags, data) {
+  function sealParts(flags, data) {
     const has = (f) => flags.includes(f);
     // ATT-FAIL manda: si está, es el único texto del sello (con o sin otros vetos).
     if (has("ATT-FAIL")) {
-      return "Señal de atención. Se sugiere repetir la aplicación.";
+      return ["Señal de atención. Se sugiere repetir la aplicación."];
     }
     const parts = [];
     if (has("AV-RO") || has("SO-RO") || has("HA-RO")) {
@@ -907,7 +915,27 @@ const SOFT_FLAG = {
     if (has("EC-RO")) {
       parts.push("Uno quiere conservar el control total de la empresa y el otro aceptaría ceder el control del directorio a inversionistas. Eso se escribe antes de firmar. Esta pareja no se entrega como lista.");
     }
-    return parts.join(" ") || "No apto para asociarse. Revisar antes de entregar.";
+    return parts.length ? parts : ["No apto para asociarse. Revisar antes de entregar."];
+  }
+
+  function bulletsBlock(title, lines) {
+    if (!lines || !lines.length) return "";
+    const lis = lines.map((t) => "<li>" + t + "</li>").join("");
+    if (!title) return "<ul class=\"note-bullets\">" + lis + "</ul>";
+    return "<div class=\"note-block\"><b>" + title + "</b><ul class=\"note-bullets\">" + lis + "</ul></div>";
+  }
+
+  function fillNoteBox(el, lines) {
+    if (!el) return;
+    if (!lines || !lines.length) {
+      el.textContent = "";
+      return;
+    }
+    if (lines.length === 1) {
+      el.textContent = lines[0];
+      return;
+    }
+    el.innerHTML = bulletsBlock("", lines);
   }
 
 function flagText(code, data) {
@@ -1119,15 +1147,12 @@ function flagText(code, data) {
       if (has["EC-INC-KNOW"]) { delete has["EC-OVER"]; delete has["EC-INFO-OVER"]; }
       return Object.keys(has).filter((f) => SHADOW_FLAG[f]).map((f) => SHADOW_FLAG[f]);
     };
-    const block = (title, lines) => lines.length
-      ? "<div style=\"margin-top:8px\"><b>" + title + "</b> " + lines.join(" ") + "</div>"
-      : "";
     const pairLines = [nombreA + " daría " + dar(sh.A) + " y " + nombreB + " daría " + dar(sh.B) + " de participación en la empresa a quien aporta trabajo y conocimiento."]
       .concat(pairFlags.map((f) => SHADOW_FLAG[f]));
     box.innerHTML =
-      block("Los dos.", pairLines) +
-      block(nombreA + ".", linesOf(sh.A)) +
-      block(nombreB + ".", linesOf(sh.B));
+      bulletsBlock("Los dos.", pairLines) +
+      bulletsBlock(nombreA + ".", linesOf(sh.A)) +
+      bulletsBlock(nombreB + ".", linesOf(sh.B));
   }
 
   function render(data) {
@@ -1161,13 +1186,13 @@ function flagText(code, data) {
     const capaBox = $("capaBox");
     if (capaBox) {
       const bits = [];
-      if (attFail || hardSeal) bits.push(sealText(rawFlags, data));
+      if (attFail || hardSeal) Array.prototype.push.apply(bits, sealParts(rawFlags, data));
       else {
         const combo = comboTextVer3(I, Cc) || pair.combo_text;
         if (combo) bits.push(combo);
       }
       capaBox.hidden = bits.length === 0;
-      capaBox.textContent = bits.join(" ");
+      fillNoteBox(capaBox, bits);
       if (attFail || hardSeal) capaBox.style.background = "#fef2f2";
       else capaBox.style.background = "";
     }
