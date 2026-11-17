@@ -938,6 +938,34 @@ const SOFT_FLAG = {
     el.innerHTML = bulletsBlock("", lines);
   }
 
+  /** Separa hallazgo / acción (u otros avisos) dentro de una misma señal. */
+  function splitSignalLines(text) {
+    const t = String(text || "").trim();
+    if (!t) return [];
+    let parts = t.split(/(?<=\.)\s+(?=[A-ZÁÉÍÓÚÑÜ¿«"])/);
+    if (parts.length === 1) {
+      const m = t.match(/^(.+?);\s+((?:conviene|acordar|antes|definir|comprobar|no asociarse|ask|agree|write|before|consider|put|check|do not).+)$/i);
+      if (m) {
+        let a = m[1].trim();
+        let b = m[2].trim();
+        if (!/[.!?…]$/.test(a)) a += ".";
+        b = b.charAt(0).toUpperCase() + b.slice(1);
+        parts = [a, b];
+      }
+    }
+    return parts.map((s) => s.trim()).filter(Boolean);
+  }
+
+  function signalHtml(title, text) {
+    const lines = splitSignalLines(text);
+    if (lines.length <= 1) {
+      return "<strong>" + title + ".</strong> " + (lines[0] || text || "");
+    }
+    return "<strong>" + title + ".</strong><ul class=\"note-bullets\">" +
+      lines.map((l) => "<li>" + l + "</li>").join("") +
+      "</ul>";
+  }
+
 function flagText(code, data) {
     const c = FLAG_COPY[code] || COMP_COPY[code];
     if (!c && !SOFT_FLAG[code]) return { level: "warn", title: code, text: "Revisar esta bandera con el revisor." };
@@ -1249,7 +1277,7 @@ function flagText(code, data) {
         const c = flagText(f, data);
         const el = document.createElement("div");
         el.className = "signal " + (c.level === "bad" ? "bad" : c.level === "warn" ? "warn" : "") + (f === "ATT-FAIL" ? " att-fail" : "");
-        el.innerHTML = "<strong>" + c.title + ".</strong> " + c.text;
+        el.innerHTML = signalHtml(c.title, c.text);
         sig.appendChild(el);
       });
     }
